@@ -37,7 +37,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		/* ensure no concurrent write access to index */
-		IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ false /*create if none*/);
+		IIndex index = manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -49,7 +49,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 			for (int i = 0, max = results == null ? 0 : results.length; i < max; i++) {
 				String documentPath = results[i].getPath();
 				if (this.exclusionPatterns == null || !Util.isExcluded(new Path(documentPath), this.exclusionPatterns)) {
-					manager.remove(documentPath, this.indexPath); // write lock will be acquired by the remove operation
+					manager.remove(documentPath, this.containerPath); // write lock will be acquired by the remove operation
 				}
 			}
 		} catch (IOException e) {
@@ -64,6 +64,6 @@ class RemoveFolderFromIndex extends IndexRequest {
 		return true;
 	}
 	public String toString() {
-		return "removing " + this.folderPath + " from index " + this.indexPath; //$NON-NLS-1$ //$NON-NLS-2$
+		return "removing " + this.folderPath + " from index " + this.containerPath; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -12,13 +12,16 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.util.Locale;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -37,61 +40,44 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  */
 public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 	
-	public static final String[] FILE_TYPES= new String[] {EXTENSION_java};
 	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
-	IFile resourceFile;
 	
-SourceIndexer(IFile resourceFile)	{
-	this.resourceFile = resourceFile;
-}
-
-/**
- * Returns the file types the <code>IIndexer</code> handles.
- */
-
-public String[] getFileTypes(){
-	return FILE_TYPES;
-}
-protected void indexFile(IDocument document) /* throws IOException */ {
-
-	// Add the name of the file to the index
-	output.addDocument(document);
-
-	// Create a new Parser
-	SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
-	SourceElementParser parser = new SourceElementParser(
-		requestor, 
-		problemFactory, 
-		new CompilerOptions(JavaCore.create(this.resourceFile.getProject()).getOptions(true)), 
-		true); // index local declarations
-
-	// Always check javadoc while indexing
-	parser.javadocParser.checkJavadoc = true;
-	
-	// Launch the parser
-	char[] source = null;
-	char[] name = null;
-	try {
-		source = document.getCharContent();
-		name = document.getName().toCharArray();
-	} catch(Exception e){
-		// ignore
+	public SourceIndexer(SearchDocument document, String indexPath)	{
+		super(document, indexPath);
 	}
-	if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
-	CompilationUnit compilationUnit = new CompilationUnit(source, name);
-	try {
-		parser.parseCompilationUnit(compilationUnit, true/*full parse*/);
-	} catch (Exception e) {
-		if (JobManager.VERBOSE) {
-			e.printStackTrace();
+	
+	public void indexDocument() {
+		// Create a new Parser
+		SourceIndexerRequestor requestor = new SourceIndexerRequestor(this);
+		String documentPath = this.document.getPath();
+		IPath path = new Path(documentPath);
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+		SourceElementParser parser = new SourceElementParser(
+			requestor, 
+			this.problemFactory, 
+			new CompilerOptions(JavaCore.create(project).getOptions(true)), 
+			true); // index local declarations
+	
+		// Always check javadoc while indexing
+		parser.javadocParser.checkJavadoc = true;
+		
+		// Launch the parser
+		char[] source = null;
+		char[] name = null;
+		try {
+			source = document.getCharContents();
+			name = documentPath.toCharArray();
+		} catch(Exception e){
+			// ignore
+		}
+		if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
+		CompilationUnit compilationUnit = new CompilationUnit(source, name);
+		try {
+			parser.parseCompilationUnit(compilationUnit, true/*full parse*/);
+		} catch (Exception e) {
+			if (JobManager.VERBOSE) {
+				e.printStackTrace();
+			}
 		}
 	}
-}
-/**
- * Sets the document types the <code>IIndexer</code> handles.
- */
-
-public void setFileTypes(String[] fileTypes){
-	// implements interface method
-}
 }

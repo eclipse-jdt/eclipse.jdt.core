@@ -14,36 +14,28 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 
 /**
  * Query the index multiple times and do an 'and' on the results.
  */
-public abstract class AndPattern extends SearchPattern {
-public AndPattern(int kind, int matchMode, boolean isCaseSensitive) {
-	super(kind, matchMode, isCaseSensitive);
+public abstract class AndPattern extends SearchPattern { // TODO should rename IntersectingPattern, and make AndPattern a true subclass
+	
+public AndPattern(int patternKind, int matchRule) {
+	super(patternKind, matchRule);
 }
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	for (int i = 0, max = references.length; i < max; i++) {
-		int reference = references[i];
-		if (reference != -1) { // if the reference has not been eliminated
-			IndexedFile file = input.getIndexedFile(reference);
-			if (file != null) {
-				String path = IndexedFile.convertPath(file.getPath());
-				if (scope.encloses(path))
-					acceptPath(requestor, path);
-			}
-		}
-	}
-}
+
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor, char[] queryKey, char[] category) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	
@@ -51,8 +43,11 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	long[] possibleRefs = null;
 	int maxRefs = -1;
 	this.resetQuery();
+	SearchPattern indexRecord = null;
 	do {
-		IEntryResult[] entries = input.queryEntriesPrefixedBy(indexEntryPrefix());
+		queryKey = encodeIndexKey();
+		char[] pattern = CharOperation.concat(category, queryKey);
+		IEntryResult[] entries = input.queryEntries(pattern, SearchPattern.R_PREFIX_MATCH);
 		if (entries == null) break;
 
 		int numFiles = input.getNumFiles();
@@ -63,8 +58,11 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 
 			/* retrieve and decode entry */	
 			IEntryResult entry = entries[i];
-			decodeIndexEntry(entry);
-			if (matchIndexEntry()) {
+			char[] word = entry.getWord();
+			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
+			indexRecord = getIndexRecord();
+			indexRecord.decodeIndexKey(indexKey);
+			if (isMatchingIndexRecord()) {
 				/* accumulate references in an array of bits : 1 if the reference is present, 0 otherwise */
 				int[] fileReferences = entry.getFileReferences();
 				for (int j = 0, refLength = fileReferences.length; j < refLength; j++) {
@@ -111,7 +109,19 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 				refs[refsLength++] = reference;
 		}
 		System.arraycopy(refs, 0, refs = new int[refsLength], 0, refsLength);
-		this.feedIndexRequestor(requestor, refs, input, scope);
+		for (int i = 0; i < refsLength; i++) { // TODO (jerome) merge with previous loop
+			int reference = refs[i];
+			if (reference != -1) { // if the reference has not been eliminated
+				IndexedFile file = input.getIndexedFile(reference);
+				if (file != null) {
+					String documentPath = IndexedFile.convertPath(file.getPath());
+					if (scope.encloses(documentPath)) {
+						if (!requestor.acceptIndexMatch(documentPath, indexRecord, participant)) 
+							throw new OperationCanceledException();
+					}
+				}
+			}
+		}
 	}
 }
 /**

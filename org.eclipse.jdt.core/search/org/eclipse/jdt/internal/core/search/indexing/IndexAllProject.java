@@ -55,7 +55,7 @@ public class IndexAllProject extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!project.isAccessible()) return true; // nothing to do
 
-		IIndex index = this.manager.getIndexForUpdate(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
+		IIndex index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -173,28 +173,28 @@ public class IndexAllProject extends IndexRequest {
 					Object value = values[i];
 					if (value != OK) {
 						if (value == DELETED)
-							this.manager.remove(name, this.indexPath);
+							this.manager.remove(name, this.containerPath);
 						else
-							this.manager.addSource((IFile) value, this.indexPath);
+							this.manager.addSource((IFile) value, this.containerPath);
 					}
 				}
 			}
 
 			// request to save index when all cus have been indexed... also sets state to SAVED_STATE
-			this.manager.request(new SaveIndex(this.indexPath, this.manager));
+			this.manager.request(new SaveIndex(this.containerPath, this.manager));
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(this.indexPath);
+			this.manager.removeIndex(this.containerPath);
 			return false;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(this.indexPath);
+			this.manager.removeIndex(this.containerPath);
 			return false;
 		} finally {
 			monitor.exitRead(); // free read lock

@@ -20,21 +20,26 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
+import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.*;
 
 public class SuperTypeReferencePattern extends SearchPattern {
 
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new SuperTypeReferencePattern(null, null, false, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+};
+
 public char[] superQualification;
 public char[] superSimpleName;
+public char superClassOrInterface;
 
-protected char[] decodedSuperQualification;
-protected char[] decodedSuperSimpleName;
-protected char decodedSuperClassOrInterface;
-protected char[] decodedQualification;
-protected char[] decodedSimpleName;
-protected char[] decodedEnclosingTypeName;
-protected char decodedClassOrInterface;
-protected int decodedModifiers;
+public char[] pkgName;
+public char[] simpleName;
+public char[] enclosingTypeName;
+public char classOrInterface;
+public int modifiers;
 
 protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
 
@@ -45,7 +50,7 @@ public HashMap entryResults;
 
 private static final IEntryResult[] NO_ENTRY_RESULT = new IEntryResult[0];
 
-public static char[] createReference(
+public static char[] createIndexKey(
 	int modifiers,
 	char[] packageName,
 	char[] typeName,
@@ -54,138 +59,149 @@ public static char[] createReference(
 	char[] superTypeName,
 	char superClassOrInterface) {
 
+	SuperTypeReferencePattern record = getSuperTypeReferenceRecord();
+	record.modifiers = modifiers;
+	record.pkgName = packageName;
+	record.classOrInterface = classOrInterface;
+	record.superClassOrInterface = superClassOrInterface;
 	if (superTypeName == null)
 		superTypeName = OBJECT;
-	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
-	char[] typeSimpleName = CharOperation.lastSegment(typeName, '.');
-	char[] superTypeSimpleName = CharOperation.lastSegment(superTypeName, '.');
-	char[] superQualification = null;
-	if (superTypeSimpleName != superTypeName) {
-		int length = superTypeName.length - superTypeSimpleName.length - 1;
-		superQualification = new char[length];
-		System.arraycopy(superTypeName, 0, superQualification, 0, length);
+	record.enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
+	record.simpleName = CharOperation.lastSegment(typeName, '.');
+	record.superSimpleName = CharOperation.lastSegment(superTypeName, '.');
+	record.superQualification = null;
+	if (record.superSimpleName != superTypeName) {
+		int length = superTypeName.length - record.superSimpleName.length - 1;
+		record.superQualification = new char[length];
+		System.arraycopy(superTypeName, 0, record.superQualification, 0, length);
 	}
 
 	// if the supertype name contains a $, then split it into: source name and append the $ prefix to the qualification
 	//	e.g. p.A$B ---> p.A$ + B
-	char[] superTypeSourceName = CharOperation.lastSegment(superTypeSimpleName, '$');
-	if (superTypeSourceName != superTypeSimpleName) {
-		int start = superQualification == null ? 0 : superQualification.length + 1;
-		int prefixLength = superTypeSimpleName.length - superTypeSourceName.length;
+	char[] superTypeSourceName = CharOperation.lastSegment(record.superSimpleName, '$');
+	if (superTypeSourceName != record.superSimpleName) {
+		int start = record.superQualification == null ? 0 : record.superQualification.length + 1;
+		int prefixLength = record.superSimpleName.length - superTypeSourceName.length;
 		char[] mangledQualification = new char[start + prefixLength];
-		if (superQualification != null) {
-			System.arraycopy(superQualification, 0, mangledQualification, 0, start-1);
+		if (record.superQualification != null) {
+			System.arraycopy(record.superQualification, 0, mangledQualification, 0, start-1);
 			mangledQualification[start-1] = '.';
 		}
-		System.arraycopy(superTypeSimpleName, 0, mangledQualification, start, prefixLength);
-		superQualification = mangledQualification;
-		superTypeSimpleName = superTypeSourceName;
+		System.arraycopy(record.superSimpleName, 0, mangledQualification, start, prefixLength);
+		record.superQualification = mangledQualification;
+		record.superSimpleName = superTypeSourceName;
 	} 
-
-	int superTypeSimpleNameLength = superTypeSimpleName == null ? 0 : superTypeSimpleName.length;
-	int superQualificationLength = superQualification == null ? 0 : superQualification.length;
-	int typeSimpleNameLength = typeSimpleName == null ? 0 : typeSimpleName.length;
-	int enclosingTypeNameLength = enclosingTypeName == null ? 0 : enclosingTypeName.length;
-	int packageNameLength = packageName == null ? 0 : packageName.length;
-	int pos = SUPER_REF.length;
-
-	// SUPER_REF superTypeSimpleName / superQualification / superClassOrInterface /  typeSimpleName / enclosingTypeName / packageName / classOrInterface modifiers
-	char[] result = new char[pos + superTypeSimpleNameLength + superQualificationLength + typeSimpleNameLength
-		+ enclosingTypeNameLength + packageNameLength + 9];
-	System.arraycopy(SUPER_REF, 0, result, 0, pos);
-	if (superTypeSimpleNameLength > 0) {
-		System.arraycopy(superTypeSimpleName, 0, result, pos, superTypeSimpleNameLength);
-		pos += superTypeSimpleNameLength;
-	}
-	result[pos++] = SEPARATOR;
-	if (superQualificationLength > 0) {
-		System.arraycopy(superQualification, 0, result, pos, superQualificationLength);
-		pos += superQualificationLength;
-	}
-	result[pos++] = SEPARATOR;
-	result[pos++] = superClassOrInterface;
-	result[pos++] = SEPARATOR;
-	if (typeSimpleNameLength > 0) {
-		System.arraycopy(typeSimpleName, 0, result, pos, typeSimpleNameLength);
-		pos += typeSimpleNameLength;
-	}
-	result[pos++] = SEPARATOR;
-	if (enclosingTypeNameLength > 0) {
-		System.arraycopy(enclosingTypeName, 0, result, pos, enclosingTypeNameLength);
-		pos += enclosingTypeNameLength;
-	}
-	result[pos++] = SEPARATOR;
-	if (packageNameLength > 0) {
-		System.arraycopy(packageName, 0, result, pos, packageNameLength);
-		pos += packageNameLength;
-	}
-	result[pos++] = SEPARATOR;
-	result[pos++] = classOrInterface;
-	result[pos] = (char) modifiers;
-	return result;
+	
+	return record.encodeIndexKey();
 }
-
-
-public SuperTypeReferencePattern(char[] superQualification, char[] superSimpleName, int matchMode, boolean isCaseSensitive) {
-	this(superQualification, superSimpleName, matchMode, isCaseSensitive, false);
+public static SuperTypeReferencePattern getSuperTypeReferenceRecord() {
+	return (SuperTypeReferencePattern)indexRecord.get();
+}
+public SuperTypeReferencePattern(char[] superQualification, char[] superSimpleName, int matchRule) {
+	this(superQualification, superSimpleName, false, matchRule);
 }
 public SuperTypeReferencePattern(
 	char[] superQualification,
 	char[] superSimpleName,
-	int matchMode,
-	boolean isCaseSensitive,
-	boolean checkOnlySuperinterfaces) {
+	boolean checkOnlySuperinterfaces,
+	int matchRule) {
 
-	super(SUPER_REF_PATTERN, matchMode, isCaseSensitive);
+	super(SUPER_REF_PATTERN, matchRule);
 
+	boolean isCaseSensitive = isCaseSensitive();
 	this.superQualification = isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
 	this.superSimpleName = isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	this.mustResolve = superQualification != null;
 	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
 }
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	requestor.acceptSuperTypeReference(path, decodedQualification, decodedSimpleName, decodedEnclosingTypeName, decodedClassOrInterface, decodedSuperQualification, decodedSuperSimpleName, decodedSuperClassOrInterface, decodedModifiers);
-}
 /*
- * "superRef/Object/java.lang/X/p" represents "class p.X extends java.lang.Object"
- * "superRef/Exception//X/p" represents "class p.X extends Exception"
+ * superSimpleName / superQualification / superClassOrInterface /  simpleName / enclosingTypeName / pkgName / classOrInterface modifiers
  */
-protected void decodeIndexEntry(IEntryResult entryResult){
-	char[] word = entryResult.getWord();
-	int slash = SUPER_REF.length - 1;
-	this.decodedSuperSimpleName = CharOperation.subarray(word, slash + 1, slash = CharOperation.indexOf(SEPARATOR, word, slash + 1));
+public void decodeIndexKey(char[] key) {
+	int slash = -1;
+	this.superSimpleName = CharOperation.subarray(key, slash + 1, slash = CharOperation.indexOf(SEPARATOR, key, slash + 1));
 	int oldSlash = slash;
-	slash = CharOperation.indexOf(SEPARATOR, word, slash + 1);
-	this.decodedSuperQualification = (slash == oldSlash + 1)
+	slash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
+	this.superQualification = (slash == oldSlash + 1)
 		? null // could not have been known at index time
-		: CharOperation.subarray(word, oldSlash + 1, slash);
-	this.decodedSuperClassOrInterface = word[slash + 1];
+		: CharOperation.subarray(key, oldSlash + 1, slash);
+	this.superClassOrInterface = key[slash + 1];
 	slash += 2;
-	this.decodedSimpleName = CharOperation.subarray(word, slash + 1, slash = CharOperation.indexOf(SEPARATOR, word, slash + 1));
+	this.simpleName = CharOperation.subarray(key, slash + 1, slash = CharOperation.indexOf(SEPARATOR, key, slash + 1));
 	oldSlash = slash;
-	slash = CharOperation.indexOf(SEPARATOR, word, slash + 1);
+	slash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
 	if (slash == oldSlash + 1) { // could not have been known at index time
-		this.decodedEnclosingTypeName = null;
+		this.enclosingTypeName = null;
 	} else {
-		this.decodedEnclosingTypeName = (slash == oldSlash + 2 && word[oldSlash + 1] == ONE_ZERO[0])
+		this.enclosingTypeName = (slash == oldSlash + 2 && key[oldSlash + 1] == ONE_ZERO[0])
 			? ONE_ZERO
-			: CharOperation.subarray(word, oldSlash + 1, slash);
+			: CharOperation.subarray(key, oldSlash + 1, slash);
 	}
 	oldSlash = slash;
-	slash = CharOperation.indexOf(SEPARATOR, word, slash + 1);
-	this.decodedQualification = (slash == oldSlash + 1)
+	slash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
+	this.pkgName = (slash == oldSlash + 1)
 		? null // could not have been known at index time
-		: CharOperation.subarray(word, oldSlash + 1, slash);
-	this.decodedClassOrInterface = word[slash + 1];
-	this.decodedModifiers = word[slash + 2]; // implicit cast to int type
+		: CharOperation.subarray(key, oldSlash + 1, slash);
+	this.classOrInterface = key[slash + 1];
+	this.modifiers = key[slash + 2]; // implicit cast to int type
+}
+/*
+ * superSimpleName / superQualification / superClassOrInterface /  simpleName / enclosingTypeName / pkgName / classOrInterface modifiers
+ */
+public char[] encodeIndexKey() {
+	int superSimpleNameLength = this.superSimpleName == null ? 0 : this.superSimpleName.length;
+	int superQualificationLength = this.superQualification == null ? 0 : this.superQualification.length;
+	int simpleNameLength = this.simpleName == null ? 0 : this.simpleName.length;
+	int enclosingTypeNameLength = this.enclosingTypeName == null ? 0 : this.enclosingTypeName.length;
+	int pkgNameLength = this.pkgName == null ? 0 : this.pkgName.length;
+
+	int length = superSimpleNameLength + superQualificationLength + simpleNameLength
+		+ enclosingTypeNameLength + pkgNameLength + 9;
+	char[] result = new char[length];
+	int pos = 0;
+	if (superSimpleNameLength > 0) {
+		System.arraycopy(this.superSimpleName, 0, result, pos, superSimpleNameLength);
+		pos += superSimpleNameLength;
+	}
+	result[pos++] = SEPARATOR;
+	if (this.superClassOrInterface != 0) { // 0 when querying index
+		if (superQualificationLength > 0) {
+			System.arraycopy(this.superQualification, 0, result, pos, superQualificationLength);
+			pos += superQualificationLength;
+		}
+		result[pos++] = SEPARATOR;
+		result[pos++] = this.superClassOrInterface;
+		result[pos++] = SEPARATOR;
+		if (simpleNameLength > 0) {
+			System.arraycopy(this.simpleName, 0, result, pos, simpleNameLength);
+			pos += simpleNameLength;
+		}
+		result[pos++] = SEPARATOR;
+		if (enclosingTypeNameLength > 0) {
+			System.arraycopy(this.enclosingTypeName, 0, result, pos, enclosingTypeNameLength);
+			pos += enclosingTypeNameLength;
+		}
+		result[pos++] = SEPARATOR;
+		if (pkgNameLength > 0) {
+			System.arraycopy(this.pkgName, 0, result, pos, pkgNameLength);
+			pos += pkgNameLength;
+		}
+		result[pos++] = SEPARATOR;
+		result[pos++] = this.classOrInterface;
+		result[pos++] = (char) this.modifiers;
+	}
+	if (pos != length) {
+		System.arraycopy(result, 0, result = new char[pos], 0, pos);
+	}
+	return result;
 }
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	if (this.entryResults == null) {
 		// non-optimized case
-		super.findIndexMatches(input, requestor, progressMonitor, scope);	
+		super.findIndexMatches(input, requestor, participant, scope, progressMonitor);	
 		return;
 	}
 
@@ -203,8 +219,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 
 	/* only select entries which actually match the entire search pattern */
 	int slash = SUPER_REF.length;
-	char[] simpleName = this.superSimpleName;
-	int length = simpleName == null ? 0 : simpleName.length;
+	int length = this.superSimpleName == null ? 0 : this.superSimpleName.length;
 	nextEntry: for (int i = 0, max = entries.length; i < max; i++) {
 		/* check that the entry is a super ref to the super simple name */
 		IEntryResult entry = entries[i];
@@ -217,38 +232,38 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 			
 			// compare ref to simple name
 			for (int j = 0; j < length; j++)
-				if (word[j + slash] != simpleName[j]) continue nextEntry;
+				if (word[j + slash] != this.superSimpleName[j]) continue nextEntry;
 		}
 
 		/* retrieve and decode entry */	
-		decodeIndexEntry(entry);
-		feedIndexRequestor(requestor, entry.getFileReferences(), input, scope);
+		char[] word = entry.getWord();
+		char[] indexKey = CharOperation.subarray(word, SUPER_REF.length, word.length);
+		SearchPattern record = getIndexRecord();
+		record.decodeIndexKey(indexKey);
+		if (isMatchingIndexRecord()) {
+			int[] references = entry.getFileReferences();
+			for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
+				String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
+				if (scope.encloses(documentPath)) {
+					if (!requestor.acceptIndexMatch(documentPath, record, participant)) 
+						throw new OperationCanceledException();
+				}
+			}
+			}
 	}
 }
-/**
- * Package reference entries are encoded as 'superRef/typeName'
- */
-protected char[] indexEntryPrefix() {
-	return indexEntryPrefix(SUPER_REF, this.superSimpleName);
+public SearchPattern getIndexRecord() {
+	return getSuperTypeReferenceRecord();
 }
-/**
- * @see SearchPattern#matchIndexEntry
- */
-protected boolean matchIndexEntry() {
+public char[][] getMatchCategories() {
+	return new char[][] {SUPER_REF};
+}
+public boolean isMatchingIndexRecord() {
+	SuperTypeReferencePattern record = getSuperTypeReferenceRecord();
 	if (this.checkOnlySuperinterfaces)
-		if (this.decodedSuperClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
+		if (record.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
 
-	if (this.superSimpleName != null) {
-		switch(matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(this.superSimpleName, this.decodedSuperSimpleName, this.isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(this.superSimpleName, this.decodedSuperSimpleName, this.isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(this.superSimpleName, this.decodedSuperSimpleName, this.isCaseSensitive);
-		}
-	}
-	return true;
+	return matchesName(this.superSimpleName, record.superSimpleName);
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
@@ -261,7 +276,7 @@ public String toString(){
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode){
+	switch(matchMode()){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -272,7 +287,7 @@ public String toString(){
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

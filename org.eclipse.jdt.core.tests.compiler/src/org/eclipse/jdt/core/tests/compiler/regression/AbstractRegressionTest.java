@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
 import org.eclipse.jdt.core.tests.util.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -31,6 +34,8 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
+import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
@@ -41,6 +46,52 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected boolean createdVerifier;
 	public AbstractRegressionTest(String name) {
 		super(name);
+	}
+	
+	/*
+	 * Returns the references in the given .class file.
+	 */
+	protected String findReferences(String classFilePath) {
+		// check that "new Z().init()" is bound to "AbstractB.init()"
+		final StringBuffer references = new StringBuffer(10);
+		final SearchParticipant participant = new JavaSearchParticipant(null) {
+			final SearchParticipant searchParticipant = this;
+			public SearchDocument getDocument(final String documentPath) {
+				return new SearchDocument() {
+					public byte[] getByteContents() {
+						try {
+							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(documentPath));
+						} catch (IOException e) {
+							e.printStackTrace();
+							return null;
+						}
+					}
+					public char[] getCharContents() {
+						return null;
+					}
+					public String getEncoding() {
+						return null;
+					}
+					public SearchParticipant getParticipant() {
+						return searchParticipant;
+					}
+					public String getPath() {
+						return documentPath;
+					}
+				};
+			}
+		};
+		SearchDocument document = participant.getDocument(new File(classFilePath).getPath());
+		BinaryIndexer indexer = new BinaryIndexer(document, null) {
+			protected void addIndexEntry(char[] category, char[] key) {
+				references.append(category);
+				references.append(key);
+				references.append('\n');
+			}
+		};
+		indexer.indexDocument();
+		String computedReferences = references.toString();
+		return computedReferences;
 	}
 	protected CompilationUnit[] compilationUnits(String[] testFiles) {
 		int length = testFiles.length / 2;

@@ -284,6 +284,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
+		suite.addTest(new JavaSearchTests("testSimplePackageReference"));
 		return suite;
 	}
 	

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.core.index.IDocument;
 
 /**
  * An <code>JarFileEntryDocument</code> represents an jar file.
+ * TODO (jerome) remove and replace with SearchDocument
  */
 
 public class JarFileEntryDocument implements IDocument, SuffixConstants {

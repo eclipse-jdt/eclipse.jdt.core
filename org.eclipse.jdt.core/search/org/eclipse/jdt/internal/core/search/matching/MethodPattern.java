@@ -10,112 +10,90 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.core.search.*;
 
 public class MethodPattern extends SearchPattern {
+
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new MethodPattern(false, false, null, null, null, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+};
 
 protected boolean findDeclarations;
 protected boolean findReferences;
 
-protected char[] selector;
+public char[] selector;
 
-protected char[] declaringQualification;
-protected char[] declaringSimpleName;
+public char[] declaringQualification;
+public char[] declaringSimpleName;
 
-protected char[] returnQualification;
-protected char[] returnSimpleName;
+public char[] returnQualification;
+public char[] returnSimpleName;
 
-protected char[][] parameterQualifications;
-protected char[][] parameterSimpleNames;
-
-protected char[] decodedSelector;
-protected int decodedParameterCount;
+public char[][] parameterQualifications;
+public char[][] parameterSimpleNames;
+public int parameterCount;
 
 // extra reference info
 protected IType declaringType;
 
-protected char[] currentTag;
-
-public static char[] createDeclaration(char[] selector, int argCount) {
-	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
-	return CharOperation.concat(METHOD_DECL, selector, countChars);
+public static char[] createIndexKey(char[] selector, int argCount) {
+	MethodPattern record = getMethodRecord();
+	record.selector = selector;
+	record.parameterCount = argCount;
+	return record.encodeIndexKey();
 }
-public static char[] createReference(char[] selector, int argCount) {
-	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
-	return CharOperation.concat(METHOD_REF, selector, countChars);
+public static MethodPattern getMethodRecord() {
+	return (MethodPattern)indexRecord.get();
 }
-
-
 public MethodPattern(
 	boolean findDeclarations,
 	boolean findReferences,
 	char[] selector, 
-	int matchMode, 
-	boolean isCaseSensitive,
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
 	char[] returnQualification, 
 	char[] returnSimpleName,
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
-	IType declaringType) {
+	IType declaringType,
+	int matchRule) {
 
-	super(METHOD_PATTERN, matchMode, isCaseSensitive);
+	super(METHOD_PATTERN, matchRule);
 
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
+	boolean isCaseSensitive = isCaseSensitive();
 	this.selector = isCaseSensitive ? selector : CharOperation.toLowerCase(selector);
 	this.declaringQualification = isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.returnQualification = isCaseSensitive ? returnQualification : CharOperation.toLowerCase(returnQualification);
 	this.returnSimpleName = isCaseSensitive ? returnSimpleName : CharOperation.toLowerCase(returnSimpleName);
 	if (parameterSimpleNames != null) {
-		this.parameterQualifications = new char[parameterSimpleNames.length][];
-		this.parameterSimpleNames = new char[parameterSimpleNames.length][];
-		for (int i = 0, max = parameterSimpleNames.length; i < max; i++) {
+		this.parameterCount = parameterSimpleNames.length;
+		this.parameterQualifications = new char[this.parameterCount][];
+		this.parameterSimpleNames = new char[this.parameterCount][];
+		for (int i = 0; i < this.parameterCount; i++) {
 			this.parameterQualifications[i] = isCaseSensitive ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
 			this.parameterSimpleNames[i] = isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
 		}
+	} else {
+		this.parameterCount = -1;
 	}
 
 	this.declaringType = declaringType;
 	this.mustResolve = mustResolve();
 }
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	if (this.currentTag ==  METHOD_REF)
-		requestor.acceptMethodReference(path, this.decodedSelector, this.decodedParameterCount);
-	else
-		requestor.acceptMethodDeclaration(path, this.decodedSelector, this.decodedParameterCount);
-}
-protected void decodeIndexEntry(IEntryResult entryResult){
-	char[] word = entryResult.getWord();
-	int size = word.length;
-	int lastSeparatorIndex = CharOperation.lastIndexOf(SEPARATOR, word);	
+public void decodeIndexKey(char[] key) {
+	int size = key.length;
+	int lastSeparatorIndex = CharOperation.lastIndexOf(SEPARATOR, key);	
 
-	this.decodedParameterCount = Integer.parseInt(new String(word, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
-	this.decodedSelector = CharOperation.subarray(word, this.currentTag.length, lastSeparatorIndex);
-}
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
-	// in the new story this will be a single call with a mask
-	if (this.findReferences) {
-		this.currentTag = METHOD_REF;
-		super.findIndexMatches(input, requestor, progressMonitor, scope);
-	}
-	if (this.findDeclarations) {
-		this.currentTag = METHOD_DECL;
-		super.findIndexMatches(input, requestor, progressMonitor, scope);
-	}
+	this.parameterCount = Integer.parseInt(new String(key, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
+	this.selector = CharOperation.subarray(key, 0, lastSeparatorIndex);
 }
 /**
  * Method declaration entries are encoded as 'methodDecl/' selector '/' Arity
@@ -124,55 +102,56 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
  * Method reference entries are encoded as 'methodRef/' selector '/' Arity
  * e.g. 'methodRef/X/0'
  */
-protected char[] indexEntryPrefix() {
+public char[] encodeIndexKey() {
 	// will have a common pattern in the new story
-	if (this.isCaseSensitive && this.selector != null) {
-		switch(this.matchMode) {
+	if (isCaseSensitive() && this.selector != null) {
+		switch(matchMode()) {
 			case EXACT_MATCH :
-				int arity = parameterSimpleNames == null ? -1 : parameterSimpleNames.length;
+				int arity = this.parameterCount;
 				if (arity >= 0) {
 					char[] countChars = arity < 10 ? COUNTS[arity] : ("/" + String.valueOf(arity)).toCharArray(); //$NON-NLS-1$
-					return CharOperation.concat(this.currentTag, this.selector, countChars);
+					return CharOperation.concat(this.selector, countChars);
 				}
 			case PREFIX_MATCH :
-				return CharOperation.concat(this.currentTag, this.selector);
+				return this.selector;
 			case PATTERN_MATCH :
 				int starPos = CharOperation.indexOf('*', this.selector);
 				switch(starPos) {
 					case -1 :
-						return CharOperation.concat(this.currentTag, this.selector);
+						return this.selector;
 					default : 
-						int length = this.currentTag.length;
-						char[] result = new char[length + starPos];
-						System.arraycopy(this.currentTag, 0, result, 0, length);
-						System.arraycopy(this.selector, 0, result, length, starPos);
+						char[] result = new char[starPos];
+						System.arraycopy(this.selector, 0, result, 0, starPos);
 						return result;
 					case 0 : // fall through
 				}
 		}
 	}
-	return this.currentTag; // find them all
+	return CharOperation.NO_CHAR; // find them all
+}
+public SearchPattern getIndexRecord() {
+	return getMethodRecord();
+}
+public char[][] getMatchCategories() {
+	if (this.findReferences)
+		if (this.findDeclarations) 
+			return new char[][] {METHOD_REF, METHOD_DECL};
+		else
+			return new char[][] {METHOD_REF};
+	else
+		if (this.findDeclarations)
+			return new char[][] {METHOD_DECL};
+		else
+			return CharOperation.NO_CHAR_CHAR;
 }
 public boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
-/**
- * @see SearchPattern#matchIndexEntry
- */
-protected boolean matchIndexEntry() {
-	if (parameterSimpleNames != null && parameterSimpleNames.length != decodedParameterCount) return false;
+public boolean isMatchingIndexRecord() {
+	MethodPattern record = getMethodRecord();
+	if (this.parameterCount != -1 && this.parameterCount != record.parameterCount) return false;
 
-	if (selector != null) {
-		switch(matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(selector, decodedSelector, isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(selector, decodedSelector, isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(selector, decodedSelector, isCaseSensitive);
-		}
-	}
-	return true;
+	return matchesName(this.selector, record.selector);
 }
 /**
  * Returns whether a method declaration or message send must be resolved to 
@@ -235,7 +214,7 @@ public String toString() {
 	else if (returnQualification != null)
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
-	switch(matchMode) {
+	switch(matchMode()) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -246,7 +225,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.core.search.*;
 
 public class FieldPattern extends VariablePattern {
+
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+};
 
 // declaring type
 protected char[] declaringQualification;
@@ -29,35 +29,33 @@ protected char[] declaringSimpleName;
 protected char[] typeQualification;
 protected char[] typeSimpleName;
 
-protected char[] decodedName;
-protected char[] currentTag;
+protected static char[][] REF_CATEGORIES = { FIELD_REF, REF };
+protected static char[][] REF_AND_DECL_CATEGORIES = { FIELD_REF, REF, FIELD_DECL };
+protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
 
-protected static char[][] REF_TAGS = { FIELD_REF, REF };
-protected static char[][] REF_AND_DECL_TAGS = { FIELD_REF, REF, FIELD_DECL };
-protected static char[][] DECL_TAGS = { FIELD_DECL };
-
-public static char[] createDeclaration(char[] fieldName) {
-	return CharOperation.concat(FIELD_DECL, fieldName);
+public static char[] createIndexKey(char[] fieldName) {
+	FieldPattern record = getFieldRecord();
+	record.name = fieldName;
+	return record.encodeIndexKey();
 }
-public static char[] createReference(char[] fieldName) {
-	return CharOperation.concat(FIELD_REF, fieldName);
+public static FieldPattern getFieldRecord() {
+	return (FieldPattern)indexRecord.get();
 }
-
 
 public FieldPattern(
 	boolean findDeclarations,
 	boolean readAccess,
 	boolean writeAccess,
 	char[] name, 
-	int matchMode, 
-	boolean isCaseSensitive,
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
-	char[] typeSimpleName) {
+	char[] typeSimpleName,
+	int matchRule) {
 
-	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchMode, isCaseSensitive);
+	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchRule);
 
+	boolean isCaseSensitive = isCaseSensitive();
 	this.declaringQualification = isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.typeQualification = isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
@@ -65,52 +63,22 @@ public FieldPattern(
 
 	this.mustResolve = mustResolve();
 }
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	if (this.currentTag ==  FIELD_DECL && this.findDeclarations)
-		requestor.acceptFieldDeclaration(path, this.decodedName);
-	else
-		requestor.acceptFieldReference(path, this.decodedName);
+public void decodeIndexKey(char[] key) {
+	this.name = key;
 }
-protected void decodeIndexEntry(IEntryResult entryResult) {
-	this.decodedName = CharOperation.subarray(entryResult.getWord(), this.currentTag.length, -1);
+public char[] encodeIndexKey() {
+	return encodeIndexKey(this.name);
 }
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
-	// in the new story this will be a single call with a mask
-	char[][] possibleTags =
-		this.findReferences
-			? (this.findDeclarations || this.writeAccess ? REF_AND_DECL_TAGS : REF_TAGS)
-			: DECL_TAGS;
-	for (int i = 0, max = possibleTags.length; i < max; i++) {
-		this.currentTag = possibleTags[i];
-		super.findIndexMatches(input, requestor, progressMonitor, scope);
-	}
+public SearchPattern getIndexRecord() {
+	return getFieldRecord();
 }
-/**
- * Field declaration entries are encoded as 'fieldDecl/fieldName'
- *
- * Field reference entries are encoded as 'fieldRef/fieldName'
- */
-protected char[] indexEntryPrefix() {
-	// will have a common pattern in the new story
-	return indexEntryPrefix(this.currentTag, this.name);
+public char[][] getMatchCategories() {
+	return this.findReferences
+			? (this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES)
+			: DECL_CATEGORIES;
 }
-/**
- * @see SearchPattern#matchIndexEntry
- */
-protected boolean matchIndexEntry() {
-	if (this.name != null) {
-		switch(this.matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(this.name, this.decodedName, this.isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(this.name, this.decodedName, this.isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(this.name, this.decodedName, this.isCaseSensitive);
-		}
-	}
-	return true;
+public boolean isMatchingIndexRecord() {
+	return matchesName(this.name, getFieldRecord().name);
 }
 /**
  * Returns whether a method declaration or message send will need to be resolved to 
@@ -147,7 +115,7 @@ public String toString() {
 		buffer.append(typeSimpleName);
 	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
-	switch(matchMode){
+	switch(matchMode()){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -158,7 +126,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

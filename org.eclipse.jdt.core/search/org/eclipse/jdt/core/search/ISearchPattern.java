@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.search;
  *
  * @see SearchEngine#createSearchPattern(IJavaElement, int)
  * @see SearchEngine#createSearchPattern(String, int, int, boolean)
+ * TODO (jerome) deprecate this interface - should use SearchPattern instead
  */
 public interface ISearchPattern {
 	// used as a marker interface: contains no methods

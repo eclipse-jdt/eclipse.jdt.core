@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 class RemoveFromIndex extends IndexRequest {
 	String resourceName;
 
-	public RemoveFromIndex(String resourceName, IPath indexPath, IndexManager manager) {
-		super(indexPath, manager);
+	public RemoveFromIndex(String resourceName, IPath containerPath, IndexManager manager) {
+		super(containerPath, manager);
 		this.resourceName = resourceName;
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
@@ -29,7 +29,7 @@ class RemoveFromIndex extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		/* ensure no concurrent write access to index */
-		IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ false /*create if none*/);
+		IIndex index = manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -49,6 +49,6 @@ class RemoveFromIndex extends IndexRequest {
 		return true;
 	}
 	public String toString() {
-		return "removing " + this.resourceName + " from index " + this.indexPath; //$NON-NLS-1$ //$NON-NLS-2$
+		return "removing " + this.resourceName + " from index " + this.containerPath; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

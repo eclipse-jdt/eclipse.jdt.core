@@ -269,6 +269,13 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		return entries;
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.index.impl.IndexInput#queryEntries(char[], int)
+	 */
+	public IEntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException {
+		// TODO should evolve to provide different flavors of matching
+		return queryEntriesPrefixedBy(pattern);
+	}
 	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
 		open();
 		

@@ -49,6 +49,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
+ * @deprecated Use <code>ICompilationUnit</code>instead
  */
 public interface IWorkingCopy {
 	

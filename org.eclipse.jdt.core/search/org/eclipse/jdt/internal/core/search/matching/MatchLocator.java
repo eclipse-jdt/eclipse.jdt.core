@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
@@ -37,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
+import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -49,7 +49,7 @@ public static final int MAX_AT_ONCE = 500;
 public SearchPattern pattern;
 public PatternLocator patternLocator;
 public int matchContainer;
-public IJavaSearchResultCollector collector;
+public SearchRequestor requestor;
 public IJavaSearchScope scope;
 public IProgressMonitor progressMonitor;
 
@@ -165,15 +165,17 @@ public static ClassFileReader classFileReader(IType type) {
 
 public MatchLocator(
 	SearchPattern pattern,
-	IJavaSearchResultCollector collector,
+	SearchRequestor requestor,
 	IJavaSearchScope scope,
+	org.eclipse.jdt.core.ICompilationUnit[] workingCopies,
 	IProgressMonitor progressMonitor) {
 		
 	this.pattern = pattern;
 	this.patternLocator = PatternLocator.patternLocator(this.pattern);
 	this.matchContainer = this.patternLocator.matchContainer();
-	this.collector = collector;
+	this.requestor = requestor;
 	this.scope = scope;
+	this.workingCopies = workingCopies;
 	this.progressMonitor = progressMonitor;
 }
 /**
@@ -308,7 +310,7 @@ protected char[][][] computeSuperTypeNames(IType focusType) {
 			this.pattern, 
 			simpleName,
 			qualification,
-			new MatchLocator(this.pattern, this.collector, this.scope, this.progressMonitor), // clone MatchLocator so that it has no side effect
+			new MatchLocator(this.pattern, this.requestor, this.scope, this.workingCopies, this.progressMonitor), // clone MatchLocator so that it has no side effect
 			focusType, 
 			this.progressMonitor);
 	try {
@@ -660,18 +662,12 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet)
 /**
  * Locate the matches in the given files and report them using the search requestor. 
  */
-public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.jdt.core.ICompilationUnit[] copies) throws JavaModelException {
+public void locateMatches(SearchDocument[] searchDocuments) throws JavaModelException {
 	if (SearchEngine.VERBOSE) {
-		System.out.println("Locating matches in files ["); //$NON-NLS-1$
-		for (int i = 0, length = filePaths.length; i < length; i++)
-			System.out.println("\t" + filePaths[i]); //$NON-NLS-1$
+		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
+		for (int i = 0, length = searchDocuments.length; i < length; i++)
+			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
 		System.out.println("]"); //$NON-NLS-1$
-		if (copies != null) {
-			 System.out.println("and working copies ["); //$NON-NLS-1$
-			for (int i = 0, length = copies.length; i < length; i++)
-				System.out.println("\t" + ((JavaElement) copies[i]).toStringWithAncestors()); //$NON-NLS-1$
-			System.out.println("]"); //$NON-NLS-1$
-		}
 	}
 
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -683,27 +679,9 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 		if (this.handleFactory == null)
 			this.handleFactory = new HandleFactory();
 
-		// substitute compilation units with working copies
-		HashMap wcPaths = new HashMap(); // a map from path to working copies
-		if ((this.workingCopies = copies) != null) {
-			int wcLength = this.workingCopies.length;
-			if (wcLength > 0) {
-				String[] newPaths = new String[wcLength];
-				for (int i = 0; i < wcLength; i++) {
-					org.eclipse.jdt.core.ICompilationUnit workingCopy = this.workingCopies[i];
-					String path = workingCopy.getPath().toString();
-					wcPaths.put(path, workingCopy);
-					newPaths[i] = path;
-				}
-				int filePathsLength = filePaths.length;
-				System.arraycopy(filePaths, 0, filePaths = new String[filePathsLength + wcLength], 0, filePathsLength);
-				System.arraycopy(newPaths, 0, filePaths, filePathsLength, wcLength);
-			}
-		}
-
 		if (this.progressMonitor != null) {
 			// 1 for file path, 4 for parsing and binding creation, 5 for binding resolution? //$NON-NLS-1$
-			this.progressMonitor.beginTask("", filePaths.length * (this.pattern.mustResolve ? 10 : 5)); //$NON-NLS-1$
+			this.progressMonitor.beginTask("", searchDocuments.length * (this.pattern.mustResolve ? 10 : 5)); //$NON-NLS-1$
 		}
 
 		// initialize pattern for polymorphic search (ie. method reference pattern)
@@ -711,18 +689,24 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 
 		JavaProject previousJavaProject = null;
 		PossibleMatchSet matchSet = new PossibleMatchSet();
-		Util.sort(filePaths); 
-		for (int i = 0, l = filePaths.length; i < l; i++) {
+		Util.sort(searchDocuments, new Util.Comparer() {
+			public int compare(Object a, Object b) {
+				return ((SearchDocument)a).getPath().compareTo(((SearchDocument)b).getPath());
+			}
+		}); 
+		for (int i = 0, l = searchDocuments.length; i < l; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
 				throw new OperationCanceledException();
 
 			// skip duplicate paths
-			String pathString = filePaths[i];
-			if (i > 0 && pathString.equals(filePaths[i - 1])) continue;
+			SearchDocument searchDocument = searchDocuments[i];
+			String pathString = searchDocument.getPath();
+			if (i > 0 && pathString.equals(searchDocuments[i - 1].getPath())) continue;
 
 			Openable openable;
-			org.eclipse.jdt.core.ICompilationUnit workingCopy = (org.eclipse.jdt.core.ICompilationUnit) wcPaths.get(pathString);
-			if (workingCopy != null) {
+			org.eclipse.jdt.core.ICompilationUnit workingCopy = null;
+			if (searchDocument instanceof JavaSearchParticipant.WorkingCopyDocument) {
+				workingCopy = ((JavaSearchParticipant.WorkingCopyDocument)searchDocument).workingCopy;
 				openable = (Openable) workingCopy;
 			} else {
 				openable = this.handleFactory.createOpenable(pathString, this.scope);
@@ -753,7 +737,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 				// file doesn't exist -> skip it
 				continue;
 			}
-			matchSet.add(new PossibleMatch(this, resource, openable));
+			matchSet.add(new PossibleMatch(this, resource, openable, searchDocument));
 
 			if (this.progressMonitor != null)
 				this.progressMonitor.worked(1);
@@ -780,20 +764,22 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 /**
  * Locates the package declarations corresponding to this locator's pattern. 
  */
-public void locatePackageDeclarations(IWorkspace workspace) throws JavaModelException {
-	locatePackageDeclarations(this.pattern, workspace);
+public void locatePackageDeclarations(SearchParticipant participant) throws JavaModelException {
+	locatePackageDeclarations(this.pattern, participant);
 }
 /**
  * Locates the package declarations corresponding to the search pattern. 
  */
-protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace workspace) throws JavaModelException {
+protected void locatePackageDeclarations(SearchPattern searchPattern, SearchParticipant participant) throws JavaModelException {
 	if (searchPattern instanceof OrPattern) {
 		SearchPattern[] patterns = ((OrPattern) searchPattern).patterns;
 		for (int i = 0, length = patterns.length; i < length; i++)
-			locatePackageDeclarations(patterns[i], workspace);
+			locatePackageDeclarations(patterns[i], participant);
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
 		if (searchPattern.focus != null) {
-			this.currentPossibleMatch = new PossibleMatch(this, searchPattern.focus.getResource(), null);
+			IResource resource = searchPattern.focus.getResource();
+			SearchDocument document = participant.getDocument(resource.getFullPath().toString());
+			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 			try {
 				this.report(-1, -2, searchPattern.focus, IJavaSearchResultCollector.EXACT_MATCH);
 			} catch (CoreException e) {
@@ -819,7 +805,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace
 						IResource resource = pkg.getResource();
 						if (resource == null) // case of a file in an external jar
 							resource = javaProject.getProject();
-						this.currentPossibleMatch = new PossibleMatch(this, resource, null);
+						SearchDocument document = participant.getDocument(resource.getFullPath().toString());
+						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 						try {
 							report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
 						} catch (JavaModelException e) {
@@ -963,14 +950,26 @@ protected void report(int sourceStart, int sourceEnd, IJavaElement element, int 
 				? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 				: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 		}
-		report(this.currentPossibleMatch.resource, sourceStart, sourceEnd, element, accuracy);
+		report(
+			this.currentPossibleMatch.resource, 
+			sourceStart, 
+			sourceEnd, 
+			element, 
+			accuracy, 
+			getParticipant());
 	}
 }
-protected void report(IResource resource, int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
+public SearchParticipant getParticipant() {
+	return this.currentPossibleMatch.document.getParticipant();
+}
+
+protected void report(IResource resource, int sourceStart, int sourceEnd, IJavaElement element, int accuracy, SearchParticipant participant) throws CoreException {
 	long start = -1;
 	if (SearchEngine.VERBOSE)
 		start = System.currentTimeMillis();
-	this.collector.accept(resource, sourceStart, sourceEnd + 1, element, accuracy);
+	String documentPath = element.getPath().toString();
+	SearchMatch match = new JavaSearchMatch(resource, element, documentPath, accuracy, participant, sourceStart, sourceEnd+1, -1);
+	this.requestor.acceptSearchMatch(match);
 	if (SearchEngine.VERBOSE)
 		this.resultCollectorTime += System.currentTimeMillis()-start;
 }
@@ -1088,7 +1087,7 @@ protected void reportBinaryMatch(IResource resource, IMember binaryMember, IBina
 	if (resource == null)
 		report(startIndex, endIndex, binaryMember, accuracy);
 	else
-		report(resource, startIndex, endIndex, binaryMember, accuracy);
+		report(resource, startIndex, endIndex, binaryMember, accuracy, getParticipant());
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the

@@ -11,40 +11,54 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.core.search.*;
 
 public class PackageReferencePattern extends AndPattern {
+
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new PackageReferencePattern("*".toCharArray(), R_EXACT_MATCH | R_CASE_SENSITIVE); //$NON-NLS-1$;
+	}
+};
 
 protected char[] pkgName;
 
 protected char[][] segments;
 protected int currentSegment;
-protected char[] decodedSegment;
+
+public static PackageReferencePattern getPackageReferenceRecord() {
+	return (PackageReferencePattern)indexRecord.get();
+}
 	
-public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
-	super(PKG_REF_PATTERN, matchMode, isCaseSensitive);
+public PackageReferencePattern(char[] pkgName, int matchRule) {
+	super(PKG_REF_PATTERN, matchRule);
 
 	if (pkgName == null || pkgName.length == 0) {
 		this.pkgName = null;
-		this.segments = new char[][] {new char[0]};
+		this.segments = new char[][] {CharOperation.NO_CHAR};
 		this.mustResolve = false;
 	} else {
-		this.pkgName = isCaseSensitive ? pkgName : CharOperation.toLowerCase(pkgName);
+		this.pkgName = isCaseSensitive() ? pkgName : CharOperation.toLowerCase(pkgName);
 		this.segments = CharOperation.splitOn('.', this.pkgName);
 		this.mustResolve = true;
 	}
 }
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	requestor.acceptPackageReference(path, this.pkgName);
+public void decodeIndexKey(char[] key) {
+	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
+	this.segments[0] = key;
 }
-/**
- * ref/name (where name is the last segment of the package name)
- */ 
-protected void decodeIndexEntry(IEntryResult entryResult) {
-	this.decodedSegment = CharOperation.subarray(entryResult.getWord(), REF.length, -1);
+public char[] encodeIndexKey() {
+	if (this.currentSegment < 0) return null;
+	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
+	return encodeIndexKey(this.segments[this.currentSegment]);
 }
-/**
+public SearchPattern getIndexRecord() {
+	return getPackageReferenceRecord();
+}
+public char[][] getMatchCategories() {
+	return new char[][] {REF};
+}
+/*
  * @see AndPattern#hasNextQuery()
  */
 protected boolean hasNextQuery() {
@@ -52,25 +66,11 @@ protected boolean hasNextQuery() {
 	// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
-/**
- * Package reference entries are encoded as 'ref/packageName'
+/*
+ * @see SearchPattern#isMatchingIndexRecord()
  */
-protected char[] indexEntryPrefix() {
-	return indexEntryPrefix(REF, this.segments[this.currentSegment]);
-}
-/**
- * @see SearchPattern#matchIndexEntry()
- */
-protected boolean matchIndexEntry() {
-	switch(matchMode) {
-		case EXACT_MATCH :
-			return CharOperation.equals(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-		case PREFIX_MATCH :
-			return CharOperation.prefixEquals(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-		case PATTERN_MATCH :
-			return CharOperation.match(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-	}
-	return false;
+public boolean isMatchingIndexRecord() {
+	return matchesName(this.segments[this.currentSegment], ((PackageReferencePattern)getIndexRecord()).segments[0]);
 }
 /**
  * @see AndPattern#resetQuery()
@@ -87,18 +87,20 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode){
-		case EXACT_MATCH : 
+	switch(matchMode()){
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
+		case R_REGEXP_MATCH :
+			buffer.append("regexp match, "); //$NON-NLS-1$
 	}
-	if (isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

@@ -19,7 +19,7 @@ protected IJavaElement enclosingElement;
 protected SimpleSet knownFields;
 
 public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
-	super(false, true,  true, null, PATTERN_MATCH, false, null, null, null, null);
+	super(false, true, true, null, null, null, null, null, R_PATTERN_MATCH);
 
 	this.enclosingElement = enclosingElement;
 	this.knownFields = new SimpleSet();
