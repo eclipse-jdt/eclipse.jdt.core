@@ -18,14 +18,15 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class MessageSend extends Expression implements InvocationSite {
+    
 	public Expression receiver ;
 	public char[] selector ;
 	public Expression[] arguments ;
-	public MethodBinding binding, codegenBinding;
+	public MethodBinding binding;					// exact binding resulting from lookup
+	MethodBinding codegenBinding;				// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticAccessor;				// synthetic accessor for inner-emulation
 
 	public long nameSourcePosition ; //(start<<32)+end
-
-	MethodBinding syntheticAccessor;
 
 	public TypeBinding receiverType, qualifyingType;
 	public TypeBinding genericCast;
