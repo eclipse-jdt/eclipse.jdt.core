@@ -27,7 +27,8 @@
               value="${eclipse-home}/jdt_model_folder"/>
     <delete dir="${jdt-model-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="data-dir" value="${jdt-model-folder}"/>
+      <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
+      <property name="data-dir" value="${jdt-model-folder}/data"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.model.AllJavaModelTests"/>
@@ -38,7 +39,8 @@
               value="${eclipse-home}/jdt_dom_folder"/>
     <delete dir="${jdt-dom-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="data-dir" value="${jdt-dom-folder}"/>
+	  <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
+      <property name="data-dir" value="${jdt-dom-folder}/data"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.dom.RunAllTests"/>

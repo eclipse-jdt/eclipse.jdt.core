@@ -22,16 +22,15 @@
 
   <!-- This target defines the tests that need to be run. -->
   <target name="suite">
-    <property name="jdt-core-performance-folder" 
-              value="${eclipse-home}/jdt-core-performance-folder"/>
+    <property name="jdt-core-perf-folder" 
+              value="${eclipse-home}/jdt-core-perf-folder"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="data-dir" value="${jdt-core-performance-folder}"/>
+   	  <!-- Use a subdir 'data' so that the JCL jars are put in jdt-core-perf-folder and are deleted at the end of the tests. -->
+      <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.performance.OneTest"/>
     </ant>
-    <delete file="${jdt-core-performance-folder}/../jclMin.jar" quiet="true"/>
-    <delete file="${jdt-core-performance-folder}/../jclMinsrc.zip" quiet="true"/>
   </target>
 
   <!-- This target holds code to cleanup the testing environment after -->
@@ -51,15 +50,14 @@
 
   <!-- This target defines the performance tests that need to be run. -->
   <target name="performance-suite">
-    <property name="jdt-core-performance-folder" value="${eclipse-home}/jdt-core-performance-folder"/>
-    <delete dir="${jdt-core-performance-folder}" quiet="true"/>
+    <property name="jdt-core-perf-folder" value="${eclipse-home}/jdt-core-perf-folder"/>
+    <delete dir="${jdt-core-perf-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="data-dir" value="${jdt-core-performance-folder}"/>
+      <!-- Use a subdir 'data' so that the JCL jars are put in jdt-core-perf-folder and are deleted at the end of the tests. -->
+      <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" value="org.eclipse.jdt.core.tests.performance.AllPerformanceTests"/>
     </ant>
-    <delete file="${jdt-core-performance-folder}/../jclMin.jar" quiet="true"/>
-    <delete file="${jdt-core-performance-folder}/../jclMinsrc.zip" quiet="true"/>
   </target>
 
   <!-- This target runs the performance test suite. Any actions that need to happen -->
