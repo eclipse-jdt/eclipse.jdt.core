@@ -161,7 +161,6 @@ public IDOMPackage createPackage(String sourceCode);
  * a public class named <code>"AClass"</code>, with no members or comment.
  *
  * @return the new type
- * @deprecated Use createClass instead.
  */
 public IDOMType createType();
 /**
