@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import junit.framework.Test;
@@ -41,10 +43,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public static Test suite() {
-		if (true) {
-			return allTests();
-		}
-		return setUpTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
+		return allTests();
 	}
 
 	public void testMethodDeclChanges() throws Exception {
@@ -1089,6 +1088,60 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
 		buf.append("    public E(float m) throws InterruptedException, ArrayStoreException {}\n");
+		buf.append("}\n");	
+			
+		assertEqualString(preview, buf.toString());
+
+	}
+	
+	public void testListCombination2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");	
+		buf.append("    void bar() {\n");
+		buf.append("    }\n");
+		buf.append("\n");	
+		buf.append("    void foo2() {\n");
+		buf.append("       // user comment\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		MethodDeclaration[] methods= type.getMethods();
+		Arrays.sort(methods, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((MethodDeclaration) o1).getName().getIdentifier().compareTo(((MethodDeclaration) o2).getName().getIdentifier());
+			}
+		});
+		
+		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		for (int i= 0; i < methods.length; i++) {
+			ASTNode copy= rewrite.createMoveTarget(methods[i]);
+			listRewrite.insertLast(copy, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    void bar() {\n");
+		buf.append("    }\n");
+		buf.append("\n");	
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");	
+		buf.append("    void foo2() {\n");
+		buf.append("       // user comment\n");
+		buf.append("    }\n");
 		buf.append("}\n");	
 			
 		assertEqualString(preview, buf.toString());
