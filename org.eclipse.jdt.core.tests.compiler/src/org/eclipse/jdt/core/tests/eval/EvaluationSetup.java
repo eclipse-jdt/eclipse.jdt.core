@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Enumeration;
 
 import junit.extensions.TestDecorator;
@@ -79,13 +80,13 @@ protected void setUp() {
 
 	// Thread that read the stout of the VM so that the VM doesn't block
 	try {
-		startReader("VM's stdout reader", this.launchedVM.getInputStream());
+		startReader("VM's stdout reader", this.launchedVM.getInputStream(), System.out);
 	} catch (TargetException e) {
 	}
 
 	// Thread that read the sterr of the VM so that the VM doesn't block
 	try {
-		startReader("VM's sterr reader",this.launchedVM.getErrorStream());
+		startReader("VM's sterr reader",this.launchedVM.getErrorStream(), System.err);
 	} catch (TargetException e) {
 	}
 
@@ -102,7 +103,7 @@ protected void setUp() {
 	// Init wrapped suite
 	initTest(fTest, this.context, this.target, this.launchedVM, env);
 }
-protected void startReader(String name, final InputStream in) {
+protected void startReader(String name, final InputStream in, final PrintStream out) {
 	(new Thread(name) {
 		public void run() {
 			int read = 0;
@@ -113,7 +114,7 @@ protected void startReader(String name, final InputStream in) {
 					read = -1;
 				}
 				if (read != -1) {
-					System.out.print((char) read);
+					out.print((char) read);
 				}
 			}
 		}

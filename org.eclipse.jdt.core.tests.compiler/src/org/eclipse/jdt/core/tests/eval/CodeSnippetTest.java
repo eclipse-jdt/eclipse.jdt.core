@@ -48,7 +48,7 @@ public void testCheckedException() {
 		"try {",
 		"	throw new java.io.IOException();",
 		"} finally {",
-		"	System.err.println(\"This is an expected exception:\");",
+		"	System.err.println(\"This is an expected exception printed by the target VM:\");",
 		"}"}), 
 		null);
 }
@@ -212,7 +212,7 @@ public void testFinallyError() {
 		"try {",
 		"	throw new Error();",
 		"} finally {",
-		"	System.err.println(\"This is an expected error:\");",
+		"	System.err.println(\"This is an expected error printed by the target VM:\");",
 		"}"}), 
 		null);
 }

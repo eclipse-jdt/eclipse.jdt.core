@@ -72,13 +72,13 @@ protected void setUp() {
 
 	// Thread that read the stout of the VM so that the VM doesn't block
 	try {
-		startReader("VM's stdout reader", this.launchedVM.getInputStream());
+		startReader("VM's stdout reader", this.launchedVM.getInputStream(), System.out);
 	} catch (TargetException e) {
 	}
 
 	// Thread that read the sterr of the VM so that the VM doesn't block
 	try {
-		startReader("VM's sterr reader", this.launchedVM.getErrorStream());
+		startReader("VM's sterr reader", this.launchedVM.getErrorStream(), System.err);
 	} catch (TargetException e) {
 	}
 

@@ -295,6 +295,9 @@ protected void deleteProject(String projectName) throws CoreException {
 	IProject project = this.getProject(projectName);
 	CoreException lastException = null;
 	try {
+		if (!project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
+			project.open(null);
+		}
 		project.delete(true, null);
 	} catch (CoreException e) {
 		lastException = e;

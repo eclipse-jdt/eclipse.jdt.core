@@ -62,7 +62,6 @@ protected Requestor getRequestor(IProblemFactory problemFactory) {
 	};
 }
 public void test001() {
-	System.out.println("TEST RUN");
 	this.runNegativeTest(
 		new String[] {
 			"prs/Test1.java",
