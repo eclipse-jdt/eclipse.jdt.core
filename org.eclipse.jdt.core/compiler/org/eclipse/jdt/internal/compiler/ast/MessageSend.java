@@ -135,20 +135,26 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 
 	if (((bits & DepthMASK) != 0) 
 		|| currentScope.enclosingSourceType() != binding.declaringClass){ // implicit only have a depth set
+
 		if (binding.isPrivate()){ // private access 
 			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 			return;
-		}
-		if (receiver == ThisReference.ThisImplicit  
+
+		} else if (receiver == ThisReference.ThisImplicit  
 			&& binding.isProtected()
 			&& (bits & DepthMASK) != 0 // only if outer access			
 			&& binding.declaringClass.getPackage() 
 				!= currentScope.enclosingSourceType().getPackage()){ // protected access (implicit access only)
 			syntheticAccessor = ((SourceTypeBinding)currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
-		}
-		if (receiver instanceof QualifiedSuperReference){ // qualified super
+
+		} else if (receiver instanceof QualifiedThisReference){ // qualified this
+			SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedThisReference)receiver).currentCompatibleType);
+			syntheticAccessor = destinationType.addSyntheticMethod(binding);
+			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+
+		} else if (receiver instanceof QualifiedSuperReference){ // qualified super
 			SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
 			syntheticAccessor = destinationType.addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);

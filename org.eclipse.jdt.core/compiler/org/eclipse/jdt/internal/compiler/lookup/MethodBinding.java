@@ -135,18 +135,24 @@ public final boolean canBeSeenBy(TypeBinding receiverType, boolean isSuperAccess
 		// OR the invocationType is a subclass of the declaringClass
 		//    AND the receiverType is the invocationType or its subclass
 		//    OR the method is a static method accessed directly through a type
+		//    OR previous assertions are true for one of the enclosing type
 		if (invocationType == declaringClass) return true;
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
-		if (declaringClass.isSuperclassOf(invocationType)) {
-			if (isSuperAccess) return true;
-			// receiverType can be an array binding in one case... see if you can change it
-			if (receiverType instanceof ArrayBinding)
-				return false;
-			if (invocationType == receiverType || invocationType.isSuperclassOf((ReferenceBinding) receiverType))
-				return true;
-			if (isStatic())
-				return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
-		}
+		
+		ReferenceBinding currentType = invocationType;
+		do {
+			if (declaringClass.isSuperclassOf(currentType)) {
+				if (isSuperAccess) return true;
+				// receiverType can be an array binding in one case... see if you can change it
+				if (receiverType instanceof ArrayBinding)
+					return false;
+				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType))
+					return true;
+				if (isStatic())
+					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
+			}
+			currentType = currentType.enclosingType();
+		} while (currentType != null);
 		return false;
 	}
 
