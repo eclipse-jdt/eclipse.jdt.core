@@ -64,6 +64,7 @@ public static Test suite() {
 	/* selection tests */
 	addTest(suite, ExplicitConstructorInvocationSelectionTest.class);
 	addTest(suite, SelectionTest.class);
+	addTest(suite, SelectionTest2.class);
 
 	/* recovery tests */
 	addTest(suite, DietRecoveryTest.class);

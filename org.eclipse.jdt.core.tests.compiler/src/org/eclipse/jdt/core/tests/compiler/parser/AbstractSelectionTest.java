@@ -260,7 +260,7 @@ public void checkMethodParse(
  * at the cursor location in the given type.
  * Returns null if not found.
  */
-private AstNode findMethod(TypeDeclaration type, int cursorLocation) {
+protected AstNode findMethod(TypeDeclaration type, int cursorLocation) {
 	if (type.methods != null) {
 		for (int i = 0; i < type.methods.length; i++) {
 			AbstractMethodDeclaration method = type.methods[i];
