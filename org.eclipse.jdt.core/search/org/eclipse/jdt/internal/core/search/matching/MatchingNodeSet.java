@@ -86,6 +86,12 @@ protected boolean hasPossibleNodes(int start, int end) {
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
 			return true;
 	}
+	nodes = this.matchingNodes.keyTable;
+	for (int i = 0, l = nodes.length; i < l; i++) {
+		ASTNode node = (ASTNode) nodes[i];
+		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
+			return true;
+	}
 	return false;
 }
 /**

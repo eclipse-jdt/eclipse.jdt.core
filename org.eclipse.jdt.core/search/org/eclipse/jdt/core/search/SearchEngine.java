@@ -56,10 +56,10 @@ public class SearchEngine {
 		public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
 			JavaSearchMatch javaSearchMatch = (JavaSearchMatch) match;
 			this.resultCollector.accept(
-				javaSearchMatch.resource,
+				javaSearchMatch.getResource(),
 				javaSearchMatch.getSourceStart(),
 				javaSearchMatch.getSourceEnd(),
-				javaSearchMatch.element,
+				javaSearchMatch.getJavaElement(),
 				javaSearchMatch.getAccuracy()
 			);
 			return true;

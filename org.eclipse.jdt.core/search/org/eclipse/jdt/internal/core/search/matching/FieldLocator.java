@@ -123,10 +123,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;
-		SearchMatch match = JavaSearchMatch.newFieldReferenceMatch(element, accuracy, ((int) (position >>> 32)), ((int) position)+1, fieldReference, locator);
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, ((int) (position >>> 32)), ((int) position)+1, fieldReference);
 		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
-		SearchMatch match = JavaSearchMatch.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, (SingleNameReference)reference, locator);
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, (SingleNameReference)reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
