@@ -345,34 +345,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IProject getProject();
 
 	/**
-	 * This is a helper method returning the resolved classpath for the project, as a list of classpath entries, 
-	 * where all classpath variable entries have been resolved and substituted with their final target entries.
-	 * <p>
-	 * A resolved classpath corresponds to a particular instance of the raw classpath bound in the context of 
-	 * the current values of the referred variables, and thus should not be persisted.
-	 * <p>
-	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
-	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
-	 * can simply refer to some variables defining the proper locations of these external JARs.
-	 * <p>
-	 * The boolean argument <code>ignoreUnresolvedVariable</code> allows to specify how to handle unresolvable variables,
-	 * when set to <code>true</code>, missing variables are simply ignored, the resulting path is then only formed of the
-	 * resolvable entries, without any indication about which variable(s) was ignored. When set to <code>false</code>, a
-	 * JavaModelException will be thrown for the first unresolved variable (from left to right).
-	 * 
-	 * @exception JavaModelException in one of the corresponding situation:
-	 * <ul>
-	 *    <li> this element does not exist </li>
-	 *    <li> an exception occurs while accessing its corresponding resource </li>
-	 *    <li> a classpath variable was not resolvable and <code>ignoreUnresolvedVariable</code> was set to <code>false</code>. </li>
-	 * </ul>
-	 * @return 
-	 * @see IClasspathEntry 
-	 */
-//	IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)
-//		throws JavaModelException;
-
-	/**
 	 * Returns the raw classpath for the project, as a list of classpath entries. This corresponds to the exact set
 	 * of entries which were assigned using <code>setRawClasspath</code>, in particular such a classpath may contain
 	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
@@ -405,34 +377,41 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	String[] getRequiredProjectNames() throws JavaModelException;
 
-	/** TODO: (jim) improve doc to mention classpath containers
-	 * This is a helper method returning the resolved classpath for the project, as a list of classpath entries, 
-	 * where all classpath variable entries have been resolved and substituted with their final target entries.
+	/**
+	 * This is a helper method returning the resolved classpath for the project
+	 * as a list of simple (non-variable, non-container) classpath entries.
+	 * All classpath variable and classpath container entries in the project's
+	 * raw classpath will be replaced by the simple classpath entries they
+	 * resolve to.
 	 * <p>
-	 * A resolved classpath corresponds to a particular instance of the raw classpath bound in the context of 
-	 * the current values of the referred variables, and thus should not be persisted.
-	 * <p>
-	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
-	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
-	 * can simply refer to some variables defining the proper locations of these external JARs.
-	 * <p>
-	 * The boolean argument <code>ignoreUnresolvedVariable</code> allows to specify how to handle unresolvable variables,
-	 * when set to <code>true</code>, missing variables are simply ignored, the resulting path is then only formed of the
-	 * resolvable entries, without any indication about which variable(s) was ignored. When set to <code>false</code>, a
-	 * JavaModelException will be thrown for the first unresolved variable (from left to right).
+	 * The resulting resolved classpath is accurate for the given point in time.
+	 * If the project's raw classpath is later modified, or if classpath
+	 * variables are changed, the resolved classpath can become out of date.
+	 * Because of this, hanging on resolved classpath is not recommended.
+	 * </p>
 	 * 
-	 * @param ignoreUnresolvedVariable specify how to handle unresolvable variables
-	 * @return the resolved classpath for the project, as a list of classpath entries, 
-	 * where all classpath variable entries have been resolved and substituted with their final target entries
+	 * @param ignoreUnresolvedEntry indicates how to handle unresolvable
+	 * variables and containers; <code>true</code> indicates that missing
+	 * variables and unresolvable classpath containers should be silently
+	 * ignored, and that the resulting list should consist only of the
+	 * entries that could be successfully resolved; <code>false</code> indicates
+	 * that a <code>JavaModelException</code> should be thrown for the first
+	 * unresolved variable or container
+	 * @return the resolved classpath for the project as a list of simple 
+	 * classpath entries, where all classpath variable and container entries
+	 * have been resolved and substituted with their final target entries
 	 * @exception JavaModelException in one of the corresponding situation:
 	 * <ul>
-	 *    <li> this element does not exist </li>
-	 *    <li> an exception occurs while accessing its corresponding resource </li>
-	 *    <li> a classpath variable was not resolvable and <code>ignoreUnresolvedVariable</code> was set to <code>false</code>. </li>
+	 *    <li>this element does not exist</li>
+	 *    <li>an exception occurs while accessing its corresponding resource</li>
+	 *    <li>a classpath variable or classpath container was not resolvable
+	 *    and <code>ignoreUnresolvedEntry</code> is <code>false</code>.</li>
 	 * </ul>
-	 * @see IClasspathEntry 
+	 * @see IClasspathEntry
+	 * TODO: (philippe) verify improved wording to accomodate classpath container
 	 */
-	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable) throws JavaModelException;
+	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedEntry)
+	     throws JavaModelException;
 
 	/**
 	 * Returns whether this project has been built at least once and thus whether it has a build state.

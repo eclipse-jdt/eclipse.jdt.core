@@ -1345,12 +1345,12 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable)
+	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedEntry)
 		throws JavaModelException {
 
 		return 
 			this.getResolvedClasspath(
-				ignoreUnresolvedVariable, 
+				ignoreUnresolvedEntry, 
 				false); // generateMarkerOnError
 	}
 
