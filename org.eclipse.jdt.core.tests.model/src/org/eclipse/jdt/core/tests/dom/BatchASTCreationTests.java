@@ -114,7 +114,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 
 	/*
 	 * Creates working copies from the given path and sources.
-	 * Resolves a dummy cu as a batch and on the first accept, create a binding with the expected key.
+	 * Resolves a dummy cu as a batch and on the first accept, create a binding with the expected key using ASTRequestor#createBindings.
 	 * Ensures that the returned binding corresponds to the expected key.
 	 */
 	private void assertBindingCreated(String[] pathAndSources, final String expectedKey) throws JavaModelException {
@@ -384,7 +384,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a package binding can be created using its key.
+	 * Ensures that a package binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test011() throws CoreException {
 		assertBindingCreated(
@@ -398,7 +398,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a type binding can be created using its key.
+	 * Ensures that a type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test012() throws CoreException {
 		assertBindingCreated(
@@ -416,7 +416,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a type binding can be created using its key.
+	 * Ensures that a type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test013() throws CoreException {
 		assertBindingCreated(
@@ -434,7 +434,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a member type binding can be created using its key.
+	 * Ensures that a member type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test014() throws CoreException {
 		assertBindingCreated(
@@ -450,7 +450,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a member type binding can be created using its key.
+	 * Ensures that a member type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test015() throws CoreException {
 		assertBindingCreated(
@@ -468,7 +468,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that an anonymous type binding can be created using its key.
+	 * Ensures that an anonymous type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test016() throws CoreException {
 		assertBindingCreated(
@@ -486,7 +486,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a local type binding can be created using its key.
+	 * Ensures that a local type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test017() throws CoreException {
 		assertBindingCreated(
@@ -504,7 +504,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test018() throws CoreException {
 		assertBindingCreated(
@@ -520,7 +520,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test019() throws CoreException {
 		assertBindingCreated(
@@ -536,7 +536,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test020() throws CoreException {
 		assertBindingCreated(
@@ -552,7 +552,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a field binding can be created using its key.
+	 * Ensures that a field binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test021() throws CoreException {
 		assertBindingCreated(
@@ -567,14 +567,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a base type binding can be created using its key.
+	 * Ensures that a base type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test022() throws CoreException {
 		assertBindingCreated(new String[0],"I");
 	}
 	
 	/*
-	 * Ensures that an array binding can be created using its key.
+	 * Ensures that an array binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test023() throws CoreException {
 		assertBindingCreated(
@@ -588,14 +588,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that an array binding can be created using its key.
+	 * Ensures that an array binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test024() throws CoreException {
 		assertBindingCreated(new String[0],"[[I");
 	}
 	
 	/* 
-	 * Ensures that a method binding in an anonymous type with several kind of parameters can be created using its key
+	 * Ensures that a method binding in an anonymous type with several kind of parameters can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test025() throws CoreException {
 		assertBindingCreated(
@@ -617,7 +617,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a generic type binding can be created using its key.
+	 * Ensures that a generic type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test026() throws CoreException {
 		assertBindingCreated(
@@ -631,7 +631,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a generic type binding can be created using its key.
+	 * Ensures that a generic type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test027() throws CoreException {
 		assertBindingCreated(
@@ -653,7 +653,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized type binding can be created using its key.
+	 * Ensures that a parameterized type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test028() throws CoreException {
 		assertBindingCreated(
@@ -668,7 +668,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a member parameterized type binding can be created using its key.
+	 * Ensures that a member parameterized type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test029() throws CoreException {
 		assertBindingCreated(
@@ -685,7 +685,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a raw type binding can be created using its key.
+	 * Ensures that a raw type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test030() throws CoreException {
 		assertBindingCreated(
@@ -700,7 +700,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a member raw type binding can be created using its key.
+	 * Ensures that a member raw type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test031() throws CoreException {
 		assertBindingCreated(
@@ -717,7 +717,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/* 
-	 * Ensures that a parameterized method binding can be created using its key
+	 * Ensures that a parameterized method binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test032() throws CoreException {
 		assertBindingCreated(
@@ -733,7 +733,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/* 
-	 * Ensures that a local variable binding can be created using its key
+	 * Ensures that a local variable binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test033() throws CoreException {
 		assertBindingCreated(
@@ -750,7 +750,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/* 
-	 * Ensures that a local variable binding can be created using its key
+	 * Ensures that a local variable binding can be created using its key in ASTRequestor#createBindings
 	 */
 	public void test034() throws CoreException {
 		assertBindingCreated(
@@ -772,7 +772,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized method binding can be created using its key.
+	 * Ensures that a parameterized method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test035() throws CoreException {
 		assertBindingCreated(
@@ -791,7 +791,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized generic method binding can be created using its key.
+	 * Ensures that a parameterized generic method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test036() throws CoreException {
 		assertBindingCreated(
@@ -810,7 +810,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a raw generic method binding can be created using its key.
+	 * Ensures that a raw generic method binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test037() throws CoreException {
 		assertBindingCreated(
@@ -829,7 +829,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized method binding (where the parameter is an unbound wildcard) can be created using its key.
+	 * Ensures that a parameterized method binding (where the parameter is an unbound wildcard) can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test038() throws CoreException {
 		assertBindingCreated(
@@ -848,7 +848,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized method binding (where the parameter is an extends wildcard) can be created using its key.
+	 * Ensures that a parameterized method binding (where the parameter is an extends wildcard) can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test039() throws CoreException {
 		assertBindingCreated(
@@ -867,7 +867,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized method binding (where the parameter is a super wildcard) can be created using its key.
+	 * Ensures that a parameterized method binding (where the parameter is a super wildcard) can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test040() throws CoreException {
 		assertBindingCreated(
@@ -886,7 +886,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a parameterized method binding (where the parameters contain wildcards) can be created using its key.
+	 * Ensures that a parameterized method binding (where the parameters contain wildcards) can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test041() throws CoreException {
 		assertBindingCreated(
@@ -940,7 +940,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a source parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key.
+	 * Ensures that a source parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test043() throws CoreException {
 		assertBindingCreated(
@@ -955,7 +955,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a binary parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key.
+	 * Ensures that a binary parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key in ASTRequestor#createBindings.
 	 * (regression test for 83499 ClassCastException when restoring ITypeBinding from key)
 	 */
 	public void test044() throws CoreException {
@@ -998,7 +998,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that a binary array parameterized type binding can be created using its key.
+	 * Ensures that a binary array parameterized type binding can be created using its key in ASTRequestor#createBindings.
 	 */
 	public void test046() throws CoreException {
 		assertBindingCreated(
@@ -1007,7 +1007,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that the null type binding can be created using its key.
+	 * Ensures that the null type binding can be created using its key in batch creation.
 	 */
 	public void test047() throws CoreException {
 		ITypeBinding[] bindings = createTypeBindings(
@@ -1017,4 +1017,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"N", 
 				bindings);
 	}
+
+	/*
+	 * Ensures that a binary array type binding can be created using its key in batch creation.
+	 */
+	public void test048() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"[Ljava/lang/Object;"});
+		assertBindingsEqual(
+				"[Ljava/lang/Object;", 
+				bindings);
+	}
+	
 }

@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -228,11 +227,7 @@ class CompilationUnitResolver extends Compiler {
 		Binding compilerBinding = keyResolver.getCompilerBinding();
 		if (compilerBinding == null) return null;
 		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
-		if (compilerBinding.kind() == Binding.ARRAY_TYPE) {
-			return new TypeBinding(resolver, (ArrayBinding) compilerBinding);
-		} else {
-			return resolver.getBinding(compilerBinding);
-		}
+		return resolver.getBinding(compilerBinding);
 	}
 	
 	public static ASTNode convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, IProgressMonitor monitor) {
