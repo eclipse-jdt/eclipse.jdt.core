@@ -367,6 +367,7 @@ public final class JavaConventions {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		StringTokenizer st = new StringTokenizer(name, new String(new char[] {DOT}));
 		boolean firstToken = true;
+		IStatus warningStatus = null;
 		while (st.hasMoreTokens()) {
 			String typeName = st.nextToken();
 			typeName = typeName.trim(); // grammar allows spaces
@@ -379,9 +380,14 @@ public final class JavaConventions {
 				return status;
 			}
 			if (firstToken && scannedID.length > 0 && Character.isUpperCase(scannedID[0])) {
-				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.uppercaseName"), null); //$NON-NLS-1$
+				if (warningStatus == null) {
+					warningStatus = new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.uppercaseName"), null); //$NON-NLS-1$
+				}
 			}
 			firstToken = false;
+		}
+		if (warningStatus != null) {
+			return warningStatus;
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}
