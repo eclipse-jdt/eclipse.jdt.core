@@ -474,6 +474,7 @@ protected void enterType(
  * @see ISourceElementRequestor
  */
 public void exitClass(int declarationEnd) {
+
 	exitMember(declarationEnd);
 }
 /**

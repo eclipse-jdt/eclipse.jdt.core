@@ -733,7 +733,7 @@ protected void consumeToken(int token) {
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
 			&& this.insideFieldInitialization()) {
-		this.scanner.eofPosition = cursorLocation+1;
+		this.scanner.eofPosition = cursorLocation < Integer.MAX_VALUE ? cursorLocation+1 : cursorLocation;
 	}
 	
 	// if in a method or if in a field initializer 
@@ -1168,7 +1168,8 @@ protected boolean resumeAfterRecovery() {
 			/* restart in diet mode for finding sibling constructs */
 			if (currentElement.enclosingType() != null){
 				lastCheckPoint = this.assistNode.sourceEnd+1;
-				scanner.eofPosition = currentElement.topElement().sourceEnd()+1;
+				int end = currentElement.topElement().sourceEnd();
+				scanner.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 			} else {
 				this.resetStacks();
 				return false;	

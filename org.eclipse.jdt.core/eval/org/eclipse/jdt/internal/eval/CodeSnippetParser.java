@@ -661,7 +661,7 @@ protected boolean resumeOnSyntaxError() {
 	this.scanner.initialPosition = this.lastStatement;
 	this.scanner.startPosition = this.lastStatement;
 	this.scanner.currentPosition = this.lastStatement;
-	this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression 
+	this.scanner.eofPosition = this.codeSnippetEnd < Integer.MAX_VALUE ? this.codeSnippetEnd + 1 : this.codeSnippetEnd; // stop after expression 
 	this.scanner.commentPtr = -1;
 
 	// reset stacks in consistent state

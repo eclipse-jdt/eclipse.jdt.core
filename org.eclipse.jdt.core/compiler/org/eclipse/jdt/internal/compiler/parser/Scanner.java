@@ -1902,7 +1902,7 @@ public void resetTo(int begin, int end) {
 
 	diet = false;
 	initialPosition = startPosition = currentPosition = begin;
-	eofPosition = end + 1;
+	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
 }
 
