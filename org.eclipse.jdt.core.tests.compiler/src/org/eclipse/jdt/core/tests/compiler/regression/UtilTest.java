@@ -319,6 +319,19 @@ public void test46() {
 	assertTrue("Path pattern matching failure",
 		CharOperation.pathMatch("hello/**/World".toCharArray(), "hello/World".toCharArray(), true, '/'));
 }
+/*
+ * Regression test for 28316 Missing references to constructor 
+ */
+public void test47() {
+
+	assertTrue("Pattern matching failure",
+		CharOperation.match("*x".toCharArray(), "x.X".toCharArray(), false));
+}
+public void test48() {
+
+	assertTrue("Pattern matching failure",
+		CharOperation.match("*a*".toCharArray(), "abcd".toCharArray(), false));
+}
 public static Class testClass() {
 	return UtilTest.class;
 }

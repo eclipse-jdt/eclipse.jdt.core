@@ -1552,19 +1552,25 @@ public final class CharOperation {
 			segmentStart = 0; // force iName check
 		}
 		int prefixStart = iName;
-		checkSegment : while (iName < nameEnd && iPattern < patternEnd) {
+		checkSegment : while (iName < nameEnd) {
+			if (iPattern == patternEnd) {
+				iPattern = segmentStart; // mismatch - restart current segment
+				iName = ++prefixStart;
+				continue checkSegment;
+			}
 			/* segment is ending */
 			if ((patternChar = pattern[iPattern]) == '*') {
 				segmentStart = ++iPattern; // skip start
+				if (segmentStart == patternEnd) {
+					break;
+				}
 				prefixStart = iName;
 				continue checkSegment;
 			}
-			/* chech current name character */
-			if ((isCaseSensitive
-				? name[iName]
-				: Character.toLowerCase(name[iName]))
-				!= patternChar
-				&& patternChar != '?') {
+			/* check current name character */
+			if ((isCaseSensitive ? name[iName] : Character.toLowerCase(name[iName]))
+						!= patternChar
+					&& patternChar != '?') {
 				iPattern = segmentStart; // mismatch - restart current segment
 				iName = ++prefixStart;
 				continue checkSegment;
