@@ -48,8 +48,9 @@ public class ThrowStatement extends Statement {
 		
 		exceptionType = exception.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
 		
-		if (exceptionType == NullBinding){
-			// if compliant with 1.4, this problem will be ignored (see ProblemReport.computeSeverity())
+		if (exceptionType == NullBinding
+				&& scope.problemReporter().options.complianceLevel <= CompilerOptions.JDK1_3){
+			// if compliant with 1.4, this problem will not be reported
 			scope.problemReporter().cannotThrowNull(this);
 	 	}
 		exception.implicitWidening(exceptionType, exceptionType);
