@@ -121,6 +121,9 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3207		JM - Smart save when empty CU (1G4EVHM) 
+  1672		Cannot evaluate classes in a sealed jar (1GHU6YK) 
+  3220		Formatter tests refer to hardcoded path on disk (1G9R5G4) 
   3258      exception doing import assist (1GDIJ9D)    
   3240      need to find method declarations in anonymous inner types (1GCBPRI)    
   3254      Indexer - Should nest index source retrieval in IWorkspaceRunnable (1GD7J6F)  
