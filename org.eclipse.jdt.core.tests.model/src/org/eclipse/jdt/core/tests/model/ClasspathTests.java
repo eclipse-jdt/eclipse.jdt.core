@@ -174,7 +174,7 @@ public void testClasspathCorruption() throws CoreException {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
 			+"<classpath>	\n"
 			+"	<classpathentry kind=\"src\" path=\"\"/>	\n"
-			+"	<classpathentry kind=\"src\" path=\"/P2/foo.txt\"/>	\n"
+			+"	<classpathentry kind=\"src\" path=\"/P2/foo.txt\"/>	\n" // corruption here: target isn't a project
 			+"	<classpathentry kind=\"output\" path=\"\"/>	\n"
 			+"</classpath>	\n";
 
