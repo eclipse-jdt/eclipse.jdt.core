@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
@@ -108,11 +107,11 @@ public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scop
 /**
  * Add the type info from the given hierarchy binary type to the given list of infos.
  */
-private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType binaryType, ArrayList infos) throws JavaModelException {
+private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType binaryType, ArrayList infos) {
 	infos.add(binaryType);
 	this.infoToHandle.put(binaryType, handle);
 }
-protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList units,String resourcePath) throws JavaModelException {
+protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList units,String resourcePath) {
 	HierarchyBinaryType binaryType = (HierarchyBinaryType) binariesFromIndexMatches.get(resourcePath);
 	if (binaryType != null) {
 		this.addInfoFromBinaryIndexMatch(handle, binaryType, infos);
@@ -138,7 +137,7 @@ private void addInfosFromType(IType type, ArrayList infos) throws JavaModelExcep
 		}
 	}
 }
-public void build(boolean computeSubtypes) throws JavaModelException, CoreException {
+public void build(boolean computeSubtypes) {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
 		// optimize access to zip files while building hierarchy
@@ -358,7 +357,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 		if (monitor != null) monitor.done();
 	}
 }
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String osPath) throws JavaModelException {
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String osPath) {
 	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, osPath);
 	this.cuToHandle.put(unit, handle);
 	return unit;
@@ -367,7 +366,7 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String 
  * Returns all of the possible subtypes of this type hierarchy.
  * Returns null if they could not be determine.
  */
-private String[] determinePossibleSubTypes(IProgressMonitor monitor) throws JavaModelException, CoreException {
+private String[] determinePossibleSubTypes(IProgressMonitor monitor) {
 
 	class PathCollector implements IPathRequestor {
 		HashSet paths = new HashSet(10);
@@ -448,7 +447,7 @@ public static void searchAllPossibleSubTypes(
 	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
-	IProgressMonitor progressMonitor)  throws JavaModelException, CoreException {
+	IProgressMonitor progressMonitor) {
 
 	/* embed constructs inside arrays so as to pass them to (inner) collector */
 	final Queue awaitings = new Queue();

@@ -284,7 +284,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 /**
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) throws JavaModelException {
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
 	String encoding = handle.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 	return 
 		new BasicCompilationUnit(
@@ -297,7 +297,7 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String
  * Creates the type info from the given class file on disk and
  * adds it to the given list of infos.
  */
-protected IGenericType createInfoFromClassFile(Openable handle, String osPath) throws JavaModelException {
+protected IGenericType createInfoFromClassFile(Openable handle, String osPath) {
 	IGenericType info = null;
 	try {
 		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
@@ -318,7 +318,7 @@ protected IGenericType createInfoFromClassFile(Openable handle, String osPath) t
 	/**
  * Create a type info from the given class file in a jar and adds it to the given list of infos.
  */
-protected IGenericType createInfoFromClassFileInJar(Openable classFile) throws JavaModelException {
+protected IGenericType createInfoFromClassFileInJar(Openable classFile) {
 	IJavaElement pkg = classFile.getParent();
 	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
 	IGenericType info = null;
@@ -350,7 +350,7 @@ protected IGenericType createInfoFromClassFileInJar(Openable classFile) throws J
 	return info;
 }
 
-protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) throws JavaModelException {
+protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) {
 	
 	// create a temporary info
 	IJavaElement pkg = handle.getParent();

@@ -96,7 +96,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#moveToNextFile()
 	 */
-	public void moveToNextFile() throws IOException {
+	public void moveToNextFile() {
 		filePosition++;
 		if (!hasMoreFiles()) {
 			return;
@@ -106,7 +106,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#moveToNextWordEntry()
 	 */
-	public void moveToNextWordEntry() throws IOException {
+	public void moveToNextWordEntry() /* throws IOException */ {
 		wordPosition++;
 		if (hasMoreWords())
 			currentWordEntry= sortedWordEntries[wordPosition - 1];

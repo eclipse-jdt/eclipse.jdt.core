@@ -152,19 +152,19 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 /**
  * Creates an empty TypeHierarchy
  */
-public TypeHierarchy() throws JavaModelException {
+public TypeHierarchy() {
 }
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) {
 	this(type, workingCopies, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes);
 	this.project = project;
 }
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
+public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) {
 	this.focusType = type;
 	this.workingCopies = workingCopies;
 	this.computeSubtypes = computeSubtypes;

@@ -58,7 +58,7 @@ public class FileListBlock extends Block {
 			offset= 0;
 		}
 	}
-	public IndexedFile getFile(int fileNum) throws IOException {
+	public IndexedFile getFile(int fileNum) {
 		IndexedFile resp= null;
 		try {
 			String[] currentPaths = getPaths();

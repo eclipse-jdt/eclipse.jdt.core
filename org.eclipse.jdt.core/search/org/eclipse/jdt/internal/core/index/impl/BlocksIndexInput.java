@@ -172,7 +172,7 @@ public class BlocksIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#moveToNextFile()
 	 */
-	public void moveToNextFile() throws IOException {
+	public void moveToNextFile() {
 		filePosition++;
 	}
 	/**

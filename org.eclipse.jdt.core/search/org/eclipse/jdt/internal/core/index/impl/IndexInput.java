@@ -52,7 +52,7 @@ public abstract class IndexInput {
 	/**
 	 * Returns the current file the indexInput is pointing to in the index.
 	 */
-	public WordEntry getCurrentWordEntry() throws IOException {
+	public WordEntry getCurrentWordEntry() {
 		if (!hasMoreWords())
 			return null;
 		return currentWordEntry;
@@ -102,7 +102,7 @@ public abstract class IndexInput {
 	/**
 	 * Moves the pointer on the current file to the next file in the index.
 	 */
-	public abstract void moveToNextFile() throws IOException;
+	public abstract void moveToNextFile();
 	/**
 	 * Moves the pointer on the current word to the next file in the index.
 	 */
