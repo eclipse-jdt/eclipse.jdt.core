@@ -26,6 +26,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  * which constant values reflect the latest parser generation state.
  */
 public class Scanner implements TerminalTokens {
+	
+	//public int newIdentCount = 0;
+	
 	/* APIs ares
 	 - getNextToken() which return the current type of the token
 	   (this value is not memorized by the scanner)
@@ -140,7 +143,7 @@ public class Scanner implements TerminalTokens {
 
 	static final char[] initCharArray = 
 		new char[] {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'}; 
-	static final int TableSize = 30, InternalTableSize = 6; //30*6 = 180 entries
+	static final int TableSize = 30, InternalTableSize = 6; //40*7 =280 entries
 	
 	public final static int MAX_OBVIOUS = 128;
 	static final int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
@@ -193,7 +196,7 @@ public class Scanner implements TerminalTokens {
 		ObviousIdentCharNatures['\''] = C_SEPARATOR;
 	}
 	
-	public static final int OptimizedLength = 6;
+	public static final int OptimizedLength = 7;
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
@@ -218,7 +221,7 @@ public class Scanner implements TerminalTokens {
 			}
 		}
 	}
-	static int newEntry2 = 0, 
+	/*static*/ int newEntry2 = 0, 
 		newEntry3 = 0, 
 		newEntry4 = 0, 
 		newEntry5 = 0, 
@@ -442,6 +445,7 @@ public char[] getCurrentIdentifierSource() {
 		//no optimization
 		System.arraycopy(this.source, this.startPosition, result = new char[length], 0, length);
 	}
+	//newIdentCount++;
 	return result;
 }
 public int getCurrentTokenEndPosition(){
@@ -1968,9 +1972,8 @@ final char[] optimizedCurrentTokenSource2() {
 
 	char[] src = this.source;
 	int start = this.startPosition;
-	char c0 = src[start];
-	char c1 = src[start+1];
-	int hash = ((c0 << 6) + c1) % TableSize; 
+	char c0 , c1;
+	int hash = (((c0=src[start]) << 6) + (c1=src[start+1])) % TableSize; 
 	char[][] table = this.charArray_length[0][hash];
 	int i = newEntry2;
 	while (++i < InternalTableSize) {
@@ -1989,19 +1992,18 @@ final char[] optimizedCurrentTokenSource2() {
 	//--------add the entry-------
 	if (++max >= InternalTableSize) max = 0;
 	char[] r;
-	table[max] = (r = new char[] {c0, c1});
-	newEntry2 = max;
-	return r;
+	System.arraycopy(src, start, r= new char[2], 0, 2);
+	//newIdentCount++;
+	return table[newEntry2 = max] = r; //(r = new char[] {c0, c1});
 }
 final char[] optimizedCurrentTokenSource3() {
 	//try to return the same char[] build only once
 
 	char[] src = this.source;
 	int start = this.startPosition;
-	char c0 = src[start];
-	char c1 = src[start+1];
-	char c2 = src[start+2];
-	int hash = ((c0 << 12) + (c1<< 6) + c2) % TableSize; 
+	char c0, c1=src[start+1], c2;
+	int hash = (((c0=src[start])<< 6) + (c2=src[start+2])) % TableSize; 
+//	int hash = ((c0 << 12) + (c1<< 6) + c2) % TableSize; 
 	char[][] table = this.charArray_length[1][hash];
 	int i = newEntry3;
 	while (++i < InternalTableSize) {
@@ -2020,21 +2022,19 @@ final char[] optimizedCurrentTokenSource3() {
 	//--------add the entry-------
 	if (++max >= InternalTableSize) max = 0;
 	char[] r;
-	table[max] = (r = new char[] {c0, c1, c2});
-	newEntry3 = max;
-	return r;
+	System.arraycopy(src, start, r= new char[3], 0, 3);
+	//newIdentCount++;
+	return table[newEntry3 = max] = r; //(r = new char[] {c0, c1, c2});
 }
 final char[] optimizedCurrentTokenSource4() {
 	//try to return the same char[] build only once
 
 	char[] src = this.source;
 	int start = this.startPosition;
-	char c0 = src[start];
-	char c1 = src[start+1];
-	char c2 = src[start+2];
-	char c3 = src[start+3];
-	long hash = ((((long) c0) << 18) + (c1 << 12) + (c2 << 6) + c3) % TableSize; 
-	char[][] table = this.charArray_length[2][(int) hash];
+	char c0, c1 = src[start+1], c2, c3 = src[start+3];
+	int hash = (((c0=src[start]) << 6) + (c2=src[start+2])) % TableSize;
+//	int hash = (int) (((((long) c0) << 18) + (c1 << 12) + (c2 << 6) + c3) % TableSize); 
+	char[][] table = this.charArray_length[2][hash];
 	int i = newEntry4;
 	while (++i < InternalTableSize) {
 		char[] charArray = table[i];
@@ -2058,23 +2058,19 @@ final char[] optimizedCurrentTokenSource4() {
 	//--------add the entry-------
 	if (++max >= InternalTableSize) max = 0;
 	char[] r;
-	table[max] = (r = new char[] {c0, c1, c2, c3});
-	newEntry4 = max;
-	return r;
-	
+	System.arraycopy(src, start, r= new char[4], 0, 4);
+	//newIdentCount++;
+	return table[newEntry4 = max] = r; //(r = new char[] {c0, c1, c2, c3});
 }
 final char[] optimizedCurrentTokenSource5() {
 	//try to return the same char[] build only once
 
 	char[] src = this.source;
 	int start = this.startPosition;
-	char c0 = src[start];
-	char c1 = src[start+1];
-	char c2 = src[start+2];
-	char c3 = src[start+3];
-	char c4 = src[start+4];
-	long hash = ((((long) c0) << 24) + (((long) c1) << 18) + (c2 << 12) + (c3 << 6) + c4) % TableSize; 
-	char[][] table = this.charArray_length[3][(int) hash];
+	char c0, c1 = src[start+1], c2, c3 = src[start+3], c4;
+	int hash = (((c0=src[start]) << 12) +((c2=src[start+2]) << 6) + (c4=src[start+4])) % TableSize;
+//	int hash = (int) (((((long) c0) << 24) + (((long) c1) << 18) + (c2 << 12) + (c3 << 6) + c4) % TableSize); 
+	char[][] table = this.charArray_length[3][hash];
 	int i = newEntry5;
 	while (++i < InternalTableSize) {
 		char[] charArray = table[i];
@@ -2100,24 +2096,19 @@ final char[] optimizedCurrentTokenSource5() {
 	//--------add the entry-------
 	if (++max >= InternalTableSize) max = 0;
 	char[] r;
-	table[max] = (r = new char[] {c0, c1, c2, c3, c4});
-	newEntry5 = max;
-	return r;
-		
+	System.arraycopy(src, start, r= new char[5], 0, 5);
+	//newIdentCount++;
+	return table[newEntry5 = max] = r; //(r = new char[] {c0, c1, c2, c3, c4});
 }
 final char[] optimizedCurrentTokenSource6() {
 	//try to return the same char[] build only once
 
 	char[] src = this.source;
 	int start = this.startPosition;
-	char c0 = src[start];
-	char c1 = src[start+1];
-	char c2 = src[start+2];
-	char c3 = src[start+3];
-	char c4 = src[start+4];
-	char c5 = src[start+5];
-	long hash = ((((long) c0) << 32) + (((long) c1) << 24) + (((long) c2) << 18) + (c3 << 12) + (c4 << 6) + c5) % TableSize; 
-	char[][] table = this.charArray_length[4][(int) hash];
+	char c0, c1 = src[start+1], c2, c3 = src[start+3], c4, c5 = src[start+5];
+	int hash = (((c0=src[start]) << 12) +((c2=src[start+2]) << 6) + (c4=src[start+4])) % TableSize;
+//	int hash = (int)(((((long) c0) << 32) + (((long) c1) << 24) + (((long) c2) << 18) + (c3 << 12) + (c4 << 6) + c5) % TableSize); 
+	char[][] table = this.charArray_length[4][hash];
 	int i = newEntry6;
 	while (++i < InternalTableSize) {
 		char[] charArray = table[i];
@@ -2145,10 +2136,11 @@ final char[] optimizedCurrentTokenSource6() {
 	//--------add the entry-------
 	if (++max >= InternalTableSize) max = 0;
 	char[] r;
-	table[max] = (r = new char[] {c0, c1, c2, c3, c4, c5});
-	newEntry6 = max;
-	return r;	
+	System.arraycopy(src, start, r= new char[6], 0, 6);
+	//newIdentCount++;
+	return table[newEntry6 = max] = r; //(r = new char[] {c0, c1, c2, c3, c4, c5});
 }
+
 protected void parseTags(NLSLine line) {
 	String s = new String(getCurrentTokenSource());
 	int pos = s.indexOf(TAG_PREFIX);
