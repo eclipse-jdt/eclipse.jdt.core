@@ -15,7 +15,10 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-	<li></li>
+	<li> JavaModelOperations now guarantee the JavaModel is up to date when notifying the Java model change listeners. In particular,
+	a builder running after the Java builder will be able to query the Java model with respect to the changes introduced through Java model
+	operations (except for index queries). This was never guaranteed in 1.0, but indirectly occurred due to the fact that the previous Java
+	builder implementation did force to refresh the Java model while building. </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -37,7 +40,8 @@ Quick Fix: wrong proposal
 <h3>Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14198">14198</a>
 AST: CastExpression.getType().resolveBinding() is null
-
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13939">13939</a>
+DBCS: no error message to invalid character in java source 
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>

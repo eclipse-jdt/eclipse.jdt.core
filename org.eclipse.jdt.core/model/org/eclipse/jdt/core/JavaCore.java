@@ -299,7 +299,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				JavaModelManager.Variables.put(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
 				initializer.initialize(variableName);
 				variablePath = (IPath) JavaModelManager.Variables.get(variableName); // retry
-				if (JavaModelManager.VARIABLE_VERBOSE){
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
 				}
 			}
@@ -326,7 +326,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							try {
 								String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
 								if (variable.equals(varAttribute)) {
-									if (JavaModelManager.VARIABLE_VERBOSE) {
+									if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 										System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
 									}						
 									Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$

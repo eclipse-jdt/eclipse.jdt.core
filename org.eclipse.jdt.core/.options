@@ -13,8 +13,8 @@ org.eclipse.jdt.core/debug/javamodel=false
 # Reports shared working copy use
 org.eclipse.jdt.core/debug/sharedworkingcopy=false
 
-# Reports classpath variable initialization, resolution
-org.eclipse.jdt.core/debug/cpvariable=false
+# Reports classpath variable initialization, and classpath container resolution
+org.eclipse.jdt.core/debug/cpresolution=false
 
 # Reports access to zip and jar files through the Java model
 org.eclipse.jdt.core/debug/zipaccess=false

@@ -677,7 +677,7 @@ public class JavaProject
 				if (entries != null){
 					projectContainers.put(containerPath, entries);
 				}
-				if (JavaModelManager.VARIABLE_VERBOSE){
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> {"); //$NON-NLS-2$//$NON-NLS-1$
 					if (entries != null){
 						for (int i = 0; i < entries.length; i++){

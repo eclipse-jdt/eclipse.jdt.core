@@ -65,7 +65,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 */
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 	/**
-	 * Special value used for recognizing ongoing initialization
+	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
 	public final static IClasspathEntry[] ContainerInitializationInProgress = new IClasspathEntry[0];
@@ -73,7 +73,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
-	private static final String VARIABLE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpvariable" ; //$NON-NLS-1$
+	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String HIERARCHY_DEBUG = JavaCore.PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
@@ -323,7 +323,7 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	/**
 	 * The singleton manager
 	 */
-	protected static JavaModelManager fgManager= null;
+	private final static JavaModelManager Manager= new JavaModelManager();
 
 
 	
@@ -340,13 +340,13 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	/**
 	 * Turns delta firing on/off. By default it is on.
 	 */
-	protected boolean fFire= true;
+	private boolean isFiring= true;
 
 	/**
 	 * Queue of deltas created explicily by the Java Model that
 	 * have yet to be fired.
 	 */
-	protected ArrayList fJavaModelDeltas= new ArrayList();
+	private ArrayList javaModelDeltas= new ArrayList();
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
@@ -366,12 +366,16 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	 *
 	 * fix for 1FW67PA
 	 */
-	protected ArrayList fProjectsBeingDeleted= new ArrayList();
+	protected ArrayList projectsBeingDeleted= new ArrayList();
 
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
-	protected DeltaProcessor fDeltaProcessor= new DeltaProcessor();
+	private final DeltaProcessor deltaProcessor = new DeltaProcessor();
+	/**
+	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
+	 */
+	private final ModelUpdater modelUpdater =new ModelUpdater();
 
 	/**
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
@@ -410,7 +414,7 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 		}
 	};
 	public static boolean VERBOSE = false;
-	public static boolean VARIABLE_VERBOSE = false;
+	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
 	
 	/**
@@ -494,7 +498,7 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			int deltaKind = delta.getKind();
 			if (deltaKind == IResourceDelta.ADDED /* case of a project removed then added */
 				|| deltaKind == IResourceDelta.CHANGED /* case of a project removed then added then changed */) {
-				fProjectsBeingDeleted.remove(delta.getResource());
+				this.projectsBeingDeleted.remove(delta.getResource());
 			}
 	}
 }
@@ -516,8 +520,8 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 				option = Platform.getDebugOption(SHARED_WC_DEBUG);
 				if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 	
-				option = Platform.getDebugOption(VARIABLE_DEBUG);
-				if(option != null) JavaModelManager.VARIABLE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
+				if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 	
 				option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 				if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
@@ -551,8 +555,8 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 		
 		getIndexManager().deleting(project);
 		
-		if (!fProjectsBeingDeleted.contains(project)) {
-			fProjectsBeingDeleted.add(project);
+		if (!this.projectsBeingDeleted.contains(project)) {
+			this.projectsBeingDeleted.add(project);
 		}
 	}
 /**
@@ -580,7 +584,7 @@ public void doneSaving(ISaveContext context){
 	 */
 	public void fire(JavaElementDelta customDelta, int originalEventType) {
 
-		if (fFire) {
+		if (this.isFiring) {
 
 			int eventType;
 			
@@ -598,10 +602,10 @@ public void doneSaving(ISaveContext context){
 			JavaElementDelta deltaToNotify;
 			if (customDelta == null){
 				this.mergeDeltas();
-				if (fJavaModelDeltas.size() > 0){ 
+				if (this.javaModelDeltas.size() > 0){ 
 
 					// cannot be more than 1 after merge
-					deltaToNotify = (JavaElementDelta)fJavaModelDeltas.get(0);
+					deltaToNotify = (JavaElementDelta)this.javaModelDeltas.get(0);
 
 					// empty the queue only after having fired final volley of deltas and no custom deltas was superposed
 					if (eventType == ElementChangedEvent.POST_CHANGE){
@@ -672,7 +676,7 @@ public void doneSaving(ISaveContext context){
 	 * Flushes all deltas without firing them.
 	 */
 	protected void flush() {
-		fJavaModelDeltas= new ArrayList();
+		this.javaModelDeltas= new ArrayList();
 	}
 	/**
 	 * Flushes ZipFiles cache if there are no more clients.
@@ -722,7 +726,7 @@ public void doneSaving(ISaveContext context){
 								}
 						}
 						if (bestResolver != null){
-							if (JavaModelManager.VARIABLE_VERBOSE) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 								System.out.println("CPVariable INIT - found initializer: "+containerPath+" --> " + bestResolver.getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
 							}						
 							try {
@@ -812,7 +816,7 @@ public void doneSaving(ISaveContext context){
 		return model.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
 	}
 	public IndexManager getIndexManager() {
-		return fDeltaProcessor.indexManager;
+		return this.deltaProcessor.indexManager;
 	}
 	/**
 	 *  Returns the info for the element.
@@ -834,10 +838,7 @@ public void doneSaving(ISaveContext context){
 	 * Returns the singleton JavaModelManager
 	 */
 	public static synchronized JavaModelManager getJavaModelManager() {
-		if (fgManager == null) {
-			fgManager= new JavaModelManager();
-		}
-		return fgManager;
+		return Manager;
 	}
 	/**
 	 * Returns the last built state for the given project, or null if there is none.
@@ -964,13 +965,13 @@ public void doneSaving(ISaveContext context){
 	 * fix for 1FW67PA
 	 */
 	public boolean isBeingDeleted(IProject project) {
-		return fProjectsBeingDeleted.contains(project);
+		return this.projectsBeingDeleted.contains(project);
 	}
 	/**
 	 * Returns true if the firing is enabled
 	 */
 	public boolean isFiring() {
-		return this.fFire;
+		return this.isFiring;
 	}
 	public void loadVariables() throws CoreException {
 		
@@ -987,13 +988,13 @@ public void doneSaving(ISaveContext context){
  * Merged all awaiting deltas.
  */
 public void mergeDeltas() {
-	if (fJavaModelDeltas.size() <= 1) return;
+	if (this.javaModelDeltas.size() <= 1) return;
 	
 	if (DeltaProcessor.VERBOSE) {
-		System.out.println("MERGING " + fJavaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		System.out.println("MERGING " + this.javaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
-	Iterator deltas = fJavaModelDeltas.iterator();
+	Iterator deltas = this.javaModelDeltas.iterator();
 	IJavaElement javaModel = this.getJavaModel();
 	JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
 	boolean insertedTree = false;
@@ -1016,11 +1017,11 @@ public void mergeDeltas() {
 		}
 	}
 	if (insertedTree){
-		fJavaModelDeltas = new ArrayList(1);
-		fJavaModelDeltas.add(rootDelta);
+		this.javaModelDeltas = new ArrayList(1);
+		this.javaModelDeltas.add(rootDelta);
 	}
 	else {
-		fJavaModelDeltas = new ArrayList(0);
+		this.javaModelDeltas = new ArrayList(0);
 	}
 }	
 	/**
@@ -1113,7 +1114,7 @@ public void mergeDeltas() {
 	 * are to be registered with <code>#registerResourceDelta</code>.
 	 */
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
-		fJavaModelDeltas.add(delta);
+		this.javaModelDeltas.add(delta);
 	}
 	/**
 	 * Remembers the given scope in a weak set
@@ -1205,7 +1206,7 @@ public void mergeDeltas() {
 				case IResourceChangeEvent.POST_CHANGE :
 					if (delta != null) {
 						try {
-							IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
+							IJavaElementDelta[] translatedDeltas = this.deltaProcessor.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
 							if (translatedDeltas.length > 0) {
 								for (int i= 0; i < translatedDeltas.length; i++) {
 									registerJavaModelDelta(translatedDeltas[i]);
@@ -1214,8 +1215,8 @@ public void mergeDeltas() {
 							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
-							if (!fProjectsBeingDeleted.isEmpty()) {
-								fProjectsBeingDeleted= new ArrayList(1);
+							if (!this.projectsBeingDeleted.isEmpty()) {
+								this.projectsBeingDeleted= new ArrayList(1);
 							}
 						}			
 					}		
@@ -1223,17 +1224,17 @@ public void mergeDeltas() {
 		}
 	}
 	
-/**
- * @see ISaveParticipant
- */
-public void rollback(ISaveContext context){
-}
+	/**
+	 * @see ISaveParticipant
+	 */
+	public void rollback(ISaveContext context){
+	}
 	/**
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		
-		int previousDeltaCount = fJavaModelDeltas.size();
+		int previousDeltaCount = this.javaModelDeltas.size();
 		try {
 			if (operation.isReadOnly()) {
 				operation.run(monitor);
@@ -1254,10 +1255,13 @@ public void rollback(ISaveContext context){
 				throw new JavaModelException(ce);
 			}
 		} finally {
+			// update JavaModel using default recorded deltas
+			updateJavaModel(null);
+			
 			// fire only iff:
 			// - the operation did produce some delta(s)
 			// - but the operation has not modified any resource
-			if ((fJavaModelDeltas.size() > previousDeltaCount) 
+			if ((this.javaModelDeltas.size() > previousDeltaCount) 
 					&& !operation.hasModifiedResource()) {
 				fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
 			} // else deltas are fired while processing the resource delta
@@ -1400,8 +1404,8 @@ public void saving(ISaveContext context) throws CoreException {
 		info.savedState = state;
 	}
 	public void shutdown () {
-		if (fDeltaProcessor.indexManager != null){ // no more indexing
-			fDeltaProcessor.indexManager.shutdown();
+		if (this.deltaProcessor.indexManager != null){ // no more indexing
+			this.deltaProcessor.indexManager.shutdown();
 		}
 		try {
 			IJavaModel model = this.getJavaModel();
@@ -1416,14 +1420,29 @@ public void saving(ISaveContext context) throws CoreException {
 	 * registered will be fired.
 	 */
 	public void startDeltas() {
-		fFire= true;
+		this.isFiring= true;
 	}
 	/**
 	 * Turns the firing mode to off. That is, deltas that are/have been
 	 * registered will not be fired until deltas are started again.
 	 */
 	public void stopDeltas() {
-		fFire= false;
+		this.isFiring= false;
 	}
 	
+	/**
+	 * Update Java Model given some delta
+	 */
+	public void updateJavaModel(IJavaElementDelta customDelta) {
+
+		if (customDelta == null){
+			for (int i = 0, length = this.javaModelDeltas.size(); i < length; i++){
+				IJavaElementDelta delta = (IJavaElementDelta)this.javaModelDeltas.get(i);
+				this.modelUpdater.processJavaDelta(delta);
+			}
+		} else {
+			this.modelUpdater.processJavaDelta(customDelta);
+		}
+	}
+
 }
