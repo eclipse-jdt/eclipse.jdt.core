@@ -143,6 +143,9 @@ protected char[][][] collect() {
 						this.collectSuperTypeNames(binding);
 					}
 				}
+			} catch (AbortCompilation e){
+				//e.printStackTrace(); 
+				// ignore: continue with next element
 			} catch (JavaModelException e) {
 				// ignore: continue with next element
 			}
