@@ -85,8 +85,8 @@ public interface IClasspathContainer {
 
 	/**
 	 * Answers the container path identifying this container.
-	 * A container path is a 2-segments path, formed by an ID segment followed with a clue segment.
-	 * This container ID is used in conjunction with the  clue for resolving to this container.
+	 * A container path is a 2-segments path, formed by an ID segment followed with an
+	 * extra segment which can be used as an additional hint for resolving to this container.
 	 * <p>
 	 * The container ID is also used to identify a<code>ClasspathContainerInitializer</code>
 	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer", which can

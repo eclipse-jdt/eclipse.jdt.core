@@ -65,11 +65,11 @@ import org.eclipse.core.runtime.IPath;
  *     considering also that containers can be mapped differently on each project. Several projects can
  *     reference the same generic container path, but have each of them actually bound to a different
  *     container object.
- *     The containerPath is a 2-segments path, formed by an ID segment followed with a clue segment 
- *     that may be used for resolving this container reference. If no container was ever recorded for this 
- *     container path onto this project (using <code>setClasspathContainer</code>, then a 
- *     <code>ClasspathContainerInitializer</code> will be activated if any was registered for this container 
- *     ID onto the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
+ *     The containerPath is a 2-segments path, formed by an ID segment followed with an extra segment 
+ *     which can be used as an additional hint for resolving this container reference. If no container was ever 
+ *     recorded for this container path onto this project (using <code>setClasspathContainer</code>, 
+ * 	then a <code>ClasspathContainerInitializer</code> will be activated if any was registered for this 
+ * 	container ID onto the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
  * 	A classpath container entry can be resolved explicitly using <code>JavaCore#getClasspathContainer</code>
  * 	and the resulting container entries can contain any non-container entry. In particular, it may contain variable
  *     entries which in turn needs to be resolved before being directly used. 
@@ -186,8 +186,8 @@ public interface IClasspathEntry {
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the path of the entry
 	 * 	is the name of the classpath container, which can be bound indirectly to a set of classpath 
 	 * 	entries after resolution. The containerPath is a 2-segments path, formed by an ID segment 
-	 *     followed with a clue segment that may be used for resolving this container reference 
-	 *     (also see <code>IClasspathContainer</code>).
+	 *     followed with an extra segment that can be used as an additional hint for resolving this container 
+	 * 	reference (also see <code>IClasspathContainer</code>).
 	 * </li>
 	 * </ul>
 	 *

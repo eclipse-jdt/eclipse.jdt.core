@@ -279,11 +279,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * In case this container path could not be resolved, then will answer <code>null</code>.
 	 * Both the container path and the project context are supposed to be non-null.
 	 * <p>
-	 * The containerPath is a 2-segments path, formed by an ID segment followed with a clue segment 
-	 * that may be used for resolution. If no container was ever recorded for this container path onto this project
-	 * (using <code>setClasspathContainer</code>, then a <code>ClasspathContainerInitializer</code>
-	 * will be activated if any was registered for this container ID onto the extension point
-	 * "org.eclipse.jdt.core.classpathContainerInitializer".
+	 * The containerPath is a 2-segments path, formed by an ID segment followed with an extra
+	 * segment which can be used as an additional hint for resolution. If no container was ever recorded 
+	 * for this container path onto this project (using <code>setClasspathContainer</code>, then a 
+	 * <code>ClasspathContainerInitializer</code> will be activated if any was registered for this container 
+	 * ID onto the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
 	 * There is no assumption that the returned container must answer the exact same containerPath
 	 * when requested <code>IClasspathContainer#getPath</code>. 
@@ -658,8 +658,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A container path must be exactly formed of 2 segments, where: <ul>
 	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
 	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
-	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as a clue during
-	 * 	the resolution phase. </li>
+	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as an additional
+	 * 	hint during	the resolution phase. </li>
 	 * <p>
 	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
 	 * 
@@ -707,8 +707,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A container path must be exactly formed of 2 segments, where: <ul>
 	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
 	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
-	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as a clue during
-	 * 	the initialization phase. </li>
+	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as an additional
+	 * 	hint during the initialization phase. </li>
 	 * <p>
 	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
 	 * 
@@ -1098,8 +1098,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * <code>containerPath</code> is the path under which these values can be referenced through
 	 * container classpath entries (<code>IClasspathEntry#CPE_CONTAINER</code>). A container path 
-	 * is a 2-segments path, formed by an ID segment followed with a clue segment. The container ID
-	 * is used to identify a<code>ClasspathContainerInitializer</code> registered on the extension point 
+	 * is a 2-segments path, formed by an ID segment followed with an extra segment which can be
+	 * used as an additional hint for the resolution. The container ID is used to identify a
+	 * <code>ClasspathContainerInitializer</code> registered on the extension point 
 	 * "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
 	 * There is no assumption that each individual container value passed in argument 

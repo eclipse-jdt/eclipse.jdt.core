@@ -50,13 +50,13 @@ public abstract class ClasspathContainerInitializer {
      * <p>
      * A container is identified by a container path, which must be formed of two segments.
      * The first segment is used as a unique identifier (which this initializer did register onto), and
-     * the second segment is a clue that can be used by the initializer to perform.
+     * the second segment can be used as an additional hint when performing the resolution.
      * <p>
      * The initializer is invoked if a container path needs to be resolved for a given project, and no
      * value for it was recorded so far. The implementation of the initializer can set the corresponding 
      * container using <code>JavaCore#setClasspathContainer</code>.
      * <p>
-     * @param containerPath - a two-segment path (ID/clue) identifying the container that needs 
+     * @param containerPath - a two-segment path (ID/hint) identifying the container that needs 
      * 	to be resolved
      * @param project - the Java project in which context the container is to be resolved.
      *    This allows generic containers to be bound with project specific values.
