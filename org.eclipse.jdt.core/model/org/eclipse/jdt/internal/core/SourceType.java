@@ -37,10 +37,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 public class SourceType extends Member implements IType {
-	/**
-	 * An empty list of Strings
-	 */
-	protected static final String[] EmptyStringList = new String[0];
 	
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);

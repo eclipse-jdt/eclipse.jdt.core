@@ -74,7 +74,8 @@ static Class[] getAllTestClasses() {
 		LocalElementTests.class,
 		GetSourceTests.class,
 		CreatePackageTests.class,
-		CreateCompilationUnitTests.class
+		CreateCompilationUnitTests.class,
+		ClassFileTests.class
 	};
 }
 public static Test suite() {
@@ -226,6 +227,9 @@ public static Test suite() {
 	
 	// Create search participant tests
 	suite.addTest(SearchParticipantTests.suite());
+	
+	// Class file tests
+	suite.addTest(ClassFileTests.suite());
 
 	includeDeprecatedJDOMTests(suite);
 

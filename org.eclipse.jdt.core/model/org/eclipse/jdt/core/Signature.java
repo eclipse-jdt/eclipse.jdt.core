@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
@@ -1482,6 +1484,66 @@ public static String[] getTypeParameterBounds(String formalTypeParameterSignatur
 	String[] result = new String[length];
 	for (int i = 0; i < length; i++) {
 		result[i] = new String(bounds[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the type parameter signatures from the given generic signature. 
+ * The generic signature is expected to be dot-based.
+ *
+ * @param genericSignature the generic signature
+ * @return the (possibly empty) list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.1
+*/
+public static char[][] getTypeParameters(char[] genericSignature) throws IllegalArgumentException {
+		if (genericSignature[0] != C_GENERIC_START) return CharOperation.NO_CHAR_CHAR;
+		ArrayList list = new ArrayList();
+		int depth = -1;
+		int typeParamStart = 1;
+		loop: for (int i = 0, length = genericSignature.length; i < length; i++) {
+			char c = genericSignature[i];
+			switch (c) {
+				case C_GENERIC_START:
+					depth++;
+					break;
+				case C_GENERIC_END:
+					if (--depth == -1) break loop;
+					break;
+				case C_NAME_END:
+					if (depth == 0) {
+						char[] typeParam = CharOperation.subarray(genericSignature, typeParamStart, i+1);
+						list.add(typeParam);
+						typeParamStart = i+1;
+					}
+			}
+		}
+		int size = list.size();
+		if (size == 0) return CharOperation.NO_CHAR_CHAR;
+		char[][] result = new char[size][];
+		list.toArray(result);
+		return result;
+	
+}
+
+/**
+ * Extracts the type parameter signatures from the given generic signature. 
+ * The generic signature is expected to be dot-based.
+ *
+ * @param genericSignature the generic signature
+ * @return the (possibly empty) list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.1
+*/
+public static String[] getTypeParameters(String genericSignature) throws IllegalArgumentException {
+	char[][] signatures = getTypeParameters(genericSignature.toCharArray());
+	int length = signatures.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(signatures[i]);
 	}
 	return result;
 }

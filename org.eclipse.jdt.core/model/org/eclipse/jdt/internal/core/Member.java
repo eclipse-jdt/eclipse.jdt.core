@@ -32,6 +32,11 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
  */
 
 public abstract class Member extends SourceRefElement implements IMember {
+	/**
+	 * An empty list of Strings
+	 */
+	protected static final String[] EmptyStringList = new String[0];
+
 protected Member(JavaElement parent, String name) {
 	super(parent, name);
 }

@@ -306,6 +306,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(message, expected, actual);
 	}
+	protected void assertStringsEqual(String message, String expected, String[] strings) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < strings.length; i++){
+			buffer.append(strings[i]);
+			buffer.append("\n");
+		}
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + ",");
+		}
+		assertEquals(message, expected, actual);
+	}
 	/**
 	 * Attaches a source zip to the given jar package fragment root.
 	 */
