@@ -236,9 +236,9 @@ public int sizeInBytes() {
 }
 public String toString() {
 	int modifiers = getModifiers();
-	char[] descriptor = getSignature();
-	if (descriptor == null)
-		descriptor = getMethodDescriptor();
+	char[] desc = getSignature();
+	if (desc == null)
+		desc = getMethodDescriptor();
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
 	return buffer
 		.append("{") //$NON-NLS-1$
@@ -252,7 +252,7 @@ public String toString() {
 				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0080) == 0x0080 ? "transient " : "")) //$NON-NLS-1$ //$NON-NLS-2$
 		.append(getSelector())
-		.append(descriptor)
+		.append(desc)
 		.append("}") //$NON-NLS-1$
 		.toString(); 
 }
