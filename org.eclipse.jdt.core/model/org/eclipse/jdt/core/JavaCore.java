@@ -2827,7 +2827,7 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO Add spec
+	 * TODO (jeem) Add spec to cover access restrictions
 	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -2954,7 +2954,7 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO Add spec
+	 * TODO (jeem) Add spec to cover access restrictions
 	 * @param path
 	 * @param sourceAttachmentPath
 	 * @param sourceAttachmentRootPath
@@ -3049,7 +3049,7 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO Add spec
+	 * TODO (jeem) Add spec to cover access restrictions
 	 * @param path  the absolute path of the prerequisite project
 	 * @param inclusionPatterns the possibly empty list of import inclusion patterns
 	 *    represented as relative paths
@@ -3349,7 +3349,7 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO Add spec
+	 * TODO (jeem) Add spec to cover access restrictions
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
