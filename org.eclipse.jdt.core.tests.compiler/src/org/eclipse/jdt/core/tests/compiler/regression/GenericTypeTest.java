@@ -16195,5 +16195,37 @@ public void test500(){
 			"	  ^^^^^^^^^\n" + 
 			"The method compareTo(T) in the type X<T>.InnerClass is not applicable for the arguments (X<T>.InnerClass)\n" + 
 			"----------\n");	
+	}
+	public void test571() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IFoo {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"class Box<T extends IFoo> {\n" + 
+				"	T value() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1(Box<?> box) {\n" + 
+				"		box.value().foo();\n" + 
+				"	}\n" + 
+				"	void test2(Box<? extends IBar> box) {\n" + 
+				"		box.value().foo();\n" + 
+				"		box.value().bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");	
 	}			
 }
