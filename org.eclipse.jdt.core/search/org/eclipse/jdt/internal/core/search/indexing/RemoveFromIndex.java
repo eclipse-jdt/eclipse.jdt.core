@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class RemoveFromIndex implements IJob {
 	String resourceName;
@@ -52,6 +53,10 @@ class RemoveFromIndex implements IJob {
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to remove " + this.resourceName + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		}
 		return COMPLETE;

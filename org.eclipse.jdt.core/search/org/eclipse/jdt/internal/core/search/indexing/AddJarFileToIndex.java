@@ -190,6 +190,10 @@ public int hashCode() {
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to index " + this.path + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		}
 		return COMPLETE;

@@ -135,8 +135,16 @@ public int hashCode() {
 				}
 			}
 		} catch (CoreException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		} finally {
 			monitor.exitRead(); // free read lock

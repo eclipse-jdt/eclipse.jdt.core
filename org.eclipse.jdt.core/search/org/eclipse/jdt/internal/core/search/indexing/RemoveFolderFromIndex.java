@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class RemoveFolderFromIndex implements IJob {
 	String folderPath;
@@ -57,6 +58,10 @@ class RemoveFolderFromIndex implements IJob {
 				monitor.exitRead(); // free read lock
 			}
 		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to remove " + this.folderPath + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		}
 		return COMPLETE;

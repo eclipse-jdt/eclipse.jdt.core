@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class AddCompilationUnitToIndex extends IndexRequest {
 	IFile resource;
@@ -57,6 +58,10 @@ class AddCompilationUnitToIndex extends IndexRequest {
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to index " + this.resource + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
 			return FAILED;
 		}
 		return COMPLETE;
