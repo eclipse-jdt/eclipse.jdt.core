@@ -27,19 +27,19 @@ public class IntConstant extends Constant {
 	}
 	
 	public double doubleValue() {
-		return (double) value;
+		return value; // implicit cast to return type
 	}
 	
 	public float floatValue() {
-		return (float) value;
+		return value; // implicit cast to return type
 	}
 	
 	public int intValue() {
-		return (int) value;
+		return value;
 	}
 	
 	public long longValue() {
-		return (long) value;
+		return value; // implicit cast to return type
 	}
 	
 	public short shortValue() {

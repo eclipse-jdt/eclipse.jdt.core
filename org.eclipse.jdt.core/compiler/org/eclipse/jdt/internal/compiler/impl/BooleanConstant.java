@@ -11,28 +11,31 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class BooleanConstant extends Constant {
+
 	boolean value;
-
 	
-public BooleanConstant(boolean value) {
-	this.value = value;
-}
-public boolean booleanValue() {
-	return (boolean) value;
-}
-public String stringValue() {
-	//spec 15.17.11
-	
-	String s = new Boolean(value).toString() ;
-	if (s == null)
-		return "null"; //$NON-NLS-1$
-	else
-		return s;
-}
-public String toString(){
+	public BooleanConstant(boolean value) {
+		this.value = value;
+	}
 
-	return "(boolean)" + value ; } //$NON-NLS-1$
-public int typeID() {
-	return T_boolean;
-}
+	public boolean booleanValue() {
+		return value;
+	}
+
+	public String stringValue() {
+		//spec 15.17.11
+		String s = new Boolean(value).toString() ;
+		if (s == null)
+			return "null"; //$NON-NLS-1$
+		else
+			return s;
+	}
+
+	public String toString(){
+		return "(boolean)" + value ;  //$NON-NLS-1$
+	}
+
+	public int typeID() {
+		return T_boolean;
+	}
 }

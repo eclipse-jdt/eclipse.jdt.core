@@ -15,6 +15,22 @@ public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
 
 	public static int MAX_PORT_NUMBER = 9999;
+	
+public static String convertToIndependantLineDelimiter(String source) {
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = source.length(); i < length; i++) {
+		char car = source.charAt(i);
+		if (car == '\r') {
+			buffer.append('\n');
+			if (i < length-1 && source.charAt(i+1) == '\n') {
+				i++; // skip \n after \r
+			}
+		} else {
+			buffer.append(car);
+		}
+	}
+	return buffer.toString();
+}
 /**
  * Copy the given source (a file or a directory that must exists) to the given destination (a directory that must exists).
  */
@@ -217,7 +233,7 @@ public static String displayString(String inputString, int indent) {
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
 */
-public static String fileContentToDisplayString(String sourceFilePath, int indent) {
+public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
 	File sourceFile = new File(sourceFilePath);
 	if (!sourceFile.exists()) {
 		System.out.println("File " + sourceFilePath + " does not exists.");
@@ -252,7 +268,11 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
 		} catch (IOException e2) {
 		}
 	}
-	return displayString(sourceContentBuffer.toString(), indent);
+	String sourceString = sourceContentBuffer.toString();
+	if (independantLineDelimiter) {
+		sourceString = convertToIndependantLineDelimiter(sourceString);
+	}
+	return displayString(sourceString, indent);
 }
 /**
  * Reads the content of the given source file, converts it to a display string.
@@ -261,8 +281,8 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0, null)]
 */
-public static void fileContentToDisplayString(String sourceFilePath, int indent, String destinationFilePath) {
-	String displayString = fileContentToDisplayString(sourceFilePath, indent);
+public static void fileContentToDisplayString(String sourceFilePath, int indent, String destinationFilePath, boolean independantLineDelimiter) {
+	String displayString = fileContentToDisplayString(sourceFilePath, indent, independantLineDelimiter);
 	if (destinationFilePath == null) {
 		System.out.println(displayString);
 		return;
@@ -380,20 +400,5 @@ public static void writeToFile(String contents, String destinationFilePath) {
 			}
 		}
 	}
-}
-public static String convertToIndependantLineDelimiter(String source) {
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = source.length(); i < length; i++) {
-		char car = source.charAt(i);
-		if (car == '\r') {
-			buffer.append('\n');
-			if (i < length-1 && source.charAt(i+1) == '\n') {
-				i++; // skip \n after \r
-			}
-		} else {
-			buffer.append(car);
-		}
-	}
-	return buffer.toString();
 }
 }

@@ -588,8 +588,8 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		}
 
 		// member types
-		IBinaryNestedType[] currentMemberTypes = (IBinaryNestedType[]) this.getMemberTypes();
-		IBinaryNestedType[] otherMemberTypes = (IBinaryNestedType[]) newClassFile.getMemberTypes();
+		IBinaryNestedType[] currentMemberTypes = this.getMemberTypes();
+		IBinaryNestedType[] otherMemberTypes = newClassFile.getMemberTypes();
 		if (currentMemberTypes != otherMemberTypes) { // TypeConstants.NoMemberTypes
 			int currentMemberTypeLength = currentMemberTypes == null ? 0 : currentMemberTypes.length;
 			int otherMemberTypeLength = otherMemberTypes == null ? 0 : otherMemberTypes.length;

@@ -27,7 +27,7 @@ public class DoubleConstant extends Constant {
 	}
 	
 	public double doubleValue() {
-		return (double) value;
+		return this.value;
 	}
 	
 	public float floatValue() {
