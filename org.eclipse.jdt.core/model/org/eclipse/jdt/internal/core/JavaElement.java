@@ -408,7 +408,7 @@ protected IJavaElement getSourceElementAt(int position) throws JavaModelExceptio
 				SourceRefElement child = (SourceRefElement) children[i];
 				ISourceRange range = child.getSourceRange();
 				if (position < range.getOffset() + range.getLength() && position >= range.getOffset()) {
-					if (child.getElementType() == TYPE) {
+					if (child instanceof IParent) {
 						return child.getSourceElementAt(position);
 					} else {
 						return child;
