@@ -92,6 +92,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 
 	public void consumeParameterizedMethod() {
 		TypeBinding[] arguments = getTypeBindingArguments();
+		if (arguments.length != this.methodBinding.typeVariables().length) return;
 	 	this.methodBinding = new ParameterizedGenericMethodBinding(this.methodBinding, arguments, this.environment);
 		this.compilerBinding = this.methodBinding;
 	}
@@ -166,7 +167,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 
 	public void consumeParser(BindingKeyParser parser) {
-		this.types.add(((BindingKeyResolver) parser).compilerBinding);
+		Binding binding = ((BindingKeyResolver) parser).compilerBinding;
+		if (binding != null)
+			this.types.add(binding);
 	}
 	
 	public void consumeScope(int scopeNumber) {

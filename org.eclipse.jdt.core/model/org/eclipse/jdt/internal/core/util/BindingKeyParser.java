@@ -15,6 +15,8 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 public class BindingKeyParser {
 	
+	int keyStart;
+	
 	class Scanner {
 		static final int ARRAY = 4;
 		static final int END = 6;
@@ -55,8 +57,9 @@ public class BindingKeyParser {
 		
 		boolean isAtMemberTypeStart() {
 			return 
-				this.index < this.source.length
+				this.index+2 < this.source.length
 				&& (this.source[this.index] == '$'
+					|| this.source[this.index+2] == '$'
 					|| (this.source[this.index] == '.' && this.source[this.index-1] == '>'));
 		}
 		
@@ -432,10 +435,12 @@ public class BindingKeyParser {
 		parseInnerType();
 		
 		if (this.scanner.isAtParametersStart()) {
-			if (this.scanner.isAtTypeParameterStart())	 					
+			if (this.scanner.isAtTypeParameterStart())	{		
 				// generic type
 				parseGenericType();
-			else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
+				// local type in generic type
+				parseInnerType();
+			} else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
 				// parameterized type
 				parseParameterizedType(null/*top level type*/);
 			else if (this.scanner.isAtRawTypeEnd())
@@ -471,12 +476,15 @@ public class BindingKeyParser {
 	private void parseFullyQualifiedName() {
 		switch(this.scanner.nextToken()) {
 			case Scanner.PACKAGE:
+				this.keyStart = 0;
 				consumePackage(this.scanner.getTokenSource());
 				return;
 			case Scanner.TYPE:
+				this.keyStart = this.scanner.start-1;
 				consumeFullyQualifiedName(this.scanner.getTokenSource());
 				break;
 	 		case Scanner.ARRAY:
+	 			this.keyStart = this.scanner.start;
 	 			consumeArrayDimension(this.scanner.getTokenSource());
 				if (this.scanner.nextToken() == Scanner.TYPE)
 	 				consumeFullyQualifiedName(this.scanner.getTokenSource());
@@ -517,7 +525,7 @@ public class BindingKeyParser {
 	 		int nextToken = Scanner.TYPE;
 	 		while (this.scanner.isAtMemberTypeStart()) 
 	 			nextToken = this.scanner.nextToken();
-	 		typeName = nextToken == Scanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, 0, this.scanner.index+1);
+	 		typeName = nextToken == Scanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, this.keyStart, this.scanner.index+1);
 	 		consumeLocalType(typeName);
 	 	} else {
 			consumeMemberType(typeName);

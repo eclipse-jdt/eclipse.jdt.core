@@ -58,6 +58,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					binding = ((TypeDeclarationStatement) node).resolveBinding();
 				} else if (node instanceof MethodDeclaration) {
 					binding = ((MethodDeclaration) node).resolveBinding();
+				} else if (node instanceof MethodInvocation) {
+					binding = ((MethodInvocation) node).resolveMethodBinding();
 				}
 				this.bindingKey = binding == null ? null : binding.getKey();
 			}
@@ -77,7 +79,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test053"));
+			suite.addTest(new BatchASTCreationTests("test036"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -142,13 +144,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				discardWorkingCopies(dummyWorkingCopies);
 			}
 			
-			String key = expectedKey;
-			if (!key.equals(requestor.createdBindingKey)) {
+			String actualKey = requestor.createdBindingKey;
+			if (!expectedKey.equals(actualKey)) {
 				BindingResolver resolver = requestBinding(pathAndSources, null);
-				if (resolver.bindingKey != null) key = resolver.bindingKey;
-				System.out.println(Util.displayString(key, 3));
+				if (resolver.bindingKey != null) {
+					if (!expectedKey.equals(resolver.bindingKey))
+						System.out.println(Util.displayString(resolver.bindingKey, 3));
+					assertEquals("Inconsistent expected key ", resolver.bindingKey, expectedKey);
+				} 
+				System.out.println(Util.displayString(actualKey, 3));
 			}
-			assertEquals("Unexpected created binding", key, requestor.createdBindingKey);
+			assertEquals("Unexpected created binding", expectedKey, actualKey);
 		} finally {
 			discardWorkingCopies(copies);
 		}
@@ -1150,4 +1156,26 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X$89;"
 		);
 	}
+	
+	/*
+	 * Ensures that a parameterized generic method binding can be created using its key in ASTRequestor#createBindings.
+	 */
+	public void test055() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  <U> void foo(U u) {\n" +
+				"  }\n" +
+				"  void bar() {\n" +
+				"    /*start*/new X<String>().foo(new X() {})/*end*/;\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TU;)V%<Lp1/X<TT;>$101;>"
+		);
+	}
+
+
 }
