@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -32,19 +33,16 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  */
 public class IndexSelector {
 	IJavaSearchScope searchScope;
-	IJavaElement focus;
+	SearchPattern pattern;
 	IndexManager indexManager;
 	IPath[] indexKeys; // cache of the keys for looking index up
-	boolean isPolymorphicSearch;
 public IndexSelector(
 	IJavaSearchScope searchScope,
-	IJavaElement focus,
-	boolean isPolymorphicSearch,
+	SearchPattern pattern,
 	IndexManager indexManager) {
 	this.searchScope = searchScope;
-	this.focus = focus;
+	this.pattern = pattern;
 	this.indexManager = indexManager;
-	this.isPolymorphicSearch = isPolymorphicSearch;
 }
 /**
  * Returns whether elements of the given project or jar can see the given focus (an IJavaProject or
@@ -130,7 +128,8 @@ private void initializeIndexKeys() {
 	ArrayList requiredIndexKeys = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-	IJavaElement projectOrJarFocus = this.focus == null ? null : getProjectOrJar(this.focus);
+	IJavaElement projectOrJarFocus = this.pattern == null || this.pattern.focus == null ? null : getProjectOrJar(this.pattern.focus);
+	boolean isPolymorphicSearch = this.pattern == null ? false : this.pattern.isPolymorphicSearch();
 	for (int i = 0; i < projectsAndJars.length; i++) {
 		IPath location;
 		IPath path = projectsAndJars[i];
@@ -141,7 +140,7 @@ private void initializeIndexKeys() {
 			&& !new java.io.File(path.toOSString()).exists()) { // and external jar file does not exist
 				continue;
 		}
-		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, this.isPolymorphicSearch, path)) {
+		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, isPolymorphicSearch, path)) {
 			if (requiredIndexKeys.indexOf(path) == -1) {
 				requiredIndexKeys.add(path);
 			}

@@ -584,8 +584,6 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			new PatternSearchJob(
 				pattern, 
 				scope, 
-				pattern.focus,
-				pattern.isPolymorphicSearch(),
 				detailLevel, 
 				pathCollector, 
 				indexManager),

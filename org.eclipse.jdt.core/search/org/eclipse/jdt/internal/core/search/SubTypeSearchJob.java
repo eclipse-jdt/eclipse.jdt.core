@@ -36,8 +36,6 @@ public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElem
 	super(
 		pattern, 
 		scope, 
-		focus, 
-		false/*not a polymorphic search*/, 
 		detailLevel, 
 		requestor, 
 		indexManager);

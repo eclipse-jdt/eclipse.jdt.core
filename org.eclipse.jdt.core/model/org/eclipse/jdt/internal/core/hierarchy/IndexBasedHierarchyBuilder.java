@@ -449,10 +449,10 @@ public static void searchAllPossibleSubTypes(
 	};
 	
 	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(null, null, IJavaSearchConstants.EXACT_MATCH, IJavaSearchConstants.CASE_SENSITIVE);
+	pattern.focus = type;
 	SubTypeSearchJob job = new SubTypeSearchJob(
 				pattern, 
 				scope,
-				type, 
 				IInfoConstants.PathInfo, 
 				searchRequestor, 
 				indexManager);
