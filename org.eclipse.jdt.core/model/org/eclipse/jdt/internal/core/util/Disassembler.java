@@ -275,15 +275,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			buffer.append("bridge"); //$NON-NLS-1$
 		}		
-		if ((accessFlags & IModifierConstants.ACC_VARARGS) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("varargs"); //$NON-NLS-1$
-		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -317,15 +308,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				firstModifier = false;
 			}
 			buffer.append("public"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_ANNOTATION) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("@"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -428,12 +410,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode) {
 		if (classFileReader == null) return EMPTY_OUTPUT;
 		StringBuffer buffer = new StringBuffer();
-
+	
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		final int accesssFlags = classFileReader.getAccessFlags();
-		if (mode == ClassFileBytesDisassembler.DETAILED) {
+		final int accessFlags = classFileReader.getAccessFlags();
+		if (mode == DETAILED || mode == SYSTEM) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
 			buffer.append(Util.bind("disassembler.begincommentline")); //$NON-NLS-1$
@@ -459,7 +441,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					versionNumber,
 					Integer.toString(majorVersion),
 					Integer.toString(minorVersion),
-					((accesssFlags & IModifierConstants.ACC_SUPER) != 0
+					((accessFlags & IModifierConstants.ACC_SUPER) != 0
 							? Util.bind("classfileformat.superflagisset")//$NON-NLS-1$
 							: Util.bind("classfileformat.superflagisnotset"))//$NON-NLS-1$
 					+ (isDeprecated(classFileReader) ? ", deprecated" : EMPTY_OUTPUT)//$NON-NLS-1$
@@ -494,17 +476,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 			}
 		} else {
-			decodeModifiersForType(buffer, accesssFlags);
+			decodeModifiersForType(buffer, accessFlags);
 			if (isSynthetic(classFileReader)) {
 				buffer.append("synthetic"); //$NON-NLS-1$
 				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 			}
 		}
-		if ((accesssFlags & IModifierConstants.ACC_ENUM) != 0) {
+		
+		if ((accessFlags & IModifierConstants.ACC_ENUM) != 0) {
 			buffer.append("enum "); //$NON-NLS-1$
 		} else if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
 		} else {
+			if ((accessFlags & IModifierConstants.ACC_ANNOTATION) != 0) {
+				buffer.append("@"); //$NON-NLS-1$
+			}
 			buffer.append("interface "); //$NON-NLS-1$
 		}
 		CharOperation.replace(className, '/', '.');
@@ -533,8 +519,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(superinterface);
 		}
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
+		if (mode == SYSTEM) {
+			disassemble(classFileReader.getConstantPool(), buffer, lineSeparator, 1);
+		}
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
-		if (mode == ClassFileBytesDisassembler.DETAILED) {
+		if (mode == DETAILED || mode == SYSTEM) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
@@ -695,7 +684,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		if (mode == DETAILED) {
+		if (mode == DETAILED || mode == SYSTEM) {
 			buffer
 				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.fieldddescriptor")) //$NON-NLS-1$
@@ -760,7 +749,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
-		if (mode == DETAILED) {
+		if (mode == DETAILED || mode == SYSTEM) {
 			IClassFileAttribute[] attributes = fieldInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
@@ -786,7 +775,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		if (mode == DETAILED) {
+		if (mode == DETAILED || mode == SYSTEM) {
 			buffer
 				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.methoddescriptor")) //$NON-NLS-1$
@@ -827,13 +816,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] methodName = null;
 		if (methodInfo.isConstructor()) {
 			methodName = classFileReader.getClassName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , true, false));
+			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, false, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
 		} else if (methodInfo.isClinit()) {
 			methodName = Util.bind("classfileformat.clinitname").toCharArray(); //$NON-NLS-1$
 			buffer.append(methodName);
 		} else {
 			methodName = methodInfo.getName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, true));
+			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, true, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
@@ -853,7 +842,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(exceptionName);
 		}
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
-		if (mode == DETAILED) {
+		if (mode == DETAILED || mode == SYSTEM) {
 			IClassFileAttribute[] attributes = methodInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
@@ -873,6 +862,135 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
 			}
 		}
+	}
+
+	private void disassemble(IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		int length = constantPool.getConstantPoolCount();
+		buffer.append(Util.bind("disassembler.constantpoolheader")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		for (int i = 1; i < length; i++) {
+			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(i);
+			switch (constantPool.getEntryKind(i)) {
+				case IConstantPoolConstant.CONSTANT_Class :
+					buffer.append(
+						Util.bind("disassembler.constantpool.class", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Integer.toString(constantPoolEntry.getClassInfoNameIndex()),
+							new String(constantPoolEntry.getClassInfoName())})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Double :
+					buffer.append(
+						Util.bind("disassembler.constantpool.double", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Double.toString(constantPoolEntry.getDoubleValue())})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Fieldref :
+					buffer.append(
+						Util.bind("disassembler.constantpool.fieldref", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Integer.toString(constantPoolEntry.getClassIndex()),
+							Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
+							new String(constantPoolEntry.getClassName()),
+							getFieldRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Float :
+					buffer.append(
+						Util.bind("disassembler.constantpool.float", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Float.toString(constantPoolEntry.getFloatValue())})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Integer :
+					buffer.append(
+						Util.bind("disassembler.constantpool.integer", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Integer.toString(constantPoolEntry.getIntegerValue())})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_InterfaceMethodref :
+					buffer.append(
+							Util.bind("disassembler.constantpool.interfacemethodref", //$NON-NLS-1$
+							new String[] {
+								Integer.toString(i),
+								Integer.toString(constantPoolEntry.getClassIndex()),
+								Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
+								new String(constantPoolEntry.getClassName()),
+								getMethodRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Long :
+					buffer.append(
+						Util.bind("disassembler.constantpool.long", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Long.toString(constantPoolEntry.getLongValue())})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Methodref :
+					buffer.append(
+							Util.bind("disassembler.constantpool.methodref", //$NON-NLS-1$
+							new String[] {
+								Integer.toString(i),
+								Integer.toString(constantPoolEntry.getClassIndex()),
+								Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
+								new String(constantPoolEntry.getClassName()),
+								getMethodRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_NameAndType :
+					int nameIndex = constantPoolEntry.getNameAndTypeInfoNameIndex();
+					int typeIndex = constantPoolEntry.getNameAndTypeInfoDescriptorIndex();
+					IConstantPoolEntry entry = constantPool.decodeEntry(nameIndex);
+					char[] nameValue = (char[]) entry.getUtf8Value().clone();
+					entry = constantPool.decodeEntry(typeIndex);
+					char[] typeValue = (char[])  entry.getUtf8Value().clone();
+					buffer.append(
+						Util.bind("disassembler.constantpool.name_and_type", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Integer.toString(nameIndex),
+							Integer.toString(typeIndex),
+							String.valueOf(nameValue),
+							String.valueOf(typeValue)})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_String :
+					buffer.append(
+						Util.bind("disassembler.constantpool.string", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							Integer.toString(constantPoolEntry.getStringIndex()),
+							constantPoolEntry.getStringValue()})); //$NON-NLS-1$
+					break;
+				case IConstantPoolConstant.CONSTANT_Utf8 :
+					buffer.append(
+						Util.bind("disassembler.constantpool.utf8", //$NON-NLS-1$
+						new String[] {
+							Integer.toString(i),
+							new String(constantPoolEntry.getUtf8Value())})); //$NON-NLS-1$
+					break;
+			}
+			if (i < length - 1) {
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			}
+		}
+	}
+	private String getFieldRefNameAndType(IConstantPoolEntry entry) {
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+			.append(entry.getFieldName())
+			.append(' ')
+			.append(entry.getFieldDescriptor());
+		return String.valueOf(stringBuffer);
+	}
+
+	private String getMethodRefNameAndType(IConstantPoolEntry entry) {
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+			.append(entry.getMethodName())
+			.append(' ')
+			.append(entry.getMethodDescriptor());
+		return String.valueOf(stringBuffer);
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {

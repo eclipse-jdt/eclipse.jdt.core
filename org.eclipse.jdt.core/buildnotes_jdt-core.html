@@ -51,6 +51,17 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added <code>org.eclipse.jdt.core.util.ClassFileBytesDisassembler#SYSTEM</code> field to support an extra-detailed output from the
+disassembler. It can show constant pool contents.
+</li>
+<li>In order to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76440">76440</a>, two APIs on <code>org.eclipse.jdt.core.Signature</code> have been added to handle var args in the signature decoding.
+<ul>
+<li><code>Signature#toCharArray(char[],char[],char[][],boolean,boolean,boolean)</code>
+</li>
+<li><code>Signature#toString(String,String,String[],boolean,boolean,boolean)</code>
+</li>
+</ul>
+</li>
 <li>Added compiler option to diagnose inexact argument for varargs method invocations. Matching problem IDs are 
 <code>IProblem.InexactParameterToVarargsMethod</code> & <code>IProblem.InexactParameterToVarargsConstructor</code>
 <pre>
@@ -66,7 +77,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76524">76524</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76440">76440</a>
+[1.5] Disassembler doesn't render 1.5 constructs correctly
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76524">76524</a>
 need a isVarargs() method on IMethodBinding
 	 
 <a name="v_515"></a>

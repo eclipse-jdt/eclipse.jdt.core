@@ -27,7 +27,14 @@ public abstract class ClassFileBytesDisassembler {
 	/**
 	 * The mode is the default mode to disassemble IClassFileReader.
 	 */
-	public final static  int DEFAULT  = 2;
+	public final static int DEFAULT  = 2;
+	
+	/**
+	 * This mode corresponds to the detailed mode plus the constant pool contents and
+	 * any other information that could be useful for debugging purpose.
+	 * @since 3.1
+	 */
+	public final static int SYSTEM = 3;
 
 	/**
 	 * Answers back the disassembled string of the classfile bytes using the default

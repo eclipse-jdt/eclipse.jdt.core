@@ -2212,6 +2212,37 @@ public static String[] getSimpleNames(String name) {
  * @since 2.0
  */
 public static char[] toCharArray(char[] methodSignature, char[] methodName, char[][] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
+	return toCharArray(methodSignature, methodName, parameterNames, fullyQualifyTypeNames, includeReturnType, false);
+}
+/**
+ * Converts the given method signature to a readable form. The method signature is expected to
+ * be dot-based.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, true) -> "void main(String[] args)"
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param methodSignature the method signature to convert
+ * @param methodName the name of the method to insert in the result, or 
+ *   <code>null</code> if no method name is to be included
+ * @param parameterNames the parameter names to insert in the result, or 
+ *   <code>null</code> if no parameter names are to be included; if supplied,
+ *   the number of parameter names must match that of the method signature
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param includeReturnType <code>true</code> if the return type is to be
+ *   included
+ * @param isVargArgs <code>true</code> if the last argument should be displayed as a 
+ * variable argument,  <code>false</code> otherwise.
+ * @return the char array representation of the method signature
+ * 
+ * @since 3.1
+ */
+public static char[] toCharArray(char[] methodSignature, char[] methodName, char[][] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType, boolean isVargArgs) {
 	int firstParen = CharOperation.indexOf(C_PARAM_START, methodSignature);
 	if (firstParen == -1) {
 		throw new IllegalArgumentException();
@@ -2234,8 +2265,12 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 	// parameters
 	buffer.append('(');
 	char[][] pts = getParameterTypes(methodSignature);
-	for (int i = 0; i < pts.length; i++) {
-		appendTypeSignature(pts[i], 0 , fullyQualifyTypeNames, buffer);
+	for (int i = 0, max = pts.length; i < max; i++) {
+		if (i == max - 1) {
+			appendTypeSignature(pts[i], 0 , fullyQualifyTypeNames, buffer, isVargArgs);
+		} else {
+			appendTypeSignature(pts[i], 0 , fullyQualifyTypeNames, buffer);
+		}
 		if (parameterNames != null) {
 			buffer.append(' ');
 			buffer.append(parameterNames[i]);
@@ -2250,7 +2285,6 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 	buffer.getChars(0, buffer.length(), result, 0);
 	return result;
 }
-
 /**
  * Converts the given type signature to a readable string. The signature is expected to
  * be dot-based.
@@ -2308,11 +2342,54 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
  * @see #scanTypeSignature(char[], int)
  */
 private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
-		// need a minimum 1 char
-		if (start >= string.length) {
-			throw new IllegalArgumentException();
+	return appendTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
+}
+/**
+ * Scans the given string for a type signature starting at the given
+ * index and appends it to the given buffer, and returns the index of the last
+ * character.
+ * 
+ * @param string the signature string
+ * @param start the 0-based character index of the first character
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param buffer the string buffer to append to
+ * @param isVarArgs <code>true</code> if the type must be displayed as a
+ * variable argument, <code>false</code> otherwise. In this case, the type must be an array type
+ * @return the 0-based character index of the last character
+ * @exception IllegalArgumentException if this is not a type signature, or if isVarArgs is <code>true</code>,
+ * and the type is not an array type signature.
+ * @see #scanTypeSignature(char[], int)
+ */
+private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
+	// need a minimum 1 char
+	if (start >= string.length) {
+		throw new IllegalArgumentException();
+	}
+	char c = string[start];
+	if (isVarArgs) {
+		switch (c) {
+			case C_ARRAY :
+				return appendArrayTypeSignature(string, start, fullyQualifyTypeNames, buffer, true);
+			case C_RESOLVED :
+			case C_UNRESOLVED :
+			case C_TYPE_VARIABLE :
+			case C_BOOLEAN :
+			case C_BYTE :
+			case C_CHAR :
+			case C_DOUBLE :
+			case C_FLOAT :
+			case C_INT :
+			case C_LONG :
+			case C_SHORT :
+			case C_VOID :
+			case C_STAR:
+			case C_EXTENDS:
+			case C_SUPER:
+			default:
+				throw new IllegalArgumentException(); // a var args is an array type
 		}
-		char c = string[start];
+	} else {
 		switch (c) {
 			case C_ARRAY :
 				return appendArrayTypeSignature(string, start, fullyQualifyTypeNames, buffer);
@@ -2357,8 +2434,8 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 			default :
 				throw new IllegalArgumentException();
 		}
+	}
 }
-
 /**
  * Scans the given string for an array type signature starting at the given
  * index and appends it to the given buffer, and returns the index of the last
@@ -2373,6 +2450,24 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
  * @see #scanArrayTypeSignature(char[], int)
  */
 private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+	return appendArrayTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
+}
+/**
+ * Scans the given string for an array type signature starting at the given
+ * index and appends it to the given buffer, and returns the index of the last
+ * character.
+ * 
+ * @param string the signature string
+ * @param start the 0-based character index of the first character
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param isVarArgs <code>true</code> if the array type must be displayed as a
+ * variable argument, <code>false</code> otherwise
+ * @return the 0-based character index of the last character
+ * @exception IllegalArgumentException if this is not an array type signature
+ * @see #scanArrayTypeSignature(char[], int)
+ */
+private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
 	// need a minimum 2 char
 	if (start >= string.length - 1) {
 		throw new IllegalArgumentException();
@@ -2382,11 +2477,13 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 		throw new IllegalArgumentException();
 	}
 	int e = appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
-	buffer.append('[');
-	buffer.append(']');
+	if (isVarArgs) {
+		buffer.append('.').append('.').append('.');
+	} else {
+		buffer.append('[').append(']');
+	}
 	return e;
 }
-
 /**
  * Scans the given string for a class type signature starting at the given
  * index and appends it to the given buffer, and returns the index of the last
@@ -2663,6 +2760,28 @@ public static String toString(String signature) throws IllegalArgumentException 
  * @return the string representation of the method signature
  */
 public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
+	return toString(methodSignature, methodName, parameterNames, fullyQualifyTypeNames, includeReturnType, false);
+}
+/**
+ * Converts the given method signature to a readable string. The method signature is expected to
+ * be dot-based.
+ * 
+ * @param methodSignature the method signature to convert
+ * @param methodName the name of the method to insert in the result, or 
+ *   <code>null</code> if no method name is to be included
+ * @param parameterNames the parameter names to insert in the result, or 
+ *   <code>null</code> if no parameter names are to be included; if supplied,
+ *   the number of parameter names must match that of the method signature
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param includeReturnType <code>true</code> if the return type is to be
+ *   included
+ * @param isVarArgs <code>true</code> if the last argument should be displayed as a 
+ * variable argument, <code>false</code> otherwise
+ * @see #toCharArray(char[], char[], char[][], boolean, boolean)
+ * @return the string representation of the method signature
+ */
+public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType, boolean isVarArgs) {
 	char[][] params;
 	if (parameterNames == null) {
 		params = null;
@@ -2673,7 +2792,6 @@ public static String toString(String methodSignature, String methodName, String[
 			params[i] = parameterNames[i].toCharArray();
 		}
 	}
-	return new String(toCharArray(methodSignature.toCharArray(), methodName == null ? null : methodName.toCharArray(), params, fullyQualifyTypeNames, includeReturnType));
+	return new String(toCharArray(methodSignature.toCharArray(), methodName == null ? null : methodName.toCharArray(), params, fullyQualifyTypeNames, includeReturnType, isVarArgs));
 }
-
 }

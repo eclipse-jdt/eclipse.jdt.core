@@ -18,6 +18,7 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -28,7 +29,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public static Test suite() {
 		if (false) {
 			TestSuite suite = new TestSuite();
-			suite.addTest(new ClassFileReaderTest("test069"));
+			suite.addTest(new ClassFileReaderTest("test070"));
 			return suite;
 		}
 		return setupSuite(testClass());
@@ -42,8 +43,8 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		super(name);
 	}
 
-	private void checkClassFile(String className, String source, String expectedOutput) {
-		compileAndDeploy(source, className);
+	private void checkClassFile(String compliance, String className, String source, String expectedOutput) {
+		compileAndDeploy(compliance, source, className);
 		try {
 			File f = new File(EVAL_DIRECTORY + File.separator + className + ".class");
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -64,8 +65,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			removeTempClass(className);
 		}
 	}
+	private void checkClassFile(String className, String source, String expectedOutput) {
+		checkClassFile("1.4", className, source, expectedOutput);
+	}
 	
-	public void compileAndDeploy(String source, String className) {
+	public void compileAndDeploy(String compliance, String source, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -84,16 +88,32 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			return;
 		}
 		StringBuffer buffer = new StringBuffer();
-		buffer
+		if (JavaCore.VERSION_1_5.equals(compliance)) {
+			buffer
 			.append("\"")
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY)
-			.append("\" -1.4 -source 1.3 -target 1.2 -preserveAllLocals -nowarn -g -classpath \"")
+			.append("\" -1.5 -preserveAllLocals -nowarn -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
+		} else {
+			buffer
+				.append("\"")
+				.append(fileName)
+				.append("\" -d \"")
+				.append(EVAL_DIRECTORY)
+				.append("\" -1.4 -source 1.3 -target 1.2 -preserveAllLocals -nowarn -g -classpath \"")
+				.append(Util.getJavaClassLibsAsString())
+				.append(SOURCE_DIRECTORY)
+				.append("\"");
+		}
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+	}
+	
+	public void compileAndDeploy(String source, String className) {
+		compileAndDeploy("1.4", source, className);
 	}
 
 	public void removeTempClass(String className) {
@@ -2701,5 +2721,32 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"abstract public interface I extends java.lang.Object {\n" + 
 			"}";
 		checkClassFile("I", source, expectedOutput);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
+	 */
+	public void test070() {
+		String source =
+			"public class X {\n" +
+			"	X(String s) {\n" +
+			"	}\n" +
+			"	public void foo(int i, long l, String[][]... args) {\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"  // Method descriptor  #18 (IJ[[[Ljava/lang/String;)V\n" + 
+			"  // Stack: 0, Locals: 5\n" + 
+			"  public void foo(int i, long l, String[][]... arg);\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 1] local: i index: 1 type: I\n" + 
+			"        [pc: 0, pc: 1] local: l index: 2 type: J\n" + 
+			"        [pc: 0, pc: 1] local: args index: 4 type: [[[Ljava/lang/String;\n" + 
+			"}";
+		checkClassFile("1.5", "X", source, expectedOutput);
 	}
 }
