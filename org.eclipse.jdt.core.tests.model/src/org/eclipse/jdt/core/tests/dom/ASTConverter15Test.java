@@ -46,6 +46,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -94,7 +95,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0138"));
+		suite.addTest(new ASTConverter15Test("test0139"));
 		return suite;
 	}
 	
@@ -4158,4 +4159,46 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		}
     	});
     }
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84358
+	 */
+	public void test0139() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0139", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 1, "The type test0139a.C is not visible");
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Wrong node", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		type = parameterizedType.getType();
+		assertTrue("Not a parameterized type", type.isSimpleType());
+		SimpleType simpleType = (SimpleType) type;
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.isQualifiedName());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		IBinding binding = qualifiedName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("wrong qualified name", "test0139a.C", typeBinding.getQualifiedName());
+		SimpleName simpleName = qualifiedName.getName();
+		binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		typeBinding = (ITypeBinding) binding;
+		assertEquals("wrong qualified name", "test0139a.C", typeBinding.getQualifiedName());
+		name = qualifiedName.getQualifier();
+		assertEquals("Not a simpleName", ASTNode.SIMPLE_NAME, name.getNodeType());
+		binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind());
+		IPackageBinding packageBinding = (IPackageBinding) binding;
+		assertEquals("wrong name", "test0139a", packageBinding.getName());
+	}
 }
