@@ -482,14 +482,9 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 				String[] newPaths = new String[wcLength];
 				for (int i = 0; i < wcLength; i++) {
 					IWorkingCopy workingCopy = workingCopies[i];
-					try {
-						IResource res = workingCopy.getOriginalElement().getUnderlyingResource();
-						String path = res.getFullPath().toString();
-						wcPaths.put(path, workingCopy);
-						newPaths[i] = path;
-					} catch (JavaModelException e) {
-						// continue with next working copy
-					}
+					String path = workingCopy.getOriginalElement().getPath().toString();
+					wcPaths.put(path, workingCopy);
+					newPaths[i] = path;
 				}
 				int filePathsLength = filePaths.length;
 				System.arraycopy(filePaths, 0, filePaths = new String[filePathsLength+wcLength], 0, filePathsLength);
