@@ -631,10 +631,12 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 	switch (element.getElementType()) {
 		case IJavaElement.FIELD :
 			IField field = (IField) element; 
-			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');
-			lastDot = fullDeclaringName.lastIndexOf('.');
-			char[] declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
-			char[] declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : CharOperation.NO_CHAR;
+			IType declaringClass = field.getDeclaringType();
+			char[] declaringSimpleName = declaringClass.getElementName().toCharArray();
+			char[] declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
+			char[][] enclosingNames = enclosingTypeNames(declaringClass);
+			if (enclosingNames.length > 0)
+				declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
 			char[] name = field.getElementName().toCharArray();
 			char[] typeSimpleName;
 			char[] typeQualification;
@@ -805,10 +807,12 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			} catch (JavaModelException e) {
 				return null;
 			}
-			fullDeclaringName = method.getDeclaringType().getFullyQualifiedName().replace('$', '.');
-			lastDot = fullDeclaringName.lastIndexOf('.');
-			declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
-			declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : CharOperation.NO_CHAR;
+			declaringClass = method.getDeclaringType();
+			declaringSimpleName = declaringClass.getElementName().toCharArray();
+			declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
+			enclosingNames = enclosingTypeNames(declaringClass);
+			if (enclosingNames.length > 0)
+				declaringQualification = CharOperation.concat(declaringQualification, CharOperation.concatWith(enclosingNames, '.'), '.');
 			char[] selector = method.getElementName().toCharArray();
 			char[] returnSimpleName;
 			char[] returnQualification;
