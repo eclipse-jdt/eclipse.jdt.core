@@ -20,10 +20,7 @@ public class Wildcard extends SingleTypeReference {
 
 	public TypeReference bound;
 	boolean isSuper;
-	/**
-	 * @param source
-	 * @param pos
-	 */
+
 	public Wildcard(boolean isSuper) {
 		super(null, 0);
 		this.isSuper = isSuper;
