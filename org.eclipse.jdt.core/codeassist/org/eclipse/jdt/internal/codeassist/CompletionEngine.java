@@ -1058,9 +1058,12 @@ public final class CompletionEngine
 				if (CharOperation.equals(field.name, otherField.name, true)) {
 					if (field.declaringClass.isSuperclassOf(otherField.declaringClass))
 						continue next;
-					if (otherField.declaringClass.isInterface())
+					if (otherField.declaringClass.isInterface()) {
+						if (field.declaringClass == scope.getJavaLangObject())
+							continue next;
 						if (field.declaringClass.implementsInterface(otherField.declaringClass, true))
 							continue next;
+					}
 					if (field.declaringClass.isInterface())
 						if (otherField.declaringClass.implementsInterface(field.declaringClass, true))
 							continue next;
@@ -1706,11 +1709,15 @@ public final class CompletionEngine
 					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
 						continue next;
 
-					if (otherMethod.declaringClass.isInterface())
+					if (otherMethod.declaringClass.isInterface()) {
+						if(method.declaringClass == scope.getJavaLangObject())
+							continue next;
+						
 						if (method
 							.declaringClass
 							.implementsInterface(otherMethod.declaringClass, true))
 							continue next;
+					}
 
 					if (method.declaringClass.isInterface())
 						if(otherMethod

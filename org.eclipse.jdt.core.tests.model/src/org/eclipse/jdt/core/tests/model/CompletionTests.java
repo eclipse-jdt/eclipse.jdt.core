@@ -115,6 +115,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionUnresolvedParameterType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
+	suite.addTest(new CompletionTests("testCompletionObjectsMethodWithInterfaceReceiver"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -2046,6 +2047,22 @@ public void testCompletionAssignmentInMethod4() throws JavaModelException {
 
 	assertEquals(
 		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=24565
+*/
+public void testCompletionObjectsMethodWithInterfaceReceiver() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionObjectsMethodWithInterfaceReceiver.java");
+
+	String str = cu.getSource();
+	String completeBehind = "hash";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }
