@@ -806,7 +806,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
-	return getWorkingCopy(new DefaultWorkingCopyOwner(), null/*no problem requestor*/, monitor);
+	return getWorkingCopy(new WorkingCopyOwner() {/*non shared working copy*/}, null/*no problem requestor*/, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
