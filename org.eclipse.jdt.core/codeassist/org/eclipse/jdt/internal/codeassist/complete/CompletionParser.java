@@ -594,6 +594,18 @@ protected void consumeConstructorHeaderName() {
 	}
 	this.restartRecovery = true;
 }
+
+protected void consumeExitVariableWithInitialization() {
+	super.consumeExitVariableWithInitialization();
+	
+	// does not keep the initialization if completion is not inside
+	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) astStack[astPtr];
+	if (cursorLocation + 1 < variable.initialization.sourceStart ||
+		cursorLocation > variable.initialization.sourceEnd) {
+		variable.initialization = null;
+	}
+}
+
 /*
  * Copy of code from superclass with the following change:
  * If the cursor location is on the field access, then create a 

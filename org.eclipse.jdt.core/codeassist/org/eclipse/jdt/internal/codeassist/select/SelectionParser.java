@@ -223,6 +223,20 @@ protected void consumeEnterVariable() {
 		isOrphanCompletionNode = false; // already attached inside variable decl
 	}
 }
+
+protected void consumeExitVariableWithInitialization() {
+	super.consumeExitVariableWithInitialization();
+	
+	// does not keep the initialization if selection is not inside
+	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) astStack[astPtr];
+	int start = variable.initialization.sourceStart;
+	int end =  variable.initialization.sourceEnd;
+	if ((selectionStart < start) &&  (selectionEnd < start) ||
+		(selectionStart > end) && (selectionEnd > end)) {
+		variable.initialization = null;
+	}
+}
+
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
 	// FieldAccess ::= 'super' '.' 'Identifier'
