@@ -341,7 +341,7 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 		filePath = new Path(filePath.lastSegment());
 	}
 
-	IFile file = container.getFile(filePath.addFileExtension(JavaBuilder.ClassExtension));
+	IFile file = container.getFile(filePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
 	byte[] bytes = classFile.getBytes();
 	if (isClassFileChanged(file, fileName, bytes, isSecondaryType)) {
 		if (JavaBuilder.DEBUG)

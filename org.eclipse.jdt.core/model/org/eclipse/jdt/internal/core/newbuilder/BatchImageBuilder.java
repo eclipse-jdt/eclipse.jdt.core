@@ -60,7 +60,7 @@ protected void addAllSourceFiles(final ArrayList locations, final ArrayList type
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) {
 					if (resource.getType() == IResource.FILE) {
-						if (JavaBuilder.JavaExtension.equalsIgnoreCase(resource.getFileExtension())) {
+						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(resource.getFileExtension())) {
 							locations.add(resource.getLocation().toString());
 							typeNames.add(
 								resource.getFullPath().removeFirstSegments(count).removeFileExtension().toString());
@@ -87,7 +87,7 @@ protected void scrubOutputFolder() throws CoreException {
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
 					if (resource.getType() == IResource.FILE) {
-						if (JavaBuilder.ClassExtension.equalsIgnoreCase(resource.getFileExtension()))
+						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
 							resource.delete(true, null);
 						return false;
 					}
@@ -115,8 +115,8 @@ protected void copyExtraResourcesBack() throws CoreException {
 					switch(resource.getType()) {
 						case IResource.FILE :
 							String extension = resource.getFileExtension();
-							if (JavaBuilder.JavaExtension.equalsIgnoreCase(extension)) return false;
-							if (JavaBuilder.ClassExtension.equalsIgnoreCase(extension)) return false;
+							if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
+							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
 
 							resource.copy(
 								outputPath.append(

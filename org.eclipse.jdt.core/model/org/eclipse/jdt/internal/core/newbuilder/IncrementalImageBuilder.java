@@ -223,7 +223,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				addDependentsOf(removedPackagePath);
 				return;
 		}
-	} else if (JavaBuilder.JavaExtension.equalsIgnoreCase(extension)) {
+	} else if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
 		IPath typePath = location.removeFirstSegments(sourceFolderSegmentCount).removeFileExtension();
 		switch (sourceDelta.getKind()) {
 			case IResourceDelta.ADDED :
@@ -236,7 +236,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				addDependentsOf(typePath);
 				return;
 			case IResourceDelta.REMOVED :
-				IResource classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.ClassExtension));
+				IResource classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
 				if (classFile.exists()) {
 					if (JavaBuilder.DEBUG)
 						System.out.println("Deleting class file of removed file " + typePath); //$NON-NLS-1$
@@ -256,7 +256,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				typeNames.add(typePath.setDevice(null).toString());
 				return;
 		}
-	} else if (JavaBuilder.ClassExtension.equalsIgnoreCase(extension)) {
+	} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
 		return; // skip class files
 	} else if (hasSeparateOutputFolder) {
 		// copy all other resource deltas to the output folder
@@ -329,7 +329,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 					findAffectedSourceFiles(children[i], outputFolderSegmentCount);
 				return;
 		}
-	} else if (JavaBuilder.ClassExtension.equalsIgnoreCase(extension)) {
+	} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
 		IPath typePath = location.removeFirstSegments(outputFolderSegmentCount).removeFileExtension();
 		switch (binaryDelta.getKind()) {
 			case IResourceDelta.ADDED :
@@ -363,7 +363,7 @@ protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws 
 
 			char[] dirName = CharOperation.subarray(fileId, 0, CharOperation.lastIndexOf('/', fileId) + 1);
 			String filename = new String(CharOperation.concat(dirName, previous));
-			IPath path = new Path(filename).addFileExtension(JavaBuilder.ClassExtension);
+			IPath path = new Path(filename).addFileExtension(JavaBuilder.CLASS_EXTENSION);
 			IResource resource = javaBuilder.workspaceRoot.getFileForLocation(path);
 			resource.delete(true, null);
 		}
