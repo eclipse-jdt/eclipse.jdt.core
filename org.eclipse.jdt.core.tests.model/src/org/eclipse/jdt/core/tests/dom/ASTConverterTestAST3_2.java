@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0599"));
+		suite.addTest(new ASTConverterTestAST3_2("test0600"));
 		return suite;
 	}
 	/**
@@ -6072,5 +6072,37 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				assertTrue("No statements", body.statements().size() != 0);
 			}
 		});
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=87777
+	 */
+	public void test0600() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0600", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding().getMethodDeclaration();
+		
+		sourceUnit = getCompilationUnit("Converter" , "src", "test0600", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding().getMethodDeclaration();
+		
+		assertTrue("Not equals", methodBinding.isEqualTo(methodBinding2));
 	}
 }

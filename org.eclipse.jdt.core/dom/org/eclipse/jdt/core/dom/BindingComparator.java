@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -121,14 +122,14 @@ class BindingComparator {
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
-		return variableBinding.modifiers == variableBinding2.modifiers
+		return (variableBinding.modifiers & CompilerModifiers.AccJustFlag) == (variableBinding2.modifiers & CompilerModifiers.AccJustFlag)
 				&& CharOperation.equals(variableBinding.name, variableBinding2.name)
 				&& isEqual(variableBinding.type, variableBinding2.type)
 				&& (variableBinding.id == variableBinding2.id);
 	}
 
 	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
-		return fieldBinding.modifiers == fieldBinding2.modifiers
+		return (fieldBinding.modifiers & CompilerModifiers.AccJustFlag) == (fieldBinding2.modifiers & CompilerModifiers.AccJustFlag)
 				&& CharOperation.equals(fieldBinding.name, fieldBinding2.name)
 				&& isEqual(fieldBinding.type, fieldBinding2.type, true)
 				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, true);
@@ -206,7 +207,7 @@ class BindingComparator {
 					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
 					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
 					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
 			} else if (referenceBinding.isWildcard()) {
 				if (!referenceBinding2.isWildcard()) {
 					return false;
@@ -230,7 +231,7 @@ class BindingComparator {
 					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
 					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
 					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
 			} else if (referenceBinding instanceof TypeVariableBinding) {
 				if (!(referenceBinding2 instanceof TypeVariableBinding)) {
 					return false;
@@ -240,8 +241,8 @@ class BindingComparator {
 				if (checkTypeVariables) {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
 						&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, false)
-						&& isEqual(typeVariableBinding.superclass, typeVariableBinding2.superclass, true)
-						&& isEqual(typeVariableBinding.superInterfaces, typeVariableBinding2.superInterfaces, true);
+						&& isEqual(typeVariableBinding.superclass(), typeVariableBinding2.superclass(), true)
+						&& isEqual(typeVariableBinding.superInterfaces(), typeVariableBinding2.superInterfaces(), true);
 				} else {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName);
 				}
@@ -251,7 +252,7 @@ class BindingComparator {
 					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
 					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
 					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
 			}
 		}
 	}
