@@ -75,10 +75,12 @@ public class SortElementsOperation extends JavaModelOperation {
 			if (!isWorkingCopy)
 				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 			worked(1);
-			if (!isWorkingCopy) { // if unit is working copy, then save will have already fired the delta
+			if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta
+				&& !Util.isExcluded(unit)
+				&& unit.getParent().exists()) { // if unit is working copy, then save will have already fired the delta
 				delta.changed(unit, IJavaElementDelta.F_CONTENT);
 				addDelta(delta);
-			} // else unit is created outside classpath
+			}
 		} finally {
 			done();
 		}
