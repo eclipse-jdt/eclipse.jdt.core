@@ -2757,7 +2757,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}				
 
 	public void test091() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" + 
@@ -2765,12 +2765,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"     }\n" +
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	void foo(X<String>[] xs) {\n" + 
-		"	         ^\n" + 
-		"An array of parameterized type X<String> is an invalid type\n" + 
-		"----------\n");		
+			"");		
 	}				
 
 	public void test092() {
@@ -6220,5 +6215,33 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot use the type parameter T in a catch block\n" + 
 			"----------\n");
 	}
-	
+	// 69170 - invalid generic array creation
+	public void test226() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T>{\n" + 
+				"	 Object x1= new T[0];\n" + 
+				"	 Object x2= new X<String>[0];	 \n" + 
+				"	 Object x3= new X<T>[0];	 \n" + 
+				"	 Object x4= new X[0];	 \n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Object x1= new T[0];\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Cannot create a generic array of T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Object x2= new X<String>[0];	 \n" + 
+			"	           ^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	Object x3= new X<T>[0];	 \n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<T>\n" + 
+			"----------\n");
+	}
 }

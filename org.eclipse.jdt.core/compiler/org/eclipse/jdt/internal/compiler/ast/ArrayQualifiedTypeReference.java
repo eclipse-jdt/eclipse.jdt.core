@@ -56,9 +56,6 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		}
 		try {
 			TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
-			if (leafComponentType.isParameterizedType()) {
-			    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
-			}
 			return scope.createArrayType(leafComponentType, dimensions);
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);

@@ -2037,6 +2037,14 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);	
 }
+public void illegalGenericArray(TypeBinding leadtComponentType, ASTNode location) {
+	this.handle(
+		IProblem.IllegalGenericArray,
+		new String[]{ new String(leadtComponentType.readableName())},
+		new String[]{ new String(leadtComponentType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;
@@ -3473,15 +3481,6 @@ public void tooManyDimensions(ASTNode expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void illegalArrayOfParameterizedType(TypeBinding leadtComponentType, ASTNode location) {
-	this.handle(
-		IProblem.IllegalArrayOfParameterizedType,
-		new String[]{ new String(leadtComponentType.readableName())},
-		new String[]{ new String(leadtComponentType.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
-}
-
 public void tooManyFields(TypeDeclaration typeDeclaration) {
 	this.handle(
 		IProblem.TooManyFields,

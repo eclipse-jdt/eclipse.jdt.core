@@ -56,9 +56,6 @@ public class ArrayTypeReference extends SingleTypeReference {
 			scope.problemReporter().tooManyDimensions(this);
 		}
 		TypeBinding leafComponentType = scope.getType(token);
-		if (leafComponentType.isParameterizedType()) {
-		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
-		}
 		return scope.createArrayType(leafComponentType, dimensions);
 	
 	}

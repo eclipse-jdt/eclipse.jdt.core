@@ -196,9 +196,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (dimensions > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			if (qualifiedType.isParameterizedType()) {
-			    scope.problemReporter().illegalArrayOfParameterizedType(qualifiedType, this);
-			}
 			this.resolvedType = scope.createArrayType(qualifiedType, dimensions);
 		}
 		return this.resolvedType;

@@ -864,7 +864,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int InvalidParameterizedExceptionType = TypeRelated + 534;
 	/** @since 3.1 */
-	int IllegalArrayOfParameterizedType = TypeRelated + 535;
+	int IllegalGenericArray = TypeRelated + 535;
 	/** @since 3.1 */
 	int UnsafeRawFieldAssignment = TypeRelated + 536;
 	/** @since 3.1 */
