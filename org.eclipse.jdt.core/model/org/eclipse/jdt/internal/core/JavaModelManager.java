@@ -214,20 +214,7 @@ public class JavaModelManager implements ISaveParticipant {
 				projectContainers.put(containerPath, container);
 			}
 		}
-		
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
-		String containerKey = CP_CONTAINER_PREFERENCES_PREFIX+project.getElementName() +"|"+containerPath;//$NON-NLS-1$
-		String containerString = CP_ENTRY_IGNORE;
-		try {
-			if (container != null) {
-				containerString = ((JavaProject)project).encodeClasspath(container.getClasspathEntries(), null, false);
-			}
-		} catch(JavaModelException e){
-			// could not encode entry: leave it as CP_ENTRY_IGNORE
-		}
-		preferences.setDefault(containerKey, CP_ENTRY_IGNORE); // use this default to get rid of removed ones
-		preferences.setValue(containerKey, containerString);
-		JavaCore.getPlugin().savePluginPreferences();
+		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
 	}
 
 	/**
@@ -1412,6 +1399,31 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void saving(ISaveContext context) throws CoreException {
 		
+	    // save container values on snapshot/full save
+		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		IJavaProject[] projects = getJavaModel().getJavaProjects();
+		for (int i = 0, length = projects.length; i < length; i++) {
+		    IJavaProject project = projects[i];
+			Map projectContainers = (Map)this.containers.get(project);
+			if (projectContainers == null) continue;
+			for (Iterator keys = projectContainers.keySet().iterator(); keys.hasNext();) {
+			    IPath containerPath = (IPath) keys.next();
+			    IClasspathContainer container = (IClasspathContainer) projectContainers.get(containerPath);
+				String containerKey = CP_CONTAINER_PREFERENCES_PREFIX+project.getElementName() +"|"+containerPath;//$NON-NLS-1$
+				String containerString = CP_ENTRY_IGNORE;
+				try {
+					if (container != null) {
+						containerString = ((JavaProject)project).encodeClasspath(container.getClasspathEntries(), null, false);
+					}
+				} catch(JavaModelException e){
+					// could not encode entry: leave it as CP_ENTRY_IGNORE
+				}
+				preferences.setDefault(containerKey, CP_ENTRY_IGNORE); // use this default to get rid of removed ones
+				preferences.setValue(containerKey, containerString);
+			}
+		}
+		JavaCore.getPlugin().savePluginPreferences();
+
 		// clean up indexes on workspace full save
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
