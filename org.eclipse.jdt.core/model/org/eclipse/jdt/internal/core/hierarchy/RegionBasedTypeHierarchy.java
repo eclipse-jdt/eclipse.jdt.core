@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
@@ -52,11 +54,11 @@ protected void initializeRegions() {
 	for (int i = 0; i < roots.length; i++) {
 		IJavaElement root = roots[i];
 		if (root instanceof IOpenable) {
-			this.files.put(root, root);
+			this.files.put(root, new ArrayList());
 		} else {
 			Openable o = (Openable) ((JavaElement) root).getOpenableParent();
 			if (o != null) {
-				this.files.put(o, o);
+				this.files.put(o, new ArrayList());
 			}
 		}
 		checkCanceled();

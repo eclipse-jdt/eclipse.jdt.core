@@ -449,7 +449,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns true if this element is an ancestor of the given element,
 	 * otherwise false.
 	 */
-	protected boolean isAncestorOf(IJavaElement e) {
+	public boolean isAncestorOf(IJavaElement e) {
 		IJavaElement parent= e.getParent();
 		while (parent != null && !parent.equals(this)) {
 			parent= parent.getParent();

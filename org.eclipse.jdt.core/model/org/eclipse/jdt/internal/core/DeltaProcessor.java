@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
@@ -1385,6 +1386,27 @@ public class DeltaProcessor {
 			}
 		}
 	}
+	private void notifyTypeHierarchies(IElementChangedListener[] listeners, int listenerCount) {
+		for (int i= 0; i < listenerCount; i++) {
+			final IElementChangedListener listener = listeners[i];
+			if (!(listener instanceof TypeHierarchy)) continue;
+
+			// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+			Platform.run(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
+				}
+				public void run() throws Exception {
+					TypeHierarchy typeHierarchy = (TypeHierarchy)listener;
+					if (typeHierarchy.hasFineGrainChanges()) {
+						// case of changes in primary working copies
+						typeHierarchy.needsRefresh = true;
+						typeHierarchy.fireChange();
+					}
+				}
+			});
+		}
+	}
 	/*
 	 * Generic processing for elements with changed contents:<ul>
 	 * <li>The element is closed such that any subsequent accesses will re-open
@@ -1872,6 +1894,7 @@ public class DeltaProcessor {
 							} finally {
 								startDeltas();
 							}
+							notifyTypeHierarchies(this.state.elementChangedListeners, this.state.elementChangedListenerCount);
 							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// workaround for bug 15168 circular errors not reported 

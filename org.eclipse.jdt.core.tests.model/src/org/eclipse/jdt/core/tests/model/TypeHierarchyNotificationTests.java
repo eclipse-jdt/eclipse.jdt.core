@@ -45,7 +45,7 @@ public TypeHierarchyNotificationTests(String name) {
 private void assertOneChange(ITypeHierarchy h) {
 	assertTrue("Should receive change", this.changeReceived);
 	assertTrue("Change should be for this hierarchy", this.hierarchy == h);
-	assertTrue("Should be one notification", this.notifications == 1);
+	assertEquals("Unexpected number of notifications", 1, this.notifications);
 }
 private void addSuper(ICompilationUnit unit, String typeName, String newSuper) throws JavaModelException {
 	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
@@ -575,13 +575,13 @@ public void testEditExtendsSourceType() throws JavaModelException, CoreException
 	try {
 		// change the superclass to a.A
 		changeSuper(cu, "B", "a.A");
-		this.assertOneChange(h);
+		assertOneChange(h);
 		h.refresh(null);
 		
 		// change the superclass back to B
-		this.reset();
+		reset();
 		changeSuper(cu, "a.A", "B");
-		this.assertOneChange(h);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
@@ -720,9 +720,7 @@ public void testEditSourceTypes() throws JavaModelException, CoreException {
 			null
 		);
 
-		assertTrue("Should receive change", this.changeReceived);
-		assertTrue("Change should be for this hierarchy", this.hierarchy == h);
-		assertTrue("Should be one notification", this.notifications == 1);
+		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
 	}
