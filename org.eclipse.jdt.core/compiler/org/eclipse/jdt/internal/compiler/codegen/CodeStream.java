@@ -1345,8 +1345,18 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 
 	anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NullBinding /* represents ClassNotFoundException*/);
-	this.ldc(accessedType == TypeBinding.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
+	if (accessedType == TypeBinding.NullBinding) {
+		this.ldc("java.lang.Object"); //$NON-NLS-1$
+	} else if (accessedType.isArrayType()) {
+		this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+	} else {
+		// we make it an array type
+		this.ldc("[L" + String.valueOf(accessedType.constantPoolName()).replace('/', '.') + ";"); //$NON-NLS-1$//$NON-NLS-2$
+	}
 	this.invokeClassForName();
+	if (!accessedType.isArrayType()) {
+		this.invokeJavaLangClassGetComponentType();
+	}	
 
 	/* We need to protect the runtime code from binary inconsistencies
 	in case the accessedType is missing, the ClassNotFoundException has to be converted
@@ -2922,6 +2932,18 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 		resizeByteArray(OPC_invokevirtual);
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassDesiredAssertionStatus());
+}
+
+public void invokeJavaLangClassGetComponentType() {
+	// invokevirtual: java.lang.Class.getComponentType()java.lang.Class;
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokevirtual);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangClassGetComponentType());
 }
 
 final public void invokeinterface(MethodBinding methodBinding) {

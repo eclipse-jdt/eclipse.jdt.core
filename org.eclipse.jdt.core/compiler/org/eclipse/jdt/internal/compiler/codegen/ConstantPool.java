@@ -46,10 +46,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	protected FieldNameAndTypeCache nameAndTypeCacheForFields;
 	protected MethodNameAndTypeCache nameAndTypeCacheForMethods;
 	int[] wellKnownTypes = new int[21];
-	int[] wellKnownMethods = new int[35];
+	int[] wellKnownMethods = new int[36];
 	int[] wellKnownFields = new int[10];
 	int[] wellKnownFieldNameAndTypes = new int[2];
-	int[] wellKnownMethodNameAndTypes = new int[32];
+	int[] wellKnownMethodNameAndTypes = new int[33];
 	public byte[] poolContent;
 	public int currentIndex = 1;
 	public int currentOffset;
@@ -123,6 +123,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int ASSERTIONERROR_DEFAULT_CONSTR_METHOD = 32;
 	final static int DESIREDASSERTIONSTATUS_CLASS_METHOD = 33;
 	final static int GETCLASS_OBJECT_METHOD = 34;
+	final static int GETCOMPONENTTYPE_CLASS_METHOD = 35;
+	
 	// predefined constant index for well known name and type for fields
 	final static int TYPE_JAVALANGCLASS_NAME_AND_TYPE = 0;
 	final static int OUT_SYSTEM_NAME_AND_TYPE = 1;
@@ -159,7 +161,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE = 29;
 	final static int DESIREDASSERTIONSTATUS_METHOD_NAME_AND_TYPE = 30;
 	final static int GETCLASS_OBJECT_METHOD_NAME_AND_TYPE = 31;
-
+	final static int GETCOMPONENTTYPE_CLASS_METHOD_NAME_AND_TYPE = 32;
 	
 	public ClassFile classFile;
 
@@ -414,7 +416,12 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 				&& methodBinding.returnType.id == T_JavaLangClass
 				&& CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetClass)) {
 					return GETCLASS_OBJECT_METHOD_NAME_AND_TYPE;
-			}				
+			}
+			if (methodBinding.parameters.length == 0
+				&& methodBinding.returnType.id == T_JavaLangClass
+				&& CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetComponentType)) {
+					return GETCOMPONENTTYPE_CLASS_METHOD_NAME_AND_TYPE;
+			}
 			break;
 		case 'i' :
 			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangString) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Intern))) {
@@ -442,6 +449,8 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 				return FORNAME_CLASS_METHOD;
 			} else if ((firstChar == 'd') && (methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_boolean) && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.DesiredAssertionStatus)) {
 					return DESIREDASSERTIONSTATUS_CLASS_METHOD;
+			} else if ((firstChar == 'g') && (methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangClass) && CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetComponentType)) {
+				return GETCOMPONENTTYPE_CLASS_METHOD;
 			}
 			break;
 		case T_JavaLangNoClassDefError :
@@ -1350,6 +1359,42 @@ public int literalIndexForJavaLangClassDesiredAssertionStatus() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[DESIREDASSERTIONSTATUS_CLASS_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(MethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+/**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor. It can be either an interface method reference constant
+ * or a method reference constant.
+ *
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaLangClassGetComponentType() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[GETCOMPONENTTYPE_CLASS_METHOD]) == 0) {
+		classIndex = literalIndexForJavaLangClass();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[GETCOMPONENTTYPE_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.GetComponentType);
+			int typeIndex = literalIndex(QualifiedNamesConstants.GetComponentTypeSignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[GETCOMPONENTTYPE_CLASS_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[GETCOMPONENTTYPE_CLASS_METHOD] = currentIndex++;
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
