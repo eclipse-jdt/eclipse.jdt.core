@@ -1213,6 +1213,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					sourceEnd(typeDeclaration), 
 					interfaceNames);
 			}
+			notifySourceElementRequestor(typeDeclaration.typeParameters);			
 			if (nestedTypeIndex == typeNames.length) {
 				// need a resize
 				System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
