@@ -466,14 +466,20 @@ public class SetClasspathOperation extends JavaModelOperation {
 					return;
 				}
 			}
-			IProject[] requiredProjectArray = new IProject[newSize];
-			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
+			String[] requiredProjectNames = new String[newSize];
 			int index = 0;
 			iter = newReferences.iterator();
 			while (iter.hasNext()){
-				String newName = (String)iter.next();
-				requiredProjectArray[index++] = wksRoot.getProject(newName);
+				requiredProjectNames[index++] = (String)iter.next();
 			}
+			Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
+			
+			IProject[] requiredProjectArray = new IProject[newSize];
+			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
+			for (int i = 0; i < newSize; i++){
+				requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
+			}
+
 			description.setReferencedProjects(requiredProjectArray);
 			project.setDescription(description, this.fMonitor);
 

@@ -1151,7 +1151,7 @@ public class JavaProject
 	 */
 	public String[] getRequiredProjectNames() throws JavaModelException {
 
-		return this.projectPrerequisites(getExpandedClasspath(true));
+		return this.projectPrerequisites(getResolvedClasspath(true));
 	}
 
 	/**
