@@ -235,14 +235,18 @@ ReferenceType -> ArrayType
 -- 1.5 feature
 ---------------------------------------------------------------
 ClassOrInterfaceType -> ClassOrInterface
-ClassOrInterfaceType -> ClassOrInterface TypeArguments
+ClassOrInterfaceType -> GenericType
 /:$readableName Type:/
 
 ClassOrInterface ::= Name
 /.$putCase consumeClassOrInterfaceName();  $break ./
-ClassOrInterface ::= ClassOrInterface TypeArguments '.' Name
+ClassOrInterface ::= GenericType '.' Name
 /.$putCase consumeClassOrInterface();  $break ./
 /:$readableName Type:/
+
+GenericType ::= ClassOrInterface TypeArguments
+/.$putCase consumeGenericType();  $break ./
+/:$readableName GenericType:/
 
 --
 -- These rules have been rewritten to avoid some conflicts introduced
@@ -253,7 +257,7 @@ ClassOrInterface ::= ClassOrInterface TypeArguments '.' Name
 -- ArrayType ::= ArrayType '[' ']'
 --
 
-ArrayTypeWithTypeArgumentsName ::= ClassOrInterface TypeArguments '.' Name
+ArrayTypeWithTypeArgumentsName ::= GenericType '.' Name
 /.$putCase consumeArrayTypeWithTypeArgumentsName();  $break ./
 /:$readableName ArrayTypeWithTypeArgumentsName:/
 
@@ -263,7 +267,7 @@ ArrayType ::= Name Dims
 /.$putCase consumeNameArrayType();  $break ./
 ArrayType ::= ArrayTypeWithTypeArgumentsName Dims
 /.$putCase consumeGenericTypeNameArrayType();  $break ./
-ArrayType ::= ClassOrInterface TypeArguments Dims
+ArrayType ::= GenericType Dims
 /.$putCase consumeGenericTypeArrayType();  $break ./
 /:$readableName ArrayType:/
 

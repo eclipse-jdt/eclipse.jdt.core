@@ -2025,12 +2025,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                                ^\n" + 
 			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
 			"----------\n" + 
-			"3. ERROR in test\\X1.java (at line 3)\n" + 
-			"	public class X1<A1 extends X2<A2> {\n" + 
-			"	                                ^\n" + 
-			"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-			"----------\n" + 
-			"4. ERROR in test\\X1.java (at line 7)\n" + 
+			"3. ERROR in test\\X1.java (at line 7)\n" + 
 			"	class X2<A2 {\n" + 
 			"	         ^^\n" + 
 			"Syntax error on token \"A2\", > expected after this token\n" + 
@@ -2401,41 +2396,26 @@ public class GenericTypeTest extends AbstractRegressionTest {
 					"class X3<A {}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X.java (at line 2)\n" + 
-				"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
-				"	                                        ^^^\n" + 
-				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
-				"----------\n" + 
-				"2. ERROR in test\\X.java (at line 2)\n" + 
-				"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
-				"	                                        ^^^\n" + 
-				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-				"----------\n" + 
-				"3. ERROR in test\\X.java (at line 3)\n" + 
-				"	class X1<A extends X2<X3<String>> {}\n" + 
-				"	                               ^^\n" + 
-				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
-				"----------\n" + 
-				"4. ERROR in test\\X.java (at line 3)\n" + 
-				"	class X1<A extends X2<X3<String>> {}\n" + 
-				"	                               ^^\n" + 
-				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-				"----------\n" + 
-				"5. ERROR in test\\X.java (at line 4)\n" + 
-				"	class X2<A extends X3<String> {}\n" + 
-				"	                            ^\n" + 
-				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
-				"----------\n" + 
-				"6. ERROR in test\\X.java (at line 4)\n" + 
-				"	class X2<A extends X3<String> {}\n" + 
-				"	                            ^\n" + 
-				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-				"----------\n" + 
-				"7. ERROR in test\\X.java (at line 5)\n" + 
-				"	class X3<A {}\n" + 
-				"	         ^\n" + 
-				"Syntax error on token \"A\", > expected after this token\n" + 
-				"----------\n"
+			"1. ERROR in test\\X.java (at line 2)\n" + 
+			"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
+			"	                                        ^^^\n" + 
+			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 3)\n" + 
+			"	class X1<A extends X2<X3<String>> {}\n" + 
+			"	                               ^^\n" + 
+			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 4)\n" + 
+			"	class X2<A extends X3<String> {}\n" + 
+			"	                            ^\n" + 
+			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 5)\n" + 
+			"	class X3<A {}\n" + 
+			"	         ^\n" + 
+			"Syntax error on token \"A\", > expected after this token\n" + 
+			"----------\n"
 		);
 	}
 	// TODO (david) remove errors: insert dimension to complete array type
@@ -2455,22 +2435,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                                        ^^\n" + 
 			"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
 			"----------\n" + 
-			"2. ERROR in test\\X.java (at line 2)\n" + 
-			"	public class X<A extends X1<X2<X3<String>> {}\n" + 
-			"	                                        ^^\n" + 
-			"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-			"----------\n" + 
-			"3. ERROR in test\\X.java (at line 3)\n" + 
+			"2. ERROR in test\\X.java (at line 3)\n" + 
 			"	class X1<A extends X2<X3<String> {}\n" + 
 			"	                               ^\n" + 
 			"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
 			"----------\n" + 
-			"4. ERROR in test\\X.java (at line 3)\n" + 
-			"	class X1<A extends X2<X3<String> {}\n" + 
-			"	                               ^\n" + 
-			"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-			"----------\n" + 
-			"5. ERROR in test\\X.java (at line 4)\n" + 
+			"3. ERROR in test\\X.java (at line 4)\n" + 
 			"	class X2<A extends X3<String {}\n" + 
 			"	                      ^^^^^^\n" + 
 			"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
@@ -2489,21 +2459,16 @@ public class GenericTypeTest extends AbstractRegressionTest {
 					"class X3<A> {}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X.java (at line 2)\n" + 
-				"	public class X<A extends X1<X2<X3<String> {}\n" + 
-				"	                                        ^\n" + 
-				"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
-				"----------\n" + 
-				"2. ERROR in test\\X.java (at line 2)\n" + 
-				"	public class X<A extends X1<X2<X3<String> {}\n" + 
-				"	                                        ^\n" + 
-				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-				"----------\n" + 
-				"3. ERROR in test\\X.java (at line 3)\n" + 
-				"	class X1<A extends X2<X3<String {}\n" + 
-				"	                         ^^^^^^\n" + 
-				"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
-				"----------\n"
+			"1. ERROR in test\\X.java (at line 2)\n" + 
+			"	public class X<A extends X1<X2<X3<String> {}\n" + 
+			"	                                        ^\n" + 
+			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 3)\n" + 
+			"	class X1<A extends X2<X3<String {}\n" + 
+			"	                         ^^^^^^\n" + 
+			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+			"----------\n"
 		);
 	}
 	// TODO (david) remove error: insert dimension to complete array type
@@ -2524,11 +2489,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Syntax error, insert \">\" to complete ReferenceType1\n" + 
 			"----------\n" + 
 			"2. ERROR in test\\X.java (at line 2)\n" + 
-			"	public class X<A extends X1<X2<X3<String {}\n" + 
-			"	                                  ^^^^^^\n" + 
-			"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
-			"----------\n" + 
-			"3. ERROR in test\\X.java (at line 2)\n" + 
 			"	public class X<A extends X1<X2<X3<String {}\n" + 
 			"	                                  ^^^^^^\n" + 
 			"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 

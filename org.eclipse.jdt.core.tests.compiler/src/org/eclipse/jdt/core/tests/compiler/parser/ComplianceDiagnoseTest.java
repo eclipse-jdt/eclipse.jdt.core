@@ -1723,9 +1723,14 @@ public void test0040() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
 		"	       ^^\n" + 
-		"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+		"Syntax error, insert \". Name\" to complete ArrayTypeWithTypeArgumentsName\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 2)\n" + 
+		"	Z <Y1, Y2 var;\n" + 
+		"	       ^^\n" + 
+		"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 2)\n" + 
 		"	Z <Y1, Y2 var;\n" + 
 		"	       ^^\n" + 
 		"Y2 cannot be resolved to a type\n" + 
