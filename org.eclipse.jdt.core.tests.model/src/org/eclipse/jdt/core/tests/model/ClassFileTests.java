@@ -146,4 +146,17 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"U:TT;\n",
 			type.getTypeParameterSignatures());
 	}
+
+	/*
+	 * Ensure that the type parameter signatures of a binary method are correct.
+	 */
+	public void testParameterTypeSignatures6() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
+		assertStringsEqual(
+			"Unexpected type parameters",
+			"K:Ljava.lang.Object;\n" + 
+			"V:Ljava.lang.Object;\n",
+			method.getTypeParameterSignatures());
+	}
 }

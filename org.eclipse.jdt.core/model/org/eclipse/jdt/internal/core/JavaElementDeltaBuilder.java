@@ -236,6 +236,9 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 			|| !CharOperation.equals(oldSourceTypeInfo.getInterfaceNames(), newSourceTypeInfo.getInterfaceNames())) {
 			this.delta.changed(newElement, IJavaElementDelta.F_SUPER_TYPES);
 		}
+		if (!CharOperation.equals(oldSourceTypeInfo.getTypeParameterSignatures(), newSourceTypeInfo.getTypeParameterSignatures())) {
+			this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
+		}
 	}
 }
 /**

@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -226,8 +227,20 @@ public String[] getParameterTypes() {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	// TODO (jerome) - missing implementation
-	return new String[0];
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature == null) 
+		return EmptyStringList;
+	CharOperation.replace(genericSignature, '/', '.');
+	char[][] typeParams = Signature.getTypeParameters(genericSignature);
+	int length = typeParams.length;
+	if (length == 0)
+		return EmptyStringList;
+	String[] stringSignatures = new String[length];
+	for (int i = 0; i < length; i++) {
+		stringSignatures[i] = new String(typeParams[i]);
+	}
+	return stringSignatures;
 }
 
 /*
