@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -44,9 +45,9 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestOptions.class);
 		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
+		testsNames = null;
+		testsNumbers= null;
+		testsRange = null;
 	}
 	
 	

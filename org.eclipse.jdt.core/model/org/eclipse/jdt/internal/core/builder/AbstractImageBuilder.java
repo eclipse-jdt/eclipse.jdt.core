@@ -41,7 +41,7 @@ protected NameEnvironment nameEnvironment;
 protected ClasspathMultiDirectory[] sourceLocations;
 protected BuildNotifier notifier;
 
-protected String encoding;
+//protected String encoding;
 protected Compiler compiler;
 protected WorkQueue workQueue;
 protected ArrayList problemSourceFiles;
@@ -60,7 +60,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
 
-	this.encoding = javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
+//	this.encoding = javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
 	this.compiler = newCompiler();
 	this.workQueue = new WorkQueue();
 	this.problemSourceFiles = new ArrayList(3);

@@ -16,10 +16,11 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+//import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -49,7 +50,7 @@ public void cleanup() {
 
 private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject javaProject) {
 
-	String encoding = null;
+//	String encoding = null;
 	IPackageFragmentRoot[] roots = null;
 	try {
 		roots = javaProject.getAllPackageFragmentRoots();
@@ -72,10 +73,11 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-					if (encoding == null) {
-						encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
-					}
-					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, encoding);
+//					if (encoding == null) {
+//						encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
+//					}
+//					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, encoding);
+					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target);
 				} else {
 					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false);
 				}

@@ -2495,17 +2495,6 @@ public class JavaProject
 			}
 		}
 
-		/* Test OPTION_DocCommentSupport
-		String[] propertyNames = preferences.propertyNames();
-		for (int i = 0; i < propertyNames.length; i++){
-			String propertyName = propertyNames[i];
-			// set same value than missing javadoc comments overriding
-			if (CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding.equals(propertyName)) {
-				preferences.setValue(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, preferences.getString(propertyName));
-			}
-		}
-		*/
-
 		// persist options
 		savePreferences(preferences);	
 	}

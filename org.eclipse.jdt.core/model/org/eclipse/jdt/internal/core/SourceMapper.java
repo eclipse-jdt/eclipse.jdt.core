@@ -21,7 +21,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -29,8 +30,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -184,7 +194,11 @@ public class SourceMapper
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
 		this.areRootPathsComputed = false;
 		this.options = options;
-		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
+		try {
+			this.encoding = ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+		} catch (CoreException e) {
+			// use no encoding
+		}
 		if (rootPath != null) {
 			this.rootPaths = new HashSet();
 			this.rootPaths.add(rootPath);
@@ -898,7 +912,8 @@ public class SourceMapper
 				IResource res = folder.findMember(fullName);
 				if (res instanceof IFile) {
 					try {
-						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
+//						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
+						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
 					} catch (JavaModelException e) {
 						// ignore
 					}
@@ -1101,7 +1116,8 @@ public class SourceMapper
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse);
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, encoding),
+//				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, encoding),
+				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, this.fType.getParent()),
 				doFullParse);
 			if (elementToFind != null) {
 				ISourceRange range = this.getNameRange(elementToFind);

@@ -14,9 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -398,83 +397,75 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		return suite;
 	}
 	public static Test suite(Class evaluationTestClass, String suiteName) {
-		return suite(evaluationTestClass, suiteName, 3);
-	}
-	public static Test suite(Class evaluationTestClass, String suiteName, int testDigits) {
-		DecimalFormat format = (DecimalFormat) NumberFormat.getIntegerInstance();
-		format.setMinimumIntegerDigits(testDigits);
-		format.setMaximumIntegerDigits(testDigits);
-		format.setGroupingSize(0);
+		// Init suite with class name
 		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
+		List tests = new ArrayList();
+		Constructor constructor = null;
 		try {
+			// Get class constructor
 			Class[] paramTypes = new Class[] { String.class };
-			Constructor constructor = evaluationTestClass.getConstructor(paramTypes);
-			if (testsNames != null) {
-				for (int i = 0; i < testsNames.length; i++) {
-					String meth = "test" + testsNames[i];
-					Object[] params = {meth};
-					suite.addTest((Test)constructor.newInstance(params));
-				}
-			}
-			else if (testsNumbers != null) {
-				for (int i = 0; i < testsNumbers.length; i++) {
-					Object[] params = {"test" + format.format(testsNumbers[i])};
-					suite.addTest((Test)constructor.newInstance(params));
-				}
-			}
-			else if (testsRange != null && testsRange.length == 2) {
-				if (testsRange[0]>=0 && testsRange[0]<=testsRange[1]) {
-					for (int i=testsRange[0]; i<=testsRange[1]; i++) {
-						Object[] params = {"test" + format.format(i)};
-						suite.addTest((Test)constructor.newInstance(params));
-					}
-				} else if (testsRange[0] <0) { // run all tests under a specific test number
-					// Run all tests
-					Method[] methods = evaluationTestClass.getMethods();
-					for (int i = 0, max = methods.length; i < max; i++) {
-						String methodName = methods[i].getName();
-						if (methods[i].getModifiers() == 1 && methodName.startsWith("test")) { //$NON-NLS-1$
-							try {
-								int number = Integer.decode(methodName.substring(4)).intValue();
-								if (number <= testsRange[1]) {
-									Object[] params = {methods[i].getName()};
-									suite.addTest((Test)constructor.newInstance(params));
-								}
-							} catch (NumberFormatException e1) {
-								// do nothing
+			constructor = evaluationTestClass.getConstructor(paramTypes);
+		}
+		catch (Exception e) {
+			// cannot get constructor, skip suite
+			return suite;
+		}
+
+		// Get all tests from "test%" methods
+		Method[] methods = evaluationTestClass.getMethods();
+		for (int m = 0, max = methods.length; m < max; m++) {
+			try {
+				if (methods[m].getModifiers() == 1 /* public */ &&
+					methods[m].getName().startsWith("test")) { //$NON-NLS-1$
+					String methName = methods[m].getName();
+					Object[] params = {methName};
+					// tests names subset
+					if (testsNames != null) {
+						for (int i = 0, imax= testsNames.length; i<imax; i++) {
+							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(4))) {
+								tests.add(methName);
+								suite.addTest((Test)constructor.newInstance(params));
+								break;
 							}
 						}
 					}
-				} else if (testsRange[1] <0) { // run all tests over a specific test number
-					// Run all tests
-					Method[] methods = evaluationTestClass.getMethods();
-					for (int i = 0, max = methods.length; i < max; i++) {
-						String methodName = methods[i].getName();
-						if (methods[i].getModifiers() == 1 && methodName.startsWith("test")) { //$NON-NLS-1$
-							try {
-								int number = Integer.parseInt(methodName.substring(4), 10);
-								if (number >= testsRange[0]) {
-									Object[] params = {methods[i].getName()};
+					// look for test number
+					if (methName.length()>4 && Character.isDigit(methName.charAt(4))) {
+						try {
+							// get test number
+							int n = 4;
+							while (methName.charAt(n) == '0') n++;
+							int num = Integer.parseInt(methName.substring(n));
+							// tests numbers subset
+							if (testsNumbers != null && !tests.contains(methName)) {
+								for (int i = 0; i < testsNumbers.length; i++) {
+									if (testsNumbers[i] == num) {
+										tests.add(methName);
+										suite.addTest((Test)constructor.newInstance(params));
+										break;
+									}
+								}
+							}
+							// tests range subset
+							if (testsRange != null && testsRange.length == 2 && !tests.contains(methName)) {
+								if ((testsRange[0]==-1 || num>=testsRange[0]) && (testsRange[1]==-1 || num<=testsRange[1])) {
+									tests.add(methName);
 									suite.addTest((Test)constructor.newInstance(params));
 								}
-							} catch (NumberFormatException e1) {
-								// do nothing
 							}
+						} catch (NumberFormatException e) {
+							System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
 						}
 					}
-				}
-			} else {
-				// Run all tests
-				Method[] methods = evaluationTestClass.getMethods();
-				for (int i = 0, max = methods.length; i < max; i++) {
-					if (methods[i].getModifiers() == 1 && methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-						Object[] params = {methods[i].getName()};
+					// no subset, add all tests
+					if (testsNames==null && testsNumbers==null &&testsRange==null) {
 						suite.addTest((Test)constructor.newInstance(params));
 					}
 				}
 			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			catch (Exception e) {
+				System.out.println("Method "+methods[m]+" removed from suite due to exception: "+e.getMessage());
+			}
 		}
 		return suite;
 	}

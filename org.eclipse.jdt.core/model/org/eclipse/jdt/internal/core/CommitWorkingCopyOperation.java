@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.*;
+//import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -115,7 +115,14 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 				}
 			} else {
 				// working copy on cu outside classpath OR resource doesn't exist yet
-				String encoding = workingCopy.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//				String encoding = workingCopy.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+				String encoding = null;
+				try {
+					resource.getCharset();
+				}
+				catch (CoreException ce) {
+					// use no encoding
+				}
 				String contents = workingCopy.getSource();
 				if (contents == null) return;
 				try {

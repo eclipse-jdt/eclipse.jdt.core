@@ -14,10 +14,13 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public class JavaSearchDocument extends SearchDocument {
@@ -61,10 +64,21 @@ public class JavaSearchDocument extends SearchDocument {
 		}
 	}
 	public String getEncoding() {
+		// Return the encoding of the associated file
 		IFile resource = getFile();
-		if (resource != null)
-			return JavaCore.create(resource.getProject()).getOption(JavaCore.CORE_ENCODING, true);
-		return JavaCore.getOption(JavaCore.CORE_ENCODING);
+		if (resource != null) {
+			try {
+				return resource.getCharset();
+			}
+			catch(CoreException ce) {
+				try {
+					return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+				} catch (CoreException e) {
+					// use no encoding
+				}
+			}
+		}
+		return null;
 	}
 	private IFile getFile() {
 		if (this.file == null)

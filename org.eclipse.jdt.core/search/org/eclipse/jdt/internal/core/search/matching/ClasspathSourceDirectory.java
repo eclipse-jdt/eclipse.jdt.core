@@ -11,9 +11,12 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
@@ -27,11 +30,19 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 	SimpleLookupTable directoryCache;
 	String[] missingPackageHolder = new String[1];
 
-ClasspathSourceDirectory(IContainer sourceFolder, String encoding) {
+//ClasspathSourceDirectory(IContainer sourceFolder, String encoding) {
+ClasspathSourceDirectory(IContainer sourceFolder) {
 	this.sourceFolder = sourceFolder;
 	IPath location = sourceFolder.getLocation();
 	this.sourceLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
-	this.encoding = encoding;	
+//	this.encoding = encoding;	
+	// Store default encoding
+	try {
+		this.encoding = this.sourceFolder.getDefaultCharset();
+	}
+	catch (CoreException ce) {
+		// let use no encoding by default
+	}
 	this.directoryCache = new SimpleLookupTable(5);
 }
 
@@ -89,7 +100,17 @@ public NameEnvironmentAnswer findClass(String sourceFileName, String qualifiedPa
 	if (!doesFileExist(sourceFileName, qualifiedPackageName)) return null; // most common case
 
 	String fullSourcePath = this.sourceLocation + qualifiedSourceFileName;
-	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
+	IPath path = new Path(qualifiedSourceFileName);
+	IFile file = this.sourceFolder.getFile(path);
+	String fileEncoding = this.encoding;
+	try {
+		fileEncoding = file.getCharset();
+	}
+	catch (CoreException ce) {
+		// let use default encoding
+	}
+//	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
+	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding));
 }
 
 public IPath getProjectRelativePath() {

@@ -162,7 +162,8 @@ protected void addAffectedSourceFiles() {
 						}
 					}
 				}
-				SourceFile sourceFile = new SourceFile(file, md, encoding);
+//				SourceFile sourceFile = new SourceFile(file, md, encoding);
+				SourceFile sourceFile = new SourceFile(file, md);
 				if (sourceFiles.contains(sourceFile)) continue next;
 				if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
 					continue next; // can skip previously compiled files since already saw hierarchy related problems
@@ -395,7 +396,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 					case IResourceDelta.ADDED :
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this added source file " + typeLocator); //$NON-NLS-1$
-						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
+//						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
+						sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						String typeName = typePath.toString();
 						if (!newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
@@ -432,7 +434,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
-						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
+//						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
+						sourceFiles.add(new SourceFile((IFile) resource, md, true));
 				}
 				return;
 			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(resourceName)) {

@@ -18,6 +18,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -30,7 +31,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -107,7 +108,14 @@ protected void executeOperation() throws JavaModelException {
 			}
 		} else {
 			try {
-				String encoding = unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//				String encoding = unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+				String encoding = null;
+				try {
+					encoding = folder.getDefaultCharset(); // get folder encoding as file is not accessible
+				}
+				catch (CoreException ce) {
+					// use no encoding
+				}
 				InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
 				createFile(folder, unit.getElementName(), stream, force);
 				resultElements = new IJavaElement[] {unit};

@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -316,7 +316,8 @@ class CompilationUnitResolver extends Compiler {
 						source,
 						packageName,
 						unitName,
-						(String) options.get(JavaCore.CORE_ENCODING)),
+//						(String) options.get(JavaCore.CORE_ENCODING)),
+						javaProject),
 					nodeSearcher,
 					true, // method verification
 					true, // analyze code

@@ -259,7 +259,14 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (newContent != null){
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
-					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+					String encoding = null;
+					try {
+						encoding = destFile.getCharset();
+					}
+					catch (CoreException ce) {
+						// use no encoding
+					}
 					
 					// when the file was copied, its read-only flag was preserved -> temporary set it to false
 					// note this doesn't interfer with repository providers as this is a new resource that cannot be under
@@ -301,7 +308,14 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 			try {
 				if (newContent != null){
-					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+					String encoding = null;
+					try {
+						encoding = destFile.getCharset();
+					}
+					catch (CoreException ce) {
+						// use no encoding
+					}
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 

@@ -1138,11 +1138,19 @@ public class Util {
 	 * Returns the given file's contents as a character array.
 	 */
 	public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
-		String encoding = JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
+		// Get encoding from file
+		String encoding = null;
+		try {
+			encoding = file.getCharset();
+		}
+		catch(CoreException ce) {
+			// do not use any encoding
+		}
 		return getResourceContentsAsCharArray(file, encoding);
 	}
 
 	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
+		// Get resource contents
 		InputStream stream= null;
 		try {
 			stream = new BufferedInputStream(file.getContents(true));

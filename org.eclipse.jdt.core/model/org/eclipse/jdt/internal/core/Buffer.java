@@ -333,7 +333,14 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		
 	// use a platform operation to update the resource contents
 	try {
-		String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//		String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+		String encoding = null;
+		try {
+			this.file.getCharset();
+		}
+		catch (CoreException ce) {
+			// use no encoding
+		}
 		String stringContents = this.getContents();
 		if (stringContents == null) return;
 		byte[] bytes = encoding == null 

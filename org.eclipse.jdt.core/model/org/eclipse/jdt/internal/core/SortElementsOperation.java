@@ -41,6 +41,8 @@ public class SortElementsOperation extends JavaModelOperation {
 	/**
 	 * Constructor for SortElementsOperation.
 	 * @param elements
+	 * @param positions
+	 * @param comparator
 	 */
 	public SortElementsOperation(IJavaElement[] elements, int[] positions, Comparator comparator) {
 		super(elements);
@@ -53,7 +55,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * progress reporting.
 	 */
 	protected int getMainAmountOfWork(){
-		return elementsToProcess.length;
+		return this.elementsToProcess.length;
 	}
 	
 	/**
@@ -62,14 +64,14 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
-			CompilationUnit copy = (CompilationUnit) elementsToProcess[0];
+			CompilationUnit copy = (CompilationUnit) this.elementsToProcess[0];
 			ICompilationUnit unit = copy.getPrimary();
 			IBuffer buffer = copy.getBuffer();
 			if (buffer  == null) { 
 				return;
 			}
 			char[] bufferContents = buffer.getCharacters();
-			String result = processElement(unit, positions, bufferContents);
+			String result = processElement(unit, this.positions, bufferContents);
 			if (!CharOperation.equals(result.toCharArray(), bufferContents)) {
 				copy.getBuffer().setContents(result);
 			}
@@ -82,10 +84,11 @@ public class SortElementsOperation extends JavaModelOperation {
 	/**
 	 * Method processElement.
 	 * @param unit
-	 * @param bufferContents
+	 * @param positionsToMap
+	 * @param source
 	 */
 	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) {
-		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, comparator);
+		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, this.comparator);
 		SourceElementParser parser = new SourceElementParser(builder,
 			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);
 		
@@ -100,7 +103,8 @@ public class SortElementsOperation extends JavaModelOperation {
 					source,
 					expectedPackageName,
 					unit.getElementName(),
-					null),
+//					null),
+					unit),
 				false/*diet parse*/);
 		} else {
 			parser.parseCompilationUnit(
@@ -108,7 +112,8 @@ public class SortElementsOperation extends JavaModelOperation {
 					source,
 					null,
 					"",//$NON-NLS-1$
-					null),
+//					null),
+					unit.getJavaProject()),//$NON-NLS-1$
 				false/*diet parse*/);
 		}
 		return builder.getSource();
@@ -120,18 +125,17 @@ public class SortElementsOperation extends JavaModelOperation {
 	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
 	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
 	 * </ul>
-	 * @see IJavaModelStatus
-	 * @see JavaConventions
+	 * @return IJavaModelStatus
 	 */
 	public IJavaModelStatus verify() {
-		if (elementsToProcess.length != 1) {
+		if (this.elementsToProcess.length != 1) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (elementsToProcess[0] == null) {
+		if (this.elementsToProcess[0] == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (!(elementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) elementsToProcess[0]).isWorkingCopy()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, elementsToProcess[0]);
+		if (!(this.elementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) this.elementsToProcess[0]).isWorkingCopy()) {
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this.elementsToProcess[0]);
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

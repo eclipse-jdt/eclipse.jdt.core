@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="output" path="bin"/>
+    <classpathentry kind="lib" sourcepath="src" path="bins"/>
+    <classpathentry kind="lib" path="testUTF8.jar" sourcepath="/Encoding/testUTF8.zip" rootpath=""/>
+</classpath>

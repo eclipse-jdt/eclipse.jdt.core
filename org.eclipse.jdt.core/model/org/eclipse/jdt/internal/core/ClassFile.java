@@ -39,7 +39,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -102,14 +102,15 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+//		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 		String elementName = getElementName();
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
 				null,
 				elementName.substring(0, elementName.length()-SUFFIX_STRING_class.length()) + SUFFIX_STRING_java,
-				encoding); 
+//				encoding); 
+				getJavaProject()); // use project to retrieve corresponding .java IFile
 		codeComplete(cu, cu, offset, requestor, owner);
 	}
 }
@@ -127,7 +128,7 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
 	    String topLevelTypeName = getTopLevelTypeName();
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, topLevelTypeName + SUFFIX_STRING_java, null);
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, topLevelTypeName + SUFFIX_STRING_java);
 		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
