@@ -40,10 +40,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		if (arguments != null) {
 			this.arguments =arguments;
 			for (int i = 0, length =arguments.length; i < length; i++) {
-			    if ((arguments[i].tagBits & HasTypeVariable) != 0) {
-			        this.tagBits |= HasTypeVariable;
-			        break;
-			    }
+			    this.tagBits |= (arguments[i].tagBits & (HasTypeVariable|HasWildcard));
 			}
 		}
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates

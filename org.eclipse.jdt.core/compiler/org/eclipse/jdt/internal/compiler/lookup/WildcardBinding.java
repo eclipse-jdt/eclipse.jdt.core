@@ -27,6 +27,7 @@ public class WildcardBinding extends ReferenceBinding {
 	    this.bound = bound;
 	    this.isSuper = isSuper;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
+		this.tagBits |= HasWildcard;
 	}
 
     /* (non-Javadoc)

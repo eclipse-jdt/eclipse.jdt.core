@@ -2978,4 +2978,34 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
 		"----------\n");		
 	}		
+
+	// type parameterized with wildcard cannot appear in allocation
+	public void test100() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"    P foo() { return null; }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
+		"	                        ^\n" + 
+		"Cannot instantiate the generic type X<T> using wildcard arguments (? extends AX)\n" + 
+		"----------\n");		
+	}		
+
+
 }
