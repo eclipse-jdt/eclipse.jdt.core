@@ -1366,13 +1366,21 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
+		// Do not create marker but log problems while getting output location
+		return this.getOutputLocation(false, true);
+	}
+	
+	/**
+	 * @see IJavaProject
+	 */
+	public IPath getOutputLocation(boolean createMarkers, boolean logProblems) throws JavaModelException {
 
 		JavaModelManager.PerProjectInfo perProjectInfo = getPerProjectInfo();
 		IPath outputLocation = perProjectInfo.outputLocation;
 		if (outputLocation != null) return outputLocation;
 
 		// force to read classpath - will position output location as well
-		this.getRawClasspath();
+		this.getRawClasspath(createMarkers, logProblems);
 		outputLocation = perProjectInfo.outputLocation;
 		if (outputLocation == null) {
 			return defaultOutputLocation();
@@ -1579,8 +1587,8 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
-
-		return getRawClasspath(false/*don't create markers*/, true/*log problems*/);
+		// Do not create marker but log problems while getting raw classpath
+		return getRawClasspath(false, true);
 	}
 	/**
 	 * Internal variant allowing to parameterize problem creation/logging

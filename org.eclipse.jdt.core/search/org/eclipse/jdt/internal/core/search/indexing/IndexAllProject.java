@@ -74,7 +74,8 @@ public class IndexAllProject extends IndexRequest {
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
 			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
-			IClasspathEntry[] entries = javaProject.getRawClasspath(false/*don't create markers*/, false/*log problems*/);
+			// Do not create marker nor log problems while getting raw classpath (see bug 41859)
+			IClasspathEntry[] entries = javaProject.getRawClasspath(false, false);
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				if (this.isCancelled) return false;
@@ -87,7 +88,8 @@ public class IndexAllProject extends IndexRequest {
 						// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
 						final HashSet outputs = new HashSet();
 						if (sourceFolder.getType() == IResource.PROJECT) {
-							outputs.add(javaProject.getOutputLocation());
+							// Do not create marker nor log problems while getting output location (see bug 41859)
+							outputs.add(javaProject.getOutputLocation(false, false));
 							for (int j = 0; j < length; j++) {
 								IPath output = entries[j].getOutputLocation();
 								if (output != null) {
