@@ -290,7 +290,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionKeywordBreak3"));
 	suite.addTest(new CompletionTests("testCompletionKeywordBreak4"));
 	suite.addTest(new CompletionTests("testCompletionKeywordBreak5"));
-	//suite.addTest(new CompletionTests("testCompletionKeywordBreak6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak6"));
 	suite.addTest(new CompletionTests("testCompletionKeywordWhile1"));
 	suite.addTest(new CompletionTests("testCompletionKeywordWhile2"));
 	suite.addTest(new CompletionTests("testCompletionKeywordWhile3"));
@@ -352,7 +352,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionKeywordDefault7"));
 	suite.addTest(new CompletionTests("testCompletionKeywordDefault8"));
 	suite.addTest(new CompletionTests("testCompletionKeywordDefault9"));
-	//suite.addTest(new CompletionTests("testCompletionKeywordDefault10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault10"));
 	suite.addTest(new CompletionTests("testCompletionKeywordClass1"));
 	suite.addTest(new CompletionTests("testCompletionKeywordClass2"));
 	suite.addTest(new CompletionTests("testCompletionKeywordClass3"));

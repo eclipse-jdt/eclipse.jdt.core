@@ -2091,7 +2091,10 @@ private void initializeForBlockStatements() {
 	this.bracketDepth = 0;
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
-	this.popUntilElement(K_BLOCK_DELIMITER);
+	popUntilElement(K_SWITCH_LABEL);
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
+		this.popUntilElement(K_BLOCK_DELIMITER);
+	}
 }
 public void initializeScanner(){
 	this.scanner = new CompletionScanner(this.assertMode);
@@ -2271,6 +2274,23 @@ public void recoveryTokenCheck() {
 			super.recoveryTokenCheck();
 			if(currentElement != oldElement && oldElement instanceof RecoveredBlock) {
 				popElement(K_BLOCK_DELIMITER);
+			}
+			break;
+		case TokenNamecase :
+			super.recoveryTokenCheck();
+			if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER
+				&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
+				pushOnElementStack(K_SWITCH_LABEL);
+			}
+			break;
+		case TokenNamedefault :
+			super.recoveryTokenCheck();
+			if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER
+				&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
+				pushOnElementStack(K_SWITCH_LABEL, DEFAULT);
+			} else if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
+				popElement(K_SWITCH_LABEL);
+				pushOnElementStack(K_SWITCH_LABEL, DEFAULT);
 			}
 			break;
 		default :
