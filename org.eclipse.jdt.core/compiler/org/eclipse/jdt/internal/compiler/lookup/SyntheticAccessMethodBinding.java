@@ -75,7 +75,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				// check for collision with known methods
 				MethodBinding[] methods = declaringSourceType.methods;
 				for (int i = 0, length = methods.length; i < length; i++) {
-					if (this.selector == methods[i].selector && this.areParametersEqual(methods[i])) {
+					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
 						needRename = true;
 						break check;
 					}
@@ -84,7 +84,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				if (knownAccessMethods != null) {
 					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
 						if (knownAccessMethods[i] == null) continue;
-						if (this.selector == knownAccessMethods[i].selector && this.areParametersEqual(methods[i])) {
+						if (CharOperation.equals(this.selector, knownAccessMethods[i].selector) && this.areParametersEqual(methods[i])) {
 							needRename = true;
 							break check;
 						}
@@ -171,7 +171,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				// check for collision with known methods
 				MethodBinding[] methods = sourceType.methods;
 				for (int i = 0, length = methods.length; i < length; i++) {
-					if (this.selector == methods[i].selector
+					if (CharOperation.equals(this.selector, methods[i].selector)
 						&& this.areParametersEqual(methods[i])) {
 						needRename = true;
 						break check;
@@ -182,7 +182,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
 						if (knownAccessMethods[i] == null)
 							continue;
-						if (this.selector == knownAccessMethods[i].selector
+						if (CharOperation.equals(this.selector, knownAccessMethods[i].selector)
 							&& this.areParametersEqual(knownAccessMethods[i])) {
 							needRename = true;
 							break check;
@@ -249,7 +249,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				// check for collision with known methods
 				MethodBinding[] methods = declaringSourceType.methods;
 				for (int i = 0, length = methods.length; i < length; i++) {
-					if (this.selector == methods[i].selector && this.areParametersEqual(methods[i])) {
+					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
 						needRename = true;
 						break check;
 					}
@@ -258,7 +258,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				if (knownAccessMethods != null) {
 					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
 						if (knownAccessMethods[i] == null) continue;
-						if (this.selector == knownAccessMethods[i].selector && this.areParametersEqual(knownAccessMethods[i])) {
+						if (CharOperation.equals(this.selector, knownAccessMethods[i].selector) && this.areParametersEqual(knownAccessMethods[i])) {
 							needRename = true;
 							break check;
 						}

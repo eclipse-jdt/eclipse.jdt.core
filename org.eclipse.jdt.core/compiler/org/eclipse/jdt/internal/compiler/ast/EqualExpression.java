@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -177,7 +178,7 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 				int expressionTbMethodsLength = expressionTbMethods.length;
 				for (int i = 0; i < castTbMethodsLength; i++) {
 					for (int j = 0; j < expressionTbMethodsLength; j++) {
-						if (castTbMethods[i].selector == expressionTbMethods[j].selector) {
+						if (CharOperation.equals(castTbMethods[i].selector, expressionTbMethods[j].selector)) {
 							if (castTbMethods[i].returnType != expressionTbMethods[j].returnType) {
 								if (castTbMethods[i].areParametersEqual(expressionTbMethods[j])) {
 									return false;
