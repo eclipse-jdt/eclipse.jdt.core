@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.IDocument;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
-	public static final String[] FILE_TYPES= new String[] {EXTENSION_class};
+	public static final String[] FILE_TYPES= new String[] {EXTENSION_class}; 
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
 	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
@@ -33,6 +33,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
 	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
+	
+	private static final char[] ONE_DOLLAR = "$".toCharArray(); //$NON-NLS-1$
+	private static final char[] ONE_DOT = ".".toCharArray(); //$NON-NLS-1$
 
 	private boolean needReferences;
 /**
@@ -46,6 +49,13 @@ public BinaryIndexer() {
  */
 public BinaryIndexer(boolean retrieveReferences) {
 	needReferences = retrieveReferences;
+}
+public void addTypeReference(char[] typeName){
+ 
+ 	// consider that A$B is a member type: so replace '$' with '.'
+ 	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=40116)
+ 	typeName = CharOperation.replace(typeName, ONE_DOLLAR, ONE_DOT); // note this doesn't create a new array if no replacement is needed
+ 	super.addTypeReference(typeName);
 }
 /**
  * For example:
