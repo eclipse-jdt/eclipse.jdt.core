@@ -1,6 +1,6 @@
 public class Format {
 
-   public void temp() {
+   private void temp() {
       return;
   }
 }

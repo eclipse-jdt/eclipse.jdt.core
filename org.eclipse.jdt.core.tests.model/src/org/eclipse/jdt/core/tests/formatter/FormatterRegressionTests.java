@@ -5350,7 +5350,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		try {
+			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", "test447", getIn("Format.java")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			String s = sourceUnit.getSource();
+			int start = s.indexOf("private");
+			int end = s.indexOf(";");
+			runTest(codeFormatter, s, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, null);//$NON-NLS-1$ //$NON-NLS-2$
+		} catch (JavaModelException e) {
+			assertTrue(false);
+		}
 	}
 	
 	/**
@@ -5394,17 +5402,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void _test451() {
+	public void test451() {
 		String resourcePath = getResource("test451", "settings.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		String s;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", "test451", getIn("Format.java")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-			s = sourceUnit.getSource();
-			runTest(codeFormatter, s, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, s.indexOf("private"), s.indexOf(";") + 1, "\n");//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			String s = sourceUnit.getSource();
+			int start = s.indexOf("private");
+			int end = s.indexOf(";");
+			runTest(codeFormatter, s, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, null);//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 		} catch (JavaModelException e) {
 			assertTrue(false);
 		}

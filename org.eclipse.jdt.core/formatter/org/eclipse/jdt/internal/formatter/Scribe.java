@@ -30,6 +30,7 @@ import org.eclipse.text.edits.TextEdit;
 public class Scribe {
 
 	private static final int INITIAL_SIZE = 100;
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	
 	private boolean checkLineWrapping;
 	public int column;
@@ -87,9 +88,9 @@ public class Scribe {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start, end - start + 1, ""); //$NON-NLS-1$
+		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING); //$NON-NLS-1$
 	}
-	
+
 	private final void addInsertEdit(int insertPosition, String insertedString) {
 		if (this.edits.length == this.editsIndex) {
 			// resize
@@ -296,6 +297,41 @@ public class Scribe {
 		}
 	}	
 
+	public String getEmptyLines(int linesNumber) {
+		StringBuffer buffer = new StringBuffer();
+		if (lastNumberOfNewLines == 0) {
+			linesNumber++; // add an extra line breaks
+			for (int i = 0; i < linesNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else if (lastNumberOfNewLines == 1) {
+			for (int i = 0; i < linesNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else {
+			if ((lastNumberOfNewLines - 1) >= linesNumber) {
+				// there is no need to add new lines
+				return EMPTY_STRING;
+			}
+			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
+			for (int i = 0; i < realNewLineNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += realNewLineNumber;
+			line += realNewLineNumber;
+			column = 1;
+			needSpace = false;
+		}
+		return String.valueOf(buffer);
+	}
 	/** 
 	 * Answer indentation level based on column estimated position
 	 * (if column is not indented, then use indentationLevel)
@@ -334,6 +370,32 @@ public class Scribe {
 		}
 	}	
 
+	private String getPreserveEmptyLines(int count) {
+		if (count > 0) {
+			if (this.formatter.preferences.preserve_user_linebreaks) {
+				return this.getEmptyLines(count);
+			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
+				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
+				return this.getEmptyLines(linesToPreserve);
+			} else {
+				return getNewLine();
+			}
+		}
+		return EMPTY_STRING;
+	}
+	
+	public String getNewLine() {
+		if (lastNumberOfNewLines >= 1) {
+			column = 1; // ensure that the scribe is at the beginning of a new line
+			return EMPTY_STRING;
+		}
+		line++;
+		lastNumberOfNewLines = 1;
+		column = 1;
+		needSpace = false;
+		return this.lineSeparator;
+	}
+	
 	public TextEdit getRootEdit() {
 		MultiTextEdit edit = null;
 		int length = this.textRegionEnd - this.textRegionStart + 1;
@@ -454,7 +516,7 @@ public class Scribe {
 			}
 		}
 	}
-		
+
 	private void print(char[] s, boolean considerSpaceIfAny) {
 		if (checkLineWrapping && s.length + column > this.pageWidth) {
 			handleLineTooLong();
@@ -579,8 +641,7 @@ public class Scribe {
 								this.printNewLine(this.scanner.getCurrentTokenEndPosition() + 1);
 							}
 						} else if (count != 0 && this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-							preserveEmptyLines(count - 1, this.scanner.getCurrentTokenEndPosition() + 1);
+							addReplaceEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), this.getPreserveEmptyLines(count - 1));
 						} else {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}
