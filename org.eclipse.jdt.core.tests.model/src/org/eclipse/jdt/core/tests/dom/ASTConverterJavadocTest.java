@@ -14,11 +14,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -47,6 +50,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	List comments = new ArrayList();
 	// List of tags contained in each comment read from test source.
 	List allTags = new ArrayList();
+	// Debug
+	private static boolean debug = false;
 
 	/**
 	 * @param name
@@ -680,16 +685,34 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		assertNotNull("Test file Converter/src/javadoc/test"+testNbre+"/Test.java was not found!", sourceUnit);
 
 		// Create DOM AST nodes hierarchy
+		String fileName = sourceUnit.getElementName();
 		String sourceStr = sourceUnit.getSource();
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(sourceUnit, true); // resolve bindings
-		Comment[] unitComments = compilUnit.getCommentTable();
+		IJavaProject project = sourceUnit.getJavaProject();
+		Map originalOptions = project.getOptions(true);
+		Comment[] unitComments = null;
+		if (debug) {
+			try {
+				project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
+				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);
+				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
+				CompilationUnit compilUnit = (CompilationUnit) runConversion(sourceUnit, true); // resolve bindings
+				assertEquals(fileName+": Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+				unitComments = compilUnit.getCommentTable();
+			} finally {
+				project.setOptions(originalOptions);
+			}
+		} else {
+				CompilationUnit compilUnit = (CompilationUnit) runConversion(sourceUnit, true); // resolve bindings
+				unitComments = compilUnit.getCommentTable();
+		}
+		assertNotNull(fileName+": Unexpected problems", unitComments);
 
 		// Get comments infos from test file
 		char[] source = sourceStr.toCharArray();
 		setSourceComment(source);
 		
 		// Basic comments verification
-		assertEquals("Wrong number of comments", this.comments.size(), unitComments.length);
+		assertEquals(fileName+": Wrong number of comments", this.comments.size(), unitComments.length);
 		
 		// Verify comments positions and bindings
 		for (int i=0; i<unitComments.length; i++) {
@@ -700,14 +723,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
 			comment.accept(printer);
 			String text = new String(source, comment.getStartPosition(), comment.getLength());
-			assertEquals("Flattened javadoc does NOT match source!", text, printer.getResult());
+			assertEquals(fileName+": Flattened javadoc does NOT match source!", text, printer.getResult());
 			// Verify javdoc tags positions and bindings
 			if (comment.isDocComment()) {
 				Javadoc docComment = (Javadoc)comment;
-				assertEquals("Invalid tags number! ", tags.size(), allTags(docComment));
+				assertEquals(fileName+": Invalid tags number! ", tags.size(), allTags(docComment));
 				verifyPositions(docComment, source);
 				verifyBindings(docComment);
 			}
+			if (debug) System.out.println(comment+"\nsuccessfully verified in "+fileName);
 		}
 		
 		/* Verify each javadoc: not implemented yet
@@ -818,7 +842,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testJavadoc011() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.test011", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, false);
+		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result);
 	}
 
@@ -846,7 +870,34 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50898
 	 */
-	public void _testBug50898() throws JavaModelException {
-		verifyComments("Bug50898");
+	public void testBug50898() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug50898", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		verifyComments(sourceUnit);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51226
+	 */
+	public void testBug51226() throws JavaModelException {
+		ICompilationUnit[] units = getCompilationUnits("Converter" , "src", "javadoc.testBug51226"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (int i=0; i<units.length; i++) {
+			ASTNode result = runConversion(units[i], false);
+			String fileName = units[i].getElementName();
+			final CompilationUnit unit = (CompilationUnit) result;
+			assertEquals(fileName+": Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+			assertEquals(fileName+": Wrong number of comments", 1, unit.getCommentTable().length);
+			Comment comment = unit.getCommentTable()[0];
+			assertTrue(fileName+": Comment should be a Javadoc one", comment.isDocComment());
+			Javadoc docComment = (Javadoc) comment;
+			assertEquals(fileName+": Wrong number of tags", 1, docComment.tags().size());
+			TagElement tagElement = (TagElement) docComment.tags().get(0);
+			assertNull(fileName+": Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+			assertEquals(fileName+": Wrong number of fragments in tag ["+tagElement+"]", 1, tagElement.fragments().size());
+			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
+			assertEquals(fileName+": Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			TextElement textElement = (TextElement) fragment;
+			assertEquals(fileName+": Invalid content for text element ", "Test", textElement.getText());
+			if (debug) System.out.println(docComment+"\nsuccessfully verified.");
+		}
 	}
 }

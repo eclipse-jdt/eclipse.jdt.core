@@ -97,13 +97,19 @@ public abstract class AbstractCommentParser {
 
 		boolean validComment = true;
 		try {
-			// Init
-			this.index = javadocStart +3;
-			this.endComment = javadocEnd - 2;
+			// Init scanner position
+			this.scanner.resetTo(javadocStart, javadocEnd);
+			this.endComment = javadocEnd;
+			this.index = javadocStart;
+			readChar(); // starting '/'
+			int charPosition = this.index;
+			readChar(); // first '*'
+			char nextCharacter= readChar(); // second '*'
+			
+			// Init local variables
 			this.astLengthPtr = -1;
 			this.astPtr = -1;
 			this.currentTokenType = -1;
-			this.scanner.resetTo(this.index, this.endComment);
 			this.inlineTagStarted = false;
 			this.inlineTagStart = -1;
 			this.lineStarted = false;
@@ -112,10 +118,9 @@ public abstract class AbstractCommentParser {
 			this.deprecated = false;
 			this.linePtr = getLineNumber(javadocStart);
 			this.lastLinePtr = getLineNumber(javadocEnd);
-			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : javadocStart + 3;
+			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : javadocStart;
 			this.textStart = -1;
-			char nextCharacter= 0, previousChar;
-			int charPosition = -1;
+			char previousChar = 0;
 			
 			// Loop on each comment character
 			while (this.index < this.endComment) {
@@ -144,6 +149,10 @@ public abstract class AbstractCommentParser {
 							nextCharacter = this.scanner.currentCharacter;
 					}
 					consumeToken();
+				}
+			
+				if (this.index >= this.endComment) {
+					break;
 				}
 				
 				switch (nextCharacter) {

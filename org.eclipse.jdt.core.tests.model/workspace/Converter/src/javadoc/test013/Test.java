@@ -1,4 +1,4 @@
-package test013;
+package javadoc.test013;
 import java.util.*;
 public class Test {
 	/**
