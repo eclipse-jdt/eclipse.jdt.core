@@ -1825,7 +1825,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public void shutdown() {
 
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager());
+		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaProcessor);
 		workspace.removeSaveParticipant(this);
 
 		((JavaModelManager) JavaModelManager.getJavaModelManager()).shutdown();
@@ -1854,13 +1854,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		try {
 			manager.configurePluginDebugOptions();
 			manager.loadVariables();
+
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-
-			// need to initialize workspace now since a query may be done before indexing starts
-			manager.getIndexManager().workspace = workspace;
-
 			workspace.addResourceChangeListener(
-				manager,
+				manager.deltaProcessor,
 				IResourceChangeEvent.PRE_AUTO_BUILD
 					| IResourceChangeEvent.POST_CHANGE
 					| IResourceChangeEvent.PRE_DELETE

@@ -15,12 +15,16 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -39,7 +43,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * It also does some processing on the <code>JavaElement</code>s involved
  * (e.g. closing them or updating classpaths).
  */
-public class DeltaProcessor {
+public class DeltaProcessor implements IResourceChangeListener {
 	
 	final static int IGNORE = 0;
 	final static int SOURCE = 1;
@@ -70,10 +74,16 @@ public class DeltaProcessor {
 	int currentEventType;
 	
 	HashSet projectsToUpdate = new HashSet();
+	
+	JavaModelManager manager;
 
 	static final IJavaElementDelta[] NO_DELTA = new IJavaElementDelta[0];
 
 	public static boolean VERBOSE = false;
+
+	DeltaProcessor(JavaModelManager manager) {
+		this.manager = manager;
+	}
 
 	/*
 	 * Adds the dependents of the given project to the list of the projects
@@ -276,6 +286,94 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		close(element);
 		fCurrentDelta.changed(element, IJavaElementDelta.F_CONTENT);
 	}
+	/*
+	 * Process the given delta and look for projects being added, opened, closed or
+	 * with a java nature being added or removed.
+	 * Note that projects being deleted are checked in deleting(IProject).
+	 * In all cases, add the project's dependents to the list of projects to update
+	 * so that the classpath related markers can be updated.
+	 */
+	public void checkProjectsBeingAddedOrRemoved(IResourceDelta delta) {
+		IResource resource = delta.getResource();
+		switch (resource.getType()) {
+			case IResource.ROOT :
+				// workaround for bug 15168 circular errors not reported 
+				if (this.manager.javaProjectsCache == null) {
+					try {
+						this.manager.javaProjectsCache = this.manager.getJavaModel().getJavaProjects();
+					} catch (JavaModelException e) {
+					}
+				}
+				
+				IResourceDelta[] children = delta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; i++) {
+					this.checkProjectsBeingAddedOrRemoved(children[i]);
+				}
+				break;
+			case IResource.PROJECT :
+				// NB: No need to check project's nature as if the project is not a java project:
+				//     - if the project is added or changed this is a noop for projectsBeingDeleted
+				//     - if the project is closed, it has already lost its java nature
+				int deltaKind = delta.getKind();
+				if (deltaKind == IResourceDelta.ADDED) {
+					// remember project and its dependents
+					IProject project = (IProject)resource;
+					this.addToProjectsToUpdateWithDependents(project);
+					
+					// workaround for bug 15168 circular errors not reported 
+					if (this.hasJavaNature(project)) {
+						this.addToParentInfo((JavaProject)JavaCore.create(project));
+					}
+
+				} else if (deltaKind == IResourceDelta.CHANGED) {
+					IProject project = (IProject)resource;
+					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+						// project opened or closed: remember  project and its dependents
+						this.addToProjectsToUpdateWithDependents(project);
+						
+						// workaround for bug 15168 circular errors not reported 
+						if (project.isOpen()) {
+							if (this.hasJavaNature(project)) {
+								this.addToParentInfo((JavaProject)JavaCore.create(project));
+							}
+						} else {
+							JavaProject javaProject = (JavaProject)this.manager.getJavaModel().findJavaProject(project);
+							if (javaProject != null) {
+								try {
+									javaProject.close();
+								} catch (JavaModelException e) {
+								}
+								this.removeFromParentInfo(javaProject);
+							}
+						}
+					} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
+						boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
+						boolean isJavaProject = this.hasJavaNature(project);
+						if (wasJavaProject != isJavaProject) {
+							// java nature added or removed: remember  project and its dependents
+							this.addToProjectsToUpdateWithDependents(project);
+
+							// workaround for bug 15168 circular errors not reported 
+							if (isJavaProject) {
+								this.addToParentInfo((JavaProject)JavaCore.create(project));
+							} else {
+								JavaProject javaProject = (JavaProject)JavaCore.create(project);
+								try {
+									javaProject.close();
+								} catch (JavaModelException e) {
+								}
+								this.removeFromParentInfo(javaProject);
+							}
+						}
+					} else {
+						// workaround for bug 15168 circular errors not reported 
+						// in case the project was removed then added then changed
+						this.addToParentInfo((JavaProject)JavaCore.create(project));
+					}					
+				}
+				break;
+		}
+	}
 
 	/**
 	 * Creates the openables corresponding to this resource.
@@ -381,6 +479,28 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			this.currentElement = (Openable)element;
 			return this.currentElement;
 		}
+	}
+	/**
+	 * Note that the project is about to be deleted.
+	 */
+	public void deleting(IProject project) {
+		
+		this.indexManager.deleting(project);
+		
+		try {
+			JavaProject javaProject = (JavaProject)JavaCore.create(project);
+			javaProject.close();
+
+			// workaround for bug 15168 circular errors not reported  
+			if (this.manager.javaProjectsCache == null) {
+				this.manager.javaProjectsCache = this.manager.getJavaModel().getJavaProjects();
+			}
+			this.removeFromParentInfo(javaProject);
+
+		} catch (JavaModelException e) {
+		}
+		
+		this.addDependentsToProjectsToUpdate(project.getFullPath());
 	}
 
 	/**
@@ -874,6 +994,65 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				info.removeChild(child);
 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open
+			}
+		}
+	}
+	/**
+	 * Notifies this Java Model Manager that some resource changes have happened
+	 * on the platform, and that the Java Model should update any required
+	 * internal structures such that its elements remain consistent.
+	 * Translates <code>IResourceDeltas</code> into <code>IJavaElementDeltas</code>.
+	 *
+	 * @see IResourceDelta
+	 * @see IResource 
+	 */
+	public void resourceChanged(IResourceChangeEvent event) {
+
+		if (event.getSource() instanceof IWorkspace) {
+			IResource resource = event.getResource();
+			IResourceDelta delta = event.getDelta();
+			
+			switch(event.getType()){
+				case IResourceChangeEvent.PRE_DELETE :
+					try {
+						if(resource.getType() == IResource.PROJECT 
+							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+								
+							this.deleting((IProject)resource);
+						}
+					} catch(CoreException e){
+					}
+					return;
+					
+				case IResourceChangeEvent.PRE_AUTO_BUILD :
+					if(delta != null) {
+						this.checkProjectsBeingAddedOrRemoved(delta);
+						
+						// update the classpath related markers
+						this.updateClasspathMarkers();
+
+						// the following will close project if affected by the property file change
+						this.performPreBuildCheck(delta, null); 
+					}
+					// only fire already computed deltas (resource ones will be processed in post change only)
+					this.manager.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
+					break;
+					
+				case IResourceChangeEvent.POST_CHANGE :
+					try {
+						if (delta != null) {
+							IJavaElementDelta[] translatedDeltas = this.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
+							if (translatedDeltas.length > 0) {
+								for (int i= 0; i < translatedDeltas.length; i++) {
+									this.manager.registerJavaModelDelta(translatedDeltas[i]);
+								}
+							}
+							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
+						}		
+					} finally {
+						// workaround for bug 15168 circular errors not reported 
+						this.manager.javaProjectsCache = null;
+					}
 			}
 		}
 	}

@@ -62,7 +62,7 @@ public void activateProcessing() {
  * Note: the actual operation is performed in background
  */
 public void addSource(IFile resource, IPath indexedContainer){
-	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
+	if (JavaCore.getPlugin() == null) return;	
 	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this, indexedContainer);
 	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 		job.initializeContents();
@@ -74,7 +74,7 @@ public void addSource(IFile resource, IPath indexedContainer){
  * Note: the actual operation is performed in background
  */
 public void addBinary(IFile resource, IPath indexedContainer){
-	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
+	if (JavaCore.getPlugin() == null) return;	
 	AddClassFileToIndex job = new AddClassFileToIndex(resource, this, indexedContainer);
 	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 		job.initializeContents();
@@ -126,9 +126,7 @@ public void checkIndexConsistency() {
 	try {
 		disable();
 
-		if (this.workspace == null) return;
-
-		IProject[] projects = this.workspace.getRoot().getProjects();
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (int i = 0, max = projects.length; i < max; i++){
 			IProject project = projects[i];
 			// not only java project, given at startup nature may not have been set yet
@@ -269,7 +267,7 @@ public ReadWriteMonitor getMonitorFor(IIndex index){
  * Note: the actual operation is performed in background 
  */
 public void indexAll(IProject project) {
-	if (JavaCore.getPlugin() == null || this.workspace == null) return;
+	if (JavaCore.getPlugin() == null) return;
 
 	// Also request indexing of binaries on the classpath
 	// determine the new children
@@ -449,7 +447,7 @@ public void shutdown() {
  * Note: the actual operation is performed in background
  */
 public void indexLibrary(IPath path, IProject referingProject) {
-	if (JavaCore.getPlugin() == null || this.workspace == null) return;
+	if (JavaCore.getPlugin() == null) return;
 
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	

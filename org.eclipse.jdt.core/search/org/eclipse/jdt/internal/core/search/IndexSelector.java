@@ -103,7 +103,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 private void computeIndexes() {
 	ArrayList indexesInScope = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
-	IWorkspaceRoot root = this.indexManager.workspace.getRoot();
+	IWorkspaceRoot root = ResourcesPlugin.getWorkspace()	.getRoot();
 	for (int i = 0; i < projectsAndJars.length; i++) {
 		IPath location;
 		IPath path = projectsAndJars[i];

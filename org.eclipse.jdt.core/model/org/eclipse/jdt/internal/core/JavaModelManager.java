@@ -6,7 +6,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
@@ -36,7 +35,7 @@ import org.xml.sax.*;
  * The single instance of <code>JavaModelManager</code> is available from
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
-public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
+public class JavaModelManager implements ISaveParticipant { 	
 
 	/**
 	 * Classpath variables pool
@@ -372,7 +371,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
-	private final DeltaProcessor deltaProcessor = new DeltaProcessor();
+	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
 	/**
 	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
 	 */
@@ -490,94 +489,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		this.zipFilesClientCount++;
 	}
 	
-	/*
-	 * Process the given delta and look for projects being added, opened, closed or
-	 * with a java nature being added or removed.
-	 * Note that projects being deleted are checked in deleting(IProject).
-	 * In all cases, add the project's dependents to the list of projects to update
-	 * so that the classpath related markers can be updated.
-	 */
-	public void checkProjectsBeingAddedOrRemoved(IResourceDelta delta) {
-		IResource resource = delta.getResource();
-		switch (resource.getType()) {
-			case IResource.ROOT :
-				// workaround for bug 15168 circular errors not reported 
-				if (this.javaProjectsCache == null) {
-					try {
-						this.javaProjectsCache = this.getJavaModel().getJavaProjects();
-					} catch (JavaModelException e) {
-					}
-				}
-				
-				IResourceDelta[] children = delta.getAffectedChildren();
-				for (int i = 0, length = children.length; i < length; i++) {
-					this.checkProjectsBeingAddedOrRemoved(children[i]);
-				}
-				break;
-			case IResource.PROJECT :
-				// NB: No need to check project's nature as if the project is not a java project:
-				//     - if the project is added or changed this is a noop for projectsBeingDeleted
-				//     - if the project is closed, it has already lost its java nature
-				int deltaKind = delta.getKind();
-				if (deltaKind == IResourceDelta.ADDED) {
-					// remember project and its dependents
-					IProject project = (IProject)resource;
-					this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
-					
-					// workaround for bug 15168 circular errors not reported 
-					if (this.deltaProcessor.hasJavaNature(project)) {
-						this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
-					}
 
-				} else if (deltaKind == IResourceDelta.CHANGED) {
-					IProject project = (IProject)resource;
-					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-						// project opened or closed: remember  project and its dependents
-						this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
-						
-						// workaround for bug 15168 circular errors not reported 
-						if (project.isOpen()) {
-							if (this.deltaProcessor.hasJavaNature(project)) {
-								this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
-							}
-						} else {
-							JavaProject javaProject = (JavaProject)this.getJavaModel().findJavaProject(project);
-							if (javaProject != null) {
-								try {
-									javaProject.close();
-								} catch (JavaModelException e) {
-								}
-								this.deltaProcessor.removeFromParentInfo(javaProject);
-							}
-						}
-					} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
-						boolean wasJavaProject = this.getJavaModel().findJavaProject(project) != null;
-						boolean isJavaProject = this.deltaProcessor.hasJavaNature(project);
-						if (wasJavaProject != isJavaProject) {
-							// java nature added or removed: remember  project and its dependents
-							this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
-
-							// workaround for bug 15168 circular errors not reported 
-							if (isJavaProject) {
-								this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
-							} else {
-								JavaProject javaProject = (JavaProject)JavaCore.create(project);
-								try {
-									javaProject.close();
-								} catch (JavaModelException e) {
-								}
-								this.deltaProcessor.removeFromParentInfo(javaProject);
-							}
-						}
-					} else {
-						// workaround for bug 15168 circular errors not reported 
-						// in case the project was removed then added then changed
-						this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
-					}					
-				}
-				break;
-		}
-	}
 
 	/**
 	 * Configure the plugin with respect to option settings defined in ".options" file
@@ -622,28 +534,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			}
 	}
 	
-	/**
-	 * Note that the project is about to be deleted.
-	 */
-	public void deleting(IProject project) {
-		
-		getIndexManager().deleting(project);
-		
-		try {
-			JavaProject javaProject = (JavaProject)JavaCore.create(project);
-			javaProject.close();
 
-			// workaround for bug 15168 circular errors not reported  
-			if (this.javaProjectsCache == null) {
-				this.javaProjectsCache = this.getJavaModel().getJavaProjects();
-			}
-			this.deltaProcessor.removeFromParentInfo(javaProject);
-
-		} catch (JavaModelException e) {
-		}
-		
-		this.deltaProcessor.addDependentsToProjectsToUpdate(project.getFullPath());
-	}
 	
 	/**
 	 * @see ISaveParticipant
@@ -1235,64 +1126,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		}
 	}
 
-	/**
-	 * Notifies this Java Model Manager that some resource changes have happened
-	 * on the platform, and that the Java Model should update any required
-	 * internal structures such that its elements remain consistent.
-	 * Translates <code>IResourceDeltas</code> into <code>IJavaElementDeltas</code>.
-	 *
-	 * @see IResourceDelta
-	 * @see IResource 
-	 */
-	public void resourceChanged(IResourceChangeEvent event) {
-		if (event.getSource() instanceof IWorkspace) {
-			IResource resource = event.getResource();
-			IResourceDelta delta = event.getDelta();
-			
-			switch(event.getType()){
-				case IResourceChangeEvent.PRE_DELETE :
-					try {
-						if(resource.getType() == IResource.PROJECT 
-							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
-								
-							this.deleting((IProject)resource);
-						}
-					} catch(CoreException e){
-					}
-					return;
-					
-				case IResourceChangeEvent.PRE_AUTO_BUILD :
-					if(delta != null) {
-						this.checkProjectsBeingAddedOrRemoved(delta);
-						
-						// update the classpath related markers
-						this.deltaProcessor.updateClasspathMarkers();
 
-						// the following will close project if affected by the property file change
-						this.deltaProcessor.performPreBuildCheck(delta, null); 
-					}
-					// only fire already computed deltas (resource ones will be processed in post change only)
-					fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
-					break;
-					
-				case IResourceChangeEvent.POST_CHANGE :
-					try {
-						if (delta != null) {
-							IJavaElementDelta[] translatedDeltas = this.deltaProcessor.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
-							if (translatedDeltas.length > 0) {
-								for (int i= 0; i < translatedDeltas.length; i++) {
-									registerJavaModelDelta(translatedDeltas[i]);
-								}
-							}
-							fire(null, ElementChangedEvent.POST_CHANGE);
-						}		
-					} finally {
-						// workaround for bug 15168 circular errors not reported 
-						this.javaProjectsCache = null;
-					}
-			}
-		}
-	}
 	
 	/**
 	 * @see ISaveParticipant
