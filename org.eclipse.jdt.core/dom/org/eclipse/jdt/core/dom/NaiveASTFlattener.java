@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Internal AST visitor for serializing an AST in a quick and dirty fashion.
@@ -67,43 +68,96 @@ class NaiveASTFlattener extends ASTVisitor {
 	/**
 	 * Appends the text representation of the given modifier flags, followed by a single space.
 	 * 
-	 * @param modifiers the modifiers
+	 * @param modifiers the modifier flags
+	 * @param ext the list of modifier and annotation nodes
+	 * (element type: <code>ExtendedAnnotations</code>)
 	 */
-	void printModifiers(int modifiers) {
-		if (Modifier.isPublic(modifiers)) {
-			this.buffer.append("public ");//$NON-NLS-1$
-		}
-		if (Modifier.isProtected(modifiers)) {
-			this.buffer.append("protected ");//$NON-NLS-1$
-		}
-		if (Modifier.isPrivate(modifiers)) {
-			this.buffer.append("private ");//$NON-NLS-1$
-		}
-		if (Modifier.isStatic(modifiers)) {
-			this.buffer.append("static ");//$NON-NLS-1$
-		}
-		if (Modifier.isAbstract(modifiers)) {
-			this.buffer.append("abstract ");//$NON-NLS-1$
-		}
-		if (Modifier.isFinal(modifiers)) {
-			this.buffer.append("final ");//$NON-NLS-1$
-		}
-		if (Modifier.isSynchronized(modifiers)) {
-			this.buffer.append("synchronized ");//$NON-NLS-1$
-		}
-		if (Modifier.isVolatile(modifiers)) {
-			this.buffer.append("volatile ");//$NON-NLS-1$
-		}
-		if (Modifier.isNative(modifiers)) {
-			this.buffer.append("native ");//$NON-NLS-1$
-		}
-		if (Modifier.isStrictfp(modifiers)) {
-			this.buffer.append("strictfp ");//$NON-NLS-1$
-		}
-		if (Modifier.isTransient(modifiers)) {
-			this.buffer.append("transient ");//$NON-NLS-1$
+	void printModifiers(int modifiers, List ext) {
+		if (!ext.isEmpty()) {
+			// use new-style modifier and annotation nodes when there are some
+			for (Iterator it = ext.iterator(); it.hasNext(); ) {
+				ExtendedModifier p = (ExtendedModifier) it.next();
+				p.accept(this);
+				this.buffer.append(" ");//$NON-NLS-1$
+			}
+		} else {
+			// for compatibility, use old-style modifier flags when no nodes
+			if (Modifier.isPublic(modifiers)) {
+				this.buffer.append("public ");//$NON-NLS-1$
+			}
+			if (Modifier.isProtected(modifiers)) {
+				this.buffer.append("protected ");//$NON-NLS-1$
+			}
+			if (Modifier.isPrivate(modifiers)) {
+				this.buffer.append("private ");//$NON-NLS-1$
+			}
+			if (Modifier.isStatic(modifiers)) {
+				this.buffer.append("static ");//$NON-NLS-1$
+			}
+			if (Modifier.isAbstract(modifiers)) {
+				this.buffer.append("abstract ");//$NON-NLS-1$
+			}
+			if (Modifier.isFinal(modifiers)) {
+				this.buffer.append("final ");//$NON-NLS-1$
+			}
+			if (Modifier.isSynchronized(modifiers)) {
+				this.buffer.append("synchronized ");//$NON-NLS-1$
+			}
+			if (Modifier.isVolatile(modifiers)) {
+				this.buffer.append("volatile ");//$NON-NLS-1$
+			}
+			if (Modifier.isNative(modifiers)) {
+				this.buffer.append("native ");//$NON-NLS-1$
+			}
+			if (Modifier.isStrictfp(modifiers)) {
+				this.buffer.append("strictfp ");//$NON-NLS-1$
+			}
+			if (Modifier.isTransient(modifiers)) {
+				this.buffer.append("transient ");//$NON-NLS-1$
+			}
 		}
 	}		
+	
+	/*
+	 * @see ASTVisitor#visit(AnnotationTypeDeclaration)
+	 * @since 3.0
+	 */
+	public boolean visit(AnnotationTypeDeclaration node) {
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+		printModifiers(node.getModifiers(), node.modifiers());
+		this.buffer.append("@interface ");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append(" {");//$NON-NLS-1$
+		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
+			BodyDeclaration d = (BodyDeclaration) it.next();
+			d.accept(this);
+		}
+		this.buffer.append("}");//$NON-NLS-1$
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(AnnotationTypeMemberDeclaration)
+	 * @since 3.0
+	 */
+	public boolean visit(AnnotationTypeMemberDeclaration node) {
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+		printModifiers(node.getModifiers(), node.modifiers());
+		node.getType().accept(this);
+		this.buffer.append(" ");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append("()");//$NON-NLS-1$
+		if (node.getDefault() != null) {
+			this.buffer.append(" default ");//$NON-NLS-1$
+			node.getDefault().accept(this);
+		}
+		this.buffer.append(";");//$NON-NLS-1$
+		return false;
+	}
 	
 	/*
 	 * @see ASTVisitor#visit(AnonymousClassDeclaration)
@@ -317,7 +371,7 @@ class NaiveASTFlattener extends ASTVisitor {
 			d.accept(this);
 		}
 		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
-			TypeDeclaration d = (TypeDeclaration) it.next();
+			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
 			d.accept(this);
 		}
 		return false;
@@ -405,6 +459,10 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public boolean visit(EnumConstantDeclaration node) {
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getName().accept(this);
 		if (!node.arguments().isEmpty()) {
 			this.buffer.append("(");//$NON-NLS-1$
@@ -425,6 +483,50 @@ class NaiveASTFlattener extends ASTVisitor {
 			}
 			this.buffer.append("}");//$NON-NLS-1$
 		}
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(EnumDeclaration)
+	 * @since 3.0
+	 */
+	public boolean visit(EnumDeclaration node) {
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+		printModifiers(node.getModifiers(), node.modifiers());
+		this.buffer.append("enum ");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append(" ");//$NON-NLS-1$
+		if (!node.superInterfaceTypes().isEmpty()) {
+			this.buffer.append("implements ");//$NON-NLS-1$
+			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
+				Type t = (Type) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(", ");//$NON-NLS-1$
+				}
+			}
+			this.buffer.append(" ");//$NON-NLS-1$
+		}
+		this.buffer.append("{");//$NON-NLS-1$
+		BodyDeclaration prev = null;
+		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
+			BodyDeclaration d = (BodyDeclaration) it.next();
+			if (prev instanceof EnumConstantDeclaration) {
+				// enum constant declarations do not include punctuation
+				if (d instanceof EnumConstantDeclaration) {
+					// enum constant declarations are separated by commas
+					this.buffer.append(", ");//$NON-NLS-1$
+				} else {
+					// semicolon separates last enum constant declaration from 
+					// first class body declarations
+					this.buffer.append("; ");//$NON-NLS-1$
+				}
+			}
+			d.accept(this);
+		}
+		this.buffer.append("}");//$NON-NLS-1$
 		return false;
 	}
 
@@ -454,7 +556,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
 		}
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
 		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
@@ -554,7 +656,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
 		}
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getBody().accept(this);
 		return false;
 	}
@@ -592,6 +694,16 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(MarkerAnnotation)
+	 * @since 3.0
+	 */
+	public boolean visit(MarkerAnnotation node) {
+		this.buffer.append("@");//$NON-NLS-1$
+		node.getTypeName().accept(this);
+		return false;
+	}
+	
+	/*
 	 * @see ASTVisitor#visit(MemberRef)
 	 * @since 3.0
 	 */
@@ -601,6 +713,15 @@ class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append("#");//$NON-NLS-1$
 		node.getName().accept(this);
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(MemberValuePair)
+	 * @since 3.0
+	 */
+	public boolean visit(MemberValuePair node) {
+		// TBD
 		return false;
 	}
 	
@@ -646,7 +767,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
 		}
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		if (!node.isConstructor()) {
 			node.getReturnType().accept(this);
 			this.buffer.append(" ");//$NON-NLS-1$
@@ -702,6 +823,36 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(Modifier)
+	 * @since 3.0
+	 */
+	public boolean visit(Modifier node) {
+		this.buffer.append(node.getKeyword().toString());
+		return false;
+	}
+	
+	/*
+	 * @see ASTVisitor#visit(NormalAnnotation)
+	 * @since 3.0
+	 */
+	public boolean visit(NormalAnnotation node) {
+		this.buffer.append("@");//$NON-NLS-1$
+		node.getTypeName().accept(this);
+		this.buffer.append("(");//$NON-NLS-1$
+		for (Iterator it = node.values().iterator(); it.hasNext(); ) {
+			MemberValuePair p = (MemberValuePair) it.next();
+			p.getName().accept(this);
+			this.buffer.append("=");//$NON-NLS-1$
+			p.getValue().accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		this.buffer.append(")");//$NON-NLS-1$
+		return false;
+	}
+	
+	/*
 	 * @see ASTVisitor#visit(NullLiteral)
 	 */
 	public boolean visit(NullLiteral node) {
@@ -721,6 +872,11 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(PackageDeclaration)
 	 */
 	public boolean visit(PackageDeclaration node) {
+		for (Iterator it = node.annotations().iterator(); it.hasNext(); ) {
+			Annotation p = (Annotation) it.next();
+			p.accept(this);
+			this.buffer.append(" ");//$NON-NLS-1$
+		}
 		this.buffer.append("package ");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append(";");//$NON-NLS-1$
@@ -835,11 +991,27 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(SingleMemberAnnotation)
+	 * @since 3.0
+	 */
+	public boolean visit(SingleMemberAnnotation node) {
+		this.buffer.append("@");//$NON-NLS-1$
+		node.getTypeName().accept(this);
+		this.buffer.append("(");//$NON-NLS-1$
+		node.getValue().accept(this);
+		this.buffer.append(")");//$NON-NLS-1$
+		return false;
+	}
+	
+	/*
 	 * @see ASTVisitor#visit(SingleVariableDeclaration)
 	 */
 	public boolean visit(SingleVariableDeclaration node) {
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getType().accept(this);
+		if (node.isVariableArity()) {
+			this.buffer.append("...");//$NON-NLS-1$
+		}
 		this.buffer.append(" ");//$NON-NLS-1$
 		node.getName().accept(this);
 		if (node.getInitializer() != null) {
@@ -1044,7 +1216,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
 		}
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		this.buffer.append(node.isInterface() ? "interface " : "class ");//$NON-NLS-2$//$NON-NLS-1$
 		node.getName().accept(this);
 		if (!node.typeParameters().isEmpty()) {
@@ -1100,7 +1272,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(TypeDeclarationStatement)
 	 */
 	public boolean visit(TypeDeclarationStatement node) {
-		node.getTypeDeclaration().accept(this);
+		node.getDeclaration().accept(this);
 		this.buffer.append(";");//$NON-NLS-1$
 		return false;
 	}
@@ -1141,7 +1313,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */
 	public boolean visit(VariableDeclarationExpression node) {
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
 		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
@@ -1174,7 +1346,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(VariableDeclarationStatement)
 	 */
 	public boolean visit(VariableDeclarationStatement node) {
-		printModifiers(node.getModifiers());
+		printModifiers(node.getModifiers(), node.modifiers());
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
 		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {

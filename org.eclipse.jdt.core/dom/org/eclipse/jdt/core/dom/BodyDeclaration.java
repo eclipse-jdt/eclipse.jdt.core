@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Abstract base class of all AST nodes that represent body declarations 
  * that may appear in the body of some kind of class or interface declaration,
@@ -28,10 +30,12 @@ package org.eclipse.jdt.core.dom;
  * 		FieldDeclaration
  * 		Initializer
  *		EnumConstantDeclaration
+ *		AnnotationTypeDeclaration
+ *		AnnotationTypeMemberDeclaration
  * </pre>
  * </p>
  * <p>
- * All types of body declarations carry modifiers, although they differ in
+ * All types of body declarations carry modifiers and annotations, although they differ in
  * which modifiers are allowed. Most types of body declarations can carry a
  * doc comment; Initializer is the only ones that does not. The source range
  * for body declarations always includes the doc comment if present.
@@ -45,15 +49,25 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * The doc comment, or <code>null</code> if none.
 	 * Defaults to none.
 	 */
-	private Javadoc optionalDocComment = null;
+	Javadoc optionalDocComment = null;
 
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
+	 * The modifier flags; bit-wise or of Modifier flags.
 	 * Defaults to none.
+	 * @since 3.0
+	 * TBD (jeem) - deprecate
+	 */
+	private int modifierFlags = Modifier.NONE;
+	
+	/**
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Defaults to an empty list.
 	 * 
 	 * @since 3.0
 	 */
-	private int modifiers = Modifier.NONE;
+	ASTNode.NodeList modifiers =
+		new ASTNode.NodeList(true, ExtendedModifier.class);
+
 	
 	/**
 	 * Creates a new AST node for a body declaration node owned by the 
@@ -74,7 +88,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @return the doc comment node, or <code>null</code> if none
 	 */
 	public Javadoc getJavadoc() {
-		return optionalDocComment;
+		return this.optionalDocComment;
 	}
 
 	/**
@@ -95,9 +109,10 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 * @since 3.0
+	 * TBD (jeem) - deprecate
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		return this.modifierFlags;
 	}
 
 	/**
@@ -108,17 +123,36 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @see Modifier
 	 * @exception IllegalArgumentException if the modifiers are illegal
 	 * @since 3.0
+	 * TBD (jeem) - deprecate
 	 */ 
 	public void setModifiers(int modifiers) {
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
+	/**
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		return this.modifiers;
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 }
 

@@ -15,12 +15,12 @@ package org.eclipse.jdt.core.dom;
  * Local type declaration statement AST node type.
  * <p>
  * This kind of node is used to convert a type declaration
- * (<code>TypeDeclaration</code>) into a statement
+ * (<code>AbstractTypeDeclaration</code>) into a statement
  * (<code>Statement</code>) by wrapping it.
  * </p>
  * <pre>
  * TypeDeclarationStatement:
- *    TypeDeclaration
+ *    AbstractTypeDeclaration
  * </pre>
  * 
  * @since 2.0
@@ -31,7 +31,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * The type declaration; lazily initialized; defaults to a unspecified, 
 	 * but legal, type declaration.
 	 */
-	private TypeDeclaration typeDecl = null;
+	private AbstractTypeDeclaration typeDecl = null;
 
 	/**
 	 * Creates a new unparented local type declaration statement node owned 
@@ -62,8 +62,8 @@ public class TypeDeclarationStatement extends Statement {
 			new TypeDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
-		result.setTypeDeclaration(
-			(TypeDeclaration) getTypeDeclaration().clone(target));
+		result.setDeclaration(
+			(AbstractTypeDeclaration) getDeclaration().clone(target));
 		return result;
 	}
 	
@@ -81,9 +81,49 @@ public class TypeDeclarationStatement extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChild(visitor, getTypeDeclaration());
+			acceptChild(visitor, getDeclaration());
 		}
 		visitor.endVisit(this);
+	}
+	
+	/**
+	 * Returns the abstract type declaration of this local type declaration
+	 * statement.
+	 * 
+	 * @return the type declaration node
+	 * @since 3.0
+	 */ 
+	public AbstractTypeDeclaration getDeclaration() {
+		if (this.typeDecl == null) {
+			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
+			setDeclaration(new TypeDeclaration(getAST()));
+			getAST().setModificationCount(count);
+		}
+		return this.typeDecl;
+	}
+		
+	/**
+	 * Sets the abstract type declaration of this local type declaration
+	 * statement.
+	 * 
+	 * @param decl the type declaration node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 * @since 3.0
+	 */ 
+	public void setDeclaration(AbstractTypeDeclaration decl) {
+		if (decl == null) {
+			throw new IllegalArgumentException();
+		}
+		// a TypeDeclarationStatement may occur inside an 
+		// TypeDeclaration - must check cycles
+		replaceChild(this.typeDecl, decl, true);
+		this.typeDecl= decl;
 	}
 	
 	/**
@@ -91,15 +131,12 @@ public class TypeDeclarationStatement extends Statement {
 	 * statement.
 	 * 
 	 * @return the type declaration node
+	 * @deprecated Use {@link #getDeclaration()} instead.
 	 */ 
 	public TypeDeclaration getTypeDeclaration() {
-		if (typeDecl == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setTypeDeclaration(new TypeDeclaration(getAST()));
-			getAST().setModificationCount(count);
-		}
-		return typeDecl;
+		// forward to non-deprecated replacement method
+		// N.B. no gentle way to handle non-TypeDeclarations
+		return (TypeDeclaration) getDeclaration();
 	}
 		
 	/**
@@ -113,16 +150,13 @@ public class TypeDeclarationStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @deprecated Use {@link #setDeclaration(AbstractTypeDeclaration)} instead.
 	 */ 
 	public void setTypeDeclaration(TypeDeclaration decl) {
-		if (decl == null) {
-			throw new IllegalArgumentException();
-		}
-		// a TypeDeclarationStatement may occur inside an 
-		// TypeDeclaration - must check cycles
-		replaceChild(this.typeDecl, decl, true);
-		this.typeDecl= decl;
+		// forward to non-deprecated replacement method
+		setDeclaration(decl);
 	}
+	
 	/**
 	 * Resolves and returns the binding for the class or interface declared in
 	 * this type declaration statement.
@@ -136,8 +170,15 @@ public class TypeDeclarationStatement extends Statement {
 	 */	
 	public ITypeBinding resolveBinding() {
 		// forward request to the wrapped type declaration
-		TypeDeclaration d = getTypeDeclaration();
-		return d.resolveBinding();
+		AbstractTypeDeclaration d = getDeclaration();
+		if (d instanceof TypeDeclaration) {
+			return ((TypeDeclaration) d).resolveBinding();
+		} else if (d instanceof AnnotationTypeDeclaration) {
+			return ((AnnotationTypeDeclaration) d).resolveBinding();
+		} else {
+			// shouldn't happen
+			return null;
+		}
 	}
 	
 	/* (omit javadoc for this method)
@@ -153,7 +194,7 @@ public class TypeDeclarationStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (typeDecl == null ? 0 : getTypeDeclaration().treeSize());
+			+ (this.typeDecl == null ? 0 : getDeclaration().treeSize());
 	}
 }
 

@@ -20,14 +20,14 @@ import java.util.List;
  *
  * <pre>
  * MethodDeclaration:
- *    [ Javadoc ] { Modifier }
+ *    [ Javadoc ] { ExtendedModifier }
  *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *        ( Type | <b>void</b> ) Identifier <b>(</b>
  *        [ FormalParameter 
  * 		     { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
  *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
  * ConstructorDeclaration:
- *    [ Javadoc ] { Modifier } Identifier <b>(</b>
+ *    [ Javadoc ] { ExtendedModifier } Identifier <b>(</b>
  * 		  [ FormalParameter
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
@@ -54,14 +54,6 @@ import java.util.List;
  */
 public class MethodDeclaration extends BodyDeclaration {
 	
-	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = 
-		Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-		| Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED
-		| Modifier.NATIVE | Modifier.ABSTRACT | Modifier.STRICTFP;
-		
 	/**
 	 * <code>true</code> for a constructor, <code>false</code> for a method.
 	 * Defaults to method.
@@ -152,7 +144,10 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setModifiers(getModifiers());
+		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setConstructor(isConstructor());
+		result.typeParameters().addAll(
+				ASTNode.copySubtrees(target, typeParameters()));
 		result.setReturnType(
 			(Type) ASTNode.copySubtree(target, getReturnType()));
 		result.setExtraDimensions(getExtraDimensions());
@@ -182,12 +177,13 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			acceptChildren(visitor, typeParameters);
+			acceptChildren(visitor, this.modifiers);
+			acceptChildren(visitor, this.typeParameters);
 			// n.b. visit return type even for constructors
 			acceptChild(visitor, getReturnType());
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, parameters);
-			acceptChildren(visitor, thrownExceptions);
+			acceptChildren(visitor, this.parameters);
+			acceptChildren(visitor, this.thrownExceptions);
 			acceptChild(visitor, getBody());
 		}
 		visitor.endVisit(this);
@@ -200,7 +196,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    and <code>false</code> if this is a method declaration
 	 */ 
 	public boolean isConstructor() {
-		return isConstructor;
+		return this.isConstructor;
 	}
 	
 	/**
@@ -212,40 +208,6 @@ public class MethodDeclaration extends BodyDeclaration {
 	public void setConstructor(boolean isConstructor) {
 		modifying();
 		this.isConstructor = isConstructor;
-	}
-
-	/**
-	 * Returns the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for methods: public, private, protected,
-	 * static, final, synchronized, native, abstract, and strictfp.
-	 * For constructors, only public, private, and protected are meaningful.
-	 * Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @since 2.0
-	 */ 
-	public int getModifiers() {
-		// method needed only for javadoc
-		return super.getModifiers();
-	}
-	
-	/**
-	 * Sets the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for methods: public, private, protected,
-	 * static, final, synchronized, native, abstract, and strictfp.
-	 * For constructors, only public, private, and protected are meaningful.
-	 * Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @since 2.0
-	 */ 
-	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
-		super.setModifiers(modifiers);
 	}
 
 	/**
@@ -269,7 +231,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 3.0
 	 */ 
 	public List typeParameters() {
-		return typeParameters;
+		return this.typeParameters;
 	}
 	
 	/**
@@ -280,13 +242,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the method name node
 	 */ 
 	public SimpleName getName() {
-		if (methodName == null) {
+		if (this.methodName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return methodName;
+		return this.methodName;
 	}
 	
 	/**
@@ -317,7 +279,32 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    (element type: <code>SingleVariableDeclaration</code>)
 	 */ 
 	public List parameters() {
-		return parameters;
+		return this.parameters;
+	}
+	
+	/**
+	 * Returns whether this method declaration declares a
+	 * variable arity method. The convenience method checks
+	 * whether the last parameter is so marked.
+	 * <p>
+	 * Note: Varible arity methods are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a variable arity method declaration,
+	 *    and <code>false</code> otherwise
+	 * @see SingleVariableDeclaration#isVariableArity()
+	 * @since 3.0
+	 */ 
+	public boolean isVariableArity() {
+		if (parameters().isEmpty()) {
+			return false;
+		} else {
+			SingleVariableDeclaration v = (SingleVariableDeclaration) parameters().get(parameters().size() - 1);
+			return v.isVariableArity();
+		}
 	}
 	
 	/**
@@ -328,7 +315,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    (element type: <code>Name</code>)
 	 */ 
 	public List thrownExceptions() {
-		return thrownExceptions;
+		return this.thrownExceptions;
 	}
 	
 	/**
@@ -345,13 +332,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the return type, possibly the void primitive type
 	 */ 
 	public Type getReturnType() {
-		if (returnType == null) {
+		if (this.returnType == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setReturnType(getAST().newPrimitiveType(PrimitiveType.VOID));
 			getAST().setModificationCount(count);
 		}
-		return returnType;
+		return this.returnType;
 	}
 
 	/**
@@ -394,7 +381,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
-		return extraArrayDimensions;
+		return this.extraArrayDimensions;
 	}
 
 	/**
@@ -434,7 +421,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    body
 	 */ 
 	public Block getBody() {
-		return optionalBody;
+		return this.optionalBody;
 	}
 
 	/**
@@ -503,7 +490,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 7 * 4;
+		return super.memSize() + 8 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -512,13 +499,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	int treeSize() {
 		return
 			memSize()
-			+ (getJavadoc() == null ? 0 : getJavadoc().treeSize())
-			+ typeParameters.listSize()
-			+ (methodName == null ? 0 : getName().treeSize())
-			+ (returnType == null ? 0 : getReturnType().treeSize())
-			+ parameters.listSize()
-			+ thrownExceptions.listSize()
-			+ (optionalBody == null ? 0 : getBody().treeSize());
+			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
+			+ this.modifiers.listSize()
+			+ this.typeParameters.listSize()
+			+ (this.methodName == null ? 0 : getName().treeSize())
+			+ (this.returnType == null ? 0 : getReturnType().treeSize())
+			+ this.parameters.listSize()
+			+ this.thrownExceptions.listSize()
+			+ (this.optionalBody == null ? 0 : getBody().treeSize());
 	}
 }
 

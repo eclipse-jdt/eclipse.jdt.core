@@ -56,10 +56,10 @@ public class CompilationUnit extends ASTNode {
 	
 	/**
 	 * The list of type declarations in textual order order; 
-	 * initially none (elementType: <code>TypeDeclaration</code>)
+	 * initially none (elementType: <code>AbstractTypeDeclaration</code>)
 	 */
 	private ASTNode.NodeList types =
-		new ASTNode.NodeList(false, TypeDeclaration.class);
+		new ASTNode.NodeList(false, AbstractTypeDeclaration.class);
 	
 	/**
 	 * Line end table. If <code>lineEndTable[i] == p</code> then the
@@ -211,9 +211,15 @@ public class CompilationUnit extends ASTNode {
 	/**
 	 * Returns the live list of nodes for the top-level type declarations of this 
 	 * compilation unit, in order of appearance.
+     * <p>
+     * Note that the types may include both enum declarations
+     * and annotation type declarations introduced in JDK 1.5.
+     * For source code compilant with JDK 1.4 and earlier, the
+     * elements are always <code>TypeDeclaration</code>.
+     * </p>
 	 * 
 	 * @return the live list of top-level type declaration
-	 *    nodes (elementType: <code>TypeDeclaration</code>)
+	 *    nodes (elementType: <code>AbstractTypeDeclaration</code>)
 	 */ 
 	public List types() {
 		return types;
@@ -232,7 +238,7 @@ public class CompilationUnit extends ASTNode {
 	 * <li></li>
 	 * <li>package - a <code>PackageDeclaration</code></li>
 	 * <li>class or interface - a <code>TypeDeclaration</code> or a
-	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes) </li>
+	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes)</li>
 	 * <li>primitive type - none</li>
 	 * <li>array type - none</li>
 	 * <li>field - a <code>VariableDeclarationFragment</code> in a 
@@ -243,6 +249,8 @@ public class CompilationUnit extends ASTNode {
 	 *    <code>VariableDeclarationExpression</code></li>
 	 * <li>method - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
+     * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
+     * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
@@ -276,7 +284,7 @@ public class CompilationUnit extends ASTNode {
 	 * <li></li>
 	 * <li>package - a <code>PackageDeclaration</code></li>
 	 * <li>class or interface - a <code>TypeDeclaration</code> or a
-	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes) </li>
+	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes)</li>
 	 * <li>primitive type - none</li>
 	 * <li>array type - none</li>
 	 * <li>field - a <code>VariableDeclarationFragment</code> in a 
@@ -287,6 +295,8 @@ public class CompilationUnit extends ASTNode {
 	 *    <code>VariableDeclarationExpression</code></li>
 	 * <li>method - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
+     * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
+     * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
@@ -538,7 +548,7 @@ public class CompilationUnit extends ASTNode {
 		// include the type names
 		buffer.append("["); //$NON-NLS-1$
 		for (Iterator it = types().iterator(); it.hasNext(); ) {
-			TypeDeclaration d = (TypeDeclaration) it.next();
+			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
 			buffer.append(d.getName().getIdentifier());
 			if (it.hasNext()) {
 				buffer.append(","); //$NON-NLS-1$

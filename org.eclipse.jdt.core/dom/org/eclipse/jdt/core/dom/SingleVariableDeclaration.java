@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Single variable declaration AST node type. Single variable
  * declaration nodes are used in a limited number of places, including formal
@@ -19,7 +21,7 @@ package org.eclipse.jdt.core.dom;
  *
  * <pre>
  * SingleVariableDeclaration:
- *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
+ *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  * 
  * @since 2.0
@@ -35,10 +37,19 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		| Modifier.TRANSIENT;
 
 	/**
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Defaults to an empty list.
+	 * 
+	 * @since 3.0
+	 */
+	private ASTNode.NodeList modifiers =
+		new ASTNode.NodeList(true, ExtendedModifier.class);
+	
+	/**
 	 * The modifiers; bit-wise or of Modifier flags.
 	 * Defaults to none.
 	 */
-	private int modifiers = Modifier.NONE;
+	private int modifierFlags = Modifier.NONE;
 	
 	/**
 	 * The variable name; lazily initialized; defaults to a unspecified,
@@ -51,6 +62,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * legal type.
 	 */
 	private Type type = null;
+
+	/**
+	 * Indicates the last parameter of a variable arity method;
+	 * defaults to false.
+	 * 
+	 * @since 3.0
+	 */
+	private boolean variableArity = false;
 
 	/**
 	 * The number of extra array dimensions that appear after the variable;
@@ -70,7 +89,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Creates a new AST node for a variable declaration owned by the given 
 	 * AST. By default, the variable declaration has: no modifiers, an 
 	 * unspecified (but legal) type, an unspecified (but legal) variable name, 
-	 * 0 dimensions after the variable; no initializer.
+	 * 0 dimensions after the variable; no initializer; not variable arity.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
@@ -95,7 +114,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
+		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setType((Type) getType().clone(target));
+		result.setVariableArity(isVariableArity());
 		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
 		result.setInitializer(
@@ -118,11 +139,30 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
+			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getType());
 			acceptChild(visitor, getName());
 			acceptChild(visitor, getInitializer());
 		}
 		visitor.endVisit(this);
+	}
+	
+	/**
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		return this.modifiers;
 	}
 	
 	/**
@@ -134,9 +174,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
+	 * TBD (jeem) - deprecate
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		return this.modifierFlags;
 	}
 
 	/**
@@ -150,26 +191,27 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * TBD (jeem) - deprecate
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on VariableDeclaration.
 	 */ 
 	public SimpleName getName() {
-		if (variableName == null) {
+		if (this.variableName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return variableName;
+		return this.variableName;
 	}
 		
 	/* (omit javadoc for this method)
@@ -190,13 +232,50 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the type
 	 */ 
 	public Type getType() {
-		if (type == null) {
+		if (this.type == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return type;
+		return this.type;
+	}
+
+	/**
+	 * Returns whether this declaration declares the last parameter of
+	 * a variable arity method.
+	 * <p>
+	 * Note: Varible arity methods are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a variable arity parameter declaration,
+	 *    and <code>false</code> otherwise
+	 * @since 3.0
+	 */ 
+	public boolean isVariableArity() {
+		return this.variableArity;
+	}
+	
+	/**
+	 * Sets whether this declaration declares the last parameter of
+	 * a variable arity method.
+	 * <p>
+	 * Note: Varible arity methods are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param variableArity <code>true</code> if this is a variable arity
+	 *    parameter declaration, and <code>false</code> otherwise
+	 * @since 3.0
+	 */ 
+	public void setVariableArity(boolean variableArity) {
+		modifying();
+		this.variableArity = variableArity;
 	}
 
 	/**
@@ -223,7 +302,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
-		return extraArrayDimensions;
+		return this.extraArrayDimensions;
 	}
 
 	/* (omit javadoc for this method)
@@ -242,7 +321,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 */ 
 	public Expression getInitializer() {
-		return optionalInitializer;
+		return this.optionalInitializer;
 	}
 	
 	/* (omit javadoc for this method)
@@ -260,7 +339,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 5 * 4;
+		return BASE_NODE_SIZE + 7 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -269,8 +348,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	int treeSize() {
 		return 
 			memSize()
-			+ (type == null ? 0 : getType().treeSize())
-			+ (variableName == null ? 0 : getName().treeSize())
-			+ (optionalInitializer == null ? 0 : getInitializer().treeSize());
+			+ this.modifiers.listSize()
+			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.variableName == null ? 0 : getName().treeSize())
+			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize());
 	}
 }

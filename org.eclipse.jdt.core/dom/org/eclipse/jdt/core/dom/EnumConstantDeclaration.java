@@ -19,7 +19,7 @@ import java.util.List;
  *
  * <pre>
  * EnumConstantDeclaration:
- *      [ Javadoc ] Identifier
+ *      [ Javadoc ] { ExtendedModifier } Identifier
  *            [ <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> ]
  *			  [ <b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b> ]
  * </pre>
@@ -69,8 +69,8 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/**
 	 * Creates a new AST node for an enumeration constants declaration owned by
 	 * the given AST. By default, the enumeration constant has an unspecified,
-	 * but legal, name; no javadoc; an empty list of arguments; and an empty
-	 * list of body declarations.
+	 * but legal, name; no javadoc; an empty list of modifiers and annotations;
+	 * an empty list of arguments; and an empty list of body declarations.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -98,6 +98,8 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
+		result.setModifiers(getModifiers());
+		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setName((SimpleName) getName().clone(target));
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		result.bodyDeclarations().addAll(
@@ -121,9 +123,10 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
+			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, arguments);
-			acceptChildren(visitor, bodyDeclarations);
+			acceptChildren(visitor, this.arguments);
+			acceptChildren(visitor, this.bodyDeclarations);
 		}
 		visitor.endVisit(this);
 	}
@@ -134,13 +137,13 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * @return the constant name node
 	 */ 
 	public SimpleName getName() {
-		if (constantName == null) {
+		if (this.constantName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return constantName;
+		return this.constantName;
 	}
 		
 	/**
@@ -171,7 +174,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List arguments() {
-		return arguments;
+		return this.arguments;
 	}
 
 	/**
@@ -183,7 +186,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 *    (element type: <code>BodyDeclaration</code>)
 	 */ 
 	public List bodyDeclarations() {
-		return bodyDeclarations;
+		return this.bodyDeclarations;
 	}
 	
 	/**
@@ -245,10 +248,11 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	int treeSize() {
 		return
 			memSize()
-			+ (getJavadoc() == null ? 0 : getJavadoc().treeSize())
-			+ (constantName == null ? 0 : getName().treeSize())
-			+ arguments.listSize()
-			+ bodyDeclarations.listSize();
+			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
+			+ this.modifiers.listSize()
+			+ (this.constantName == null ? 0 : getName().treeSize())
+			+ this.arguments.listSize()
+			+ this.bodyDeclarations.listSize();
 	}
 }
 

@@ -77,6 +77,14 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	MethodRefParameter MPARM1;
 	LineComment LC1;
 	BlockComment BC1;
+	MemberValuePair MVP1;
+	MemberValuePair MVP2;
+	MarkerAnnotation ANO1;
+	SingleMemberAnnotation ANO2;
+	Modifier MOD1;
+	Modifier MOD2;
+	EnumConstantDeclaration EC1;
+	EnumConstantDeclaration EC2;
 	
 	final StringBuffer b = new StringBuffer();
 	
@@ -174,6 +182,29 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		MPARM1 = ast.newMethodRefParameter();
 		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
 
+		MVP1 = ast.newMemberValuePair();
+		MVP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
+		MVP1.setValue(ast.newSimpleName("y")); //$NON-NLS-1$
+
+		MVP2 = ast.newMemberValuePair();
+		MVP2.setName(ast.newSimpleName("a")); //$NON-NLS-1$
+		MVP2.setValue(ast.newSimpleName("b")); //$NON-NLS-1$
+		
+		ANO1 = ast.newMarkerAnnotation();
+		ANO1.setTypeName(ast.newSimpleName("p")); //$NON-NLS-1$
+		
+		ANO2 = ast.newSingleMemberAnnotation();
+		ANO2.setTypeName(ast.newSimpleName("q")); //$NON-NLS-1$
+		ANO2.setValue(ast.newSimpleName("v")); //$NON-NLS-1$
+		
+		MOD1 = ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+		MOD2 = ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
+		
+		EC1 = ast.newEnumConstantDeclaration();
+		EC1.setName(ast.newSimpleName("F")); //$NON-NLS-1$
+		EC2 = ast.newEnumConstantDeclaration();
+		EC2.setName(ast.newSimpleName("G")); //$NON-NLS-1$
+
 	}
 	
 	protected void tearDown() {
@@ -215,6 +246,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			}
 		}
 
+		public boolean match(AnnotationTypeDeclaration node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(AnnotationTypeMemberDeclaration node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(AnonymousClassDeclaration node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
@@ -284,6 +321,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(EnumConstantDeclaration node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(EnumDeclaration node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(ExpressionStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
@@ -317,7 +357,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(LineComment node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(MarkerAnnotation node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(MemberRef node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(MemberValuePair node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(MethodDeclaration node, Object other) {
@@ -330,6 +376,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(MethodRefParameter node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(Modifier node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(NormalAnnotation node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(NullLiteral node, Object other) {
@@ -369,6 +421,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(SimpleType node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(SingleMemberAnnotation node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(SingleVariableDeclaration node, Object other) {
@@ -722,11 +777,25 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testEnumConstantDeclaration() {
 		EnumConstantDeclaration x1 = ast.newEnumConstantDeclaration();
 		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setName(N1);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
+		basicMatch(x1);
+	}
+	public void testEnumDeclaration() {
+		EnumDeclaration x1 = ast.newEnumDeclaration();
+		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
+		x1.setName(N1);
+		x1.superInterfaceTypes().add(T1);
+		x1.superInterfaceTypes().add(T2);
+		x1.bodyDeclarations().add(EC1);
+		x1.bodyDeclarations().add(EC2);
 		basicMatch(x1);
 	}
 	public void testExpressionStatement() {
@@ -742,6 +811,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testFieldDeclaration() {
 		FieldDeclaration x1 = ast.newFieldDeclaration(W1);
 		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
@@ -818,6 +889,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.typeParameters().add(TP1);
 		x1.typeParameters().add(TP2);
 		x1.setReturnType(T1);
@@ -862,6 +935,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = ast.newPackageDeclaration();
+		x1.annotations().add(ANO1);
+		x1.annotations().add(ANO2);
 		basicMatch(x1);
 	}
 	public void testParenthesizedExpression() {
@@ -887,6 +962,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = ast.newSingleVariableDeclaration();
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setType(T1);
 		x1.setName(N1);
 		x1.setInitializer(E1);
@@ -979,6 +1056,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testTypeDeclaration() {
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setName(N1);
 		x1.typeParameters().add(TP1);
 		x1.typeParameters().add(TP2);
@@ -1013,12 +1092,16 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationExpression x1 = ast.newVariableDeclarationExpression(W1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
 	}
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationStatement x1 = ast.newVariableDeclarationStatement(W1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
@@ -1029,4 +1112,49 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setBody(S1);
 		basicMatch(x1);
 	}
+	
+	// annotation-related
+	public void testAnnotationTypeDeclaration() {
+		AnnotationTypeDeclaration x1 = ast.newAnnotationTypeDeclaration();
+		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
+		x1.setName(N1);
+		x1.bodyDeclarations().add(FD1);
+		x1.bodyDeclarations().add(FD2);
+		basicMatch(x1);
+	}
+
+	public void testAnnotationTypeMemberDeclaration() {
+		AnnotationTypeMemberDeclaration x1 = ast.newAnnotationTypeMemberDeclaration();
+		x1.setJavadoc(JD1);
+		x1.modifiers().add(MOD1);
+		x1.modifiers().add(MOD2);
+		x1.setType(T1);
+		x1.setName(N1);
+		x1.setDefault(E1);
+		basicMatch(x1);
+	}
+
+	public void testNormalAnnotation() {
+		NormalAnnotation x1 = ast.newNormalAnnotation();
+		x1.setTypeName(N1);
+		x1.values().add(MVP1);
+		x1.values().add(MVP2);
+		basicMatch(x1);
+	}
+
+	public void testMarkerAnnotation() {
+		MarkerAnnotation x1 = ast.newMarkerAnnotation();
+		x1.setTypeName(N1);
+		basicMatch(x1);
+	}
+
+	public void testSingleMemberAnnotation() {
+		SingleMemberAnnotation x1 = ast.newSingleMemberAnnotation();
+		x1.setTypeName(N1);
+		x1.setValue(E1);
+		basicMatch(x1);
+	}
+
 }

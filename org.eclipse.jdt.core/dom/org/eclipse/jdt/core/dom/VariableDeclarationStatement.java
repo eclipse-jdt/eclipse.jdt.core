@@ -22,7 +22,7 @@ import java.util.List;
  * </p>
  * <pre>
  * VariableDeclarationStatement:
- *    { Modifier } Type VariableDeclarationFragment 
+ *    { ExtendedModifier } Type VariableDeclarationFragment 
  *        { <b>,</b> VariableDeclarationFragment } <b>;</b>
  * </pre>
  * 
@@ -36,10 +36,19 @@ public class VariableDeclarationStatement extends Statement {
 	private static final int LEGAL_MODIFIERS = Modifier.FINAL;
 
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Defaults to an empty list.
+	 * 
+	 * @since 3.0
+	 */
+	private ASTNode.NodeList modifiers =
+		new ASTNode.NodeList(true, ExtendedModifier.class);
+	
+	/**
+	 * The modifier flagss; bit-wise or of Modifier flags.
 	 * Defaults to none.
 	 */
-	private int modifiers = Modifier.NONE;
+	private int modifierFlags = Modifier.NONE;
 		
 	/**
 	 * The base type; lazily initialized; defaults to an unspecified,
@@ -85,6 +94,7 @@ public class VariableDeclarationStatement extends Statement {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
 		result.setModifiers(getModifiers());
+		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(
 			ASTNode.copySubtrees(target, fragments()));
@@ -106,10 +116,29 @@ public class VariableDeclarationStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
+			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getType());
-			acceptChildren(visitor, variableDeclarationFragments);
+			acceptChildren(visitor, this.variableDeclarationFragments);
 		}
 		visitor.endVisit(this);
+	}
+	
+	/**
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		return this.modifiers;
 	}
 	
 	/**
@@ -121,9 +150,10 @@ public class VariableDeclarationStatement extends Statement {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
+	 * TBD (jeem) - deprecate
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		return this.modifierFlags;
 	}
 
 	/**
@@ -136,13 +166,14 @@ public class VariableDeclarationStatement extends Statement {
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * TBD (jeem) - deprecate
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
 	/**
@@ -156,13 +187,13 @@ public class VariableDeclarationStatement extends Statement {
 	 * @return the base type
 	 */ 
 	public Type getType() {
-		if (baseType == null) {
+		if (this.baseType == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return baseType;
+		return this.baseType;
 	}
 
 	/**
@@ -195,14 +226,14 @@ public class VariableDeclarationStatement extends Statement {
 	 *    statement (element type: <code>VariableDeclarationFragment</code>)
 	 */ 
 	public List fragments() {
-		return variableDeclarationFragments;
+		return this.variableDeclarationFragments;
 	}
 	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 3 * 4;
+		return super.memSize() + 4 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -211,8 +242,9 @@ public class VariableDeclarationStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (baseType == null ? 0 : getType().treeSize())
-			+ variableDeclarationFragments.listSize();
+			+ this.modifiers.listSize()
+			+ (this.baseType == null ? 0 : getType().treeSize())
+			+ this.variableDeclarationFragments.listSize();
 	}
 }
 

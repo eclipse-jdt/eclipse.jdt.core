@@ -23,40 +23,26 @@ import java.util.List;
  * TypeDeclaration:
  * 		ClassDeclaration
  * 		InterfaceDeclaration
- * 		EnumDeclaration
  * ClassDeclaration:
- *      [ Javadoc ] { Modifier } <b>class</b> Identifier
+ *      [ Javadoc ] { ExtendedModifier } <b>class</b> Identifier
  *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *			[ <b>extends</b> Type ]
  *			[ <b>implements</b> Type { <b>,</b> Type } ]
  *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
  * InterfaceDeclaration:
- *      [ Javadoc ] { Modifier } <b>interface</b> Identifier
+ *      [ Javadoc ] { ExtendedModifier } <b>interface</b> Identifier
  *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *			[ <b>extends</b> Type { <b>,</b> Type } ]
  * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
- * EnumDeclaration:
- *      [ Javadoc ] { Modifier } <b>enum</b> Identifier
- *			[ <b>implements</b> Type { <b>,</b> Type } ]
- *			<b>{</b>
- *               [ EnumConstantDeclaration [ <b>,</b> EnumConstantDeclaration ] ]
- *               [ <b>;</b> { ClassBodyDeclaration | <b>;</b> } ]
- *          <b>}</b>
  * </pre>
  * <p>
  * When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter.
  * When there is no Javadoc comment, the source range begins with the first
- * character of the first modifier keyword (if modifiers), or the
- * first character of the "class", "interface", or "enum" keyword (if no
- * modifiers). The source range extends through the last character of the "}"
+ * character of the first modifier or annotation (if any), or the
+ * first character of the "class" or "interface" keyword (if no
+ * modifiers or annotations). The source range extends through the last character of the "}"
  * token following the body declarations.
- * </p>
- * <p>
- * Note: Enum declarations are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
  * </p>
  * <p>
  * Note: Support for generic types is an experimental language feature 
@@ -67,42 +53,14 @@ import java.util.List;
  * 
  * @since 2.0
  */
-public class TypeDeclaration extends BodyDeclaration {
+public class TypeDeclaration extends AbstractTypeDeclaration {
 	
-	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = 
-		Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-		| Modifier.STATIC | Modifier.FINAL | Modifier.ABSTRACT
-		| Modifier.STRICTFP;
-		
 	/**
 	 * <code>true</code> for an interface, <code>false</code> for a class.
 	 * Defaults to class.
 	 */
 	private boolean isInterface = false;
 	
-	/**
-	 * <code>true</code> for an enumeration, <code>false</code> for a class.
-	 * Defaults to class. This field is ignored for interfaces.
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
-	 * 
-	 * @since 3.0
-	 */
-	private boolean isEnumeration = false;
-
-	/**
-	 * The type name; lazily initialized; defaults to a unspecified,
-	 * legal Java class identifier.
-	 */
-	private SimpleName typeName = null;
-
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
 	 * Defaults to an empty list.
@@ -126,13 +84,6 @@ public class TypeDeclaration extends BodyDeclaration {
 	 */
 	private ASTNode.NodeList superInterfaceTypes =
 		new ASTNode.NodeList(false, Type.class);
-
-	/**
-	 * The body declarations (element type: <code>BodyDeclaration</code>).
-	 * Defaults to an empty list.
-	 */
-	private ASTNode.NodeList bodyDeclarations = 
-		new ASTNode.NodeList(true, BodyDeclaration.class);
 
 	/**
 	 * Creates a new AST node for a type declaration owned by the given 
@@ -165,16 +116,18 @@ public class TypeDeclaration extends BodyDeclaration {
 	ASTNode clone(AST target) {
 		TypeDeclaration result = new TypeDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setModifiers(getModifiers());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
+		result.setModifiers(getModifiers());
+		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setInterface(isInterface());
-		result.setEnumeration(isEnumeration());
 		result.setName((SimpleName) getName().clone(target));
-		result.setSuperclass(
-			(Name) ASTNode.copySubtree(target, getSuperclass()));
-		result.superInterfaces().addAll(
-			ASTNode.copySubtrees(target, superInterfaces()));
+		result.typeParameters().addAll(
+				ASTNode.copySubtrees(target, typeParameters()));
+		result.setSuperclassType(
+			(Type) ASTNode.copySubtree(target, getSuperclassType()));
+		result.superInterfaceTypes().addAll(
+			ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
@@ -196,11 +149,12 @@ public class TypeDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
+			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, typeParameters);
+			acceptChildren(visitor, this.typeParameters);
 			acceptChild(visitor, getSuperclassType());
-			acceptChildren(visitor, superInterfaceTypes);
-			acceptChildren(visitor, bodyDeclarations);
+			acceptChildren(visitor, this.superInterfaceTypes);
+			acceptChildren(visitor, this.bodyDeclarations);
 		}
 		visitor.endVisit(this);
 	}
@@ -210,10 +164,10 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * interface.
 	 * 
 	 * @return <code>true</code> if this is an interface declaration,
-	 *    and <code>false</code> if this is a class or enumeration declaration
+	 *    and <code>false</code> if this is a class declaration
 	 */ 
 	public boolean isInterface() {
-		return isInterface;
+		return this.isInterface;
 	}
 	
 	/**
@@ -221,114 +175,12 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * interface.
 	 * 
 	 * @param isInterface <code>true</code> if this is an interface
-	 *    declaration, and <code>false</code> if this is a class or enumeration
+	 *    declaration, and <code>false</code> if this is a class
 	 * 	  declaration
 	 */ 
 	public void setInterface(boolean isInterface) {
 		modifying();
 		this.isInterface = isInterface;
-	}
-
-	/**
-	 * Returns whether this type declaration declares a class or an 
-	 * enumeration. Note that this property is not relevant for interfaces.
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
-	 * 
-	 * @return <code>true</code> if this is an enumeration declaration,
-	 *    and <code>false</code> if this is a class declaration
-	 * @since 3.0
-	 */ 
-	public boolean isEnumeration() {
-		return isEnumeration;
-	}
-	
-	/**
-	 * Sets whether this type declaration declares a class or an 
-	 * enumeration. Note that this property is not relevant for interfaces.
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
-	 * 
-	 * @param isEnumeration <code>true</code> if this is an enumeration
-	 *    declaration, and <code>false</code> if this is a class
-	 * 	  declaration
-	 * @since 3.0
-	 */ 
-	public void setEnumeration(boolean isEnumeration) {
-		modifying();
-		this.isEnumeration = isEnumeration;
-	}
-
-	/**
-	 * Returns the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for types: public, private, protected,
-	 * static, final, abstract, and strictfp. Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @since 2.0
-	 */ 
-	public int getModifiers() {
-		// method needed only for javadoc
-		return super.getModifiers();
-	}
-	
-	/**
-	 * Sets the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for types: public, private, protected,
-	 * static, final, abstract, and strictfp. Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @since 2.0
-	 */ 
-	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
-		super.setModifiers(modifiers);
-	}
-
-	/**
-	 * Returns the name of the type declared in this type declaration.
-	 * 
-	 * @return the type name node
-	 */ 
-	public SimpleName getName() {
-		if (typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
-		}
-		return typeName;
-	}
-		
-	/**
-	 * Sets the name of the type declared in this type declaration to the
-	 * given name.
-	 * 
-	 * @param typeName the new type name
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 */ 
-	public void setName(SimpleName typeName) {
-		if (typeName == null) {
-			throw new IllegalArgumentException();
-		}
-		replaceChild(this.typeName, typeName, false);
-		this.typeName = typeName;
 	}
 
 	/**
@@ -346,15 +198,15 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @since 3.0
 	 */ 
 	public List typeParameters() {
-		return typeParameters;
+		return this.typeParameters;
 	}
 	
 	/**
 	 * Returns the name of the superclass declared in this type
 	 * declaration, or <code>null</code> if there is none.
 	 * <p>
-	 * Note that this child is not relevant for interface and
-	 * enumeration declarations (although it does still figure in subtree
+	 * Note that this child is not relevant for interface 
+	 * declarations (although it does still figure in subtree
 	 * equality comparisons).
 	 * </p>
 	 * 
@@ -391,8 +243,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	* Returns the superclass declared in this type
 	* declaration, or <code>null</code> if there is none.
 	* <p>
-	* Note that this child is not relevant for interface and
-	* enumeration declarations (although it does still figure in subtree
+	* Note that this child is not relevant for interface 
+	* declarations (although it does still figure in subtree
 	* equality comparisons).
 	* </p>
 	* 
@@ -408,8 +260,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Sets or clears the name of the superclass declared in this type
 	 * declaration.
 	 * <p>
-	 * Note that this child is not relevant for interface and
-	 * enumeration declarations (although it does still figure in subtree
+	 * Note that this child is not relevant for interface 
+	 * declarations (although it does still figure in subtree
 	 * equality comparisons).
 	 * </p>
 	 * 
@@ -472,7 +324,7 @@ public class TypeDeclaration extends BodyDeclaration {
 
 	/**
 	 * Returns the live ordered list of names of superinterfaces of this type 
-	 * declaration. For a class or enumeration declaration, these are the names
+	 * declaration. For a class declaration, these are the names
 	 * of the interfaces that this class implements; for an interface
 	 * declaration, these are the names of the interfaces that this interface
 	 * extends.
@@ -598,33 +450,14 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @since 3.0
 	 */ 
 	public List superInterfaceTypes() {
-		return superInterfaceTypes;
-	}
-	
-	/**
-	 * Returns the live ordered list of body declarations of this type 
-	 * declaration. For a class declaration, these are the
-	 * initializer, field, method, constructor, and member type
-	 * declarations; for an interface declaration, these are the constant,
-	 * method, and member type declarations. For an enumeration declaration, 
-	 * these are the enum constant declarations, which are always at the 
-	 * front of the list, followed by any initializer, field, method,
-	 * constructor, and member type declarations.
-	 * 
-	 * @return the live list of body declarations
-	 *    (element type: <code>BodyDeclaration</code>)
-	 */ 
-	public List bodyDeclarations() {
-		return bodyDeclarations;
+		return this.superInterfaceTypes;
 	}
 	
 	/**
 	 * Returns the ordered list of field declarations of this type 
 	 * declaration. For a class declaration, these are the
 	 * field declarations; for an interface declaration, these are
-	 * the constant declarations; for an enum declaration, these are
-	 * the explicitly declared field declarations (excludes enum
-	 * constant declarations).
+	 * the constant declarations.
 	 * <p>
 	 * This convenience method returns this node's body declarations
 	 * with non-fields filtered out. Unlike <code>bodyDeclarations</code>,
@@ -714,94 +547,6 @@ public class TypeDeclaration extends BodyDeclaration {
 	}
 
 	/**
-	 * Returns the ordered list of enum constant declarations of this enum
-	 * declaration. This method is not relevant for class and interface 
-	 * declarations, for which enum constant declarations are meaningless.
-	 * <p>
-	 * This convenience method returns this node's enum constant declarations
-	 * with non-enum constants filtered out. Unlike <code>bodyDeclarations</code>,
-	 * this method does not return a live result.
-	 * </p>
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
-	 * 
-	 * @return the (possibly empty) list of enum constant declarations
-	 * @since 3.0
-	 */ 
-	public EnumConstantDeclaration[] getEnumConstants() {
-		List bd = bodyDeclarations();
-		int enumCount = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			if (it.next() instanceof EnumConstantDeclaration) {
-				enumCount++;
-			}
-		}
-		EnumConstantDeclaration[] enumConstants = new EnumConstantDeclaration[enumCount];
-		int next = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			Object decl = it.next();
-			if (decl instanceof EnumConstantDeclaration) {
-				enumConstants[next++] = (EnumConstantDeclaration) decl;
-			}
-		}
-		return enumConstants;
-	}
-
-	/**
-	 * Returns whether this type declaration is a package member (that is,
-	 * a top-level type).
-	 * <p>
-	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a compilation unit node.
-	 * </p>
-	 * 
-	 * @return <code>true</code> if this type declaration is a child of
-	 *   a compilation unit node, and <code>false</code> otherwise
-	 */ 
-	public boolean isPackageMemberTypeDeclaration() {
-		ASTNode parent = getParent();
-		return (parent instanceof CompilationUnit);
-	}
-
-	/**
-	 * Returns whether this type declaration is a type member.
-	 * <p>
-	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a type declaration node, an anonymous 
-	 * class declaration, or an enumeration constant declaration.
-	 * </p>
-	 * 
-	 * @return <code>true</code> if this type declaration is a child of
-	 *   a type declaration node, a class instance creation node, or an
-	 *   enum constant declaration, and <code>false</code> otherwise
-	 */ 
-	public boolean isMemberTypeDeclaration() {
-		ASTNode parent = getParent();
-		return (parent instanceof TypeDeclaration)
-			|| (parent instanceof AnonymousClassDeclaration)
-			|| (parent instanceof EnumConstantDeclaration);
-	}
-
-	/**
-	 * Returns whether this type declaration is a local type.
-	 * <p>
-	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a type declaration statement node.
-	 * </p>
-	 * 
-	 * @return <code>true</code> if this type declaration is a child of
-	 *   a type declaration statement node, and <code>false</code> otherwise
-	 */ 
-	public boolean isLocalTypeDeclaration() {
-		ASTNode parent = getParent();
-		return (parent instanceof TypeDeclarationStatement);
-	}
-	
-	/**
 	 * Resolves and returns the binding for the class or interface declared in
 	 * this type declaration.
 	 * <p>
@@ -823,8 +568,7 @@ public class TypeDeclaration extends BodyDeclaration {
 		buffer.append("TypeDeclaration["); //$NON-NLS-1$
 		buffer.append(isInterface()
 		   ? "interface " //$NON-NLS-1$
-		   : (isEnumeration()
-		        ? "enum " : "class ")); //$NON-NLS-2$//$NON-NLS-1$
+		   : "class "); //$NON-NLS-2$//$NON-NLS-1$
 		buffer.append(getName().getIdentifier());
 		buffer.append(" "); //$NON-NLS-1$
 		for (Iterator it = bodyDeclarations().iterator(); it.hasNext();) {
@@ -841,21 +585,21 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 5 * 4;
+		return super.memSize() + 4 * 4;
 	}
 	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize() + 
-			 (getJavadoc() == null ? 0 : getJavadoc().treeSize()) +
-			 (typeName == null ? 0 : getName().treeSize()) +
-			 typeParameters.listSize() +
-			 (optionalSuperclassType == null ? 0 : getSuperclassType().treeSize())+ 
-			 superInterfaceTypes.listSize() +
-			 bodyDeclarations.listSize();
+		return memSize()
+			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
+			+ this.modifiers.listSize()
+			+ (this.typeName == null ? 0 : getName().treeSize())
+			+ this.typeParameters.listSize()
+			+ (this.optionalSuperclassType == null ? 0 : getSuperclassType().treeSize())
+			+ this.superInterfaceTypes.listSize()
+			+ this.bodyDeclarations.listSize();
 	}
 }
 

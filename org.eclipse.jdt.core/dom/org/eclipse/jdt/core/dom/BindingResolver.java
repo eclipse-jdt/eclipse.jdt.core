@@ -143,6 +143,35 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves the given enum declaration and returns the binding
+	 * for it.
+	 * <p>
+	 * The implementation of <code>EnumDeclaration.resolveBinding</code> 
+	 * forwards to this method. How the enum declaration resolves is often
+	 * a function of the context in which the declaration node is embedded
+	 * as well as the enum declaration subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param type the enum declaration of interest
+	 * @return the binding for the given enum declaration, or <code>null</code>
+	 *    if no binding is available
+	 * @since 3.0
+	 */
+	ITypeBinding resolveType(EnumDeclaration type) {
+		return null;
+	}
+	
+	/**
 	 * Resolves the given anonymous class declaration and returns the binding
 	 * for it.
 	 * <p>
@@ -161,6 +190,35 @@ class BindingResolver {
 	 *    if no binding is available
 	 */
 	ITypeBinding resolveType(AnonymousClassDeclaration type) {
+		return null;
+	}
+	
+	/**
+	 * Resolves the given annotation type declaration and returns the binding
+	 * for it.
+	 * <p>
+	 * The implementation of <code>AnnotationTypeDeclaration.resolveBinding</code> 
+	 * forwards to this method. How the declaration resolves is often a 
+	 * function of the context in which the declaration node is embedded as well
+	 * as the declaration subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param type the annotation type declaration of interest
+	 * @return the binding for the given annotation type declaration, or <code>null</code>
+	 *    if no binding is available
+	 * @since 3.0
+	 */
+	ITypeBinding resolveType(AnnotationTypeDeclaration type) {
 		return null;
 	}
 	
@@ -319,6 +377,35 @@ class BindingResolver {
 		return null;
 	}
 		
+	/**
+	 * Resolves the given annotation type declaration and returns the binding
+	 * for it.
+	 * <p>
+	 * The implementation of <code>AnnotationTypeMemberDeclaration.resolveBinding</code> 
+	 * forwards to this method. How the declaration resolves is often a 
+	 * function of the context in which the declaration node is embedded as well
+	 * as the declaration subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param member the annotation type member declaration of interest
+	 * @return the binding for the given annotation type member declaration, or <code>null</code>
+	 *    if no binding is available
+	 * @since 3.0
+	 */
+	IVariableBinding resolveMember(AnnotationTypeMemberDeclaration member) {
+		return null;
+	}
+	
 	/**
 	 * Resolves the type of the given expression and returns the type binding
 	 * for it. 
@@ -553,6 +640,8 @@ class BindingResolver {
 	 *    <code>VariableDeclarationExpression</code></li>
 	 * <li>method - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
+	 * <li>annotation type - an <code>AnnotationTypeDeclaration</code>
+	 * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code>
 	 * </ul>
 	 * </p>
 	 * <p>

@@ -620,6 +620,20 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type 
+	 * <code>EnumDeclaration</code>.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnumDeclaration
+	 * @since 3.0
+	 */
+	public static final int ENUM_DECLARATION = 71;
+	
+	/**
+	 * Node type constant indicating a node of type 
 	 * <code>EnumConstantDeclaration</code>.
 	 * <p>
 	 * Note: Enum declarations are an experimental language feature 
@@ -630,7 +644,7 @@ public abstract class ASTNode {
 	 * @see EnumConstantDeclaration
 	 * @since 3.0
 	 */
-	public static final int ENUM_CONSTANT_DECLARATION = 71;
+	public static final int ENUM_CONSTANT_DECLARATION = 72;
 	
 	/**
 	 * Node type constant indicating a node of type 
@@ -644,7 +658,7 @@ public abstract class ASTNode {
 	 * @see TypeParameter
 	 * @since 3.0
 	 */
-	public static final int TYPE_PARAMETER = 72;
+	public static final int TYPE_PARAMETER = 73;
 
 	/**
 	 * Node type constant indicating a node of type 
@@ -658,7 +672,7 @@ public abstract class ASTNode {
 	 * @see ParameterizedType
 	 * @since 3.0
 	 */
-	public static final int PARAMETERIZED_TYPE = 73;
+	public static final int PARAMETERIZED_TYPE = 74;
 
 	/**
 	 * Node type constant indicating a node of type 
@@ -672,7 +686,7 @@ public abstract class ASTNode {
 	 * @see QualifiedType
 	 * @since 3.0
 	 */
-	public static final int QUALIFIED_TYPE = 74;
+	public static final int QUALIFIED_TYPE = 75;
 	
 	/**
 	 * Node type constant indicating a node of type 
@@ -686,7 +700,105 @@ public abstract class ASTNode {
 	 * @see WildcardType
 	 * @since 3.0
 	 */
-	public static final int WILDCARD_TYPE = 75;
+	public static final int WILDCARD_TYPE = 76;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>NormalAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see NormalAnnotation
+	 * @since 3.0
+	 */
+	public static final int NORMAL_ANNOTATION = 77;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MarkerAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see MarkerAnnotation
+	 * @since 3.0
+	 */
+	public static final int MARKER_ANNOTATION = 78;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>SingleMemberAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see SingleMemberAnnotation
+	 * @since 3.0
+	 */
+	public static final int SINGLE_MEMBER_ANNOTATION = 79;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MemberValuePair</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see MemberValuePair
+	 * @since 3.0
+	 */
+	public static final int MEMBER_VALUE_PAIR = 80;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>AnnotationTypeDeclaration</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see AnnotationTypeDeclaration
+	 * @since 3.0
+	 */
+	public static final int ANNOTATION_TYPE_DECLARATION = 81;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>AnnotationTypeMemberDeclaration</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see AnnotationTypeMemberDeclaration
+	 * @since 3.0
+	 */
+	public static final int ANNOTATION_TYPE_MEMBER_DECLARATION = 82;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>Modifier</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see Modifier
+	 * @since 3.0
+	 */
+	public static final int MODIFIER = 83;
 	
 	/**
 	 * Owning AST.

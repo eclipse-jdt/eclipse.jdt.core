@@ -218,7 +218,7 @@ public final class AST {
 	 * requested source:
 	 * <ul>
 	 * <li>{@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS}: The result node
-	 * is a {@link TypeDeclaration TypeDeclaration} whose
+	 * is a {@link AbstractTypeDeclaration} whose
 	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
 	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
 	 * <li>{@link #K_STATEMENTS K_STATEMENTS}: The result node is a
@@ -345,7 +345,7 @@ public final class AST {
 			case K_CLASS_BODY_DECLARATIONS :
 				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = CodeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options, true);
 				if (nodes != null) {
-					TypeDeclaration typeDeclaration = converter.convert(nodes);
+					AbstractTypeDeclaration typeDeclaration = converter.convert(nodes);
 					rootNodeToCompilationUnit(ast, converter, typeDeclaration);
 					return typeDeclaration;
 				} else {
@@ -1900,7 +1900,7 @@ public final class AST {
 	 * Creates an unparented single variable declaration node owned by this AST.
 	 * By default, the declaration is for a variable with an unspecified, but 
 	 * legal, name and type; no modifiers; no array dimensions after the
-	 * variable; and no initializer.
+	 * variable; no initializer; not variable arity.
 	 * 
 	 * @return a new unparented single variable declaration node
 	 */
@@ -1936,12 +1936,40 @@ public final class AST {
 	/**
 	 * Creates an unparented enum constant declaration node owned by this AST.
 	 * The name of the constant is an unspecified, but legal, name; 
-	 * no Javadoc comment; an empty list of arguments; and an empty class body.
+	 * no doc comment; no modifiers or annotations; no arguments; 
+	 * and an empty class body.
+	 * <p>
+	 * Note: Support for enumerations is an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
 	 * 
-	 * @return a new unparented edeclaration node
+	 * @return a new unparented enum constant declaration node
+	 * @since 3.0
 	 */
 	public EnumConstantDeclaration newEnumConstantDeclaration() {
 		EnumConstantDeclaration result = new EnumConstantDeclaration(this);
+		return result;
+	}
+	
+	/**
+	 * Creates an unparented enum declaration node owned by this AST.
+	 * The name of the enum is an unspecified, but legal, name; 
+	 * no doc comment; no modifiers or annotations; 
+	 * no superinterfaces; and no body declarations.
+	 * <p>
+	 * Note: Support for enumerations is an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented enum declaration node
+	 * @since 3.0
+	 */
+	public EnumDeclaration newEnumDeclaration() {
+		EnumDeclaration result = new EnumDeclaration(this);
 		return result;
 	}
 	
@@ -1960,6 +1988,66 @@ public final class AST {
 	 */
 	public TypeParameter newTypeParameter() {
 		TypeParameter result = new TypeParameter(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented annotation type declaration
+	 * node for an unspecified, but legal, name; no modifiers; no javadoc; 
+	 * and an empty list of member declarations.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented annotation type declaration node
+	 * @since 3.0
+	 */
+	public AnnotationTypeDeclaration newAnnotationTypeDeclaration() {
+		AnnotationTypeDeclaration result = new AnnotationTypeDeclaration(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new unparented annotation type 
+	 * member declaration node for an unspecified, but legal, 
+	 * member name and type; no modifiers; no javadoc; 
+	 * and no default value.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented annotation type member declaration node
+	 * @since 3.0
+	 */
+	public AnnotationTypeMemberDeclaration newAnnotationTypeMemberDeclaration() {
+		AnnotationTypeMemberDeclaration result = new AnnotationTypeMemberDeclaration(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new unparented modifier node for the given
+	 * modifier.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param keyword one of the modifier keyword constants
+	 * @return a new unparented modifier node
+	 * @exception IllegalArgumentException if the primitive type code is invalid
+	 * @since 3.0
+	 */
+	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
+		Modifier result = new Modifier(this);
+		result.setKeyword(keyword);
 		return result;
 	}
 
@@ -2152,7 +2240,33 @@ public final class AST {
 	public TypeDeclarationStatement 
 			newTypeDeclarationStatement(TypeDeclaration decl) {
 		TypeDeclarationStatement result = new TypeDeclarationStatement(this);
-		result.setTypeDeclaration(decl);
+		result.setDeclaration(decl);
+		return result;
+	}
+	
+	/**
+	 * Creates a new unparented local type declaration statement node 
+	 * owned by this AST, for the given type declaration.
+	 * <p>
+	 * This method can be used to convert any kind of type declaration
+	 * (<code>AbstractTypeDeclaration</code>) into a statement
+	 * (<code>Statement</code>) by wrapping it.
+	 * </p>
+	 * 
+	 * @param decl the type declaration
+	 * @return a new unparented local type declaration statement node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 * @since 3.0
+	 */
+	public TypeDeclarationStatement 
+			newTypeDeclarationStatement(AbstractTypeDeclaration decl) {
+		TypeDeclarationStatement result = new TypeDeclarationStatement(this);
+		result.setDeclaration(decl);
 		return result;
 	}
 	
@@ -2814,6 +2928,81 @@ public final class AST {
 	 */
 	public ConditionalExpression newConditionalExpression() {
 		ConditionalExpression result = new ConditionalExpression(this);
+		return result;
+	}
+	
+	//=============================== ANNOTATIONS ====================
+	
+	/**
+	 * Creates and returns a new unparented normal annotation node with
+	 * an unspecified type name and an empty list of member value
+	 * pairs.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented normal annotation node
+	 * @since 3.0
+	 */
+	public NormalAnnotation newNormalAnnotation() {
+		NormalAnnotation result = new NormalAnnotation(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new unparented marker annotation node with
+	 * an unspecified type name.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented marker annotation node
+	 * @since 3.0
+	 */
+	public MarkerAnnotation newMarkerAnnotation() {
+		MarkerAnnotation result = new MarkerAnnotation(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new unparented single member annotation node with
+	 * an unspecified type name and value.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented single member annotation node
+	 * @since 3.0
+	 */
+	public SingleMemberAnnotation newSingleMemberAnnotation() {
+		SingleMemberAnnotation result = new SingleMemberAnnotation(this);
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a new unparented member value pair node with
+	 * an unspecified member name and value.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented member value pair node
+	 * @since 3.0
+	 */
+	public MemberValuePair newMemberValuePair() {
+		MemberValuePair result = new MemberValuePair(this);
 		return result;
 	}
 }

@@ -11,17 +11,30 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Package declaration AST node type.
  *
  * <pre>
  * PackageDeclaration:
- *    <b>package</b> Name <b>;</b>
+ *    { Annotation } <b>package</b> Name <b>;</b>
  * </pre>
  * 
  * @since 2.0
  */
 public class PackageDeclaration extends ASTNode {
+	
+	/**
+	 * The annotations (element type: <code>Annotation</code>). 
+	 * Defaults to an empty list.
+	 * 
+	 * @since 3.0
+	 */
+	private ASTNode.NodeList annotations =
+		new ASTNode.NodeList(false, Annotation.class);
+
+	
 	/**
 	 * The package name; lazily initialized; defaults to a unspecified,
 	 * legal Java package identifier.
@@ -31,7 +44,7 @@ public class PackageDeclaration extends ASTNode {
 	/**
 	 * Creates a new AST node for a package declaration owned by the
 	 * given AST. The package declaration initially has an unspecified,
-	 * but legal, Java identifier.
+	 * but legal, Java identifier; and an empty list of annotations.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -57,6 +70,7 @@ public class PackageDeclaration extends ASTNode {
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
+		result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		result.setName((Name) getName().clone(target));
 		return result;
 	}
@@ -75,9 +89,28 @@ public class PackageDeclaration extends ASTNode {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			acceptChildren(visitor, this.annotations);
 			acceptChild(visitor, getName());
 		}
 		visitor.endVisit(this);
+	}
+	
+	/**
+	 * Returns the live ordered list of annotations of this 
+	 * package declaration.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of annotations
+	 *    (element type: <code>Annotation</code>)
+	 * @since 3.0
+	 */ 
+	public List annotations() {
+		return this.annotations;
 	}
 	
 	/**
@@ -86,13 +119,13 @@ public class PackageDeclaration extends ASTNode {
 	 * @return the package name node
 	 */ 
 	public Name getName() {
-		if (packageName == null) {
+		if (this.packageName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return packageName;
+		return this.packageName;
 	}
 	
 	/**
@@ -132,7 +165,7 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -141,7 +174,8 @@ public class PackageDeclaration extends ASTNode {
 	int treeSize() {
 		return
 			memSize()
-			+ (packageName== null ? 0 : getName().treeSize());
+			+ this.annotations.listSize()
+			+ (this.packageName == null ? 0 : getName().treeSize());
 	}
 }
 
