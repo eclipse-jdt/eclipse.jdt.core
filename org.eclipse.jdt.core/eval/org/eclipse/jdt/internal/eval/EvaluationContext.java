@@ -13,6 +13,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -198,7 +200,7 @@ public void evaluate(
 		if (!forwardingRequestor.hasErrors) {
 			Evaluator evaluator = 
 				new CodeSnippetEvaluator(
-					codeSnippet,
+					CharOperation.concat(codeSnippet, Util.LINE_SEPARATOR_CHARS), // 14838
 					this, 
 					environment,
 					options, 

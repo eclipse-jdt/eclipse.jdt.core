@@ -13,6 +13,7 @@ import java.util.zip.*;
 public class Util {
 
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public static char[] LINE_SEPARATOR_CHARS = LINE_SEPARATOR.toCharArray();
 	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$

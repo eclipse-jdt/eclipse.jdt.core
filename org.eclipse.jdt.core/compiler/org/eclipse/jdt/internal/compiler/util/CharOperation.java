@@ -7,6 +7,15 @@ package org.eclipse.jdt.internal.compiler.util;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public final class CharOperation {
+	
+public static final char[] append(char[] array, char suffix){
+	if (array == null) return new char[]{suffix};
+	int length = array.length;
+	System.arraycopy(array, 0, array = new char[length+1], 0, length);
+	array[length]=suffix;
+	return array;
+}	
+
 public static final char[][] arrayConcat(char[][] first, char[][] second) {
 	if (first == null)
 		return second;
