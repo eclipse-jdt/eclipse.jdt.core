@@ -1954,7 +1954,7 @@ public class JavaProject
 			// bad format
 			if (createMarker && this.getProject().isAccessible()) {
 				this.createClasspathProblemMarker(
-					Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
+					Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()), //$NON-NLS-1$
 					IMarker.SEVERITY_ERROR,
 					false,	//  cycle error
 					true);	//	file format error
@@ -1962,7 +1962,7 @@ public class JavaProject
 			if (logProblems) {
 				Util.log(e, 
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
 			}
 			return INVALID_CLASSPATH;
 		} catch (Assert.AssertionFailedException e) { 

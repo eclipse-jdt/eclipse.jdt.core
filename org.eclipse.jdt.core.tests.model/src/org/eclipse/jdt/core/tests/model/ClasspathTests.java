@@ -999,6 +999,50 @@ public void testHasClasspathCycle() throws JavaModelException, CoreException, IO
 	}
 }
 /**
+ * Ensures that a marker is created if editing the .classpath results in an invalid classpath.
+ */
+public void testInvalidClasspath1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/\n" + // missing >
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		assertMarkers(
+			"Unexpected markers",
+			"XML format error in P/.classpath file: Bad format.",
+			project);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Ensures that a marker is created if editing the .classpath results in an invalid classpath.
+ */
+public void testInvalidClasspath2() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src1\" path=\"src\"/>\n" + // invalid kind: src1
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		assertMarkers(
+			"Unexpected markers",
+			"Illegal entry in P/.classpath file: Unknown kind: src1",
+			project);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
  * Test that a marker is added when a project as a missing project in its classpath.
  */
 public void testMissingPrereq1() throws CoreException {
