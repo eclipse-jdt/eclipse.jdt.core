@@ -50,7 +50,7 @@
 <!-- <extension                                                                          -->
 <!--      point="org.eclipse.jdt.core.classpathVariableInitializer">                     -->
 <!--    <classpathVariableInitializer                                                    -->
-<!--          variable="FOO"                                                             -->
+<!--         variable="FOO"                                                              -->
 <!--         class="com.example.CPVInitializer"/>                                        -->
 <!-- </extension>                                                                        -->
 <!--                                                                                     -->
@@ -63,11 +63,11 @@
 <!--                                                                                     -->
 <!-- <!ELEMENT containerResolver>                                                        -->
 <!--   <!ATTLIST containerResolver                                                       -->
-<!--    containerPrefix   CDATA #REQUIRED                                                -->
-<!--    class             CDATA #REQUIRED                                                -->
+<!--    prefix   CDATA #REQUIRED                                                         -->
+<!--    class    CDATA #REQUIRED                                                         -->
 <!--   >                                                                                 -->
 <!-- where:                                                                              -->
-<!--    - containerPrefix - the prefix of container names for which this resolver will   -->
+<!--    - prefix - the prefix of container names for which this resolver will            -->
 <!--              be activated.                                                          -->
 <!--    - class - the class that implements this container resolver.                     --> 
 <!--              The class must implement a public subclass of                          -->
@@ -78,7 +78,7 @@
 <!-- <extension                                                                          -->
 <!--      point="org.eclipse.jdt.core.containerResolver">                                -->
 <!--    <containerResolver                                                               -->
-<!--         containerPrefix="JDK"                                                       -->
+<!--         prefix="JDK"                                                                -->
 <!--         class="com.example.MyResolver"/>                                            -->
 <!-- </extension>                                                                        -->
 <!--                                                                                     -->
@@ -179,7 +179,8 @@
 <!-- Extension: Javac Ant Adapter                                                        -->
 <!-- =================================================================================== -->
 
-<extension point="org.eclipse.ant.core.antObjects">
+<extension 
+	point="org.eclipse.ant.core.antObjects">
 	<antObject
 		name="org.eclipse.jdt.internal.core.JDTCompilerAdapter"
 		class="org.eclipse.jdt.internal.core.JDTCompilerAdapter"

@@ -714,7 +714,7 @@ public void doneSaving(ISaveContext context){
 						IConfigurationElement bestResolver = null;
 						
 						for(int j = 0; j < configElements.length; j++){
-								String prefixAttribute = configElements[j].getAttribute("containerPrefix"); //$NON-NLS-1$
+								String prefixAttribute = configElements[j].getAttribute("prefix"); //$NON-NLS-1$
 								if (prefixAttribute != null){
 									IPath resolverPrefixPath = new Path(prefixAttribute);
 									if (resolverPrefixPath.isPrefixOf(containerPath)){
