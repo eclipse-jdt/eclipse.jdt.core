@@ -41,6 +41,18 @@ Eclipse SDK 2.1 Build - ?th January 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added APIs to manipulate package fragment roots:
+	<ul>
+	<li><code>IPackageFragmentRoot.copy(IPath, int, boolean, IClasspathEntry, IProgressMonitor)</code>
+	</li>
+	<li><code>IPackageFragmentRoot.delete(int, boolean, IProgressMonitor)</code>
+	</li>
+	<li><code>IPackageFragmentRoot.move(IPath, int, boolean, IClasspathEntry, IProgressMonitor)</code>
+	</li>
+	</ul>
+	Note that these APIs are very close to the corresponding <code>IResource</code> APIs except that
+	they filter out nested source folders, and that they update the project's classpaths if specified.
+</li>
 <li> Extended compiler optional warning for interface methods incompatible with Object
 non public methods to scenario where thrown exceptions are not compatible (problem ID:
 <code>IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod</code>).
