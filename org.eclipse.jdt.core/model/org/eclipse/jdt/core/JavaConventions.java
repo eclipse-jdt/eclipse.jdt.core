@@ -661,7 +661,7 @@ public final class JavaConventions {
 						if (container == null){
 							ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));
 							String description = null;
-							if (initializer != null) description = initializer.getDescription(path);
+							if (initializer != null) description = initializer.getDescription(path, javaProject);
 							if (description == null) description = path.makeRelative().toString();
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", description)); //$NON-NLS-1$
 						}
