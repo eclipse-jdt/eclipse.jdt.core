@@ -294,7 +294,7 @@ public class ASTParser {
      * for the node that include the given source position. This kind of limited
      * AST is sufficient for certain purposes but totally unsuitable for others.
      * In places where it can be used, the limited AST offers the advantage of
-     * being smaller and faster to faster to construct.
+     * being smaller and faster to construct.
 	 * </p>
 	 * <p>
 	 * The AST will include nodes for all of the compilation unit's
