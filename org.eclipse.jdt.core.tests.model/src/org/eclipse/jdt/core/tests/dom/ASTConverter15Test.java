@@ -84,11 +84,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0092"));
+		suite.addTest(new ASTConverter15Test("test0094"));
 		return suite;
 	}
 		
@@ -2810,6 +2810,76 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"}",
 				workingCopy,
 				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=81023
+	 */
+	public void test0093() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class Test {\n" +
+				"    public <U> Test(U u) {\n" +
+				"    }\n" +
+				"\n" +
+				"    void bar() {\n" +
+				"        new <String> Test(null) {};\n" +
+				"    }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/Test.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 0, 1, 0);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			ExpressionStatement statement = (ExpressionStatement) node;
+			Expression expression = statement.getExpression();
+			checkSourceRange(expression, "new <String> Test(null) {}", contents.toCharArray());
+			ITypeBinding typeBinding = expression.resolveTypeBinding();
+			IJavaElement element = typeBinding.getJavaElement();
+			assertNotNull("No java element", element);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+
+	public void test0094() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.SOURCE)\n" +
+				"@Target(ElementType.METHOD)\n" +
+				"@interface ThrowAwayMethod {\n" +
+				"\n" +
+				"	/**\n" +
+				"	 * Comment for <code>test</code>\n" +
+				"	 */\n" +
+				"	protected final Test test;\n" +
+				"\n" +
+				"	/**\n" +
+				"	 * @param test\n" +
+				"	 */\n" +
+				"	ThrowAwayMethod(Test test) {\n" +
+				"		this.test= test;\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/ThrowAwayMethod.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		} finally {
 			if (workingCopy != null)
