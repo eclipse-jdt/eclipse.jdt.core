@@ -200,13 +200,13 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
 			}
 		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return;
 		} catch (java.io.IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
-		
 	}
+	if (info == null) return; // unable to go further
 
 	// check class definition
 	if (this.locator.pattern.matchesBinary(info, null)) {

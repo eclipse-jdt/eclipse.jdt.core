@@ -56,6 +56,7 @@ public class DeltaProcessor {
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
 
+	public static boolean VERBOSE = false;
 
 	/**
 	 * Adds the given child handle to its parent's cache of children. 

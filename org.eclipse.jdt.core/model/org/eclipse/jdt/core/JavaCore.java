@@ -79,6 +79,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	
 	
 	private static Hashtable Variables = new Hashtable(5);
@@ -1059,6 +1060,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(DELTA_DEBUG);
+			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
 		}
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
