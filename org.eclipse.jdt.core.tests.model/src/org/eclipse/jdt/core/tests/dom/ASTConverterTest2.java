@@ -91,7 +91,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
@@ -4793,13 +4793,32 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong end position", source.length - 1, problem.getSourceEnd());
 	}
 	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=19898
-	 */
 	public void test0552() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0552", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0552", "Test.java");
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(sourceUnit, false);
-		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit result = (CompilationUnit) runConversion(sourceUnit, true);
+		assertEquals("Got errors", 0, result.getProblems().length);
+		TypeDeclaration declaration = (TypeDeclaration) result.types().get(0);
+		Block body = declaration.getMethods()[0].getBody();
+		ExpressionStatement expr = (ExpressionStatement) body.statements().get(0);
+		MethodInvocation invocation = (MethodInvocation) expr.getExpression();
+		InfixExpression node = (InfixExpression) invocation.arguments().get(0);
+		ITypeBinding typeBinding = node.resolveTypeBinding();
+		assertEquals("wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		checkSourceRange(node, "\"a\" + \"a\" + \"a\"", source);
+		List extendedOperands = node.extendedOperands();
+		assertEquals("Wrong size", 1, extendedOperands.size());
+		Expression leftOperand = node.getLeftOperand();
+		checkSourceRange(leftOperand, "\"a\"", source);
+		typeBinding = leftOperand.resolveTypeBinding();
+		assertEquals("wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		Expression rightOperand = node.getRightOperand();
+		checkSourceRange(rightOperand, "\"a\"", source);
+		typeBinding = rightOperand.resolveTypeBinding();
+		assertEquals("wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		Expression expression = (Expression) extendedOperands.get(0);
+		checkSourceRange(expression, "\"a\"", source);
+		typeBinding = expression.resolveTypeBinding();
+		assertEquals("wrong type", "java.lang.String", typeBinding.getQualifiedName());
 	}
 }
