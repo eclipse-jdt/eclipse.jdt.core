@@ -752,13 +752,16 @@ public int getNextToken() throws InvalidInputException {
 
 			// ---------Consume white space and handles startPosition---------
 			int whiteStart = currentPosition;
-			boolean isWhiteSpace;
+			boolean isWhiteSpace, hasWhiteSpaces = false;
+			int offset = 0;
 			do {
 				startPosition = currentPosition;
 				if (((currentCharacter = source[currentPosition++]) == '\\')
 					&& (source[currentPosition] == 'u')) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
+					offset = 6;
 				} else {
+					offset = 1;
 					if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 						checkNonExternalizeString();
 						if (recordLineSeparator) {
@@ -770,10 +773,13 @@ public int getNextToken() throws InvalidInputException {
 					isWhiteSpace = 
 						(currentCharacter == ' ') || Character.isWhitespace(currentCharacter); 
 				}
+				if (isWhiteSpace) {
+					hasWhiteSpaces = true;
+				}
 			} while (isWhiteSpace);
-			if (tokenizeWhiteSpace && (whiteStart != currentPosition - 1)) {
+			if (tokenizeWhiteSpace && hasWhiteSpaces) {
 				// reposition scanner in case we are interested by spaces as tokens
-				currentPosition--;
+				currentPosition-=offset;
 				startPosition = whiteStart;
 				return TokenNameWHITESPACE;
 			}
