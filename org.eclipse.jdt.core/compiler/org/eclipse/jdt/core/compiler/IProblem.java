@@ -554,18 +554,26 @@ public interface IProblem {
 	/** @since 2.1 */
 	int ObjectCannotHaveSuperTypes = 329;
 
-	// int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
 
-	// int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
 
 	// field related problems
@@ -577,11 +585,15 @@ public interface IProblem {
 	int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
 	int UnexpectedStaticModifierForField = FieldRelated + 346;
 
-	// int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
 	
 	// method related problems
@@ -600,25 +612,37 @@ public interface IProblem {
 	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
 	int DuplicateModifierForArgument = MethodRelated + 368;
 
-	//	int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
 
-	//	int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
 
-	//	int ReturnTypeProblemBase = MethodRelated + 379;
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
 
 	// import related problems
@@ -627,11 +651,15 @@ public interface IProblem {
 	int CannotImportPackage = ImportRelated + 387;
 	int UnusedImport = ImportRelated + 388;
 
-	//	int ImportProblemBase = ImportRelated + 389;
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 
 	// local variable related problems
