@@ -178,8 +178,7 @@ public abstract class Scope
 		boolean noProblems = true;
 		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) return true;
 
-		int paramLength = typeParameters.length;
-		nextVariable : for (int i = 0; i < paramLength; i++) {
+		nextVariable : for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
@@ -242,21 +241,6 @@ public abstract class Scope
 					int size = typeVariable.superInterfaces.length;
 					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
 					typeVariable.superInterfaces[size] = superType;
-				}
-			}
-		}
-
-		if (this.kind == CLASS_SCOPE) {
-			for (int i = 0; i < paramLength; i++) {
-				TypeParameter typeParameter = typeParameters[i];
-				TypeReference typeRef = typeParameter.type;
-				if (typeRef != null) {
-					typeRef.checkBounds(this);
-
-					TypeReference[] boundRefs = typeParameter.bounds;
-					if (boundRefs != null)
-						for (int j = 0, k = boundRefs.length; j < k; j++)
-							boundRefs[j].checkBounds(this);
 				}
 			}
 		}

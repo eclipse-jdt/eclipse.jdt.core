@@ -7656,5 +7656,36 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                       ^^^^^^^^^\n" + 
 			"Y.Missing cannot be resolved to a type\n" + 
 			"----------\n");
-	}	
+	}
+	// 72083
+	public void test284() {
+		this.runConformTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" +
+				"public class A <T1 extends A<T1, T2>, T2 extends B<T1, T2>> {\n" +
+				"    public static void main(String [] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+				"p1/B.java",
+				"package p1;\n" +
+				"public class B <T3 extends A<T3, T4>, T4 extends B<T3, T4>> {}\n"
+			},
+			"SUCCESS");
+		this.runConformTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" +
+				"public class A <T1 extends B<T1, T2>, T2 extends A<T1, T2>> {\n" +
+				"    public static void main(String [] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+				"p1/B.java",
+				"package p1;\n" +
+				"public class B <T3 extends B<T3, T4>, T4 extends A<T3, T4>> {}\n"
+			},
+			"SUCCESS");
+	}
 }

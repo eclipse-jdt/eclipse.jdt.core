@@ -614,7 +614,22 @@ public class ClassScope extends Scope {
 			} while ((currentType = currentType.superclass()) != null);
 		}
 	}
-	
+
+	private void checkTypeVariableBounds(TypeParameter[] typeParameters) {
+		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeReference typeRef = typeParameter.type;
+			if (typeRef != null) {
+				typeRef.checkBounds(this);
+
+				TypeReference[] boundRefs = typeParameter.bounds;
+				if (boundRefs != null)
+					for (int j = 0, k = boundRefs.length; j < k; j++)
+						boundRefs[j].checkBounds(this);
+			}
+		}
+	}
+
 	private void connectMemberTypes() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if (sourceType.memberTypes != NoMemberTypes)
@@ -755,6 +770,8 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
+		if (referenceContext.typeParameters != null)
+			checkTypeVariableBounds(referenceContext.typeParameters); // only done after hierarchy is connected
 		connectMemberTypes();
 		try {
 			checkForInheritedMemberTypes(sourceType);
