@@ -15,11 +15,9 @@ import java.util.HashMap;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
@@ -141,10 +139,7 @@ public String getSource() throws JavaModelException {
 	try {
 		return buffer.getText(offset, length);
 	} catch(RuntimeException e) {
-		if (e instanceof IndexOutOfBoundsException) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
-		}
-		throw new JavaModelException(e, IStatus.ERROR);
+		return null;
 	}
 }
 /**
