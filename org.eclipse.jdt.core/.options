@@ -10,6 +10,9 @@ org.eclipse.jdt.core/debug/compiler=true
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel=true
 
+# Reports classpath variable initialization, resolution
+org.eclipse.jdt.core/debug/cpvariable=true
+
 # Reports access to zip and jar files through the Java model
 org.eclipse.jdt.core/debug/zipaccess=true
 

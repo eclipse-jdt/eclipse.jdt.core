@@ -337,8 +337,8 @@ public static IJavaElement determineIfOnClasspath(
 		}
 	};
 	public static boolean VERBOSE = false;
+	public static boolean VARIABLE_VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
-
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation

@@ -47,7 +47,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * (value <code>"org.eclipse.jdt.core"</code>).
 	 */
 	public static final String PLUGIN_ID = "org.eclipse.jdt.core" ; //$NON-NLS-1$
-	// getPlugin().getDescriptor().getUniqueIdentifier();
 
 	/**
 	 * The identifier for the Java builder
@@ -77,9 +76,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
+	/**
+	 * Name of the extension point for contributing classpath variable initializers
+	 */
+	private static final String CPVAR_INIT_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String VARIABLE_DEBUG = PLUGIN_ID + "/debug/cpvariable" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String HIERARCHY_DEBUG = PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
@@ -90,6 +95,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 	private static Map Variables = new HashMap(5);
 	private static Hashtable Options = getDefaultOptions();
+	private static Map VariableInitializers = new HashMap(5);
 
 	/**
 	 * Creates the Java core plug-in.
@@ -270,7 +276,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #setClasspathVariable
 	 */
 	public static IPath getClasspathVariable(String variableName) {
-		return (IPath) Variables.get(variableName);
+		IPath variablePath = (IPath) Variables.get(variableName);
+		if (variablePath == null){
+			initializeClasspathVariable(variableName);
+			variablePath = (IPath) Variables.get(variableName); // retry
+		}
+		return variablePath;
 	}
 	/**
 	 * Returns the names of all known classpath variables.
@@ -442,6 +453,35 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return resolvedPath;
 	}
 
+	/**
+	 * Perform variable initialization using client variable initializer
+	 * (see extension point org.eclipse.jdt.core.classpathVariableInitializer)
+	 */
+	private static void initializeClasspathVariable(String variable){
+
+		String[] info = (String[])VariableInitializers.get(variable);
+		if (info == null) return;
+
+		// only one attempt per variable
+		//VariableInitializers.remove(variableName);
+		
+		ClasspathVariableInitializer initializer = null;
+		try {
+			IPluginDescriptor desc = Platform.getPluginRegistry().getPluginDescriptor(info[0]);
+			Class initializerClass = desc.getPluginClassLoader().loadClass(info[1]);
+			
+			initializer = (ClasspathVariableInitializer)initializerClass.newInstance();
+			
+		} catch(InstantiationException e) {
+		} catch(IllegalAccessException e) {
+		} catch(ClassNotFoundException e) {
+		}
+		if (JavaModelManager.VARIABLE_VERBOSE) {
+			System.out.println("CPVariable INIT - execute initializer: "+variable+" --> " + info[1]);
+		}
+		initializer.initialize(variable);
+	}
+	
 	/**
 	 * Returns whether the given marker references the given Java element.
 	 * Used for markers which denote a Java element rather than a resource.
@@ -772,6 +812,35 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
+ 	 * Retrieve the providers for classpath variable initializer. 
+ 	 */
+	private static void registerClasspathVariableInitializers(){
+		Plugin plugin = JavaCore.getPlugin();
+		if (plugin == null)
+			return;
+
+		IExtensionPoint extension = plugin.getDescriptor().getExtensionPoint(CPVAR_INIT_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				String pluginID = extension.getDeclaringPluginDescriptor().getUniqueIdentifier();
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+				for(int j = 0; j < configElements.length; j++){
+					String variable = configElements[j].getAttribute("variable"); //$NON-NLS-1$
+					if (variable != null) {
+						String initializerClassName = configElements[j].getAttribute("class"); //$NON-NLS-1$
+
+						if (JavaModelManager.VARIABLE_VERBOSE) {
+							System.out.println("CPVariable INIT - register initializer: "+variable+" --> " + initializerClassName);
+						}						
+						VariableInitializers.put(variable, new String[]{ pluginID, initializerClassName });
+					}
+				}
+			}	
+		}
+	}	
+	
+	/**
 	 * Removed the given classpath variable. Does nothing if no value was
 	 * set for this classpath variable.
 	 * <p>
@@ -927,6 +996,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
+			option = Platform.getDebugOption(VARIABLE_DEBUG);
+			if(option != null) JavaModelManager.VARIABLE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
@@ -964,6 +1036,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			workspace.addSaveParticipant(this, manager);
 			manager.loadVariables();
+			registerClasspathVariableInitializers();
+			
 		} catch (CoreException e) {
 		} catch (RuntimeException e) {
 			manager.shutdown();
