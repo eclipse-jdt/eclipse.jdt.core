@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -57,22 +59,27 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
+		IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignore unresolved variable*/);
 		IResource[] members = folder.members();
 		nextResource: for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
 			switch (member.getType()) {
 				case IResource.FILE :
 					String fileName = member.getName();
+					
+					// ignore .java files that are not excluded
 					if (Util.isValidCompilationUnitName(fileName) && !Util.isExcluded(member, exclusionPatterns)) 
 						continue nextResource;
+					// ignore .class files
 					if (Util.isValidClassFileName(fileName)) 
 						continue nextResource;
-					// check case of a .zip or .jar file on classpath
-					if (Util.isArchiveFileName(fileName) && project.findPackageFragmentRoot0(member.getFullPath()) != null) 
+					// ignore .zip or .jar file on classpath
+					if (Util.isArchiveFileName(fileName) && isClasspathEntry(member.getFullPath(), classpath)) 
 						continue nextResource;
 					break;
 
 				case IResource.FOLDER :
+					// ignore valid packages that are not excluded
 					if (Util.isValidFolderNameForPackage(member.getName()) && !Util.isExcluded(member, exclusionPatterns)) 
 						continue nextResource;
 					break;
@@ -136,6 +143,15 @@ public int getRootKind() {
  */
 protected SourceMapper getSourceMapper() {
 	return this.sourceMapper;
+}
+private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedClasspath) {
+	for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+		IClasspathEntry entry = resolvedClasspath[i];
+		if (entry.getPath().equals(path)) {
+			return true;
+		}
+	}
+	return false;
 }
 /**
  * Set the fNonJavaResources to res value
