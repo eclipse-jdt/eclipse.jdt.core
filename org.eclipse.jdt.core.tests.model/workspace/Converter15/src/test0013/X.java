@@ -1,9 +1,8 @@
-package test0012;
+package test0013;
 
 interface Convertible<T> {
 	T convert();
 }
 
-public class ReprChange<A extends Convertible<B>,
-                        B extends Convertible<A>> {
+public class ReprChange<A extends Convertible<B>, B extends Convertible<A>> {
 }

@@ -30,7 +30,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0013"));
+		suite.addTest(new ASTConverter15Test("test0014"));
 		return suite;
 	}
 		
@@ -382,7 +382,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a variable argument", parameter.isVariableArity());
 	}
 
-/*	public void test0013() throws JavaModelException {
+	public void test0013() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0013", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		// TODO NPE when resolveBindings = true
 		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
@@ -409,8 +409,56 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeParameters = typeDeclaration.typeParameters();
 		assertEquals("Wrong size", 2, typeParameters.size());
 		typeParameter = (TypeParameter) typeParameters.get(0);
-		checkSourceRange(typeParameter, "A", source);
 		checkSourceRange(typeParameter.getName(), "A", source);
-	}*/
+		checkSourceRange(typeParameter, "A extends Convertible<B>", source);
+		typeParameter = (TypeParameter) typeParameters.get(1);
+		checkSourceRange(typeParameter.getName(), "B", source);
+		checkSourceRange(typeParameter, "B extends Convertible<A>", source);
+		List typeBounds = typeParameter.typeBounds();
+		assertEquals("Wrong size", 1, typeBounds.size());
+		Type typeBound = (Type) typeBounds.get(0);
+		checkSourceRange(typeBound, "Convertible<A>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, typeBound.getNodeType());
+		ParameterizedType parameterizedType = (ParameterizedType) typeBound;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "A", source);
+	}
+	
+	public void test0014() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0014", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 1);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		SimpleName name = typeDeclaration.getName();
+		assertEquals("Wrong name", "X", name.getIdentifier());
+		checkSourceRange(name, "X", source);
+		List typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		checkSourceRange(typeParameter.getName(), "A", source);
+		checkSourceRange(typeParameter, "A extends Convertible<Convertible<A>>", source);
+		List typeBounds = typeParameter.typeBounds();
+		assertEquals("Wrong size", 1, typeBounds.size());
+		Type typeBound = (Type) typeBounds.get(0);
+		checkSourceRange(typeBound, "Convertible<Convertible<A>>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, typeBound.getNodeType());
+		ParameterizedType parameterizedType = (ParameterizedType) typeBound;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "Convertible<A>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, typeArgument.getNodeType());
+		parameterizedType = (ParameterizedType) typeArgument;
+		typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "A", source);
+	}	
 }
 

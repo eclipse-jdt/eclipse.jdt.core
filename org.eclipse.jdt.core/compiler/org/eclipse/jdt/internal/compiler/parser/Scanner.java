@@ -145,6 +145,9 @@ public class Scanner implements TerminalTokens {
 	public boolean checkNonExternalizedStringLiterals = false;
 	public boolean wasNonExternalizedStringLiteral = false;
 	
+	// generic support
+	public boolean returnOnlyGreater = false;
+	
 	/*static*/ {
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < TableSize; j++) {
@@ -1044,6 +1047,9 @@ public int getNextToken() throws InvalidInputException {
 				case '>' :
 					{
 						int test;
+						if (this.returnOnlyGreater) {
+							return TokenNameGREATER;
+						}
 						if ((test = getNextChar('=', '>')) == 0)
 							return TokenNameGREATER_EQUAL;
 						if (test > 0) {

@@ -6872,13 +6872,16 @@ protected void consumeTypeParameters() {
 protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = new TypeParameter();
 	TypeReference superType = getTypeReference(this.intStack[this.intPtr--]);
-	
 	long pos = this.identifierPositionStack[this.identifierPtr];
-	typeParameter.declarationSourceEnd = (int) pos;
-	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	final int end = (int) pos;
+	typeParameter.declarationSourceEnd = end;
+	typeParameter.sourceEnd = end;
+	final int start = (int) (pos >>> 32);
+	typeParameter.declarationSourceStart = start;
+	typeParameter.sourceStart = start;
 	typeParameter.name = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
-	
+	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
 	pushOnGenericsStack(typeParameter);
 }
@@ -6888,17 +6891,19 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeReference[] bounds = new TypeReference[additionalBoundsLength];
 	this.genericsPtr -= additionalBoundsLength;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, bounds, 0, additionalBoundsLength);
-
 	TypeReference superType = getTypeReference(this.intStack[this.intPtr--]);
-	
 	long pos = this.identifierPositionStack[this.identifierPtr];
-	typeParameter.declarationSourceEnd = (int) pos;
-	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	final int end = (int) pos;
+	typeParameter.declarationSourceEnd = end;
+	typeParameter.sourceEnd = end;
+	final int start = (int) (pos >>> 32);
+	typeParameter.declarationSourceStart = start;
+	typeParameter.sourceStart = start;
 	typeParameter.name = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
-	
 	typeParameter.type = superType;
 	typeParameter.bounds = bounds;
+	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	pushOnGenericsStack(typeParameter);
 }
 protected void consumeUnaryExpression(int op) {

@@ -20,6 +20,8 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
@@ -347,14 +349,24 @@ class ASTConverter2 extends ASTConverter {
 		int end = typeParameter.sourceEnd;
 		simpleName.setSourceRange(start, end - start + 1);
 		typeParameter2.setName(simpleName);
+		final TypeReference superType = typeParameter.type;
+		end = typeParameter.declarationSourceEnd;
+		if (superType != null) {
+			Type type = convertType(superType);
+			typeParameter2.typeBounds().add(type);
+			end = type.getStartPosition() + type.getLength() - 1;
+		}
 		TypeReference[] bounds = typeParameter.bounds;
 		if (bounds != null) {
+			Type type = null;
 			for (int index = 0, length = bounds.length; index < length; index++) {
-				typeParameter2.typeBounds().add(convert(bounds[index]));
+				type = convertType(bounds[index]);
+				typeParameter2.typeBounds().add(type);
+				end = type.getStartPosition() + type.getLength() - 1;
 			}
 		}
 		start = typeParameter.declarationSourceStart;
-		end = typeParameter.declarationSourceEnd;
+		end = retrieveClosingAngleBracketPosition(end);
 		typeParameter2.setSourceRange(start, end - start + 1);
 		return typeParameter2;
 	}
@@ -447,51 +459,60 @@ class ASTConverter2 extends ASTConverter {
 			char[] name = ((org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) typeReference).getTypeName()[0];
 			sourceStart = typeReference.sourceStart;
 			length = typeReference.sourceEnd - typeReference.sourceStart + 1;
-			if (dimensions != 0) {
-				// need to find out if this is an array type of primitive types or not
-				if (isPrimitiveType(name)) {
-					int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
-					if (end == -1) {
-						end = sourceStart + length - 1;
-					}					
-					PrimitiveType primitiveType = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
-					primitiveType.setSourceRange(sourceStart, end - sourceStart + 1);
-					type = this.ast.newArrayType(primitiveType, dimensions);
-					if (this.resolveBindings) {
-						// store keys for inner types
-						completeRecord((ArrayType) type, typeReference);
+			// need to find out if this is an array type of primitive types or not
+			if (isPrimitiveType(name)) {
+				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				if (end == -1) {
+					end = sourceStart + length - 1;
+				}					
+				type = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
+				type.setSourceRange(sourceStart, end - sourceStart + 1);
+			} else if (typeReference instanceof ParameterizedSingleTypeReference) {
+				ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) typeReference;
+				SimpleName simpleName = this.ast.newSimpleName(new String(name));
+				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				if (end == -1) {
+					end = sourceStart + length - 1;
+				}
+				simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
+				type = this.ast.newParameterizedType(simpleName);
+				TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
+				if (typeArguments != null) {
+					Type type2 = null;
+					for (int i = 0, max = typeArguments.length; i < max; i++) {
+						type2 = convertType(typeArguments[i]);
+						((ParameterizedType) type).typeArguments().add(type2);
+						end = type2.getStartPosition() + type2.getLength() - 1;
 					}
-					type.setSourceRange(sourceStart, length);
+					end = retrieveClosingAngleBracketPosition(end + 1);
+					type.setSourceRange(sourceStart, end - sourceStart + 1);
 				} else {
-					SimpleName simpleName = this.ast.newSimpleName(new String(name));
-					// we need to search for the starting position of the first brace in order to set the proper length
-					// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
-					int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
-					if (end == -1) {
-						end = sourceStart + length - 1;
-					}
-					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
-					SimpleType simpleType = this.ast.newSimpleType(simpleName);
-					simpleType.setSourceRange(sourceStart, end - sourceStart + 1);
-					type = this.ast.newArrayType(simpleType, dimensions);
-					type.setSourceRange(sourceStart, length);
-					if (this.resolveBindings) {
-						completeRecord((ArrayType) type, typeReference);
-						this.recordNodes(simpleName, typeReference);
-					}
+					type.setSourceRange(sourceStart, end - sourceStart + 1);
+				}
+				if (this.resolveBindings) {
+					this.recordNodes(simpleName, typeReference);
 				}
 			} else {
-				if (isPrimitiveType(name)) {
-					type = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
-					type.setSourceRange(sourceStart, length);
-				} else {
-					SimpleName simpleName = this.ast.newSimpleName(new String(name));
-					simpleName.setSourceRange(sourceStart, length);
-					type = this.ast.newSimpleType(simpleName);
-					type.setSourceRange(sourceStart, length);
-					if (this.resolveBindings) {
-						this.recordNodes(simpleName, typeReference);
-					}
+				SimpleName simpleName = this.ast.newSimpleName(new String(name));
+				// we need to search for the starting position of the first brace in order to set the proper length
+				// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
+				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				if (end == -1) {
+					end = sourceStart + length - 1;
+				}
+				simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
+				type = this.ast.newSimpleType(simpleName);
+				type.setSourceRange(sourceStart, end - sourceStart + 1);
+				if (this.resolveBindings) {
+					this.recordNodes(simpleName, typeReference);
+				}
+			}
+			if (dimensions != 0) {
+				type = this.ast.newArrayType(type, dimensions);
+				type.setSourceRange(sourceStart, length);
+				if (this.resolveBindings) {
+					// store keys for inner types
+					completeRecord((ArrayType) type, typeReference);
 				}
 			}
 		} else {
@@ -501,23 +522,31 @@ class ASTConverter2 extends ASTConverter {
 			sourceStart = (int)(positions[0]>>>32);
 			length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
 			Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
+			if (typeReference instanceof ParameterizedQualifiedTypeReference) {
+//				ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) typeReference;
+				type = this.ast.newParameterizedType(qualifiedName);
+/*				TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
+				if (typeArguments != null) {
+					for (int i = 0, max = typeArguments.length; i < max; i++) {
+						((ParameterizedType) type).typeArguments().add(convertType(typeArguments[i]));
+					}
+				}*/
+			} else {
+				type = this.ast.newSimpleType(qualifiedName);
+				type.setSourceRange(sourceStart, length);
+			}
+
 			if (dimensions != 0) {
-				// need to find out if this is an array type of primitive types or not
-				SimpleType simpleType = this.ast.newSimpleType(qualifiedName);
-				simpleType.setSourceRange(sourceStart, length);
-				type = this.ast.newArrayType(simpleType, dimensions);
+				type = this.ast.newArrayType(type, dimensions);
 				if (this.resolveBindings) {
 					completeRecord((ArrayType) type, typeReference);
-				}				
+				}
 				int end = retrieveEndOfDimensionsPosition(sourceStart+length, this.compilationUnitSource.length);
 				if (end != -1) {
 					type.setSourceRange(sourceStart, end - sourceStart + 1);
 				} else {
 					type.setSourceRange(sourceStart, length);
 				}
-			} else {
-				type = this.ast.newSimpleType(qualifiedName);
-				type.setSourceRange(sourceStart, length);
 			}
 		}
 		if (this.resolveBindings) {
@@ -538,6 +567,30 @@ class ASTConverter2 extends ASTConverter {
 		return modifier;
 	}
 
+	/**
+	 * This method is used to retrieve the end position of the block.
+	 * @return int the dimension found, -1 if none
+	 */
+	protected int retrieveClosingAngleBracketPosition(int start) {
+		this.scanner.resetTo(start, this.scanner.eofPosition);
+		this.scanner.returnOnlyGreater = true;
+		try {
+			int token;
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(token) {
+					case TerminalTokens.TokenNameGREATER://110
+						return this.scanner.currentPosition - 1;
+					default:
+						return start;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		this.scanner.returnOnlyGreater = false;
+		return start;
+	}
+	
 	protected void setModifiers(AnnotationTypeDeclaration typeDecl, org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration typeDeclaration) {
 		this.scanner.resetTo(typeDeclaration.declarationSourceStart, typeDeclaration.sourceStart);
 		this.setModifiers(typeDecl, typeDeclaration.annotations);
