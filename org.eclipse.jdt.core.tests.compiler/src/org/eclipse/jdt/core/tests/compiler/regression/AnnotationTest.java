@@ -2059,4 +2059,39 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from long to int\n" + 
 			"----------\n");
 	}
+	
+	// 79844 - variation
+	public void test068() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    short[] value() default 2;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+	}	
+
+	// 79844 - variation
+	public void test069() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    short[] value() default { 2 };\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+	}	
+
 }

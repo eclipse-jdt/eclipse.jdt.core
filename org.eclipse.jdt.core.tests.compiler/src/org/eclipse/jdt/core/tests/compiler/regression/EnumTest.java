@@ -1544,17 +1544,15 @@ public class EnumTest extends AbstractComparisonTest {
 		"----------\n"
 		);
 	}		
-	// enum cannot be declared as local type
+	// TODO (philippe) enum cannot be declared as local type
 	
-	// check abstract conditions
+	// TODO (philippe) check one cannot redefine Enum incorrectly
 	
-	// check one cannot redefine Enum incorrectly
+	// TODO (philippe) check binary compatibility (removing referenced enum constants in switch)
 	
-	// check binary compatibility (removing referenced enum constants in switch)
+	// TODO (philippe) check warning when switch doesn't use all enum constants
 	
-	// check warning when switch doesn't use all enum constants
-	
-	// check enum syntax recovery
+	// TODO (philippe) check enum syntax recovery
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914 - variation
 	 */
