@@ -312,6 +312,10 @@ class ImportMatchLocatorParser extends MatchLocatorParser {
 protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
 	super(problemReporter, locator);
 }
+protected void consumeStaticImportOnDemandDeclarationName() {
+	super.consumeStaticImportOnDemandDeclarationName();
+	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+}
 protected void consumeSingleStaticImportDeclarationName() {
 	super.consumeSingleStaticImportDeclarationName();
 	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
