@@ -528,7 +528,7 @@ public void test009() throws CoreException {
 			"}\n" + //$NON-NLS-1$
 			"// end of compilation unit\n"; //$NON-NLS-1$
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult, false);		
+		sortUnit(unit, expectedResult, false);		
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
