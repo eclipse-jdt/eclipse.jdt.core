@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Responsible for resolving types inside a compilation unit being reconciled,
@@ -133,13 +134,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 		ICompilationUnit unitElement, IProblemRequestor problemRequestor)
 		throws JavaModelException {
 
+		char[] fileName = unitElement.getElementName().toCharArray();
 		CompilationUnitProblemFinder problemFinder =
 			new CompilationUnitProblemFinder(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
 				JavaCore.getOptions(),
 				getRequestor(),
-				getProblemFactory(problemRequestor));
+				getProblemFactory(fileName, problemRequestor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -149,11 +151,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 			unit = problemFinder.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
-						unitElement.getElementName(),
+						new String(fileName),
 						encoding));
 			return unit;
-//		} catch(Error e){
-//		} catch(RuntimeException e){
 		} finally {
 			if (unit != null) {
 				unit.cleanUp();
@@ -162,7 +162,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 	}
 	
-	protected static IProblemFactory getProblemFactory(final IProblemRequestor problemRequestor) {
+	protected static IProblemFactory getProblemFactory(final char[] fileName, final IProblemRequestor problemRequestor) {
 
 		return new DefaultProblemFactory(Locale.getDefault()) {
 			public IProblem createProblem(
@@ -183,7 +183,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 						startPosition,
 						endPosition,
 						lineNumber);
-				problemRequestor.acceptProblem(problem);
+				// only report local problems
+				if (CharOperation.equals(originatingFileName, fileName)){
+					problemRequestor.acceptProblem(problem);
+				}
 				return problem;
 			}
 		};

@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
 import java.util.*;
@@ -139,13 +140,14 @@ class CompilationUnitResolver extends Compiler {
 		IAbstractSyntaxTreeVisitor visitor)
 		throws JavaModelException {
 
+		char[] fileName = unitElement.getElementName().toCharArray();
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
 				JavaCore.getOptions(),
 				getRequestor(),
-				getProblemFactory(visitor));
+				getProblemFactory(fileName, visitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -156,7 +158,7 @@ class CompilationUnitResolver extends Compiler {
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
-						unitElement.getElementName(),
+						new String(fileName),
 						encoding));
 			return unit;
 		} finally {
@@ -203,7 +205,7 @@ class CompilationUnitResolver extends Compiler {
 		return compilationUnitDeclaration;
 	}
 
-	protected static IProblemFactory getProblemFactory(final IAbstractSyntaxTreeVisitor visitor) {
+	protected static IProblemFactory getProblemFactory(final char[] fileName, final IAbstractSyntaxTreeVisitor visitor) {
 
 		return new DefaultProblemFactory(Locale.getDefault()) {
 			public IProblem createProblem(
@@ -224,7 +226,10 @@ class CompilationUnitResolver extends Compiler {
 						startPosition,
 						endPosition,
 						lineNumber);
-				visitor.acceptProblem(problem);
+				// only consider problems associated with resolved file
+				if (CharOperation.equals(originatingFileName, fileName)){
+					visitor.acceptProblem(problem);
+				}
 				return problem;
 			}
 		};
@@ -243,7 +248,7 @@ class CompilationUnitResolver extends Compiler {
 				getHandlingPolicy(),
 				JavaCore.getOptions(),
 				getRequestor(),
-				getProblemFactory(visitor));
+				getProblemFactory(unitName.toCharArray(), visitor));
 	
 		CompilationUnitDeclaration unit = null;
 		try {
