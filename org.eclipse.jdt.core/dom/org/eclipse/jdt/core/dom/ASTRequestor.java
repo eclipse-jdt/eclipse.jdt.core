@@ -60,14 +60,6 @@ public abstract class ASTRequestor {
 	 * @param ast the requested abtract syntax tree
 	 */
 	public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
-		acceptAST(ast, source);
-	}
-	
-	/**
-	 * @deprecated use acceptAST(ICompilationUnit, CompilationUnit) instead
-	 */
-	// TODO (jerome) remove when no more clients
-	public void acceptAST(CompilationUnit ast, ICompilationUnit source) {
 		// do nothing
 	}
 	
@@ -85,17 +77,9 @@ public abstract class ASTRequestor {
 	 * @param binding the requested binding, or <code>null</code> if none
 	 */
 	public void acceptBinding(String bindingKey, IBinding binding) {
-		acceptBinding(binding, bindingKey);
-	}
-
-	/**
-	 * @deprecated use acceptBinding(String, IBinding) instead
-	 */
-	// TODO (jerome) remove when no more clients
-	public void acceptBinding(IBinding binding, String bindingKey) {
 		// do nothing
 	}
-	
+
 	/**
 	 * Resolves bindings for the given binding keys.
 	 * The given binding keys must have been obtained earlier
