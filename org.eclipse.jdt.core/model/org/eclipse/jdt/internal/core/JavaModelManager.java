@@ -224,12 +224,13 @@ public class JavaModelManager implements ISaveParticipant {
 	
 			if (container == null) {
 				projectContainers.remove(containerPath);
-				Map previousContainers = (Map)this.previousSessionContainers.get(project);
-				if (previousContainers != null){
-					previousContainers.remove(containerPath);
-				}
 			} else {
-				projectContainers.put(containerPath, container);
+   				projectContainers.put(containerPath, container);
+			}
+			// discard obsoleted information about previous session
+			Map previousContainers = (Map)this.previousSessionContainers.get(project);
+			if (previousContainers != null){
+				previousContainers.remove(containerPath);
 			}
 		}
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
@@ -2023,10 +2024,11 @@ public class JavaModelManager implements ISaveParticipant {
 			// update cache - do not only rely on listener refresh		
 			if (variablePath == null) {
 				this.variables.remove(variableName);
-				this.previousSessionVariables.remove(variableName);
 			} else {
 				this.variables.put(variableName, variablePath);
 			}
+			// discard obsoleted information about previous session
+			this.previousSessionVariables.remove(variableName);
 		}
 
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
