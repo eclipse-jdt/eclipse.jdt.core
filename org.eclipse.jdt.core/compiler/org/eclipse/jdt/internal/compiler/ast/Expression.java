@@ -645,34 +645,36 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		int typeID) {
 
-		// Optimization only for integers and strings
-		if (typeID == T_JavaLangObject) {
-			// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
-			// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
-			codeStream.newStringContatenation();
-			codeStream.dup();
-			codeStream.invokeStringConcatenationDefaultConstructor();
-			generateCode(blockScope, codeStream, true);
-			codeStream.invokeStringConcatenationAppendForType(T_JavaLangObject);
-			return;
-		}
 		codeStream.newStringContatenation();
 		codeStream.dup();
-		if (typeID == T_JavaLangString || typeID == T_null) {
-			if (constant != NotAConstant) {
-				String stringValue = constant.stringValue();
-				if (stringValue.length() == 0) {  // optimize ""+<str> 
-					codeStream.invokeStringConcatenationDefaultConstructor();
-					return;
-				}
-				codeStream.ldc(stringValue);
-			} else {
+		switch (typeID) {
+			case T_JavaLangObject :
+			case T_undefined :
+				// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
+				// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
+				codeStream.invokeStringConcatenationDefaultConstructor();
 				generateCode(blockScope, codeStream, true);
-				codeStream.invokeStringValueOf(T_JavaLangObject);
-			}
-		} else {
-			generateCode(blockScope, codeStream, true);
-			codeStream.invokeStringValueOf(typeID);
+				codeStream.invokeStringConcatenationAppendForType(T_JavaLangObject);
+				return;
+
+			case T_JavaLangString :
+			case T_null :
+				if (constant != NotAConstant) {
+					String stringValue = constant.stringValue();
+					if (stringValue.length() == 0) {  // optimize ""+<str> 
+						codeStream.invokeStringConcatenationDefaultConstructor();
+						return;
+					}
+					codeStream.ldc(stringValue);
+				} else {
+					generateCode(blockScope, codeStream, true);
+					codeStream.invokeStringValueOf(T_JavaLangObject);
+				}
+				break;
+				
+			default :
+				generateCode(blockScope, codeStream, true);
+				codeStream.invokeStringValueOf(typeID);
 		}
 		codeStream.invokeStringConcatenationStringConstructor();
 	}
