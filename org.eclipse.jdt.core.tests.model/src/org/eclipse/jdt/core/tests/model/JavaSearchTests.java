@@ -141,10 +141,10 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 						results.append(CharOperation.subarray(contents, start, end));
 						if (this.showContext) {
 							results.append(">");
-							int lineEnd1 = CharOperation.indexOf('\n', contents, end);
-							int lineEnd2 = CharOperation.indexOf('\r', contents, end);
+							int lineEnd1 = Math.max(CharOperation.indexOf('\n', contents, end), end);
+							int lineEnd2 = Math.max(CharOperation.indexOf('\r', contents, end), end);
 							int lineEnd = Math.min(lineEnd1, lineEnd2);
-							if (lineEnd < 0) lineEnd = contents.length;
+							if (lineEnd == end) lineEnd = contents.length;
 							results.append(CharOperation.subarray(contents, end, lineEnd));
 						}
 					} else {
