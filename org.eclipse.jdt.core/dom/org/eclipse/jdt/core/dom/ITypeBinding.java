@@ -361,7 +361,7 @@ public interface ITypeBinding extends IBinding {
 	 * release of J2SE is tentative and subject to change.
 	 * </p>
 	 *
-	 * @return the generic type binding
+	 * @return the type binding
 	 * @since 3.1
 	 */
 	public ITypeBinding getTypeDeclaration();

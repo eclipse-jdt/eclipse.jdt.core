@@ -233,7 +233,7 @@ public interface IMethodBinding extends IBinding {
 	 * release of J2SE is tentative and subject to change.
 	 * </p>
 	 *
-	 * @return the generic method binding
+	 * @return the method binding
 	 * @since 3.1
 	 */
 	public IMethodBinding getMethodDeclaration();
