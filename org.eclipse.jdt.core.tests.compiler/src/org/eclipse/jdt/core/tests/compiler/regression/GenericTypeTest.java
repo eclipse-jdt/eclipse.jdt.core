@@ -1028,6 +1028,21 @@ public void _test043() {
 		"SUCCESS");
 }	
 
+// TODO (kent) reenable once supported
+public void _test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends L<X> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }    \n" + 
+			"}\n" + 
+			"class L<E> {}\n",
+		},
+		"SUCCESS");
+}	
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }

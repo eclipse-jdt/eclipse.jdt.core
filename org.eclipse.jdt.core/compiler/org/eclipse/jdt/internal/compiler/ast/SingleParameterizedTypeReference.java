@@ -136,7 +136,7 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		for (int j = 0; j < argLength; j++) {
-			// TODO what if this is null? how are error cases handled
+			// error cases (null types) are handled below
 		    argTypes[j] = this.typeArguments[j].resolveType(scope);
 		}
 		if (typeVariables == NoTypeVariables) { // check generic

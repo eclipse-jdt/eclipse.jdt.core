@@ -447,9 +447,14 @@ public final boolean isBinaryBinding() {
 public final boolean isClass() {
 	return (modifiers & AccInterface) == 0;
 }
+/*
+ * Returns true if the type hierarchy is being connected
+ */
+public boolean isHierarchyBeingConnected() {
+	return (this.tagBits & EndHierarchyCheck) == 0 && (this.tagBits & BeginHierarchyCheck) != 0;
+}
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-	
 public boolean isCompatibleWith(TypeBinding right) {
 	if (right == this)
 		return true;

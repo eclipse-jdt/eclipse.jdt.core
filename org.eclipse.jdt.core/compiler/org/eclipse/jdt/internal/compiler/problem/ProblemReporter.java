@@ -549,21 +549,13 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocMissingParamTag:
 		case IProblem.JavadocMissingReturnTag:
 		case IProblem.JavadocMissingThrowsTag:
-			if (this.options.docCommentSupport) {
-				return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
-			} else {
-				return ProblemSeverities.Ignore;
-			}
+			return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
 
 		/*
 		 * Missing Javadoc errors
 		 */
 		case IProblem.JavadocMissing:
-			if (this.options.docCommentSupport) {
-				return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
-			} else {
-				return ProblemSeverities.Ignore;
-			}
+			return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
 
 		// by default problems are errors.
 		default:
@@ -756,12 +748,12 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 		this.handle(
 			IProblem.DuplicateMethodErasure,
 			new String[] {
-		        new String(method.selector),
+		        new String(methodDecl.selector),
 				new String(method.declaringClass.readableName()),
 				parametersAsString(method.parameters, false),
 				parametersAsString(erasures, false) } ,
 			new String[] {
-				new String(method.selector),
+				new String(methodDecl.selector),
 				new String(method.declaringClass.shortReadableName()),
 				parametersAsString(method.parameters, true),
 				parametersAsString(erasures, true) },
