@@ -1045,7 +1045,49 @@ public void test021() {
 		assertTrue(false);
 	}
 }
-// TODO (olivier) add tests to challenge break/continue support in foreach
+public void _test022() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		ArrayList<Integer> arrayList = new ArrayList<Integer>();\n" + 
+			"		for (int i = 0; i < 10; i++) {\n" + 
+			"			arrayList.add(new Integer(i));\n" + 
+			"		}\n" + 
+			"		int sum = 0;\n" + 
+			"		for (Integer e : arrayList) {\n" + 
+			"			sum += e.intValue();\n" + 
+			"		}\n" + 
+			"		System.out.println(sum);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"45");
+		
+/*	String expectedOutput =
+		"toto";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}*/
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
