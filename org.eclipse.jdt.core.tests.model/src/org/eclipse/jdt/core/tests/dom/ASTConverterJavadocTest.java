@@ -59,6 +59,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected static int[] testCounters = { 0, 0, 0, 0 };
 	// Unicode tests
 	protected static boolean unicode = false;
+	// Unix tests
+	protected static boolean unix = false;
 	// Doc Comment support
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 	final String docCommentSupport;
@@ -106,6 +108,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		if ("true".equals(param)) {
 //			unicode = true;
 //		}
+		String param = System.getProperty("unix");
+		if ("true".equals(param)) {
+			unix = true;
+		}
 		if (true) {
 			if (DOC_COMMENT_SUPPORT == null) {
 				buildSuite(suite, JavaCore.ENABLED);
@@ -116,8 +122,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-//		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
+
+		// Run test cases subset
+		System.err.println("WARNING: only subset of tests will be executed!!!");
+		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
 		suite.addTest(new ASTConverterJavadocTest("testBug51617"));
+		suite.addTest(new ASTConverterJavadocTest("testBug54424"));
 		return suite;
 	}
 
@@ -168,9 +178,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				System.out.println("	- "+failures.get(i));
 			}
 		}
-		if (!stopOnFailure) {
+//		if (!stopOnFailure) {
 			assertTrue(title, size==0 || problems.length() > 0);
-		}
+//		}
 		// put default options on project
 		if (this.currentProject != null) this.currentProject.setOptions(JavaCore.getOptions());
 	}
@@ -664,6 +674,33 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			return unicodeSource;
 		}
 	}
+
+	/*
+	 * Convert Javadoc source to match Javadoc.toString().
+	 * Store converted comments and their corresponding tags respectively
+	 * in this.comments and this.allTags fields
+	 */
+	char[] getUnixSource(char[] source) {
+		int length = source.length;
+		int unixLength = length;
+		char[] unixSource = new char[unixLength];
+		int u=0;
+		for (int i=0; i<length; i++) {
+			// get next char
+			if (source[i] == '\r' && source[i+1] == '\n') {
+				i++;
+			}
+			unixSource[u++] = source[i];
+		}
+		// Return one well sized array
+		if (u != unixLength) {
+			char[] result = new char[u];
+			System.arraycopy(unixSource, 0, result, 0, u);
+			return result;
+		} else {
+			return unixSource;
+		}
+	}
 	
 	/*
 	 * Return all tags number for a given Javadoc
@@ -755,7 +792,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		if (expected != null && expected.equals(actual))
 			return;
 		addFailure(msg+", expected:<"+expected+"> actual:<"+actual+'>');
-		if (this.stopOnFailure) assertEquals(expected, actual);
+		if (this.stopOnFailure) assertEquals(msg, expected, actual);
 	}
 
 	/*
@@ -773,7 +810,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Verify tags
 		Iterator tags = docComment.tags().listIterator();
 		while (tags.hasNext()) {
-			// TODO doesn't work when compiled on Linux and run on Windows
 			while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
 				tagStart++; // purge non-stored characters
 			}
@@ -969,14 +1005,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			QualifiedName qualified = (QualifiedName) name;
 			int start = qualified.getName().getStartPosition();
 			String str = new String(source, start, qualified.getName().getLength());
-			assumeEquals(this.prefix+"Misplaced or wrong name at <"+start+"> for qualified name: "+name, str, qualified.getName().toString());
+			assumeEquals(this.prefix+"Misplaced or wrong name for qualified name: "+name, str, qualified.getName().toString());
 			verifyNamePositions(nameStart, ((QualifiedName) name).getQualifier(), source);
 		}
 		String str = new String(source, nameStart, name.getLength());
 		if (str.indexOf('\n') < 0) { // cannot compare if text contains new line
-			assumeEquals(this.prefix+"Misplaced name at <"+nameStart+"> for qualified name: ", str, name.toString());
+			assumeEquals(this.prefix+"Misplaced name for qualified name: ", str, name.toString());
 		} else {
-			System.out.println(this.prefix+"Name contains new line at <"+nameStart+"> for qualified name: "+name);
+			System.out.println(this.prefix+"Name contains new line for qualified name: "+name);
 		}
 	}
 
@@ -1005,6 +1041,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		int tagElementStart = tagElement.getStartPosition();
 		Iterator elements = tagElement.fragments().listIterator();
 		IBinding previousBinding = null;
+		ASTNode previousFragment = null;
 		boolean resolvedBinding = false;
 		while (elements.hasNext()) {
 			ASTNode fragment = (ASTNode) elements.next();
@@ -1013,9 +1050,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				TextElement text = (TextElement) fragment;
 				if (resolvedBinding) {
 					if (previousBinding == null) {
-						assumeTrue(this.prefix+"Reference at <"+fragmentStart+"> in '"+fragment+"' should be bound!", text.getText().trim().startsWith("Unknown"));
+						assumeTrue(this.prefix+"Reference '"+previousFragment+"' should be bound!", text.getText().trim().startsWith("Unknown"));
 					} else {
-						assumeTrue(this.prefix+"Unknown reference at <"+fragmentStart+"> in '"+fragment+"' should NOT be bound!", !text.getText().trim().startsWith("Unknown"));
+						assumeTrue(this.prefix+"Unknown reference '"+previousFragment+"' should NOT be bound!", !text.getText().trim().startsWith("Unknown"));
 					}
 				}
 				previousBinding = null;
@@ -1036,19 +1073,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					MemberRef memberRef = (MemberRef) fragment;
 					previousBinding = memberRef.resolveBinding();
 					if (previousBinding != null) {
-						assumeNotNull(this.prefix+""+memberRef.getName()+" binding at <"+fragmentStart+"> was not found!", memberRef.getName().resolveBinding());
+						assumeNotNull(this.prefix+""+memberRef.getName()+" binding was not found!", memberRef.getName().resolveBinding());
 						verifyNameBindings(memberRef.getQualifier());
 					}
 				} else if (fragment.getNodeType() == ASTNode.METHOD_REF) {
 					MethodRef methodRef = (MethodRef) fragment;
 					previousBinding = methodRef.resolveBinding();
 					if (previousBinding != null) {
-						assumeNotNull(this.prefix+""+methodRef.getName()+" binding at <"+fragmentStart+"> was not found!", methodRef.getName().resolveBinding());
+						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!", methodRef.getName().resolveBinding());
 						verifyNameBindings(methodRef.getQualifier());
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
-							assumeNotNull(this.prefix+""+param.getType()+" binding at <"+fragmentStart+"> was not found!", param.getType().resolveBinding());
+							assumeNotNull(this.prefix+""+param.getType()+" binding was not found!", param.getType().resolveBinding());
 							if (param.getType().isSimpleType()) {
 								verifyNameBindings(((SimpleType)param.getType()).getName());
 							}
@@ -1057,8 +1094,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					}
 				}
 			}
+			previousFragment = fragment;
 		}
-		assumeTrue(this.prefix+"Reference at <"+tagElementStart+"> in '"+tagElement+"' should be bound!", (!resolvedBinding || previousBinding != null));
+		assumeTrue(this.prefix+"Reference '"+(previousFragment==null?tagElement:previousFragment)+"' should be bound!", (!resolvedBinding || previousBinding != null));
 	}
 
 	/*
@@ -1069,9 +1107,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			int nameStart = name.getStartPosition();
 			IBinding binding = name.resolveBinding();
 			if (name.toString().indexOf("Unknown") > 0) {
-				assumeNull(this.prefix+name+" binding at <"+nameStart+"> should be null!", binding);
+				assumeNull(this.prefix+name+" binding should be null!", binding);
 			} else {
-				assumeNotNull(this.prefix+name+" binding at <"+nameStart+"> was not found!", binding);
+				assumeNotNull(this.prefix+name+" binding was not found!", binding);
 			}
 			SimpleName simpleName = null;
 			int index = 0;
@@ -1080,23 +1118,23 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				binding = simpleName.resolveBinding();
 				int simpleNameStart = simpleName.getStartPosition();
 				if (simpleName.getIdentifier().equalsIgnoreCase("Unknown")) {
-					assumeNull(this.prefix+simpleName+" binding at <"+simpleNameStart+"> should be null!", binding);
+					assumeNull(this.prefix+simpleName+" binding should be null!", binding);
 				} else {
-					assumeNotNull(this.prefix+simpleName+" binding at <"+simpleNameStart+"> was not found!", binding);
+					assumeNotNull(this.prefix+simpleName+" binding was not found!", binding);
 				}
 				if (index > 0 && this.packageBinding) {
-					assumeEquals(this.prefix+"Wrong binding type at <"+simpleNameStart+">", IBinding.PACKAGE, binding.getKind());
+					assumeEquals(this.prefix+"Wrong binding type!", IBinding.PACKAGE, binding.getKind());
 				}
 				index++;
 				name = ((QualifiedName) name).getQualifier();
 				binding = name.resolveBinding();
 				if (name.toString().indexOf("Unknown") > 0) {
-					assumeNull(this.prefix+name+" binding at <"+nameStart+"> should be null!", binding);
+					assumeNull(this.prefix+name+" binding should be null!", binding);
 				} else {
-					assumeNotNull(this.prefix+name+" binding at <"+nameStart+"> was not found!", binding);
+					assumeNotNull(this.prefix+name+" binding was not found!", binding);
 				}
 				if (this.packageBinding) {
-					assumeEquals(this.prefix+"Wrong binding type at <"+nameStart+">", IBinding.PACKAGE, binding.getKind());
+					assumeEquals(this.prefix+"Wrong binding type!", IBinding.PACKAGE, binding.getKind());
 				}
 			}
 		}
@@ -1149,14 +1187,21 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	protected CompilationUnit verifyComments(String fileName, char[] source, Map options) {
 
-		// Get comments infos from test file
-		setSourceComment(source);
-		
 		// Verify comments either in unicode or not
 		char[] testedSource = source;
 		if (unicode) {
 			testedSource = getUnicodeSource(source);
 		}
+
+		// Verify comments either in unicode or not
+		else if (unix) {
+			testedSource = getUnixSource(source);
+		}
+		
+		// Get comments infos from test file
+		setSourceComment(testedSource);
+
+		// Create DOM AST nodes hierarchy		
 		List unitComments = null;
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
 		if (this.compilerOption.equals(JavaCore.ERROR)) {
@@ -1828,19 +1873,53 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
 	 */
-	public void _testBug51600() throws JavaModelException {
+	public void testBug51600() throws JavaModelException {
 		verifyComments("testBug51600");
 	}
-	public void _testBug51617() throws JavaModelException {
+	public void testBug51617() throws JavaModelException {
 		this.stopOnFailure = false;
+		String [] unbound = { "e" };
 		verifyComments("testBug51617");
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			assertNotNull("We should have a failure!", this.failures);
-			assertEquals("We should have exactly one failure!", 1, this.failures.size());
-			// TODO positions cannot be inlined (they will be different if compiled on Linux and run on Windows)
-			String expected = "Test.java: Reference at <126> in '\n * @exception e' should be bound!";
-			String failure = (String) this.failures.remove(0);
-			assertEquals("We should have an unbound exception here!", expected, failure);
+			int size = unbound.length;
+			for (int i=0, f=0; i<size; i++) {
+				assertTrue("Invalid number of failures!", this.failures.size()>f);
+				String failure = (String) this.failures.get(f);
+				String expected = "Reference '"+unbound[i]+"' should be bound!";
+				if (expected.equals(failure.substring(failure.indexOf(' ')+1))) {
+					this.failures.remove(f);
+				} else {
+					f++;	// skip offending failure
+					i--;	// stay on expected string
+				}
+			}
+		}
+		this.stopOnFailure = true;
+	}
+	public void testBug54424() throws JavaModelException {
+		this.stopOnFailure = false;
+		String [] unbound = { "tho",
+				"from",
+				"A#getList(int,long,boolean)",
+				"#getList(Object,java.util.ArrayList)",
+				"from",
+				"#getList(int from,long tho)",
+				"to"
+		};
+		verifyComments("testBug54424");
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			int size = unbound.length;
+			for (int i=0, f=0; i<size; i++) {
+				assertTrue("Invalid number of failures!", this.failures.size()>f);
+				String failure = (String) this.failures.get(f);
+				String expected = "Reference '"+unbound[i]+"' should be bound!";
+				if (expected.equals(failure.substring(failure.indexOf(' ')+1))) {
+					this.failures.remove(f);
+				} else {
+					f++;	// skip offending failure
+					i--;	// stay on expected string
+				}
+			}
 		}
 		this.stopOnFailure = true;
 	}
