@@ -312,7 +312,6 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 					findSourceFiles(children[j], md, segmentCount);
 		} else {
 			IResourceDelta sourceDelta = delta.findMember(md.sourceFolder.getProjectRelativePath());
-
 			if (sourceDelta != null) {
 				if (sourceDelta.getKind() == IResourceDelta.REMOVED) {
 					if (JavaBuilder.DEBUG)
@@ -321,8 +320,18 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 				}
 				int segmentCount = sourceDelta.getFullPath().segmentCount();
 				IResourceDelta[] children = sourceDelta.getAffectedChildren();
-				for (int j = 0, m = children.length; j < m; j++)
-					findSourceFiles(children[j], md, segmentCount);
+				try {
+					for (int j = 0, m = children.length; j < m; j++)
+						findSourceFiles(children[j], md, segmentCount);
+				} catch (org.eclipse.core.internal.resources.ResourceException e) {
+					// catch the case that a package has been renamed and collides on disk with an as-yet-to-be-deleted package
+					if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
+						if (JavaBuilder.DEBUG)
+							System.out.println("ABORTING incremental build... found renamed package"); //$NON-NLS-1$
+						return false;
+					}
+					throw e; // rethrow
+				}
 			}
 		}
 		notifier.checkCancel();
