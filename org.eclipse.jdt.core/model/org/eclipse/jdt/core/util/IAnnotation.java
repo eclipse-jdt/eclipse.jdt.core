@@ -30,6 +30,7 @@ public interface IAnnotation {
 	 * Answer back the type name as described in the JVM specifications.
 	 * 
 	 * @return the type name
+	 * @since 3.1
 	 */
 	char[] getTypeName();
 	

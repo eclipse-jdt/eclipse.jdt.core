@@ -99,6 +99,7 @@ public interface IAnnotationComponentValue {
 	 * This is initialized only of the tag item is '&#064;'.
 	 * 
 	 * @return the attribute value
+	 * @since 3.1
 	 */
 	IAnnotation getAnnotationValue();
 
