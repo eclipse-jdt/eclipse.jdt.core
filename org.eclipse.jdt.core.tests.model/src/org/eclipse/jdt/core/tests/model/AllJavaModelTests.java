@@ -94,7 +94,7 @@ public static Test suite() {
 	suite.addTest(NamingConventionTests.suite());
 	
 	// Code correction tests
-	//suite.addTest(CodeCorrectionTests.suite());
+	suite.addTest(CodeCorrectionTests.suite());
 	
 	// Options tests
 	suite.addTest(OptionTests.suite());

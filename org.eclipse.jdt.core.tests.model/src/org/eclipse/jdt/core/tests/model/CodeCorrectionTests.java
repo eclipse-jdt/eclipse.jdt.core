@@ -136,7 +136,12 @@ public void testCorrectFieldType1() throws JavaModelException {
 	IMarker[] markers = getMarkers(cu);
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
-
+	
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+		
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -144,13 +149,13 @@ public void testCorrectFieldType1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"39\n"+
-		"39",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"43\n"+
-		"43",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectFieldType2() throws JavaModelException {
@@ -161,6 +166,11 @@ public void testCorrectFieldType2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -168,13 +178,13 @@ public void testCorrectFieldType2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"43\n"+
-		"43",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"50\n"+
-		"50",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectFieldType3() throws CoreException {
@@ -187,6 +197,12 @@ public void testCorrectFieldType3() throws CoreException {
 		engine.computeCorrections(marker, null, 0, requestor);
 	} catch(CoreException e) {
 	}
+	
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -194,13 +210,13 @@ public void testCorrectFieldType3() throws CoreException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"56\n"+
-		"56",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"63\n"+
-		"63",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectLocalVariableType1() throws JavaModelException {
@@ -210,7 +226,12 @@ public void testCorrectLocalVariableType1() throws JavaModelException {
 	IMarker[] markers = getMarkers(cu);
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
-
+	
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -218,13 +239,13 @@ public void testCorrectLocalVariableType1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"62\n"+
-		"62",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"66\n"+
-		"66",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectLocalVariableType2() throws JavaModelException {
@@ -235,6 +256,11 @@ public void testCorrectLocalVariableType2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -242,13 +268,13 @@ public void testCorrectLocalVariableType2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"66\n"+
-		"66",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"73\n"+
-		"73",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectImport1() throws JavaModelException {
@@ -259,6 +285,11 @@ public void testCorrectImport1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -266,13 +297,13 @@ public void testCorrectImport1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"11\n"+
-		"11",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"15\n"+
-		"15",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectImport2() throws JavaModelException {
@@ -283,6 +314,11 @@ public void testCorrectImport2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -290,13 +326,13 @@ public void testCorrectImport2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"11\n"+
-		"11",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"15\n"+
-		"15",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectImport3() throws JavaModelException {
@@ -307,6 +343,11 @@ public void testCorrectImport3() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -314,13 +355,13 @@ public void testCorrectImport3() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"15\n"+
-		"15",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"22\n"+
-		"22",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectSuperClass1() throws JavaModelException {
@@ -331,6 +372,11 @@ public void testCorrectSuperClass1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -338,13 +384,13 @@ public void testCorrectSuperClass1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"44\n"+
-		"44",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"48\n"+
-		"48",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectSuperClass2() throws JavaModelException {
@@ -355,6 +401,11 @@ public void testCorrectSuperClass2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -362,13 +413,13 @@ public void testCorrectSuperClass2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"48\n"+
-		"48",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"55\n"+
-		"55",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectSuperInterface1() throws JavaModelException {
@@ -379,6 +430,11 @@ public void testCorrectSuperInterface1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "cccz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions",
 		"ccc\n"+
@@ -386,13 +442,13 @@ public void testCorrectSuperInterface1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"55\n"+
-		"55",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"59\n"+
-		"59",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectSuperInterface2() throws JavaModelException {
@@ -403,6 +459,11 @@ public void testCorrectSuperInterface2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AListenerz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AListener\n"+
@@ -410,13 +471,13 @@ public void testCorrectSuperInterface2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"59\n"+
-		"59",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"69\n"+
-		"69",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectException1() throws JavaModelException {
@@ -427,6 +488,11 @@ public void testCorrectException1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bbbz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions",
 		"bbb\n"+
@@ -434,13 +500,13 @@ public void testCorrectException1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"58\n"+
-		"58",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"62\n"+
-		"62",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectException2() throws JavaModelException {
@@ -451,17 +517,22 @@ public void testCorrectException2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AnExceptionz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions",
 		"AnException",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"62",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"74",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectMethod1() throws JavaModelException {
@@ -472,17 +543,22 @@ public void testCorrectMethod1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"79",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"82",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectMethod2() throws JavaModelException {
@@ -493,17 +569,22 @@ public void testCorrectMethod2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"127",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"130",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectField1() throws JavaModelException {
@@ -514,17 +595,22 @@ public void testCorrectField1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"65",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"68",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectField2() throws JavaModelException {
@@ -535,17 +621,22 @@ public void testCorrectField2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"111",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"114",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectLocalVariable1() throws JavaModelException {
@@ -556,17 +647,22 @@ public void testCorrectLocalVariable1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"67",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"70",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectArgument1() throws JavaModelException {
@@ -577,17 +673,22 @@ public void testCorrectArgument1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "bar";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"57",
+		""+start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"60",
+		""+end,
 		requestor.getEnds());
 }
 public void testCorrectReturnType1() throws JavaModelException {
@@ -598,6 +699,11 @@ public void testCorrectReturnType1() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "dddz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"ddd\n"+
@@ -605,13 +711,13 @@ public void testCorrectReturnType1() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"47\n"+
-		"47",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"51\n"+
-		"51",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 public void testCorrectReturnType2() throws JavaModelException {
@@ -622,6 +728,11 @@ public void testCorrectReturnType2() throws JavaModelException {
 	assertTrue("should have one problem",markers.length == 1);
 	engine.computeCorrections(markers[0], null, 0, requestor);
 
+	String src = cu.getSource();
+	String error = "AClassz";
+	int start = src.indexOf(error);
+	int end = start + error.length();
+	
 	assertEquals(
 		"should have two suggestions", 
 		"AClass\n"+
@@ -629,13 +740,13 @@ public void testCorrectReturnType2() throws JavaModelException {
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct", 
-		"51\n"+
-		"51",
+		start+"\n"+
+		start,
 		requestor.getStarts());
 	assertEquals(
 		"a end of a suggestion is not correct", 
-		"58\n"+
-		"58",
+		end+"\n"+
+		end,
 		requestor.getEnds());
 }
 }
