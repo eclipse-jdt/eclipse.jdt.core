@@ -238,12 +238,12 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				}
 			} else {
 				if (deprecation) {
-					cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
+					cmd.createArgument().setValue("-warn:+allDeprecation"); //$NON-NLS-1$
 				} else {
 					cmd.createArgument().setValue("-warn:-allDeprecation,deprecation"); //$NON-NLS-1$
 				}
 				if (compilerArgs.length == 0) {
-					cmd.createArgument().setValue("-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+					cmd.createArgument().setValue("-warn:+constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 				}
 			}
 	        /*
