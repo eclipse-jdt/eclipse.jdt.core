@@ -273,13 +273,13 @@ public class FormattingPreferences {
 	public static final char DEFAULT_FILLING_SPACE = DASH;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST = true;
 	public static final int DEFAULT_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY = 0;
-	public static final boolean DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE = true; 
-	public static final boolean DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE = true;
+	public static final boolean DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE = false; 
+	public static final boolean DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION = false;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHIZED_EXPRESSION = false;
-	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = true;
-	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = true;
+	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = false;
+	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = false;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;

@@ -2252,10 +2252,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.indent();
 				action.traverse(this, scope);
 				this.scribe.unIndent();
+				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			}
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			} else if (action instanceof Block && this.preferences.insert_new_line_in_control_statements) {
 				this.scribe.printTrailingComment();
 			}
@@ -3620,9 +3623,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			} else if (action instanceof Block) {
 				this.scribe.printTrailingComment();
-			}		
+			} else {
+				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
+			}
 		} else {
 			this.scribe.indent();
 			/*
