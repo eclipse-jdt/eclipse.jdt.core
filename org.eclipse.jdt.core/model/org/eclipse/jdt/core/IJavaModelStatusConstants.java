@@ -18,6 +18,12 @@ import org.eclipse.jdt.internal.core.*;
 public interface IJavaModelStatusConstants {
 
 	/**
+	 * Status constant indicating that a container path was not resolvable
+	 * indicating either the referred container is undefined, unbound.
+	 */
+	public static final int CP_CONTAINER_PATH_UNBOUND = 964;
+
+	/**
 	 * Status constant indicating that a variable path was not resolvable
 	 * indicating either the referred variable is undefined, unbound or the resolved
 	 * variable path does not correspond to an existing file or folder.

@@ -231,7 +231,9 @@ public class ModelUpdater {
 				elementRemoved(element);
 				break;
 			case IJavaElementDelta.CHANGED :
-				elementChanged(element);
+				if ((delta.getFlags() & IJavaElementDelta.F_CONTENT) != 0){
+					elementChanged(element);
+				}
 				break;
 		}
 		if (processChildren) {

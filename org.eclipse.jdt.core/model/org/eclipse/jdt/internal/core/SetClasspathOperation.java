@@ -167,7 +167,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		
 		if (this.mayChangeProjectDependencies){
 			updateProjectReferences(oldRequired, project.getRequiredProjectNames());
-			updateCycleMarkers();
+			updateCycleMarkers(newResolvedPath);
 		}
 	}
 	/**
@@ -277,28 +277,31 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelManager manager,
 		JavaProject project) {
 
-		boolean hasChangedContentForDependents = false;
-
+		boolean needToUpdateDependents = false;
+		
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;
-		boolean oldResolvedPathLongest =
-			oldResolvedPath.length >= newResolvedPath.length;
+		int oldLength = oldResolvedPath.length;
+		int newLength = newResolvedPath.length;
+		boolean oldResolvedPathLongest = oldLength >= newLength;
 			
 		IndexManager indexManager = manager.getIndexManager();
 		for (int i = 0; i < oldResolvedPath.length; i++) {
 			
-			// do not notify remote project changes
-			if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) continue; 
-			
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
 			if (index == -1) {
+				// do not notify remote project changes
+				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					needToUpdateDependents = true;
+					continue; 
+				}
+
 				IPackageFragmentRoot[] pkgFragmentRoots =
 					project.getPackageFragmentRoots(oldResolvedPath[i]);
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 
 				int changeKind = oldResolvedPath[i].getEntryKind();
-				hasChangedContentForDependents |= 
-					(changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
+				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
 
 				// Remove the .java files from the index.
 				// Note that .class files belong to binary folders which can be shared, 
@@ -309,14 +312,18 @@ public class SetClasspathOperation extends JavaModelOperation {
 				hasDelta = true;
 
 			} else {
-				hasChangedContentForDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
+				// do not notify remote project changes
+				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					continue; 
+				}				
+				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 				if (oldResolvedPathLongest && index != i) { //reordering of the classpath
 						addClasspathDeltas(
 							project.getPackageFragmentRoots(oldResolvedPath[i]),
 							IJavaElementDelta.F_CLASSPATH_REORDER,
 							delta);
 						int changeKind = oldResolvedPath[i].getEntryKind();
-						hasChangedContentForDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
+						needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
 		
 						hasDelta = true;
 				}
@@ -343,11 +350,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		for (int i = 0; i < newResolvedPath.length; i++) {
 
-			// do not notify remote project changes
-			if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) continue; 
-
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
+				// do not notify remote project changes
+				if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					needToUpdateDependents = true;
+					continue; 
+				}
 				addClasspathDeltas(
 					project.getPackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_ADDED_TO_CLASSPATH,
@@ -377,22 +386,34 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}
 				}
 				
-				hasChangedContentForDependents |= 
-					(changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
+				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
 				hasDelta = true;
 
 			} // classpath reordering has already been generated in previous loop
 		}
-		if (hasDelta) {
+		
+		// need to write out the classpath file ?
+		boolean needSave = oldLength != newLength;
+		if (!needSave){
+			for (int i = 0; i < newLength; i++){ // need to check for entry#equals
+				if (!oldResolvedPath[i].equals(newResolvedPath[i])){
+					needSave = true;
+					break;
+				}
+			}
+		}
+		if (needSave){
 			try {
 				this.hasModifiedResource = project.saveClasspath(this.forceSave);
-			} catch (JavaModelException e) {
+			} catch(JavaModelException e) {
 			}
+		}
+		
+		if (hasDelta) {
 			this.addDelta(delta);
-
-			if (hasChangedContentForDependents){
-				updateAffectedProjects(project.getProject().getFullPath());
-			}
+		}
+		if (needToUpdateDependents){
+			updateAffectedProjects(project.getProject().getFullPath());
 		}
 	}
 	/*
@@ -453,27 +474,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 	/**
 	 * Update cycle markers
 	 */
-	protected void updateCycleMarkers() {
+	protected void updateCycleMarkers(IClasspathEntry[] newResolvedPath) {
+		
 		if (!this.canChangeResource) return;
 
 		try {
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 			IJavaProject[] projects = model.getJavaProjects();
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
-				try {
-					JavaProject project = (JavaProject)projects[i];
-					project.flushClasspathProblemMarkers(true);
-					if (project.hasClasspathCycle(project.getResolvedClasspath(true))){
-						project.createClasspathProblemMarker(
-							Util.bind("classpath.cycle"), //$NON-NLS-1$
-							IMarker.SEVERITY_ERROR,
-							true); 
-					}
-				} catch (JavaModelException e) {
+				JavaProject project = (JavaProject)projects[i];
+				project.flushClasspathProblemMarkers(true);
+				if (project.hasClasspathCycle(project.getResolvedClasspath(true))){
+					project.createClasspathProblemMarker(
+						Util.bind("classpath.cycle"), //$NON-NLS-1$
+						IMarker.SEVERITY_ERROR,
+						true); 
 				}
 			}
 		} catch (JavaModelException e) {
 		}
+			
 	}
 
 	/**
@@ -484,12 +504,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		try {
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			IJavaProject originatingProject =  ((IJavaProject) getElementsToProcess()[0]);
 			IJavaProject[] projects = model.getJavaProjects();
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
 					JavaProject project = (JavaProject) projects[i];
+					if (project.equals(originatingProject)) continue; // skip itself
+					
 					// consider ALL dependents (even indirect ones), since they may need to
 					// flush their respective namelookup caches (all pkg fragment roots).
+
 					IClasspathEntry[] classpath = project.getExpandedClasspath(true);
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];

@@ -655,10 +655,6 @@ public class JavaProject
 		return writer.toString();
 	}
 
-	
-	/** TOFIX
-	 * 
-	 */
 	public IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath){
 
 		Map projectContainers = (Map)JavaModelManager.Containers.get(this);
@@ -691,7 +687,7 @@ public class JavaProject
 		}
 		return entries;			
 	}
-	
+
 	/**
 	 * Returns the classpath entry that refers to the given path
 	 * or <code>null</code> if there is no reference to the path.
@@ -822,12 +818,36 @@ public class JavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
 
-		IPath path = getJavaProjectElementInfo().getOutputLocation();
-		if (path == null) {
-			return this.defaultOutputLocation();
-		} else {
-			return path;
+		IPath outputLocation = null;
+		if (this.isOpen()) {
+			JavaProjectElementInfo info = getJavaProjectElementInfo();
+			outputLocation = info.getOutputLocation();
+			if (outputLocation != null) {
+				return outputLocation;
+			}
+			return defaultOutputLocation();
 		}
+		// if not already opened, then read from file (avoid populating the model for CP question)
+		String sharedClasspath = loadClasspath();
+		IClasspathEntry[] classpath = null;
+		if (sharedClasspath != null) {
+			try {
+				classpath = readPaths(sharedClasspath);
+			} catch (IOException e) {
+			} catch (RuntimeException e) {
+			}
+			// extract out the output location
+			if (classpath != null && classpath.length > 0) {
+				IClasspathEntry entry = classpath[classpath.length - 1];
+				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+					outputLocation = entry.getPath();
+				}
+			}
+		}
+		if (outputLocation != null) {
+			return outputLocation;
+		}
+		return defaultOutputLocation();
 	}
 
 	/**
@@ -1149,98 +1169,145 @@ public IResource getResource() {
 		return this.getResolvedClasspath(ignoreUnresolvedVariable, false);
 	}
 
-		/**
-		 * Internal variant which can create marker on project for invalid entries
-		 */
-		public IClasspathEntry[] getResolvedClasspath(
-			boolean ignoreUnresolvedVariable,
-			boolean generateMarkerOnError)
-			throws JavaModelException {
+	/**
+	 * Internal variant which can create marker on project for invalid entries
+	 */
+	public IClasspathEntry[] getResolvedClasspath(
+		boolean ignoreUnresolvedEntry,
+		boolean generateMarkerOnError)
+		throws JavaModelException {
+
+		JavaProjectElementInfo projectInfo;
+		if (this.isOpen()){
+			projectInfo = getJavaProjectElementInfo();
+		} else {
+			// avoid populating the model for only retrieving the resolved classpath (13395)
+			projectInfo = null;
+		}
+		
+		// reuse cache if not needing to refresh markers or checking bound variables
+		if (ignoreUnresolvedEntry && !generateMarkerOnError && projectInfo != null){
+			// resolved path is cached on its info
+			IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
+			if (infoPath != null) return infoPath;
+		}
+
+		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
+
+		if (projectInfo != null){
+			projectInfo.lastResolvedClasspath = resolvedPath;
+		}
+		return resolvedPath;
+	}
 	
-			JavaProjectElementInfo projectInfo;
-			if (this.isOpen()){
-				projectInfo = getJavaProjectElementInfo();
-			} else {
-				// avoid populating the model for only retrieving the resolved classpath (13395)
-				projectInfo = null;
+	/**
+	 * Internal variant which can process any arbitrary classpath
+	 */
+	public IClasspathEntry[] getResolvedClasspath(
+		IClasspathEntry[] classpathEntries,
+		boolean ignoreUnresolvedEntry,
+		boolean generateMarkerOnError)
+		throws JavaModelException {
+
+		if (generateMarkerOnError){
+			flushClasspathProblemMarkers(false);
+		}
+
+		int length = classpathEntries.length;
+		int index = 0;
+		ArrayList resolvedEntries = new ArrayList();
+		
+		for (int i = 0; i < length; i++) {
+
+			IClasspathEntry rawEntry = classpathEntries[i];
+
+			/* validation if needed */
+			if (generateMarkerOnError) {
+				IJavaModelStatus status =
+					JavaConventions.validateClasspathEntry(this, rawEntry, false);
+				if (!status.isOK())
+					createClasspathProblemMarker(
+						status.getMessage(), 
+						IMarker.SEVERITY_ERROR,
+						false);
 			}
-			
-			// reuse cache if not needing to refresh markers or checking bound variables
-			if (ignoreUnresolvedVariable && !generateMarkerOnError && (projectInfo != null)){
-				// resolved path is cached on its info
-				IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
-				if (infoPath != null) return infoPath;
-			}
-			
-			IClasspathEntry[] classpath = getRawClasspath();
-	
-			if (generateMarkerOnError){
-				flushClasspathProblemMarkers(false);
-			}
-	
-			IClasspathEntry[] resolvedPath = classpath; // clone only if necessary
-			int length = classpath.length;
-			int index = 0;
-	
-			for (int i = 0; i < length; i++) {
-	
-				IClasspathEntry entry = classpath[i];
-	
-				/* validation if needed */
-				if (generateMarkerOnError) {
-					IJavaModelStatus status =
-						JavaConventions.validateClasspathEntry(this, entry, false);
-					if (!status.isOK())
-						createClasspathProblemMarker(
-							status.getMessage(), 
-							IMarker.SEVERITY_ERROR,
-							false);
-				}
-	
-				/* resolve variables if any, unresolved ones are ignored */
-				if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-	
-					// clone original path
-					if (resolvedPath == classpath) {
-						System.arraycopy(
-							classpath,
-							0,
-							resolvedPath = new IClasspathEntry[length],
-							0,
-							i);
-					}
-					// resolve current variable (handling variable->variable->variable->entry
-					IPath variablePath = entry.getPath(); // for error reporting
-					entry = JavaCore.getResolvedClasspathEntry(entry);
-					if (entry == null) {
-						if (!ignoreUnresolvedVariable) {
+
+			switch (rawEntry.getEntryKind()){
+				
+				case IClasspathEntry.CPE_VARIABLE :
+				
+					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+					if (resolvedEntry == null) {
+						if (!ignoreUnresolvedEntry) {
 							throw new JavaModelException(
 								new JavaModelStatus(
 									IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
-									variablePath.toString()));
+									rawEntry.getPath().toString()));
+						}
+					} else {
+						resolvedEntries.add(resolvedEntry);
+					}
+					break; 
+
+				case IClasspathEntry.CPE_CONTAINER :
+				
+					IClasspathEntry[] containerEntries = getResolvedClasspathContainer(rawEntry.getPath());
+					if (containerEntries == null){
+						// unbound container
+						if (!ignoreUnresolvedEntry) {
+							throw new JavaModelException(
+								new JavaModelStatus(
+									IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND,
+									rawEntry.getPath().toString()));
+						}
+					} else {
+						// container was bound, container entries could be variables
+						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
+							IClasspathEntry containerRawEntry = containerEntries[j];
+							
+							if (generateMarkerOnError) {
+								IJavaModelStatus status =
+									JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
+								if (!status.isOK())
+									createClasspathProblemMarker(
+										status.getMessage(), 
+										IMarker.SEVERITY_ERROR,
+										false);
+							}
+							
+							// container entry is variable ?
+							if (containerRawEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
+								resolvedEntry = JavaCore.getResolvedClasspathEntry(containerRawEntry);
+								if (resolvedEntry == null) {
+									if (!ignoreUnresolvedEntry) {
+										throw new JavaModelException(
+											new JavaModelStatus(
+												IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
+												containerRawEntry.getPath().toString()));
+									}
+								} else {
+									resolvedEntries.add(resolvedEntry);
+								}
+							} else {
+								resolvedEntries.add(containerRawEntry);
+							}
 						}
 					}
-				}
-				if (entry != null) {
-					resolvedPath[index++] = entry;
-				}
-			}
-	
-			// resize resolved classpath in case some variable entries could not be resolved
-			if (index != length) {
-				System.arraycopy(
-					resolvedPath,
-					0,
-					resolvedPath = new IClasspathEntry[index],
-					0,
-					index);
-			}
-			if (projectInfo != null){
-				projectInfo.lastResolvedClasspath = resolvedPath;
-			}
-			return resolvedPath;
+					break;
+										
+				default :
+
+					resolvedEntries.add(rawEntry);
+				
+			}					
 		}
-	
+
+		IClasspathEntry[] resolvedPath = new IClasspathEntry[resolvedEntries.size()];
+		resolvedEntries.toArray(resolvedPath);
+
+		return resolvedPath;
+	}
+
 	/**
 	 * This is a helper method returning the expanded classpath for the project, as a list of classpath entries, 
 	 * where all classpath variable entries have been resolved and substituted with their final target entries.
@@ -1446,22 +1513,22 @@ public IResource getResource() {
 		}
 		return false;
 	}
-/*
- * @see IJavaProject
- */
-public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
-	IPath rootPath;
-	if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
-		rootPath = ((IJavaProject)element).getProject().getFullPath();
-	} else {
-		IPackageFragmentRoot root = (IPackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-		if (root == null) {
-			return false;
+	/*
+	 * @see IJavaProject
+	 */
+	public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
+		IPath rootPath;
+		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
+			rootPath = ((IJavaProject)element).getProject().getFullPath();
+		} else {
+			IPackageFragmentRoot root = (IPackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			if (root == null) {
+				return false;
+			}
+			rootPath = root.getPath();
 		}
-		rootPath = root.getPath();
+		return this.findPackageFragmentRoot0(rootPath) != null;
 	}
-	return this.findPackageFragmentRoot0(rootPath) != null;
-}
 
 	/**
 	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.
@@ -1579,12 +1646,12 @@ public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
 
 	private String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
+			
 		ArrayList prerequisites = new ArrayList();
+		// need resolution
+		entries = getResolvedClasspath(entries, true, false);
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
-			entry = JavaCore.getResolvedClasspathEntry(entry);
-			if (entry == null)
-				continue; // ignore unbound variable
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 				prerequisites.add(entry.getPath().lastSegment());
 			}
@@ -1778,15 +1845,13 @@ public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
 			}
 	}
 	
-
-
-/*
- * @see JavaElement#rootedAt(IJavaProject)
- */
-public IJavaElement rootedAt(IJavaProject project) {
-	return project;
-
-}
+	/**
+	 * @see JavaElement#rootedAt(IJavaProject)
+	 */
+	public IJavaElement rootedAt(IJavaProject project) {
+		return project;
+	
+	}
 	/**
 	 * Answers an ID which is used to distinguish project/entries during package
 	 * fragment root computations
@@ -1800,7 +1865,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 	 * Returns whether the .classpath file was modified.
 	 */
 	public boolean saveClasspath(boolean force) throws JavaModelException {
-		
+
 		if (!getProject().exists())
 			return false;
 
@@ -1963,8 +2028,9 @@ public IJavaElement rootedAt(IJavaProject project) {
 	protected void setRawClasspath0(IClasspathEntry[] rawEntries)
 		throws JavaModelException {
 
+		// if not open, will cause opening with default path
 		JavaProjectElementInfo info = getJavaProjectElementInfo();
-
+	
 		synchronized (info) {
 			if (rawEntries == null) {
 				rawEntries = defaultClasspath();
@@ -1973,7 +2039,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 			info.lastResolvedClasspath = null;
 			
 			info.setRawClasspath(rawEntries);
-			
+				
 			// compute the new roots
 			updatePackageFragmentRoots();				
 		}
