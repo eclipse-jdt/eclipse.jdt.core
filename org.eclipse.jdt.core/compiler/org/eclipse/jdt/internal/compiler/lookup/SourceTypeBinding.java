@@ -357,7 +357,8 @@ public SyntheticAccessMethodBinding addSyntheticBridgeMethod(MethodBinding inher
 			Object method = synthMethods.next();
 			if (method instanceof MethodBinding)
 				if (inheritedMethodToBridge.areParameterErasuresEqual((MethodBinding) method))
-					return null;
+					if (inheritedMethodToBridge.returnType.erasure() == ((MethodBinding) method).returnType.erasure())
+						return null;
 		}
 	}
 
