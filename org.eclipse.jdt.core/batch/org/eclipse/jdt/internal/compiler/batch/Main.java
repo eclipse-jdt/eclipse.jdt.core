@@ -69,6 +69,9 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 		JDK1_1 = ((ver != null) && ver.startsWith("1.1"/*nonNLS*/));
 		relocalize();
 	}
+	
+	private boolean proceed = true;
+	
 protected Main(PrintWriter writer, boolean systemExitWhenFinished) {
 	this.out = writer;
 	this.systemExitWhenFinished = systemExitWhenFinished;
@@ -81,64 +84,66 @@ protected void compile(String[] argv) {
 	// decode command line arguments
 	try {
 		configure(argv);
-		if (showProgress) System.out.print(Main.bind("progress.compiling"/*nonNLS*/));
-		for (int i = 0; i < repetitions; i++){
-			globalProblemsCount = 0;
-			globalErrorsCount = 0;
-			globalWarningsCount = 0;		
-			lineCount = 0;
-			if (repetitions > 1){
-				out.flush();
-				out.println(Main.bind("compile.repetition"/*nonNLS*/,String.valueOf(i+1),String.valueOf(repetitions)));
-			}
-			long startTime = System.currentTimeMillis();
-
-			// request compilation
-			performCompilation();
-			if (timer) {
-				time = System.currentTimeMillis() - startTime;
-				if (lineCount != 0){
-					out.println(Main.bind("compile.instantTime"/*nonNLS*/,new String[]{String.valueOf(lineCount),String.valueOf(time),String.valueOf((((int)((lineCount*10000.0)/time))/10.0))}));
-				} else {
-					out.println(Main.bind("compile.totalTime"/*nonNLS*/,String.valueOf(time)));
-					
+		if(proceed){
+			if (showProgress) out.print(Main.bind("progress.compiling"/*nonNLS*/));
+			for (int i = 0; i < repetitions; i++){
+				globalProblemsCount = 0;
+				globalErrorsCount = 0;
+				globalWarningsCount = 0;		
+				lineCount = 0;
+	
+				if (repetitions > 1){
+					out.flush();
+					out.println(Main.bind("compile.repetition"/*nonNLS*/,String.valueOf(i+1),String.valueOf(repetitions)));
 				}
-			}
-			if (globalProblemsCount > 0) {
-				if (globalProblemsCount == 1) {
-					out.print(Main.bind("compile.oneProblem"/*nonNLS*/));
-				} else {
-					out.print(Main.bind("compile.severalProblems"/*nonNLS*/,String.valueOf(globalProblemsCount)));
-				}
-				out.print(" ("/*nonNLS*/);
-				if (globalErrorsCount > 0) {
-					if (globalErrorsCount == 1) {
-						out.print(Main.bind("compile.oneError"/*nonNLS*/));
+				long startTime = System.currentTimeMillis();
+				// request compilation
+				performCompilation();
+				if (timer) {
+	
+					time = System.currentTimeMillis() - startTime;
+					if (lineCount != 0){
+						out.println(Main.bind("compile.instantTime"/*nonNLS*/,new String[]{String.valueOf(lineCount),String.valueOf(time),String.valueOf((((int)((lineCount*10000.0)/time))/10.0))}));
 					} else {
-						out.print(Main.bind("compile.severalErrors"/*nonNLS*/,String.valueOf(globalErrorsCount)));
+						out.println(Main.bind("compile.totalTime"/*nonNLS*/,String.valueOf(time)));				
 					}
 				}
-				if (globalWarningsCount > 0) {
+				if (globalProblemsCount > 0) {
+					if (globalProblemsCount == 1) {
+						out.print(Main.bind("compile.oneProblem"/*nonNLS*/));
+					} else {
+						out.print(Main.bind("compile.severalProblems"/*nonNLS*/,String.valueOf(globalProblemsCount)));
+					}
+					out.print(" ("/*nonNLS*/);
 					if (globalErrorsCount > 0) {
-						out.print(", "/*nonNLS*/);
+						if (globalErrorsCount == 1) {
+							out.print(Main.bind("compile.oneError"/*nonNLS*/));
+						} else {
+							out.print(Main.bind("compile.severalErrors"/*nonNLS*/,String.valueOf(globalErrorsCount)));
+						}
 					}
-					if (globalWarningsCount == 1) {
-						out.print(Main.bind("compile.oneWarning"/*nonNLS*/));
+					if (globalWarningsCount > 0) {
+						if (globalErrorsCount > 0) {
+							out.print(", "/*nonNLS*/);
+						}
+						if (globalWarningsCount == 1) {
+							out.print(Main.bind("compile.oneWarning"/*nonNLS*/));
+						} else {
+							out.print(Main.bind("compile.severalWarnings"/*nonNLS*/,String.valueOf(globalWarningsCount)));
+						}
+					}
+					out.println(")"/*nonNLS*/);
+				}
+				if (exportedClassFilesCounter != 0 && (this.showProgress || this.timer || this.verbose)) {
+					if (exportedClassFilesCounter == 1) {
+						out.print(Main.bind("compile.oneClassFileGenerated"/*nonNLS*/));
 					} else {
-						out.print(Main.bind("compile.severalWarnings"/*nonNLS*/,String.valueOf(globalWarningsCount)));
+						out.print(Main.bind("compile.severalClassFilesGenerated"/*nonNLS*/,String.valueOf(exportedClassFilesCounter)));
 					}
 				}
-				out.println(")"/*nonNLS*/);
 			}
-			if (exportedClassFilesCounter != 0 && (this.showProgress || this.timer || this.verbose)) {
-				if (exportedClassFilesCounter == 1) {
-					out.print(Main.bind("compile.oneClassFileGenerated"/*nonNLS*/));
-				} else {
-					out.print(Main.bind("compile.severalClassFilesGenerated"/*nonNLS*/,String.valueOf(exportedClassFilesCounter)));
-				}
-			}
+			if (showProgress) System.out.println();
 		}
-		if (showProgress) System.out.println();
 		if (systemExitWhenFinished){
 			out.flush();
 			System.exit(globalErrorsCount > 0 ? -1 : 0);
@@ -507,11 +512,13 @@ private void configure(String[] argv) throws InvalidInputException {
 	if (versionIDRequired) {
 		out.println(Main.bind("configure.version"/*nonNLS*/,this.versionID));
 		out.println();
+		proceed = false;
 		return;
 	}
 		
 	if (printUsageRequired) {
 		printUsage();
+		proceed = false;
 		return;
 	}	
 	
@@ -556,6 +563,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	} else {
 		showProgress = false;
 	}
+
 	if (repetitions == 0) {
 		repetitions = 1;
 	}
@@ -620,7 +628,6 @@ protected ICompilerRequestor getBatchRequestor() {
 protected CompilationUnit[] getCompilationUnits() throws InvalidInputException {
 	int fileCount = filenames.length;
 	CompilationUnit[] units = new CompilationUnit[fileCount];
-
 	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 	
 	for (int i = 0; i < fileCount; i++) {
@@ -722,12 +729,10 @@ protected void performCompilation() throws InvalidInputException {
 				getOptions(),
 		 		getBatchRequestor(),
 				getProblemFactory());
-
 	CompilerOptions options = batchCompiler.options;
 	// set the non-externally configurable options.
 	options.setVerboseMode(verbose);
 	options.produceReferenceInfo(produceRefInfo);
-	
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
