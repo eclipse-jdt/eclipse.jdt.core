@@ -191,6 +191,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope2"));
 	suite.addTest(new JavaSearchTests("testMemberTypeDeclaration"));
+	suite.addTest(new JavaSearchTests("testPatternMatchTypeDeclaration"));
 	
 	// type reference
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
@@ -1500,6 +1501,21 @@ public void testPatternMatchPackageReference() throws JavaModelException, CoreEx
 		"src/PackageReference/I.java PackageReference.I.foo() -> void [p3.p2.p]\n" +
 		"src/PackageReference/J.java PackageReference.J.foo() -> void [p3.p2.p]", 
 		resultCollector.toString());
+}
+/**
+ * Test pattern match type declaration
+ * (regression test for bug 17210 No match found when query contains '?')
+ */
+public void testPatternMatchTypeDeclaration() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"X?Z",
+		TYPE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals("src/r5/XYZ.java r5.XYZ [XYZ]", resultCollector.toString());
 }
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
