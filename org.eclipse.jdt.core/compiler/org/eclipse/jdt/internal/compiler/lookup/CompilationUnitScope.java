@@ -11,16 +11,10 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.CompoundNameVector;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
-import org.eclipse.jdt.internal.compiler.util.ObjectVector;
-import org.eclipse.jdt.internal.compiler.util.SimpleNameVector;
+import org.eclipse.jdt.internal.compiler.util.*;
 
 public class CompilationUnitScope extends Scope {
 	
@@ -515,14 +509,9 @@ void recordSimpleReference(char[] simpleName) {
 void recordTypeReference(TypeBinding type) {
 	if (referencedTypes == null) return; // not recording dependencies
 
-	if (type.isArrayType())
-		type = ((ArrayBinding) type).leafComponentType;
-
-	if (type.isBaseType()) return;
-	if (referencedTypes.containsIdentical(type)) return;
-	if (((ReferenceBinding) type).isLocalType()) return;
-
-	referencedTypes.add(type);
+	ReferenceBinding actualType = typeToRecord(type);
+	if (actualType != null && !referencedTypes.containsIdentical(actualType))
+		referencedTypes.add(actualType);
 }
 void recordTypeReferences(TypeBinding[] types) {
 	if (qualifiedReferences == null) return; // not recording dependencies
@@ -531,16 +520,11 @@ void recordTypeReferences(TypeBinding[] types) {
 	for (int i = 0, max = types.length; i < max; i++) {
 		// No need to record supertypes of method arguments & thrown exceptions, just the compoundName
 		// If a field/method is retrieved from such a type then a separate call does the job
-		TypeBinding type = types[i];
-		if (type.isArrayType())
-			type = ((ArrayBinding) type).leafComponentType;
-		if (!type.isBaseType()) {
-			ReferenceBinding actualType = (ReferenceBinding) type;
-			if (!actualType.isLocalType())
-				recordQualifiedReference(actualType.isMemberType()
-					? CharOperation.splitOn('.', actualType.readableName())
-					: actualType.compoundName);
-		}
+		ReferenceBinding actualType = typeToRecord(types[i]);
+		if (actualType != null)
+			recordQualifiedReference(actualType.isMemberType()
+				? CharOperation.splitOn('.', actualType.readableName())
+				: actualType.compoundName);
 	}
 }
 Binding resolveSingleTypeImport(ImportBinding importBinding) {
@@ -597,6 +581,21 @@ public void storeDependencyInfo() {
 }
 public String toString() {
 	return "--- CompilationUnit Scope : " + new String(referenceContext.getFileName()); //$NON-NLS-1$
+}
+private ReferenceBinding typeToRecord(TypeBinding type) {
+	if (type.isArrayType())
+		type = ((ArrayBinding) type).leafComponentType;
+
+	if (type.isParameterizedType())
+		type = type.erasure();
+	else if (type.isRawType())
+		type = ((RawTypeBinding) type).type.erasure();
+
+	if (type.isBaseType()) return null;
+	if (type.isTypeVariable()) return null;
+	if (((ReferenceBinding) type).isLocalType()) return null;
+
+	return (ReferenceBinding) type;
 }
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
