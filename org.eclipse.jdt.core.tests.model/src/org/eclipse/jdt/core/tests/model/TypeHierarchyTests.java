@@ -422,6 +422,41 @@ public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
 		types
 	);
 }
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion1() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q1");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q1.Z\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion2() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q2");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
 /**
  * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
  */
