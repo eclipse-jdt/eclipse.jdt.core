@@ -1582,12 +1582,15 @@ public class DeltaProcessor implements IResourceChangeListener {
 			switch(event.getType()){
 				case IResourceChangeEvent.PRE_DELETE :
 					try {
+						JavaModelManager.resourceTreeIsLocked();
 						if(resource.getType() == IResource.PROJECT 
 							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
 								
 							this.deleting((IProject)resource);
 						}
 					} catch(CoreException e){
+					} finally {
+						JavaModelManager.resourceTreeIsUnlocked();
 					}
 					return;
 					

@@ -825,6 +825,11 @@ public class Util {
 	 * Add a log entry
 	 */
 	public static void log(Throwable e, String message) {
+		Throwable nestedException;
+		if (e instanceof JavaModelException 
+				&& (nestedException = ((JavaModelException)e).getException()) != null) {
+			e = nestedException;
+		}
 		IStatus status= new Status(
 			IStatus.ERROR, 
 			JavaCore.getPlugin().getDescriptor().getUniqueIdentifier(), 
