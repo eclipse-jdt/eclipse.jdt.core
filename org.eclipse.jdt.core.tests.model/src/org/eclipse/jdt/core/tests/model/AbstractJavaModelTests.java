@@ -969,13 +969,17 @@ public void stopDeltas() {
  * Wait for autobuild notification to occur
  */
 public static void waitForAutoBuild() {
-	try {
-		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	} catch (OperationCanceledException e) {
-		e.printStackTrace();
-	} catch (InterruptedException e) {
-		e.printStackTrace();
-	}
+	boolean wasInterrupted = false;
+	do {
+		try {
+			Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+			wasInterrupted = false;
+		} catch (OperationCanceledException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			wasInterrupted = true;
+		}
+	} while (wasInterrupted);
 }
 protected void waitUntilIndexesReady() {
 	// dummy query for waiting until the indexes are ready
