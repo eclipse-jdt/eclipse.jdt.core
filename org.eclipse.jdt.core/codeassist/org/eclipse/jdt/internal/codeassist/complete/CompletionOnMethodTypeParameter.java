@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -17,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 public class CompletionOnMethodTypeParameter extends MethodDeclaration {
 	public CompletionOnMethodTypeParameter(TypeParameter[] typeParameters, CompilationResult compilationResult){
 		super(compilationResult);
+		this.selector = CharOperation.NO_CHAR;
 		this.typeParameters = typeParameters;
 		this.sourceStart = typeParameters[0].sourceStart;
 		this.sourceEnd = typeParameters[typeParameters.length - 1].sourceEnd;
