@@ -277,11 +277,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 	/*
 	 * Returns a binary binding corresonding to this key's compound name.
 	 * Returns null if not found.
-	 * This key's scanner should be positioned on the token after the top level type.
 	 */
 	private TypeBinding getBinaryBinding() {
-		TypeBinding binding = this.environment.getType(this.compoundName);
-		return getArrayBinding(this.dimension, binding);
+		return this.environment.getType(this.compoundName);
 	}
 	 
 	/*

@@ -997,4 +997,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			bindings);
 	}
 
+	/*
+	 * Ensures that a binary array parameterized type binding can be created using its key.
+	 */
+	public void test046() throws CoreException {
+		assertBindingCreated(
+			new String[] {},
+			"[Ljava/lang/Class<Ljava/lang/Object;>;");
+	}
+	
 }
