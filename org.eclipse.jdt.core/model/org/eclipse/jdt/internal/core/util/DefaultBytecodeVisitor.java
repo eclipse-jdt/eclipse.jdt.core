@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.util.OpcodeStringValues;
  * Default implementation of ByteCodeVisitor
  */
 public class DefaultBytecodeVisitor implements IBytecodeVisitor {
+	private static final String EMPTY_CLASS_NAME = "\"\""; //$NON-NLS-1$
 	private static final int T_BOOLEAN = 4;
 	private static final int T_CHAR = 5;
 	private static final int T_FLOAT = 6;
@@ -2210,7 +2211,12 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	private String returnConstantClassName(IConstantPoolEntry constantClass) {
-		return new String(constantClass.getClassInfoName());
+		char[] classInfoName = constantClass.getClassInfoName();
+		if (classInfoName.length == 0) {
+			return EMPTY_CLASS_NAME;
+		} else {
+			return new String(classInfoName);
+		}
 	}
 
 	private String returnDeclaringClassName(IConstantPoolEntry constantRef) {
