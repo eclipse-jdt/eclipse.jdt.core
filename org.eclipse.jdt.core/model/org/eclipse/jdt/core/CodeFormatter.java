@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.util.Map;
+
 /**
  * Specification for a generic source code formatter. This is still subject to change.
  * 
@@ -55,7 +57,30 @@ public abstract class CodeFormatter {
 	 *     positions. If set to <code>null</code>, then no positions are mapped.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
+	 * @param options options used to set the source level
 	 * @return the formatted output string
+	 * @see JavaCore#getOptions()
 	 */
-	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator);
+	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator, Map options);
+	
+	/** 
+	 * Formats the String <code>sourceString</code>, and returns a string containing the formatted version.
+	 * 
+	 * @param string the compilation unit source to format
+	 * @param start the beginning of the selected code (inclusive)
+	 * @param end the end of the selected code (exclusive)
+	 * @param indentationLevel the initial indentation level, used 
+	 *      to shift left/right the entire source fragment. An initial indentation
+	 *      level of zero has no effect.
+	 * @param positions an array of positions to map. These are
+	 *      character-based source positions inside the original source,
+	 * 		arranged in non-decreasing order, for which corresponding positions in 
+	 *     the formatted source will be computed (so as to relocate elements associated 
+	 *     with the original source). It updates the positions array with updated 
+	 *     positions. If set to <code>null</code>, then no positions are mapped.
+	 * @param lineSeparator the line separator to use in formatted source,
+	 *     if set to <code>null</code>, then the platform default one will be used.
+	 * @return the formatted output string of the selected code
+	 */
+	public abstract String format(String string, int start, int end, int indentationLevel, int[] positions, String lineSeparator);
 }
