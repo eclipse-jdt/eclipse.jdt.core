@@ -3236,15 +3236,22 @@ public final class AST {
 	 * 
 	 * @param document original document containing source code
 	 * for the compilation unit
-	 * @param options TODO missing spec for options
+	 * @param options the table of formatter options
+	 * (key type: <code>String</code>; value type: <code>String</code>);
+	 * or <code>null</code> to use the standard global options
+	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the recorded AST modifications
 	 * @throws RewriteException if <code>recordModifications</code>
 	 * was not called to enable recording
+	 * @throws IllegalArgumentException if document is null
 	 * @see CompilationUnit#rewrite(IDocument, Map)
 	 * @since 3.0
 	 */
 	TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
 		if(this.rewriter  == null) {
 			throw new RewriteException("Modifications record is not enabled"); //$NON-NLS-1$
 		}

@@ -836,7 +836,10 @@ public class CompilationUnit extends ASTNode {
 	 * 
 	 * @param document original document containing source code
 	 * for this compilation unit
-	 * @param options TODO missing spec for options
+	 * @param options the table of formatter options
+	 * (key type: <code>String</code>; value type: <code>String</code>);
+	 * or <code>null</code> to use the standard global options
+	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the recorded AST modifications
 	 * @throws RewriteException if <code>recordModifications</code>
