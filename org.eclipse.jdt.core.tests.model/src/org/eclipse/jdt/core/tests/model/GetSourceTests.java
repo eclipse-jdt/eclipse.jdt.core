@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
+
 import junit.framework.Test;
 
 public class GetSourceTests extends ModifyingResourceTests {
@@ -57,7 +58,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(GetSourceTests.class.getName());
-			suite.addTest(new GetSourceTests("testLocalVariable4"));
+			suite.addTest(new GetSourceTests("testNameRangeAnonymous"));
 			return suite;
 		}
 		
@@ -167,16 +168,10 @@ public class GetSourceTests extends ModifyingResourceTests {
 				"  }\n" +
 				"  void static bar() {}\n" +
 				"}";
-			createFile(
-				"/P/p/Y.java",
-					cuSource
-			);
+			createFile("/P/p/Y.java", cuSource);
 			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
 		
-			ISourceRange nameRange = method.getNameRange();
-			int start = nameRange.getOffset();
-			int end = start+nameRange.getLength();
-			String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
+			String actualSource = getNameSource(cuSource, method);
 			String expectedSource = "bar";
 			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 		} finally {
@@ -184,6 +179,40 @@ public class GetSourceTests extends ModifyingResourceTests {
 		}
 	}
 	
+	/*
+	 * Ensures the name range for an anonymous class is correct.
+	 * (regression test for bug 44450 Strange name range for anonymous classes)
+	 */
+	public void testNameRangeAnonymous() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    Y y = new Y() {};\n" +
+				"    class C {\n" +
+				"    }\n"+
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IType anoymous = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
+		
+			String actualSource = getNameSource(cuSource, anoymous);
+			String expectedSource = "Y";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
+	private String getNameSource(String cuSource, IMember member) throws JavaModelException {
+		ISourceRange nameRange = member.getNameRange();
+		int start = nameRange.getOffset();
+		int end = start+nameRange.getLength();
+		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
+		return actualSource;
+	}
+
 	/**
 	 * Ensure the source for a field contains the modifiers, field
 	 * type, name, and terminator, and unicode characters.

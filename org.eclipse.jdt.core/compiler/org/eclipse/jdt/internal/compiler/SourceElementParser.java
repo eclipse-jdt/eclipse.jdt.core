@@ -938,7 +938,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
-					typeDeclaration.sourceEnd, 
+					sourceEnd(typeDeclaration), 
 					interfaceNames);
 			}
 			if (nestedTypeIndex == typeNames.length) {
@@ -957,7 +957,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.modifiers, 
 						typeDeclaration.name, 
 						typeDeclaration.sourceStart, 
-						typeDeclaration.sourceEnd, 
+						sourceEnd(typeDeclaration), 
 						null, 
 						interfaceNames); 
 				}
@@ -968,7 +968,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.modifiers, 
 						typeDeclaration.name, 
 						typeDeclaration.sourceStart, 
-						typeDeclaration.sourceEnd, 
+						sourceEnd(typeDeclaration), 
 						CharOperation.concatWith(superclass.getTypeName(), '.'), 
 						interfaceNames); 
 				}
@@ -1037,6 +1037,14 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		nestedTypeIndex--;
 	}
 }
+private int sourceEnd(TypeDeclaration typeDeclaration) {
+	if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
+		return ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type.sourceEnd;
+	} else {
+		return typeDeclaration.sourceEnd;
+	}
+}
+
 public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	int start, 
