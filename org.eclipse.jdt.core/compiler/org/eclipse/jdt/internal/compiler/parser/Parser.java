@@ -3520,10 +3520,10 @@ protected void consumeStatementDo() {
 	intPtr--;
 
 	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
+	Statement action = (Statement) astStack[astPtr];
+	if (action instanceof EmptyStatement) {
 		expressionLengthPtr--;
-		astStack[++astPtr] = 
+		astStack[astPtr] = 
 			new DoStatement(
 				expressionStack[expressionPtr--], 
 				null, 
@@ -3534,7 +3534,7 @@ protected void consumeStatementDo() {
 		astStack[astPtr] = 
 			new DoStatement(
 				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
+				action, 
 				intStack[intPtr--], 
 				endPosition); 
 	}
@@ -3554,9 +3554,9 @@ protected void consumeStatementFor() {
 	boolean scope = true;
 
 	//statements
-	if (astLengthStack[astLengthPtr--] != 0) {
-		action = (Statement) astStack[astPtr--];
-	} else {
+	astLengthPtr--; // we need to consume it
+	action = (Statement) astStack[astPtr--];
+	if (action instanceof EmptyStatement) {
 		action = null;
 	}
 
@@ -3627,33 +3627,29 @@ protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
 
 	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
+	expressionLengthPtr--;
+	Statement thenStatement = (Statement) astStack[astPtr];
+	if (thenStatement instanceof Block) {
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				intStack[intPtr--], 
+				endStatementPosition); 
+	} else if (thenStatement instanceof EmptyStatement) {
+		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
 				endPosition); 
 	} else {
-		expressionLengthPtr--;
-		Statement thenStatement = (Statement) astStack[astPtr];
-		if (thenStatement instanceof Block) {
-			astStack[astPtr] = 
-				new IfStatement(
-					expressionStack[expressionPtr--], 
-					thenStatement, 
-					intStack[intPtr--], 
-					endStatementPosition); 
-		} else {
-			astStack[astPtr] = 
-				new IfStatement(
-					expressionStack[expressionPtr--], 
-					thenStatement, 
-					intStack[intPtr--], 
-					endPosition); 
-		}
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				intStack[intPtr--], 
+				endPosition); 
 	}
 }
 protected void consumeStatementIfWithElse() {
@@ -3662,51 +3658,34 @@ protected void consumeStatementIfWithElse() {
 
 	int lengthE, lengthT;
 	lengthE = astLengthStack[astLengthPtr--]; //first decrement
+	lengthT = astLengthStack[astLengthPtr];
 
-	if (((lengthT = astLengthStack[astLengthPtr]) != 0) && (lengthE != 0)) {
-		expressionLengthPtr--;
-		//optimize the push/pop
-		Statement elseStatement = (Statement) astStack[astPtr];
-		if (elseStatement instanceof Block) {
-			astStack[--astPtr] = 
-				new IfStatement(
-					expressionStack[expressionPtr--], 
-					(Statement) astStack[astPtr], 
-					elseStatement, 
-					intStack[intPtr--], 
-					endStatementPosition); 
-		} else {
-			astStack[--astPtr] = 
-				new IfStatement(
-					expressionStack[expressionPtr--], 
-					(Statement) astStack[astPtr], 
-					elseStatement, 
-					intStack[intPtr--], 
-					endPosition); 
-		}
+	expressionLengthPtr--;
+	//optimize the push/pop
+	Statement elseStatement = (Statement) astStack[astPtr--];
+	Statement thenStatement = (Statement) astStack[astPtr];
+	if (elseStatement instanceof EmptyStatement) {
+		elseStatement = Block.None;
+	}
+	if (thenStatement instanceof EmptyStatement) {
+		thenStatement = Block.None;
+	}
+	if (elseStatement instanceof Block) {
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				elseStatement, 
+				intStack[intPtr--], 
+				endStatementPosition); 
 	} else {
-		astLengthPtr--; //second decrement
-		expressionLengthPtr--;
-		//here only one of lengthE/T can be different 0
-		Statement thenStatement = (lengthT == 0) ? Block.None : (Statement) astStack[astPtr--];
-		Statement elseStatement = (lengthE == 0) ? Block.None : (Statement) astStack[astPtr--];
-		if (elseStatement instanceof Block) {
-			pushOnAstStack(
-				new IfStatement(
-					expressionStack[expressionPtr--],
-					thenStatement,
-					elseStatement,
-					intStack[intPtr--],
-					endStatementPosition));	
-		} else {
-			pushOnAstStack(
-				new IfStatement(
-					expressionStack[expressionPtr--],
-					thenStatement,
-					elseStatement,
-					intStack[intPtr--],
-					endPosition));	
-		}			
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				elseStatement, 
+				intStack[intPtr--], 
+				endPosition); 
 	}
 }
 protected void consumeStatementLabel() {
@@ -3715,22 +3694,22 @@ protected void consumeStatementLabel() {
 
 	//optimize push/pop
 
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		astStack[++astPtr] = 
-			new LabeledStatement(identifierStack[identifierPtr], Block.None, (int) 
-				(identifierPositionStack[identifierPtr--] >>> 32), 
+	Statement stmt = (Statement) astStack[astPtr];
+	if (stmt instanceof EmptyStatement) {
+		astStack[astPtr] = 
+			new LabeledStatement(
+				identifierStack[identifierPtr], 
+				Block.None, 
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
 				endStatementPosition); 
 	} else {
 		astStack[astPtr] = 
 			new LabeledStatement(
 				identifierStack[identifierPtr], 
-				(Statement) astStack[astPtr], 
-				(int)
-				(identifierPositionStack[identifierPtr--] >>> 32), 
+				stmt, 
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
 				endStatementPosition); 
 	}
-
 	identifierLengthPtr--;
 }
 protected void consumeStatementReturn() {
@@ -3842,26 +3821,23 @@ protected void consumeStatementWhile() {
 	// WhileStatement ::= 'while' '(' Expression ')' Statement
 	// WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
 
-	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
+	Statement action = (Statement) astStack[astPtr];
+	expressionLengthPtr--;
+	if (action instanceof Block) {
+		astStack[astPtr] = 
 			new WhileStatement(
 				expressionStack[expressionPtr--], 
-				null, 
+				action, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	} else {
-		Statement action = (Statement) astStack[astPtr];
-		expressionLengthPtr--;
-		if (action instanceof Block) {
+		if (action instanceof EmptyStatement) {
 			astStack[astPtr] = 
 				new WhileStatement(
 					expressionStack[expressionPtr--], 
-					action, 
+					null, 
 					intStack[intPtr--], 
-					endStatementPosition); 
+					endPosition); 
 		} else {
 			astStack[astPtr] = 
 				new WhileStatement(
@@ -3869,7 +3845,6 @@ protected void consumeStatementWhile() {
 					action, 
 					intStack[intPtr--], 
 					endPosition); 
-		
 		}
 	}
 }

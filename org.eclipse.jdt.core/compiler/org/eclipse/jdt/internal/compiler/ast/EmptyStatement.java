@@ -16,6 +16,10 @@ public class EmptyStatement extends Statement {
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream){
+		if ((bits & IsReachableMASK) == 0) {
+			return;
+		}
+		codeStream.recordPositionsFrom(codeStream.position, this);
 	}
 	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
