@@ -4823,4 +4823,124 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is boxed", classInstanceCreation.resolveBoxing());
 		assertFalse("Is unboxed", classInstanceCreation.resolveUnboxing());
     }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0160() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(1, new Integer(2), -3);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void test(int ... i) {}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+    	assertEquals("Not method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 3, arguments.size());
+		Expression argument = (Expression) arguments.get(0);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+		argument = (Expression) arguments.get(1);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertTrue("Not unboxed", argument.resolveUnboxing());
+		argument = (Expression) arguments.get(2);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+    }
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0161() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		new Y().test(new Integer(1), 1);\n" +
+				"		new Y().test(1, new Integer(1));\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void test(Integer i, int j) { System.out.print(1); }\n" +
+				"	void test(int i, Integer j) { System.out.print(2); }\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+    	assertEquals("Not method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 2, arguments.size());
+		Expression argument = (Expression) arguments.get(0);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+		argument = (Expression) arguments.get(1);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+		getASTNode(compilationUnit, 0, 0, 1);
+    	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		expressionStatement = (ExpressionStatement) node;
+		expression = expressionStatement.getExpression();
+    	assertEquals("Not method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		methodInvocation = (MethodInvocation) expression;
+		arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 2, arguments.size());
+		argument = (Expression) arguments.get(0);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+		argument = (Expression) arguments.get(1);
+		assertFalse("Is boxed", argument.resolveBoxing());
+		assertFalse("Is unboxed", argument.resolveUnboxing());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
+    public void test0162() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		int i = Y.test();\n" +
+				"		System.out.print(i);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static Byte test() { return new Byte((byte) 1); }\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertFalse("Is boxed", expression.resolveBoxing());
+		assertTrue("Not unboxed", expression.resolveUnboxing());
+    }
 }
