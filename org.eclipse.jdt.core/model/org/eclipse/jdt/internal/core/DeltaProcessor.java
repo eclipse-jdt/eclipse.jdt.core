@@ -196,7 +196,7 @@ public class DeltaProcessor {
 										project.setOutputLocation0(outputLocation);
 									}
 									try {
-										project.setRawClasspath(fileEntries, null, false);
+										project.setRawClasspath(fileEntries, null, true, false, project.getExpandedClasspath(true));
 									} catch (JavaModelException e) { // undo output location change
 										project.setOutputLocation0(oldOutputLocation);
 									}

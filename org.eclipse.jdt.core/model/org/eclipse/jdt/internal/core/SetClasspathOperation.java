@@ -26,6 +26,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	IClasspathEntry[] oldExpandedPath;
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
+	boolean forceSave;
 
 	/**
 	 * When executed, this operation sets the classpath of the given project.
@@ -34,12 +35,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IJavaProject project,
 		IClasspathEntry[] oldExpandedPath,
 		IClasspathEntry[] newRawPath,
-		boolean canChangeResource) {
+		boolean canChangeResource,
+		boolean forceSave) {
 
 		super(new IJavaElement[] { project });
 		this.oldExpandedPath = oldExpandedPath;
 		this.newRawPath = newRawPath;
 		this.canChangeResource = canChangeResource;
+		this.forceSave = forceSave;
 	}
 
 	/**
@@ -110,7 +113,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				manager,
 				project);
 		} else {
-			project.saveClasspath(this.canChangeResource);
+			project.saveClasspath(this.forceSave);
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
@@ -195,7 +198,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		if (hasDelta) {
 			try {
-				project.saveClasspath(this.canChangeResource);
+				project.saveClasspath(this.forceSave);
 			} catch (JavaModelException e) {
 			}
 			this.addDelta(delta);
@@ -287,38 +290,50 @@ public class SetClasspathOperation extends JavaModelOperation {
 			IProjectDescription description = project.getDescription();
 			 
 			IProject[] projectReferences = description.getReferencedProjects();
-			ObjectSet updatedReferences = new ObjectSet(projectReferences.length);
-			updatedReferences.addAll(projectReferences);
+			
+			ObjectSet oldReferences = new ObjectSet(projectReferences.length);
+			for (int i = 0; i < projectReferences.length; i++){
+				String projectName = projectReferences[i].getName();
+				oldReferences.add(projectName);
+			}
+			ObjectSet newReferences = (ObjectSet)oldReferences.clone();
 
-			ObjectSet removed = new ObjectSet(oldRequired.length);
 			for (int i = 0; i < oldRequired.length; i++){
 				String projectName = oldRequired[i];
-				removed.add(projectName);
+				newReferences.remove(projectName);
 			}
-			ObjectSet added = new ObjectSet(newRequired.length);
 			for (int i = 0; i < newRequired.length; i++){
 				String projectName = newRequired[i];
-				if (!removed.remove(projectName)){
-					added.add(projectName);
-				}
+				newReferences.add(projectName);
 			}
-			if (!added.isEmpty() || !removed.isEmpty()){
-				Enumeration enum = added.elements();
+			boolean hasDifferences;
+			if (newReferences.size() == oldReferences.size()){
+				hasDifferences = false;
+				Enumeration enum = oldReferences.elements();
 				while (enum.hasMoreElements()){
-					String name = (String)enum.nextElement();
-					updatedReferences.add(project.getWorkspace().getRoot().getProject(name));
+					String oldName = (String)enum.nextElement();
+					if (!newReferences.contains(oldName)){
+						hasDifferences = true;
+						break;
+					}
 				}
-				enum = removed.elements();
+			} else {
+				hasDifferences = true;
+			}
+			
+			if (hasDifferences){
+				IProject[] requiredProjectArray = new IProject[newReferences.size()];
+				IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
+				Enumeration enum = newReferences.elements();
+				int index = 0;
 				while (enum.hasMoreElements()){
-					String name = (String)enum.nextElement();
-					updatedReferences.remove(project.getWorkspace().getRoot().getProject(name));
+					String newName = (String)enum.nextElement();
+					requiredProjectArray[index++] = wksRoot.getProject(newName);
 				}
-
-				IProject[] requiredProjectArray = new IProject[updatedReferences.size()];
-				updatedReferences.copyInto(requiredProjectArray);
 				description.setReferencedProjects(requiredProjectArray);
 				project.setDescription(description, this.fMonitor);
 			}
+		} catch(CloneNotSupportedException e) {
 		} catch(CoreException e){
 		}
 	}

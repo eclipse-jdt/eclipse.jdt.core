@@ -1860,19 +1860,9 @@ public class JavaProject
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, monitor, true, getExpandedClasspath(true));
+		setRawClasspath(entries, monitor, true, true, getExpandedClasspath(true));
 	}
 
-	/**
-	 * @see IJavaProject
-	 */
-	public void setRawClasspath(
-		IClasspathEntry[] entries,
-		IProgressMonitor monitor,
-		boolean canChangeResource)
-		throws JavaModelException {
-		setRawClasspath(entries, monitor, canChangeResource, getExpandedClasspath(true));
-	}
 
 	/**
 	 * @see IJavaProject
@@ -1881,6 +1871,7 @@ public class JavaProject
 		IClasspathEntry[] newEntries,
 		IProgressMonitor monitor,
 		boolean canChangeResource,
+		boolean forceSave,
 		IClasspathEntry[] oldClasspath)
 		throws JavaModelException {
 
@@ -1897,7 +1888,7 @@ public class JavaProject
 				newRawPath = defaultClasspath();
 			}
 			SetClasspathOperation op =
-				new SetClasspathOperation(this, oldClasspath, newRawPath, canChangeResource);
+				new SetClasspathOperation(this, oldClasspath, newRawPath, canChangeResource, forceSave);
 			runOperation(op, monitor);
 		} catch (JavaModelException e) {
 			manager.flush();
@@ -1987,7 +1978,7 @@ public class JavaProject
 
 	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource) throws JavaModelException {
 
-		setRawClasspath(getRawClasspath(), monitor, canChangeResource);
+		setRawClasspath(getRawClasspath(), monitor, canChangeResource, false, getExpandedClasspath(true));
 	}
 
 	/**

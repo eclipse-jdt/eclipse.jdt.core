@@ -1157,9 +1157,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						.setRawClasspath(
 							project.getRawClasspath(),
 							monitor,
+							true,
 							project.getWorkspace().isAutoBuilding(),
-					// force build if in auto build mode
-					 (IClasspathEntry[]) affectedProjects.get(project));
+							// force build if in auto build mode
+							(IClasspathEntry[]) affectedProjects.get(project));
 				}
 			} finally {
 				manager.mergeDeltas();
