@@ -195,7 +195,7 @@ public final class AST {
 	 * outset.
 	 * </p>
 	 * 
-	 * @param unit an org.eclipse.jdt.core.ICompilationUnit which contains the source to be parsed
+	 * @param unit the Java model compilation unit whose source code is to be parsed
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @return the compilation unit node
@@ -270,10 +270,10 @@ public final class AST {
 	 * the source provided will hide the existing type.
 	 * </p>
 	 * 
-	 * @param source char[] which contains the source to be parsed
-	 * @param unitName java.lang.String The name of the compilation unit to be parsed
-	 * @param javaProject org.eclipse.jdt.core.IJavaProject The IJavaProject used to retrieve the
-	 * name environment. If this is null, then the bindings are not resolved.
+	 * @param source the string to be parsed as a Java compilation unit
+	 * @param unitName the name of the compilation unit to be parsed
+	 * @param javaProject the Java project used to resolve names, or 
+	 *    <code>null</code> if bindings are not resolved
 	 * @return the compilation unit node
 	 * @see ASTNode#getFlags
 	 * @see ASTNode#MALFORMED
