@@ -1840,29 +1840,22 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 	// perform some emulation work in case there is some and we are inside a local type only
 	ReferenceBinding[] syntheticArgumentTypes;
 
-	// generate the enclosing instance first
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
+		boolean hasExtraEnclosingInstance = enclosingInstance != null;
+		
 		ReferenceBinding targetEnclosingType = targetType.isAnonymousType() ? 
 				targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
 				: targetType.enclosingType();
 				
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
-			if (enclosingInstance != null && i == 0) {
-				if (syntheticArgType != targetEnclosingType) {
-					currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
-				}
-				//if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
+				hasExtraEnclosingInstance = false;
 				enclosingInstance.generateCode(currentScope, this, true);
-				if (syntheticArgType == targetEnclosingType){
-					this.dup();
-				} 
+				this.dup();
 				this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
 				this.pop();
-				//} else {
-				//	enclosingInstance.generateCode(currentScope, this, syntheticArgType == targetEnclosingType);
-				//}			
 			} else {
 				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
 				if (emulationPath == null) {
@@ -1872,16 +1865,15 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 				}
 			}
 		}
+		if (hasExtraEnclosingInstance){
+			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
+		}
 	} else { // we may still have an enclosing instance to consider
 		if (enclosingInstance != null) {
 			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
-			//if (currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
 			enclosingInstance.generateCode(currentScope, this, true);
 			this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
 			this.pop();
-			//} else {
-			//	enclosingInstance.generateCode(currentScope, this, false); // do not want the value
-			//}			
 		}
 	}
 	// generate the synthetic outer arguments then
