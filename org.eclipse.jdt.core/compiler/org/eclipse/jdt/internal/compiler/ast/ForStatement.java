@@ -51,6 +51,7 @@ public class ForStatement extends Statement {
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
+			
 		breakLabel = new Label();
 		continueLabel = new Label();
 
@@ -64,11 +65,15 @@ public class ForStatement extends Statement {
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 
+		boolean conditionIsInlinedToTrue = 
+			condition == null || (condition.constant != NotAConstant && condition.constant.booleanValue() == true);
+		boolean conditionIsInlinedToFalse = 
+			! conditionIsInlinedToTrue && (condition.constant != NotAConstant && condition.constant.booleanValue() == false);
+		
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
 		if (condition != null) {
-			if ((condition.constant == NotAConstant)
-				|| (condition.constant.booleanValue() != true)) {
+			if (!conditionIsInlinedToTrue) {
 				flowInfo =
 					condition.analyseCode(
 						scope,
@@ -84,11 +89,12 @@ public class ForStatement extends Statement {
 		if ((action == null) || action.isEmptyBlock()) {
 			if (condLoopContext != null)
 				condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
-			if ((condition == null)
-				|| ((condition.constant != NotAConstant)
-					&& (condition.constant.booleanValue() == true))) {
+			if (conditionIsInlinedToTrue) {
 				return FlowInfo.DeadEnd;
 			} else {
+				if (conditionIsInlinedToFalse){
+					continueLabel = null; // for(;false;p());
+				}
 				actionInfo = flowInfo.initsWhenTrue().copy();
 				loopingContext =
 					new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
@@ -100,11 +106,8 @@ public class ForStatement extends Statement {
 			condIfTrueInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(initsWhenTrue);
 
-				actionInfo =
-					((condition != null)
-						&& (condition.constant != NotAConstant)
-						&& (condition.constant.booleanValue() == false))
-					? 	FlowInfo.DeadEnd  // unreachable when condition inlined to false
+				actionInfo = conditionIsInlinedToFalse
+					? FlowInfo.DeadEnd  // unreachable when condition inlined to false
 					: initsWhenTrue.copy();
 			if (!actionInfo.complainIfUnreachable(action, scope)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
@@ -135,9 +138,7 @@ public class ForStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if ((condition == null)
-			|| ((condition.constant != NotAConstant)
-				&& (condition.constant.booleanValue() == true))) {
+		if (conditionIsInlinedToTrue) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(
 					mergedInfo = loopingContext.initsOnBreak);

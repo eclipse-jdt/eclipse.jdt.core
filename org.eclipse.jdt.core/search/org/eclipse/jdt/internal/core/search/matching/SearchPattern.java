@@ -15,15 +15,16 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -82,13 +83,13 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalSymbols.TokenNameEOF){
+	while (token != ITerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideName :
 				switch (token) {
-					case TerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameDOT:
 						if (declaringQualification == null){
 							if (typeName == null) return null;
 							declaringQualification = typeName;
@@ -98,15 +99,15 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						}
 						typeName = null;
 						break;
-					case TerminalSymbols.TokenNameLPAREN:
+					case ITerminalSymbols.TokenNameLPAREN:
 						parameterTypes = new String[5];
 						parameterCount = 0;
 						mode = InsideParameter;
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
 						if (typeName == null) {
 							typeName = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -122,7 +123,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case TerminalSymbols.TokenNameCOMMA:
+					case ITerminalSymbols.TokenNameCOMMA:
 						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
@@ -130,7 +131,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						parameterTypes[parameterCount++] = parameterType;
 						parameterType = null;
 						break;
-					case TerminalSymbols.TokenNameRPAREN:
+					case ITerminalSymbols.TokenNameRPAREN:
 						foundClosingParenthesis = true;
 						if (parameterType != null){
 							if (parameterTypes.length == parameterCount){
@@ -139,20 +140,20 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 							parameterTypes[parameterCount++] = parameterType;
 						}
 						break;
-					case TerminalSymbols.TokenNameDOT:
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
-					case TerminalSymbols.TokenNameLBRACKET:
-					case TerminalSymbols.TokenNameRBRACKET:
-					case TerminalSymbols.TokenNameboolean:
-					case TerminalSymbols.TokenNamebyte:
-					case TerminalSymbols.TokenNamechar:
-					case TerminalSymbols.TokenNamedouble:
-					case TerminalSymbols.TokenNamefloat:
-					case TerminalSymbols.TokenNameint:
-					case TerminalSymbols.TokenNamelong:
-					case TerminalSymbols.TokenNameshort:
-					case TerminalSymbols.TokenNamevoid:
+					case ITerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameLBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameboolean:
+					case ITerminalSymbols.TokenNamebyte:
+					case ITerminalSymbols.TokenNamechar:
+					case ITerminalSymbols.TokenNamedouble:
+					case ITerminalSymbols.TokenNamefloat:
+					case ITerminalSymbols.TokenNameint:
+					case ITerminalSymbols.TokenNamelong:
+					case ITerminalSymbols.TokenNameshort:
+					case ITerminalSymbols.TokenNamevoid:
 						if (parameterType == null){
 							parameterType = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -272,13 +273,13 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalSymbols.TokenNameEOF){
+	while (token != ITerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
 				switch (token) {
-					case TerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameDOT:
 						if (declaringType == null){
 							if (fieldName == null) return null;
 							declaringType = fieldName;
@@ -290,12 +291,12 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						if (!(Scanner.TokenNameWHITESPACE == lastToken 
-							|| TerminalSymbols.TokenNameDOT == lastToken)){
+							|| ITerminalSymbols.TokenNameDOT == lastToken)){
 							mode = InsideType;
 						}
 						break;
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
 						if (fieldName == null) {
 							fieldName = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -311,20 +312,20 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case TerminalSymbols.TokenNameDOT:
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
-					case TerminalSymbols.TokenNameLBRACKET:
-					case TerminalSymbols.TokenNameRBRACKET:
-					case TerminalSymbols.TokenNameboolean:
-					case TerminalSymbols.TokenNamebyte:
-					case TerminalSymbols.TokenNamechar:
-					case TerminalSymbols.TokenNamedouble:
-					case TerminalSymbols.TokenNamefloat:
-					case TerminalSymbols.TokenNameint:
-					case TerminalSymbols.TokenNamelong:
-					case TerminalSymbols.TokenNameshort:
-					case TerminalSymbols.TokenNamevoid:
+					case ITerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameLBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameboolean:
+					case ITerminalSymbols.TokenNamebyte:
+					case ITerminalSymbols.TokenNamechar:
+					case ITerminalSymbols.TokenNamedouble:
+					case ITerminalSymbols.TokenNamefloat:
+					case ITerminalSymbols.TokenNameint:
+					case ITerminalSymbols.TokenNamelong:
+					case ITerminalSymbols.TokenNameshort:
+					case ITerminalSymbols.TokenNamevoid:
 						if (type == null){
 							type = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -488,13 +489,13 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalSymbols.TokenNameEOF){
+	while (token != ITerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideSelector :
 				switch (token) {
-					case TerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameDOT:
 						if (declaringType == null){
 							if (selector == null) return null;
 							declaringType = selector;
@@ -504,19 +505,19 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						}
 						selector = null;
 						break;
-					case TerminalSymbols.TokenNameLPAREN:
+					case ITerminalSymbols.TokenNameLPAREN:
 						parameterTypes = new String[5];
 						parameterCount = 0;
 						mode = InsideParameter;
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						if (!(Scanner.TokenNameWHITESPACE == lastToken 
-							|| TerminalSymbols.TokenNameDOT == lastToken)){
+							|| ITerminalSymbols.TokenNameDOT == lastToken)){
 							mode = InsideReturnType;
 						}
 						break;
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
 						if (selector == null) {
 							selector = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -532,7 +533,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case TerminalSymbols.TokenNameCOMMA:
+					case ITerminalSymbols.TokenNameCOMMA:
 						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
@@ -540,7 +541,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						parameterTypes[parameterCount++] = parameterType;
 						parameterType = null;
 						break;
-					case TerminalSymbols.TokenNameRPAREN:
+					case ITerminalSymbols.TokenNameRPAREN:
 						foundClosingParenthesis = true;
 						if (parameterType != null){
 							if (parameterTypes.length == parameterCount){
@@ -550,20 +551,20 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						}
 						mode = InsideReturnType;
 						break;
-					case TerminalSymbols.TokenNameDOT:
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
-					case TerminalSymbols.TokenNameLBRACKET:
-					case TerminalSymbols.TokenNameRBRACKET:
-					case TerminalSymbols.TokenNameboolean:
-					case TerminalSymbols.TokenNamebyte:
-					case TerminalSymbols.TokenNamechar:
-					case TerminalSymbols.TokenNamedouble:
-					case TerminalSymbols.TokenNamefloat:
-					case TerminalSymbols.TokenNameint:
-					case TerminalSymbols.TokenNamelong:
-					case TerminalSymbols.TokenNameshort:
-					case TerminalSymbols.TokenNamevoid:
+					case ITerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameLBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameboolean:
+					case ITerminalSymbols.TokenNamebyte:
+					case ITerminalSymbols.TokenNamechar:
+					case ITerminalSymbols.TokenNamedouble:
+					case ITerminalSymbols.TokenNamefloat:
+					case ITerminalSymbols.TokenNameint:
+					case ITerminalSymbols.TokenNamelong:
+					case ITerminalSymbols.TokenNameshort:
+					case ITerminalSymbols.TokenNamevoid:
 						if (parameterType == null){
 							parameterType = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -579,20 +580,20 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case TerminalSymbols.TokenNameDOT:
-					case TerminalSymbols.TokenNameIdentifier:
-					case TerminalSymbols.TokenNameMULTIPLY:
-					case TerminalSymbols.TokenNameLBRACKET:
-					case TerminalSymbols.TokenNameRBRACKET:
-					case TerminalSymbols.TokenNameboolean:
-					case TerminalSymbols.TokenNamebyte:
-					case TerminalSymbols.TokenNamechar:
-					case TerminalSymbols.TokenNamedouble:
-					case TerminalSymbols.TokenNamefloat:
-					case TerminalSymbols.TokenNameint:
-					case TerminalSymbols.TokenNamelong:
-					case TerminalSymbols.TokenNameshort:
-					case TerminalSymbols.TokenNamevoid:
+					case ITerminalSymbols.TokenNameDOT:
+					case ITerminalSymbols.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameLBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameboolean:
+					case ITerminalSymbols.TokenNamebyte:
+					case ITerminalSymbols.TokenNamechar:
+					case ITerminalSymbols.TokenNamedouble:
+					case ITerminalSymbols.TokenNamefloat:
+					case ITerminalSymbols.TokenNameint:
+					case ITerminalSymbols.TokenNamelong:
+					case ITerminalSymbols.TokenNameshort:
+					case ITerminalSymbols.TokenNamevoid:
 						if (returnType == null){
 							returnType = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -1115,24 +1116,24 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalSymbols.TokenNameEOF){
+	while (token != ITerminalSymbols.TokenNameEOF){
 		switch (token) {
 			case Scanner.TokenNameWHITESPACE:
 				break;
-			case TerminalSymbols.TokenNameDOT:
-			case TerminalSymbols.TokenNameIdentifier:
-			case TerminalSymbols.TokenNameMULTIPLY:
-			case TerminalSymbols.TokenNameLBRACKET:
-			case TerminalSymbols.TokenNameRBRACKET:
-			case TerminalSymbols.TokenNameboolean:
-			case TerminalSymbols.TokenNamebyte:
-			case TerminalSymbols.TokenNamechar:
-			case TerminalSymbols.TokenNamedouble:
-			case TerminalSymbols.TokenNamefloat:
-			case TerminalSymbols.TokenNameint:
-			case TerminalSymbols.TokenNamelong:
-			case TerminalSymbols.TokenNameshort:
-			case TerminalSymbols.TokenNamevoid:
+			case ITerminalSymbols.TokenNameDOT:
+			case ITerminalSymbols.TokenNameIdentifier:
+			case ITerminalSymbols.TokenNameMULTIPLY:
+			case ITerminalSymbols.TokenNameLBRACKET:
+			case ITerminalSymbols.TokenNameRBRACKET:
+			case ITerminalSymbols.TokenNameboolean:
+			case ITerminalSymbols.TokenNamebyte:
+			case ITerminalSymbols.TokenNamechar:
+			case ITerminalSymbols.TokenNamedouble:
+			case ITerminalSymbols.TokenNamefloat:
+			case ITerminalSymbols.TokenNameint:
+			case ITerminalSymbols.TokenNamelong:
+			case ITerminalSymbols.TokenNameshort:
+			case ITerminalSymbols.TokenNamevoid:
 				if (type == null){
 					type = new String(scanner.getCurrentTokenSource());
 				} else {

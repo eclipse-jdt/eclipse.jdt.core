@@ -937,7 +937,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 }
 public CompilationUnitDeclaration endParse(int act) {
 	if (scanner.recordLineSeparator) {
-		requestor.acceptLineSeparatorPositions(scanner.lineEnds());
+		requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 	}
 	return super.endParse(act);
 }

@@ -34,8 +34,10 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.JavaModelException; 
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -68,10 +70,8 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.UnresolvedReferenceBinding;
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -892,7 +892,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
 			}
-			if (token != TerminalSymbols.TokenNameEOF) {
+			if (token != ITerminalSymbols.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < tokenNumber
@@ -924,7 +924,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				}
 				return;
 			}
-		} while (token != TerminalSymbols.TokenNameEOF);
+		} while (token != ITerminalSymbols.TokenNameEOF);
 
 	}
 	/**
@@ -959,7 +959,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
 			}
-			if (token != TerminalSymbols.TokenNameEOF) {
+			if (token != ITerminalSymbols.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < length
@@ -996,7 +996,7 @@ public IType lookupType(TypeBinding typeBinding) {
 			if (accuracyIndex < accuracies.length-1) {
 				accuracyIndex++;
 			}
-		} while (token != TerminalSymbols.TokenNameEOF);
+		} while (token != ITerminalSymbols.TokenNameEOF);
 
 	}
 

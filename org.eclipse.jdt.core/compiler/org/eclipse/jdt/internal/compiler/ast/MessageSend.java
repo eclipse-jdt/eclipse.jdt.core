@@ -253,6 +253,7 @@ public void setActualReceiverType(ReferenceBinding receiverType) {
 }
 public void setDepth(int depth) {
 	if (depth > 0) {
+		bits &= ~DepthMASK; // flush previous depth if any
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
 }
@@ -271,7 +272,9 @@ public String toStringExpression(){
 		{	s = s + arguments[i].toStringExpression();
 			if ( i != arguments.length -1 ) s = s + " , " ;};; //$NON-NLS-1$
 	s =s + ")" ; //$NON-NLS-1$
-	return s;}
+	return s;
+}
+
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		receiver.traverse(visitor, blockScope);

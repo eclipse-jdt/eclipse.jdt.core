@@ -325,30 +325,37 @@ public class BlockScope extends Scope {
 			&& currentType != targetEnclosingType){
 			/*&& !targetEnclosingType.isSuperclassOf(currentType)*/
 
-			NestedTypeBinding currentNestedType = (NestedTypeBinding) currentType;
 			if (useDirectReference) {
 				// the target enclosing type is not in scope, we directly refer it
 				// must also add a synthetic field if we're not inside a constructor
+				NestedTypeBinding currentNestedType = (NestedTypeBinding) currentType;
 				if (methodScope().isInsideInitializerOrConstructor())
 					currentNestedType.addSyntheticArgument(targetEnclosingType);
 				else
 					currentNestedType.addSyntheticArgumentAndField(targetEnclosingType);
-			} else if (currentNestedType.isLocalType()) {
-				// direct enclosing instance link
-				// must also add a synthetic field if we're not inside a constructor
-				currentType = currentNestedType.enclosingType;
-				if (methodScope().isInsideInitializerOrConstructor())
-					currentNestedType.addSyntheticArgument(currentType);
-				else
-					currentNestedType.addSyntheticArgumentAndField(currentType);
-				// further indirect cases
-				while (currentType.isNestedType()
-					&& currentType != targetEnclosingType
-					&& !targetEnclosingType.isSuperclassOf(currentType)) {
-
-					currentNestedType = (NestedTypeBinding) currentType;
+					
+			} else { // indirect reference sequence
+				int depth = 0;
+				
+				// saturate all the way up until reaching compatible enclosing type
+				while (currentType.isLocalType()){
+					NestedTypeBinding currentNestedType = (NestedTypeBinding) currentType;
 					currentType = currentNestedType.enclosingType;
-					currentNestedType.addSyntheticArgumentAndField(currentType);
+					
+					if (depth == 0){
+						if (methodScope().isInsideInitializerOrConstructor()) {
+							// must also add a synthetic field if we're not inside a constructor
+							currentNestedType.addSyntheticArgument(currentType);
+						} else {
+							currentNestedType.addSyntheticArgumentAndField(currentType);
+						}					
+					} else if (currentNestedType == targetEnclosingType 
+										|| targetEnclosingType.isSuperclassOf(currentNestedType)) {
+							break;
+					} else {
+						currentNestedType.addSyntheticArgumentAndField(currentType);
+					} 
+					depth++;
 				}
 			}
 		}
@@ -838,12 +845,7 @@ public class BlockScope extends Scope {
 		// use synthetic constructor arguments if possible
 		if (insideConstructor) {
 			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg =
-				((NestedTypeBinding) sourceType).getSyntheticArgument(
-					targetEnclosingType,
-					this,
-					false))
-				!= null) {
+			if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this, false)) != null) {
 				return new Object[] { syntheticArg };
 			}
 		}
@@ -851,20 +853,14 @@ public class BlockScope extends Scope {
 		// use a direct synthetic field then
 		if (!currentMethodScope.isStatic) {
 			FieldBinding syntheticField;
-			if ((syntheticField =
-				sourceType.getSyntheticField(targetEnclosingType, this, false))
-				!= null) {
+			if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this, false)) != null) {
 				return new Object[] { syntheticField };
 			}
 			// could be reached through a sequence of enclosing instance link (nested members)
 			Object[] path = new Object[2]; // probably at least 2 of them
 			ReferenceBinding currentType = sourceType.enclosingType();
 			if (insideConstructor) {
-				path[0] =
-					((NestedTypeBinding) sourceType).getSyntheticArgument(
-						(SourceTypeBinding) currentType,
-						this,
-						false);
+				path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding) currentType, this, false);
 			} else {
 				path[0] =
 					sourceType.getSyntheticField((SourceTypeBinding) currentType, this, false);
@@ -877,11 +873,7 @@ public class BlockScope extends Scope {
 					if (currentType == targetEnclosingType
 						|| targetEnclosingType.isSuperclassOf(currentType))
 						break;
-					syntheticField =
-						((NestedTypeBinding) currentType).getSyntheticField(
-							(SourceTypeBinding) currentEnclosingType,
-							this,
-							false);
+					syntheticField = ((NestedTypeBinding) currentType).getSyntheticField((SourceTypeBinding) currentEnclosingType, this, false);
 					if (syntheticField == null)
 						break;
 					// append inside the path
@@ -990,17 +982,14 @@ public class BlockScope extends Scope {
 		if (currentMethodScope.isInsideInitializerOrConstructor()
 			&& (sourceType.isNestedType())) {
 			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg =
-				((NestedTypeBinding) sourceType).getSyntheticArgument(outerLocalVariable))
-				!= null) {
+			if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(outerLocalVariable)) != null) {
 				return new VariableBinding[] { syntheticArg };
 			}
 		}
 		// use a synthetic field then
 		if (!currentMethodScope.isStatic) {
 			FieldBinding syntheticField;
-			if ((syntheticField = sourceType.getSyntheticField(outerLocalVariable))
-				!= null) {
+			if ((syntheticField = sourceType.getSyntheticField(outerLocalVariable)) != null) {
 				return new VariableBinding[] { syntheticField };
 			}
 		}
@@ -1040,21 +1029,14 @@ public class BlockScope extends Scope {
 		// use synthetic constructor arguments if possible
 		if (insideConstructor) {
 			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg =
-				((NestedTypeBinding) sourceType).getSyntheticArgument(
-					targetEnclosingType,
-					this,
-					true))
-				!= null) {
+			if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this, true)) != null) {
 				return new Object[] { syntheticArg };
 			}
 		}
 		// use a direct synthetic field then
 		if (!currentMethodScope.isStatic) {
 			FieldBinding syntheticField;
-			if ((syntheticField =
-				sourceType.getSyntheticField(targetEnclosingType, this, true))
-				!= null) {
+			if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this, true)) != null) {
 				return new Object[] { syntheticField };
 			}
 			// could be reached through a sequence of enclosing instance link (nested members)
@@ -1062,10 +1044,7 @@ public class BlockScope extends Scope {
 			ReferenceBinding currentType = sourceType.enclosingType();
 			if (insideConstructor) {
 				path[0] =
-					((NestedTypeBinding) sourceType).getSyntheticArgument(
-						(SourceTypeBinding) currentType,
-						this,
-						true);
+					((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding) currentType,	this, true);
 			} else {
 				path[0] =
 					sourceType.getSyntheticField((SourceTypeBinding) currentType, this, true);

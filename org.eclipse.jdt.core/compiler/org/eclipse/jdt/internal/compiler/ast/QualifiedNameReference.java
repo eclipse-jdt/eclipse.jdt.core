@@ -551,6 +551,8 @@ public class QualifiedNameReference extends NameReference {
 			char[] token = tokens[index];
 			if (type == null)
 				return null; // could not resolve type prior to this point
+
+			bits &= ~DepthMASK; // flush previous depth if any			
 			FieldBinding field = scope.getField(type, token, this);
 			int place = index - indexOfFirstFieldBinding;
 			otherBindings[place] = field;

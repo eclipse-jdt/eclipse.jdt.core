@@ -5,11 +5,13 @@ package org.eclipse.jdt.internal.formatter;
  * WebSphere Studio Workbench
  * (c) Copyright IBM Corp 2000
  */
+import org.eclipse.jdt.core.ICodeFormatter;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
 import org.eclipse.jdt.internal.formatter.impl.SplitLine;
 import java.io.BufferedReader;
@@ -23,14 +25,14 @@ import java.util.*;
  * on this instance to format <code>aString</code>.
  * It will return the formatted string.</ul>
 */
-public class CodeFormatter implements TerminalSymbols {
+public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 
 	public FormatterOptions options;
 
 	/** 
 	 * Represents a block in the <code>constructions</code> stack.
 	 */
-	public static final int BLOCK = TerminalSymbols.TokenNameLBRACE;
+	public static final int BLOCK = ITerminalSymbols.TokenNameLBRACE;
 
 	/** 
 	 * Represents a block following a control statement in the <code>constructions</code> stack.

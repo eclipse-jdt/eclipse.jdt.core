@@ -7,12 +7,13 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal block structure for parsing recovery 
  */
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-public class RecoveredBlock extends RecoveredStatement implements CompilerModifiers, TerminalSymbols, BaseTypes {
+public class RecoveredBlock extends RecoveredStatement implements CompilerModifiers, ITerminalSymbols, BaseTypes {
 
 	public Block blockDeclaration;
 

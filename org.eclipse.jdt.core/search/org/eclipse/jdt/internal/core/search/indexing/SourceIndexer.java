@@ -6,12 +6,13 @@ package org.eclipse.jdt.internal.core.search.indexing;
  */
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
 

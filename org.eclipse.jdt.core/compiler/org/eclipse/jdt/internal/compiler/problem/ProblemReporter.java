@@ -4,7 +4,9 @@ package org.eclipse.jdt.internal.compiler.problem;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.core.compiler.*; 
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -2357,7 +2359,7 @@ private boolean isKeyword(char[] tokenSource) {
 			return false;
 		}
 		int nextToken= scanner.getNextToken();
-		if (nextToken == TerminalSymbols.TokenNameEOF
+		if (nextToken == ITerminalSymbols.TokenNameEOF
 			&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 															     // while reading the last token
 			switch(token) {

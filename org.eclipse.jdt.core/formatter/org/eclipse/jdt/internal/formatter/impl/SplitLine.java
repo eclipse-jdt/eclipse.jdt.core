@@ -4,11 +4,12 @@ package org.eclipse.jdt.internal.formatter.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 
 /** Represents a split line: contains an operator and all substrings
 */
-public class SplitLine implements TerminalSymbols{
+public class SplitLine implements ITerminalSymbols{
 	public int[] operators; // the operator on which the string was split.
 	public String[] substrings;
 	public int[] startSubstringsIndexes;
@@ -38,8 +39,8 @@ public String toString() {
 	for (int i=0,max=substrings.length;i<max;i++){
 		int currentOperator = operators[i];
 		String currentString = substrings[i];
-		boolean placeOperatorAhead = currentOperator != TerminalSymbols.TokenNameCOMMA && currentOperator != TerminalSymbols.TokenNameSEMICOLON;
-		boolean placeOperatorBehind = currentOperator == TerminalSymbols.TokenNameCOMMA || currentOperator == TerminalSymbols.TokenNameSEMICOLON;
+		boolean placeOperatorAhead = currentOperator != ITerminalSymbols.TokenNameCOMMA && currentOperator != ITerminalSymbols.TokenNameSEMICOLON;
+		boolean placeOperatorBehind = currentOperator == ITerminalSymbols.TokenNameCOMMA || currentOperator == ITerminalSymbols.TokenNameSEMICOLON;
 		
 
 

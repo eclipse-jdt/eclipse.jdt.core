@@ -6,6 +6,8 @@ package org.eclipse.jdt.internal.codeassist;
  */
 import java.util.*;
 
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
@@ -292,16 +294,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				} catch (InvalidInputException e) {
 					return false;
 				}
-				if((token == TerminalSymbols.TokenNamethis ||
-					token == TerminalSymbols.TokenNamesuper ||
-					token == TerminalSymbols.TokenNameIdentifier) &&
+				if((token == ITerminalSymbols.TokenNamethis ||
+					token == ITerminalSymbols.TokenNamesuper ||
+					token == ITerminalSymbols.TokenNameIdentifier) &&
 					scanner.startPosition <= selectionStart &&
 					selectionStart <= scanner.currentPosition) {
 					lastIdentifierStart = scanner.startPosition;
 					lastIdentifierEnd = scanner.currentPosition - 1;
 					lastIdentifier = scanner.getCurrentTokenSource();
 				}
-			} while (token != TerminalSymbols.TokenNameEOF);
+			} while (token != ITerminalSymbols.TokenNameEOF);
 		} else {
 			scanner.resetTo(selectionStart, selectionEnd);
 	
@@ -314,9 +316,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					return false;
 				}
 				switch (token) {
-					case TerminalSymbols.TokenNamethis :
-					case TerminalSymbols.TokenNamesuper :
-					case TerminalSymbols.TokenNameIdentifier :
+					case ITerminalSymbols.TokenNamethis :
+					case ITerminalSymbols.TokenNamesuper :
+					case ITerminalSymbols.TokenNameIdentifier :
 						if (!expectingIdentifier)
 							return false;
 						lastIdentifier = scanner.getCurrentTokenSource();
@@ -331,20 +333,20 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						identCount++;
 						expectingIdentifier = false;
 						break;
-					case TerminalSymbols.TokenNameDOT :
+					case ITerminalSymbols.TokenNameDOT :
 						if (expectingIdentifier)
 							return false;
 						entireSelection.append('.');
 						expectingIdentifier = true;
 						break;
-					case TerminalSymbols.TokenNameEOF :
+					case ITerminalSymbols.TokenNameEOF :
 						if (expectingIdentifier)
 							return false;
 						break;
 					default :
 						return false;
 				}
-			} while (token != TerminalSymbols.TokenNameEOF);
+			} while (token != ITerminalSymbols.TokenNameEOF);
 		}
 		if (lastIdentifierStart > 0) {
 			actualSelectionStart = lastIdentifierStart;

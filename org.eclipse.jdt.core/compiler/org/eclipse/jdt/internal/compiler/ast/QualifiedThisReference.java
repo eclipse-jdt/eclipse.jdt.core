@@ -119,6 +119,7 @@ public class QualifiedThisReference extends ThisReference {
 			currentCompatibleType =
 				currentCompatibleType.isStatic() ? null : currentCompatibleType.enclosingType();
 		}
+		bits &= ~DepthMASK; // flush previous depth if any			
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
 
 		if (currentCompatibleType == null) {

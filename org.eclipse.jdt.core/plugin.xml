@@ -20,10 +20,16 @@
 </runtime>
 
 <!-- =========================================================================== -->
-<!-- Extension Point for Initializing Classpath Variables                                                                          -->
+<!-- Extension Point for contributing Initializers of Classpath Variables                                                   -->
 <!-- =========================================================================== -->
 <extension-point name="%classpathVariableInitializersName" id="classpathVariableInitializer"/>
   
+<!-- =========================================================================== -->
+<!-- Extension Point for contributing a Formatter of Source Code                                                          -->
+<!-- =========================================================================== -->
+<extension-point name="%codeFormatterName" id="codeFormatter"/>
+
+
 <!-- =========================================================================== -->
 <!-- Java Nature Extension                                                                                                                   -->
 <!-- =========================================================================== -->

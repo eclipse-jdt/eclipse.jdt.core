@@ -73,13 +73,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
-	private static final String ATT_HANDLE_ID =
+	protected static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
 	 */
-	private static final String CPVAR_INIT_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+	protected static final String CPVAR_INIT_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+
+	/**
+	 * Name of the extension point for contributing a source code formatter
+	 */
+	protected static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
@@ -271,6 +276,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Classpath variable values are persisted locally to the workspace, and 
 	 * are preserved from session to session.
 	 * <p>
+	 * Note that classpath variables can be contributed registered initializers for,
+	 * using the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @return the path, or <code>null</code> if none 
@@ -494,7 +501,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// lookup variable	
 		String variableName = variablePath.segment(0);
 		IPath resolvedPath = JavaCore.getClasspathVariable(variableName);
-		if (resolvedPath == null || resolvedPath.isEmpty())
+		if (resolvedPath == null)
 			return null;
 
 		// append path suffix

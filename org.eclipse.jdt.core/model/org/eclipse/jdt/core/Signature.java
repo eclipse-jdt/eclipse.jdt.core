@@ -5,9 +5,10 @@ package org.eclipse.jdt.core;
  * All Rights Reserved.
  */
  
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 
 /**
  * Provides methods for encoding and decoding type and method signature strings.
@@ -344,59 +345,59 @@ public static String createTypeSignature(String typeName, boolean isResolved) {
 		int arrayCount = 0;
 		boolean primitive = true;
 		switch (token) {
-			case TerminalSymbols.TokenNameIdentifier :
+			case ITerminalSymbols.TokenNameIdentifier :
 				sig.append(scanner.getCurrentIdentifierSource());
 				primitive = false;
 				break;
-			case TerminalSymbols.TokenNameboolean :
+			case ITerminalSymbols.TokenNameboolean :
 				sig.append(Signature.SIG_BOOLEAN);
 				break;
-			case TerminalSymbols.TokenNamebyte :
+			case ITerminalSymbols.TokenNamebyte :
 				sig.append(Signature.SIG_BYTE);
 				break;
-			case TerminalSymbols.TokenNamechar :
+			case ITerminalSymbols.TokenNamechar :
 				sig.append(Signature.SIG_CHAR);
 				break;
-			case TerminalSymbols.TokenNamedouble :
+			case ITerminalSymbols.TokenNamedouble :
 				sig.append(Signature.SIG_DOUBLE);
 				break;
-			case TerminalSymbols.TokenNamefloat :
+			case ITerminalSymbols.TokenNamefloat :
 				sig.append(Signature.SIG_FLOAT);
 				break;
-			case TerminalSymbols.TokenNameint :
+			case ITerminalSymbols.TokenNameint :
 				sig.append(Signature.SIG_INT);
 				break;
-			case TerminalSymbols.TokenNamelong :
+			case ITerminalSymbols.TokenNamelong :
 				sig.append(Signature.SIG_LONG);
 				break;
-			case TerminalSymbols.TokenNameshort :
+			case ITerminalSymbols.TokenNameshort :
 				sig.append(Signature.SIG_SHORT);
 				break;
-			case TerminalSymbols.TokenNamevoid :
+			case ITerminalSymbols.TokenNamevoid :
 				sig.append(Signature.SIG_VOID);
 				break;
 			default :
 				throw new IllegalArgumentException();
 		}
 		token = scanner.getNextToken();
-		while (!primitive && token == TerminalSymbols.TokenNameDOT) {
+		while (!primitive && token == ITerminalSymbols.TokenNameDOT) {
 			sig.append(scanner.getCurrentIdentifierSource());
 			token = scanner.getNextToken();
-			if (token == TerminalSymbols.TokenNameIdentifier) {
+			if (token == ITerminalSymbols.TokenNameIdentifier) {
 				sig.append(scanner.getCurrentIdentifierSource());
 				token = scanner.getNextToken();
 			} else {
 				throw new IllegalArgumentException();
 			}
 		}
-		while (token == TerminalSymbols.TokenNameLBRACKET) {
+		while (token == ITerminalSymbols.TokenNameLBRACKET) {
 			token = scanner.getNextToken();
-			if (token != TerminalSymbols.TokenNameRBRACKET)
+			if (token != ITerminalSymbols.TokenNameRBRACKET)
 				throw new IllegalArgumentException();
 			arrayCount++;
 			token = scanner.getNextToken();
 		}
-		if (token != TerminalSymbols.TokenNameEOF)
+		if (token != ITerminalSymbols.TokenNameEOF)
 			throw new IllegalArgumentException();
 		if (!primitive) {
 			sig.insert(0, isResolved ? C_RESOLVED : C_UNRESOLVED);

@@ -5,6 +5,10 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 import org.eclipse.jdt.internal.compiler.*;
 
+/**
+ * @deprecated - use org.eclipse.jdt.core.compiler.InvalidInputException instead
+ * 
+ */
 public class InvalidInputException extends Exception {
 /**
  * InvalidInputException constructor comment.

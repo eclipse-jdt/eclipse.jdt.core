@@ -47,6 +47,7 @@ public void setActualReceiverType(ReferenceBinding receiverType) {
 }
 public void setDepth(int depth) {
 	if (depth > 0) {
+		bits &= ~DepthMASK; // flush previous depth if any			
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
 }

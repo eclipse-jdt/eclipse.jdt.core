@@ -6,9 +6,10 @@ package org.eclipse.jdt.core;
  */
  
 
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import java.util.HashSet;
@@ -82,8 +83,8 @@ private static synchronized char[] scannedIdentifier(String id) {
 			return null;
 		}
 		int nextToken= SCANNER.getNextToken();
-		if (token == TerminalSymbols.TokenNameIdentifier 
-			&& nextToken == TerminalSymbols.TokenNameEOF
+		if (token == ITerminalSymbols.TokenNameIdentifier 
+			&& nextToken == ITerminalSymbols.TokenNameEOF
 			&& SCANNER.startPosition == SCANNER.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 															     // while reading the last token
 			return currentIdentifier;

@@ -4,6 +4,8 @@ package org.eclipse.jdt.internal.compiler.parser;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*; 
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -15,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.util.*;
 import java.io.*;
 import java.util.ArrayList;
 
-public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbols, CompilerModifiers, OperatorIds, TypeIds {
+public class Parser implements BindingIds, ParserBasicInformation, ITerminalSymbols, CompilerModifiers, OperatorIds, TypeIds {
 	protected ProblemReporter problemReporter;
 	public int firstToken ; // handle for multiple parsing goals
 	public int lastAct ; //handle for multiple parsing goals
@@ -872,7 +874,7 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 			}
 		}
 		if (scanner.recordLineSeparator) {
-			compilationUnit.compilationResult.lineSeparatorPositions = scanner.lineEnds();
+			compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 		}
 
 		// check placement anomalies against other kinds of brackets
@@ -4754,7 +4756,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 		}
 	}
 	if (scanner.recordLineSeparator) {
-		compilationUnit.compilationResult.lineSeparatorPositions = scanner.lineEnds();
+		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	}
 	return compilationUnit;
 }
@@ -7018,7 +7020,7 @@ public CompilationUnitDeclaration parse(
  */
 public ProblemReporter problemReporter(){
 	if (scanner.recordLineSeparator) {
-		compilationUnit.compilationResult.lineSeparatorPositions = scanner.lineEnds();
+		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	}
 	problemReporter.referenceContext = referenceContext;
 	return problemReporter;

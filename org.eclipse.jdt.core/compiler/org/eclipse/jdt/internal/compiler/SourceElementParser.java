@@ -992,7 +992,7 @@ public void parseCompilationUnit(
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.lineEnds());
+			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 		}
 		diet = old;
 	}
@@ -1026,7 +1026,7 @@ public void parseCompilationUnit(
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.lineEnds());
+			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 		}
 		diet = old;
 	}
@@ -1080,7 +1080,7 @@ public void parseTypeMemberDeclarations(
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.lineEnds());
+			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 		}
 		diet = old;
 	}

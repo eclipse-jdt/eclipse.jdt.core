@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.codeassist;
  */
 import java.util.*;
 
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 
@@ -19,6 +20,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
@@ -38,7 +40,7 @@ import org.eclipse.jdt.internal.compiler.impl.*;
  */
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , TerminalSymbols {
+	implements ISearchRequestor, TypeConstants , ITerminalSymbols {
 	
 	public static boolean DEBUG = false;
 	

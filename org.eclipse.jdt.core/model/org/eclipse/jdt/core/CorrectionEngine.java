@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -221,7 +223,7 @@ public class CorrectionEngine implements ProblemReasons {
 			// search last segment position
 			while(true) {
 				token = scanner.getNextToken();
-				if (token == TerminalSymbols.TokenNameEOF) return;
+				if (token == ITerminalSymbols.TokenNameEOF) return;
 				
 				char[] tokenSource = scanner.getCurrentTokenSource();
 				

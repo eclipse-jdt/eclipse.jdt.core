@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.io.*;
+
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
-public class Scanner implements TerminalSymbols {
+public class Scanner implements IScanner, ITerminalSymbols {
 
 	/* APIs ares
 	 - getNextToken() which return the current type of the token
@@ -198,6 +202,9 @@ public char[] getCurrentIdentifierSource() {
 	}
 	return result;
 }
+public int getCurrentTokenEndPosition(){
+	return this.currentPosition - 1;
+}
 public final char[] getCurrentTokenSource() {
 	// Return the token REAL source (aka unicodes are precomputed)
 
@@ -241,6 +248,9 @@ public final char[] getCurrentTokenSourceString() {
 			length); 
 	}
 	return result;
+}
+public int getCurrentTokenStartPosition(){
+	return this.startPosition;
 }
 /*
  * Search the source position corresponding to the end of a given line number
@@ -1498,7 +1508,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
 }
-public final int[] lineEnds() {
+public final int[] getLineEnds() {
 	//return a bounded copy of this.lineEnds 
 
 	int[] copy;

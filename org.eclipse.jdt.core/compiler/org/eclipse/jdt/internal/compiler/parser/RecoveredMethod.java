@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  * All Rights Reserved.
  */
 
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -13,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.util.*;
  * Internal method structure for parsing recovery 
  */
 
-public class RecoveredMethod extends RecoveredElement implements CompilerModifiers, TerminalSymbols, BaseTypes {
+public class RecoveredMethod extends RecoveredElement implements CompilerModifiers, ITerminalSymbols, BaseTypes {
 
 	public AbstractMethodDeclaration methodDeclaration;
 
