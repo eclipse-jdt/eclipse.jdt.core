@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
@@ -67,12 +67,19 @@ public class SourceMapper
 	protected static String[] fgEmptyStringArray = new String[0];
 
 	/**
+	 * Table that maps a binary method to its parameter names.
+	 * Keys are the method handles, entries are <code>char[][]</code>.
+	 */
+	protected HashMap fParameterNames;
+	
+	/**
 	 * Table that maps a binary element to its <code>SourceRange</code>s.
 	 * Keys are the element handles, entries are <code>SourceRange[]</code> which
 	 * is a two element array; the first being source range, the second
 	 * being name range.
 	 */
-	protected Hashtable fSourceRanges;
+	protected HashMap fSourceRanges;
+	
 
 	/**
 	 * The unknown source range {-1, 0}
@@ -92,10 +99,17 @@ public class SourceMapper
 	 * The name of the current member element.
 	 */
 	protected String[] fMemberName;
+	
+	/**
+	 * The parameter names for the current member method element.
+	 */
+	protected char[][][] fMethodParameterNames;
+	
 	/**
 	 * The parameter types for the current member method element.
 	 */
 	protected char[][][] fMethodParameterTypes;
+	
 
 	/**
 	 * The element searched for
@@ -105,8 +119,8 @@ public class SourceMapper
 	/**
 	 * imports references
 	 */
-	private Hashtable importsTable;
-	private Hashtable importsCounterTable;
+	private HashMap importsTable;
+	private HashMap importsCounterTable;
 
 	/**
 	 * Enclosing type information
@@ -133,9 +147,10 @@ public class SourceMapper
 			fRootPath = fRootPath.substring(0, fRootPath.lastIndexOf('/'));
 		}
 		fJavaModel = model;
-		fSourceRanges = new Hashtable();
-		importsTable = new Hashtable();
-		importsCounterTable = new Hashtable();
+		fSourceRanges = new HashMap();
+		fParameterNames = new HashMap();
+		importsTable = new HashMap();
+		importsCounterTable = new HashMap();
 	}
 	
 	/**
@@ -203,6 +218,7 @@ public class SourceMapper
 	 */
 	public void close() throws JavaModelException {
 		fSourceRanges = null;
+		fParameterNames = null;
 	}
 
 	/**
@@ -284,6 +300,12 @@ public class SourceMapper
 				this.fMethodParameterTypes,
 				0,
 				this.fMethodParameterTypes = new char[this.typeDepth * 2][][],
+				0,
+				this.typeDepth);
+			System.arraycopy(
+				this.fMethodParameterNames,
+				0,
+				this.fMethodParameterNames = new char[this.typeDepth * 2][][],
 				0,
 				this.typeDepth);					
 		}
@@ -399,6 +421,7 @@ public class SourceMapper
 				new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
 			fMemberDeclarationStart[typeDepth] = declarationStart;
 			fMethodParameterTypes[typeDepth] = parameterTypes;
+			fMethodParameterNames[typeDepth] = parameterNames;
 		}
 	}
 	
@@ -470,12 +493,16 @@ public class SourceMapper
 				new SourceRange(
 					fMemberDeclarationStart[typeDepth],
 					declarationEnd - fMemberDeclarationStart[typeDepth] + 1);
-			setSourceRange(
-				currentType.getMethod(
+			IMethod method = currentType.getMethod(
 					fMemberName[typeDepth],
-					convertTypeNamesToSigs(fMethodParameterTypes[typeDepth])),
+					convertTypeNamesToSigs(fMethodParameterTypes[typeDepth]));
+			setSourceRange(
+				method,
 				sourceRange,
 				fMemberNameRange[typeDepth]);
+			setMethodParameterNames(
+				method,
+				fMethodParameterNames[typeDepth]);
 		}
 	}
 	
@@ -579,6 +606,22 @@ public class SourceMapper
 	}
 	
 	/**
+	 * Returns parameters names for the given method, or
+	 * null if no parameter names are known for the method.
+	 */
+	public char[][] getMethodParameterNames(IMethod method) {
+		if (((IMember) method).isBinary()) {
+			method = (IMethod) getUnqualifiedMethodHandle(method);
+		}
+		char[][] parameterNames = (char[][]) fParameterNames.get(method);
+		if (parameterNames == null) {
+			return null;
+		} else {
+			return parameterNames;
+		}
+	}
+	
+	/**
 	 * Returns the <code>SourceRange</code> for the given element, or
 	 * {-1, -1} if no source range is known for the element.
 	 */
@@ -675,9 +718,10 @@ public class SourceMapper
 		this.fMemberName = new String[1];
 		this.fMemberNameRange = new SourceRange[1];
 		this.fMethodParameterTypes = new char[1][][];
+		this.fMethodParameterNames = new char[1][][];
 		this.anonymousCounter = 0;
 		
-		Hashtable oldSourceRanges = (Hashtable) fSourceRanges.clone();
+		HashMap oldSourceRanges = (HashMap) fSourceRanges.clone();
 		try {
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = null;
@@ -720,6 +764,20 @@ public class SourceMapper
 			this.typeNameRanges = null;
 			this.typeDepth = -1;
 		}
+	}
+	
+	/** 
+	 * Sets the mapping for this method to its parameter names.
+	 *
+	 * @see fParameterNames
+	 */
+	protected void setMethodParameterNames(
+		IMethod method,
+		char[][] parameterNames) {
+		if (parameterNames == null) {
+			parameterNames = new char[0][];
+		}
+		fParameterNames.put(method, parameterNames);
 	}
 	
 	/** 

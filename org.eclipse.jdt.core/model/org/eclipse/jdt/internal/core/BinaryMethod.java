@@ -157,25 +157,28 @@ public int getNumberOfParameters() {
  * Look for source attachment information to retrieve the actual parameter names as stated in source.
  */
 public String[] getParameterNames() throws JavaModelException {
-
 	if (fParameterNames == null) {
 
 		// force source mapping if not already done
 		IType type = (IType) getParent();
 		SourceMapper mapper = getSourceMapper();
 		if (mapper != null) {
-			char[] source = mapper.findSource(type);
-			if (source != null){
-				mapper.mapSource(type, source);
-				ISourceRange sourceRange = getSourceRange();
-				if (source != null & sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
-					IProblemFactory factory = new DefaultProblemFactory();
-					DecodeParametersNames decoder = new DecodeParametersNames();
-					SourceElementParser parser = new SourceElementParser(decoder, factory, new CompilerOptions(JavaCore.getOptions()));
-					int start = sourceRange.getOffset();
-					int end = start + sourceRange.getLength();
-					parser.parseTypeMemberDeclarations(source, start, end);
-					fParameterNames = decoder.getParametersNames();
+			char[][] parameterNames = mapper.getMethodParameterNames(this);
+			
+			// map source and try to find parameter names
+			if(parameterNames == null) {
+				char[] source = mapper.findSource(type);
+				if (source != null){
+					mapper.mapSource(type, source);
+				}
+				parameterNames = mapper.getMethodParameterNames(this);
+			}
+			
+			// if parameter names exist, convert parameter names to String array
+			if(parameterNames != null) {
+				fParameterNames = new String[parameterNames.length];
+				for (int i = 0; i < parameterNames.length; i++) {
+					fParameterNames[i] = new String(parameterNames[i]);
 				}
 			}
 		}
