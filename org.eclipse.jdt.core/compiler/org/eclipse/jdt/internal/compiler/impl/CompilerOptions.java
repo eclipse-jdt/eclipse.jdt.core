@@ -48,6 +48,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportLocalVariableHiding = "org.eclipse.jdt.core.compiler.problem.localVariableHiding"; //$NON-NLS-1$
 	public static final String OPTION_ReportSpecialParameterHidingField = "org.eclipse.jdt.core.compiler.problem.specialParameterHidingField"; //$NON-NLS-1$
 	public static final String OPTION_ReportFieldHiding = "org.eclipse.jdt.core.compiler.problem.fieldHiding"; //$NON-NLS-1$
+	public static final String OPTION_ReportPossibleAccidentalBooleanAssignment = "org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompatibleNonInheritedInterfaceMethod = "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedPrivateMember = "org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"; //$NON-NLS-1$
@@ -107,6 +108,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int UnusedPrivateMember = 0x8000000;
 	public static final int LocalVariableHiding = 0x10000000;
 	public static final int FieldHiding = 0x20000000;
+	public static final int AccidentalBooleanAssign = 0x40000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = 
@@ -124,6 +126,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		| IncompatibleNonInheritedInterfaceMethod
 		| LocalVariableHiding
 		| FieldHiding
+		| AccidentalBooleanAssign
 		| NoImplicitStringConversion;
 
 	// Debug attributes
@@ -501,7 +504,22 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 					this.reportSpecialParameterHidingField = false;
 				}
 				continue;
-			}			// Report non-externalized string literals
+			}			
+			// Report possible accidental boolean assignment
+			if(optionID.equals(OPTION_ReportPossibleAccidentalBooleanAssignment)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= AccidentalBooleanAssign;
+					this.warningThreshold &= ~AccidentalBooleanAssign;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~AccidentalBooleanAssign;
+					this.warningThreshold |= AccidentalBooleanAssign;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~AccidentalBooleanAssign;
+					this.warningThreshold &= ~AccidentalBooleanAssign;
+				}
+				continue;
+			}
+			// Report non-externalized string literals
 			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
 				if (optionValue.equals(ERROR)) {
 					this.errorThreshold |= NonExternalizedString;
@@ -826,6 +844,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-field hiding another variable: WARNING"); //$NON-NLS-1$
 			} else {
 				buf.append("\n-field hiding another variable: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & AccidentalBooleanAssign) != 0){
+			buf.append("\n-possible accidental boolean assignment: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & AccidentalBooleanAssign) != 0){
+				buf.append("\n-possible accidental boolean assignment: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-possible accidental boolean assignment: IGNORE"); //$NON-NLS-1$
 			}
 		}
 		switch(complianceLevel){

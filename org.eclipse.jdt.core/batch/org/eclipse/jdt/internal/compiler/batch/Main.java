@@ -697,6 +697,9 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.OPTION_ReportSpecialParameterHidingField,
 					CompilerOptions.DISABLED);
 				options.put(
+					CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+					CompilerOptions.IGNORE);
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -757,6 +760,10 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportSpecialParameterHidingField,
 							CompilerOptions.ENABLED);
+					} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+							CompilerOptions.WARNING);
    					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
@@ -1265,6 +1272,9 @@ public class Main implements ProblemSeverities {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
 			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+			CompilerOptions.WARNING);
 		return defaultOptions;
 	}
 	public Map getOptions() {

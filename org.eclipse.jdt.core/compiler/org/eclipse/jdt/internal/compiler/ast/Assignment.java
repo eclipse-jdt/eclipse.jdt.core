@@ -118,6 +118,20 @@ public class Assignment extends Expression {
 			this.resolvedType);
 		return this.resolvedType;
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveTypeExpecting(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+	 */
+	public TypeBinding resolveTypeExpecting(
+			BlockScope scope,
+			TypeBinding expectedType) {
+
+		// signal possible accidental boolean assignment (instead of using '==' operator)
+		if ((this.lhs.bits & IsStrictlyAssignedMASK) != 0 && expectedType == BooleanBinding) {
+			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
+		}
+
+		return super.resolveTypeExpecting(scope, expectedType);
+	}
 
 	public String toString(int tab) {
 

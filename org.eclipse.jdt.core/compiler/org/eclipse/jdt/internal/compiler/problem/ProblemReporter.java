@@ -632,7 +632,14 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
-	  
+		case IProblem.PossibleAccidentalBooleanAssignment:
+			if ((errorThreshold & CompilerOptions.AccidentalBooleanAssign) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.AccidentalBooleanAssign) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -2531,6 +2538,15 @@ public void parseError(
 		// this is the current -invalid- token position
 		startPosition,
 		endPosition);
+}
+public void possibleAccidentalBooleanAssignment(Assignment assignment) {
+	String[] arguments = new String[] {};
+	this.handle(
+		IProblem.PossibleAccidentalBooleanAssignment,
+		arguments,
+		arguments,
+		assignment.sourceStart,
+		assignment.sourceEnd);
 }
 public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit

@@ -246,6 +246,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.2
+	 */
+	public static final String COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.possibleAccidentalBooleanAssignment"; //$NON-NLS-1$
+
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
@@ -1332,6 +1339,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.specialParameterHidingField"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 * 
+	 * COMPILER / Reporting Possible Accidental Boolean Assignment
+	 *    When enabled, the compiler will issue an error or a warning if a boolean assignment is acting as the condition
+	 *    of a control statement  (where it probably was meant to be a boolean comparison).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
 	 *
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
@@ -1937,6 +1951,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD, DISABLED);
 		optionNames.add(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD);
+
+		preferences.setDefault(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT, WARNING);
+		optionNames.add(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 
 		optionNames.add(COMPILER_TASK_TAGS);

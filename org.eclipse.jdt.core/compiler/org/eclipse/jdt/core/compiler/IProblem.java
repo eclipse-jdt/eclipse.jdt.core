@@ -177,7 +177,7 @@ public interface IProblem {
 	int Unclassified = 0;
 
 	/**
-	 * Generic type related problems
+	 * General type related problems
 	 */
 	int ObjectHasNoSuperclass = TypeRelated + 1;
 	int UndefinedType = TypeRelated + 2;
@@ -376,7 +376,9 @@ public interface IProblem {
 	// assignment
 	/** @since 2.1 */
 	int AssignmentHasNoEffect = Internal + 178;
-	
+	/** @since 2.2 */
+	int PossibleAccidentalBooleanAssignment = Internal + 179;
+
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
 	int NeedToEmulateFieldWriteAccess = FieldRelated + 191;
