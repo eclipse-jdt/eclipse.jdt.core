@@ -1069,12 +1069,8 @@ public class Main implements ProblemSeverities {
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		} else {
-			String javaVMVersion = System.getProperty("java.vm.version"); //$NON-NLS-1$
-			if (javaVMVersion != null && javaVMVersion.startsWith("1.4")) { //$NON-NLS-1$
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			}
+		} else if (options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)) {
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 		}
 		// compliance must be 1.4 if source is 1.4
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
