@@ -194,27 +194,29 @@ class VariableBinding implements IVariableBinding {
 			return null;
 		}
 		Constant c = this.binding.constant;
-		if (c == Constant.NotAConstant) return null;
-		switch (c.typeID()) {
-			case TypeIds.T_boolean:
-				return Boolean.valueOf(c.booleanValue());
-			case TypeIds.T_byte:
-				return new Byte(c.byteValue());
-			case TypeIds.T_char:
-				return new Character(c.charValue());
-			case TypeIds.T_double:
-				return new Double(c.doubleValue());
-			case TypeIds.T_float:
-				return new Float(c.floatValue());
-			case TypeIds.T_int:
-				return new Integer(c.intValue());
-			case TypeIds.T_long:
-				return new Long(c.longValue());
-			case TypeIds.T_short:
-				return new Short(c.shortValue());
-			case TypeIds.T_String:
-				return c.stringValue();
+		if (c != Constant.NotAConstant) {
+			switch (c.typeID()) {
+				case TypeIds.T_boolean:
+					return Boolean.valueOf(c.booleanValue());
+				case TypeIds.T_byte:
+					return new Byte(c.byteValue());
+				case TypeIds.T_char:
+					return new Character(c.charValue());
+				case TypeIds.T_double:
+					return new Double(c.doubleValue());
+				case TypeIds.T_float:
+					return new Float(c.floatValue());
+				case TypeIds.T_int:
+					return new Integer(c.intValue());
+				case TypeIds.T_long:
+					return new Long(c.longValue());
+				case TypeIds.T_short:
+					return new Short(c.shortValue());
+				case TypeIds.T_String:
+					return c.stringValue();
+			}
 		}
+		return null;
 	}
 
 	/* 
