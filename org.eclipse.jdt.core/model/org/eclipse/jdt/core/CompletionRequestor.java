@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * requestors in the following sequence:
  * <pre>
  * requestor.beginReporting();
+ * requestor.acceptContext(context);
  * requestor.accept(proposal_1);
  * requestor.accept(proposal_2);
  * ...
@@ -34,11 +35,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * In this case, the sequence of calls is:
  * <pre>
  * requestor.beginReporting();
+ * requestor.acceptContext(context);
  * requestor.completionFailure(problem);
  * requestor.endReporting();
  * </pre>
  * In either case, the bracketing <code>beginReporting</code>
- * <code>endReporting</code> calls are always made.
+ * <code>endReporting</code> calls are always made as well as
+ * <code>acceptContext</code> call.
  * </p>
  * <p>
  * The class was introduced in 3.0 as a more evolvable replacement
@@ -162,4 +165,20 @@ public abstract class CompletionRequestor {
 	 * @exception IllegalArgumentException if the proposal is null
 	 */
 	public abstract void accept(CompletionProposal proposal);
+	
+	/**
+	 * Propose the context in which the completion occurs.
+	 * <p>
+	 * This method is called one and only one time before any call to
+	 * {@link #accept(CompletionProposal)}.
+	 * The default implementation of this method does nothing.
+	 * Clients may override.
+	 * </p>
+	 * @param context the completion context
+	 * 
+	 * @since 3.1
+	 */
+	public void acceptContext(CompletionContext context) {
+		// do nothing
+	}
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Vector;
 
+import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Signature;
@@ -19,6 +20,7 @@ import org.eclipse.jdt.core.Signature;
 public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private final char[] NULL_LITERAL = "null".toCharArray();//$NON-NLS-1$
 	
+	private CompletionContext context;
 	private Vector proposals = new Vector();
 	private boolean showParamterNames;
 	private boolean showUniqueKeys;
@@ -35,11 +37,51 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this.showParamterNames = showParamterNames;
 		this.showUniqueKeys = showUniqueKeys;
 	}
-
+	public void acceptContext(CompletionContext cc) {
+		this.context = cc;
+	}
 	public void accept(CompletionProposal proposal) {
 		proposals.add(proposal);
 	}
 
+	public String getContext() {
+		if(this.context == null) return "";
+		
+		StringBuffer buffer = new StringBuffer();
+		
+		char[][] expectedTypesSignatures = this.context.getExpectedTypesSignatures();
+		buffer.append("expectedTypesSignatures=");
+		if(expectedTypesSignatures == null) {
+			buffer.append(NULL_LITERAL);
+		} else {
+			buffer.append('{');
+			for (int i = 0; i < expectedTypesSignatures.length; i++) {
+				if(i > 0) buffer.append(',');
+				buffer.append(expectedTypesSignatures[i]);
+				
+			}
+			buffer.append('}');
+		}
+		buffer.append('\n');
+		
+		char[][] expectedTypesKeys = this.context.getExpectedTypesKeys();
+		buffer.append("expectedTypesKeys=");
+		if(expectedTypesSignatures == null) {
+			buffer.append(NULL_LITERAL);
+		} else {
+			buffer.append('{');
+			for (int i = 0; i < expectedTypesKeys.length; i++) {
+				if(i > 0) buffer.append(',');
+				buffer.append(expectedTypesKeys[i]);
+				
+			}
+			buffer.append('}');
+		}
+		//buffer.append('\n');
+		
+		
+		return buffer.toString();
+	}
 	public String getResults() {
 		if(proposals.size() == 0)
 			return "";

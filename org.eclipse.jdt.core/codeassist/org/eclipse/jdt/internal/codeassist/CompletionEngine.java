@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
@@ -525,7 +526,26 @@ public final class CompletionEngine
 			}
 		}
 	}
-
+		
+	private void buildContext() {
+		CompletionContext context = new CompletionContext();
+		
+		// build expected types context
+		if (this.expectedTypesPtr > -1) {
+			int length = this.expectedTypesPtr + 1;
+			char[][] expTypes = new char[length][];
+			char[][] expKeys = new char[length][];
+			for (int i = 0; i < length; i++) {
+				expTypes[i] = getSignature(this.expectedTypes[i]);
+				expKeys[i] = this.expectedTypes[i].computeUniqueKey();
+			}
+			context.setExpectedTypesSignatures(expTypes);
+			context.setExpectedTypesKeys(expKeys);
+		}
+		
+		this.requestor.acceptContext(context);
+	}
+	
 	private void complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
@@ -536,6 +556,8 @@ public final class CompletionEngine
 			if(!isValidParent(astNodeParent, astNode, scope)) return;
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
+		
+		buildContext();
 		
 		if (astNode instanceof CompletionOnFieldType) {
 
@@ -965,7 +987,7 @@ public final class CompletionEngine
 		if(this.requestor != null){
 			this.requestor.beginReporting();
 		}
-		
+		boolean contextAccepted = false;
 		IType topLevelType = type;
 		while(topLevelType.getDeclaringType() != null) {
 			topLevelType = topLevelType.getDeclaringType();
@@ -1029,12 +1051,17 @@ public final class CompletionEngine
 					} catch (CompletionNodeFound e) {
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
+							contextAccepted = true;
 							// if null then we found a problem in the completion node
 							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope);
 						}
 					}
 				}
 				if(this.noProposal && this.problem != null) {
+					if(!contextAccepted) {
+						contextAccepted = true;
+						this.requestor.acceptContext(new CompletionContext());
+					}
 					this.requestor.completionFailure(this.problem);
 					if(DEBUG) {
 						this.printDebug(this.problem);
@@ -1044,7 +1071,10 @@ public final class CompletionEngine
 		} catch(JavaModelException e) {
 			// Do nothing
 		}
-		
+		if(!contextAccepted) {
+			contextAccepted = true;
+			this.requestor.acceptContext(new CompletionContext());
+		}
 		if(this.requestor != null){
 			this.requestor.endReporting();
 		}
@@ -1110,10 +1140,8 @@ public final class CompletionEngine
 			System.out.println("COMPLETION - Source :"); //$NON-NLS-1$
 			System.out.println(sourceUnit.getContents());
 		}
-		if(this.requestor != null){
-			this.requestor.beginReporting();
-		}
-		
+		this.requestor.beginReporting();
+		boolean contextAccepted = false;
 		try {
 			this.actualCompletionPosition = completionPosition - 1;
 			this.offset = pos;
@@ -1130,6 +1158,8 @@ public final class CompletionEngine
 
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
+					contextAccepted = true;
+					this.requestor.acceptContext(new CompletionContext());
 					findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					if(this.noProposal && this.problem != null) {
 						this.requestor.completionFailure(this.problem);
@@ -1145,6 +1175,8 @@ public final class CompletionEngine
 					for (int i = 0, length = imports.length; i < length; i++) {
 						ImportReference importReference = imports[i];
 						if (importReference instanceof CompletionOnImportReference) {
+							contextAccepted = true;
+							this.requestor.acceptContext(new CompletionContext());
 							findImports((CompletionOnImportReference) importReference);
 							if(this.noProposal && this.problem != null) {
 								this.requestor.completionFailure(this.problem);
@@ -1171,6 +1203,8 @@ public final class CompletionEngine
 							}
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
+							contextAccepted = true;
+							this.requestor.acceptContext(new CompletionContext());
 							setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 							CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
 							findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
@@ -1211,13 +1245,19 @@ public final class CompletionEngine
 									System.out.println(this.parser.assistNodeParent);
 								}
 							}
+							contextAccepted = true;
 							// if null then we found a problem in the completion node
 							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope);
 						}
 					}
 				}
 			}
+			
 			if(this.noProposal && this.problem != null) {
+				if(!contextAccepted) {
+					contextAccepted = true;
+					this.requestor.acceptContext(new CompletionContext());
+				}
 				this.requestor.completionFailure(this.problem);
 				if(DEBUG) {
 					this.printDebug(this.problem);
@@ -1256,9 +1296,10 @@ public final class CompletionEngine
 			}
 		} finally {
 			reset();
-		}
-		
-		if(this.requestor != null){
+			if(!contextAccepted) {
+				contextAccepted = true;
+				this.requestor.acceptContext(new CompletionContext());
+			}
 			this.requestor.endReporting();
 		}
 	}

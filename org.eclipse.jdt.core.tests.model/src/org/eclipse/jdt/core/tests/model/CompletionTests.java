@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.core.*;
@@ -18,643 +19,37 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
 
-public class CompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
-ICompilationUnit wc = null;
+public class CompletionTests extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+
 public CompletionTests(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
-	super.setUpSuite();
-	
 	setUpJavaProject("Completion");
-	
-	waitUntilIndexesReady();
+	super.setUpSuite();
 }
 public void tearDownSuite() throws Exception {
-	deleteProject("Completion");
-	
 	super.tearDownSuite();
-}
-protected void tearDown() throws Exception {
-	if(this.wc != null) {
-		this.wc.discardWorkingCopy();
-	}
-	super.tearDown();
-}
-protected static void assertResults(String expected, String actual) {
-	try {
-		assertEquals(expected, actual);
-	} catch(ComparisonFailure c) {
-		System.out.println(actual);
-		System.out.println();
-		throw c;
-	}
+	deleteProject("Completion");
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(CompletionTests.class.getName());
-	
-	if(false) {
-		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
-	} else {
-		// basic test
-		suite.addTest(new CompletionTests("testCompletionBasicPackage1")); 
-		suite.addTest(new CompletionTests("testCompletionBasicType1"));
-		suite.addTest(new CompletionTests("testCompletionBasicField1"));
-		suite.addTest(new CompletionTests("testCompletionBasicMethod1"));
-		suite.addTest(new CompletionTests("testCompletionBasicLocalVariable1"));
-		suite.addTest(new CompletionTests("testCompletionBasicVariableDeclaration1"));
-		suite.addTest(new CompletionTests("testCompletionBasicMethodDeclaration1"));
-		suite.addTest(new CompletionTests("testCompletionBasicAnonymousDeclaration1"));
-		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
-		
-		// completion tests
-		suite.addTest(new CompletionTests("testCompletionCaseInsensitive"));
-		suite.addTest(new CompletionTests("testCompletionNullRequestor"));
-		suite.addTest(new CompletionTests("testCompletionFindExceptions1"));
-		suite.addTest(new CompletionTests("testCompletionFindExceptions2"));
-		suite.addTest(new CompletionTests("testCompletionFindClass"));
-		suite.addTest(new CompletionTests("testCompletionFindClass2"));
-		suite.addTest(new CompletionTests("testCompletionFindClassDefaultPackage"));
-		suite.addTest(new CompletionTests("testCompletionFindConstructor"));
-		suite.addTest(new CompletionTests("testCompletionFindConstructor2"));
-		suite.addTest(new CompletionTests("testCompletionFindConstructor3"));
-		suite.addTest(new CompletionTests("testCompletionFindConstructor4"));
-		suite.addTest(new CompletionTests("testCompletionFindConstructor5"));
-		suite.addTest(new CompletionTests("testCompletionFindField1"));
-		suite.addTest(new CompletionTests("testCompletionFindField2"));
-		suite.addTest(new CompletionTests("testCompletionFindField3"));
-		suite.addTest(new CompletionTests("testCompletionFindImport1"));
-		suite.addTest(new CompletionTests("testCompletionFindImport2"));
-		suite.addTest(new CompletionTests("testCompletionFindLocalVariable"));
-		suite.addTest(new CompletionTests("testCompletionFindMemberType1"));
-		suite.addTest(new CompletionTests("testCompletionFindMemberType2"));
-		suite.addTest(new CompletionTests("testCompletionFindMethod1"));
-		suite.addTest(new CompletionTests("testCompletionFindMethod2"));
-		suite.addTest(new CompletionTests("testCompletionFindMethodInThis"));
-		suite.addTest(new CompletionTests("testCompletionFindMethodWhenInProcess"));
-		suite.addTest(new CompletionTests("testCompletionFindThisDotField"));
-		suite.addTest(new CompletionTests("testCompletionEndOfCompilationUnit"));
-		suite.addTest(new CompletionTests("testCompletionOutOfBounds"));
-		suite.addTest(new CompletionTests("testCompletionRepeatedType"));
-		suite.addTest(new CompletionTests("testCompletionOnClassFile"));
-		suite.addTest(new CompletionTests("testCompletionCaseInsensitivePackage"));
-		suite.addTest(new CompletionTests("testCompletionFindSuperInterface"));
-		suite.addTest(new CompletionTests("testCompletionVisibilityCheckEnabled"));
-		suite.addTest(new CompletionTests("testCompletionVisibilityCheckDisabled"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName2"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName3"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName4"));
-		suite.addTest(new CompletionTests("testCompletionPrefixFieldName1"));
-		suite.addTest(new CompletionTests("testCompletionPrefixFieldName2"));
-		suite.addTest(new CompletionTests("testCompletionPrefixMethodName1"));
-		suite.addTest(new CompletionTests("testCompletionPrefixMethodName2"));
-		suite.addTest(new CompletionTests("testCompletionPrefixMethodName3"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration2"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration3"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration4"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration5"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration6"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration7"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration8"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration9"));
-		suite.addTest(new CompletionTests("testCompletionMethodDeclaration10"));
-		suite.addTest(new CompletionTests("testCompletionFieldName"));
-		suite.addTest(new CompletionTests("testCompletionLocalName"));
-		suite.addTest(new CompletionTests("testCompletionArgumentName"));
-		suite.addTest(new CompletionTests("testCompletionCatchArgumentName"));
-		suite.addTest(new CompletionTests("testCompletionCatchArgumentName2"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousType"));
-		suite.addTest(new CompletionTests("testCompletionAmbiguousType2"));
-		suite.addTest(new CompletionTests("testCompletionWithBinaryFolder"));
-		suite.addTest(new CompletionTests("testCompletionVariableNameOfArray1"));
-		suite.addTest(new CompletionTests("testCompletionVariableNameOfArray2"));
-		suite.addTest(new CompletionTests("testCompletionVariableNameOfArray3"));
-		suite.addTest(new CompletionTests("testCompletionVariableNameOfArray4"));
-		suite.addTest(new CompletionTests("testCompletionVariableNameUnresolvedType"));
-		suite.addTest(new CompletionTests("testCompletionSameSuperClass"));
-		suite.addTest(new CompletionTests("testCompletionSuperType"));
-		suite.addTest(new CompletionTests("testCompletionSuperType2"));
-		suite.addTest(new CompletionTests("testCompletionSuperType3"));
-		suite.addTest(new CompletionTests("testCompletionSuperType4"));
-		suite.addTest(new CompletionTests("testCompletionSuperType5"));
-		suite.addTest(new CompletionTests("testCompletionSuperType6"));
-		suite.addTest(new CompletionTests("testCompletionSuperType7"));
-		suite.addTest(new CompletionTests("testCompletionSuperType8"));
-		suite.addTest(new CompletionTests("testCompletionMethodThrowsClause"));
-		suite.addTest(new CompletionTests("testCompletionMethodThrowsClause2"));
-		suite.addTest(new CompletionTests("testCompletionThrowStatement"));
-		suite.addTest(new CompletionTests("testCompletionUnresolvedReturnType"));
-		suite.addTest(new CompletionTests("testCompletionUnresolvedParameterType"));
-		suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
-		suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
-		suite.addTest(new CompletionTests("testCompletionObjectsMethodWithInterfaceReceiver"));
-		suite.addTest(new CompletionTests("testCompletionConstructorForAnonymousType"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance1"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance2"));
-		suite.addTest(new CompletionTests("testCompletionReturnInInitializer"));
-		suite.addTest(new CompletionTests("testCompletionVariableName1"));
-		suite.addTest(new CompletionTests("testCompletionVariableName2"));
-		suite.addTest(new CompletionTests("testCompletionVariableName3"));
-		suite.addTest(new CompletionTests("testCompletionOnStaticMember1"));
-		suite.addTest(new CompletionTests("testCompletionOnStaticMember2"));
-		suite.addTest(new CompletionTests("testCompletionMemberType2"));
-		suite.addTest(new CompletionTests("testCompletionAfterCase1"));
-		suite.addTest(new CompletionTests("testCompletionAfterCase2"));
-		suite.addTest(new CompletionTests("testCompletionToplevelType1"));
-		suite.addTest(new CompletionTests("testCompletionLocalType1"));
-		suite.addTest(new CompletionTests("testCompletionType1"));
-		suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
-		suite.addTest(new CompletionTests("testCompletionClassLiteralAfterAnonymousType1"));
-		suite.addTest(new CompletionTests("testCompletionArraysCloneMethod"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethod1"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethod2"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethod3"));
-		suite.addTest(new CompletionTests("testCompletionAbstractMethod4"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration1"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration2"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration3"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration4"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration5"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration6"));
-		suite.addTest(new CompletionTests("testCompletionStaticMethod1"));
-		suite.addTest(new CompletionTests("testCompletionAfterSwitch"));
-		suite.addTest(new CompletionTests("testCompletionAfterSupercall1"));
-		suite.addTest(new CompletionTests("testCompletionPackageAndClass1"));
-		suite.addTest(new CompletionTests("testCompletionPackageAndClass2"));
-		suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
-		suite.addTest(new CompletionTests("testCompletionInsideStaticMethod"));
-		suite.addTest(new CompletionTests("testCompletionSameClass"));
-		suite.addTest(new CompletionTests("testCompletionInsideGenericClass"));
-		
-		// completion expectedTypes tests
-		suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
-		suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent2"));
-		suite.addTest(new CompletionTests("testCompletionCastIsParent1"));
-		suite.addTest(new CompletionTests("testCompletionCastIsParent2"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent1"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent2"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent3"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent4"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent5"));
-		suite.addTest(new CompletionTests("testCompletionMessageSendIsParent6"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent1"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent2"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent3"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent4"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent5"));
-		suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent6"));
-		suite.addTest(new CompletionTests("testCompletionFieldInitializer1"));
-		suite.addTest(new CompletionTests("testCompletionFieldInitializer2"));
-		suite.addTest(new CompletionTests("testCompletionFieldInitializer3"));
-		suite.addTest(new CompletionTests("testCompletionFieldInitializer4"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer1"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer2"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer3"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer4"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod1"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod2"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod3"));
-		suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod4"));
-		suite.addTest(new CompletionTests("testCompletionAssignmentInMethod1"));
-		suite.addTest(new CompletionTests("testCompletionAssignmentInMethod2"));
-		suite.addTest(new CompletionTests("testCompletionAssignmentInMethod3"));
-		suite.addTest(new CompletionTests("testCompletionAssignmentInMethod4"));
-		suite.addTest(new CompletionTests("testCompletionEmptyTypeName1"));
-		suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
-		suite.addTest(new CompletionTests("testCompletionEmptyTypeName3"));
-		suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
-		suite.addTest(new CompletionTests("testCompletionMemberType"));
-		suite.addTest(new CompletionTests("testCompletionVoidMethod"));
-		suite.addTest(new CompletionTests("testCompletionQualifiedExpectedType"));
-		suite.addTest(new CompletionTests("testCompletionUnaryOperator1"));
-		suite.addTest(new CompletionTests("testCompletionUnaryOperator2"));
-		suite.addTest(new CompletionTests("testCompletionBinaryOperator1"));
-		suite.addTest(new CompletionTests("testCompletionBinaryOperator2"));
-		suite.addTest(new CompletionTests("testCompletionBinaryOperator3"));
-		suite.addTest(new CompletionTests("testCompletionInstanceofOperator1"));
-		suite.addTest(new CompletionTests("testCompletionConditionalExpression1"));
-		suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
-		suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
-		suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
-		suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
-		suite.addTest(new CompletionTests("testCompletion2InterfacesWithSameMethod"));
-		suite.addTest(new CompletionTests("testCompletionExactNameCaseInsensitive"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends1"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends2"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends3"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends4"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends5"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends6"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends7"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends8"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends9"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends10"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends11"));
-		suite.addTest(new CompletionTests("testCompletionInsideExtends12"));
-		
-		// completion keywords tests
-		suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThis15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSuper12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTry6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDo6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFor6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordIf6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordReturn6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSwitch6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrow6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAssert6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordElse8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCatch10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinally14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordContinue1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordContinue2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordContinue3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordContinue4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordBreak6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordWhile10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordExtends10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImplements6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPackage8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordImport8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordCase10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordDefault10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass17"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass18"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass19"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass20"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass21"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass22"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass23"));
-		suite.addTest(new CompletionTests("testCompletionKeywordClass24"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface17"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInterface18"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordThrows8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordSynchronized12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNative8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStrictfp8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordVolatile8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTransient8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNew16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordStatic10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic17"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic18"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic19"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPublic20"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordPrivate10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordProtected10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal17"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFinal18"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract6"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract7"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract8"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract9"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract10"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract11"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract12"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract13"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract14"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract15"));
-		suite.addTest(new CompletionTests("testCompletionKeywordAbstract16"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTrue1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTrue2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTrue3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordTrue4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFalse1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFalse2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFalse3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordFalse4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNull1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNull2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNull3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordNull4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof1"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof2"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof3"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof4"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof5"));
-		suite.addTest(new CompletionTests("testCompletionKeywordInstanceof6"));
-		
-		// completion tests with position
-		suite.addTest(new CompletionTests("testCompletionNonEmptyToken1"));
-		suite.addTest(new CompletionTests("testCompletionEmptyToken1"));
+	TestSuite suite = new Suite(CompletionTests.class.getName());		
+
+	if (true) {
+		Class c = CompletionTests.class;
+		Method[] methods = c.getMethods();
+		for (int i = 0, max = methods.length; i < max; i++) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+				suite.addTest(new CompletionTests(methods[i].getName()));
+			}
+		}
+		return suite;
 	}
-	
+	suite.addTest(new CompletionTests("test0136"));			
 	return suite;
 }
+
 /**
  * Ensures that completion is not case sensitive
  */
@@ -8873,6 +8268,27 @@ public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException
 			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
 			"Object[METHOD_REF]{), Ljava.lang.Object;, ()V, Object, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
+}
+public void testCompletionBasicCompletionContext() throws JavaModelException {
+	CompletionResult result = complete(
+			"/Completion/src3/test0000/CompletionBasicCompletionContext.java",
+			"package test0000;\n" +
+			"public class CompletionBasicCompletionContext {\n" +
+			"  void bar(String o) {\n" +
+			"    String zzz = null; \n" + 
+			"    o = zzz\n" + 
+			"  }\n" +
+			"}",
+			"zzz");
+	
+	assertResults(
+			"expectedTypesSignatures={Ljava.lang.String;}\n" +
+			"expectedTypesKeys={Ljava/lang/String;}",
+			result.context);
+	
+	assertResults(
+			"zzz[LOCAL_VARIABLE_REF]{zzz, null, Ljava.lang.String;, zzz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE +  + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result.proposals);
 }
 public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();

@@ -19,60 +19,19 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
 
-public class CompletionTests_1_5 extends AbstractJavaModelTests implements RelevanceConstants {
-	Hashtable oldOptions;
-	ICompilationUnit wc = null;
-	WorkingCopyOwner owner = null; 
+public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests implements RelevanceConstants {
+
 public CompletionTests_1_5(String name) {
 	super(name);
 }
-public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-	return super.getWorkingCopy(path, source, this.owner, null);
-}
-private String complete(String path, String source, String completeBehind) throws JavaModelException {
-	this.wc = getWorkingCopy(path, source);
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
-	return requestor.getResults();
-}
 public void setUpSuite() throws Exception {
-	super.setUpSuite();
-	
 	setUpJavaProject("Completion", "1.5");
-	
-	this.oldOptions = JavaCore.getOptions();
-	
-	waitUntilIndexesReady();
+	super.setUpSuite();
 }
-protected void setUp() throws Exception {
-	super.setUp();
-	
-	this.owner = new WorkingCopyOwner(){};
-}
+
 public void tearDownSuite() throws Exception {
-	deleteProject("Completion");
-	
-	JavaCore.setOptions(oldOptions);
-	
 	super.tearDownSuite();
-}
-protected void tearDown() throws Exception {
-	if(this.wc != null) {
-		this.wc.discardWorkingCopy();
-	}
-	super.tearDown();
-}
-protected static void assertResults(String expected, String actual) {
-	try {
-		assertEquals(expected, actual);
-	} catch(ComparisonFailure c) {
-		System.out.println(actual);
-		System.out.println();
-		throw c;
-	}
+	deleteProject("Completion");
 }
 public static Test suite() {
 	TestSuite suite = new Suite(CompletionTests_1_5.class.getName());		
@@ -1505,7 +1464,7 @@ public void test0084() throws JavaModelException {
 				"   public static int foo(int i) {return 0;}\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0084/Test.java",
 				"package test0084;\n" +
 				"import static pkgstaticimport.MyClass0084.foo;\n" +
@@ -1519,7 +1478,7 @@ public void test0084() throws JavaModelException {
 		assertResults(
 				"foo[METHOD_REF]{foo(), Lpkgstaticimport.MyClass0084;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"foo[METHOD_REF]{foo(), Lpkgstaticimport.MyClass0084;, (I)I, foo, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(imported != null) {
 			imported.discardWorkingCopy();
@@ -2712,7 +2671,7 @@ public void test0134() throws JavaModelException {
 			requestor.getResults());
 }
 public void test0135() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	CompletionResult result = complete(
 			"/Completion/src3/test0135/TestAnnotation.java",
 			"package test0135;\n" +
 			"public @interface TestAnnotation {\n" +
@@ -2723,18 +2682,12 @@ public void test0135() throws JavaModelException {
 			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
 			"  Test2(){\n" +
 			"  }\n" +
-			"}");
+			"}",
+			"foo");
 	
-	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
-
 	assertResults(
 			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0135.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
-			requestor.getResults());
+			result.proposals);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0136() throws JavaModelException {
@@ -2747,7 +2700,7 @@ public void test0136() throws JavaModelException {
 				"  RED, BLUE, WHITE;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0136/Test.java",
 				"package test0136;\n" +
 				"public class Test {\n" +
@@ -2761,8 +2714,13 @@ public void test0136() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2780,7 +2738,7 @@ public void test0137() throws JavaModelException {
 				"  RED, BLUE, WHITE;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0137/Test.java",
 				"package test0137;\n" +
 				"public class Test {\n" +
@@ -2795,8 +2753,13 @@ public void test0137() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2814,7 +2777,7 @@ public void test0138() throws JavaModelException {
 				"  RED, BLUE, WHITE;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0138/Test.java",
 				"package test0138;\n" +
 				"public class Test {\n" +
@@ -2830,8 +2793,13 @@ public void test0138() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2849,7 +2817,7 @@ public void test0139() throws JavaModelException {
 				"  RED, BLUE, WHITE;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0139/Test.java",
 				"package test0139;\n" +
 				"public class Test {\n" +
@@ -2864,8 +2832,13 @@ public void test0139() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2883,7 +2856,7 @@ public void test0140() throws JavaModelException {
 				"  RED, BLUE, WHITE;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0140/Test.java",
 				"package test0140;\n" +
 				"public class Test {\n" +
@@ -2898,8 +2871,13 @@ public void test0140() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2917,7 +2895,7 @@ public void test0141() throws JavaModelException {
 				"  public final static int RED = 0, BLUE = 1, WHITE = 3;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0141/Test.java",
 				"package test0141;\n" +
 				"public class Test {\n" +
@@ -2933,8 +2911,13 @@ public void test0141() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();
@@ -2953,7 +2936,7 @@ public void test0142() throws JavaModelException {
 				"  public static final int RED2 = 0;\n" +
 				"}");
 		
-		String result = complete(
+		CompletionResult result = complete(
 				"/Completion/src3/test0142/Test.java",
 				"package test0142;\n" +
 				"public class Test {\n" +
@@ -2969,9 +2952,14 @@ public void test0142() throws JavaModelException {
 				"RED");
 		
 		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
 				"REDc[LOCAL_VARIABLE_REF]{REDc, null, Ltest0142.Colors;, REDc, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
-				result);
+				result.proposals);
 	} finally {
 		if(enumeration != null) {
 			enumeration.discardWorkingCopy();

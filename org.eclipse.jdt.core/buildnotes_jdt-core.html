@@ -47,9 +47,35 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new completion API to describe context in which the completion occurs.<br>
+Currently only the expected types of the potential completion proposals are proposed.
+<pre>
+ X x = zzz<complete here>
+</pre>
+In this example the expected type is <code>X</code>. It is not mandatory to a proposal
+to respect this expectation and it is possible that there is no completion proposal.
+<pre>
+public class CompletionContext  {
+  public char[][] getExpectedTypesSignatures() {...}
+  public char[][] getExpectedTypesKeys() {...}
+}
+</pre>
+Client must override <code>CompletionRequestor#acceptContext(..)</code> to know the context.
+This method call ocurs after the call to <code>beginReporting()</code> and before the call to any
+<code>accept(CompletionProposal)</code> method.
+<pre>
+public class CompletionRequestor {
+  ...
+  public void acceptContext(CompletionContext context) {..}
+  ...   
+}
+</pre>
+</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88124">88124</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86970">86970</a>
+[codeassist] Add an API on completion proposal API to surface the expected type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88124">88124</a>
 More deprecated warnings than expected
 
 
@@ -64,6 +90,7 @@ Eclipse SDK 3.1M6 - 15th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+
 <li>Compiler now recognizes <code>@Deprecated</code> annotations, and treats them equivalent
 to doc comment <code>/** @deprecated */</code>.
 </li>
