@@ -219,6 +219,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    info.newResolvedPath = newResolvedPath;
 	    info.newRawPath = newRawPath;
 	    if (canChangeResources) {
+            this.projectUpdates.remove(project); // remove possibly awaiting one
 	        info.updateProjectReferencesIfNecessary();
 	        return;
 	    }
