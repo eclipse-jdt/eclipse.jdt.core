@@ -773,7 +773,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IPath variablePath = JavaModelManager.variableGet(variableName);
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
-		if (variablePath != null && variablePath != JavaModelManager.VariablePreviouslyPersisted) {
+		if (variablePath != null) {
 			return variablePath;
 		}
 		// even if persisted value exists, initializer is given priority, only if no initializer is found the persisted value is reused
@@ -793,14 +793,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
 				System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
-			}
-		} else {
-			if (variablePath == JavaModelManager.VariablePreviouslyPersisted){
-				IPath persistedPath = (IPath)JavaModelManager.PreviouslyPersistedVariables.get(variableName);
-				JavaModelManager.variablePut(variableName, persistedPath);
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPVariable INIT - reusing cached value: " + variableName + " --> " + persistedPath); //$NON-NLS-2$//$NON-NLS-1$
-				}
 			}
 		}
 		return variablePath;

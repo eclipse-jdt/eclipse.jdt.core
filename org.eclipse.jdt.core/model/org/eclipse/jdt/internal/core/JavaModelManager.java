@@ -53,7 +53,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Classpath variables pool
 	 */
 	private static HashMap Variables = new HashMap(5);
-	public static HashMap PreviouslyPersistedVariables = new HashMap(5);
 	public static HashSet OptionNames = new HashSet(20);
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_VARIABLE_IGNORE = " ##<cp var ignore>## "; //$NON-NLS-1$
@@ -87,7 +86,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
-	public final static IPath VariablePreviouslyPersisted = new Path("Variable Previously Persisted"); //$NON-NLS-1$
 	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
 		public IClasspathEntry[] getClasspathEntries() { return null; }
 		public String getDescription() { return null; }
@@ -925,6 +923,32 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return info;
 	}
+
+	/**
+ 	 * Returns the name of the variables for which an CP variable initializer is registered through an extension point
+ 	 */
+	public static String[] getRegisteredVariableNames(){
+		
+		Plugin jdtCorePlugin = JavaCore.getPlugin();
+		if (jdtCorePlugin == null) return null;
+
+		ArrayList variableList = new ArrayList(5);
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+				for(int j = 0; j < configElements.length; j++){
+					String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
+					if (varAttribute != null) variableList.add(varAttribute);
+				}
+			}	
+		}
+		String[] variableNames = new String[variableList.size()];
+		variableList.toArray(variableNames);
+		return variableNames;
+	}	
+
 	/**
 	 * Returns the File to use for saving and restoring the last built state for the given project.
 	 */
@@ -983,10 +1007,6 @@ public class JavaModelManager implements ISaveParticipant {
 			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}
 	}
-
-
-
-
 
 	public void loadVariables() throws CoreException {
 
@@ -1047,10 +1067,16 @@ public class JavaModelManager implements ISaveParticipant {
 			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
 				String varName = propertyName.substring(prefixLength);
 				IPath varPath = new Path(preferences.getString(propertyName).trim());
-				Variables.put(varName, VariablePreviouslyPersisted); // special value to allow cached value in case no initializer is available
-				PreviouslyPersistedVariables.put(varName, varPath);
+				
+				Variables.put(varName, varPath); 
 			}
 		}		
+		// override persisted values for variables which have a registered initializer
+		String[] registeredVariables = getRegisteredVariableNames();
+		for (int i = 0; i < registeredVariables.length; i++) {
+			String varName = registeredVariables[i];
+			Variables.put(varName, null); // reset variable, but leave its entry in the Map, so it will be part of variable names.
+		}
 	}
 	
 	/**
