@@ -95,10 +95,20 @@ public interface IAnnotationComponentValue {
 	IAnnotationComponentValue[] getAnnotationComponentValues();
 	
 	/**
-	 * Answer back the attribute value as described in the JVM specifications.
+	 * Answer back the annotation value as described in the JVM specifications.
 	 * This is initialized only of the tag item is '&#064;'.
 	 * 
 	 * @return the attribute value
+	 */
+	IAnnotation getAnnotationValue();
+
+	/**
+	 * Answer back the annotation value as described in the JVM specifications.
+	 * This is initialized only of the tag item is '&#064;'.
+	 * 
+	 * @return the attribute value
+	 * TODO (olivier) remove after 3.1M4
+	 * @deprecated Use getAnnotationValue() instead
 	 */
 	IAnnotation getAttributeValue();
 
@@ -137,15 +147,14 @@ public interface IAnnotationComponentValue {
 	int getConstantValueIndex();
 
 	/**
-	 * Answer back the utf8 constant as described in the JVM specifications.
-	 * This utf8 represents the simple name of the enum constant represented
-	 * by this annotation component value.
+	 * Answer back the simple name of the enum constant represented
+	 * by this annotation component value as described in the JVM specifications.
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
 	 */
-	IConstantPoolEntry getEnumConstantName();	
+	char[] getEnumConstantName();	
 	
 	/**
 	 * Answer back the utf8 constant index as described in the JVM specifications.
@@ -157,15 +166,14 @@ public interface IAnnotationComponentValue {
 	int getEnumConstantNameIndex();
 
 	/**
-	 * Answer back the utf8 constant as described in the JVM specifications.
-	 * This utf8 represents the binary name of the type of the enum constant represented
-	 * by this annotation component value.
+	 * Answer back the binary name of the type of the enum constant represented
+	 * by this annotation component value as described in the JVM specifications.
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
 	 */
-	IConstantPoolEntry getEnumConstantTypeName();	
+	char[] getEnumConstantTypeName();	
 	
 	/**
 	 * Answer back the utf8 constant index as described in the JVM specifications.

@@ -14,6 +14,8 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAnnotation;
 import org.eclipse.jdt.core.util.IAnnotationComponent;
 import org.eclipse.jdt.core.util.IConstantPool;
+import org.eclipse.jdt.core.util.IConstantPoolConstant;
+import org.eclipse.jdt.core.util.IConstantPoolEntry;
 
 /**
  * Default implementation of IAnnotation
@@ -23,6 +25,7 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 	private static final IAnnotationComponent[] NO_ENTRIES = new IAnnotationComponent[0];
 	
 	private int typeIndex;
+	private char[] typeName;
 	private int componentsNumber;
 	private IAnnotationComponent[] components;
 	private int readOffset;
@@ -40,7 +43,17 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 			IConstantPool constantPool,
 			int offset) throws ClassFormatException {
 		
-		this.typeIndex = u2At(classFileBytes, 0, offset);
+		final int index = u2At(classFileBytes, 0, offset);
+		this.typeIndex = index;
+		if (index != 0) {
+			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(index);
+			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+			}
+			this.typeName = constantPoolEntry.getUtf8Value();
+		} else {
+			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+		}
 		final int length = u2At(classFileBytes, 2, offset);
 		this.componentsNumber = length;
 		if (length != 0) {
@@ -77,5 +90,11 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 	
 	int sizeInBytes() {
 		return this.readOffset;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotation#getTypeName()
+	 */
+	public char[] getTypeName() {
+		return this.typeName;
 	}
 }

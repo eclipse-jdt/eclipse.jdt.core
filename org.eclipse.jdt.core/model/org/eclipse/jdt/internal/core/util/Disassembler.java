@@ -1054,11 +1054,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				break;
 			case IAnnotationComponentValue.ENUM_TAG:
 				final int enumConstantTypeNameIndex = annotationComponentValue.getEnumConstantTypeNameIndex();
-				constantPoolEntry = annotationComponentValue.getEnumConstantTypeName();
-				final char[] typeName = CharOperation.replaceOnCopy(constantPoolEntry.getUtf8Value(), '/', '.');
+				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');
 				final int enumConstantNameIndex = annotationComponentValue.getEnumConstantNameIndex();
-				constantPoolEntry = annotationComponentValue.getEnumConstantName();
-				final char[] constantName = constantPoolEntry.getUtf8Value();
+				final char[] constantName = annotationComponentValue.getEnumConstantName();
 				buffer.append(Util.bind("disassembler.annotationenumvalue", //$NON-NLS-1$
 					new String[] {
 						Integer.toString(enumConstantTypeNameIndex),
@@ -1079,7 +1077,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				break;
 			case IAnnotationComponentValue.ANNOTATION_TAG:
 				buffer.append(Util.bind("disassembler.annotationannotationvalue")); //$NON-NLS-1$
-				IAnnotation annotation = annotationComponentValue.getAttributeValue();
+				IAnnotation annotation = annotationComponentValue.getAnnotationValue();
 				disassemble(annotation, constantPool, buffer, lineSeparator, tabNumber + 1);
 				break;
 			case IAnnotationComponentValue.ARRAY_TAG:

@@ -24,15 +24,15 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 	private static final IAnnotationComponentValue[] NO_VALUES = new AnnotationComponentValue[0];
 	
 	private IAnnotationComponentValue[] annotationComponentValues;
-	private IAnnotation attributeValue;
-	private IConstantPoolEntry classFileInfo;
+	private IAnnotation annotationValue;
+	private IConstantPoolEntry classInfo;
 	private int classFileInfoIndex;
 	private IConstantPoolEntry constantValue;
 	private int constantValueIndex;
 	private int enumConstantTypeNameIndex;
 	private int enumConstantNameIndex;
-	private IConstantPoolEntry enumConstantTypeName;
-	private IConstantPoolEntry enumConstantName;
+	private char[] enumConstantTypeName;
+	private char[] enumConstantName;
 
 	private int readOffset;
 	private int tag;
@@ -81,7 +81,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
-					this.enumConstantTypeName = constantPoolEntry;
+					this.enumConstantTypeName = constantPoolEntry.getUtf8Value();
 				}
 				this.readOffset += 2;
 				index = this.u2At(classFileBytes, this.readOffset, offset);
@@ -91,7 +91,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
-					this.enumConstantName = constantPoolEntry;
+					this.enumConstantName = constantPoolEntry.getUtf8Value();
 				}
 				this.readOffset += 2;
 				break;
@@ -103,13 +103,13 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
-					this.classFileInfo = constantPoolEntry;
+					this.classInfo = constantPoolEntry;
 				}
 				this.readOffset += 2;
 				break;
 			case '@' :
 				Annotation annotation = new Annotation(classFileBytes, constantPool, this.readOffset + offset);
-				this.attributeValue = annotation;
+				this.annotationValue = annotation;
 				this.readOffset += annotation.sizeInBytes();
 				break;
 			case '[' :
@@ -136,16 +136,22 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 		return this.annotationComponentValues;
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getAttributeValue()
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getAnnotationValue()
+	 */
+	public IAnnotation getAnnotationValue() {
+		return this.annotationValue;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getAnnotationValue()
 	 */
 	public IAnnotation getAttributeValue() {
-		return this.attributeValue;
+		return this.annotationValue;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getClassInfo()
 	 */
 	public IConstantPoolEntry getClassInfo() {
-		return this.classFileInfo;
+		return this.classInfo;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getClassInfoIndex()
@@ -168,7 +174,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantName()
 	 */
-	public IConstantPoolEntry getEnumConstantName() {
+	public char[] getEnumConstantName() {
 		return this.enumConstantName;
 	}
 	/* (non-Javadoc)
@@ -180,7 +186,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getEnumConstantTypeName()
 	 */
-	public IConstantPoolEntry getEnumConstantTypeName() {
+	public char[] getEnumConstantTypeName() {
 		return this.enumConstantTypeName;
 	}
 	/* (non-Javadoc)

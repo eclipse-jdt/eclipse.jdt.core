@@ -27,6 +27,13 @@ public interface IAnnotation {
 	int getTypeIndex();
 	
 	/**
+	 * Answer back the type name as described in the JVM specifications.
+	 * 
+	 * @return the type name
+	 */
+	char[] getTypeName();
+	
+	/**
 	 * Answer back the number of components as described in the JVM specifications.
 	 * 
 	 * @return the type index
