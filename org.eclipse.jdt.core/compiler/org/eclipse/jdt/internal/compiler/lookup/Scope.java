@@ -127,6 +127,19 @@ public abstract class Scope
 		return ((CompilationUnitScope) unitScope).environment;
 	}
 
+	protected void faultInReceiverType(TypeBinding type) {
+		if (type.isArrayType())
+			type = ((ArrayBinding) type).leafComponentType;
+
+		if (type instanceof BinaryTypeBinding) {
+			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
+			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
+			binaryType.enclosingType();
+			binaryType.superclass();
+			binaryType.superInterfaces();
+		}
+	}
+
 	// abstract method lookup lookup (since maybe missing default abstract methods)
 	public MethodBinding findDefaultAbstractMethod(
 		ReferenceBinding receiverType, 
@@ -207,6 +220,7 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
+		faultInReceiverType(receiverType);
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
@@ -241,6 +255,7 @@ public abstract class Scope
 			return null;
 		}
 
+		faultInReceiverType(receiverType);
 		compilationUnitScope().recordTypeReference(receiverType);
 
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
@@ -463,6 +478,7 @@ public abstract class Scope
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector(); //TODO should rewrite to remove #matchingMethod since found is allocated anyway
 
+		faultInReceiverType(receiverType);
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
 
@@ -1001,6 +1017,7 @@ public abstract class Scope
 
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
+			faultInReceiverType(receiverType);
 			compilationUnitScope().recordTypeReference(receiverType);
 			compilationUnitScope().recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
