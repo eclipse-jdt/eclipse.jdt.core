@@ -1119,7 +1119,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		long start = -1;
 		if (DEBUG) {
 			start = System.currentTimeMillis();
-			System.out.println("CREATING TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (this.computeSubtypes) {
+				System.out.println("CREATING TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				System.out.println("CREATING SUPER TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			if (this.type != null) {
 				System.out.println("  on type " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
 			}
@@ -1134,7 +1138,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		this.progressMonitor = null;
 		if (DEBUG) {
-			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (this.computeSubtypes) {
+				System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				System.out.println("CREATED SUPER TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			System.out.println(this.toString());
 		}
 	} catch (JavaModelException e) {
