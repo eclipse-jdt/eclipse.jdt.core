@@ -97,8 +97,10 @@ public class ImportDeclaration extends ASTNode {
 	public Name getName()  {
 		if (importName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(getAST().newQualifiedName(
 				new SimpleName(getAST()), new SimpleName(getAST())));
+			getAST().setModificationCount(count);
 		}
 		return importName;
 	}

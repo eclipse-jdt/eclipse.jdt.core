@@ -130,7 +130,9 @@ public class SuperMethodInvocation extends Expression {
 	public SimpleName getName() {
 		if (methodName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return methodName;
 	}

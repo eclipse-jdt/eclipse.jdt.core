@@ -105,7 +105,9 @@ public class ConditionalExpression extends Expression {
 	public Expression getExpression() {
 		if (conditionExpression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return conditionExpression;
 	}
@@ -139,7 +141,9 @@ public class ConditionalExpression extends Expression {
 	public Expression getThenExpression() {
 		if (thenExpression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setThenExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return thenExpression;
 	}
@@ -173,7 +177,9 @@ public class ConditionalExpression extends Expression {
 	public Expression getElseExpression() {
 		if (elseExpression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setElseExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return elseExpression;
 	}

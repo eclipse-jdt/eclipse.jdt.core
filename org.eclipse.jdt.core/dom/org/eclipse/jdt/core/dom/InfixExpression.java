@@ -289,7 +289,9 @@ public class InfixExpression extends Expression {
 	public Expression getLeftOperand() {
 		if (leftOperand  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setLeftOperand(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return leftOperand;
 	}
@@ -322,7 +324,9 @@ public class InfixExpression extends Expression {
 	public Expression getRightOperand() {
 		if (rightOperand  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setRightOperand(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return rightOperand;
 	}

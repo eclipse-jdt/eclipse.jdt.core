@@ -168,7 +168,9 @@ public class FieldDeclaration extends BodyDeclaration {
 	public Type getType() {
 		if (baseType == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
+			getAST().setModificationCount(count);
 		}
 		return baseType;
 	}

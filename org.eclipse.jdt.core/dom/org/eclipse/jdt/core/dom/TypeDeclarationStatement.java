@@ -94,7 +94,9 @@ public class TypeDeclarationStatement extends Statement {
 	public TypeDeclaration getTypeDeclaration() {
 		if (typeDecl == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setTypeDeclaration(new TypeDeclaration(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return typeDecl;
 	}

@@ -94,7 +94,9 @@ public class CatchClause extends ASTNode {
 	public SingleVariableDeclaration getException() {
 		if (exceptionDecl == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setException(new SingleVariableDeclaration(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return exceptionDecl;
 	}
@@ -128,7 +130,9 @@ public class CatchClause extends ASTNode {
 	public Block getBody() {
 		if (body == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setBody(new Block(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return body;
 	}

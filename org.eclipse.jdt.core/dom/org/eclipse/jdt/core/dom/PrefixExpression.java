@@ -208,7 +208,9 @@ public class PrefixExpression extends Expression {
 	public Expression getOperand() {
 		if (operand  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setOperand(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return operand;
 	}

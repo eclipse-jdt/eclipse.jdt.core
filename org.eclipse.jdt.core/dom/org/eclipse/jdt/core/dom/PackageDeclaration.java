@@ -87,7 +87,9 @@ public class PackageDeclaration extends ASTNode {
 	public Name getName() {
 		if (packageName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return packageName;
 	}

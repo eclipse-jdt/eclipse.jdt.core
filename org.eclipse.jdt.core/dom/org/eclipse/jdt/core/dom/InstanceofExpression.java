@@ -95,7 +95,9 @@ public class InstanceofExpression extends Expression {
 	public Expression getLeftOperand() {
 		if (leftOperand  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setLeftOperand(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return leftOperand;
 	}
@@ -128,7 +130,9 @@ public class InstanceofExpression extends Expression {
 	public Type getRightOperand() {
 		if (rightOperand  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setRightOperand(new SimpleType(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return rightOperand;
 	}

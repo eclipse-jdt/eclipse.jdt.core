@@ -111,7 +111,9 @@ public class IfStatement extends Statement {
 	public Expression getExpression() {
 		if (expression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return expression;
 	}
@@ -144,7 +146,9 @@ public class IfStatement extends Statement {
 	public Statement getThenStatement() {
 		if (thenStatement == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setThenStatement(new Block(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return thenStatement;
 	}

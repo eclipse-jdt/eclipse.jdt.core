@@ -183,7 +183,9 @@ public class ForStatement extends Statement {
 	public Statement getBody() {
 		if (body == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setBody(new Block(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return body;
 	}

@@ -134,7 +134,16 @@ public final class AST {
 	public long modificationCount() {
 		return modCount;
 	}
-	
+
+	/**
+	 * Set the modification count to the new value
+	 * 
+	 * @param value the new value
+	 */
+	void setModificationCount(long value) {
+		this.modCount = value;
+	}
+		
 	/**
 	 * Indicates that this AST is about to be modified.
 	 * <p>

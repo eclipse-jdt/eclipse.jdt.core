@@ -95,7 +95,9 @@ public class DoStatement extends Statement {
 	public Expression getExpression() {
 		if (expression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return expression;
 	}
@@ -128,7 +130,9 @@ public class DoStatement extends Statement {
 	public Statement getBody() {
 		if (body == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setBody(new Block(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return body;
 	}

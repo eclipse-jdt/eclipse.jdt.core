@@ -244,7 +244,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	public SimpleName getName() {
 		if (methodName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return methodName;
 	}
@@ -305,7 +307,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	public Type getReturnType() {
 		if (returnType == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setReturnType(getAST().newPrimitiveType(PrimitiveType.VOID));
+			getAST().setModificationCount(count);
 		}
 		return returnType;
 	}

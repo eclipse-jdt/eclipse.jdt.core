@@ -85,7 +85,9 @@ public class TypeLiteral extends Expression {
 	public Type getType() {
 		if (type == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
+			getAST().setModificationCount(count);
 		}
 		return type;
 	}

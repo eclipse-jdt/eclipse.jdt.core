@@ -83,7 +83,9 @@ public class SimpleType extends Type {
 	public Name getName() {
 		if (typeName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return typeName;
 	}

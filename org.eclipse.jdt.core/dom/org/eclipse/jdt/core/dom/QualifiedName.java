@@ -104,7 +104,9 @@ public class QualifiedName extends Name {
 	public Name getQualifier() {
 		if (qualifier == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setQualifier(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return qualifier;
 	}
@@ -137,7 +139,9 @@ public class QualifiedName extends Name {
 	public SimpleName getName() {
 		if (name == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return name;
 	}

@@ -117,8 +117,10 @@ public class ArrayCreation extends Expression {
 	public ArrayType getType() {
 		if (arrayType == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setType(getAST().newArrayType(
 				getAST().newPrimitiveType(PrimitiveType.INT)));
+			getAST().setModificationCount(count);
 		}
 		return arrayType;
 	}

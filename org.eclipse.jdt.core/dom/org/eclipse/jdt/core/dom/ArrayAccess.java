@@ -95,7 +95,9 @@ public class ArrayAccess extends Expression {
 	public Expression getArray() {
 		if (arrayExpression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setArray(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return arrayExpression;
 	}
@@ -129,7 +131,9 @@ public class ArrayAccess extends Expression {
 	public Expression getIndex() {
 		if (indexExpression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setIndex(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return indexExpression;
 	}

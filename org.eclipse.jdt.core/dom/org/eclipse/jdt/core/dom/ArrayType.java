@@ -87,7 +87,9 @@ public class ArrayType extends Type {
 	public Type getComponentType() {
 		if (componentType == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setComponentType(new SimpleType(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return componentType;
 	}

@@ -97,7 +97,9 @@ public class LabeledStatement extends Statement {
 	public SimpleName getLabel() {
 		if (labelName == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setLabel(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return labelName;
 	}
@@ -128,7 +130,9 @@ public class LabeledStatement extends Statement {
 	public Statement getBody() {
 		if (body == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setBody(new EmptyStatement(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return body;
 	}

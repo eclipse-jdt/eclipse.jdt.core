@@ -94,7 +94,9 @@ public class CastExpression extends Expression {
 	public Type getType() {
 		if (type == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
+			getAST().setModificationCount(count);
 		}
 		return type;
 	}
@@ -126,7 +128,9 @@ public class CastExpression extends Expression {
 	public Expression getExpression() {
 		if (expression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return expression;
 	}

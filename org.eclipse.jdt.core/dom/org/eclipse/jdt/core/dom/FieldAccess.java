@@ -125,7 +125,9 @@ public class FieldAccess extends Expression {
 	public Expression getExpression() {
 		if (expression == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setExpression(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return expression;
 	}
@@ -157,7 +159,10 @@ public class FieldAccess extends Expression {
 	 */ 
 	public SimpleName getName() {
 		if (fieldName == null) {
+			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return fieldName;
 	}

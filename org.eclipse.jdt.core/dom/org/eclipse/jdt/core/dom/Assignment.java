@@ -242,7 +242,9 @@ public class Assignment extends Expression {
 	public Expression getLeftHandSide() {
 		if (leftHandSide  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setLeftHandSide(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return leftHandSide;
 	}
@@ -275,7 +277,9 @@ public class Assignment extends Expression {
 	public Expression getRightHandSide() {
 		if (rightHandSide  == null) {
 			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
 			setRightHandSide(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
 		return rightHandSide;
 	}
