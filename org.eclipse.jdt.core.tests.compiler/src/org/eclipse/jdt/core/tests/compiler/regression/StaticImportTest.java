@@ -302,4 +302,25 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"The static import java.lang.System must be a field or member type\n" + 
 			"----------\n");
 	}
+
+	public void test009() { // test static top level types
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static java.lang.reflect.Method.*;\n" +
+				"public class X {Method m;}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 2)\n" + 
+			"	import static java.lang.reflect.Method.*;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.lang.reflect.Method is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 3)\n" + 
+			"	public class X {Method m;}\n" + 
+			"	                ^^^^^^\n" + 
+			"Method cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
