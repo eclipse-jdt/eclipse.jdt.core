@@ -1,7 +1,19 @@
 package test0569;
 
+/**
+ * javadoc comment
+ */
 public class A {
-	public static void main(java.lang.String[] args) {
-		System.out.println("Hello World");
+
+	/**
+	 * javadoc comment
+	 */
+	public void method() {
+		/**
+		 * not javadoc comment
+		 */
+		System.out.println("println");
+		class Local {
+		}
 	}
 }
