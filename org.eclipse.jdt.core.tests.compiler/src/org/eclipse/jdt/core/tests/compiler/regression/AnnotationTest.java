@@ -100,8 +100,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 	
 	// check annotation method cannot indirectly return annotation type (circular ref)
-	// TODO (kent) reenable once addressed
-	public void _test003() {
+	public void test003() {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
@@ -113,8 +112,41 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	Foo value();\n" +
 				"}\n"
 			},
-			"invalid circular reference to annotation");
-	}		
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 2)\n" + 
+			"	Bar value();\n" + 
+			"	^^^\n" + 
+			"Cycle detected: a cycle exists in between annotation attributes of Foo and Bar\n" + 
+			"----------\n" + 
+			"2. ERROR in Foo.java (at line 6)\n" + 
+			"	Foo value();\n" + 
+			"	^^^\n" + 
+			"Cycle detected: a cycle exists in between annotation attributes of Bar and Foo\n" + 
+			"----------\n");
+	    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85538
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Nested {\n" + 
+				"	String name() default \"Hans\";\n" +
+				"	N2 nest();\n" +
+				"}\n" +
+				"@interface N2 {\n" + 
+				"	Nested n2() default @Nested(name=\"Haus\", nest= @N2);\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	N2 nest();\n" + 
+			"	^^\n" + 
+			"Cycle detected: a cycle exists in between annotation attributes of Nested and N2\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Nested n2() default @Nested(name=\"Haus\", nest= @N2);\n" + 
+			"	^^^^^^\n" + 
+			"Cycle detected: a cycle exists in between annotation attributes of N2 and Nested\n" + 
+			"----------\n");
+	}
 
 	// check annotation method cannot directly return annotation type
 	public void test004() {

@@ -421,6 +421,9 @@ boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
 	return false;
 }
 void verify(SourceTypeBinding someType) {
+	if (someType.isAnnotationType())
+		someType.detectAnnotationCycle();
+
 	super.verify(someType);
 
 	for (int i = someType.typeVariables.length; --i >= 0;) {

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 
 /*
@@ -389,6 +390,25 @@ public final int depth() {
 	while ((current = current.enclosingType()) != null)
 		depth++;
 	return depth;
+}
+public boolean detectAnnotationCycle() {
+	if ((this.tagBits & TagBits.EndAnnotationCheck) != 0) return false; // already checked
+	if ((this.tagBits & TagBits.BeginAnnotationCheck) != 0) return true; // in the middle of checking its methods
+
+	this.tagBits |= TagBits.BeginAnnotationCheck;
+	MethodBinding[] currentMethods = methods();
+	for (int i = 0, l = currentMethods.length; i < l; i++) {
+		TypeBinding returnType = currentMethods[i].returnType.leafComponentType();
+		if (returnType.isAnnotationType() && ((ReferenceBinding) returnType).detectAnnotationCycle()) {
+			if (this instanceof SourceTypeBinding) {
+				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
+				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, returnType, decl != null ? decl.returnType : null);
+			}
+			return true;
+		}
+	}
+	this.tagBits |= TagBits.EndAnnotationCheck;
+	return false;
 }
 public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 	ReferenceBinding current = this;
