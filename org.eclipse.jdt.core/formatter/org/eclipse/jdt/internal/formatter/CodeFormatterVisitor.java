@@ -1023,11 +1023,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
 				this.scribe.printNewLine();
+			} else if (this.preferences.insert_space_before_closing_brace_in_array_initializer) {
+				this.scribe.space();
 			}
 		} else if (this.preferences.insert_space_between_empty_braces_in_array_initializer) {
 			this.scribe.space();
 		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, false, true); 
 		if (array_initializer_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}	
@@ -1980,10 +1982,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					dimensions[i].traverse(this, scope);
 					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
 				} else {
-					if (this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression) {
-						this.scribe.space();
-					}
-					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
 				}
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
