@@ -657,7 +657,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Note that while the token subrange is precisely 
 	 * specified, the replacement range is loosely
 	 * constrained and may not bear any direct relation
-	 * to the original request offset. For example, a
+	 * to the original request offset. For example,
 	 * it would be possible for a type completion to 
 	 * propose inserting an import declaration at the
 	 * top of the compilation unit; or the completion
@@ -1134,9 +1134,9 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 	<li><code>VARIABLE_DECLARATION</code> - modifier flags
 	 * for the variable being declared</li>
 	 * 	<li><code>POTENTIAL_METHOD_DECLARATION</code> - modifier flags
-	 * for the method that is being createdn</li>
+	 * for the method that is being created</li>
 	 * </ul>
-	 * For kinds of completion proposals, this method returns
+	 * For other kinds of completion proposals, this method returns
 	 * <code>Flags.AccDefault</code>.
 	 * </p>
 	 * 
