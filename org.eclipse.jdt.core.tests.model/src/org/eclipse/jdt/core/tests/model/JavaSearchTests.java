@@ -120,10 +120,11 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 						// working copy
 						contents = unit.getBuffer().getCharacters();
 					} else {
+						IFile file = ((IFile) resource);
 						contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 							null, 
-							((IFile) resource).getLocation().toFile().getPath(),
-							null).getContents();
+							file.getLocation().toFile().getPath(),
+							file.getCharset()).getContents();
 					}
 				}
 				int start = match.getOffset();
