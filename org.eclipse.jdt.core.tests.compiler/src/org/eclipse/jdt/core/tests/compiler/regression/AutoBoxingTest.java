@@ -1380,4 +1380,59 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"SUCCESS2");
 	}
 
+	public void test052() { // boxing in var decl
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		Byte b = 0;\n" + 
+				"		++b;\n" + 
+				"		foo(0);\n" + 
+				"	}\n" + 
+				"	static void foo(Byte b) {\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	foo(0);\n" + 
+			"	^^^\n" + 
+			"The method foo(Byte) in the type X is not applicable for the arguments (int)\n" + 
+			"----------\n");
+	}	
+	
+	public void test053() { // boxing in var decl
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		Byte b = 1;\n" + 
+				"		++b;\n" + 
+				"		if (b instanceof Byte) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
+	
+	public void test054() { // boxing in field decl
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static Byte b = 1;\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		++b;\n" + 
+				"		if (b instanceof Byte) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}				
 }

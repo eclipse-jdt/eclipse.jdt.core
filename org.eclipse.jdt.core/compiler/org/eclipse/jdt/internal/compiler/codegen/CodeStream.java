@@ -1357,39 +1357,6 @@ final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 	athrow();
 }
 public void generateConstant(Constant constant, int implicitConversionCode) {
-	if ((implicitConversionCode & BOXING) != 0) {
-		// need to box the constant
-		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
-		switch (typeId) {
-			case T_boolean :
-				generateInlinedValue(constant.booleanValue());
-				break;
-			case T_char :
-				generateInlinedValue(constant.charValue());
-				break;
-			case T_byte :
-				generateInlinedValue(constant.byteValue());
-				break;
-			case T_short :
-				generateInlinedValue(constant.shortValue());
-				break;
-			case T_int :
-				generateInlinedValue(constant.intValue());
-				break;
-			case T_long :
-				generateInlinedValue(constant.longValue());
-				break;
-			case T_float :
-				generateInlinedValue(constant.floatValue());
-				break;
-			case T_double :
-				generateInlinedValue(constant.doubleValue());
-				break;
-		}
-		// need boxing
-		generateBoxingConversion(typeId);
-		return;
-	}
 	int targetTypeID = (implicitConversionCode & IMPLICIT_CONVERSION_MASK) >> 4;
 	if (targetTypeID != 0) {
 		switch (targetTypeID) {
@@ -1422,6 +1389,10 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 		}
 	} else {
 		ldc(constant.stringValue());
+	}
+	if ((implicitConversionCode & BOXING) != 0) {
+		// need boxing
+		generateBoxingConversion(targetTypeID);
 	}
 }
 

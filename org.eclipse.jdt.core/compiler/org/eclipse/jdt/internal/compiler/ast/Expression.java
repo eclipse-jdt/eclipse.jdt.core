@@ -488,9 +488,10 @@ public abstract class Expression extends Statement {
 			}
 		} else {
 			if (compileTimeType != NullBinding && compileTimeType.isBaseType()) {
-				TypeBinding boxedType = scope.environment().computeBoxingType(compileTimeType);
-				this.implicitConversion = BOXING | (compileTimeType.id << 4) | compileTimeType.id; // use primitive type only in implicitConversion
-				compileTimeType = boxedType;
+				TypeBinding boxedType = scope.environment().computeBoxingType(runtimeTimeType);
+				if (boxedType == runtimeTimeType) // Object o = 12;
+					boxedType = compileTimeType; 
+				this.implicitConversion = BOXING | (boxedType.id << 4) + compileTimeType.id;
 				return;
 			}
 		}
