@@ -120,6 +120,7 @@ public char[] shortReadableName() /*Object*/ {
 		            rawInterfaces[i] = originalInterface;
 		        }
 		    }
+		    this.superInterfaces = rawInterfaces;
 	    }
 	    return this.superInterfaces;
     }	
