@@ -163,4 +163,16 @@
   <fileTypes extension="zip" type="binary"/>
 </extension>
 
+      
+<!-- =================================================================================== -->
+<!-- Extension: User Library Container                                                        -->
+<!-- =================================================================================== -->
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="org.eclipse.jdt.internal.core.UserLibraryClasspathContainerInitializer"
+            id="org.eclipse.jdt.USER_LIBRARY">
+      </classpathContainerInitializer>
+   </extension>
+
 </plugin>
