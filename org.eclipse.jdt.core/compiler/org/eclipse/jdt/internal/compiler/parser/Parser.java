@@ -2685,8 +2685,10 @@ protected void consumeInterfaceHeaderNameWithTypeParameters() {
 		blockReal();
 	}
 
-	// TODO consume type parameters
-	astPtr-= astLengthStack[astLengthPtr--];
+	// consume type parameters
+	int length = astLengthStack[astLengthPtr--];
+	astPtr-= length;
+	System.arraycopy(astStack, astPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
 	
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
