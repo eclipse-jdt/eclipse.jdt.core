@@ -7,6 +7,7 @@ import java.util.Map;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -1056,26 +1057,29 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 1\n" + 
 			"  public static void main(String[] s);\n" + 
-			"     0  new #17 java/lang/Integer\n" + 
+			"     0  new java/lang/Integer [17]\n" + 
 			"     3  dup\n" + 
 			"     4  iconst_1\n" + 
-			"     5  invokespecial #20 <Method java/lang/Integer.<init>(I)V>\n" + 
-			"     8  new #17 java/lang/Integer\n" + 
+			"     5  invokespecial java/lang/Integer.<init>(I)V [20]\n" + 
+			"     8  new java/lang/Integer [17]\n" + 
 			"    11  dup\n" + 
 			"    12  iconst_0\n" + 
-			"    13  invokespecial #20 <Method java/lang/Integer.<init>(I)V>\n" + 
+			"    13  invokespecial java/lang/Integer.<init>(I)V [20]\n" + 
 			"    16  if_acmpne 25\n" + 
-			"    19  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    22  invokevirtual #31 <Method java/io/PrintStream.println()V>\n" + 
-			"    25  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    28  ldc #33 <String \"SUCCESS\">\n" + 
-			"    30  invokevirtual #37 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+			"    19  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"    22  invokevirtual java/io/PrintStream.println()V [31]\n" + 
+			"    25  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"    28  ldc <String \"SUCCESS\"> [33]\n" + 
+			"    30  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [37]\n" + 
 			"    33  return\n";
 			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 3));
 		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
 	}
 	
 	public void test033() { // boolean expression

@@ -1641,7 +1641,7 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual #19 <Method java/lang/Object.clone()Ljava/lang/Object;>\n"; 
+		"     1  invokevirtual java/lang/Object.clone()Ljava/lang/Object; [19]\n"; 
 		
 	if (actualOutput.indexOf(expectedOutput) == -1) {
 		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));

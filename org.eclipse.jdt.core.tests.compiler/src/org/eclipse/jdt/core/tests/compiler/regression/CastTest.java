@@ -76,13 +76,13 @@ public void test001() {
 		"  // Stack: 2, Locals: 3\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
-		"     1  newarray #10 int\n" + 
-		"     3  astore_1\n" + 
-		"     4  aload_1\n" + 
-		"     5  astore_2\n" + 
-		"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     9  ldc #23 <String \"SUCCESS\">\n" + 
-		"    11  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     1  newarray int [10]\n" + 
+		"     3  astore_1 [c1]\n" + 
+		"     4  aload_1 [c1]\n" + 
+		"     5  astore_2 [c2]\n" + 
+		"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     9  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    11  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"    14  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -93,10 +93,13 @@ public void test001() {
 		"        [pc: 0, pc: 15] local: args index: 0 type: [Ljava/lang/String;\n" + 
 		"        [pc: 4, pc: 15] local: c1 index: 1 type: Ljava/lang/Cloneable;\n" + 
 		"        [pc: 6, pc: 15] local: c2 index: 2 type: Ljava/lang/Cloneable;\n";
-	if (actualOutput.indexOf(expectedOutput) == -1){
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
-	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
 }
 
 public void test002() {
@@ -1236,25 +1239,25 @@ public void test034() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  new #17 java/util/ArrayList\n" + 
+		"     0  new java/util/ArrayList [17]\n" + 
 		"     3  dup\n" + 
-		"     4  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"     7  astore_1\n" + 
-		"     8  new #17 java/util/ArrayList\n" + 
+		"     4  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"     7  astore_1 [list]\n" + 
+		"     8  new java/util/ArrayList [17]\n" + 
 		"    11  dup\n" + 
-		"    12  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"    15  astore_1\n" + 
-		"    16  new #17 java/util/ArrayList\n" + 
+		"    12  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"    15  astore_1 [list]\n" + 
+		"    16  new java/util/ArrayList [17]\n" + 
 		"    19  dup\n" + 
-		"    20  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"    23  astore_2\n" + 
-		"    24  aload_2\n" + 
-		"    25  astore_3\n" + 
-		"    26  aload_2\n" + 
-		"    27  astore_3\n" + 
-		"    28  getstatic #24 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    31  ldc #26 <String \"SUCCESS\">\n" + 
-		"    33  invokevirtual #32 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    20  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"    23  astore_2 [alist]\n" + 
+		"    24  aload_2 [alist]\n" + 
+		"    25  astore_3 [list2]\n" + 
+		"    26  aload_2 [alist]\n" + 
+		"    27  astore_3 [list2]\n" + 
+		"    28  getstatic java/lang/System.out Ljava/io/PrintStream; [24]\n" + 
+		"    31  ldc <String \"SUCCESS\"> [26]\n" + 
+		"    33  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [32]\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 6]\n" + 
@@ -1269,10 +1272,13 @@ public void test034() {
 		"        [pc: 8, pc: 37] local: list index: 1 type: Ljava/util/List;\n" + 
 		"        [pc: 24, pc: 37] local: alist index: 2 type: Ljava/util/ArrayList;\n" + 
 		"        [pc: 26, pc: 37] local: list2 index: 3 type: Ljava/util/List;\n";
-	if (actualOutput.indexOf(expectedOutput) == -1){
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
-	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
 }
 
 public static Class testClass() {

@@ -220,7 +220,7 @@ public void test007() {
 		"  // Stack: 4, Locals: 7\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  bipush 9\n" + 
-		"     2  newarray #10 int\n" + 
+		"     2  newarray int [10]\n" + 
 		"     4  dup\n" + 
 		"     5  iconst_0\n" + 
 		"     6  iconst_1\n" + 
@@ -257,28 +257,28 @@ public void test007() {
 		"    42  bipush 8\n" + 
 		"    44  bipush 9\n" + 
 		"    46  iastore\n" + 
-		"    47  astore_2\n" + 
-		"    48  aload_2\n" + 
-		"    49  astore 6\n" + 
+		"    47  astore_2 [tab]\n" + 
+		"    48  aload_2 [tab]\n" + 
+		"    49  astore [local_6]\n" + 
 		"    51  iconst_0\n" + 
-		"    52  istore 4\n" + 
-		"    54  aload 6\n" + 
+		"    52  istore [local_4]\n" + 
+		"    54  aload [local_6]\n" + 
 		"    56  arraylength\n" + 
-		"    57  istore 5\n" + 
+		"    57  istore [local_5]\n" + 
 		"    59  goto 73\n" + 
-		"    62  aload 6\n" + 
-		"    64  iload 4\n" + 
+		"    62  aload [local_6]\n" + 
+		"    64  iload [local_4]\n" + 
 		"    66  iaload\n" + 
-		"    67  istore_3\n" + 
-		"    68  iload_3\n" + 
-		"    69  istore_1\n" + 
-		"    70  iinc 4 1\n" + 
-		"    73  iload 4\n" + 
-		"    75  iload 5\n" + 
+		"    67  istore_3 [e]\n" + 
+		"    68  iload_3 [e]\n" + 
+		"    69  istore_1 [i]\n" + 
+		"    70  iinc 4 1 [local_4]\n" + 
+		"    73  iload [local_4]\n" + 
+		"    75  iload [local_5]\n" + 
 		"    77  if_icmplt 62\n" + 
-		"    80  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    83  ldc #23 <String \"SUCCESS\">\n" + 
-		"    85  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    80  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    83  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    85  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [29]\n" + 
 		"    88  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -467,15 +467,15 @@ public void test014() {
 		"  // Stack: 4, Locals: 2\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  newarray #10 int\n" + 
+		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
 		"     4  iconst_0\n" + 
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
-		"     7  astore_1\n" + 
-		"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    11  ldc #23 <String \"SUCCESS\">\n" + 
-		"    13  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"     7  astore_1 [tab]\n" + 
+		"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    11  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    13  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [29]\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -526,15 +526,15 @@ public void test015() {
 		"  // Stack: 4, Locals: 2\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  newarray #10 int\n" + 
+		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
 		"     4  iconst_0\n" + 
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
-		"     7  astore_1\n" + 
-		"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    11  ldc #23 <String \"SUCCESS\">\n" + 
-		"    13  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"     7  astore_1 [tab]\n" + 
+		"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    11  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    13  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [29]\n" + 
 		"    16  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -586,27 +586,27 @@ public void test016() {
 		"  // Stack: 4, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  newarray #10 int\n" + 
+		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
 		"     4  iconst_0\n" + 
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
-		"     7  astore_1\n" + 
-		"     8  aload_1\n" + 
-		"     9  astore 4\n" + 
+		"     7  astore_1 [tab]\n" + 
+		"     8  aload_1 [tab]\n" + 
+		"     9  astore [local_4]\n" + 
 		"    11  iconst_0\n" + 
-		"    12  istore_2\n" + 
-		"    13  aload 4\n" + 
+		"    12  istore_2 [local_2]\n" + 
+		"    13  aload [local_4]\n" + 
 		"    15  arraylength\n" + 
-		"    16  istore_3\n" + 
+		"    16  istore_3 [local_3]\n" + 
 		"    17  goto 23\n" + 
-		"    20  iinc 2 1\n" + 
-		"    23  iload_2\n" + 
-		"    24  iload_3\n" + 
+		"    20  iinc 2 1 [local_2]\n" + 
+		"    23  iload_2 [local_2]\n" + 
+		"    24  iload_3 [local_3]\n" + 
 		"    25  if_icmplt 20\n" + 
-		"    28  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    31  ldc #23 <String \"SUCCESS\">\n" + 
-		"    33  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    28  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    31  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    33  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [29]\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -678,30 +678,30 @@ public void test018() {
 		"  // Stack: 4, Locals: 6\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  newarray #10 int\n" + 
+		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
 		"     4  iconst_0\n" + 
 		"     5  iconst_1\n" + 
 		"     6  iastore\n" + 
-		"     7  astore_1\n" + 
-		"     8  aload_1\n" + 
-		"     9  astore 5\n" + 
+		"     7  astore_1 [tab]\n" + 
+		"     8  aload_1 [tab]\n" + 
+		"     9  astore [local_5]\n" + 
 		"    11  iconst_0\n" + 
-		"    12  istore_3\n" + 
-		"    13  aload 5\n" + 
+		"    12  istore_3 [local_3]\n" + 
+		"    13  aload [local_5]\n" + 
 		"    15  arraylength\n" + 
-		"    16  istore 4\n" + 
+		"    16  istore [local_4]\n" + 
 		"    18  goto 36\n" + 
-		"    21  aload 5\n" + 
-		"    23  iload_3\n" + 
+		"    21  aload [local_5]\n" + 
+		"    23  iload_3 [local_3]\n" + 
 		"    24  iaload\n" + 
-		"    25  istore_2\n" + 
-		"    26  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    29  iload_2\n" + 
-		"    30  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+		"    25  istore_2 [e]\n" + 
+		"    26  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    29  iload_2 [e]\n" + 
+		"    30  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 		"    33  goto 42\n" + 
-		"    36  iload_3\n" + 
-		"    37  iload 4\n" + 
+		"    36  iload_3 [local_3]\n" + 
+		"    37  iload [local_4]\n" + 
 		"    39  if_icmplt 21\n" + 
 		"    42  return\n" + 
 		"      Line numbers:\n" + 
@@ -761,29 +761,29 @@ public void test019() {
 		"  // Stack: 2, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
-		"     1  newarray #10 int\n" + 
-		"     3  astore_1\n" + 
-		"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     7  ldc #23 <String \"SUC\">\n" + 
-		"     9  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    12  aload_1\n" + 
-		"    13  astore 4\n" + 
+		"     1  newarray int [10]\n" + 
+		"     3  astore_1 [tab]\n" + 
+		"     4  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     7  ldc <String \"SUC\"> [23]\n" + 
+		"     9  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    12  aload_1 [tab]\n" + 
+		"    13  astore [local_4]\n" + 
 		"    15  iconst_0\n" + 
-		"    16  istore_2\n" + 
-		"    17  aload 4\n" + 
+		"    16  istore_2 [local_2]\n" + 
+		"    17  aload [local_4]\n" + 
 		"    19  arraylength\n" + 
-		"    20  istore_3\n" + 
+		"    20  istore_3 [local_3]\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    27  ldc #31 <String \"1x\">\n" + 
-		"    29  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    24  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    27  ldc <String \"1x\"> [31]\n" + 
+		"    29  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"    32  goto 40\n" + 
-		"    35  iload_2\n" + 
-		"    36  iload_3\n" + 
+		"    35  iload_2 [local_2]\n" + 
+		"    36  iload_3 [local_3]\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    43  ldc #33 <String \"CESS\">\n" + 
-		"    45  invokevirtual #36 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    40  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    43  ldc <String \"CESS\"> [33]\n" + 
+		"    45  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [36]\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -843,29 +843,29 @@ public void test020() {
 		"  // Stack: 2, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
-		"     1  newarray #10 int\n" + 
-		"     3  astore_1\n" + 
-		"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     7  ldc #23 <String \"SUC\">\n" + 
-		"     9  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    12  aload_1\n" + 
-		"    13  astore 4\n" + 
+		"     1  newarray int [10]\n" + 
+		"     3  astore_1 [tab]\n" + 
+		"     4  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     7  ldc <String \"SUC\"> [23]\n" + 
+		"     9  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    12  aload_1 [tab]\n" + 
+		"    13  astore [local_4]\n" + 
 		"    15  iconst_0\n" + 
-		"    16  istore_2\n" + 
-		"    17  aload 4\n" + 
+		"    16  istore_2 [local_2]\n" + 
+		"    17  aload [local_4]\n" + 
 		"    19  arraylength\n" + 
-		"    20  istore_3\n" + 
+		"    20  istore_3 [local_3]\n" + 
 		"    21  goto 35\n" + 
-		"    24  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    27  ldc #31 <String \"1x\">\n" + 
-		"    29  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    32  iinc 2 1\n" + 
-		"    35  iload_2\n" + 
-		"    36  iload_3\n" + 
+		"    24  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    27  ldc <String \"1x\"> [31]\n" + 
+		"    29  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    32  iinc 2 1 [local_2]\n" + 
+		"    35  iload_2 [local_2]\n" + 
+		"    36  iload_3 [local_3]\n" + 
 		"    37  if_icmplt 24\n" + 
-		"    40  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    43  ldc #33 <String \"CESS\">\n" + 
-		"    45  invokevirtual #36 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    40  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    43  ldc <String \"CESS\"> [33]\n" + 
+		"    45  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [36]\n" + 
 		"    48  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
@@ -930,7 +930,7 @@ public void test021() {
 		"  // Stack: 4, Locals: 8\n" + 
 		"  public static void main(String[] args);\n" + 
 		"      0  bipush 9\n" + 
-		"      2  newarray #10 int\n" + 
+		"      2  newarray int [10]\n" + 
 		"      4  dup\n" + 
 		"      5  iconst_0\n" + 
 		"      6  iconst_1\n" + 
@@ -967,44 +967,44 @@ public void test021() {
 		"     42  bipush 8\n" + 
 		"     44  bipush 9\n" + 
 		"     46  iastore\n" + 
-		"     47  astore_1\n" + 
+		"     47  astore_1 [tab]\n" + 
 		"     48  iconst_0\n" + 
-		"     49  istore_2\n" + 
+		"     49  istore_2 [sum]\n" + 
 		"     50  iconst_0\n" + 
-		"     51  istore_3\n" + 
-		"     52  iinc 3 1\n" + 
-		"     55  aload_1\n" + 
-		"     56  astore 7\n" + 
+		"     51  istore_3 [i]\n" + 
+		"     52  iinc 3 1 [i]\n" + 
+		"     55  aload_1 [tab]\n" + 
+		"     56  astore [local_7]\n" + 
 		"     58  iconst_0\n" + 
-		"     59  istore 5\n" + 
-		"     61  aload 7\n" + 
+		"     59  istore [local_5]\n" + 
+		"     61  aload [local_7]\n" + 
 		"     63  arraylength\n" + 
-		"     64  istore 6\n" + 
+		"     64  istore [local_6]\n" + 
 		"     66  goto 101\n" + 
-		"     69  aload 7\n" + 
-		"     71  iload 5\n" + 
+		"     69  aload [local_7]\n" + 
+		"     71  iload [local_5]\n" + 
 		"     73  iaload\n" + 
-		"     74  istore 4\n" + 
-		"     76  iload_2\n" + 
-		"     77  iload 4\n" + 
+		"     74  istore [e]\n" + 
+		"     76  iload_2 [sum]\n" + 
+		"     77  iload [e]\n" + 
 		"     79  iadd\n" + 
-		"     80  istore_2\n" + 
-		"     81  iload_3\n" + 
+		"     80  istore_2 [sum]\n" + 
+		"     81  iload_3 [i]\n" + 
 		"     82  iconst_3\n" + 
 		"     83  if_icmpne 89\n" + 
 		"     86  goto 111\n" + 
-		"     89  iload 4\n" + 
+		"     89  iload [e]\n" + 
 		"     91  iconst_5\n" + 
 		"     92  if_icmpne 98\n" + 
 		"     95  goto 108\n" + 
-		"     98  iinc 5 1\n" + 
-		"    101  iload 5\n" + 
-		"    103  iload 6\n" + 
+		"     98  iinc 5 1 [local_5]\n" + 
+		"    101  iload [local_5]\n" + 
+		"    103  iload [local_6]\n" + 
 		"    105  if_icmplt 69\n" + 
 		"    108  goto 52\n" + 
-		"    111  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    114  iload_2\n" + 
-		"    115  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+		"    111  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    114  iload_2 [sum]\n" + 
+		"    115  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 		"    118  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1072,45 +1072,45 @@ public void test022() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  new #17 java/util/ArrayList\n" + 
+		"     0  new java/util/ArrayList [17]\n" + 
 		"     3  dup\n" + 
-		"     4  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"     7  astore_1\n" + 
+		"     4  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"     7  astore_1 [arrayList]\n" + 
 		"     8  iconst_0\n" + 
-		"     9  istore_2\n" + 
+		"     9  istore_2 [i]\n" + 
 		"    10  goto 29\n" + 
-		"    13  aload_1\n" + 
-		"    14  new #20 java/lang/Integer\n" + 
+		"    13  aload_1 [arrayList]\n" + 
+		"    14  new java/lang/Integer [20]\n" + 
 		"    17  dup\n" + 
-		"    18  iload_2\n" + 
-		"    19  invokespecial #23 <Method java/lang/Integer.<init>(I)V>\n" + 
-		"    22  invokevirtual #27 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"    18  iload_2 [i]\n" + 
+		"    19  invokespecial java/lang/Integer.<init>(I)V [23]\n" + 
+		"    22  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [27]\n" + 
 		"    25  pop\n" + 
-		"    26  iinc 2 1\n" + 
-		"    29  iload_2\n" + 
+		"    26  iinc 2 1 [i]\n" + 
+		"    29  iload_2 [i]\n" + 
 		"    30  bipush 10\n" + 
 		"    32  if_icmplt 13\n" + 
 		"    35  iconst_0\n" + 
-		"    36  istore_2\n" + 
-		"    37  aload_1\n" + 
-		"    38  invokevirtual #31 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
-		"    41  astore 4\n" + 
+		"    36  istore_2 [i]\n" + 
+		"    37  aload_1 [arrayList]\n" + 
+		"    38  invokevirtual java/util/ArrayList.iterator()Ljava/util/Iterator; [31]\n" + 
+		"    41  astore [local_4]\n" + 
 		"    43  goto 64\n" + 
-		"    46  aload 4\n" + 
-		"    48  invokeinterface [nargs : 1] #37 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
-		"    53  checkcast #20 java/lang/Integer\n" + 
-		"    56  astore_3\n" + 
-		"    57  iload_2\n" + 
-		"    58  aload_3\n" + 
-		"    59  invokevirtual #41 <Method java/lang/Integer.intValue()I>\n" + 
+		"    46  aload [local_4]\n" + 
+		"    48  invokeinterface java/util/Iterator.next()Ljava/lang/Object; [37] [nargs: 1]\n" + 
+		"    53  checkcast java/lang/Integer [20]\n" + 
+		"    56  astore_3 [e]\n" + 
+		"    57  iload_2 [i]\n" + 
+		"    58  aload_3 [e]\n" + 
+		"    59  invokevirtual java/lang/Integer.intValue()I [41]\n" + 
 		"    62  iadd\n" + 
-		"    63  istore_2\n" + 
-		"    64  aload 4\n" + 
-		"    66  invokeinterface [nargs : 1] #45 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    63  istore_2 [i]\n" + 
+		"    64  aload [local_4]\n" + 
+		"    66  invokeinterface java/util/Iterator.hasNext()Z [45] [nargs: 1]\n" + 
 		"    71  ifne 46\n" + 
-		"    74  getstatic #51 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    77  iload_2\n" + 
-		"    78  invokevirtual #56 <Method java/io/PrintStream.println(I)V>\n" + 
+		"    74  getstatic java/lang/System.out Ljava/io/PrintStream; [51]\n" + 
+		"    77  iload_2 [i]\n" + 
+		"    78  invokevirtual java/io/PrintStream.println(I)V [56]\n" + 
 		"    81  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -1208,48 +1208,48 @@ public void test024() {
 		"  // Stack: 4, Locals: 7\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
-		"     1  anewarray #17 java/lang/String\n" + 
+		"     1  anewarray java/lang/String [17]\n" + 
 		"     4  dup\n" + 
 		"     5  iconst_0\n" + 
-		"     6  ldc #19 <String \"SUCCESS\">\n" + 
+		"     6  ldc <String \"SUCCESS\"> [19]\n" + 
 		"     8  aastore\n" + 
-		"     9  astore_1\n" + 
-		"    10  new #21 java/util/ArrayList\n" + 
+		"     9  astore_1 [tab]\n" + 
+		"    10  new java/util/ArrayList [21]\n" + 
 		"    13  dup\n" + 
-		"    14  invokespecial #22 <Method java/util/ArrayList.<init>()V>\n" + 
-		"    17  astore_2\n" + 
-		"    18  aload_1\n" + 
-		"    19  astore 6\n" + 
+		"    14  invokespecial java/util/ArrayList.<init>()V [22]\n" + 
+		"    17  astore_2 [list]\n" + 
+		"    18  aload_1 [tab]\n" + 
+		"    19  astore [local_6]\n" + 
 		"    21  iconst_0\n" + 
-		"    22  istore 4\n" + 
-		"    24  aload 6\n" + 
+		"    22  istore [local_4]\n" + 
+		"    24  aload [local_6]\n" + 
 		"    26  arraylength\n" + 
-		"    27  istore 5\n" + 
+		"    27  istore [local_5]\n" + 
 		"    29  goto 49\n" + 
-		"    32  aload 6\n" + 
-		"    34  iload 4\n" + 
+		"    32  aload [local_6]\n" + 
+		"    34  iload [local_4]\n" + 
 		"    36  aaload\n" + 
-		"    37  astore_3\n" + 
-		"    38  aload_2\n" + 
-		"    39  aload_3\n" + 
-		"    40  invokeinterface [nargs : 2] #28 <Interface method java/util/List.add(Ljava/lang/Object;)Z>\n" + 
+		"    37  astore_3 [arg]\n" + 
+		"    38  aload_2 [list]\n" + 
+		"    39  aload_3 [arg]\n" + 
+		"    40  invokeinterface java/util/List.add(Ljava/lang/Object;)Z [28] [nargs: 2]\n" + 
 		"    45  pop\n" + 
-		"    46  iinc 4 1\n" + 
-		"    49  iload 4\n" + 
-		"    51  iload 5\n" + 
+		"    46  iinc 4 1 [local_4]\n" + 
+		"    49  iload [local_4]\n" + 
+		"    51  iload [local_5]\n" + 
 		"    53  if_icmplt 32\n" + 
-		"    56  aload_2\n" + 
-		"    57  invokeinterface [nargs : 1] #32 <Interface method java/util/List.iterator()Ljava/util/Iterator;>\n" + 
-		"    62  astore 4\n" + 
+		"    56  aload_2 [list]\n" + 
+		"    57  invokeinterface java/util/List.iterator()Ljava/util/Iterator; [32] [nargs: 1]\n" + 
+		"    62  astore [local_4]\n" + 
 		"    64  goto 82\n" + 
-		"    67  aload 4\n" + 
-		"    69  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
-		"    74  astore_3\n" + 
-		"    75  getstatic #44 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    78  aload_3\n" + 
-		"    79  invokevirtual #50 <Method java/io/PrintStream.print(Ljava/lang/Object;)V>\n" + 
-		"    82  aload 4\n" + 
-		"    84  invokeinterface [nargs : 1] #54 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    67  aload [local_4]\n" + 
+		"    69  invokeinterface java/util/Iterator.next()Ljava/lang/Object; [38] [nargs: 1]\n" + 
+		"    74  astore_3 [arg]\n" + 
+		"    75  getstatic java/lang/System.out Ljava/io/PrintStream; [44]\n" + 
+		"    78  aload_3 [arg]\n" + 
+		"    79  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [50]\n" + 
+		"    82  aload [local_4]\n" + 
+		"    84  invokeinterface java/util/Iterator.hasNext()Z [54] [nargs: 1]\n" + 
 		"    89  ifne 67\n" + 
 		"    92  return\n" + 
 		"      Line numbers:\n" + 
@@ -1357,47 +1357,46 @@ public void test027() {
 		"SUCCESS");
 		
 	String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 2, Locals: 5\n" + 
-			"  public static void main(String[] args);\n" + 
-			"     0  iconst_0\n" + 
-			"     1  anewarray #4 java/lang/Object\n" + 
-			"     4  astore_1\n" + 
-			"     5  aload_1\n" + 
-			"     6  astore 4\n" + 
-			"     8  iconst_0\n" + 
-			"     9  istore_2\n" + 
-			"    10  aload 4\n" + 
-			"    12  arraylength\n" + 
-			"    13  istore_3\n" + 
-			"    14  goto 27\n" + 
-			"    17  aload_0\n" + 
-			"    18  ifnonnull 26\n" + 
-			"    21  aconst_null\n" + 
-			"    22  pop\n" + 
-			"    23  goto 32\n" + 
-			"    26  return\n" + 
-			"    27  iload_2\n" + 
-			"    28  iload_3\n" + 
-			"    29  if_icmplt 17\n" + 
-			"    32  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    35  ldc #23 <String \"SUCCESS\">\n" + 
-			"    37  invokevirtual #29 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
-			"    40  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 5, line: 6]\n" + 
-			"        [pc: 17, line: 7]\n" + 
-			"        [pc: 21, line: 8]\n" + 
-			"        [pc: 23, line: 9]\n" + 
-			"        [pc: 26, line: 11]\n" + 
-			"        [pc: 27, line: 6]\n" + 
-			"        [pc: 32, line: 13]\n" + 
-			"        [pc: 40, line: 14]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 41] local: args index: 0 type: [Ljava/lang/String;\n" + 
-			"        [pc: 5, pc: 41] local: array index: 1 type: [Ljava/lang/Object;\n" + 
-			"}";
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 5\n" + 
+		"  public static void main(String[] args);\n" + 
+		"     0  iconst_0\n" + 
+		"     1  anewarray java/lang/Object [4]\n" + 
+		"     4  astore_1 [array]\n" + 
+		"     5  aload_1 [array]\n" + 
+		"     6  astore [local_4]\n" + 
+		"     8  iconst_0\n" + 
+		"     9  istore_2 [local_2]\n" + 
+		"    10  aload [local_4]\n" + 
+		"    12  arraylength\n" + 
+		"    13  istore_3 [local_3]\n" + 
+		"    14  goto 27\n" + 
+		"    17  aload_0 [args]\n" + 
+		"    18  ifnonnull 26\n" + 
+		"    21  aconst_null\n" + 
+		"    22  pop\n" + 
+		"    23  goto 32\n" + 
+		"    26  return\n" + 
+		"    27  iload_2 [local_2]\n" + 
+		"    28  iload_3 [local_3]\n" + 
+		"    29  if_icmplt 17\n" + 
+		"    32  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    35  ldc <String \"SUCCESS\"> [23]\n" + 
+		"    37  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [29]\n" + 
+		"    40  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 5, line: 6]\n" + 
+		"        [pc: 17, line: 7]\n" + 
+		"        [pc: 21, line: 8]\n" + 
+		"        [pc: 23, line: 9]\n" + 
+		"        [pc: 26, line: 11]\n" + 
+		"        [pc: 27, line: 6]\n" + 
+		"        [pc: 32, line: 13]\n" + 
+		"        [pc: 40, line: 14]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 41] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 5, pc: 41] local: array index: 1 type: [Ljava/lang/Object;\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1454,88 +1453,88 @@ public void test028() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
-		"      0  new #17 java/util/ArrayList\n" + 
+		"      0  new java/util/ArrayList [17]\n" + 
 		"      3  dup\n" + 
-		"      4  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"      7  astore_1\n" + 
-		"      8  aload_1\n" + 
-		"      9  new #17 java/util/ArrayList\n" + 
+		"      4  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"      7  astore_1 [slist]\n" + 
+		"      8  aload_1 [slist]\n" + 
+		"      9  new java/util/ArrayList [17]\n" + 
 		"     12  dup\n" + 
-		"     13  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"     16  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     13  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"     16  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     19  pop\n" + 
-		"     20  aload_1\n" + 
+		"     20  aload_1 [slist]\n" + 
 		"     21  iconst_0\n" + 
-		"     22  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"     25  checkcast #17 java/util/ArrayList\n" + 
-		"     28  ldc #28 <String \"SU\">\n" + 
-		"     30  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     22  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"     25  checkcast java/util/ArrayList [17]\n" + 
+		"     28  ldc <String \"SU\"> [28]\n" + 
+		"     30  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     33  pop\n" + 
-		"     34  aload_1\n" + 
+		"     34  aload_1 [slist]\n" + 
 		"     35  iconst_0\n" + 
-		"     36  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"     39  checkcast #17 java/util/ArrayList\n" + 
-		"     42  ldc #30 <String \"C\">\n" + 
-		"     44  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     36  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"     39  checkcast java/util/ArrayList [17]\n" + 
+		"     42  ldc <String \"C\"> [30]\n" + 
+		"     44  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     47  pop\n" + 
-		"     48  aload_1\n" + 
+		"     48  aload_1 [slist]\n" + 
 		"     49  iconst_0\n" + 
-		"     50  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"     53  checkcast #17 java/util/ArrayList\n" + 
-		"     56  ldc #30 <String \"C\">\n" + 
-		"     58  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     50  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"     53  checkcast java/util/ArrayList [17]\n" + 
+		"     56  ldc <String \"C\"> [30]\n" + 
+		"     58  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     61  pop\n" + 
-		"     62  aload_1\n" + 
-		"     63  new #17 java/util/ArrayList\n" + 
+		"     62  aload_1 [slist]\n" + 
+		"     63  new java/util/ArrayList [17]\n" + 
 		"     66  dup\n" + 
-		"     67  invokespecial #18 <Method java/util/ArrayList.<init>()V>\n" + 
-		"     70  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     67  invokespecial java/util/ArrayList.<init>()V [18]\n" + 
+		"     70  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     73  pop\n" + 
-		"     74  aload_1\n" + 
+		"     74  aload_1 [slist]\n" + 
 		"     75  iconst_1\n" + 
-		"     76  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"     79  checkcast #17 java/util/ArrayList\n" + 
-		"     82  ldc #32 <String \"E\">\n" + 
-		"     84  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     76  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"     79  checkcast java/util/ArrayList [17]\n" + 
+		"     82  ldc <String \"E\"> [32]\n" + 
+		"     84  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"     87  pop\n" + 
-		"     88  aload_1\n" + 
+		"     88  aload_1 [slist]\n" + 
 		"     89  iconst_1\n" + 
-		"     90  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"     93  checkcast #17 java/util/ArrayList\n" + 
-		"     96  ldc #34 <String \"S\">\n" + 
-		"     98  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"     90  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"     93  checkcast java/util/ArrayList [17]\n" + 
+		"     96  ldc <String \"S\"> [34]\n" + 
+		"     98  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"    101  pop\n" + 
-		"    102  aload_1\n" + 
+		"    102  aload_1 [slist]\n" + 
 		"    103  iconst_1\n" + 
-		"    104  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"    107  checkcast #17 java/util/ArrayList\n" + 
-		"    110  ldc #34 <String \"S\">\n" + 
-		"    112  invokevirtual #22 <Method java/util/ArrayList.add(Ljava/lang/Object;)Z>\n" + 
+		"    104  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"    107  checkcast java/util/ArrayList [17]\n" + 
+		"    110  ldc <String \"S\"> [34]\n" + 
+		"    112  invokevirtual java/util/ArrayList.add(Ljava/lang/Object;)Z [22]\n" + 
 		"    115  pop\n" + 
 		"    116  iconst_0\n" + 
-		"    117  istore_2\n" + 
+		"    117  istore_2 [i]\n" + 
 		"    118  goto 168\n" + 
-		"    121  aload_1\n" + 
-		"    122  iload_2\n" + 
-		"    123  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
-		"    126  checkcast #17 java/util/ArrayList\n" + 
-		"    129  invokevirtual #38 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
-		"    132  astore 4\n" + 
+		"    121  aload_1 [slist]\n" + 
+		"    122  iload_2 [i]\n" + 
+		"    123  invokevirtual java/util/ArrayList.get(I)Ljava/lang/Object; [26]\n" + 
+		"    126  checkcast java/util/ArrayList [17]\n" + 
+		"    129  invokevirtual java/util/ArrayList.iterator()Ljava/util/Iterator; [38]\n" + 
+		"    132  astore [local_4]\n" + 
 		"    134  goto 155\n" + 
-		"    137  aload 4\n" + 
-		"    139  invokeinterface [nargs : 1] #44 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
-		"    144  checkcast #46 java/lang/String\n" + 
-		"    147  astore_3\n" + 
-		"    148  getstatic #52 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    151  aload_3\n" + 
-		"    152  invokevirtual #58 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    155  aload 4\n" + 
-		"    157  invokeinterface [nargs : 1] #62 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    137  aload [local_4]\n" + 
+		"    139  invokeinterface java/util/Iterator.next()Ljava/lang/Object; [44] [nargs: 1]\n" + 
+		"    144  checkcast java/lang/String [46]\n" + 
+		"    147  astore_3 [s]\n" + 
+		"    148  getstatic java/lang/System.out Ljava/io/PrintStream; [52]\n" + 
+		"    151  aload_3 [s]\n" + 
+		"    152  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [58]\n" + 
+		"    155  aload [local_4]\n" + 
+		"    157  invokeinterface java/util/Iterator.hasNext()Z [62] [nargs: 1]\n" + 
 		"    162  ifne 137\n" + 
-		"    165  iinc 2 1\n" + 
-		"    168  iload_2\n" + 
-		"    169  aload_1\n" + 
-		"    170  invokevirtual #66 <Method java/util/ArrayList.size()I>\n" + 
+		"    165  iinc 2 1 [i]\n" + 
+		"    168  iload_2 [i]\n" + 
+		"    169  aload_1 [slist]\n" + 
+		"    170  invokevirtual java/util/ArrayList.size()I [66]\n" + 
 		"    173  if_icmplt 121\n" + 
 		"    176  return\n" + 
 		"      Line numbers:\n" + 

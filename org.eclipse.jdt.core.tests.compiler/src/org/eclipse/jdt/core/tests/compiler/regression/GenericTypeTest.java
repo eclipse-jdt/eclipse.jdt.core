@@ -5650,18 +5650,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  aload_0\n" + 
+			"     0  aload_0 [args]\n" + 
 			"     1  ifnonnull 9\n" + 
 			"     4  aconst_null\n" + 
-			"     5  astore_1\n" + 
+			"     5  astore_1 [i]\n" + 
 			"     6  goto 10\n" + 
 			"     9  return\n" + 
-			"    10  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    13  aload_1\n" + 
-			"    14  invokevirtual #27 <Method java/io/PrintStream.println(Ljava/lang/Object;)V>\n" + 
-			"    17  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    20  ldc #29 <String \"SUCCESS\">\n" + 
-			"    22  invokevirtual #32 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+			"    10  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    13  aload_1 [i]\n" + 
+			"    14  invokevirtual java/io/PrintStream.println(Ljava/lang/Object;)V [27]\n" + 
+			"    17  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    20  ldc <String \"SUCCESS\"> [29]\n" + 
+			"    22  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [32]\n" + 
 			"    25  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 

@@ -159,11 +159,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor  #19 ()I\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public int foo();\n" + 
-			"     0  new #21 A001$1$A\n" + 
+			"     0  new A001$1$A [21]\n" + 
 			"     3  dup\n" + 
-			"     4  aload_0\n" + 
-			"     5  invokespecial #24 <Method A001$1$A.<init>(LA001;)V>\n" + 
-			"     8  invokevirtual #27 <Method A001$1$A.get()I>\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial A001$1$A.<init>(LA001;)V [24]\n" + 
+			"     8  invokevirtual A001$1$A.get()I [27]\n" + 
 			"    11  ireturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -187,10 +187,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     3  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     3  invokevirtual java/io/PrintStream.println()V [26]\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -230,10 +230,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor  #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic #22 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     3  aload_0\n" + 
-			"     4  invokevirtual #24 <Method A003.bar()I>\n" + 
-			"     7  invokevirtual #30 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [22]\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  invokevirtual A003.bar()I [24]\n" + 
+			"     7  invokevirtual java/io/PrintStream.println(I)V [30]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 8]\n" + 
@@ -263,17 +263,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpne 22\n" + 
-			"    11  iload_1\n" + 
+			"    11  iload_1 [b]\n" + 
 			"    12  ifne 22\n" + 
-			"    15  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    18  iload_2\n" + 
-			"    19  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    18  iload_2 [i]\n" + 
+			"    19  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -308,13 +308,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -346,7 +346,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  bipush 6\n" + 
-			"    2  istore_1\n" + 
+			"    2  istore_1 [i]\n" + 
 			"    3  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -376,11 +376,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -412,7 +412,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
-			"    1  istore_1\n" + 
+			"    1  istore_1 [b]\n" + 
 			"    2  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -443,17 +443,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpeq 15\n" + 
-			"    11  iload_1\n" + 
+			"    11  iload_1 [b]\n" + 
 			"    12  ifne 22\n" + 
-			"    15  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    18  iload_2\n" + 
-			"    19  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    18  iload_2 [i]\n" + 
+			"    19  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -488,13 +488,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 9\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -526,13 +526,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -564,9 +564,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
-			"    1  istore_1\n" + 
-			"    2  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    5  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"    1  istore_1 [b]\n" + 
+			"    2  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    5  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    8  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -597,11 +597,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -634,24 +634,24 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpne 15\n" + 
 			"    11  iconst_1\n" + 
 			"    12  goto 16\n" + 
 			"    15  iconst_0\n" + 
-			"    16  iload_1\n" + 
+			"    16  iload_1 [b]\n" + 
 			"    17  ifeq 24\n" + 
 			"    20  iconst_0\n" + 
 			"    21  goto 25\n" + 
 			"    24  iconst_1\n" + 
 			"    25  if_icmpne 35\n" + 
-			"    28  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    31  iload_2\n" + 
-			"    32  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    28  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    31  iload_2 [i]\n" + 
+			"    32  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    35  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -686,13 +686,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -724,13 +724,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -762,11 +762,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -798,11 +798,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifeq 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -836,20 +836,20 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  iconst_5\n" + 
 			"     7  if_icmpne 17\n" + 
-			"    10  iload_1\n" + 
+			"    10  iload_1 [b]\n" + 
 			"    11  ifeq 28\n" + 
 			"    14  goto 21\n" + 
-			"    17  iload_1\n" + 
+			"    17  iload_1 [b]\n" + 
 			"    18  ifne 28\n" + 
-			"    21  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    24  iload_2\n" + 
-			"    25  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    21  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    24  iload_2 [i]\n" + 
+			"    25  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    28  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -884,13 +884,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmplt 15\n" + 
-			"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_1\n" + 
-			"    12  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    11  iload_1 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -923,12 +923,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iflt 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -960,12 +960,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifgt 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -997,12 +997,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifle 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1034,12 +1034,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifge 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1071,13 +1071,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmple 15\n" + 
-			"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_1\n" + 
-			"    12  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    11  iload_1 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1111,12 +1111,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifge 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1149,12 +1149,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifle 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1186,13 +1186,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpge 15\n" + 
-			"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_1\n" + 
-			"    12  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    11  iload_1 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1225,12 +1225,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  ifgt 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1263,12 +1263,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iflt 14\n" + 
-			"     7  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    10  iload_1\n" + 
-			"    11  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     7  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  iload_1 [i]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1300,13 +1300,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpgt 15\n" + 
-			"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_1\n" + 
-			"    12  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    11  iload_1 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1339,13 +1339,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  iconst_5\n" + 
 			"     5  if_icmpgt 15\n" + 
-			"     8  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_1\n" + 
-			"    12  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    11  iload_1 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1379,25 +1379,25 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpne 15\n" + 
 			"    11  iconst_1\n" + 
 			"    12  goto 16\n" + 
 			"    15  iconst_0\n" + 
-			"    16  iload_1\n" + 
+			"    16  iload_1 [b]\n" + 
 			"    17  ifeq 24\n" + 
 			"    20  iconst_0\n" + 
 			"    21  goto 25\n" + 
 			"    24  iconst_1\n" + 
 			"    25  iand\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    32  iload_2\n" + 
-			"    33  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    29  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    32  iload_2 [i]\n" + 
+			"    33  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1432,13 +1432,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1466,12 +1466,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  \n" + 
 			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  bipush 6\n" + 
-			"    2  istore_1\n" + 
+			"    2  istore_1 [i]\n" + 
 			"    3  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1501,11 +1500,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1537,7 +1536,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
-			"    1  istore_1\n" + 
+			"    1  istore_1 [b]\n" + 
 			"    2  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1568,25 +1567,25 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpne 15\n" + 
 			"    11  iconst_1\n" + 
 			"    12  goto 16\n" + 
 			"    15  iconst_0\n" + 
-			"    16  iload_1\n" + 
+			"    16  iload_1 [b]\n" + 
 			"    17  ifeq 24\n" + 
 			"    20  iconst_0\n" + 
 			"    21  goto 25\n" + 
 			"    24  iconst_1\n" + 
 			"    25  ior\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    32  iload_2\n" + 
-			"    33  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    29  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    32  iload_2 [i]\n" + 
+			"    33  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1621,10 +1620,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     6  iload_1\n" + 
-			"     7  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     6  iload_1 [i]\n" + 
+			"     7  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1655,13 +1654,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1693,9 +1692,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
-			"    1  istore_1\n" + 
-			"    2  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    5  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"    1  istore_1 [b]\n" + 
+			"    2  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    5  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    8  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1726,11 +1725,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1763,25 +1762,25 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
+			"     1  istore_1 [b]\n" + 
 			"     2  bipush 6\n" + 
-			"     4  istore_2\n" + 
-			"     5  iload_2\n" + 
+			"     4  istore_2 [i]\n" + 
+			"     5  iload_2 [i]\n" + 
 			"     6  bipush 6\n" + 
 			"     8  if_icmpne 15\n" + 
 			"    11  iconst_1\n" + 
 			"    12  goto 16\n" + 
 			"    15  iconst_0\n" + 
-			"    16  iload_1\n" + 
+			"    16  iload_1 [b]\n" + 
 			"    17  ifeq 24\n" + 
 			"    20  iconst_0\n" + 
 			"    21  goto 25\n" + 
 			"    24  iconst_1\n" + 
 			"    25  ixor\n" + 
 			"    26  ifeq 36\n" + 
-			"    29  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    32  iload_2\n" + 
-			"    33  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    29  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    32  iload_2 [i]\n" + 
+			"    33  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    36  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1816,13 +1815,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1854,13 +1853,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_1\n" + 
-			"     3  iload_1\n" + 
+			"     2  istore_1 [i]\n" + 
+			"     3  iload_1 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpne 16\n" + 
-			"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_1\n" + 
-			"    13  invokevirtual #27 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    12  iload_1 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [27]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1892,11 +1891,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifeq 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1928,11 +1927,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  istore_1\n" + 
-			"     2  iload_1\n" + 
+			"     1  istore_1 [b]\n" + 
+			"     2  iload_1 [b]\n" + 
 			"     3  ifne 12\n" + 
-			"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     9  invokevirtual #26 <Method java/io/PrintStream.println()V>\n" + 
+			"     6  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     9  invokevirtual java/io/PrintStream.println()V [26]\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 
@@ -1968,24 +1967,24 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor  #15 (Z)I\n" + 
 			"  // Stack: 1, Locals: 4\n" + 
 			"  static int foo(boolean bool);\n" + 
-			"     0  iload_0\n" + 
+			"     0  iload_0 [bool]\n" + 
 			"     1  ifeq 9\n" + 
 			"     4  jsr 20\n" + 
 			"     7  iconst_1\n" + 
 			"     8  ireturn\n" + 
 			"     9  iconst_2\n" + 
-			"    10  istore_1\n" + 
+			"    10  istore_1 [j]\n" + 
 			"    11  goto 25\n" + 
-			"    14  astore_3\n" + 
+			"    14  astore_3 [local_3]\n" + 
 			"    15  jsr 20\n" + 
-			"    18  aload_3\n" + 
+			"    18  aload_3 [local_3]\n" + 
 			"    19  athrow\n" + 
-			"    20  astore_2\n" + 
+			"    20  astore_2 [j]\n" + 
 			"    21  iconst_3\n" + 
-			"    22  istore_1\n" + 
+			"    22  istore_1 [j]\n" + 
 			"    23  ret 2\n" + 
 			"    25  jsr 20\n" + 
-			"    28  iload_1\n" + 
+			"    28  iload_1 [j]\n" + 
 			"    29  ireturn\n" + 
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 7] -> 14 when : any\n" + 
@@ -2025,7 +2024,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo();\n" + 
 			"    0  iconst_5\n" + 
-			"    1  istore_0\n" + 
+			"    1  istore_0 [i]\n" + 
 			"    2  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2054,13 +2053,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  iload_0\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 8\n" + 
-			"     8  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    11  iload_0\n" + 
-			"    12  invokevirtual #32 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     8  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"    11  iload_0 [i]\n" + 
+			"    12  invokevirtual java/io/PrintStream.println(I)V [32]\n" + 
 			"    15  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2091,7 +2090,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar();\n" + 
 			"    0  bipush 6\n" + 
-			"    2  istore_0\n" + 
+			"    2  istore_0 [i]\n" + 
 			"    3  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2119,13 +2118,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  iload_0\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 9\n" + 
-			"     9  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    12  iload_0\n" + 
-			"    13  invokevirtual #32 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"    12  iload_0 [i]\n" + 
+			"    13  invokevirtual java/io/PrintStream.println(I)V [32]\n" + 
 			"    16  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2158,11 +2157,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo2();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  iload_0\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 12\n" + 
-			"     8  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     8  invokestatic X.boom()Z [27]\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
@@ -2196,15 +2195,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo2();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  iload_0\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 14\n" + 
-			"     8  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     8  invokestatic X.boom()Z [27]\n" + 
 			"    11  ifeq 14\n" + 
-			"    14  getstatic #33 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    17  iload_0\n" + 
-			"    18  invokevirtual #39 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    14  getstatic java/lang/System.out Ljava/io/PrintStream; [33]\n" + 
+			"    17  iload_0 [i]\n" + 
+			"    18  invokevirtual java/io/PrintStream.println(I)V [39]\n" + 
 			"    21  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2238,11 +2237,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar2();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  iload_0\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 13\n" + 
-			"     9  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     9  invokestatic X.boom()Z [27]\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
 			"      Line numbers:\n" + 
@@ -2275,15 +2274,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar2();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  iload_0\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 15\n" + 
-			"     9  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     9  invokestatic X.boom()Z [27]\n" + 
 			"    12  ifne 15\n" + 
-			"    15  getstatic #33 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    18  iload_0\n" + 
-			"    19  invokevirtual #39 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [33]\n" + 
+			"    18  iload_0 [i]\n" + 
+			"    19  invokevirtual java/io/PrintStream.println(I)V [39]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2313,7 +2312,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo3();\n" + 
 			"    0  iconst_5\n" + 
-			"    1  istore_0\n" + 
+			"    1  istore_0 [i]\n" + 
 			"    2  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2342,10 +2341,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo3();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     5  iload_0\n" + 
-			"     6  invokevirtual #32 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"     5  iload_0 [i]\n" + 
+			"     6  invokevirtual java/io/PrintStream.println(I)V [32]\n" + 
 			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2375,7 +2374,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar3();\n" + 
 			"    0  bipush 6\n" + 
-			"    2  istore_0\n" + 
+			"    2  istore_0 [i]\n" + 
 			"    3  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2403,10 +2402,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar3();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  getstatic #26 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     6  iload_0\n" + 
-			"     7  invokevirtual #32 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"     6  iload_0 [i]\n" + 
+			"     7  invokevirtual java/io/PrintStream.println(I)V [32]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 
@@ -2438,7 +2437,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo4();\n" + 
 			"    0  iconst_5\n" + 
-			"    1  istore_0\n" + 
+			"    1  istore_0 [i]\n" + 
 			"    2  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2470,10 +2469,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo4();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  getstatic #31 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     5  iload_0\n" + 
-			"     6  invokevirtual #37 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  getstatic java/lang/System.out Ljava/io/PrintStream; [31]\n" + 
+			"     5  iload_0 [i]\n" + 
+			"     6  invokevirtual java/io/PrintStream.println(I)V [37]\n" + 
 			"     9  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2506,7 +2505,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar4();\n" + 
 			"    0  bipush 6\n" + 
-			"    2  istore_0\n" + 
+			"    2  istore_0 [i]\n" + 
 			"    3  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2537,10 +2536,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar4();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  getstatic #31 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     6  iload_0\n" + 
-			"     7  invokevirtual #37 <Method java/io/PrintStream.println(I)V>\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  getstatic java/lang/System.out Ljava/io/PrintStream; [31]\n" + 
+			"     6  iload_0 [i]\n" + 
+			"     7  invokevirtual java/io/PrintStream.println(I)V [37]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2572,11 +2571,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo5();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  iload_0\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 12\n" + 
-			"     8  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     8  invokestatic X.boom()Z [27]\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
 			"      Line numbers:\n" + 
@@ -2610,15 +2609,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo5();\n" + 
 			"     0  iconst_5\n" + 
-			"     1  istore_0\n" + 
-			"     2  iload_0\n" + 
+			"     1  istore_0 [i]\n" + 
+			"     2  iload_0 [i]\n" + 
 			"     3  bipush 6\n" + 
 			"     5  if_icmpne 14\n" + 
-			"     8  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     8  invokestatic X.boom()Z [27]\n" + 
 			"    11  ifeq 14\n" + 
-			"    14  getstatic #33 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    17  iload_0\n" + 
-			"    18  invokevirtual #39 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    14  getstatic java/lang/System.out Ljava/io/PrintStream; [33]\n" + 
+			"    17  iload_0 [i]\n" + 
+			"    18  invokevirtual java/io/PrintStream.println(I)V [39]\n" + 
 			"    21  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2652,11 +2651,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar5();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  iload_0\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 13\n" + 
-			"     9  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     9  invokestatic X.boom()Z [27]\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
 			"      Line numbers:\n" + 
@@ -2689,15 +2688,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar5();\n" + 
 			"     0  bipush 6\n" + 
-			"     2  istore_0\n" + 
-			"     3  iload_0\n" + 
+			"     2  istore_0 [i]\n" + 
+			"     3  iload_0 [i]\n" + 
 			"     4  bipush 6\n" + 
 			"     6  if_icmpeq 15\n" + 
-			"     9  invokestatic #27 <Method X.boom()Z>\n" + 
+			"     9  invokestatic X.boom()Z [27]\n" + 
 			"    12  ifne 15\n" + 
-			"    15  getstatic #33 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    18  iload_0\n" + 
-			"    19  invokevirtual #39 <Method java/io/PrintStream.println(I)V>\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [33]\n" + 
+			"    18  iload_0 [i]\n" + 
+			"    19  invokevirtual java/io/PrintStream.println(I)V [39]\n" + 
 			"    22  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 9]\n" + 
@@ -2815,8 +2814,8 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Method descriptor  #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
-			"    0  aload_0\n" + 
-			"    1  invokespecial #9 <Method java/lang/Object.<init>()V>\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokespecial java/lang/Object.<init>()V [9]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
@@ -2827,16 +2826,16 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
-			"     1  newarray #11 long\n" + 
-			"     3  astore_1\n" + 
-			"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"     7  aload_1\n" + 
-			"     8  invokevirtual #27 <Method [J.clone()Ljava/lang/Object;>\n" + 
-			"    11  invokevirtual #33 <Method java/io/PrintStream.println(Ljava/lang/Object;)V>\n" + 
-			"    14  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-			"    17  aload_1\n" + 
-			"    18  invokevirtual #27 <Method [J.clone()Ljava/lang/Object;>\n" + 
-			"    21  invokevirtual #33 <Method java/io/PrintStream.println(Ljava/lang/Object;)V>\n" + 
+			"     1  newarray long [11]\n" + 
+			"     3  astore_1 [tab]\n" + 
+			"     4  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"     7  aload_1 [tab]\n" + 
+			"     8  invokevirtual [J.clone()Ljava/lang/Object; [27]\n" + 
+			"    11  invokevirtual java/io/PrintStream.println(Ljava/lang/Object;)V [33]\n" + 
+			"    14  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    17  aload_1 [tab]\n" + 
+			"    18  invokevirtual [J.clone()Ljava/lang/Object; [27]\n" + 
+			"    21  invokevirtual java/io/PrintStream.println(Ljava/lang/Object;)V [33]\n" + 
 			"    24  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 3]\n" + 

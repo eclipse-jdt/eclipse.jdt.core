@@ -358,9 +358,9 @@ public void test009() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     3  ldc #23 <String \"1\">\n" + 
-		"     5  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     3  ldc <String \"1\"> [23]\n" + 
+		"     5  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"     8  aconst_null\n" + 
 		"     9  goto 13\n" + 
 		"    12  aconst_null\n" + 
@@ -368,39 +368,39 @@ public void test009() {
 		"    14  goto 18\n" + 
 		"    17  aconst_null\n" + 
 		"    18  if_acmpne 29\n" + 
-		"    21  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    24  ldc #31 <String \"2\">\n" + 
-		"    26  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    29  new #33 java/lang/StringBuffer\n" + 
+		"    21  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    24  ldc <String \"2\"> [31]\n" + 
+		"    26  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    29  new java/lang/StringBuffer [33]\n" + 
 		"    32  dup\n" + 
-		"    33  ldc #35 <String \"[\">\n" + 
-		"    35  invokespecial #37 <Method java/lang/StringBuffer.<init>(Ljava/lang/String;)V>\n" + 
+		"    33  ldc <String \"[\"> [35]\n" + 
+		"    35  invokespecial java/lang/StringBuffer.<init>(Ljava/lang/String;)V [37]\n" + 
 		"    38  aconst_null\n" + 
-		"    39  invokevirtual #41 <Method java/lang/StringBuffer.append(Ljava/lang/Object;)Ljava/lang/StringBuffer;>\n" + 
-		"    42  ldc #43 <String \"]\">\n" + 
-		"    44  invokevirtual #46 <Method java/lang/StringBuffer.append(Ljava/lang/String;)Ljava/lang/StringBuffer;>\n" + 
-		"    47  invokevirtual #50 <Method java/lang/StringBuffer.toString()Ljava/lang/String;>\n" + 
-		"    50  ldc #52 <String \"[null]\">\n" + 
+		"    39  invokevirtual java/lang/StringBuffer.append(Ljava/lang/Object;)Ljava/lang/StringBuffer; [41]\n" + 
+		"    42  ldc <String \"]\"> [43]\n" + 
+		"    44  invokevirtual java/lang/StringBuffer.append(Ljava/lang/String;)Ljava/lang/StringBuffer; [46]\n" + 
+		"    47  invokevirtual java/lang/StringBuffer.toString()Ljava/lang/String; [50]\n" + 
+		"    50  ldc <String \"[null]\"> [52]\n" + 
 		"    52  if_acmpne 59\n" + 
 		"    55  iconst_1\n" + 
 		"    56  goto 60\n" + 
 		"    59  iconst_0\n" + 
-		"    60  istore_1\n" + 
-		"    61  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    64  ldc #54 <String \"3\">\n" + 
-		"    66  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    60  istore_1 [b]\n" + 
+		"    61  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    64  ldc <String \"3\"> [54]\n" + 
+		"    66  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"    69  aconst_null\n" + 
-		"    70  astore_2\n" + 
-		"    71  aload_2\n" + 
+		"    70  astore_2 [s]\n" + 
+		"    71  aload_2 [s]\n" + 
 		"    72  ifnonnull 83\n" + 
-		"    75  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    78  ldc #56 <String \"4\">\n" + 
-		"    80  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    83  ldc #58 <String \"aaa\">\n" + 
-		"    85  astore_3\n" + 
-		"    86  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    89  ldc #60 <String \"5\">\n" + 
-		"    91  invokevirtual #63 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    75  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    78  ldc <String \"4\"> [56]\n" + 
+		"    80  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    83  ldc <String \"aaa\"> [58]\n" + 
+		"    85  astore_3 [s2]\n" + 
+		"    86  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    89  ldc <String \"5\"> [60]\n" + 
+		"    91  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [63]\n" + 
 		"    94  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -423,9 +423,9 @@ public void test009() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     3  ldc #23 <String \"1\">\n" + 
-		"     5  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     3  ldc <String \"1\"> [23]\n" + 
+		"     5  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"     8  aconst_null\n" + 
 		"     9  goto 13\n" + 
 		"    12  aconst_null\n" + 
@@ -433,39 +433,39 @@ public void test009() {
 		"    14  goto 18\n" + 
 		"    17  aconst_null\n" + 
 		"    18  if_acmpne 29\n" + 
-		"    21  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    24  ldc #31 <String \"2\">\n" + 
-		"    26  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    29  new #33 java/lang/StringBuilder\n" + 
+		"    21  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    24  ldc <String \"2\"> [31]\n" + 
+		"    26  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    29  new java/lang/StringBuilder [33]\n" + 
 		"    32  dup\n" + 
-		"    33  ldc #35 <String \"[\">\n" + 
-		"    35  invokespecial #37 <Method java/lang/StringBuilder.<init>(Ljava/lang/String;)V>\n" + 
+		"    33  ldc <String \"[\"> [35]\n" + 
+		"    35  invokespecial java/lang/StringBuilder.<init>(Ljava/lang/String;)V [37]\n" + 
 		"    38  aconst_null\n" + 
-		"    39  invokevirtual #41 <Method java/lang/StringBuilder.append(Ljava/lang/Object;)Ljava/lang/StringBuilder;>\n" + 
-		"    42  ldc #43 <String \"]\">\n" + 
-		"    44  invokevirtual #46 <Method java/lang/StringBuilder.append(Ljava/lang/String;)Ljava/lang/StringBuilder;>\n" + 
-		"    47  invokevirtual #50 <Method java/lang/StringBuilder.toString()Ljava/lang/String;>\n" + 
-		"    50  ldc #52 <String \"[null]\">\n" + 
+		"    39  invokevirtual java/lang/StringBuilder.append(Ljava/lang/Object;)Ljava/lang/StringBuilder; [41]\n" + 
+		"    42  ldc <String \"]\"> [43]\n" + 
+		"    44  invokevirtual java/lang/StringBuilder.append(Ljava/lang/String;)Ljava/lang/StringBuilder; [46]\n" + 
+		"    47  invokevirtual java/lang/StringBuilder.toString()Ljava/lang/String; [50]\n" + 
+		"    50  ldc <String \"[null]\"> [52]\n" + 
 		"    52  if_acmpne 59\n" + 
 		"    55  iconst_1\n" + 
 		"    56  goto 60\n" + 
 		"    59  iconst_0\n" + 
-		"    60  istore_1\n" + 
-		"    61  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    64  ldc #54 <String \"3\">\n" + 
-		"    66  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    60  istore_1 [b]\n" + 
+		"    61  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    64  ldc <String \"3\"> [54]\n" + 
+		"    66  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"    69  aconst_null\n" + 
-		"    70  astore_2\n" + 
-		"    71  aload_2\n" + 
+		"    70  astore_2 [s]\n" + 
+		"    71  aload_2 [s]\n" + 
 		"    72  ifnonnull 83\n" + 
-		"    75  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    78  ldc #56 <String \"4\">\n" + 
-		"    80  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    83  ldc #58 <String \"aaa\">\n" + 
-		"    85  astore_3\n" + 
-		"    86  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    89  ldc #60 <String \"5\">\n" + 
-		"    91  invokevirtual #63 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    75  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    78  ldc <String \"4\"> [56]\n" + 
+		"    80  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
+		"    83  ldc <String \"aaa\"> [58]\n" + 
+		"    85  astore_3 [s2]\n" + 
+		"    86  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    89  ldc <String \"5\"> [60]\n" + 
+		"    91  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [63]\n" + 
 		"    94  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -536,13 +536,13 @@ public void test010() {
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 1\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"     3  ldc #23 <String \"SUCCESS\">\n" + 
-		"     5  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"     3  ldc <String \"SUCCESS\"> [23]\n" + 
+		"     5  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"     8  return\n" + 
-		"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
-		"    12  ldc #31 <String \"SHOULDN\'T BE GENERATED\">\n" + 
-		"    14  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     9  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+		"    12  ldc <String \"SHOULDN\'T BE GENERATED\"> [31]\n" + 
+		"    14  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [29]\n" + 
 		"    17  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
