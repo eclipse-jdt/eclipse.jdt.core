@@ -3361,6 +3361,20 @@ public final class CompletionEngine
 						addExpectedType(BaseTypes.ByteBinding);
 						break;
 				}
+				BinaryExpression binaryExpression = (BinaryExpression) parent;
+				if(operator == OperatorIds.LESS) {
+					if(binaryExpression.left instanceof SingleNameReference){
+						SingleNameReference name = (SingleNameReference) binaryExpression.left;
+						Binding b = scope.getBinding(name.token, BindingIds.VARIABLE | BindingIds.TYPE, name, false);
+						if(b instanceof ReferenceBinding) {
+							TypeVariableBinding[] typeVariableBindings =((ReferenceBinding)b).typeVariables();
+							if(typeVariableBindings != null && typeVariableBindings.length > 0) {
+								addExpectedType(typeVariableBindings[0].firstBound);
+							}
+							
+						}
+					}
+				}
 			} else if(parent instanceof UnaryExpression) {
 				switch(operator) {
 					case OperatorIds.NOT :

@@ -6998,6 +6998,118 @@ public void test0164(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0165(){
+	String str =
+		"public class X {\n" +
+		"  void foo() {\n" + 
+		"    Object a = (W.Y<Z>) e;\n" + 
+		"  }\n" + 
+		"}";
+
+
+	String completeBehind = "Y<Z";
+	int cursorLocation = str.indexOf("Y<Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:Z>";
+	expectedParentNodeToString = "(W.Y < <CompleteOnName:Z>)";
+	completionIdentifier = "Z";
+	expectedReplacedSource = "Z";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    Object a = (W.Y < <CompleteOnName:Z>);\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0166(){
+	String str =
+		"public class X {\n" +
+		"  void foo() {\n" + 
+		"    Object a = (W<U>.Y<Z>) e;\n" + 
+		"  }\n" + 
+		"}";
+
+
+	String completeBehind = "Y<Z";
+	int cursorLocation = str.indexOf("Y<Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnType:Z>";
+	expectedParentNodeToString = "Y<<CompleteOnType:Z>>";
+	completionIdentifier = "Z";
+	expectedReplacedSource = "Z";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    Object a = W<U>.Y<<CompleteOnType:Z>>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 public void _testXXX2(){
 	String str =
 		"public class X extends Y. {\n" +

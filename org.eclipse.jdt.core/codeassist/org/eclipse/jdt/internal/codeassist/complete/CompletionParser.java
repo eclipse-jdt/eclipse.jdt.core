@@ -65,6 +65,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_EXTENDS_KEYWORD = COMPLETION_PARSER + 29;
 	protected static final int K_PARAMETERIZED_METHOD_INVOCATION = COMPLETION_PARSER + 30;
 	protected static final int K_PARAMETERIZED_ALLOCATION = COMPLETION_PARSER + 31;
+	protected static final int K_PARAMETERIZED_CAST = COMPLETION_PARSER + 32;
 	
 
 	/* public fields */
@@ -607,6 +608,9 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 					if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
 						this.consumeTypeArguments();
 						TypeReference ref = this.getTypeReference(0);
+						if(prevKind == K_PARAMETERIZED_CAST) {
+							ref = computeQualifiedGenericsFromRightSide(ref, 0);
+						}
 						currentElement = currentElement.add(ref, 0);
 					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
 						currentElement = currentElement.add((TypeReference)node, 0);
@@ -1219,6 +1223,27 @@ protected void consumeCastExpressionWithPrimitiveType() {
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
+protected void consumeCastExpressionWithGenericsArray() {
+	popElement(K_CAST_STATEMENT);
+	
+	Expression exp, cast, castType;
+	expressionPtr--;
+	expressionLengthPtr--;
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = this.expressionStack[this.expressionPtr]);
+	cast.sourceStart = castType.sourceStart - 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+
+protected void consumeCastExpressionWithQualifiedGenericsArray() {
+	popElement(K_CAST_STATEMENT);
+	
+	Expression exp, cast, castType;
+	expressionPtr--;
+	expressionLengthPtr--;
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = this.expressionStack[this.expressionPtr]);
+	cast.sourceStart = castType.sourceStart - 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
 protected void consumeCastExpressionWithNameArray() {
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 	popElement(K_CAST_STATEMENT);
@@ -1560,6 +1585,20 @@ protected void consumeInsideCastExpression() {
 }
 protected void consumeInsideCastExpressionLL1() {
 	super.consumeInsideCastExpressionLL1();
+	pushOnElementStack(K_CAST_STATEMENT);
+}
+protected void consumeInsideCastExpressionWithQualifiedGenerics() {
+	Expression castType;
+	int end = this.intStack[this.intPtr--];
+
+	int dim = this.intStack[this.intPtr--];
+	TypeReference rightSide = getTypeReference(0);
+
+	castType = computeQualifiedGenericsFromRightSide(rightSide, dim);
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = this.intStack[this.intPtr--] + 1;
+	pushOnExpressionStack(castType);
+	
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInstanceOfExpression(int op) {
@@ -2292,6 +2331,16 @@ protected void consumeOnlyTypeArguments() {
 		popElement(K_PARAMETERIZED_METHOD_INVOCATION);
 	} else {
 		popElement(K_PARAMETERIZED_ALLOCATION);
+	}
+}
+protected void consumeOnlyTypeArgumentsForCastExpression() {
+	super.consumeOnlyTypeArgumentsForCastExpression();
+	pushOnElementStack(K_PARAMETERIZED_CAST);
+}
+protected void consumeRightParen() {
+	super.consumeRightParen();
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+		popElement(K_PARAMETERIZED_CAST);
 	}
 }
 protected void consumeReferenceType1() {

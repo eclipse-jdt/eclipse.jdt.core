@@ -1280,13 +1280,9 @@ UnaryExpressionNotPlusMinus -> CastExpression
 
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpressionWithPrimitiveType(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpressionWithGenerics(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpressionWithQualifiedGenerics(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
@@ -1294,11 +1290,18 @@ CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExp
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
 
+OnlyTypeArgumentsForCastExpression ::= OnlyTypeArguments
+/.$putCase consumeOnlyTypeArgumentsForCastExpression(); $break ./
+/:$readableName TypeArguments:/
+
 InsideCastExpression ::= $empty
 /.$putCase consumeInsideCastExpression(); $break ./
 /:$readableName InsideCastExpression:/
 InsideCastExpressionLL1 ::= $empty
 /.$putCase consumeInsideCastExpressionLL1(); $break ./
+/:$readableName InsideCastExpression:/
+InsideCastExpressionWithQualifiedGenerics ::= $empty
+/.$putCase consumeInsideCastExpressionWithQualifiedGenerics(); $break ./
 /:$readableName InsideCastExpression:/
 
 MultiplicativeExpression -> UnaryExpression

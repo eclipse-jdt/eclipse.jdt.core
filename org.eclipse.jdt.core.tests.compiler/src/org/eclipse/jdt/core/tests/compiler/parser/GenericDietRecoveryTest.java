@@ -870,4 +870,48 @@ public void test0018() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0019() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X {			\n"
+			+ "		void foo()[\n"
+			+ "		  Object o = (Y<Z>.W<U>)e\n"
+			+ "		\n"
+			+ "		}\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }
