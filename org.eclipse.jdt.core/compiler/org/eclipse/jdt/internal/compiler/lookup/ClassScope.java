@@ -902,10 +902,12 @@ public class ClassScope extends Scope {
 		}
 
 		if (superType.isHierarchyBeingConnected()) {
-			problemReporter().hierarchyCircularity(sourceType, superType, reference);
-			sourceType.tagBits |= HierarchyHasProblems;
-			superType.tagBits |= HierarchyHasProblems;
-			return true;
+			if (((SourceTypeBinding) superType).scope.superTypeReference != null) { // if null then its connecting its type variables
+				problemReporter().hierarchyCircularity(sourceType, superType, reference);
+				sourceType.tagBits |= HierarchyHasProblems;
+				superType.tagBits |= HierarchyHasProblems;
+				return true;
+			}
 		}
 		if ((superType.tagBits & BeginHierarchyCheck) == 0)
 			// ensure if this is a source superclass that it has already been checked
