@@ -481,12 +481,10 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 			}
 			continue;
 		}
-		if (entryPath.equals(outputLocation)) continue;
-
 
 		// prevent nesting source entries in each other
 		if (kind == IClasspathEntry.CPE_SOURCE 
-				|| (kind == IClasspathEntry.CPE_LIBRARY && !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.toString()))){
+				|| (kind == IClasspathEntry.CPE_LIBRARY && !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))){
 			for (int j = 0; j < classpath.length; j++){
 				IClasspathEntry otherEntry = classpath[j];
 				if (otherEntry == null) continue;
@@ -494,7 +492,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				if (entry != otherEntry 
 					&& (otherKind == IClasspathEntry.CPE_SOURCE 
 							|| (otherKind == IClasspathEntry.CPE_LIBRARY 
-									&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherEntry.getPath().toString())))){
+									&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherEntry.getPath().lastSegment())))){
 					if (otherEntry.getPath().isPrefixOf(entryPath)){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
 					}
@@ -502,7 +500,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 			}
 		}
 		// prevent nesting output location inside entry
-		if (entryPath.isPrefixOf(outputLocation)) {
+		if (!entryPath.equals(outputLocation) && entryPath.isPrefixOf(outputLocation)) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
 		}
 
