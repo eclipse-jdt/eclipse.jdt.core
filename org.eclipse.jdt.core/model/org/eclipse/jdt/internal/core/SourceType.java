@@ -409,7 +409,6 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 		case IJavaElement.METHOD:
 			return 
 				((IMember) this.parent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
-				+ enclosingTypeSeparator + this.occurrenceCount
 				+ enclosingTypeSeparator + this.name;
 	}
 	return null;

@@ -16,8 +16,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * Represents either a source type in a compilation unit (either a top-level
- * type or a member type) or a binary type in a class file.
+ * type, a member type, a local type or an anonymous type) 
+ * or a binary type in a class file.
  * <p>
+ * Note that the element name of an anonymous source type is always empty.
+ * </p><p>
  * If a binary type cannot be parsed, its structure remains unknown.
  * Use <code>IJavaElement.isStructureKnown</code> to determine whether this
  * is the case.
