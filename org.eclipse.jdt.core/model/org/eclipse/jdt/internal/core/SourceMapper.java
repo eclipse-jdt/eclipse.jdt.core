@@ -155,6 +155,11 @@ public class SourceMapper
 	String encoding;
 	
 	/**
+	 * Internal flag.
+	 */
+	private boolean hasDollar;
+	
+	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
@@ -616,11 +621,15 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the name of the element.
 	 */
 	public SourceRange getNameRange(IJavaElement element) {
+		IJavaElement el = element;
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
-			element = getUnqualifiedMethodHandle((IMethod) element);
+			el = getUnqualifiedMethodHandle((IMethod) element, false);
+			if(hasDollar && fSourceRanges.get(el) == null) {
+				el = getUnqualifiedMethodHandle((IMethod) element, true);
+			}
 		}
-		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
+		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(el);
 		if (ranges == null) {
 			return fgUnknownRange;
 		} else {
@@ -633,10 +642,14 @@ public class SourceMapper
 	 * null if no parameter names are known for the method.
 	 */
 	public char[][] getMethodParameterNames(IMethod method) {
+		IJavaElement el = method;
 		if (((IMember) method).isBinary()) {
-			method = (IMethod) getUnqualifiedMethodHandle(method);
+			el = getUnqualifiedMethodHandle(method, false);
+			if(hasDollar && fParameterNames.get(el) == null) {
+				el = getUnqualifiedMethodHandle(method, true);
+			}
 		}
-		char[][] parameterNames = (char[][]) fParameterNames.get(method);
+		char[][] parameterNames = (char[][]) fParameterNames.get(el);
 		if (parameterNames == null) {
 			return null;
 		} else {
@@ -649,11 +662,15 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the element.
 	 */
 	public SourceRange getSourceRange(IJavaElement element) {
+		IJavaElement el = element;
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
-			element = getUnqualifiedMethodHandle((IMethod) element);
+			el = getUnqualifiedMethodHandle((IMethod) element, false);
+			if(hasDollar && fSourceRanges.get(el) == null) {
+				el = getUnqualifiedMethodHandle((IMethod) element, true);
+			}
 		}
-		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
+		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(el);
 		if (ranges == null) {
 			return fgUnknownRange;
 		} else {
@@ -676,8 +693,8 @@ public class SourceMapper
 	 * Creates a handle that has parameter types that are not
 	 * fully qualified so that the correct source is found.
 	 */
-	protected IJavaElement getUnqualifiedMethodHandle(IMethod method) {
-
+	protected IJavaElement getUnqualifiedMethodHandle(IMethod method, boolean noDollar) {
+		hasDollar = false;
 		String[] qualifiedParameterTypes = method.getParameterTypes();
 		String[] unqualifiedParameterTypes = new String[qualifiedParameterTypes.length];
 		for (int i = 0; i < qualifiedParameterTypes.length; i++) {
@@ -690,7 +707,15 @@ public class SourceMapper
 			}
 			if (qualifiedName.charAt(count) == Signature.C_RESOLVED) {
 				unqualifiedName.append(Signature.C_UNRESOLVED);
-				unqualifiedName.append(Signature.getSimpleName(qualifiedName));
+				String simpleName = Signature.getSimpleName(qualifiedName.substring(count+1));
+				if(!noDollar) {
+					if(!hasDollar && simpleName.indexOf('$') != -1) {
+						hasDollar = true;
+					}
+					unqualifiedName.append(simpleName);
+				} else {
+					unqualifiedName.append(CharOperation.lastSegment(simpleName.toCharArray(), '$'));
+				}
 			} else {
 				unqualifiedName.append(qualifiedName.substring(count, qualifiedName.length()));
 			}
