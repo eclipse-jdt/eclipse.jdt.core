@@ -1235,7 +1235,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					char[][] boundNames = new char[boundLength][];
 					for (int j = 0; j < boundLength; j++) {
 						boundNames[j] = 
-							CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+							CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
 					}
 					typeParameterBounds[i] = boundNames;
 				}
