@@ -330,6 +330,42 @@ public void saveIndexes(){
 	needToSave = false;
 }
 
+public void shutdown() {
+	try {
+		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+		HashMap keepingIndexesPaths = new HashMap();
+		if (model != null) {
+			// remove unused indexes
+			IJavaProject[] projects = model.getJavaProjects();
+			for (int i = 0, max = projects.length; i < max; i++) {
+				if (projects[i].exists()) {
+					String path = this.getIndex(projects[i].getProject().getFullPath()).getIndexFile().getPath();
+					keepingIndexesPaths.put(path,path);
+					IClasspathEntry[] entries = projects[i].getResolvedClasspath(true);
+					for (int j = 0, max2 = entries.length; j < max2; j++) {
+						if (entries[j].getEntryKind() == ClasspathEntry.CPE_LIBRARY) {
+							path = this.getIndex(entries[j].getPath()).getIndexFile().getPath();
+							keepingIndexesPaths.put(path,path);
+						}
+					}
+				}
+			}
+			File indexesDirectory = new File(this.getJavaPluginWorkingLocation().toOSString());
+			if (indexesDirectory.isDirectory()) {
+				File[] indexesFiles = indexesDirectory.listFiles();
+				for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
+					if (keepingIndexesPaths.get(indexesFiles[i].getAbsolutePath()) == null) {
+						indexesFiles[i].delete();
+					}
+				}
+				
+			}
+		}
+	} catch(JavaModelException e) {
+	}
+	super.shutdown();		
+}
+
 /**
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
