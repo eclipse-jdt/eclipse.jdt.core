@@ -183,10 +183,18 @@ public abstract class AbstractCommentParser {
 											char[] tag = this.scanner.getCurrentIdentifierSource();
 											if (CharOperation.equals(tag, TAG_DEPRECATED)) {
 												this.deprecated = true;
-												valid = true;
+												if (this.kind == DOM_PARSER) {
+													valid = parseTag();
+												} else {
+													valid = true;
+												}
 											} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
 												this.inherited = true;
-												valid = true;
+												if (this.kind == DOM_PARSER) {
+													valid = parseTag();
+												} else {
+													valid = true;
+												}
 											} else if (CharOperation.equals(tag, TAG_PARAM)) {
 												valid = parseParam();
 											} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
@@ -224,6 +232,8 @@ public abstract class AbstractCommentParser {
 							pushText(this.textStart, charPosition);
 						}
 						this.lineStarted = false;
+						// Fix bug 51650
+						this.textStart = -1;
 						break;
 					case '}' :
 						if (this.inlineTagStarted) {
@@ -260,8 +270,8 @@ public abstract class AbstractCommentParser {
 						}
 				}
 			}
-			if (this.lineStarted && this.textStart <= this.endComment) {
-				pushText(this.textStart, this.endComment);
+			if (this.lineStarted && this.textStart <= charPosition) {
+				pushText(this.textStart, charPosition);
 			}
 			updateDocComment();
 		} catch (Exception ex) {
@@ -384,6 +394,7 @@ public abstract class AbstractCommentParser {
 				// Create new argument
 				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
+				consumeToken();
 				return createMethodReference(receiver, arguments);
 			} else {
 				break nextArg;
@@ -469,7 +480,7 @@ public abstract class AbstractCommentParser {
 				return null;
 			}
 			// Reset position: we want to rescan last token
-			if (this.kind == DOM_PARSER && this.currentTokenType != -1) {
+			if (this.currentTokenType != -1) {
 				this.index = previousPosition;
 				this.scanner.currentPosition = previousPosition;
 				this.currentTokenType = -1;
@@ -576,7 +587,7 @@ public abstract class AbstractCommentParser {
 			}
 		}
 		// Reset position: we want to rescan last token
-		if (this.kind == DOM_PARSER && this.currentTokenType != -1) {
+		if (this.currentTokenType != -1) {
 			this.index = previousPosition;
 			this.scanner.currentPosition = previousPosition;
 			this.currentTokenType = -1;
@@ -601,6 +612,10 @@ public abstract class AbstractCommentParser {
 					if (typeRef == null) {
 						consumeToken();
 						if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+							if (this.kind == DOM_PARSER) {
+								parseTag();
+								pushText(previousPosition, this.index-1);
+							}
 							return true;
 						}
 					}
@@ -614,6 +629,10 @@ public abstract class AbstractCommentParser {
 						if (typeRef == null) {
 							consumeToken();
 							if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+								if (this.kind == DOM_PARSER) {
+									parseTag();
+									pushText(previousPosition, this.index-1);
+								}
 								return true;
 							}
 						}
@@ -655,7 +674,7 @@ public abstract class AbstractCommentParser {
 			int token = readToken();
 			if (token != TerminalTokens.TokenNameLPAREN) {
 				// Reset position: we want to rescan last token
-				if (this.kind == DOM_PARSER && this.currentTokenType != -1) {
+				if (this.currentTokenType != -1) {
 					this.index = previousPosition;
 					this.scanner.currentPosition = previousPosition;
 					this.currentTokenType = -1;

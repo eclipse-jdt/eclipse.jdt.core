@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class JavadocSingleTypeReference extends SingleTypeReference {
 	
 	public int tagSourceStart, tagSourceEnd;
+	public PackageBinding packageBinding;
 
 	public JavadocSingleTypeReference(char[] source, long pos, int tagStart, int tagEnd) {
 		super(source, pos);
@@ -60,7 +61,9 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 			if (!this.resolvedType.isValidBinding()) {
 				char[][] tokens = { this.token };
 				Binding binding = scope.getTypeOrPackage(tokens);
-				if (!(binding instanceof PackageBinding)) {
+				if (binding instanceof PackageBinding) {
+					this.packageBinding = (PackageBinding) binding;
+				} else {
 					reportInvalidType(scope);
 				}
 				return null;

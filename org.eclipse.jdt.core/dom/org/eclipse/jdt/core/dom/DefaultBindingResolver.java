@@ -29,6 +29,8 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
@@ -190,6 +192,12 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 			if (index == 0) {
+				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference) {
+					JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) node;
+					if (typeRef.packageBinding != null) {
+						return getPackageBinding(typeRef.packageBinding);
+					}
+				}
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				int qualifiedTypeLength = qualifiedTypeReference.tokens.length;
@@ -304,6 +312,12 @@ class DefaultBindingResolver extends BindingResolver {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
 			if (binding != null) {
+				if (!binding.isValidBinding() && node instanceof JavadocSingleTypeReference) {
+					JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) node;
+					if (typeRef.packageBinding != null) {
+						return getPackageBinding(typeRef.packageBinding);
+					}
+				}
 				return this.getTypeBinding(binding.leafComponentType());
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {

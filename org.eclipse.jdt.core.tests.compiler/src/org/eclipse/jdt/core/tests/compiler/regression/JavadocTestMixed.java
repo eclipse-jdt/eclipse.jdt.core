@@ -52,8 +52,7 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug50695"));
-			ts.addTest(new JavadocTestMixed("testBug50695b"));
+			ts.addTest(new JavadocTestMixed("testBug51626"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -69,6 +68,7 @@ public class JavadocTestMixed extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 		return options;
 	}
 	/* (non-Javadoc)
@@ -2061,5 +2061,34 @@ public class JavadocTestMixed extends JavadocTest {
 				"Javadoc: java.unknown cannot be resolved or is not a type\n" + 
 				"----------\n"
 		);
+	}
+
+	/**
+	 * Test fix for bug 51626.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51626">51626</a>
+	 */
+	public void testBug51626() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" + 
+					"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see String\n" + 
+					"	 * toto @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"p2/Y.java",
+				"package p2;\n" + 
+					"import p1.*;\n" + 
+					"public class Y {\n" + 
+					"	void foo() {\n" + 
+					"		X x = new X(); \n" + 
+					"		x.foo();\n" + 
+					"	}\n" + 
+					"}\n"
+		 });
 	}
 }

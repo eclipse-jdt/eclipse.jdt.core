@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 
 	public int tagSourceStart, tagSourceEnd;
+	public PackageBinding packageBinding;
 
 	public JavadocQualifiedTypeReference(char[][] sources, long[] pos, int tagStart, int tagEnd) {
 		super(sources, pos);
@@ -60,7 +61,9 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 			this.resolvedType = getTypeBinding(scope);
 			if (!this.resolvedType.isValidBinding()) {
 				Binding binding = scope.getTypeOrPackage(this.tokens);
-				if (!(binding instanceof PackageBinding)) {
+				if (binding instanceof PackageBinding) {
+					this.packageBinding = (PackageBinding) binding;
+				} else {
 					reportInvalidType(scope);
 				}
 				return null;
