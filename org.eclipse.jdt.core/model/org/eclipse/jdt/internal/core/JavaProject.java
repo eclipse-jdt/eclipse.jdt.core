@@ -337,9 +337,6 @@ public class JavaProject
 		Map preferredClasspaths,
 		Map preferredOutputs) throws JavaModelException {
 		
-		// for the project we add this, in case the project is its own source folder.
-		// we don't want the recursion to end if the source folder has been added
-		// so we might add it as a rootID and as a project
 		String projectRootId = this.rootID();
 		if (rootIDs.contains(projectRootId)){
 			return; // break cycles if any
