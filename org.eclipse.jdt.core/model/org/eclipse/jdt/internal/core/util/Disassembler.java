@@ -1412,7 +1412,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private void disassemble(IRuntimeInvisibleParameterAnnotationsAttribute runtimeInvisibleParameterAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(Util.bind("disassembler.runtimevisibleparameterannotationsattributeheader")); //$NON-NLS-1$
+		buffer.append(Util.bind("disassembler.runtimeinvisibleparameterannotationsattributeheader")); //$NON-NLS-1$
 		IParameterAnnotation[] parameterAnnotations = runtimeInvisibleParameterAnnotationsAttribute.getParameterAnnotations();
 		for (int i = 0, max = parameterAnnotations.length; i < max; i++) {
 			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1);
