@@ -31,15 +31,15 @@
 		
 		<echo message="UPDATE jdtcoresrc.zip" />
 		<zip zipfile="${dest}/jdtcoresrc.zip">
-		    <zipfileset dir="Eclipse Java Ant Compiler" />
-		    <zipfileset dir="Eclipse Java Batch Compiler" />
-		    <zipfileset dir="Eclipse Java Code Assist" />
-		    <zipfileset dir="Eclipse Java Compiler" />
-		    <zipfileset dir="Eclipse Java Core Search" />
-		    <zipfileset dir="Eclipse Java Evaluation" />
-		    <zipfileset dir="Eclipse Java Model" />
-		    <zipfileset dir="Eclipse Java Formatter" />
-		    <zipfileset dir="Eclipse Java DOM" />
+		    <zipfileset dir="ant" />
+		    <zipfileset dir="batch" />
+		    <zipfileset dir="codeassist" />
+		    <zipfileset dir="compiler" />
+		    <zipfileset dir="search" />
+		    <zipfileset dir="eval" />
+		    <zipfileset dir="model" />
+		    <zipfileset dir="formatteur" />
+		    <zipfileset dir="jdom" />
   		</zip>		
 	</target>
 </project>

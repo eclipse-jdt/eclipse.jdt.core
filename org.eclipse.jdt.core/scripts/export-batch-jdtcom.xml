@@ -23,8 +23,8 @@
 		
 		<echo message="UPDATE jdtcomsrc.zip" />
 		<zip zipfile="${dest}/jdtcomsrc.zip">
-		    <zipfileset dir="Eclipse Java Batch Compiler" />
-		    <zipfileset dir="Eclipse Java Compiler" />
+		    <zipfileset dir="batch" />
+		    <zipfileset dir="compiler" />
   		</zip>		
 	
 	</target>
