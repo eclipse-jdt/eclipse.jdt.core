@@ -34,11 +34,4 @@ public ProblemReferenceBinding(char[] name, Binding original, int problemId) {
 public final int problemId() {
 	return problemId;
 }
-
-public char[] readableName() /*java.lang.Object*/ {
-	if(original != null)
-		return original.readableName();
-	
-	return CharOperation.concatWith(compoundName, '.');
-}
 }
