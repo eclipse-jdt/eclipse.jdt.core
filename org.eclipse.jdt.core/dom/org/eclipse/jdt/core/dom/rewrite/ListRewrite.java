@@ -78,6 +78,16 @@ public final class ListRewrite {
 			getRewriteStore().setEventEditGroup(event, editGroup);
 		}
 	}
+	
+	/**
+	 * Returns the ASTRewrite instance from which this ListRewriter has been created from.
+	 * @return the parent AST Rewriter instance.
+	 * @since 3.1
+	 */
+	public ASTRewrite getASTRewrite() {
+		return this.rewriter;
+	}
+	
 
 	/**
 	 * Replaces the given node from its parent's list property in the rewriter.
