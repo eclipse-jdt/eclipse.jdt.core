@@ -2155,9 +2155,11 @@ public final class JavaCore extends Plugin {
 	public static String getEncoding() {
 		try {
 			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
-		} catch (CoreException e) {
-			return ResourcesPlugin.getEncoding();
+		} catch (Exception e) {
+			// fails silently and return plugin global encoding if core exception occurs or
+			// if workspace is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
 		} 
+		return ResourcesPlugin.getEncoding();
 	}
 
 	/**
