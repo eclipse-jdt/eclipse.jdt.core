@@ -30,7 +30,7 @@ public class GammaCompressedIndexBlock extends IndexBlock {
 	 */
 	public boolean addEntry(WordEntry entry) {
 		writeCodeStream.reset();
-		encodeEntry(entry, prevWord, writeCodeStream);
+		encodeEntry(entry);
 		if (offset + writeCodeStream.byteLength() > this.blockSize - 2) {
 			return false;
 		}
@@ -40,19 +40,19 @@ public class GammaCompressedIndexBlock extends IndexBlock {
 		prevWord= entry.getWord();
 		return true;
 	}
-	protected void encodeEntry(WordEntry entry, char[] previousWord, CodeByteStream codeStream) {
+	private void encodeEntry(WordEntry entry) {
 		char[] word= entry.getWord();
-		int prefixLen= previousWord == null ? 0 : Util.prefixLength(previousWord, word);
-		codeStream.writeByte(prefixLen);
-		codeStream.writeUTF(word, prefixLen, word.length);
+		int prefixLen= prevWord == null ? 0 : Util.prefixLength(prevWord, word);
+		writeCodeStream.writeByte(prefixLen);
+		writeCodeStream.writeUTF(word, prefixLen, word.length);
 		int n= entry.getNumRefs();
-		codeStream.writeGamma(n);
+		writeCodeStream.writeGamma(n);
 		int prevRef= 0;
 		for (int i= 0; i < n; ++i) {
 			int ref= entry.getRef(i);
 			if (ref <= prevRef)
 				throw new IllegalArgumentException();
-			codeStream.writeGamma(ref - prevRef);
+			writeCodeStream.writeGamma(ref - prevRef);
 			prevRef= ref;
 		}
 	}
