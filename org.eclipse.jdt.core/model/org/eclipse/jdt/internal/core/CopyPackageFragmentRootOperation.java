@@ -59,12 +59,17 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 	protected void copyResource(
 		IPackageFragmentRoot root,
 		IClasspathEntry rootEntry,
-		IWorkspaceRoot workspaceRoot)
+		final IWorkspaceRoot workspaceRoot)
 		throws JavaModelException {
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
 			try {
+				IResource destRes;
+				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+						&& (destRes = workspaceRoot.findMember(this.destination)) != null) {
+					destRes.delete(this.updateResourceFlags, fMonitor);
+				}
 				rootResource.copy(this.destination, this.updateResourceFlags, fMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
@@ -85,17 +90,33 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 							} else {
 								// folder containing nested source folder
 								IFolder folder = destFolder.getFolder(path.removeFirstSegments(sourceSegmentCount));
+								if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+										&& folder.exists()) {
+									return true;
+								}
 								folder.create(updateResourceFlags, true, fMonitor);
 								return true;
 							}
 						} else {
 							// subtree doesn't contain any nested source folders
-							resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
+							IPath destPath = destination.append(path.removeFirstSegments(sourceSegmentCount));
+							IResource destRes;
+							if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+									&& (destRes = workspaceRoot.findMember(destPath)) != null) {
+								destRes.delete(updateResourceFlags, fMonitor);
+							}
+							resource.copy(destPath, updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
 						IPath path = resource.getFullPath();
-						resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
+						IPath destPath = destination.append(path.removeFirstSegments(sourceSegmentCount));
+						IResource destRes;
+						if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+								&& (destRes = workspaceRoot.findMember(destPath)) != null) {
+							destRes.delete(updateResourceFlags, fMonitor);
+						}
+						resource.copy(destPath, updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
@@ -112,10 +133,30 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		IClasspathEntry rootEntry,
 		IWorkspaceRoot workspaceRoot)
 		throws JavaModelException {
+		
 		IProject destProject = workspaceRoot.getProject(this.destination.segment(0));
 		IJavaProject jProject = JavaCore.create(destProject);
 		IClasspathEntry[] classpath = jProject.getRawClasspath();
 		int length = classpath.length;
+		IClasspathEntry[] newClasspath;
+		
+		// case of existing entry and REPLACE was specified
+		if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0) {
+			// find existing entry
+			IPath rootPath = rootEntry.getPath();
+			for (int i = 0; i < length; i++) {
+				if (rootPath.equals(classpath[i].getPath())) {
+					newClasspath = new IClasspathEntry[length];
+					System.arraycopy(classpath, 0, newClasspath, 0, length);
+					newClasspath[i] = copy(rootEntry);
+					jProject.setRawClasspath(newClasspath, fMonitor);
+					return;
+				}
+			}
+			
+		} 
+		
+		// other cases
 		int position;
 		if (this.sibling == null) {
 			// insert at the end
@@ -133,7 +174,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		if (position == -1) {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling.toString()));
 		}
-		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		newClasspath = new IClasspathEntry[length+1];
 		if (position != 0) {
 			System.arraycopy(classpath, 0, newClasspath, 0, position);
 		}

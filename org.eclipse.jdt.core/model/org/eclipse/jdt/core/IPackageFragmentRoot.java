@@ -52,25 +52,31 @@ public interface IPackageFragmentRoot
 	 * is to not copy/move/delete the package fragment root resource.
 	 * @since 2.1
 	 */
-	public static final int NO_RESOURCE_MODIFICATION = 1;
+	int NO_RESOURCE_MODIFICATION = 1;
 	/**
 	 * Update model flag constant (bit mask value 2) indicating that the operation
 	 * is to update the classpath of the originating project.
 	 * @since 2.1
 	 */
-	public static final int ORIGINATING_PROJECT_CLASSPATH = 2;
+	int ORIGINATING_PROJECT_CLASSPATH = 2;
 	/**
 	 * Update model flag constant (bit mask value 4) indicating that the operation
 	 * is to update the classpath of all referring projects except the originating project.
 	 * @since 2.1
 	 */
-	public static final int OTHER_REFERRING_PROJECTS_CLASSPATH = 4;
+	int OTHER_REFERRING_PROJECTS_CLASSPATH = 4;
 	/**
 	 * Update model flag constant (bit mask value 8) indicating that the operation
 	 * is to update the classpath of the destination project.
 	 * @since 2.1
 	 */
-	public static final int DESTINATION_PROJECT_CLASSPATH = 8;	
+	int DESTINATION_PROJECT_CLASSPATH = 8;	
+	/**
+	 * Update model flag constant (bit mask value 16) indicating that the operation
+	 * is to replace the resource and the destination project's classpath entry.
+	 * @since 2.1
+	 */
+	int REPLACE = 16;	
 	/**
 	 * Attaches the source archive identified by the given absolute path to this
 	 * binary package fragment root. <code>rootPath</code> specifies the location 
@@ -125,8 +131,9 @@ public interface IPackageFragmentRoot
 	 * sibling on the destination project's raw classpath. If <code>null></code> is 
 	 * specified, the classpath entry is added at the end of the raw classpath.
 	 * </p><p>
-	 * If <code>IResource.FORCE</code> is specified in <code>updateResourceFlags</code>
-	 * and the same classpath entry already exists on the destination project's raw
+	 * If <code>REPLACE</code> is specified in <code>updateModelFlags</code>,
+	 * overwrites the resource at the destination path if any.
+	 * If the same classpath entry already exists on the destination project's raw
 	 * classpath, then the sibling is ignored and the new classpath entry replaces the 
 	 * existing one.
 	 * </p><p>
@@ -160,8 +167,8 @@ public interface IPackageFragmentRoot
 	 * <li> The sibling is not a classpath entry on the destination project's
 	 * raw classpath (INVALID_SIBLING)</li>
 	 * <li> The same classpath entry already exists on the destination project's
-	 * classpath (NAME_COLLISION) and <code>updateResourceFlags</code>
-	 * has not been specified as <code>IResource.FORCE</code></li>
+	 * classpath (NAME_COLLISION) and <code>updateModelFlags</code>
+	 * has not been specified as <code>REPLACE</code></li>
 	 * </ul>
 	 * @see IResource#copy
 	 * @since 2.1
@@ -380,8 +387,9 @@ public interface IPackageFragmentRoot
 	 * projects referring to this root's resource by removing the corresponding classpath 
 	 * entries.
 	 * </p><p>
-	 * If <code>IResource.FORCE</code> is specified in <code>updateResourceFlags</code>
-	 * and the same classpath entry already exists on the destination project's raw
+	 * If <code>REPLACE</code> is specified in <code>updateModelFlags</code>,
+	 * overwrites the resource at the destination path if any.
+	 * If the same classpath entry already exists on the destination project's raw
 	 * classpath, then the sibling is ignored and the new classpath entry replaces the 
 	 * existing one.
 	 * </p><p>
@@ -418,8 +426,8 @@ public interface IPackageFragmentRoot
 	 * <li> The sibling is not a classpath entry on the destination project's
 	 * raw classpath (INVALID_SIBLING)</li>
 	 * <li> The same classpath entry already exists on the destination project's
-	 * classpath (NAME_COLLISION) and <code>updateResourceFlags</code>
-	 * has not been specified as <code>IResource.FORCE</code></li>
+	 * classpath (NAME_COLLISION) and <code>updateModelFlags</code>
+	 * has not been specified as <code>REPLACE</code></li>
 	 * </ul>
 	 * @see IResource#move
 	 * @since 2.1

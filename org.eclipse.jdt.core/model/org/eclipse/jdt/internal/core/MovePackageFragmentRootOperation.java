@@ -55,13 +55,18 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	protected void moveResource(
 		IPackageFragmentRoot root,
 		IClasspathEntry rootEntry,
-		IWorkspaceRoot workspaceRoot)
+		final IWorkspaceRoot workspaceRoot)
 		throws JavaModelException {
 			
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
+				IResource destRes;
+				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+						&& (destRes = workspaceRoot.findMember(this.destination)) != null) {
+					destRes.delete(this.updateResourceFlags, fMonitor);
+				}
 				rootResource.move(this.destination, this.updateResourceFlags, fMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
@@ -82,17 +87,33 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 							} else {
 								// folder containing nested source folder
 								IFolder folder = destFolder.getFolder(path.removeFirstSegments(sourceSegmentCount));
+								if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+										&& folder.exists()) {
+									return true;
+								}
 								folder.create(updateResourceFlags, true, fMonitor);
 								return true;
 							}
 						} else {
 							// subtree doesn't contain any nested source folders
-							resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
+							IPath destPath = destination.append(path.removeFirstSegments(sourceSegmentCount));
+							IResource destRes;
+							if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+									&& (destRes = workspaceRoot.findMember(destPath)) != null) {
+								destRes.delete(updateResourceFlags, fMonitor);
+							}
+							resource.move(destPath, updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
 						IPath path = resource.getFullPath();
-						resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
+						IPath destPath = destination.append(path.removeFirstSegments(sourceSegmentCount));
+						IResource destRes;
+						if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
+								&& (destRes = workspaceRoot.findMember(destPath)) != null) {
+							destRes.delete(updateResourceFlags, fMonitor);
+						}
+						resource.move(destPath, updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
