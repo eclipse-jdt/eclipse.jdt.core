@@ -1293,11 +1293,21 @@ protected void assertDeltas(String message, String expected) {
     			toPrint.toCharArray(), 
     			getExternalJCLPathString().toCharArray(), 
     			"getExternalJCLPathString()".toCharArray());
-    	toDisplay = 
+		toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			getExternalJCLPathString("1.5").toCharArray(), 
+    			"getExternalJCLPathString(\"1.5\")".toCharArray());
+		toDisplay = 
     		CharOperation.replace(
     			toDisplay, 
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(), 
     			"getExternalJCLSourcePathString()".toCharArray());
+		toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(), 
+    			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
     	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent);
     	toDisplay = 
     		CharOperation.replace(
@@ -1306,9 +1316,19 @@ protected void assertDeltas(String message, String expected) {
     			("\"+ getExternalJCLPathString() + \"").toCharArray());
     	toDisplay = 
     		CharOperation.replace(
+    			displayString.toCharArray(), 
+    			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(), 
+    			("\"+ getExternalJCLPathString(\"1.5\") + \"").toCharArray());
+    	toDisplay = 
+    		CharOperation.replace(
     			toDisplay, 
     			"getExternalJCLSourcePathString()".toCharArray(), 
     			("\"+ getExternalJCLSourcePathString() + \"").toCharArray());
+    	toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(), 
+    			("\"+ getExternalJCLSourcePathString(\"1.5\") + \"").toCharArray());
     	return new String(toDisplay);
     }
 	public byte[] read(java.io.File file) throws java.io.IOException {
