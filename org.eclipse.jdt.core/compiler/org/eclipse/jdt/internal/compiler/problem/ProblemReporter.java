@@ -523,7 +523,6 @@ public int computeSeverity(int problemId){
 		/*
 		 * Javadoc syntax errors
 		 */
-		// Javadoc explicit IDs
 		case IProblem.JavadocUnexpectedTag:
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
@@ -533,6 +532,8 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidSeeArgs:
 		case IProblem.JavadocInvalidTag:
 		case IProblem.JavadocUnterminatedInlineTag:
+		case IProblem.JavadocMissingHashCharacter:
+		case IProblem.JavadocEmptyReturnTag:
 			if (this.options.docCommentSupport) {
 				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 			} else {
@@ -2426,6 +2427,9 @@ public void javadocDuplicatedThrowsClassName(TypeReference typeReference, int mo
 		this.handle(IProblem.JavadocDuplicateThrowsClassName, arguments, arguments, typeReference.sourceStart, typeReference.sourceEnd);
 	}
 }
+public void javadocEmptyReturnTag(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocEmptyReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
 public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params, int modifiers) {
 	StringBuffer buffer = new StringBuffer();
 	StringBuffer shortBuffer = new StringBuffer();
@@ -2688,6 +2692,10 @@ public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
 			this.handle(IProblem.JavadocMissing, arguments, arguments, sourceStart, sourceEnd);
 		}
 	}
+}
+public void javadocMissingHashCharacter(int sourceStart, int sourceEnd, String ref){
+	String[] arguments = new String[] { ref };
+	this.handle(IProblem.JavadocMissingHashCharacter, arguments, arguments, sourceStart, sourceEnd);
 }
 public void javadocMissingParamName(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
