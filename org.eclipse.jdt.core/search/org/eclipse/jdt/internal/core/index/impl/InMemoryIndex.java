@@ -24,7 +24,7 @@ public class InMemoryIndex {
 	/**
 	 * List of IndexedFiles = file name + a unique number.
 	 */
-	protected ArrayList files;
+	protected IndexedFileHashedArray files;
 
 	/**
 	 * Size of the index.
@@ -40,8 +40,7 @@ public class InMemoryIndex {
 	 * @see IIndex#addFile
 	 */
 	public IndexedFile addDocument(IDocument document) {
-		IndexedFile indexedFile= new IndexedFile(document, this.files.size() + 1);
-		this.files.add(indexedFile);
+		IndexedFile indexedFile= this.files.add(document);
 		this.footprint += indexedFile.footprint() + 4;
 		this.sortedFiles = null;
 		return indexedFile;
@@ -98,13 +97,7 @@ public class InMemoryIndex {
 	 * Returns the indexed file with the given path, or null if such file does not exist.
 	 */
 	public IndexedFile getIndexedFile(String path) {
-		// duplicate paths do exist but by walking the collection backwards, the latest is found
-		for (int i= files.size(); i > 0; i--) {
-			IndexedFile file= (IndexedFile) files.get(i - 1);
-			if (file.getPath().equals(path))
-				return file;
-		}
-		return null;
+		return files.get(path);
 	}
 	/**
 	 * @see IIndex#getNumFiles
@@ -123,11 +116,9 @@ public class InMemoryIndex {
 	 */
 	protected IndexedFile[] getSortedFiles() {
 		if (this.sortedFiles == null) {
-			IndexedFile[] indexedfiles= new IndexedFile[files.size()];
-			for (int i= 0; i < indexedfiles.length; i++)
-				indexedfiles[i]= (IndexedFile) files.get(i);
-			Util.sort(indexedfiles);
-			this.sortedFiles= indexedfiles;
+			IndexedFile[] indexedFiles= files.asArray();
+			Util.sort(indexedFiles);
+			this.sortedFiles= indexedFiles;
 		}
 		return this.sortedFiles;
 	}
@@ -153,7 +144,7 @@ public class InMemoryIndex {
 	 */
 	public void init() {
 		words= new WordEntryHashedArray(501);
-		files= new ArrayList(101);
+		files= new IndexedFileHashedArray(101);
 		footprint= 0;
 		sortedWordEntries= null;
 		sortedFiles= null;
@@ -198,14 +189,12 @@ public class InMemoryIndex {
 
 	protected void save(IndexOutput output) throws IOException {
 		boolean ok= false;
-		getSortedWordEntries(); // init the slot
 		try {
 			output.open();
-			int numFiles= this.files.size();
-			for (int i= 0; i < numFiles; ++i) {
-				IndexedFile indexedFile= (IndexedFile) this.files.get(i);
-				output.addFile(indexedFile); // written out in order BUT not alphabetical
-			}
+			IndexedFile[] indexedFiles= files.asArray();
+			for (int i= 0, length = indexedFiles.length; i < length; ++i)
+				output.addFile(indexedFiles[i]); // written out in order BUT not alphabetical
+			getSortedWordEntries(); // init the slot
 			for (int i= 0, numWords= sortedWordEntries.length; i < numWords; ++i)
 				output.addWord(sortedWordEntries[i]);
 			output.flush();
