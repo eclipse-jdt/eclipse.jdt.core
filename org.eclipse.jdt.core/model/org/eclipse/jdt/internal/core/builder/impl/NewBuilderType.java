@@ -1,5 +1,13 @@
 package org.eclipse.jdt.internal.core.builder.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A type that only exists in the new state (an addition)
+ */
 public class NewBuilderType extends BuilderType {
 	/**
 	 * The tsEntry in the new state

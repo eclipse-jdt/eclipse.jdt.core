@@ -1,5 +1,48 @@
 package org.eclipse.jdt.core.jdom;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.core.*;
 
+/**
+ * A factory used to create document fragment (DF) nodes. An 
+ * <code>IDOMCompilationUnit</code> represents the root of a complete JDOM (that
+ * is, a ".java" file). Other node types represent fragments of a compilation
+ * unit.
+ * <p>
+ * The factory can be used to create empty DFs or it can create DFs from source
+ * strings. All DFs created empty are assigned default values as required, such
+ * that a call to <code>IDOMNode.getContents</code> will generate a valid source
+ * string. See individual <code>create</code> methods for details on the default
+ * values supplied. The factory does its best to recognize Java structures in
+ * the source provided. If the factory is completely unable to recognize source
+ * constructs, the factory method returns <code>null</code>.
+ * </p>
+ * <p>
+ * Even if a DF is created successfully from source code, it does not guarantee
+ * that the source code will compile error free. Similary, the contents of a DF
+ * are not guaranteed to compile error free. However, syntactically correct 
+ * source code is guaranteed to be recognized and successfully generate a DF.
+ * Similarly, if all of the fragments of a JDOM are syntactically correct, the
+ * contents of the entire document will be correct too.
+ * </p>
+ * <p>
+ * The factory does not perform or provide any code formatting. Document 
+ * fragments created on source strings must be pre-formatted. The JDOM attempts
+ * to maintain the formatting of documents as best as possible. For this reason,
+ * document fragments created for nodes that are to be strung together should 
+ * end with a new-line character. Failing to do so will result in a document
+ * that has elements strung together on the same line. This is especially
+ * important if a source string ends with a // comment. In this case, it would
+ * be syntactically incorrect to omit the new line character.
+ * </p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
+ *
+ * @see IDOMNode
+ */
 public interface IDOMFactory {
 /**
  * Creates and return an empty JDOM. The initial content is an empty string.

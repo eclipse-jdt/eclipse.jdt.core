@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.builder.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public class OrderedSet {
 	protected int elementCount;
@@ -21,7 +26,7 @@ public OrderedSet() {
  * Constructs a new OrderedSet using the specified capacity
  * and the default load factor.
  *
- * @param		capacity	the initial capacity
+ * @param       capacity    the initial capacity
  */
 public OrderedSet (int capacity) {
 	this(capacity, 0.75f);
@@ -30,7 +35,7 @@ public OrderedSet (int capacity) {
  * Constructs a new OrderedSet using the specified capacity
  * and load factor.
  *
- * @param		loadFactor	the initial load factor
+ * @param       loadFactor  the initial load factor
  */
 public OrderedSet (int capacity, float loadFactor) {
 	if (capacity <= 0) throw new IllegalArgumentException();
@@ -62,11 +67,11 @@ private int findIndex (Object object, Object [] array) {
  * Answers the object associated with the specified index in
  * this OrderedSet. 
  *
- * @param		index the index to use
- * @return		the object associated with the specified index
+ * @param       index the index to use
+ * @return      the object associated with the specified index
  * @throws      ArrayIndexOutOfBoundsException if the index is out of range
  *
- * @see			#put
+ * @see         #put
  */
 public Object get(int index) {
 	if (index >= elementCount) {
@@ -78,10 +83,10 @@ public Object get(int index) {
  * Answers whether the specified object is in
  * this OrderedSet.
  *
- * @param		obj	the object, which must not be null
- * @return		true if the object is in the set, false otherwise
+ * @param       obj the object, which must not be null
+ * @return      true if the object is in the set, false otherwise
  *
- * @see			#put
+ * @see         #put
  */
 public boolean includes(Object obj) {
 	if (obj == null) {
@@ -94,11 +99,11 @@ public boolean includes(Object obj) {
  * Answers the index associated with the specified object in
  * this OrderedSet.
  *
- * @param		obj	the object, which must not be null
- * @return		the index associated with the object
+ * @param       obj the object, which must not be null
+ * @return      the index associated with the object
  * @throws      IllegalArgumentException if the key is not in the pool
  *
- * @see			#put
+ * @see         #put
  */
 public int index(Object obj) {
 	if (obj == null) {
@@ -117,11 +122,11 @@ public int index(Object obj) {
  * But the object is retrievable using get(int index).
  * The index must not yet have been assigned.
  *
- * @param		index the index of the object
- * @param		obj	the object to add
+ * @param       index the index of the object
+ * @param       obj the object to add
  *
- * @see			#get
- * @see			java.lang.Object#equals
+ * @see         #get
+ * @see         java.lang.Object#equals
  */
 public void put(int index, Object obj) {
 	if (obj == null) throw new NullPointerException ();
@@ -141,11 +146,11 @@ public void put(int index, Object obj) {
  * Associate the given object with the next index in this OrderedSet.
  * If the object is already present, its index is unchanged. The object cannot be null.
  *
- * @param		obj	the object to add
- * @return		the index associated with the specified obj
+ * @param       obj the object to add
+ * @return      the index associated with the specified obj
  *
- * @see			#index
- * @see			java.lang.Object#equals
+ * @see         #index
+ * @see         java.lang.Object#equals
  */
 public int put (Object obj) {
 	if (obj == null) throw new NullPointerException ();
@@ -192,7 +197,7 @@ protected void rehash () {
 /**
  * Answers the number of objects in this OrderedSet.
  *
- * @return		the number of objects in this OrderedSet
+ * @return      the number of objects in this OrderedSet
  */
 public int size () {
 	return elementCount;
@@ -200,7 +205,7 @@ public int size () {
 /**
  * Answers the string representation of this OrderedSet.
  *
- * @return		the string representation of this OrderedSet
+ * @return      the string representation of this OrderedSet
  */
 public String toString () {
 	Object key;

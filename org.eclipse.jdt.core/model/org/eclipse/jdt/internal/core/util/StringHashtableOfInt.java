@@ -1,5 +1,13 @@
 package org.eclipse.jdt.internal.core.util;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A hash table keyed by strings and with int values.
+ */
 public class StringHashtableOfInt {
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public String[] keyTable;

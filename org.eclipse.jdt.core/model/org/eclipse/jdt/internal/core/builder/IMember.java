@@ -1,5 +1,19 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * Member is a mixin interface that represents identifying information about
+ * a single member (a field or method), a constructor, or a nested class.
+ *
+ * @see IType
+ * @see IField
+ * @see IMethod
+ * @see IConstructor
+ */
 public interface IMember extends IHandle {
 
 
@@ -34,8 +48,8 @@ public interface IMember extends IHandle {
 	 * A binary member is one for which the declaring class is in 
 	 * .class file format in the workspace.
 	 *
-	 * @return	<code>true</code> if this object represents a binary member;
-	 *			<code>false</code> otherwise.
+	 * @return  <code>true</code> if this object represents a binary member;
+	 *          <code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 */
 	boolean isBinary() throws NotPresentException;
@@ -45,8 +59,8 @@ public interface IMember extends IHandle {
 	 * A deprecated object is one that has a 'deprecated' tag in 
 	 * its doc comment.
 	 *
-	 * @return	<code>true</code> if this object represents a deprecated member;
-	 *			<code>false</code> otherwise.
+	 * @return  <code>true</code> if this object represents a deprecated member;
+	 *          <code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 */
 	boolean isDeprecated() throws NotPresentException;

@@ -1,5 +1,18 @@
 package org.eclipse.jdt.core.jdom;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.core.*;
 
+/**
+ * Represents an initializer. The corresponding syntactic
+ * units are InstanceInitializer (JLS2 8.6) and StaticDeclaration (JLS2 8.7).
+ * An initializer has no children and its parent is a type.
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
+ */
 public interface IDOMInitializer extends IDOMMember {
 /**
  * Returns the body of this initializer. The syntax for a body corresponds to

@@ -1,5 +1,28 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * A Field provides information about a
+ * single field of a class or an interface.  The field may
+ * be a class (static) field or an instance field.
+ *
+ * Changes from java.lang and java.lang.reflect:
+ * <ul>
+ * <li>equals(Object) changed to ignore field type
+ *	 (field type is not an identity criterion for field handles).</li>
+ * <li>toString() changed to be a handle-only method; 
+ *	 it ignores the modifiers and field type.</li>
+ * </ul>
+ *
+ * @see IMember
+ * @see IType
+ * @see IType#getFieldHandle
+ * @see IType#getDeclaredFields
+ */
 public interface IField extends IMember {
 
 
@@ -38,8 +61,8 @@ public interface IField extends IMember {
 	 * followed by a period, followed by the name of the field.
 	 * For example:
 	 * <pre>
-	 *	  java.lang.Thread.MIN_PRIORITY
-	 *	  java.io.FileDescriptor.fd
+	 *    java.lang.Thread.MIN_PRIORITY
+	 *    java.io.FileDescriptor.fd
 	 * </pre>
 	 *
 	 * @see IHandle#toString

@@ -1,5 +1,25 @@
 package org.eclipse.jdt.internal.core.builder;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * Constructor provides information about a single
+ * constructor for a class.
+ *
+ * Changes from java.lang and java.lang.reflect:
+ * <ul>
+ * <li>toString() changed to be a handle-only method; 
+ *	 it ignores the modifiers and exceptions.</li>
+ * </ul>
+ *
+ * @see IMember
+ * @see IType
+ * @see IType#getConstructorHandle
+ * @see IType#getDeclaredConstructors
+ */
 public interface IConstructor extends IMember {
 
 
@@ -17,7 +37,7 @@ public interface IConstructor extends IMember {
 	/**
 	 * Returns an array of Type objects that represent the types of
 	 * the checked exceptions thrown by the underlying constructor
-	 * represented by this Constructor object.	
+	 * represented by this Constructor object.  
 	 * Unchecked exceptions are not included in the result, even if
 	 * they are declared in the source.
 	 * Returns an array of length 0 if the constructor throws no checked 
@@ -30,7 +50,7 @@ public interface IConstructor extends IMember {
 	/**
 	 * Returns an array of Type objects that represent the formal
 	 * parameter types, in declaration order, of the constructor
-	 * represented by this Constructor object.	
+	 * represented by this Constructor object.  
 	 * Returns an array of length 0 if the underlying constructor 
 	 * takes no parameters.
 	 * This is a handle-only method.
@@ -56,7 +76,7 @@ public interface IConstructor extends IMember {
 	 * followed by a parenthesized, comma-separated list of the
 	 * constructor's formal parameter types.  For example:
 	 * <pre>
-	 *	  java.util.Hashtable(int,float)
+	 *    java.util.Hashtable(int,float)
 	 * </pre>
 	 *
 	 * @see IHandle#toString
