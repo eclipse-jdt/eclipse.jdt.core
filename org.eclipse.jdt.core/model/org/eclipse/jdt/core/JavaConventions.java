@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.core.Util;
  */
 public final class JavaConventions {
 
-	private final static char fgDot= '.';
+	private final static char DOT= '.';
 	private final static Scanner SCANNER = new Scanner();
 
 	/**
@@ -390,7 +390,7 @@ public final class JavaConventions {
 		if ((length = name.length()) == 0) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.emptyName"), null); //$NON-NLS-1$
 		}
-		if (name.charAt(0) == fgDot || name.charAt(length-1) == fgDot) {
+		if (name.charAt(0) == DOT || name.charAt(length-1) == DOT) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"), null); //$NON-NLS-1$
 		}
 		if (CharOperation.isWhitespace(name.charAt(0)) || CharOperation.isWhitespace(name.charAt(name.length() - 1))) {
@@ -398,12 +398,12 @@ public final class JavaConventions {
 		}
 		int dot = 0;
 		while (dot != -1 && dot < length-1) {
-			if ((dot = name.indexOf(fgDot, dot+1)) != -1 && dot < length-1 && name.charAt(dot+1) == fgDot) {
+			if ((dot = name.indexOf(DOT, dot+1)) != -1 && dot < length-1 && name.charAt(dot+1) == DOT) {
 				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"), null); //$NON-NLS-1$
 				}
 		}
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		StringTokenizer st = new StringTokenizer(name, new String(new char[] {fgDot}));
+		StringTokenizer st = new StringTokenizer(name, new String(new char[] {DOT}));
 		boolean firstToken = true;
 		while (st.hasMoreTokens()) {
 			String typeName = st.nextToken();
