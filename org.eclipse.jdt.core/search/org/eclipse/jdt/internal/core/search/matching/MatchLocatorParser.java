@@ -53,6 +53,10 @@ public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarati
 		patternLocator.match(anonymousTypeDeclaration, nodeSet);
 		return true; 
 	}
+	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
+		patternLocator.match(localDeclaration, nodeSet);
+		return true;
+	}
 	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
 		patternLocator.match(localTypeDeclaration, nodeSet);
 		return true;

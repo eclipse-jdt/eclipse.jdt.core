@@ -33,8 +33,12 @@ public class LocalVariableLocator extends VariableLocator {
 	
 		int declarationsLevel = IMPOSSIBLE_MATCH;
 		if (this.pattern.findDeclarations)
-			if (matchesName(this.pattern.name, node.name))
-				declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+			if (matchesName(this.pattern.name, node.name)) {
+				LocalVariablePattern localPattern = (LocalVariablePattern) this.pattern;
+				LocalVariable localVariable = (LocalVariable)  localPattern.localVariable;
+				if (node.declarationSourceStart == localVariable.declarationSourceStart)
+					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+			}
 	
 		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 	}
@@ -62,9 +66,8 @@ public class LocalVariableLocator extends VariableLocator {
 	
 		LocalVariablePattern localPattern = (LocalVariablePattern) this.pattern;
 		LocalVariable localVariable = (LocalVariable)  localPattern.localVariable;
-		if (variable.declaration.declarationSourceStart != localVariable.declarationSourceStart) {
+		if (variable.declaration.declarationSourceStart != localVariable.declarationSourceStart)
 			return IMPOSSIBLE_MATCH;
-		}
 		return ACCURATE_MATCH;
 	}
 

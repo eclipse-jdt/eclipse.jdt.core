@@ -72,6 +72,17 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	}
 	return level;
 }
+public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
+}
 public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {

@@ -353,6 +353,12 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testFieldReferenceInBrackets"));
 	suite.addTest(new JavaSearchTests("testAccurateFieldReference1"));
 	
+	// local variable declaration
+	/* TODO (jerome) enable when searching for local declarations works
+	suite.addTest(new JavaSearchTests("testLocalVariableDeclaration1"));
+	suite.addTest(new JavaSearchTests("testLocalVariableDeclaration2"));
+	*/
+	
 	// local variable reference
 	suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
 	suite.addTest(new JavaSearchTests("testLocalVariableReference2"));
@@ -1293,6 +1299,40 @@ public void testInterfaceImplementors2() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/r2/X.java r2.X.field [I]", 
+		resultCollector);
+}
+/*
+ * Local variable declaration test.
+ * (SingleNameReference)
+ */
+public void testLocalVariableDeclaration1() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		DECLARATIONS, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java f1.X.foo1() -> void [var1]",
+		resultCollector);
+}
+/*
+ * Local variable declaration test.
+ * (QualifiedNameReference)
+ */
+public void testLocalVariableDeclaration2() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		DECLARATIONS, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java f1.X.foo2() -> void [var2]",
 		resultCollector);
 }
 /*
