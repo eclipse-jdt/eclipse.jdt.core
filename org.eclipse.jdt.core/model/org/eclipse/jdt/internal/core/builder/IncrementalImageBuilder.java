@@ -306,7 +306,7 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 			int segmentCount = delta.getFullPath().segmentCount();
 			IResourceDelta[] children = delta.getAffectedChildren();
 			for (int j = 0, m = children.length; j < m; j++)
-				if (!isExcludedFromProject(children[i].getFullPath()))
+				if (!isExcludedFromProject(children[j].getFullPath()))
 					findSourceFiles(children[j], md, segmentCount);
 		} else {
 			IResourceDelta sourceDelta = delta.findMember(md.sourceFolder.getProjectRelativePath());
