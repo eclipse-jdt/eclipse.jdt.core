@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0088"));
+		suite.addTest(new ASTConverter15Test("test0089"));
 		return suite;
 	}
 		
@@ -2653,4 +2653,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node3));
 		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node2));
 	}
+	
+	/*
+	 * Ensures that a parameterized method binding (with a wildcard parameter) doesn't throw a NPE when computing its binding key.
+	 * (regression test for 79967 NPE in WildcardBinding.signature with Mark Occurrences in Collections.class)
+	 */
+	public void test0089() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void bar(X<?> x) {\n" +
+				"    /*start*/x.foo()/*end*/;\n"+
+				"  }\n" +
+				"}",
+				workingCopy);
+			IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
+			assertBindingKeyEquals(
+				"Lp/X<*>;.foo()V",
+				binding.getKey());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
 }
