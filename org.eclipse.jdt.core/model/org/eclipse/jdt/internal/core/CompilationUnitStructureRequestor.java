@@ -132,7 +132,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 		this.newElements.put(importContainer, this.importContainerInfo);
 	}
 	
-	String elementName = new String(name);
+	String elementName = JavaModelManager.getJavaModelManager().intern(new String(name));
 	ImportDeclaration handle = new ImportDeclaration(importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 	
@@ -239,7 +239,8 @@ public void enterField(FieldInfo fieldInfo) {
 	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
 	info.setSourceRangeStart(fieldInfo.declarationStart);
 	info.setFlags(fieldInfo.modifiers);
-	info.setTypeName(fieldInfo.type);
+	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
+	info.setTypeName(typeName);
 	
 	this.unitInfo.addAnnotationPositions(handle, fieldInfo.annotationPositions);
 
@@ -319,9 +320,17 @@ public void enterMethod(MethodInfo methodInfo) {
 	info.setNameSourceStart(methodInfo.nameSourceStart);
 	info.setNameSourceEnd(methodInfo.nameSourceEnd);
 	info.setFlags(flags);
-	info.setArgumentNames(methodInfo.parameterNames);
-	info.setReturnType(methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType);
-	info.setExceptionTypeNames(methodInfo.exceptionTypes);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	char[][] parameterNames = methodInfo.parameterNames;
+	for (int i = 0, length = parameterNames.length; i < length; i++)
+		parameterNames[i] = manager.intern(parameterNames[i]);
+	info.setArgumentNames(parameterNames);
+	char[] returnType = methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType;
+	info.setReturnType(manager.intern(returnType));
+	char[][] exceptionTypes = methodInfo.exceptionTypes;
+	info.setExceptionTypeNames(exceptionTypes);
+	for (int i = 0, length = exceptionTypes.length; i < length; i++)
+		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
 	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);
 	parentInfo.addChild(handle);
 	this.newElements.put(handle, info);
@@ -353,8 +362,13 @@ public void enterType(TypeInfo typeInfo) {
 	info.setFlags(typeInfo.modifiers);
 	info.setNameSourceStart(typeInfo.nameSourceStart);
 	info.setNameSourceEnd(typeInfo.nameSourceEnd);
-	info.setSuperclassName(typeInfo.superclass);
-	info.setSuperInterfaceNames(typeInfo.superinterfaces);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	char[] superclass = typeInfo.superclass;
+	info.setSuperclassName(superclass == null ? null : manager.intern(superclass));
+	char[][] superinterfaces = typeInfo.superinterfaces;
+	for (int i = 0, length = superinterfaces == null ? 0 : superinterfaces.length; i < length; i++)
+		superinterfaces[i] = manager.intern(superinterfaces[i]);
+	info.setSuperInterfaceNames(superinterfaces);
 	info.setSourceFileName(this.sourceFileName);
 	info.setPackageName(this.packageName);
 	parentInfo.addChild(handle);

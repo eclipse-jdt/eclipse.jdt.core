@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.util.WeakHashSet;
+import org.eclipse.jdt.internal.compiler.util.WeakHashSetOfCharArray;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -78,10 +79,11 @@ public class JavaModelManager implements ISaveParticipant {
 	private ThreadLocal classpathsBeingResolved = new ThreadLocal();
 	
 	/*
-	 * A pool of symbols used in the Java model.
+	 * Pools of symbols used in the Java model.
 	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
 	 */
-	private WeakHashSet symbols = new WeakHashSet(5);
+	private WeakHashSet stringSymbols = new WeakHashSet(5);
+	private WeakHashSetOfCharArray charArraySymbols = new WeakHashSetOfCharArray(5);
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -506,7 +508,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Infos cache.
 	 */
-	protected JavaModelCache cache = new JavaModelCache();
+	public JavaModelCache cache = new JavaModelCache();
 	
 	/*
 	 * Temporary cache of newly opened elements
@@ -1349,9 +1351,13 @@ public class JavaModelManager implements ISaveParticipant {
 		return container;
 	}
 	
+	public synchronized char[] intern(char[] array) {
+		return this.charArraySymbols.add(array);
+	}
+	
 	public synchronized String intern(String s) {
 		// make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-		return (String) this.symbols.add(new String(s));
+		return (String) this.stringSymbols.add(new String(s));
 		
 		// Note1: String#intern() cannot be used as on some VMs this prevents the string from being garbage collected
 		// Note 2: Instead of using a WeakHashset, one could use a WeakHashMap with the following implementation
