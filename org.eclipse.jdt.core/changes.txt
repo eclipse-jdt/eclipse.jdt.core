@@ -22,6 +22,10 @@ STREAM: 2.0
 
   OT
   ================================================================================
+  1GF7GIF: ITPJCORE:WINNT - Outliner works strange on duplicate methods
+  1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown
+  1GDGIUP: ITPJCORE:WINNT - SearchableEnvironment - converts char[] to String, which affects performance
+
   * JCK1.4 compliance diagnosing
 
   1GK7MHO: ITPJCORE:WIN2000 - JCK 1.4 - BINC - Adding a String field that has the same name as a String field of a superclass
