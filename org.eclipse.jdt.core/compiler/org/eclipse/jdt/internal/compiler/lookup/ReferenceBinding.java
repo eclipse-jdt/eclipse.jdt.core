@@ -101,7 +101,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBindin
 				temp = temp.enclosingType();
 			}
 
-			ReferenceBinding outerDeclaringClass = this;
+			ReferenceBinding outerDeclaringClass = (ReferenceBinding)this.erasure();
 			temp = outerDeclaringClass.enclosingType();
 			while (temp != null) {
 				outerDeclaringClass = temp;
@@ -168,7 +168,7 @@ public final boolean canBeSeenBy(Scope scope) {
 			temp = temp.enclosingType();
 		}
 
-		ReferenceBinding outerDeclaringClass = this;
+		ReferenceBinding outerDeclaringClass = (ReferenceBinding)this.erasure();
 		temp = outerDeclaringClass.enclosingType();
 		while (temp != null) {
 			outerDeclaringClass = temp;

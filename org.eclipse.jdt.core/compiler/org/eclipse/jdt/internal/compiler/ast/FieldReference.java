@@ -394,11 +394,11 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		
 		if (binding.isPrivate()) {
-			if ((currentScope.enclosingSourceType() != binding.declaringClass) && !binding.isConstantValue()) {
+			if ((currentScope.enclosingSourceType() != this.codegenBinding.declaringClass) && !binding.isConstantValue()) {
 				if (syntheticAccessors == null)
 					syntheticAccessors = new MethodBinding[2];
 				syntheticAccessors[isReadAccess ? READ : WRITE] = 
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(this.codegenBinding, isReadAccess);
+					((SourceTypeBinding) this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isReadAccess);
 				currentScope.problemReporter().needToEmulateFieldAccess(this.codegenBinding, this, isReadAccess);
 				return;
 			}
@@ -442,7 +442,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.binding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
-				|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
+				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
 			this.codegenBinding =
 				currentScope.enclosingSourceType().getUpdatedFieldBinding(
 					this.codegenBinding,

@@ -678,10 +678,10 @@ public class QualifiedNameReference extends NameReference {
 		}
 		
 		if (fieldBinding.isPrivate()) { // private access
-			if (fieldBinding.declaringClass != currentScope.enclosingSourceType()) {
-			    FieldBinding someCodegenBinding = getCodegenBinding(fieldBinding, index);
+		    FieldBinding someCodegenBinding = getCodegenBinding(fieldBinding, index);
+			if (someCodegenBinding.declaringClass != currentScope.enclosingSourceType()) {
 			    setSyntheticAccessor(fieldBinding, index, 
-			            ((SourceTypeBinding) fieldBinding.declaringClass).addSyntheticMethod(someCodegenBinding, index >= 0 /*read-access?*/));
+			            ((SourceTypeBinding) someCodegenBinding.declaringClass).addSyntheticMethod(someCodegenBinding, index >= 0 /*read-access?*/));
 				currentScope.problemReporter().needToEmulateFieldAccess(someCodegenBinding, this, index >= 0 /*read-access?*/);
 				return;
 			}

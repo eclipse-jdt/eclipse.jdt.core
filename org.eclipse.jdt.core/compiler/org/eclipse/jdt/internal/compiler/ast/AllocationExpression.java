@@ -184,15 +184,15 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		// if constructor from parameterized type got found, use the original constructor at codegen time
 		this.codegenBinding = this.binding.original();
 
-		if (binding.isPrivate()
-			&& (currentScope.enclosingSourceType() != binding.declaringClass)) {
+		if (this.codegenBinding.isPrivate()
+			&& (currentScope.enclosingSourceType() != this.codegenBinding.declaringClass)) {
 
 			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
 				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {
 				syntheticAccessor =
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+					((SourceTypeBinding) this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
 		}

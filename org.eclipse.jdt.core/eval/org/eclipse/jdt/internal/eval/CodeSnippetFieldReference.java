@@ -311,7 +311,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 					&& !this.binding.isStatic()
 					&& this.binding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-				|| !this.binding.declaringClass.canBeSeenBy(currentScope))){
+				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))){
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
 		}
 	} else if (this.binding.declaringClass != this.receiverType
@@ -320,7 +320,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		&& !this.binding.isConstantValue()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
-			|| !this.binding.declaringClass.canBeSeenBy(currentScope))){
+			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))){
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding) this.receiverType.erasure());
 	}
 }

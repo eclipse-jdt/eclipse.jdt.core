@@ -566,16 +566,17 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}		
 		if ((bits & FIELD) != 0) {
 			FieldBinding fieldBinding = (FieldBinding) binding;
+			FieldBinding codegenField = (FieldBinding) this.codegenBinding;
 			if (((bits & DepthMASK) != 0)
-				&& (fieldBinding.isPrivate() // private access
-					|| (fieldBinding.isProtected() // implicit protected access
-							&& fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage()))) {
+				&& (codegenField.isPrivate() // private access
+					|| (codegenField.isProtected() // implicit protected access
+							&& codegenField.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage()))) {
 				if (syntheticAccessors == null)
 					syntheticAccessors = new MethodBinding[2];
 				syntheticAccessors[isReadAccess ? READ : WRITE] = 
 				    ((SourceTypeBinding)currentScope.enclosingSourceType().
-						enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).addSyntheticMethod((FieldBinding) this.codegenBinding, isReadAccess);
-				currentScope.problemReporter().needToEmulateFieldAccess((FieldBinding)this.codegenBinding, this, isReadAccess);
+						enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).addSyntheticMethod(codegenField, isReadAccess);
+				currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, isReadAccess);
 				return;
 			}
 			// if the binding declaring class is not visible, need special action
@@ -589,10 +590,10 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 						&& !fieldBinding.isStatic()
 						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+					|| !codegenField.declaringClass.canBeSeenBy(currentScope))){
 				this.codegenBinding = 
 				    currentScope.enclosingSourceType().getUpdatedFieldBinding(
-					        (FieldBinding) this.codegenBinding, 
+					       codegenField, 
 					        (ReferenceBinding)this.actualReceiverType.erasure());
 			}
 		}

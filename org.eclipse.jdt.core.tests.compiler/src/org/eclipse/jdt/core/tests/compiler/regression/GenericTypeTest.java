@@ -5975,4 +5975,76 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// 69135 - unnecessary cast operation
+	public void test217() {
+		Map customOptions = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"public class X {\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"		ArrayList<String> l= new ArrayList<String>();\n" + 
+				"		String string = (String) l.get(0);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	String string = (String) l.get(0);\n" + 
+			"	                ^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type String for expression of type String\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+	// 64154 visibility issue due to invalid use of parameterized binding
+	public void test218() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T>{\n" + 
+				"	private final T _data;\n" + 
+				"	private X(T data){\n" + 
+				"		_data = data;\n" + 
+				"	}\n" + 
+				"	public T getData(){\n" + 
+				"		return _data;\n" + 
+				"	}\n" + 
+				"	public static <E> X<E> create(E data) {\n" + 
+				"		return new X<E>(data);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		create(new Object());\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}	
+	// 64154 variation
+	public void test219() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T>{\n" + 
+				"	private final T _data;\n" + 
+				"	private X(T data){\n" + 
+				"		_data = data;\n" + 
+				"	}\n" + 
+				"	public T getData(){\n" + 
+				"		return _data;\n" + 
+				"	}\n" + 
+				"	public static <E> E create(E data) {\n" + 
+				"		return new X<E>(data)._data;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		create(new Object());\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}	
 }

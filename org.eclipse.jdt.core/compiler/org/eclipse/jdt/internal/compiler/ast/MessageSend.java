@@ -145,9 +145,9 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
-		if (currentScope.enclosingSourceType() != binding.declaringClass){
+		if (currentScope.enclosingSourceType() != this.codegenBinding.declaringClass){
 		
-			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+			syntheticAccessor = ((SourceTypeBinding)this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
