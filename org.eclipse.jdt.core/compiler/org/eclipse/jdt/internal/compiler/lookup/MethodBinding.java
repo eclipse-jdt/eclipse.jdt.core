@@ -122,6 +122,9 @@ public final boolean canBeSeenBy(InvocationSite invocationSite, Scope scope) {
 */
 
 public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invocationSite, Scope scope) {
+	return this.canBeSeenBy(receiverType,invocationSite.isSuperAccess(),scope);
+}
+public final boolean canBeSeenBy(TypeBinding receiverType, boolean isSuperAccess, Scope scope) {
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
@@ -135,7 +138,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		if (invocationType == declaringClass) return true;
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
 		if (declaringClass.isSuperclassOf(invocationType)) {
-			if (invocationSite.isSuperAccess()) return true;
+			if (isSuperAccess) return true;
 			// receiverType can be an array binding in one case... see if you can change it
 			if (receiverType instanceof ArrayBinding)
 				return false;
