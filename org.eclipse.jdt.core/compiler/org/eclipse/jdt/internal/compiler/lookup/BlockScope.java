@@ -32,7 +32,7 @@ public class BlockScope extends Scope {
 	public int maxOffset; // for variable allocation throughout scopes
 
 	// finally scopes must be shifted behind respective try scope
-	public BlockScope shiftScope; 
+	public BlockScope[] shiftScopes; 
 
 	public final static VariableBinding[] EmulationPathToImplicitThis = {};
 
@@ -46,9 +46,14 @@ public class BlockScope extends Scope {
 
 	public BlockScope(BlockScope parent) {
 
+		this(parent, true);
+	}
+
+	public BlockScope(BlockScope parent, boolean addToParentScope) {
+
 		this(BLOCK_SCOPE, parent);
 		locals = new LocalVariableBinding[5];
-		parent.addSubscope(this);
+		if (addToParentScope) parent.addSubscope(this);
 		this.startIndex = parent.localIndex;
 	}
 
@@ -123,7 +128,7 @@ public class BlockScope extends Scope {
 		// share the outermost method scope analysisIndex
 	}
 
-	private void addSubscope(Scope childScope) {
+	public void addSubscope(Scope childScope) {
 		if (scopeIndex == subscopes.length)
 			System.arraycopy(
 				subscopes,
@@ -213,8 +218,7 @@ public class BlockScope extends Scope {
 				// consider subscope first
 				if (subscopes[iscope] instanceof BlockScope) {
 					BlockScope subscope = (BlockScope) subscopes[iscope];
-					int subOffset =
-						subscope.shiftScope == null ? this.offset : subscope.shiftScope.maxOffset;
+					int subOffset = subscope.shiftScopes == null ? this.offset : subscope.maxShiftedOffset();
 					subscope.computeLocalVariablePositions(subOffset, codeStream);
 					if (subscope.maxOffset > this.maxOffset)
 						this.maxOffset = subscope.maxOffset;
@@ -244,34 +248,30 @@ public class BlockScope extends Scope {
 				}
 				if (generatesLocal) {
 
-					// Return addresses are managed separately afterwards.
-					if (local.name != TryStatement.SecretReturnName) {
+					if (local.declaration != null) {
+						codeStream.record(local);
+						// record user local variables for attribute generation
+					}
+					// allocate variable position
+					local.resolvedPosition = this.offset;
 
-						if (local.declaration != null) {
-							codeStream.record(local);
-							// record user local variables for attribute generation
+					// check for too many arguments/local variables
+					if (local.isArgument) {
+						if (this.offset > 0xFF) { // no more than 255 words of arguments
+							this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
 						}
-						// allocate variable position
-						local.resolvedPosition = this.offset;
+					} else {
+						if (this.offset > 0xFFFF) { // no more than 65535 words of locals
+							this.problemReporter().noMoreAvailableSpaceForLocal(
+								local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
+						}
+					}
 
-						// check for too many arguments/local variables
-						if (local.isArgument) {
-							if (this.offset > 0xFF) { // no more than 255 words of arguments
-								this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
-							}
-						} else {
-							if (this.offset > 0xFFFF) { // no more than 65535 words of locals
-								this.problemReporter().noMoreAvailableSpaceForLocal(
-									local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
-							}
-						}
-
-						// increment offset
-						if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
-							this.offset += 2;
-						} else {
-							this.offset++;
-						}
+					// increment offset
+					if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
+						this.offset += 2;
+					} else {
+						this.offset++;
 					}
 				} else {
 					local.resolvedPosition = -1; // not generated
@@ -1359,6 +1359,17 @@ public class BlockScope extends Scope {
 		return methodBinding;
 	}
 
+	public int maxShiftedOffset() {
+		int max = -1;
+		if (this.shiftScopes != null){
+			for (int i = 0, length = this.shiftScopes.length; i < length; i++){
+				int subMaxOffset = this.shiftScopes[i].maxOffset;
+				if (subMaxOffset > max) max = subMaxOffset;
+			}
+		}
+		return max;
+	}
+	
 	/* Answer the problem reporter to use for raising new problems.
 	 *
 	 * Note that as a side-effect, this updates the current reference context
