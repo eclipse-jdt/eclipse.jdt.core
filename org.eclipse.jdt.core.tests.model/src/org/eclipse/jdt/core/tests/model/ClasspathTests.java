@@ -136,8 +136,9 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testClasspathFileRead"));
-		suite.addTest(new ClasspathTests("testClasspathForceReload"));
+		suite.addTest(new ClasspathTests("testInvalidClasspath1"));
+		suite.addTest(new ClasspathTests("testInvalidClasspath2"));
+		suite.addTest(new ClasspathTests("testMissingClasspath"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -1647,7 +1648,7 @@ public void testInvalidClasspath1() throws CoreException {
  */
 public void testInvalidClasspath2() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		IJavaProject javaProject = this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -1659,7 +1660,16 @@ public void testInvalidClasspath2() throws CoreException {
 		assertMarkers(
 			"Unexpected markers",
 			"Illegal entry in 'P/.classpath' file: Unknown kind: src1",
-			project);
+			javaProject);
+			
+		// Verify that error marker is not removed after build
+		// (regression test for bug 42366: Classpath validation error message removed while rebuilding a project.)
+		IProject project = javaProject.getProject();
+		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertMarkers(
+			"Unexpected markers",
+			"Illegal entry in 'P/.classpath' file: Unknown kind: src1",
+			javaProject);
 	} finally {
 		this.deleteProject("P");
 	}

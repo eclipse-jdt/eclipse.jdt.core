@@ -1648,11 +1648,6 @@ public class JavaProject
 			if (infoPath != null) return infoPath;
 		}
 
-		// flush .classpath format markers (see bug 39877 Rebuild All generates extra "Unable to read classpath" entry)
-		if (generateMarkerOnError){
-			flushClasspathProblemMarkers(false/*don't flush cycle markers*/, true/*flush classpath format markers*/);
-		}
-
 		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(
 			getRawClasspath(), 
@@ -1665,6 +1660,8 @@ public class JavaProject
 			if (perProjectInfo.rawClasspath == null // .classpath file could not be read
 				&& generateMarkerOnError 
 				&& JavaProject.hasJavaNature(fProject)) {
+					// flush .classpath format markers (bug 39877), but only when file cannot be read (bug 42366)
+					this.flushClasspathProblemMarkers(false, true);
 					this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
 						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
