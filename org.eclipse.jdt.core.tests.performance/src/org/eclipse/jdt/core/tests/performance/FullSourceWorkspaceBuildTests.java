@@ -444,8 +444,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		tagAsSummary("Scan Files", Dimension.CPU_TIME);
 
 		// Run test
-//		scanFiles(100000L, 0);
-		scanFiles(100000L, 1);
+//		scanFiles(FILE_SIZE_THRESHOLD, 0);
+		scanFiles(FILE_SIZE_THRESHOLD, 1);
 	}
 
 	/*
@@ -593,7 +593,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		tagAsSummary("Parse Files", Dimension.CPU_TIME);
 
 		// Run test
-		parseFiles(100000L);
+		parseFiles(FILE_SIZE_THRESHOLD);
 
 		// dump measure
 		commitMeasurements();
