@@ -318,29 +318,31 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			if (reader == null) return null;
 			IBinaryMethod[] methods = reader.getMethods();
 
-			for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
-				IBinaryMethod binaryMethod = methods[i];
-				char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
-				if (CharOperation.equals(selector, method.selector)) {
-					String[] parameterTypes = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
-					if (length != parameterTypes.length) continue;
-					boolean sameParameters = true;
-					for (int j = 0; j < length; j++) {
-						TypeReference parameterType = arguments[j].type;
-						char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
-						for (int k = 0; k < parameterType.dimensions(); k++) {
-							typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
+			if (methods != null) {
+				for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
+					IBinaryMethod binaryMethod = methods[i];
+					char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
+					if (CharOperation.equals(selector, method.selector)) {
+						String[] parameterTypes = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
+						if (length != parameterTypes.length) continue;
+						boolean sameParameters = true;
+						for (int j = 0; j < length; j++) {
+							TypeReference parameterType = arguments[j].type;
+							char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
+							for (int k = 0; k < parameterType.dimensions(); k++) {
+								typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
+							}
+							String parameterTypeName = parameterTypes[j].replace('/', '.');
+							if (!Signature.toString(parameterTypeName).endsWith(new String(typeName))) {
+								sameParameters = false;
+								break;
+							} else {
+								parameterTypes[j] = parameterTypeName;
+							}
 						}
-						String parameterTypeName = parameterTypes[j].replace('/', '.');
-						if (!Signature.toString(parameterTypeName).endsWith(new String(typeName))) {
-							sameParameters = false;
-							break;
-						} else {
-							parameterTypes[j] = parameterTypeName;
+						if (sameParameters) {
+							return type.getMethod(new String(selector), parameterTypes);
 						}
-					}
-					if (sameParameters) {
-						return type.getMethod(new String(selector), parameterTypes);
 					}
 				}
 			}
