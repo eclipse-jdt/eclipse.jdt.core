@@ -155,7 +155,9 @@ public abstract class AbstractCommentParser {
 								validComment = false;
 							} else {
 								if (previousChar == '{') {
-									pushText(this.textStart, charPosition);
+									if (this.textStart != -1 && this.textStart <= charPosition) {
+										pushText(this.textStart, charPosition);
+									}
 									this.inlineTagStarted = true;
 								}
 								this.scanner.resetTo(this.index, this.endComment);
@@ -213,7 +215,7 @@ public abstract class AbstractCommentParser {
 						break;
 					case '}' :
 						if (this.inlineTagStarted) {
-							if (this.lineStarted && this.textStart <= charPosition) {
+							if (this.lineStarted && this.textStart != -1 && this.textStart <= charPosition) {
 								pushText(this.textStart, charPosition);
 							}
 							this.textStart = this.index;
