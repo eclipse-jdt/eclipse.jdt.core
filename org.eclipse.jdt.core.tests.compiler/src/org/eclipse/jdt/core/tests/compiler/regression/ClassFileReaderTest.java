@@ -27,18 +27,22 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 
 	public void removeTempClass(String className) {
 		File dir = new File(SOURCE_DIRECTORY);
-		String[] filesNames = dir.list();
-		for (int i = 0, max = filesNames.length; i < max; i++) {
-			if (filesNames[i].indexOf(className) != -1) {
-				new File(SOURCE_DIRECTORY + File.separator + filesNames[i]).delete();
+		String[] fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
 			}
 		}
 		
 		dir = new File(EVAL_DIRECTORY);
-		filesNames = dir.list();
-		for (int i = 0, max = filesNames.length; i < max; i++) {
-			if (filesNames[i].indexOf(className) != -1) {
-				new File(EVAL_DIRECTORY + File.separator + filesNames[i]).delete();
+		fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
 			}
 		}
 	

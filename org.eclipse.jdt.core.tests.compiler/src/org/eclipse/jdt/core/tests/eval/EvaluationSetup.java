@@ -9,7 +9,8 @@ import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
-import org.eclipse.jdt.core.tests.runtime.StandardVMLauncher;
+
+import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -57,7 +58,7 @@ protected void setUp() {
 	// Launch VM in evaluation mode
 	int evalPort = Util.nextAvailablePortNumber();
 	try {
-		StandardVMLauncher launcher = new StandardVMLauncher();
+		LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 		launcher.setVMPath(this.jrePath);
 		launcher.setEvalPort(evalPort);
 		launcher.setEvalTargetPath(this.evalDirectory);
@@ -86,7 +87,7 @@ protected void setUp() {
 	this.target.connect("localhost", evalPort, 10000);
 
 	// Create name environment
-	INameEnvironment env = new FileSystem(new String[] {this.jrePath + "\\lib\\rt.jar"}, new String[0], null);
+	INameEnvironment env = new FileSystem(new String[] {Util.getJavaClassLib()}, new String[0], null);
 
 	// Init wrapped suite
 	initTest(fTest, this.context, this.target, this.launchedVM, env);

@@ -34,6 +34,17 @@ public abstract class LocalVMLauncher implements RuntimeConstants {
 	protected Vector runningVMs = new Vector(); // a Vector of LocalVirtualMachine
 	protected String[] vmArguments;
 	protected String vmPath;
+	
+/**
+ * Returns a launcher that will launch the same kind of VM that is currently running
+ */
+public static LocalVMLauncher getLauncher() {
+	if ("J9".equals(System.getProperty("java.vm.name"))) {
+		return new J9VMLauncher();
+	} else {
+		return new StandardVMLauncher();
+	}
+}
 /**
  * Builds the actual class path that is going to be passed to the VM.
  */
@@ -84,7 +95,16 @@ protected Process execCommandLine() throws TargetException {
 	try {
 		// Use Runtime.exec(String[]) with tokens because Runtime.exec(String) with commandLineString
 		// does not properly handle spaces in arguments on Unix/Linux platforms.
-		vmProcess= Runtime.getRuntime().exec(getCommandLine());
+		String[] commandLine = getCommandLine();
+		
+		// DEBUG
+		/*for (int i = 0; i < commandLine.length; i++) {
+			System.out.print(commandLine[i] + " ");
+		}
+		System.out.println();
+		*/
+		
+		vmProcess= Runtime.getRuntime().exec(commandLine);
 	} catch (IOException e) {
 		throw new TargetException("Error launching VM at " + this.vmPath);
 	}

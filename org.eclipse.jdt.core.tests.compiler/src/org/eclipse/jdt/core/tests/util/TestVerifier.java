@@ -305,7 +305,7 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 	this.classpaths = null;
 
 	// launch a new one
-	LocalVMLauncher launcher = new StandardVMLauncher();
+	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 	launcher.setClassPath(classpaths);
 	launcher.setVMPath(Util.getJREDirectory());
 	if (vmArguments != null) {
@@ -387,7 +387,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 	this.classpaths = classpaths;
 
 	// launch a new one
-	LocalVMLauncher launcher = new StandardVMLauncher();
+	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 	int length = classpaths.length;
 	String[] cp = new String[length + 1];
 	System.arraycopy(classpaths, 0, cp, 0, length);

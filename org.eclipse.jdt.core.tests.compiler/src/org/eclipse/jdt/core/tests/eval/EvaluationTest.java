@@ -463,7 +463,7 @@ protected DefaultProblem newProblem(int id, int severity, int startPos, int endP
 public void resetEnv() {
 	String encoding = (String) getOptions().get(CompilerOptions.OPTION_Encoding);
 	if ("".equals(encoding)) encoding = null;
-	env = new FileSystem(new String[] {JRE_PATH + "\\lib\\rt.jar", EvaluationTest.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY}, new String[0], encoding);
+	env = new FileSystem(new String[] {Util.getJavaClassLib(), EvaluationTest.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY}, new String[0], encoding);
 }
 public static Test setupSuite(Class clazz) {
 	EvaluationSetup evalSetup = new EvaluationSetup(suite(clazz));

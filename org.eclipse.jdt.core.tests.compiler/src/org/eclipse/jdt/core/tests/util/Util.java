@@ -217,10 +217,15 @@ public static void flushDirectoryContent(File dir) {
 */
 public static String getJavaClassLib() {
 	String jreDir = getJREDirectory();
-	if (jreDir == null) 
+	if (jreDir == null)  {
 		return null;
-	else
-		return toNativePath(jreDir + "/lib/rt.jar");
+	} else {
+		if ("J9".equals(System.getProperty("java.vm.name"))) {
+			return toNativePath(jreDir + "/lib/jclMax/classes.zip");
+		} else {
+			return toNativePath(jreDir + "/lib/rt.jar");
+		}
+	}
 }
 /**
  * Returns the JRE directory this tests are running on.

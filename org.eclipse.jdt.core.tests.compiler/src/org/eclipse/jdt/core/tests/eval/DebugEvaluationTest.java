@@ -11,6 +11,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
@@ -75,7 +76,8 @@ public void compileAndDeploy(String source, String className) {
 		.append("\" -d \"")
 		.append(EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
 		.append("\" -nowarn -g -classpath \"")
-		.append(JRE_PATH + "/lib/rt.jar;")
+		.append(Util.getJavaClassLib())
+		.append(";")
 		.append(SOURCE_DIRECTORY)
 		.append("\"");
 	org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());

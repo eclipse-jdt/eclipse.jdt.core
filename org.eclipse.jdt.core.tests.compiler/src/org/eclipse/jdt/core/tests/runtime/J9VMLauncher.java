@@ -4,6 +4,8 @@ import java.io.*;
 
 import java.util.Vector;
 
+import org.eclipse.jdt.core.tests.util.Util;
+
 /**
  * A J9 VM launcher launches an external J9 VM (and J9 Proxy if needed) with
  * the given arguments on the same machine.
@@ -98,10 +100,11 @@ public String[] getCommandLine() {
 	}
 
 	// boot class path
-	commandLine.addElement("-bp:" + buildBootClassPath());
+	commandLine.addElement("-Xbootclasspath:" + buildBootClassPath());
 
 	// regular class path
-	commandLine.addElement("-cp:" + buildClassPath());
+	commandLine.addElement("-classpath");
+	commandLine.addElement(buildClassPath());
 	
 	// code snippet runner class
 	if (this.evalPort != -1) {
@@ -171,7 +174,7 @@ public String[] getProxyCommandLine() {
 	// Arguments
 	commandLine.addElement(getTargetAddress() + ":" + this.internalDebugPort);
 	commandLine.addElement(Integer.toString(this.debugPort));
-	if (this.symbolPath != "") {
+	if (this.symbolPath != null && this.symbolPath != "") {
 		commandLine.addElement(this.symbolPath);
 	}
 	
@@ -207,7 +210,17 @@ public LocalVirtualMachine launch() throws TargetException {
 		try {
 			// Use Runtime.exec(String[]) with tokens because Runtime.exec(String) with commandLineString
 			// does not properly handle spaces in arguments on Unix/Linux platforms.
-			proxyProcess= Runtime.getRuntime().exec(getProxyCommandLine());
+			String[] commandLine = getProxyCommandLine();
+			
+			// DEBUG
+			/*
+			for (int i = 0; i < commandLine.length; i++) {
+				System.out.print(commandLine[i] + " ");
+			}
+			System.out.println();
+			*/
+
+			proxyProcess= Runtime.getRuntime().exec(commandLine);
 		} catch (IOException e) {
 			localVM.shutDown();
 			throw new TargetException("Error launching J9 Proxy at " + this.vmPath);
@@ -221,6 +234,16 @@ public LocalVirtualMachine launch() throws TargetException {
 	this.runningVMs.addElement(vm);
 	return vm;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.runtime.LocalVMLauncher#setDebugPort(int)
+ */
+public void setDebugPort(int debugPort) {
+	super.setDebugPort(debugPort);
+	
+	// specify default internal debug port as well
+	this.setInternalDebugPort(Util.nextAvailablePortNumber());
+}
+
 /**
  * Sets the debug port the J9 Proxy uses to connect to the J9 VM.
  * This is mandatory if debug mode is enabled.

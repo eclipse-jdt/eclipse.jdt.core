@@ -8,7 +8,8 @@ import java.util.Map;
 
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.tests.runtime.StandardVMLauncher;
+
+import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -46,9 +47,9 @@ protected void setUp() {
 	// Launch VM in evaluation mode
 	int debugPort = Util.nextAvailablePortNumber();
 	int evalPort = Util.nextAvailablePortNumber();
-	StandardVMLauncher launcher;
+	LocalVMLauncher launcher;
 	try {
-		launcher = new StandardVMLauncher();
+		launcher = LocalVMLauncher.getLauncher();
 		launcher.setVMArguments(new String[] {"-verify"});
 		launcher.setVMPath(this.jrePath);
 		launcher.setEvalPort(evalPort);
@@ -84,6 +85,10 @@ protected void setUp() {
 			((Connector.Argument)args.get("port")).setValue(String.valueOf(debugPort));
 			((Connector.Argument)args.get("hostname")).setValue(launcher.getTargetAddress());
 			vm = connector.attach(args);
+			
+			// workaround pb with some VMs
+			vm.resume();
+			
 			break;
 		} catch (IllegalConnectorArgumentsException e) {
 		} catch (IOException e) {
@@ -139,7 +144,7 @@ protected void setUp() {
 	this.target.connect("localhost", evalPort, 10000);
 
 	// Create name environment
-	INameEnvironment env = new FileSystem(new String[] {this.jrePath + "\\lib\\rt.jar"}, new String[0], null);
+	INameEnvironment env = new FileSystem(new String[] {Util.getJavaClassLib()}, new String[0], null);
 
 	// Init wrapped suite
 	initTest(fTest, this.context, this.target, this.launchedVM, env);

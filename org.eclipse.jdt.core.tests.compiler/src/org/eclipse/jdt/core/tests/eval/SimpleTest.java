@@ -5,7 +5,7 @@ import java.io.File;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
-import org.eclipse.jdt.core.tests.runtime.StandardVMLauncher;
+
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -229,7 +229,7 @@ protected IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(java.util.Locale.getDefault());
 }
 protected void startEvaluationContext() throws TargetException {
-	LocalVMLauncher launcher = new StandardVMLauncher();
+	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 	launcher.setVMPath(JRE_PATH);
 	launcher.setClassPath(RUNTIME_CLASSPATH);
 	int evalPort = Util.nextAvailablePortNumber();
