@@ -35,6 +35,39 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		}
 	}
 	
+	class BindingResolver extends TestASTRequestor {
+		String bindingKey;
+		int index = -1;
+		String foundKey;
+		MarkerInfo[] markerInfos;
+		public BindingResolver(MarkerInfo[] markerInfos) {
+			this.markerInfos = markerInfos;
+		}
+		public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
+			super.acceptAST(source, cu);
+			ASTNode node = findNode(cu, this.markerInfos[++this.index]);
+			if (node != null && !(node instanceof CompilationUnit)) {
+				IBinding binding = null;
+				if (node instanceof PackageDeclaration) {
+					binding = ((PackageDeclaration) node).resolveBinding();
+				} else if (node instanceof TypeDeclaration) {
+					binding = ((TypeDeclaration) node).resolveBinding();
+				} else if (node instanceof AnonymousClassDeclaration) {
+					binding = ((AnonymousClassDeclaration) node).resolveBinding();
+				} else if (node instanceof TypeDeclarationStatement) {
+					binding = ((TypeDeclarationStatement) node).resolveBinding();
+				} else if (node instanceof MethodDeclaration) {
+					binding = ((MethodDeclaration) node).resolveBinding();
+				}
+				this.bindingKey = binding == null ? null : binding.getKey();
+			}
+		}
+		public void acceptBinding(String key, IBinding binding) {
+			super.acceptBinding(key, binding);
+			this.foundKey = binding.getKey();
+		}
+	}
+	
 	public WorkingCopyOwner owner = new WorkingCopyOwner() {};
 
 	public BatchASTCreationTests(String name) {
@@ -44,7 +77,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test030"));
+			suite.addTest(new BatchASTCreationTests("test053"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -66,50 +99,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 * Ensures that the returned binding corresponds to the expected key.
 	 */
 	private void assertRequestedBindingFound(String[] pathAndSources, final String expectedKey) throws JavaModelException {
-		ICompilationUnit[] copies = null;
-		try {
-			final MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
-			copies = createWorkingCopies(markerInfos, this.owner);
-			class Requestor extends TestASTRequestor {
-				String bindingKey;
-				int index = -1;
-				String foundKey;
-				public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
-					super.acceptAST(source, cu);
-					ASTNode node = findNode(cu, markerInfos[++this.index]);
-					if (node != null && !(node instanceof CompilationUnit)) {
-						IBinding binding = null;
-						if (node instanceof PackageDeclaration) {
-							binding = ((PackageDeclaration) node).resolveBinding();
-						} else if (node instanceof TypeDeclaration) {
-							binding = ((TypeDeclaration) node).resolveBinding();
-						} else if (node instanceof AnonymousClassDeclaration) {
-							binding = ((AnonymousClassDeclaration) node).resolveBinding();
-						} else if (node instanceof TypeDeclarationStatement) {
-							binding = ((TypeDeclarationStatement) node).resolveBinding();
-						}
-						this.bindingKey = binding == null ? null : binding.getKey();
-					}
-				}
-				public void acceptBinding(String key, IBinding binding) {
-					super.acceptBinding(key, binding);
-					this.foundKey = binding.getKey();
-				}
-			};
-			Requestor requestor = new Requestor();
-			resolveASTs(copies, new String[] {expectedKey}, requestor, getJavaProject("P"), this.owner);
-			
-			if (!expectedKey.equals(requestor.bindingKey))
-				System.out.println(Util.displayString(expectedKey, 3));
-			assertEquals("Unexpected binding for marked node", expectedKey, requestor.bindingKey);
-			
-			if (!expectedKey.equals(requestor.foundKey)) {
-				System.out.println(Util.displayString(requestor.foundKey, 3));
-			}
-			assertEquals("Unexpected binding found by acceptBinding", expectedKey, requestor.foundKey);
-		} finally {
-			discardWorkingCopies(copies);
+		BindingResolver resolver = requestBinding(pathAndSources, expectedKey);
+		
+		if (!expectedKey.equals(resolver.bindingKey))
+			System.out.println(Util.displayString(resolver.bindingKey, 3));
+		assertEquals("Unexpected binding for marked node", expectedKey, resolver.bindingKey);
+		
+		if (!expectedKey.equals(resolver.foundKey)) {
+			System.out.println(Util.displayString(resolver.foundKey, 3));
 		}
+		assertEquals("Unexpected binding found by acceptBinding", expectedKey, resolver.foundKey);
 	}
 
 	/*
@@ -143,9 +142,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				discardWorkingCopies(dummyWorkingCopies);
 			}
 			
-			if (!expectedKey.equals(requestor.createdBindingKey))
-				System.out.println(Util.displayString(requestor.createdBindingKey, 3));
-			assertEquals("Unexpected created binding", expectedKey, requestor.createdBindingKey);
+			String key = expectedKey;
+			if (!key.equals(requestor.createdBindingKey)) {
+				BindingResolver resolver = requestBinding(pathAndSources, null);
+				if (resolver.bindingKey != null) key = resolver.bindingKey;
+				System.out.println(Util.displayString(key, 3));
+			}
+			assertEquals("Unexpected created binding", key, requestor.createdBindingKey);
 		} finally {
 			discardWorkingCopies(copies);
 		}
@@ -163,6 +166,20 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
 		resolveASTs(cus, new String[0], requestor, getJavaProject("P"), this.owner);
 	}
+	
+	private BindingResolver requestBinding(String[] pathAndSources, final String expectedKey) throws JavaModelException {
+		ICompilationUnit[] copies = null;
+		try {
+			MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
+			copies = createWorkingCopies(markerInfos, this.owner);
+			BindingResolver resolver = new BindingResolver(markerInfos);
+			resolveASTs(copies, expectedKey == null ? new String[0] : new String[] {expectedKey}, resolver, getJavaProject("P"), this.owner);
+			return resolver;
+		} finally {
+			discardWorkingCopies(copies);
+		}
+	}
+
 	
 	/*
 	 * Tests the batch creation of 2 ASTs without resolving.
@@ -363,7 +380,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"Lp1/X$1;");
+			"Lp1/X$52;");
 	}
 	/*
 	 * Ensures that a local type binding can be retrieved using its key.
@@ -380,7 +397,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"Lp1/X$1$Y;");
+			"Lp1/X$54;");
 	}
 
 	/*
@@ -477,12 +494,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"package p1;\n" +
 				"public class X {\n" +
 				"  void foo() {\n" +
-				"    new X() {\n" +
-				"    };" +
+				"    new X() /*start*/{\n" +
+				"    }/*end*/;" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X$1;");
+			"Lp1/X$52;");
 	}
 	
 	/*
@@ -495,12 +512,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"package p1;\n" +
 				"public class X {\n" +
 				"  void foo() {\n" +
-				"    class Y {\n" +
-				"    };" +
+				"    /*start*/class Y {\n" +
+				"    }/*end*/;" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X$1$Y;");
+			"Lp1/X$54;");
 	}
 	
 	/*
@@ -607,13 +624,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"  void foo() {\n" +
 				"    new X() {\n" +
-				"      void bar(int i, X x, String[][] s, Y[] args, boolean b, Object o) {\n" +
-				"      }\n" +
+				"      /*start*/void bar(int i, X x, String[][] s, Y[] args, boolean b, Object o) {\n" +
+				"      }/*end*/\n" +
 				"    };\n" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X$1;.bar(ILp1/X;[[Ljava/lang/String;[Lp1/X$Y;ZLjava/lang/Object;)V");
+			"Lp1/X$68;.bar(ILp1/X;[[Ljava/lang/String;[Lp1/X$Y;ZLjava/lang/Object;)V"
+		);
 	}
 	
 	/*
@@ -1104,10 +1122,32 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}"
 			);
-			assertBindingCreated(new String[] {}, "Lp1/X~Y$1;");
+			assertBindingCreated(new String[] {}, "Lp1/X~Y$64;");
 		} finally {
 			deleteFolder("/P/p1");
 		}
 	}
 
+	/*
+	 * Ensures that an anonymous type binding inside a local type can be retrieved using its key.
+	 */
+	public void test054() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    class Y {\n" +
+				"      void bar() {\n" +
+				"        new X() /*start*/{\n" +
+				"        }/*end*/;" +
+				"      }\n" +
+				"    }\n" +
+				"  }\n" +
+				"}",
+			}, 
+			"Lp1/X$89;"
+		);
+	}
 }
