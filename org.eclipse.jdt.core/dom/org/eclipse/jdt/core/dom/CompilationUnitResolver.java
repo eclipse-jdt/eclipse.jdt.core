@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 class CompilationUnitResolver extends Compiler {
@@ -312,6 +313,8 @@ class CompilationUnitResolver extends Compiler {
 					problemFactory);
 
 			resolver.resolve(requestor, apiLevel, options, owner, monitor);
+			if (NameLookup.VERBOSE)
+				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (JavaModelException e) {
 			// project doesn't exist -> simple parse without resolving
 			parse(requestor, apiLevel, options, monitor);
@@ -355,6 +358,8 @@ class CompilationUnitResolver extends Compiler {
 					true, // method verification
 					true, // analyze code
 					true); // generate code					
+			if (NameLookup.VERBOSE)
+				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 			return unit;
 		} finally {
 			if (environment != null) {

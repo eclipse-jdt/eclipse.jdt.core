@@ -97,6 +97,8 @@ public class NameLookup implements SuffixConstants {
 	 * Allows working copies to take precedence over compilation units.
 	 */
 	protected HashMap unitsToLookInside;
+	
+	public long timeSpentInSeekTypesInSourcePackage = 0;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
 		if (VERBOSE) {
@@ -718,98 +720,106 @@ public class NameLookup implements SuffixConstants {
 	 */
 	protected void seekTypesInSourcePackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
 		
-		if (!partialMatch) {
-			int firstDot = name.indexOf('.');
-			String topLevelTypeName = firstDot == -1 ? name : name.substring(0, firstDot);
-			
-			// look in unitsToLookInside first
-			HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
-			if (typeMap != null) {
-				Object object = typeMap.get(topLevelTypeName);
-				if (object instanceof IType) {
-					IType type = getMemberType((IType) object, name, firstDot);
-					if (acceptType(type, acceptFlags)) {
-						requestor.acceptType(type);
-						return; // don't continue with compilation unit
-					}
-				} else if (object instanceof IType[]) {
-					IType[] topLevelTypes = (IType[]) object;
-					for (int i = 0, length = topLevelTypes.length; i < length; i++) {
-						if (requestor.isCanceled())
-							return;
-						IType type = getMemberType(topLevelTypes[i], name, firstDot);
+		long start = -1;
+		if (VERBOSE)
+			start = System.currentTimeMillis();
+		try {
+			if (!partialMatch) {
+				int firstDot = name.indexOf('.');
+				String topLevelTypeName = firstDot == -1 ? name : name.substring(0, firstDot);
+				
+				// look in unitsToLookInside first
+				HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
+				if (typeMap != null) {
+					Object object = typeMap.get(topLevelTypeName);
+					if (object instanceof IType) {
+						IType type = getMemberType((IType) object, name, firstDot);
 						if (acceptType(type, acceptFlags)) {
 							requestor.acceptType(type);
-							return; // return the first one
+							return; // don't continue with compilation unit
+						}
+					} else if (object instanceof IType[]) {
+						IType[] topLevelTypes = (IType[]) object;
+						for (int i = 0, length = topLevelTypes.length; i < length; i++) {
+							if (requestor.isCanceled())
+								return;
+							IType type = getMemberType(topLevelTypes[i], name, firstDot);
+							if (acceptType(type, acceptFlags)) {
+								requestor.acceptType(type);
+								return; // return the first one
+							}
 						}
 					}
 				}
-			}
-			
-			// look in compilation units
-			try {
-				ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
-				for (int i = 0, length = compilationUnits.length; i < length; i++) {
-					if (requestor.isCanceled())
-						return;
-					ICompilationUnit cu = compilationUnits[i];
-					String cuName = cu.getElementName();
-					int lastDot = cuName.lastIndexOf('.');
-					if (!topLevelTypeName.equals(cuName.substring(0, lastDot))) 
-						continue;
-					IType type = cu.getType(topLevelTypeName);
-					type = getMemberType(type, name, firstDot);
-					if (acceptType(type, acceptFlags)) { // accept type checks for existence
-						requestor.acceptType(type);
-						break;  // since an exact match was requested, no other matching type can exist
+				
+				// look in compilation units
+				try {
+					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
+					for (int i = 0, length = compilationUnits.length; i < length; i++) {
+						if (requestor.isCanceled())
+							return;
+						ICompilationUnit cu = compilationUnits[i];
+						String cuName = cu.getElementName();
+						int lastDot = cuName.lastIndexOf('.');
+						if (!topLevelTypeName.equals(cuName.substring(0, lastDot))) 
+							continue;
+						IType type = cu.getType(topLevelTypeName);
+						type = getMemberType(type, name, firstDot);
+						if (acceptType(type, acceptFlags)) { // accept type checks for existence
+							requestor.acceptType(type);
+							break;  // since an exact match was requested, no other matching type can exist
+						}
+					}
+				} catch (JavaModelException e) {
+					// package doesn't exist -> ignore
+				}
+			} else {
+				String prefix = name.toLowerCase();
+				int firstDot = prefix.indexOf('.');
+				
+				// look in unitsToLookInside first
+				HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
+				if (typeMap != null) {
+					Iterator iterator = typeMap.values().iterator();
+					while (iterator.hasNext()) {
+						if (requestor.isCanceled())
+							return;
+						Object object = iterator.next();
+						if (object instanceof IType) {
+							seekTypesInTopLevelType(prefix, firstDot, (IType) object, requestor, acceptFlags);
+						} else if (object instanceof IType[]) {
+							IType[] topLevelTypes = (IType[]) object;
+							for (int i = 0, length = topLevelTypes.length; i < length; i++)
+								seekTypesInTopLevelType(prefix, firstDot, topLevelTypes[i], requestor, acceptFlags);
+						}
 					}
 				}
-			} catch (JavaModelException e) {
-				// package doesn't exist -> ignore
-			}
-		} else {
-			String prefix = name.toLowerCase();
-			int firstDot = prefix.indexOf('.');
-			
-			// look in unitsToLookInside first
-			HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
-			if (typeMap != null) {
-				Iterator iterator = typeMap.values().iterator();
-				while (iterator.hasNext()) {
-					if (requestor.isCanceled())
-						return;
-					Object object = iterator.next();
-					if (object instanceof IType) {
-						seekTypesInTopLevelType(prefix, firstDot, (IType) object, requestor, acceptFlags);
-					} else if (object instanceof IType[]) {
-						IType[] topLevelTypes = (IType[]) object;
-						for (int i = 0, length = topLevelTypes.length; i < length; i++)
-							seekTypesInTopLevelType(prefix, firstDot, topLevelTypes[i], requestor, acceptFlags);
+				
+				// look in compilation units
+				try {
+					String cuPrefix = firstDot == -1 ? prefix : prefix.substring(0, firstDot);
+					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
+					for (int i = 0, length = compilationUnits.length; i < length; i++) {
+						if (requestor.isCanceled())
+							return;
+						ICompilationUnit cu = compilationUnits[i];
+						if (!cu.getElementName().toLowerCase().startsWith(cuPrefix))
+							continue;
+						try {
+							IType[] types = cu.getTypes();
+							for (int j = 0, typeLength = types.length; j < typeLength; j++)
+								seekTypesInTopLevelType(prefix, firstDot, types[j], requestor, acceptFlags);
+						} catch (JavaModelException e) {
+							// cu doesn't exist -> ignore
+						}
 					}
+				} catch (JavaModelException e) {
+					// package doesn't exist -> ignore
 				}
 			}
-			
-			// look in compilation units
-			try {
-				String cuPrefix = firstDot == -1 ? prefix : prefix.substring(0, firstDot);
-				ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
-				for (int i = 0, length = compilationUnits.length; i < length; i++) {
-					if (requestor.isCanceled())
-						return;
-					ICompilationUnit cu = compilationUnits[i];
-					if (!cu.getElementName().toLowerCase().startsWith(cuPrefix))
-						continue;
-					try {
-						IType[] types = cu.getTypes();
-						for (int j = 0, typeLength = types.length; j < typeLength; j++)
-							seekTypesInTopLevelType(prefix, firstDot, types[j], requestor, acceptFlags);
-					} catch (JavaModelException e) {
-						// cu doesn't exist -> ignore
-					}
-				}
-			} catch (JavaModelException e) {
-				// package doesn't exist -> ignore
-			}
+		} finally {
+			if (VERBOSE)
+				this.timeSpentInSeekTypesInSourcePackage += System.currentTimeMillis()-start;
 		}
 	}
 
