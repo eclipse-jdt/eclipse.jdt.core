@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -159,6 +160,11 @@ public class FlowContext implements TypeConstants {
 			}
 			if (remainingCount == 0)
 				return;
+				
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			if (traversedContext.associatedNode instanceof TryStatement){
+				flowInfo = flowInfo.copy().addInitializationsFrom(((TryStatement) traversedContext.associatedNode).subRoutineInits);
+			}
 			traversedContext = traversedContext.parent;
 		}
 		// if reaches this point, then there are some remaining unhandled exception types.	
@@ -193,6 +199,7 @@ public class FlowContext implements TypeConstants {
 				// exceptions will actually never get sent...
 				return;
 			}
+			
 			// filter exceptions that are locally caught from the innermost enclosing 
 			// try statement to the outermost ones.
 			if (traversedContext instanceof ExceptionHandlingFlowContext) {
@@ -247,6 +254,11 @@ public class FlowContext implements TypeConstants {
 					}
 					break; // not handled anywhere, thus jump to error handling
 				}
+			}
+
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			if (traversedContext.associatedNode instanceof TryStatement){
+				flowInfo = flowInfo.copy().addInitializationsFrom(((TryStatement) traversedContext.associatedNode).subRoutineInits);
 			}
 			traversedContext = traversedContext.parent;
 		}
