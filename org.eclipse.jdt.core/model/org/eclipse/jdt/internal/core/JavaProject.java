@@ -1422,8 +1422,8 @@ public class JavaProject
 
 				case IClasspathEntry.CPE_CONTAINER :
 				
-					IClasspathEntry[] containerEntries = JavaCore.getResolvedClasspathContainer(rawEntry.getPath(), this);
-					if (containerEntries == null){
+					IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
+					if (container == null){
 						// unbound container
 						if (!ignoreUnresolvedEntry) {
 							throw new JavaModelException(
@@ -1431,37 +1431,41 @@ public class JavaProject
 									IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND,
 									rawEntry.getPath().toString()));
 						}
-					} else {
-						// container was bound, container entries could be variables
-						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-							IClasspathEntry containerRawEntry = containerEntries[j];
-							
-							if (generateMarkerOnError) {
-								IJavaModelStatus status =
-									JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
-								if (!status.isOK())
-									createClasspathProblemMarker(
-										status.getMessage(), 
-										IMarker.SEVERITY_ERROR,
-										false);
-							}
-							
-							// container entry is variable ?
-							if (containerRawEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
-								resolvedEntry = JavaCore.getResolvedClasspathEntry(containerRawEntry);
-								if (resolvedEntry == null) {
-									if (!ignoreUnresolvedEntry) {
-										throw new JavaModelException(
-											new JavaModelStatus(
-												IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
-												containerRawEntry.getPath().toString()));
-									}
-								} else {
-									resolvedEntries.add(resolvedEntry);
+						break;
+					}
+
+					IClasspathEntry[] containerEntries = container.getClasspathEntries();
+					if (containerEntries == null) break;
+
+					// container was bound, container entries could be variables
+					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
+						IClasspathEntry containerRawEntry = containerEntries[j];
+						
+						if (generateMarkerOnError) {
+							IJavaModelStatus status =
+								JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
+							if (!status.isOK())
+								createClasspathProblemMarker(
+									status.getMessage(), 
+									IMarker.SEVERITY_ERROR,
+									false);
+						}
+						
+						// container entry is variable ?
+						if (containerRawEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
+							resolvedEntry = JavaCore.getResolvedClasspathEntry(containerRawEntry);
+							if (resolvedEntry == null) {
+								if (!ignoreUnresolvedEntry) {
+									throw new JavaModelException(
+										new JavaModelStatus(
+											IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
+											containerRawEntry.getPath().toString()));
 								}
 							} else {
-								resolvedEntries.add(containerRawEntry);
+								resolvedEntries.add(resolvedEntry);
 							}
+						} else {
+							resolvedEntries.add(containerRawEntry);
 						}
 					}
 					break;

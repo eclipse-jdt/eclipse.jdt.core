@@ -368,8 +368,8 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		char[] contents = mapper.findSource(getType());
 		if (contents != null) {
 			// create buffer
+			IBuffer buffer = getBufferFactory().createBuffer(this);
 			BufferManager bufManager = getBufferManager();
-			IBuffer buffer = bufManager.getDefaultBufferFactory().createBuffer(this);
 			bufManager.addBuffer(buffer);
 			
 			// set the buffer source

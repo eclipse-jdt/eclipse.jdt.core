@@ -75,6 +75,12 @@ public interface IScanner {
 	int[] getLineEnds();
 
 	/**
+	 * Answers a 1-based line number using the lines which have been encountered so far. If the position
+	 * is located beyond the current scanned line, then the last line number will be answered.
+	 */
+	int getLineNumber(int charPosition);
+
+	/**
 	 * Read the next token in the source, and answers its ID as specified by <code>ITerminalSymbols</code>.
 	 * Note that the actual token ID values are subject to change if new keywords were added to the language
 	 * (i.e. 'assert' keyword in 1.4).

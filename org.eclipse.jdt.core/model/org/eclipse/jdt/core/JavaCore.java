@@ -142,37 +142,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 	
 	/**
-	 * Notification of a classpath container change. This notification must be performed
-	 * by client code which did register some classpath container resolvers, whenever 
-	 * changes in container need to be reflected onto the JavaModel.
-	 * <p>
-	 * In reaction to this notification, the JavaModel will be updated to reflect the new
-	 * state of the updated container. Note that the update can be scoped to either
-	 * a given project or the entire Java model according to the changeScope argument.
-	 * This is symetric to container resolution which enables project specific resolution.
-	 * <p>
-	 * This functionality cannot be used while the resource tree is locked.
-	 * <p>
-	 * Classpath container states are persisted locally to the workspace, and 
-	 * are preserved from session to session.
-	 * <p>
-	 * When notifying a container change, the corresponding container resolver should
-	 * in turn expect to be activated so as to resolve the updated container path.
-	 * 
-	 * @param containerPath - the name of the container which is being updated
-	 * @param changeScope - the scope of the change, either a specific project (IJavaProject)
-	 *     or the entire JavaModel (IJavaModel).
-	 * @param monitor a monitor to report progress
-	 * 
-	 * @see #getResolvedClasspathContainer(IPath, IJavaProject)
-	 * @since 2.0
-	 */
-	public void classpathContainerChanged(IPath containerPath, IJavaElement changeScope, IProgressMonitor monitor){
-
-		//TOFIX
-	}
-	
-	/**
 	 * Configures the given marker for the given Java element.
 	 * Used for markers which denote a Java element rather than a resource.
 	 *
@@ -305,6 +274,93 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return JavaModelManager.createJarPackageFragmentRootFrom(file, null);
 	}
 
+	/** 
+	 * Answers the set of classpath entries corresponding to a given container for a specific project.
+	 * Indeed, classpath containers can have a different meaning in different project, according to the behavior
+	 * of the <code>ClasspathContainerInitializer</code> which got involved for resolving this container.
+	 * In case this container path could not be resolved, then will answer <code>null</code>.
+	 * <p>
+	 * Both the container path and the project context are supposed to be non-null.
+	 * <p>
+	 * The set of entries associated with a classpath container may contain any of the following:
+	 * <ul>
+	 * <li> source entries (<code>CPE_SOURCE</code>) </li>
+	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
+	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
+	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
+	 * </ul>
+	 * A classpath container cannot reference further classpath containers.
+	 * <p>
+	 * @param containerPath - the name of the container which needs to be resolved
+	 * @param changeScope - a specific project (IJavaProject) in which the container is being resolved
+	 * 
+	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
+	 *   contains illegal entries (further container entries or null entries).	 
+	 * 
+	 * @since 2.0
+	 */
+	public static IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+
+		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
+		if (projectContainers == null){
+			projectContainers = new HashMap(1);
+			JavaModelManager.Containers.put(project, projectContainers);
+		}
+		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
+
+		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+		if (container == null){
+			ClasspathContainerInitializer initializer = JavaModelManager.getClasspathContainerInitializer(containerPath.segment(0));
+			if (initializer != null){
+				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				boolean ok = false;
+				try {
+					initializer.initialize(containerPath.segment(0), containerPath.segment(1), project);
+					if (container != null){
+						IClasspathEntry[] entries = container.getClasspathEntries();
+						// validation - no nested classpath container
+						if (entries != null){
+							for (int i = 0; i < entries.length; i++){
+								IClasspathEntry entry = entries[i];
+								if (entry == null || entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
+									throw new JavaModelException(
+										new JavaModelStatus(
+											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
+											containerPath.toString()));
+								}
+							}
+						}
+					}
+					ok = true;
+				} catch(CoreException e){
+					throw new JavaModelException(e);
+				} finally {
+					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
+				}
+				if (container != null){
+					projectContainers.put(containerPath, container);
+				}
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$
+					if (container != null){
+						System.out.print("container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
+						IClasspathEntry[] entries = container.getClasspathEntries();
+						if (entries != null){
+							for (int i = 0; i < entries.length; i++){
+								if (i > 0) System.out.println(", ");//$NON-NLS-1$
+								System.out.println(entries[i]);
+							}
+						}
+						System.out.println("}");//$NON-NLS-1$
+					} else {
+						System.out.println("{unbound}");//$NON-NLS-1$
+					}
+				}
+			}
+		}
+		return container;			
+	}
+
 	/**
 	 * Returns the path held in the given classpath variable.
 	 * Returns <node>null</code> if unable to bind.
@@ -430,85 +486,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static Plugin getPlugin() {
 		return JAVA_CORE_PLUGIN;
-	}
-
-	/** 
-	 * Answers the set of classpath entries corresponding to a given container for a specific project.
-	 * Indeed, classpath containers can have a different meaning in different project, according to the behavior
-	 * of the <code>ClasspathContainerResolver</code> which got involved for resolving this container.
-	 * In case this container path could not be resolved, then will answer <code>null</code>.
-	 * <p>
-	 * Both the container path and the project context are supposed to be non-null.
-	 * <p>
-	 * The set of entries associated with a classpath container may contain any of the following:
-	 * <ul>
-	 * <li> source entries (<code>CPE_SOURCE</code>) </li>
-	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
-	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
-	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
-	 * </ul>
-	 * A classpath container cannot reference further classpath containers.
-	 * <p>
-	 * @param containerPath - the name of the container which needs to be resolved
-	 * @param changeScope - a specific project (IJavaProject) in which the container is being resolved
-	 * 
-	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
-	 *   contains illegal entries (further container entries or null entries).	 
-	 * 
-	 * @since 2.0
-	 */
-	public static IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
-
-		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
-		if (projectContainers == null){
-			projectContainers = new HashMap(1);
-			JavaModelManager.Containers.put(project, projectContainers);
-		}
-		IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
-
-		if (entries == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
-		if (entries == null){
-			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
-			if (resolver != null){
-				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
-				boolean ok = false;
-				try {
-					entries = resolver.resolve(containerPath, project);
-					
-					// validation - no nested classpath container
-					if (entries != null){
-						for (int i = 0; i < entries.length; i++){
-							IClasspathEntry entry = entries[i];
-							if (entry == null || entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
-								throw new JavaModelException(
-									new JavaModelStatus(
-										IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
-										containerPath.toString()));
-							}
-						}
-					}
-					ok = true;
-				} catch(CoreException e){
-					throw new JavaModelException(e);
-				} finally {
-					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
-				}
-				if (entries != null){
-					projectContainers.put(containerPath, entries);
-				}
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> {"); //$NON-NLS-2$//$NON-NLS-1$
-					if (entries != null){
-						for (int i = 0; i < entries.length; i++){
-							if (i > 0) System.out.println(", ");//$NON-NLS-1$
-							System.out.println(entries[i]);
-						}
-					}
-					System.out.println("}");//$NON-NLS-1$
-				}
-			}
-		}
-		return entries;			
 	}
 
 	/**
@@ -679,15 +656,24 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
 	 * and updated with <code>JavaCore#classpathContainerChanged</code>
 	 * <p>
-	 * A container is exclusively resolved by a <code>ClasspathContainerResolver</code> registered onto the
-	 * extension point "org.eclipse.jdt.core.classpathContainerResolver".
+	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
+	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
-	 * Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2"
+	 * A container path must be exactly formed of 2 segments, where: <ul>
+	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
+	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
+	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as a clue during
+	 * 	the resolution phase. </li>
+	 * <p>
+	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
+	 * 
+	 * containerEntry = JavaCore.newContainerEntry(new Path("MyProvidedJDK/default"));
+	 * 
 	 * <extension
-	 *    point="org.eclipse.jdt.core.containerResolver">
-	 *    <containerResolver
-	 *       prefix="JDK"
-	 *       class="com.example.MyResolver"/> 
+	 *    point="org.eclipse.jdt.core.classpathContainerInitializer">
+	 *    <containerInitializer
+	 *       id="MyProvidedJDK"
+	 *       class="com.example.MyInitializer"/> 
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
@@ -695,10 +681,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
 	 * <code>newContainerEntry(-,false)</code>.
 	 * <p>
-	 * @param containerPath - the path identifying the container, it must be formed of at least one
-	 * 	segment
-	 * @param isExported - a boolean indicating whether this entry is contributed to dependent
-	 *		projects in addition to the output location
+	 * @param containerPath - the path identifying the container, it must be formed of two
+	 * 	segments
 	 * @return a new container classpath entry
 	 * 
 	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
@@ -721,33 +705,43 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
 	 * and updated with <code>JavaCore#classpathContainerChanged</code>
 	 * <p>
-	 * A container is exclusively resolved by a <code>ClasspathContainerResolver</code> registered onto the
-	 * extension point "org.eclipse.jdt.core.classpathContainerResolver".
+	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
+	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
-	 * Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2"
+	 * A container path must be exactly formed of 2 segments, where: <ul>
+	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
+	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
+	 * <li> the second segment is a string which will be passed onto the initializer, and can be used as a clue during
+	 * 	the initialization phase. </li>
+	 * <p>
+	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
+	 * 
+	 * containerEntry = JavaCore.newContainerEntry(new Path("MyProvidedJDK/default"));
+	 * 
 	 * <extension
-	 *    point="org.eclipse.jdt.core.containerResolver">
-	 *    <containerResolver
-	 *       prefix="JDK"
-	 *       class="com.example.MyResolver"/> 
+	 *    point="org.eclipse.jdt.core.classpathContainerInitializer">
+	 *    <containerInitializer
+	 *       id="MyProvidedJDK"
+	 *       class="com.example.MyInitializer"/> 
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
 	 * <p>
-	 * @param containerPath - the path identifying the container, it must be formed of at least one
-	 * 	segment
+	 * @param containerPath - the path identifying the container, it must be formed of two
+	 * 	segments
 	 * @param isExported - a boolean indicating whether this entry is contributed to dependent
 	 *		projects in addition to the output location
 	 * @return a new container classpath entry
 	 * 
 	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
 	 * @see JavaCore#classpathContainerChanged(IPath, IJavaElement, IProgressMonitor)
+	 * @see JavaCore#newContainerEntry(IPath, boolean)
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
 			
 		Assert.isTrue(
-			containerPath != null && containerPath.segmentCount() >= 1,
+			containerPath != null && containerPath.segmentCount() == 2,
 			Util.bind("classpath.illegalContainerPath" )); //$NON-NLS-1$
 			
 		return new ClasspathEntry(
@@ -1098,6 +1092,149 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static void removeElementChangedListener(IElementChangedListener listener) {
 		JavaModelManager.getJavaModelManager().removeElementChangedListener(listener);
+	}
+
+	/** TOFIX
+	 * Notification of a classpath container change. This notification must be performed
+	 * by client code which did register some classpath container initializers, whenever 
+	 * changes in container need to be reflected onto the JavaModel.
+	 * <p>
+	 * In reaction to this notification, the JavaModel will be updated to reflect the new
+	 * state of the updated container. Note that the update can be scoped to either
+	 * a given project or the entire Java model according to the affectedElement argument.
+	 * This is symetric to container resolution which enables project specific resolution.
+	 * <p>
+	 * This functionality cannot be used while the resource tree is locked.
+	 * <p>
+	 * Classpath container states are persisted locally to the workspace, and 
+	 * are preserved from session to session.
+	 * <p>
+	 * When notifying a container change, the corresponding container initializer should
+	 * in turn expect to be activated so as to resolve the updated container path.
+	 * 
+	 * @param containerPath - the name of the container which is being updated
+	 * @param affectedElement - the scope of the change, either a specific project (IJavaProject)
+	 *     or the entire JavaModel (IJavaModel).
+	 * @param monitor a monitor to report progress
+	 * 
+	 * @see #getResolvedClasspathContainer(IPath, IJavaProject)
+	 * @since 2.0
+	 */
+	public void setClasspathContainer(IPath containerPath, IJavaProject affectedProject, IClasspathContainer container, IProgressMonitor monitor){
+/*
+		if (monitor != null && monitor.isCanceled()) return;
+		
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ArrayList projectsToCheck = new ArrayList();
+		
+		switch (affectedElement.getElementType()){
+			case IJavaElement.JAVA_PROJECT:
+				projectsToCheck.add(affectedElement);
+				break;
+			case IJavaElement.JAVA_MODEL:
+				IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+				for (int i = 0; i < projects.length; i++) {
+					projectsToCheck.add(projects[i]);
+				}
+				break;
+			default:
+				// no effect if affected element isn't one of the above case
+				return;
+		}
+
+		// gather classpath information for updating
+		HashMap affectedProjects = new HashMap(5);
+
+		if (monitor != null && monitor.isCanceled()) return;
+
+		nextProject : for (int i = 0, projectLength = projectsToCheck.length; i < projectLength; i++){
+			IJavaProject project = projectsToCheck[i];
+					
+			// check to see if any of the modified variables is present on the classpath
+			IClasspathEntry[] classpath = project.getRawClasspath();
+			for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+				
+				IClasspathEntry entry = classpath[j];
+				for (int k = 0; k < varLength; k++){
+
+					String variableName = variableNames[k];						
+					if (entry.getEntryKind() ==  IClasspathEntry.CPE_CONTAINER){
+
+						if (entry.getPath().equals(containerPath)){
+							affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
+							
+							// also check whether it will be necessary to update proj references and cycle markers
+							if (!mayChangeProjectDependencies && entry.getPath().segmentCount() ==  1){
+								IPath oldPath = (IPath)JavaModelManager.Variables.get(variableName);
+								if (oldPath != null && oldPath.segmentCount() == 1) {
+									mayChangeProjectDependencies = true;
+								} else {
+									IPath newPath = variablePaths[k];
+									if (newPath != null && newPath.segmentCount() == 1) {
+										mayChangeProjectDependencies = true;
+									}
+								}
+							}
+							continue nextProject;
+						}
+						IPath sourcePath, sourceRootPath;
+						if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
+							|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
+
+							affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
+							continue nextProject;
+						}
+					}												
+				}
+			}
+		}
+
+		// reset saved container path
+		for (int i = 0; i < 
+		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
+		if (projectContainers != null){
+			IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
+				
+		// update affected project classpaths
+		if (!affectedProjects.isEmpty()) {
+			boolean wasFiring = manager.isFiring();
+			try {
+				if (wasFiring)
+					manager.stopDeltas();
+				// propagate classpath change
+				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
+				while (projectsToUpdate.hasNext()) {
+
+					if (monitor != null && monitor.isCanceled()) return;
+
+					JavaProject project = (JavaProject) projectsToUpdate.next();
+					
+					if (!projectsToUpdate.hasNext()) {
+						// re-enable firing for the last operation
+						if (wasFiring) {
+							wasFiring = false;
+							manager.startDeltas();
+						}
+					}
+					project
+						.setRawClasspath(
+							project.getRawClasspath(),
+							SetClasspathOperation.ReuseOutputLocation,
+							monitor,
+							true,
+							project.getWorkspace().isAutoBuilding(),
+							// force build if in auto build mode
+							(IClasspathEntry[]) affectedProjects.get(project),
+							mayChangeProjectDependencies);
+				}
+			} finally {
+				if (wasFiring) {
+					manager.startDeltas();
+					// in case of exception traversing, deltas may be fired only in the next #fire() iteration
+				}
+			}
+		}
+*/
 	}
 
 	/**

@@ -59,32 +59,33 @@
 <extension-point name="%classpathVariableInitializersName" id="classpathVariableInitializer"/>
   
 <!-- =================================================================================== -->
-<!-- Extension Point: Resolver of Classpath Container                                    -->
+<!-- Extension Point: Initializers of Classpath Containers                               -->
 <!--                                                                                     -->
-<!-- <!ELEMENT containerResolver>                                                        -->
+<!-- <!ELEMENT classpathContainerInitializer>                                            -->
 <!--   <!ATTLIST containerResolver                                                       -->
-<!--    prefix   CDATA #REQUIRED                                                         -->
-<!--    class    CDATA #REQUIRED                                                         -->
+<!--    id     CDATA #REQUIRED                                                           -->
+<!--    class  CDATA #REQUIRED                                                           -->
 <!--   >                                                                                 -->
 <!-- where:                                                                              -->
-<!--    - prefix - the prefix of container names for which this resolver will            -->
+<!--    - id - an unique name identifying all containers for which this resolver will    -->
 <!--              be activated.                                                          -->
 <!--    - class - the class that implements this container resolver.                     --> 
 <!--              The class must implement a public subclass of                          -->
 <!--              org.eclipse.jdt.core.ClasspathContainerResolver with a public          -->
 <!--              0-argument constructor.                                                -->
 <!--                                                                                     -->
-<!-- Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2": -->
+<!-- Example of an ClasspathContainerInitializer for a classpath container named         -->
+<!-- "JDK/1.2":                                                                          -->
 <!-- <extension                                                                          -->
 <!--      point="org.eclipse.jdt.core.containerResolver">                                -->
-<!--    <containerResolver                                                               -->
-<!--         prefix="JDK"                                                                -->
-<!--         class="com.example.MyResolver"/>                                            -->
+<!--    <classpathContainerInitializer                                                   -->
+<!--         id="JDK"                                                                    -->
+<!--         class="com.example.MyInitializer"/>                                         -->
 <!-- </extension>                                                                        -->
 <!--                                                                                     -->
 <!-- =================================================================================== -->
 
-<extension-point name="%containerResolversName" id="containerResolver"/>
+<extension-point name="%classpathContainerInitializersName" id="classpathContainerInitializer"/>
 
 <!-- =================================================================================== -->
 <!-- Extension Point: Formatter of Source Code                                           -->

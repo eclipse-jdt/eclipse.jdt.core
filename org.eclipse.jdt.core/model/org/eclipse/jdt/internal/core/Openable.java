@@ -185,6 +185,14 @@ public IBuffer getBuffer() throws JavaModelException {
 		return null;
 	}
 }
+
+/**
+ * Answers the buffer factory to use for creating new buffers
+ */
+public IBufferFactory getBufferFactory(){
+	return getBufferManager().getDefaultBufferFactory();
+}
+
 /**
  * Returns the buffer manager for this element.
  */

@@ -729,9 +729,10 @@ public void offsetSourceRange(int amount) {
  * @see Openable
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
-	// create buffer
+
+	// create buffer -  compilation units only use default buffer factory
 	BufferManager bufManager = getBufferManager();
-	IBuffer buffer = bufManager.getDefaultBufferFactory().createBuffer(this);
+	IBuffer buffer = getBufferFactory().createBuffer(this);
 	bufManager.addBuffer(buffer);
 	
 	// set the buffer source

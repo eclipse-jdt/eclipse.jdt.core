@@ -115,6 +115,15 @@ public void destroy() {
 		// do nothing
 	}
 }
+
+/**
+ * Answers custom buffer factory
+ */
+public IBufferFactory getBufferFactory(){
+
+	return this.bufferFactory;
+}
+
 /**
  * Working copies must be identical to be equal.
  *
@@ -305,8 +314,8 @@ public void open(IProgressMonitor pm) throws JavaModelException {
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
-	// create buffer
-	IBuffer buffer = this.bufferFactory.createBuffer(this);
+	// create buffer - working copies may use custom buffer factory
+	IBuffer buffer = getBufferFactory().createBuffer(this);
 	this.getBufferManager().addBuffer(buffer);
 
 	// set the buffer source

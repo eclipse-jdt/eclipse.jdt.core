@@ -56,19 +56,26 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	public static final String CPVARIABLE_INITIALIZER_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
 
 	/**
-	 * Name of the extension point for contributing classpath container resolvers
+	 * Name of the extension point for contributing classpath container initializers
 	 */
-	public static final String CPCONTAINER_RESOLVER_EXTPOINT_ID = "classpathContainerResolver" ; //$NON-NLS-1$
+	public static final String CPCONTAINER_INITIALIZER_EXTPOINT_ID = "classpathContainerInitializer" ; //$NON-NLS-1$
 
 	/**
 	 * Name of the extension point for contributing a source code formatter
 	 */
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
+	
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
-	public final static IClasspathEntry[] ContainerInitializationInProgress = new IClasspathEntry[0];
+	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
+		public IClasspathEntry[] getClasspathEntries() { return null; }
+		public String getClue() { return null; }
+		public String getDescription() { return null; }
+		public String getID() { return null; }
+		public int getKind() { return 0; }
+	};
 	
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
@@ -83,27 +90,28 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	private static final String SHARED_WC_DEBUG = JavaCore.PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
-/**
- * Returns whether the given full path (for a package) conflicts with the output location
- * of the given project.
- */
-public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject project) {
-	try {
-		IPath outputLocation = project.getOutputLocation();
-		if (outputLocation == null) {
+	/**
+	 * Returns whether the given full path (for a package) conflicts with the output location
+	 * of the given project.
+	 */
+	public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject project) {
+		try {
+			IPath outputLocation = project.getOutputLocation();
+			if (outputLocation == null) {
+				// in doubt, there is a conflict
+				return true;
+			}
+			if (outputLocation.isPrefixOf(folderPath)) {
+				// only allow nesting in outputlocation if there is a corresponding source folder
+				return project.getClasspathEntryFor(outputLocation) == null;
+			}
+			return false;
+		} catch (JavaModelException e) {
 			// in doubt, there is a conflict
 			return true;
 		}
-		if (outputLocation.isPrefixOf(folderPath)) {
-			// only allow nesting in outputlocation if there is a corresponding source folder
-			return project.getClasspathEntryFor(outputLocation) == null;
-		}
-		return false;
-	} catch (JavaModelException e) {
-		// in doubt, there is a conflict
-		return true;
 	}
-}
+	
 	/**
 	 * Returns the Java element corresponding to the given resource, or
 	 * <code>null</code> if unable to associate the given resource
@@ -140,112 +148,117 @@ public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject 
 				return null;
 		}
 	}
-/**
- * Returns the Java element corresponding to the given file, its project being the given
- * project.
- * Returns <code>null</code> if unable to associate the given file
- * with a Java element.
- *
- * <p>The file must be one of:<ul>
- *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
- *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
- *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
- *	</ul>
- * <p>
- * Creating a Java element has the side effect of creating and opening all of the
- * element's parents if they are not yet open.
- */
-public static IJavaElement create(IFile file, IJavaProject project) {
-	if (file == null) {
+
+	/**
+	 * Returns the Java element corresponding to the given file, its project being the given
+	 * project.
+	 * Returns <code>null</code> if unable to associate the given file
+	 * with a Java element.
+	 *
+	 * <p>The file must be one of:<ul>
+	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	</ul>
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 */
+	public static IJavaElement create(IFile file, IJavaProject project) {
+		if (file == null) {
+			return null;
+		}
+		if (project == null) {
+			project = JavaCore.create(file.getProject());
+		}
+	
+		String extension = file.getFileExtension();
+		if (extension != null) {
+			if (Util.isValidCompilationUnitName(file.getName())) {
+				return createCompilationUnitFrom(file, project);
+			} else if (Util.isValidClassFileName(file.getName())) {
+				return createClassFileFrom(file, project);
+			} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
+				) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
+				)) {
+				return createJarPackageFragmentRootFrom(file, project);
+			}
+		}
 		return null;
-	}
-	if (project == null) {
-		project = JavaCore.create(file.getProject());
 	}
 
-	String extension = file.getFileExtension();
-	if (extension != null) {
-		if (Util.isValidCompilationUnitName(file.getName())) {
-			return createCompilationUnitFrom(file, project);
-		} else if (Util.isValidClassFileName(file.getName())) {
-			return createClassFileFrom(file, project);
-		} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
-			) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
-			)) {
-			return createJarPackageFragmentRootFrom(file, project);
+	/**
+	 * Returns the package fragment or package fragment root corresponding to the given folder,
+	 * its parent or great parent being the given project. 
+	 * or <code>null</code> if unable to associate the given folder with a Java element.
+	 * <p>
+	 * Note that a package fragment root is returned rather than a default package.
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 */
+	public static IJavaElement create(IFolder folder, IJavaProject project) {
+		if (folder == null) {
+			return null;
+		}
+		if (project == null) {
+			project = JavaCore.create(folder.getProject());
+		}
+		IJavaElement element = determineIfOnClasspath(folder, project);
+		if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
+		 	|| (folder.getName().indexOf('.') >= 0 
+		 		&& !(element instanceof IPackageFragmentRoot))) {
+			return null; // only package fragment roots are allowed with dot names
+		} else {
+			return element;
 		}
 	}
-	return null;
-}
-/**
- * Returns the package fragment or package fragment root corresponding to the given folder,
- * its parent or great parent being the given project. 
- * or <code>null</code> if unable to associate the given folder with a Java element.
- * <p>
- * Note that a package fragment root is returned rather than a default package.
- * <p>
- * Creating a Java element has the side effect of creating and opening all of the
- * element's parents if they are not yet open.
- */
-public static IJavaElement create(IFolder folder, IJavaProject project) {
-	if (folder == null) {
-		return null;
-	}
-	if (project == null) {
-		project = JavaCore.create(folder.getProject());
-	}
-	IJavaElement element = determineIfOnClasspath(folder, project);
-	if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
-	 	|| (folder.getName().indexOf('.') >= 0 
-	 		&& !(element instanceof IPackageFragmentRoot))) {
-		return null; // only package fragment roots are allowed with dot names
-	} else {
-		return element;
-	}
-}
-/**
- * Creates and returns a class file element for the given <code>.class</code> file,
- * its project being the given project. Returns <code>null</code> if unable
- * to recognize the class file.
- */
-public static IClassFile createClassFileFrom(IFile file, IJavaProject project ) {
-	if (file == null) {
-		return null;
-	}
-	if (project == null) {
-		project = JavaCore.create(file.getProject());
-	}
-	IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-	if (pkg == null) {
-		// fix for 1FVS7WE
-		// not on classpath - make the root its folder, and a default package
-		IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-		pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-	}
-	return pkg.getClassFile(file.getName());
-}
-/**
- * Creates and returns a compilation unit element for the given <code>.java</code> 
- * file, its project being the given project. Returns <code>null</code> if unable
- * to recognize the compilation unit.
- */
-public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
-	if (file == null) {
-		return null;
-	}
-	if (project == null) {
-		project = JavaCore.create(file.getProject());
+
+	/**
+	 * Creates and returns a class file element for the given <code>.class</code> file,
+	 * its project being the given project. Returns <code>null</code> if unable
+	 * to recognize the class file.
+	 */
+	public static IClassFile createClassFileFrom(IFile file, IJavaProject project ) {
+		if (file == null) {
+			return null;
+		}
+		if (project == null) {
+			project = JavaCore.create(file.getProject());
+		}
+		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
+		if (pkg == null) {
+			// fix for 1FVS7WE
+			// not on classpath - make the root its folder, and a default package
+			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
+			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		}
+		return pkg.getClassFile(file.getName());
 	}
 	
-	IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-	if (pkg == null) {
-		// fix for 1FVS7WE
-		// not on classpath - make the root its folder, and a default package
-		IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-		pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	/**
+	 * Creates and returns a compilation unit element for the given <code>.java</code> 
+	 * file, its project being the given project. Returns <code>null</code> if unable
+	 * to recognize the compilation unit.
+	 */
+	public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
+		if (file == null) {
+			return null;
+		}
+		if (project == null) {
+			project = JavaCore.create(file.getProject());
+		}
+		
+		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
+		if (pkg == null) {
+			// fix for 1FVS7WE
+			// not on classpath - make the root its folder, and a default package
+			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
+			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		}
+		return pkg.getCompilationUnit(file.getName());
 	}
-	return pkg.getCompilationUnit(file.getName());
-}
+	
 	/**
 	 * Creates and returns a handle for the given JAR file, its project being the given project.
 	 * The Java model associated with the JAR's project may be
@@ -276,6 +289,7 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 		}
 		return null;
 	}
+	
 	/**
 	 * Returns the package fragment root represented by the resource, or
 	 * the package fragment the given resource is located in, or <code>null</code>
@@ -325,8 +339,6 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	 */
 	private final static JavaModelManager Manager= new JavaModelManager();
 
-
-	
 	/**
 	 * Infos cache.
 	 */
@@ -481,29 +493,30 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 		}
 		this.zipFilesClientCount++;
 	}
-/*
- * Checks that the delta contains an added project. In this case,
- * removes it from the list of projects being deleted.
- */
-public void checkProjectBeingAdded(IResourceDelta delta) {
-	IResource resource = delta.getResource();
-	switch (resource.getType()) {
-		case IResource.ROOT :
-			IResourceDelta[] children = delta.getAffectedChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				this.checkProjectBeingAdded(children[i]);
-			}
-			break;
-		case IResource.PROJECT :
-			int deltaKind = delta.getKind();
-			if (deltaKind == IResourceDelta.ADDED /* case of a project removed then added */
-				|| deltaKind == IResourceDelta.CHANGED /* case of a project removed then added then changed */) {
-				this.projectsBeingDeleted.remove(delta.getResource());
-			}
+	
+	/*
+	 * Checks that the delta contains an added project. In this case,
+	 * removes it from the list of projects being deleted.
+	 */
+	public void checkProjectBeingAdded(IResourceDelta delta) {
+		IResource resource = delta.getResource();
+		switch (resource.getType()) {
+			case IResource.ROOT :
+				IResourceDelta[] children = delta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; i++) {
+					this.checkProjectBeingAdded(children[i]);
+				}
+				break;
+			case IResource.PROJECT :
+				int deltaKind = delta.getKind();
+				if (deltaKind == IResourceDelta.ADDED /* case of a project removed then added */
+					|| deltaKind == IResourceDelta.CHANGED /* case of a project removed then added then changed */) {
+					this.projectsBeingDeleted.remove(delta.getResource());
+				}
+		}
 	}
-}
 
-/**
+	/**
 	 * Configure the plugin with respect to option settings defined in ".options" file
 	 */
 	public void configurePluginDebugOptions(){
@@ -559,25 +572,25 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			this.projectsBeingDeleted.add(project);
 		}
 	}
-/**
- * @see ISaveParticipant
- */
-public void doneSaving(ISaveContext context){
-}
+	
+	/**
+	 * @see ISaveParticipant
+	 */
+	public void doneSaving(ISaveContext context){
+	}
+	
 	/**
 	 * Make sure the resource content is available locally
 	 */
 	public void ensureLocal(IResource resource) throws CoreException {
-
-		// need to be tuned once having VCM support
+		// need to be tuned once having VCM support
 		// resource.ensureLocal(IResource.DEPTH_ZERO, null);
-
+
 		if (!resource.isLocal(IResource.DEPTH_ZERO) || !resource.exists()) { // project is always local but might not exist
 			throw new CoreException(new JavaModelStatus(IJavaModelStatusConstants.NO_LOCAL_CONTENTS, resource.getFullPath()));
 		}
 	}
 
-	
 	/**
 	 * Fire Java Model delta, flushing them after the fact after post_change notification.
 	 * If the firing mode has been turned off, this has no effect. 
@@ -678,6 +691,7 @@ public void doneSaving(ISaveContext context){
 	protected void flush() {
 		this.javaModelDeltas= new ArrayList();
 	}
+
 	/**
 	 * Flushes ZipFiles cache if there are no more clients.
 	 */
@@ -696,46 +710,35 @@ public void doneSaving(ISaveContext context){
 	}
 	
 	/**
- 	 * Retrieve the client classpath container resolver for a given container path
+ 	 * Retrieve the registered classpath container initializer for a given container ID
  	 */
-	public static ClasspathContainerResolver getClasspathContainerResolver(IPath containerPath){
+	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID){
 		
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPCONTAINER_RESOLVER_EXTPOINT_ID);
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
 				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
 					IPluginDescriptor plugin = extension.getDeclaringPluginDescriptor();
 					if (plugin.isPluginActivated()) {
-						int bestMatch = -1;
-						IConfigurationElement bestResolver = null;
 						
 						for(int j = 0; j < configElements.length; j++){
-								String prefixAttribute = configElements[j].getAttribute("prefix"); //$NON-NLS-1$
-								if (prefixAttribute != null){
-									IPath resolverPrefixPath = new Path(prefixAttribute);
-									if (resolverPrefixPath.isPrefixOf(containerPath)){
-										if (resolverPrefixPath.segmentCount() > bestMatch){
-											bestResolver = configElements[j];
-											bestMatch = resolverPrefixPath.segmentCount();
-										}				
+								String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+								if (initializerID != null && initializerID.equals(containerID)){
+									if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+										System.out.println("CPVariable INIT - found initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+									}						
+									try {
+										Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+										if (execExt instanceof ClasspathContainerInitializer){
+											return (ClasspathContainerInitializer)execExt;
+										}
+									} catch(CoreException e) {
 									}
 								}
-						}
-						if (bestResolver != null){
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								System.out.println("CPVariable INIT - found initializer: "+containerPath+" --> " + bestResolver.getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
-							}						
-							try {
-								Object execExt = bestResolver.createExecutableExtension("class"); //$NON-NLS-1$
-								if (execExt instanceof ClasspathContainerResolver){
-									return (ClasspathContainerResolver)execExt;
-								}
-							} catch(CoreException e) {
-							}
 						}
 					}
 			}	
@@ -749,6 +752,7 @@ public void doneSaving(ISaveContext context){
 	protected Map getElementsOutOfSynchWithBuffers() {
 		return this.elementsOutOfSynchWithBuffers;
 	}
+
 	/**
 	 * Returns the <code>IJavaElement</code> represented by the <code>String</code>
 	 * memento.
@@ -818,12 +822,14 @@ public void doneSaving(ISaveContext context){
 	public IndexManager getIndexManager() {
 		return this.deltaProcessor.indexManager;
 	}
+
 	/**
 	 *  Returns the info for the element.
 	 */
 	public Object getInfo(IJavaElement element) {
 		return this.cache.getInfo(element);
 	}
+
 	/**
 	 * Returns the handle to the active Java Model.
 	 */
@@ -834,12 +840,14 @@ public void doneSaving(ISaveContext context){
 		}
 		return javaModel;
 	}
+
 	/**
 	 * Returns the singleton JavaModelManager
 	 */
 	public static synchronized JavaModelManager getJavaModelManager() {
 		return Manager;
 	}
+
 	/**
 	 * Returns the last built state for the given project, or null if there is none.
 	 * Deserializes the state if necessary.
@@ -860,6 +868,7 @@ public void doneSaving(ISaveContext context){
 		}
 		return info.savedState;
 	}
+
 	/**
 	 * Returns the per-project info for the given project.
 	 */
@@ -871,6 +880,7 @@ public void doneSaving(ISaveContext context){
 		}
 		return info;
 	}
+
 	/**
 	 * Returns the File to use for saving and restoring the last built state for the given project.
 	 */
@@ -880,13 +890,12 @@ public void doneSaving(ISaveContext context){
 		IPath workingLocation= project.getPluginWorkingLocation(descr);
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
 	}
+
 	public String getVariablesAsXMLString() throws CoreException {
-
-		Document document = new DocumentImpl();
+		Document document = new DocumentImpl();
 		Element rootElement = document.createElement("variables"); //$NON-NLS-1$
 		document.appendChild(rootElement);
-
-		String[] variables = JavaCore.getClasspathVariableNames();
+		String[] variables = JavaCore.getClasspathVariableNames();
 		
 		for (int i= 0; i < variables.length; ++i) {
 			String var = variables[i];
@@ -898,7 +907,7 @@ public void doneSaving(ISaveContext context){
 				rootElement.appendChild(varElement);
 			}
 		}
-
+
 		// produce a String output
 		StringWriter writer = new StringWriter();
 		try {
@@ -910,10 +919,9 @@ public void doneSaving(ISaveContext context){
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
 		return writer.toString();	
-			
 	}
 	
-/**
+	/**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
 	 * of open ZipFiles. The location must be a absolute path.
@@ -945,7 +953,7 @@ public void doneSaving(ISaveContext context){
 		} else {
 			fileSystemPath= path.toOSString();
 		}
-
+
 		try {
 			if (ZIP_ACCESS_VERBOSE) {
 				System.out.println("[JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$
@@ -959,6 +967,7 @@ public void doneSaving(ISaveContext context){
 			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}
 	}
+
 	/**
 	 * Returns true if the given project is being deleted, otherwise false.
 	 *
@@ -967,12 +976,14 @@ public void doneSaving(ISaveContext context){
 	public boolean isBeingDeleted(IProject project) {
 		return this.projectsBeingDeleted.contains(project);
 	}
+
 	/**
 	 * Returns true if the firing is enabled
 	 */
 	public boolean isFiring() {
 		return this.isFiring;
 	}
+
 	public void loadVariables() throws CoreException {
 		
 		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
@@ -984,46 +995,47 @@ public void doneSaving(ISaveContext context){
 		}
 	}
 	
-/**
- * Merged all awaiting deltas.
- */
-public void mergeDeltas() {
-	if (this.javaModelDeltas.size() <= 1) return;
-	
-	if (DeltaProcessor.VERBOSE) {
-		System.out.println("MERGING " + this.javaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
-	
-	Iterator deltas = this.javaModelDeltas.iterator();
-	IJavaElement javaModel = this.getJavaModel();
-	JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
-	boolean insertedTree = false;
-	while (deltas.hasNext()) {
-		JavaElementDelta delta = (JavaElementDelta)deltas.next();
+	/**
+	 * Merged all awaiting deltas.
+	 */
+	public void mergeDeltas() {
+		if (this.javaModelDeltas.size() <= 1) return;
+		
 		if (DeltaProcessor.VERBOSE) {
-			System.out.println(delta.toString());
+			System.out.println("MERGING " + this.javaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		IJavaElement element = delta.getElement();
-		if (javaModel.equals(element)) {
-			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int j = 0; j < children.length; j++) {
-				JavaElementDelta projectDelta = (JavaElementDelta) children[j];
-				rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+		
+		Iterator deltas = this.javaModelDeltas.iterator();
+		IJavaElement javaModel = this.getJavaModel();
+		JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
+		boolean insertedTree = false;
+		while (deltas.hasNext()) {
+			JavaElementDelta delta = (JavaElementDelta)deltas.next();
+			if (DeltaProcessor.VERBOSE) {
+				System.out.println(delta.toString());
+			}
+			IJavaElement element = delta.getElement();
+			if (javaModel.equals(element)) {
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				for (int j = 0; j < children.length; j++) {
+					JavaElementDelta projectDelta = (JavaElementDelta) children[j];
+					rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+					insertedTree = true;
+				}
+			} else {
+				rootDelta.insertDeltaTree(element, delta);
 				insertedTree = true;
 			}
-		} else {
-			rootDelta.insertDeltaTree(element, delta);
-			insertedTree = true;
 		}
-	}
-	if (insertedTree){
-		this.javaModelDeltas = new ArrayList(1);
-		this.javaModelDeltas.add(rootDelta);
-	}
-	else {
-		this.javaModelDeltas = new ArrayList(0);
-	}
-}	
+		if (insertedTree){
+			this.javaModelDeltas = new ArrayList(1);
+			this.javaModelDeltas.add(rootDelta);
+		}
+		else {
+			this.javaModelDeltas = new ArrayList(0);
+		}
+	}	
+
 	/**
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
@@ -1031,6 +1043,7 @@ public void mergeDeltas() {
 	protected Object peekAtInfo(IJavaElement element) {
 		return this.cache.peekAtInfo(element);
 	}
+
 	/**
 	 * @see ISaveParticipant
 	 */
@@ -1070,6 +1083,7 @@ public void mergeDeltas() {
 		}
 		return null;
 	}
+
 	public void readVariables(String xmlString) throws IOException {
 		
 		StringReader reader = new StringReader(xmlString);
@@ -1116,6 +1130,7 @@ public void mergeDeltas() {
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
 		this.javaModelDeltas.add(delta);
 	}
+
 	/**
 	 * Remembers the given scope in a weak set
 	 * (so no need to remove it: it will be removed by the garbage collector)
@@ -1161,6 +1176,7 @@ public void mergeDeltas() {
 	protected void removeInfo(IJavaElement element) {
 		this.cache.removeInfo(element);
 	}
+
 	void removePerProjectInfo(JavaProject javaProject) {
 		IProject project = javaProject.getProject();
 		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
@@ -1168,6 +1184,7 @@ public void mergeDeltas() {
 			perProjectInfo.remove(project);
 		}
 	}
+
 	/**
 	 * Notifies this Java Model Manager that some resource changes have happened
 	 * on the platform, and that the Java Model should update any required
@@ -1178,8 +1195,7 @@ public void mergeDeltas() {
 	 * @see IResource 
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
-
-		if (event.getSource() instanceof IWorkspace) {
+		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
 			
@@ -1229,6 +1245,7 @@ public void mergeDeltas() {
 	 */
 	public void rollback(ISaveContext context){
 	}
+
 	/**
 	 * Runs a Java Model Operation
 	 */
@@ -1267,6 +1284,7 @@ public void mergeDeltas() {
 			} // else deltas are fired while processing the resource delta
 		}
 	}
+
 	private void saveBuildState() throws CoreException {
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
@@ -1286,6 +1304,7 @@ public void mergeDeltas() {
 			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Util.bind("build.cannotSaveStates"), null)); //$NON-NLS-1$
 		}
 	}
+
 	/**
 	 * Saves the built state for the project.
 	 */
@@ -1325,23 +1344,24 @@ public void mergeDeltas() {
 			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
 		}
 	}
+
 	public void saveVariables() throws CoreException {
 		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
 			new QualifiedName(JavaCore.PLUGIN_ID, "variables"),  //$NON-NLS-1$
 			getVariablesAsXMLString());
 	}
 	
-/**
- * @see ISaveParticipant
- */
-public void saving(ISaveContext context) throws CoreException {
-
-	this.saveVariables();
-	
-	if (context.getKind() == ISaveContext.FULL_SAVE){
-		this.saveBuildState();	// build state
+	/**
+	 * @see ISaveParticipant
+	 */
+	public void saving(ISaveContext context) throws CoreException {
+			this.saveVariables();
+		
+		if (context.getKind() == ISaveContext.FULL_SAVE){
+			this.saveBuildState();	// build state
+		}
 	}
-}
+
 	/**
 	 * Record the order in which to build the java projects (batch build). This order is based
 	 * on the projects classpath settings.
@@ -1356,8 +1376,7 @@ public void saving(ISaveContext context) throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription description = workspace.getDescription();
 		String[] wksBuildOrder = description.getBuildOrder();
-
-		String[] newOrder;
+		String[] newOrder;
 		if (wksBuildOrder == null){
 			newOrder = javaBuildOrder;
 		} else {
@@ -1378,7 +1397,7 @@ public void saving(ISaveContext context) throws CoreException {
 			// add Java ones first
 			newOrder = new String[oldCount - removed + javaCount];
 			System.arraycopy(javaBuildOrder, 0, newOrder, 0, javaCount); // java projects are built first
-
+
 			// copy previous items in their respective order
 			int index = javaCount;
 			for (int i = 0; i < oldCount; i++){
@@ -1395,6 +1414,7 @@ public void saving(ISaveContext context) throws CoreException {
 			throw new JavaModelException(e);
 		}
 	}
+
 	/**
 	 * Sets the last built state for the given project, or null to reset it.
 	 */
@@ -1403,6 +1423,7 @@ public void saving(ISaveContext context) throws CoreException {
 		info.triedRead = true; // no point trying to re-read once using setter
 		info.savedState = state;
 	}
+
 	public void shutdown () {
 		if (this.deltaProcessor.indexManager != null){ // no more indexing
 			this.deltaProcessor.indexManager.shutdown();
@@ -1415,6 +1436,7 @@ public void saving(ISaveContext context) throws CoreException {
 		} catch (JavaModelException e) {
 		}
 	}
+
 	/**
 	 * Turns the firing mode to on. That is, deltas that are/have been
 	 * registered will be fired.
@@ -1422,6 +1444,7 @@ public void saving(ISaveContext context) throws CoreException {
 	public void startDeltas() {
 		this.isFiring= true;
 	}
+
 	/**
 	 * Turns the firing mode to off. That is, deltas that are/have been
 	 * registered will not be fired until deltas are started again.
@@ -1444,5 +1467,4 @@ public void saving(ISaveContext context) throws CoreException {
 			this.modelUpdater.processJavaDelta(customDelta);
 		}
 	}
-
 }
