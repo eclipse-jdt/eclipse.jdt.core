@@ -50,7 +50,8 @@ public abstract class AbstractCommentParser {
 	// Protected fields
 	protected boolean inherited, deprecated;
 	protected char[] source;
-	protected int index, endComment, lineEnd, textStart;
+	protected int index, endComment, lineEnd;
+	protected int textStart, memberStart;
 	protected int tagSourceStart, tagSourceEnd;
 	protected Parser sourceParser;
 	protected Object returnStatement;
@@ -434,6 +435,7 @@ public abstract class AbstractCommentParser {
 		this.identifierPtr = -1;
 		this.identifierLengthPtr = -1;
 		int start = this.scanner.getCurrentTokenStartPosition();
+		this.memberStart = start;
 
 		// Get member identifier
 		if (readToken() == TerminalTokens.TokenNameIdentifier) {

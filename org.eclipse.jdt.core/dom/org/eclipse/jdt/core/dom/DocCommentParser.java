@@ -133,7 +133,7 @@ class DocCommentParser extends AbstractCommentParser {
 			int length = ((int) this.identifierPositionStack[0]) - start + 1;
 			fieldName.setSourceRange(start, length);
 			if (receiver == null) {
-				fieldRef.setSourceRange(start, length);
+				fieldRef.setSourceRange(this.memberStart, length);
 			} else {
 				Name typeRef = (Name) receiver;
 				fieldRef.setQualifier(typeRef);
@@ -161,7 +161,7 @@ class DocCommentParser extends AbstractCommentParser {
 			// Set qualifier
 			int end = methodName.getStartPosition()+methodName.getLength()-1;
 			if (receiver == null) {
-				methodRef.setSourceRange(start, length);
+				methodRef.setSourceRange(this.memberStart, length);
 			} else {
 				Name typeRef = (Name) receiver;
 				methodRef.setQualifier(typeRef);
