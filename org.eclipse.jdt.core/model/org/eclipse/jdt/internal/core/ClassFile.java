@@ -148,6 +148,10 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 protected Object createElementInfo() {
 	return new ClassFileInfo(this);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof ClassFile)) return false;
+	return super.equals(o);
+}
 public boolean exists() {
 	if (!isValidClassFile()) return false;
 	return super.exists();

@@ -122,6 +122,10 @@ public IMethod createMethod(String contents, IJavaElement sibling, boolean force
 public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
+public boolean equals(Object o) {
+	if (!(o instanceof BinaryType)) return false;
+	return super.equals(o);
+}
 /**
  * @see IType#findMethods(IMethod)
  */

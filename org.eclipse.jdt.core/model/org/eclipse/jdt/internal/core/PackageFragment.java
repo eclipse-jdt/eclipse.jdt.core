@@ -144,6 +144,10 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof PackageFragment)) return false;
+	return super.equals(o);
+}
 /**
  * @see IPackageFragment#getClassFile(String)
  */

@@ -27,6 +27,10 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 protected BinaryField(JavaElement parent, String name) {
 	super(parent, name);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof BinaryField)) return false;
+	return super.equals(o);
+}
 /**
  * @see IField
  */

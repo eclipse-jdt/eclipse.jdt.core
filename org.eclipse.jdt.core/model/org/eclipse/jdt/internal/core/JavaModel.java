@@ -131,6 +131,10 @@ public void delete(IJavaElement[] elements, boolean force, IProgressMonitor moni
 		runOperation(new DeleteElementsOperation(elements, force), monitor);
 	}
 }
+public boolean equals(Object o) {
+	if (!(o instanceof JavaModel)) return false;
+	return super.equals(o);
+}
 /**
  * Finds the given project in the list of the java model's children.
  * Returns null if not found.

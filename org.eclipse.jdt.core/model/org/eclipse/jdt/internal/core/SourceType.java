@@ -138,6 +138,10 @@ public IType createType(String contents, IJavaElement sibling, boolean force, IP
 	runOperation(op, monitor);
 	return (IType) op.getResultElements()[0];
 }
+public boolean equals(Object o) {
+	if (!(o instanceof SourceType)) return false;
+	return super.equals(o);
+}
 /**
  * @see JavaElement#equalsDOMNode
  */

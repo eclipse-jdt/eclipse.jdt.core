@@ -96,6 +96,7 @@ protected BinaryMethod(JavaElement parent, String name, String[] parameterTypes)
 	}
 }
 public boolean equals(Object o) {
+	if (!(o instanceof BinaryMethod)) return false;
 	return super.equals(o) && Util.equalArraysOrNull(fParameterTypes, ((BinaryMethod)o).fParameterTypes);
 }
 /**

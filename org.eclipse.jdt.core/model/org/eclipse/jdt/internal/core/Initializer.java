@@ -33,6 +33,10 @@ protected Initializer(JavaElement parent, int occurrenceCount) {
 		throw new IllegalArgumentException();
 	fOccurrenceCount = occurrenceCount;
 }
+public boolean equals(Object o) {
+	if (!(o instanceof Initializer)) return false;
+	return super.equals(o);
+}
 /**
  * @see JavaElement#equalsDOMNode
  */

@@ -23,6 +23,10 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 protected PackageDeclaration(CompilationUnit parent, String name) {
 	super(parent, name);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof PackageDeclaration)) return false;
+	return super.equals(o);
+}
 /**
  * @see JavaElement#equalsDOMNode
  */

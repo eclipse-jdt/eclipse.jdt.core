@@ -24,6 +24,10 @@ public class ImportContainer extends SourceRefElement implements IImportContaine
 protected ImportContainer(CompilationUnit parent) {
 	super(parent, ""); //$NON-NLS-1$
 }
+public boolean equals(Object o) {
+	if (!(o instanceof ImportContainer)) return false;
+	return super.equals(o);
+}
 /**
  * @see IJavaElement
  */

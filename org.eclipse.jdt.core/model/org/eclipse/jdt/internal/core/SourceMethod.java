@@ -46,6 +46,7 @@ protected SourceMethod(JavaElement parent, String name, String[] parameterTypes)
 	}
 }
 public boolean equals(Object o) {
+	if (!(o instanceof SourceMethod)) return false;
 	return super.equals(o) && Util.equalArraysOrNull(fParameterTypes, ((SourceMethod)o).fParameterTypes);
 }
 /**

@@ -206,6 +206,11 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			this.cache.remove(this);
 		}
 
+		public boolean equals(Object o) {
+			if (!(o instanceof OverflowingTestOpenable)) return false;
+			return super.equals(o);
+		}
+
 		public IBuffer getBuffer() {
 			// This functionality not required for testing element cache - returns <code>null</code>.
 			return null;

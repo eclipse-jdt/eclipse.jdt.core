@@ -29,6 +29,10 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 protected SourceField(JavaElement parent, String name) {
 	super(parent, name);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof SourceField)) return false;
+	return super.equals(o);
+}
 /**
  * @see JavaElement#equalsDOMNode
  */

@@ -30,6 +30,10 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 protected ImportDeclaration(ImportContainer parent, String name) {
 	super(parent, name);
 }
+public boolean equals(Object o) {
+	if (!(o instanceof ImportDeclaration)) return false;
+	return super.equals(o);
+}
 /**
  * @see JavaElement#equalsDOMNode
  */

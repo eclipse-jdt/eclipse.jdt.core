@@ -336,8 +336,7 @@ public boolean equals(Object o) {
 	if (!(o instanceof PackageFragmentRoot))
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
-	return getJavaModel().equals(other.getJavaModel()) && 
-			this.resource.equals(other.resource) &&
+	return this.resource.equals(other.resource) &&
 			fOccurrenceCount == other.fOccurrenceCount;
 }
 

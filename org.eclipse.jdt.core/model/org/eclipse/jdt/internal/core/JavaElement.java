@@ -110,15 +110,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		// Java model parent is null
 		if (fParent == null) return super.equals(o);
 	
-		if (o instanceof JavaElement) {
-			JavaElement other = (JavaElement) o;
-			if (getElementType() != other.getElementType()) return false;
-			
-			return fName.equals(other.fName) &&
-					fParent.equals(other.fParent) &&
-					fOccurrenceCount == other.fOccurrenceCount;
-		}
-		return false;
+		// assume instanceof check is done in subclass
+		JavaElement other = (JavaElement) o;		
+		return fOccurrenceCount == other.fOccurrenceCount &&
+				fName.equals(other.fName) &&
+				fParent.equals(other.fParent);
 	}
 	/**
 	 * Returns true if this <code>JavaElement</code> is equivalent to the given
