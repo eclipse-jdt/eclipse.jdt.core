@@ -383,6 +383,13 @@ public IResource getResource() {
 	}
 
 	/*
+	 * @see ICompilationUnit#getOriginal()
+	 */
+	public ICompilationUnit getOriginal() {
+		return null;
+	}
+	
+	/*
 	 * @see IWorkingCopy#getOriginal(IJavaElement)
 	 */
 	public IJavaElement getOriginal(IJavaElement workingCopyElement) {

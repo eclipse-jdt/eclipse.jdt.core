@@ -325,7 +325,24 @@ public abstract class WorkingCopyOwner {
 <li>2003/06/18 (->M2)
 <code>IJavaElement.getResource()</code> was specified to return <code>null</code> for working copies. This didn't make sense as
 this is a handle-only operation and an <code>IResource</code> is also a handle. This restriction was removed and 
-<code>IJavaElement.getResource()</code> returns a non-<code>null</code> value for a working copy.
+<code>IJavaElement.getResource()</code> now returns a non-<code>null</code> value for a working copy.
+</li>
+<li>2003/06/19 (->M2)
+The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
+the original element for a working copy is always an <code>ICompilationUnit</code>. So <code>getOriginal()</code> 
+was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. This new API replaces
+<code>getOriginalElement()</code>.
+<pre>
+/**
+ * Returns the original compilation unit (whose owner is the primary owner)
+ * this working copy was created from, or <code>null</code> if this is not a working copy.
+ * 
+ * @return the original compilation unit this working copy was created from,
+ * or <code>null</code> if this is not a working copy
+ * @since 3.0
+ */
+ICompilationUnit getOriginal();
+</pre>
 </li>
 </ul>
 </body>

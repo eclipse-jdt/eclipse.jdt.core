@@ -643,7 +643,14 @@ public char[] getMainTypeName(){
 	return name.toCharArray();
 }
 /*
- * @see ICompilationUnit
+ * @see ICompilationUnit#getOriginal()
+ */
+public ICompilationUnit getOriginal() {
+	if (!isWorkingCopy()) return null;
+	return new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
+}
+/*
+ * @see ICompilationUnit#getOriginal(IJavaElement)
  */
 public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	if (!isWorkingCopy()) return null;
@@ -723,11 +730,10 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	}
 }
 /*
- * @see ICompilationUnit
+ * @see IWorkingCopy#getOriginalElement()
  */
 public IJavaElement getOriginalElement() {
-	if (!isWorkingCopy()) return null;
-	return new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
+	return getOriginal();
 }
 protected IType getOriginalType(ArrayList hierarchy) {
 	int size = hierarchy.size() - 1;

@@ -51,7 +51,7 @@ public interface ICompilationUnit extends IJavaElement, ISourceReference, IParen
  * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
  * 	that the client is not interested in problems.
  * @param monitor a progress monitor used to report progress while opening this compilation unit
- *                 or <code>null</code> if no progress should be reported 
+ * 	or <code>null</code> if no progress should be reported 
  * @exception JavaModelException if this compilation unit could not become a working copy.
  * @see discardWorkingCopy
  * @since 3.0
@@ -66,7 +66,7 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  * such a conflict:<ul>
  * <li> <code>true</code> - in this case the contents of this working copy are applied to
  * 	the underlying resource even though this working copy was created before
- *	a subsequent change in the resource</li>
+ *		a subsequent change in the resource</li>
  * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
  * </ul>
  * <p>
@@ -272,6 +272,15 @@ IImportContainer getImportContainer();
  */
 IImportDeclaration[] getImports() throws JavaModelException;
 /**
+ * Returns the original compilation unit (whose owner is the primary owner)
+ * this working copy was created from, or <code>null</code> if this is not a working copy.
+ * 
+ * @return the original compilation unit this working copy was created from,
+ * or <code>null</code> if this is not a working copy
+ * @since 3.0
+ */
+ICompilationUnit getOriginal();
+/**
  * Returns the original element the specified working copy element was created from,
  * or <code>null</code> if this is not a working copy element.  This is a handle
  * only method, the returned element may or may not exist.
@@ -281,16 +290,6 @@ IImportDeclaration[] getImports() throws JavaModelException;
  * @since 3.0
  */
 IJavaElement getOriginal(IJavaElement workingCopyElement);
-/**
- * Returns the original element this working copy was created from,
- * or <code>null</code> if this is not a working copy.
- * 
- * @return the original element this working copy was created from,
- * or <code>null</code> if this is not a working copy
- * @since 3.0
- * TODO: change into getOriginal() that returns an ICompilationUnit
- */
-IJavaElement getOriginalElement();
 /**
  * Returns the working copy owner of this working copy.
  * Returns null if it is not a working copy or if it has no owner.
