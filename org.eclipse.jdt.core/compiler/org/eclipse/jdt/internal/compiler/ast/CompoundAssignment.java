@@ -99,15 +99,15 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			return null;
 		}
 		TypeBinding originalLhsType = lhs.resolveType(scope);
-		TypeBinding expressionType = expression.resolveType(scope);
-		if (originalLhsType == null || expressionType == null)
+		TypeBinding originalExpressionType = expression.resolveType(scope);
+		if (originalLhsType == null || originalExpressionType == null)
 			return null;
 	
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
-		TypeBinding lhsType = originalLhsType;
+		TypeBinding lhsType = originalLhsType, expressionType = originalExpressionType;
 		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
-		boolean unboxedLhs = false, unboxedExpression = false;
+		boolean unboxedLhs = false;
 		if (use15specifics) {
 			if (!lhsType.isBaseType() && expressionType.id != T_JavaLangString && expressionType.id != T_null) {
 				TypeBinding unboxedType = env.computeBoxingType(lhsType);
@@ -117,11 +117,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 				}
 			}
 			if (!expressionType.isBaseType() && lhsType.id != T_JavaLangString  && lhsType.id != T_null) {
-				TypeBinding unboxedType = env.computeBoxingType(expressionType);
-				if (unboxedType != expressionType) {
-					expressionType = unboxedType;
-					unboxedExpression = true;
-				}
+				expressionType = env.computeBoxingType(expressionType);
 			}
 		}
 		
@@ -164,7 +160,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			}
 		}
 		this.lhs.implicitConversion = (unboxedLhs ? UNBOXING : 0) | (result >>> 12);
-		this.expression.implicitConversion = (unboxedExpression ? UNBOXING : 0) | ((result >>> 4) & 0x000FF);
+		this.expression.computeConversion(scope, TypeBinding.wellKnownType(scope, (result >>> 8) & 0x0000F), originalExpressionType);
 		this.assignmentImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
 		return this.resolvedType = originalLhsType;
 	}

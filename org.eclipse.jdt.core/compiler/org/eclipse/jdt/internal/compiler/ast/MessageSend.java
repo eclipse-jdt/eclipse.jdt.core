@@ -67,7 +67,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		if (originalBinding != this.binding) {
 		    // extra cast needed if method return type has type variable
 		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-		        this.valueCast = originalBinding.returnType.genericCast(runtimeTimeType);
+		        this.valueCast = originalBinding.returnType.genericCast(scope.boxing(runtimeTimeType)); // runtimeType could be base type in boxing case
 		    }
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
@@ -125,9 +125,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// operation on the returned value
 	if (valueRequired){
 		// implicit conversion if necessary
-		codeStream.generateImplicitConversion(implicitConversion);
 		if (this.valueCast != null) 
 			codeStream.checkcast(this.valueCast);
+		codeStream.generateImplicitConversion(implicitConversion);
 	} else {
 		// pop return value if any
 		switch(binding.returnType.id){

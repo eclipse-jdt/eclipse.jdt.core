@@ -254,8 +254,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							}
 							((CodeSnippetCodeStream)codeStream).generateEmulatedReadAccessForField(fieldBinding);
 						}
+						if (this.genericCast != null) codeStream.checkcast(this.genericCast);		
 						codeStream.generateImplicitConversion(this.implicitConversion);
-						if (this.genericCast != null) codeStream.checkcast(this.genericCast);						
 					} else { // directly use the inlined value
 						codeStream.generateConstant(fieldBinding.constant(), this.implicitConversion);
 					}
@@ -569,7 +569,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
 	    // extra cast needed if field type was type variable
 	    if ((fieldCodegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
-	        this.genericCast = fieldCodegenBinding.type.genericCast(parameterizedField.type);
+	        this.genericCast = fieldCodegenBinding.type.genericCast(currentScope.boxing(parameterizedField.type)); // runtimeType could be base type in boxing case
 	    }		    
 	}		
 	if ((this.bits & Binding.FIELD) != 0) {

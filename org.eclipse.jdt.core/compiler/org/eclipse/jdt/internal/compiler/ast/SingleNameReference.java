@@ -193,7 +193,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
+			        this.genericCast = originalBinding.type.genericCast(scope.boxing(runtimeTimeType)); // runtimeType could be base type in boxing case
 			    }
 			} 	
 		}
@@ -319,8 +319,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							} else {
 								codeStream.invokestatic(syntheticAccessors[READ]);
 							}
-							codeStream.generateImplicitConversion(implicitConversion);
 							if (this.genericCast != null) codeStream.checkcast(this.genericCast);
+							codeStream.generateImplicitConversion(implicitConversion);
 					} else { // directly use the inlined value
 							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
 						}

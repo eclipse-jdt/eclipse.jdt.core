@@ -134,7 +134,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
+			        this.genericCast = originalBinding.type.genericCast(scope.boxing(runtimeTimeType)); // runtimeType could be base type in boxing case
 			    }
 			}
 		} 	
@@ -203,8 +203,8 @@ public class FieldReference extends Reference implements InvocationSite {
 							codeStream.invokestatic(syntheticAccessors[READ]);
 						}
 					}
-					codeStream.generateImplicitConversion(implicitConversion);
 					if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+					codeStream.generateImplicitConversion(implicitConversion);
 				} else {
 					if (!isStatic) {
 						codeStream.invokeObjectGetClass(); // perform null check

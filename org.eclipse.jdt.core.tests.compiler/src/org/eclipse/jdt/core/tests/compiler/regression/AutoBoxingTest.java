@@ -917,8 +917,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	
-	// TODO (philippe) enable once we handle the generic case
-	public void _test029() { // generic type case
+	public void test029() { // generic type case
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1473,7 +1472,6 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"012");
 	}		
 	
-	
 	public void test057() { // boxing in foreach
 		this.runConformTest(
 			new String[] {
@@ -1489,4 +1487,30 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"012");
 	}		
+	
+	public void test058() { // autoboxing and generics
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.Iterator;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Integer> list = new ArrayList<Integer>();\n" + 
+				"		for (int i = 0; i < 5; i++) {\n" + 
+				"			list.add(i);\n" + 
+				"	    }\n" + 
+				"	    int sum = 0;\n" + 
+				"	    for (Integer i : list) {\n" + 
+				"	    	sum += i;\n" + 
+				"	    }	    \n" + 
+				"        System.out.print(sum);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"10");
+	}			
 }

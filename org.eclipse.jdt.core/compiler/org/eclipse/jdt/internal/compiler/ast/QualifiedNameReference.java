@@ -281,7 +281,7 @@ public class QualifiedNameReference extends NameReference {
 			if (originalBinding != field) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			    	setGenericCast(length,originalBinding.type.genericCast(runtimeTimeType));
+			    	setGenericCast(length,originalBinding.type.genericCast(scope.boxing(runtimeTimeType))); // runtimeType could be base type in boxing case
 			    }
 			} 	
 		}
@@ -340,9 +340,9 @@ public class QualifiedNameReference extends NameReference {
 						} else {
 							codeStream.invokestatic(accessor);
 						}
-						codeStream.generateImplicitConversion(implicitConversion);
 						TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
 						if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
+						codeStream.generateImplicitConversion(implicitConversion);
 					}
 				}
 			} else {
@@ -631,7 +631,7 @@ public class QualifiedNameReference extends NameReference {
 				if (originalBinding != field) {
 				    // extra cast needed if method return type has type variable
 				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && type.id != T_JavaLangObject) {
-				    	setGenericCast(index-1,originalBinding.type.genericCast(type));
+				    	setGenericCast(index-1,originalBinding.type.genericCast(type)); // type cannot be base-type even in boxing case
 				    }
 				} 	
 			}
