@@ -80,6 +80,241 @@ try {
 	throw e;
 }
 	}
+
+/**
+ * Returns whether the given full path (for a package) conflicts with the output location
+ * of the given project.
+ */
+public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject project) {
+	try {
+		IPath outputLocation = project.getOutputLocation();
+		if (outputLocation == null) {
+			// in doubt, there is a conflict
+			return true;
+		}
+		if (outputLocation.isPrefixOf(folderPath)) {
+			// only allow nesting in outputlocation if there is a corresponding source folder
+			return project.getClasspathEntryFor(outputLocation) == null;
+		}
+		return false;
+	} catch (JavaModelException e) {
+		// in doubt, there is a conflict
+		return true;
+	}
+}
+	/**
+	 * Returns the Java element corresponding to the given resource, or
+	 * <code>null</code> if unable to associate the given resource
+	 * with a Java element.
+	 * <p>
+	 * The resource must be one of:<ul>
+	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
+	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
+	 *			or <code>IPackageFragment</code></li>
+	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
+	 *	</ul>
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 */
+	public static IJavaElement create(IResource resource, IJavaProject project) {
+		if (resource == null) {
+			return null;
+		}
+		int type = resource.getType();
+		switch (type) {
+			case IResource.PROJECT :
+				return JavaCore.create((IProject) resource);
+			case IResource.FILE :
+				return create((IFile) resource, project);
+			case IResource.FOLDER :
+				return create((IFolder) resource, project);
+			case IResource.ROOT :
+				return JavaCore.create((IWorkspaceRoot) resource);
+			default :
+				return null;
+		}
+	}
+/**
+ * Returns the Java element corresponding to the given file, its project being the given
+ * project.
+ * Returns <code>null</code> if unable to associate the given file
+ * with a Java element.
+ *
+ * <p>The file must be one of:<ul>
+ *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+ *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+ *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+ *	</ul>
+ * <p>
+ * Creating a Java element has the side effect of creating and opening all of the
+ * element's parents if they are not yet open.
+ */
+public static IJavaElement create(IFile file, IJavaProject project) {
+	if (file == null) {
+		return null;
+	}
+	if (project == null) {
+		project = JavaCore.create(file.getProject());
+	}
+
+	String extension = file.getFileExtension();
+	if (extension != null) {
+		if (Util.isValidCompilationUnitName(file.getName())) {
+			return createCompilationUnitFrom(file, project);
+		} else if (Util.isValidClassFileName(file.getName())) {
+			return createClassFileFrom(file, project);
+		} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
+			) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
+			)) {
+			return createJarPackageFragmentRootFrom(file, project);
+		}
+	}
+	return null;
+}
+/**
+ * Returns the package fragment or package fragment root corresponding to the given folder,
+ * its parent or great parent being the given project. 
+ * or <code>null</code> if unable to associate the given folder with a Java element.
+ * <p>
+ * Note that a package fragment root is returned rather than a default package.
+ * <p>
+ * Creating a Java element has the side effect of creating and opening all of the
+ * element's parents if they are not yet open.
+ */
+public static IJavaElement create(IFolder folder, IJavaProject project) {
+	if (folder == null) {
+		return null;
+	}
+	if (project == null) {
+		project = JavaCore.create(folder.getProject());
+	}
+	IJavaElement element = determineIfOnClasspath(folder, project);
+	if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
+	 	|| (folder.getName().indexOf('.') >= 0 
+	 		&& !(element instanceof IPackageFragmentRoot))) {
+		return null; // only package fragment roots are allowed with dot names
+	} else {
+		return element;
+	}
+}
+/**
+ * Creates and returns a class file element for the given <code>.class</code> file,
+ * its project being the given project. Returns <code>null</code> if unable
+ * to recognize the class file.
+ */
+public static IClassFile createClassFileFrom(IFile file, IJavaProject project ) {
+	if (file == null) {
+		return null;
+	}
+	if (project == null) {
+		project = JavaCore.create(file.getProject());
+	}
+	IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
+	if (pkg == null) {
+		// fix for 1FVS7WE
+		// not on classpath - make the root its folder, and a default package
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
+		pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	}
+	return pkg.getClassFile(file.getName());
+}
+/**
+ * Creates and returns a compilation unit element for the given <code>.java</code> 
+ * file, its project being the given project. Returns <code>null</code> if unable
+ * to recognize the compilation unit.
+ */
+public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
+	if (file == null) {
+		return null;
+	}
+	if (project == null) {
+		project = JavaCore.create(file.getProject());
+	}
+	
+	IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
+	if (pkg == null) {
+		// fix for 1FVS7WE
+		// not on classpath - make the root its folder, and a default package
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
+		pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	}
+	return pkg.getCompilationUnit(file.getName());
+}
+/**
+ * Creates and returns a handle for the given JAR file, its project being the given project.
+ * The Java model associated with the JAR's project may be
+ * created as a side effect. 
+ * Returns <code>null</code> if unable to create a JAR package fragment root.
+ * (for example, if the JAR file represents a non-Java resource)
+ */
+public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file, IJavaProject project) {
+	if (file == null) {
+		return null;
+	}
+	if (project == null) {
+		project = JavaCore.create(file.getProject());
+	}
+
+	// Create a jar package fragment root only if on the classpath
+	IPath resourcePath = file.getFullPath();
+	try {
+		IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
+		for (int i = 0, length = entries.length; i < length; i++) {
+			IClasspathEntry entry = entries[i];
+			IPath rootPath = entry.getPath();
+			if (rootPath.equals(resourcePath)) {
+				return project.getPackageFragmentRoot(file);
+			}
+		}
+	} catch (JavaModelException e) {
+	}
+	return null;
+}
+/**
+ * Returns the package fragment root represented by the resource, or
+ * the package fragment the given resource is located in, or <code>null</code>
+ * if the given resource is not on the classpath of the given project.
+ */
+public static IJavaElement determineIfOnClasspath(
+	IResource resource,
+	IJavaProject project) {
+	IPath resourcePath = resource.getFullPath();
+	try {
+		IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
+		for (int i = 0; i < entries.length; i++) {
+			IClasspathEntry entry = entries[i];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+			IPath rootPath = entry.getPath();
+			if (rootPath.equals(resourcePath)) {
+				return project.getPackageFragmentRoot(resource);
+			} else if (rootPath.isPrefixOf(resourcePath)) {
+				IPackageFragmentRoot root =
+					((JavaProject) project).getPackageFragmentRoot(rootPath);
+				if (root == null) return null;
+				IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
+				if (resource.getType() == IResource.FILE) {
+					// if the resource is a file, then remove the last segment which
+					// is the file name in the package
+					pkgPath = pkgPath.removeLastSegments(1);
+				}
+				String pkgName = Util.packageName(pkgPath);
+				if (pkgName == null
+					|| !JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
+					return null;
+				}
+				return root.getPackageFragment(pkgName.toString());
+			}
+		}
+	} catch (JavaModelException npe) {
+		return null;
+	}
+	return null;
+}
+	
 	/**
 	 * The singleton manager
 	 */

@@ -12,6 +12,8 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.lookup.*;
 
@@ -634,4 +636,14 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			}
 		});
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new CompilationUnit(
+			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
+			fName);
+}
+
 }

@@ -623,6 +623,22 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	public void refreshChildren() {
 		// do nothing
 	}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	if (fResource == null) {
+		return
+			new JarPackageFragmentRoot(
+				fJarPath.toString(),
+				project);
+	} else {
+		return
+			new JarPackageFragmentRoot(
+				fResource,
+				project);
+	}
+}
 
 	/**
 	 * @private - for use by <code>AttachSourceOperation</code> only.

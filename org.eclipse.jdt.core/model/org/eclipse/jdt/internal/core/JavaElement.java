@@ -506,6 +506,10 @@ protected void removeInfo() {
 	}
 }
 /**
+ * Returns a copy of this element rooted at the given project.
+ */
+public abstract IJavaElement rootedAt(IJavaProject project);
+/**
  * Runs a Java Model Operation
  */
 protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {

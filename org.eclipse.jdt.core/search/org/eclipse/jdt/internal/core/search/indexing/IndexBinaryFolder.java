@@ -106,9 +106,9 @@ public class IndexBinaryFolder implements IJob {
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
-					manager.add((IFile) value, this.folder);
+					manager.add((IFile) value, this.folder.getFullPath());
 				} else if (value == DELETED) {
-					manager.remove(name, this.project);
+					manager.remove(name, this.project.getFullPath());
 				}
 			}
 		} catch (CoreException e) {

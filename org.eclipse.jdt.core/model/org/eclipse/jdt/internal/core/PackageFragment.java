@@ -287,6 +287,15 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 	String[] renamings= new String[] {name};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new PackageFragment(
+			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
+			fName);
+}
 /**
  * @private Debugging purposes
  */

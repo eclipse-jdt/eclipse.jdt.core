@@ -169,22 +169,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IFile file) {
-		if (file == null) {
-			return null;
-		}
-		String extension = file.getProjectRelativePath().getFileExtension();
-		if (extension != null) {
-			if (Util.isValidCompilationUnitName(file.getName())) {
-				return createCompilationUnitFrom(file);
-			} else if (Util.isValidClassFileName(file.getName())) {
-				return createClassFileFrom(file);
-			} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
-				) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
-				)) {
-				return createJarPackageFragmentRootFrom(file);
-			}
-		}
-		return null;
+		return JavaModelManager.create(file, null);
 	}
 	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder, or
@@ -196,20 +181,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IFolder folder) {
-		if (folder == null) {
-			return null;
-		}
-		JavaProject project = (JavaProject) create(folder.getProject());
-		if (project == null)
-			return null;
-		IJavaElement element = determineIfOnClasspath(folder, project);
-		if (Util.conflictsWithOutputLocation(folder.getFullPath(), project)
-		 	|| (folder.getName().indexOf('.') >= 0 
-		 		&& !(element instanceof IPackageFragmentRoot))) {
-			return null; // only package fragment roots are allowed with dot names
-		} else {
-			return element;
-		}
+		return JavaModelManager.create(folder, null);
 	}
 	/**
 	 * Returns the Java project corresponding to the given project, or
@@ -245,22 +217,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IResource resource) {
-		if (resource == null) {
-			return null;
-		}
-		int type = resource.getType();
-		switch (type) {
-			case IResource.PROJECT :
-				return create((IProject) resource);
-			case IResource.FILE :
-				return create((IFile) resource);
-			case IResource.FOLDER :
-				return create((IFolder) resource);
-			case IResource.ROOT :
-				return create((IWorkspaceRoot) resource);
-			default :
-				return null;
-		}
+		return JavaModelManager.create(resource, null);
 	}
 	/**
 	 * Returns the Java model.
@@ -277,15 +234,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * to recognize the class file.
 	 */
 	public static IClassFile createClassFileFrom(IFile file) {
-		IJavaProject project = (IJavaProject) create(file.getProject());
-		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-		if (pkg == null) {
-			// fix for 1FVS7WE
-			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-		}
-		return pkg.getClassFile(file.getName());
+		return JavaModelManager.createClassFileFrom(file, null);
 	}
 	/**
 	 * Creates and returns a compilation unit element for
@@ -293,16 +242,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * to recognize the compilation unit.
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {
-		IProject fileProject = file.getProject();
-		IJavaProject project = (IJavaProject) create(fileProject);
-		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-		if (pkg == null) {
-			// fix for 1FVS7WE
-			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-		}
-		return pkg.getCompilationUnit(file.getName());
+		return JavaModelManager.createCompilationUnitFrom(file, null);
 	}
 	/**
 	 * Creates and returns a handle for the given JAR file.
@@ -312,62 +252,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * (for example, if the JAR file represents a non-Java resource)
 	 */
 	public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file) {
-		IJavaProject project = (IJavaProject) create(file.getProject());
+		return JavaModelManager.createJarPackageFragmentRootFrom(file, null);
+	}
 
-		// Create a jar package fragment root only if on the classpath
-		IPath resourcePath = file.getFullPath();
-		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(file);
-				}
-			}
-		} catch (JavaModelException e) {
-		}
-		return null;
-	}
-	/**
-	 * Returns the package fragment root represented by the resource, or
-	 * the package fragment the given resource is located in, or <code>null</code>
-	 * if the given resource is not on the classpath of the given project.
-	 */
-	private static IJavaElement determineIfOnClasspath(
-		IResource resource,
-		IJavaProject project) {
-		IPath resourcePath = resource.getFullPath();
-		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry = entries[i];
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(resource);
-				} else if (rootPath.isPrefixOf(resourcePath)) {
-					IPackageFragmentRoot root =
-						((JavaProject) project).getPackageFragmentRoot(rootPath);
-					if (root == null) return null;
-					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
-					if (resource.getType() == IResource.FILE) {
-						// if the resource is a file, then remove the last segment which
-						// is the file name in the package
-						pkgPath = pkgPath.removeLastSegments(1);
-					}
-					String pkgName = Util.packageName(pkgPath);
-					if (pkgName == null
-						|| !JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
-						return null;
-					}
-					return root.getPackageFragment(pkgName.toString());
-				}
-			}
-		} catch (JavaModelException npe) {
-			return null;
-		}
-		return null;
-	}
 	/**
 	 * Returns the path held in the given classpath variable.
 	 * Returns <node>null</code> if unable to bind.

@@ -1710,6 +1710,13 @@ public class JavaProject
 		return res;
 	}
 
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return project;
+
+}
 	/**
 	 * Answers an ID which is used to distinguish project/entries during package
 	 * fragment root computations

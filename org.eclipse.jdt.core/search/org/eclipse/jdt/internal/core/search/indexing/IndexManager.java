@@ -56,7 +56,7 @@ public void activateProcessing() {
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void add(IFile resource, IResource indexedContainer){
+public void add(IFile resource, IPath indexedContainer){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
 	if ("java".equals(extension)){ //$NON-NLS-1$
@@ -303,7 +303,7 @@ public synchronized IIndex recreateIndex(IPath path) {
  * Trigger removal of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void remove(String resourceName, IResource indexedContainer){
+public void remove(String resourceName, IPath indexedContainer){
 	request(new RemoveFromIndex(resourceName, indexedContainer, this));
 }
 /**

@@ -300,6 +300,16 @@ public void restore() throws JavaModelException {
 		makeConsistent(null);
 	}
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new WorkingCopy(
+			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
+			fName);
+
+}
 /**
  * @private Debugging purposes
  */

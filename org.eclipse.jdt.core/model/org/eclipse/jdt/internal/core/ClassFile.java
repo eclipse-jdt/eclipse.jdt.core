@@ -352,6 +352,15 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	}
 	return null;
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new ClassFile(
+			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
+			fName);
+}
 /**
  * Returns the Java Model format of the simple class name for the
  * given className which is provided in diet class file format,

@@ -195,27 +195,6 @@ public static int compare(char[] v1, char[] v2) {
 		return new String(buf);
 	}
 
-/**
- * Returns whether the given full path (for a package) conflicts with the output location
- * of the given project.
- */
-public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject project) {
-	try {
-		IPath outputLocation = project.getOutputLocation();
-		if (outputLocation == null) {
-			// in doubt, there is a conflict
-			return true;
-		}
-		if (outputLocation.isPrefixOf(folderPath)) {
-			// only allow nesting in outputlocation if there is a corresponding source folder
-			return project.getClasspathEntryFor(outputLocation) == null;
-		}
-		return false;
-	} catch (JavaModelException e) {
-		// in doubt, there is a conflict
-		return true;
-	}
-}
 	/**
 	 * Concatenate three strings.
 	 * @see concat(String, String)

@@ -285,6 +285,16 @@ public void refreshChildren() {
 		// do nothing.
 	}
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new PackageFragmentRoot(
+			fResource,
+			project, 
+			fName);
+}
 /**
  * @private Debugging purposes
  */

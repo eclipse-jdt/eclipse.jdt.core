@@ -170,6 +170,13 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 	String[] renamings= new String[] {name};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	// not needed
+	return null;
+}
 /**
  * Updates the end source index for this element, and all following elements.
  */

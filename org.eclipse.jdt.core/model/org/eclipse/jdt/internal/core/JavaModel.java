@@ -466,6 +466,13 @@ public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[
 	
 	runOperation(op, monitor);
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return this;
+
+}
 /**
  * Configures and runs the <code>MultiOperation</code>.
  */

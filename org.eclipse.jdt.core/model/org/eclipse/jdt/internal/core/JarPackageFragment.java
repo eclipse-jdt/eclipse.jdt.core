@@ -129,6 +129,15 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 public void refreshChildren() {
 	// do nothing
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new JarPackageFragment(
+			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
+			fName);
+}
 protected Object[] storedNonJavaResources() throws JavaModelException {
 	return ((JarPackageFragmentInfo) getElementInfo()).getNonJavaResources();
 }
