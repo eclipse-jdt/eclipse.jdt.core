@@ -1,4 +1,4 @@
-package org.eclipse.jdt.code.tests.formatter;
+package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -83,13 +83,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length) {
-		long time = System.currentTimeMillis();
+		//long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
 		if (edit == null) return null;
 		String result = org.eclipse.jdt.internal.core.Util.editedString(source, edit);
 
 		if (length == source.length()) {
-			time = System.currentTimeMillis();
+			//time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
 			if (edit == null) return null;
 			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
@@ -575,7 +575,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.type_member_alignment = Alignment.M_NO_ALIGNMENT;
 		preferences.use_tab = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		long time = System.currentTimeMillis();
+		//long time = System.currentTimeMillis();
 		runTest(codeFormatter, "test060", "Parser.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}		
 

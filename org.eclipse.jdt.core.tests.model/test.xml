@@ -51,7 +51,8 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <property name="data-dir" value="${formatter-folder}"/>
       <property name="plugin-name" value="${plugin-name}"/>
-      <property name="classname" value="org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests"/>
+      <property name="classname" 
+                value="org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests"/>
     </ant>
   </target>
 
