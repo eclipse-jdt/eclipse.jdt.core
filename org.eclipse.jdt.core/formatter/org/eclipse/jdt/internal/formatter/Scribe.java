@@ -111,7 +111,9 @@ public class Scribe {
 			final int previousLength = previous.length;
 			final int endOffsetOfPreviousEdit = previousOffset + previousLength;
 			final int replacementLength = replacement.length();
-			if (previousOffset == offset && previousLength == length && (replacementLength == 0 || previous.replacement.length() == 0)) {
+			final String previousReplacement = previous.replacement;
+			final int previousReplacementLength = previousReplacement.length();
+			if (previousOffset == offset && previousLength == length && (replacementLength == 0 || previousReplacementLength == 0)) {
 				if (this.currentAlignment != null) {
 					final Location location = this.currentAlignment.location;
 					if (location.editsIndex == this.editsIndex) {
@@ -125,13 +127,33 @@ public class Scribe {
 			if (endOffsetOfPreviousEdit == offset) {
 				if (length != 0) {
 					if (replacementLength != 0) {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previous.replacement + replacement);
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement + replacement);
+					} else if (previousLength + length == previousReplacementLength) {
+						// check the characters. If they are identical, we can get rid of the previous edit
+						boolean canBeRemoved = true;
+						loop: for (int i = previousOffset; i < previousOffset + previousReplacementLength; i++) {
+							if (scanner.source[i] != previousReplacement.charAt(i - previousOffset)) {
+								this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement);
+								canBeRemoved = false;
+								break loop;
+							}
+						}
+						if (canBeRemoved) {
+							if (this.currentAlignment != null) {
+								final Location location = this.currentAlignment.location;
+								if (location.editsIndex == this.editsIndex) {
+									location.editsIndex--;
+									location.textEdit = previous;
+								}
+							}
+							this.editsIndex--;
+						}
 					} else {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previous.replacement);
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement);
 					}
 				} else {
 					if (replacementLength != 0) {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength, previous.replacement + replacement);
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength, previousReplacement + replacement);
 					}
 				}
 			} else {
@@ -273,6 +295,9 @@ public class Scribe {
 	}	
 
 	public TextEdit getRootEdit() {
+		if (CodeFormatterVisitor.DEBUG) {
+			// sanity check
+		}
 		MultiTextEdit edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
 		for (int i= 0, max = this.editsIndex; i < max; i++) {
 			OptimizedReplaceEdit currentEdit = edits[i];
