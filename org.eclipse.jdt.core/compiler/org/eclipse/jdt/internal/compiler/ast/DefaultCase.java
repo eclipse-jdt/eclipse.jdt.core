@@ -13,50 +13,66 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class DefaultCase extends Statement {
 
 	public CaseLabel targetLabel;
-/**
- * DefautCase constructor comment.
- */
-public DefaultCase(int sourceEnd, int sourceStart) {
-	this.sourceStart = sourceStart;
-	this.sourceEnd = sourceEnd;
-}
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	return flowInfo;
-}
-/**
- * Default case code generation
- *
- * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
- * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
- */
-public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+	/**
+	 * DefautCase constructor comment.
+	 */
+	public DefaultCase(int sourceEnd, int sourceStart) {
 
-	if ((bits & IsReachableMASK) == 0) {
-		return;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
-	int pc = codeStream.position;
-	targetLabel.place();
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
-	
-}
-public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
-	// remember the default case into the associated switch statement
-	if (switchStatement.defaultCase != null)
-		scope.problemReporter().duplicateDefaultCase(this);
 
-	// on error the last default will be the selected one .... (why not) ....	
-	switchStatement.defaultCase = this;
-	resolve(scope);
-	return null;
-}
-public String toString(int tab){
-	/* slow code */
+	public FlowInfo analyseCode(
+		BlockScope currentScope,
+		FlowContext flowContext,
+		FlowInfo flowInfo) {
 
-	String s = tabString(tab);
-	s = s + "default : " ; //$NON-NLS-1$
-	return s;}
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
-	visitor.visit(this, blockScope);
-	visitor.endVisit(this, blockScope);
-}
+		return flowInfo;
+	}
+
+	/**
+	 * Default case code generation
+	 *
+	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
+	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
+	 */
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+
+		if ((bits & IsReachableMASK) == 0) {
+			return;
+		}
+		int pc = codeStream.position;
+		targetLabel.place();
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+
+	}
+	public Constant resolveCase(
+		BlockScope scope,
+		TypeBinding testType,
+		SwitchStatement switchStatement) {
+
+		// remember the default case into the associated switch statement
+		if (switchStatement.defaultCase != null)
+			scope.problemReporter().duplicateDefaultCase(this);
+
+		// on error the last default will be the selected one .... (why not) ....	
+		switchStatement.defaultCase = this;
+		resolve(scope);
+		return null;
+	}
+
+	public String toString(int tab) {
+
+		String s = tabString(tab);
+		s = s + "default : "; //$NON-NLS-1$
+		return s;
+	}
+
+	public void traverse(
+		IAbstractSyntaxTreeVisitor visitor,
+		BlockScope blockScope) {
+
+		visitor.visit(this, blockScope);
+		visitor.endVisit(this, blockScope);
+	}
 }

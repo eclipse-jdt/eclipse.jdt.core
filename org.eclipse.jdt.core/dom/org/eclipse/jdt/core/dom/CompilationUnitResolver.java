@@ -175,8 +175,8 @@ class CompilationUnitResolver extends Compiler {
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 
-				"", 
-				compilerOptions.defaultEncoding);//$NON-NLS-1$
+				"", //$NON-NLS-1$
+				compilerOptions.defaultEncoding);
 		return parser.parse(sourceUnit, new CompilationResult(sourceUnit, 0, 0));
 	}
 

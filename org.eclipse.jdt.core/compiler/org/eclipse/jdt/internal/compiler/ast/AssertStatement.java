@@ -11,6 +11,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 
 public class AssertStatement extends Statement {
+	
 	public Expression assertExpression, exceptionArgument;
 
 	// for local variable attribute
@@ -21,6 +22,7 @@ public class AssertStatement extends Statement {
 		Expression exceptionArgument,
 		Expression assertExpression,
 		int startPosition) {
+			
 		this.assertExpression = assertExpression;
 		this.exceptionArgument = exceptionArgument;
 		sourceStart = startPosition;
@@ -28,6 +30,7 @@ public class AssertStatement extends Statement {
 	}
 
 	public AssertStatement(Expression assertExpression, int startPosition) {
+
 		this.assertExpression = assertExpression;
 		sourceStart = startPosition;
 		sourceEnd = assertExpression.sourceEnd;
@@ -71,6 +74,7 @@ public class AssertStatement extends Statement {
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
@@ -103,6 +107,7 @@ public class AssertStatement extends Statement {
 	}
 
 	public void resolve(BlockScope scope) {
+
 		assertExpression.resolveTypeExpecting(scope, BooleanBinding);
 		if (exceptionArgument != null) {
 			TypeBinding exceptionArgumentType = exceptionArgument.resolveType(scope);
@@ -116,6 +121,7 @@ public class AssertStatement extends Statement {
 	}
 	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+
 		if (visitor.visit(this, scope)) {
 			assertExpression.traverse(visitor, scope);
 			if (exceptionArgument != null) {
@@ -143,8 +149,9 @@ public class AssertStatement extends Statement {
 			}
 		}
 	}
+
 	public String toString(int tab) {
-		/* slow code */
+
 		StringBuffer buffer = new StringBuffer(tabString(tab));
 		buffer.append("assert"); //$NON-NLS-1$
 		buffer.append(this.assertExpression);

@@ -102,8 +102,8 @@ public final class AST {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public AST(Map options) {
-		Object value = options.get("org.eclipse.jdt.core.compiler.source");
-		if ("1.3".equals(value)) {
+		Object value = options.get("org.eclipse.jdt.core.compiler.source"); //$NON-NLS-1$
+		if ("1.3".equals(value)) { //$NON-NLS-1$
 			// use a 1.3 scanner - treats assert as an identifier
 			this.scanner = new Scanner();
 		} else {

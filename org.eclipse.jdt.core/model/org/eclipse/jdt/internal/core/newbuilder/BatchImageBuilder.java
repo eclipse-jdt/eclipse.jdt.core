@@ -129,7 +129,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
 							if (resource.getFullPath().equals(sourcePath)) return true;
-							if (resource.getName().equalsIgnoreCase("CVS")) return false; // TEMPORARY
+							if (resource.getName().equalsIgnoreCase("CVS")) return false; // TEMPORARY //$NON-NLS-1$
 
 							getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount));
 					}

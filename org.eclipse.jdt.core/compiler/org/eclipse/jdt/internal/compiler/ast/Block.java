@@ -40,6 +40,7 @@ public class Block extends Statement {
 	}
 
 	public static final Block EmptyWith(int sourceStart, int sourceEnd) {
+
 		//return an empty block which position is s and e
 		Block bk = new Block(0);
 		bk.sourceStart = sourceStart;
@@ -51,6 +52,7 @@ public class Block extends Statement {
 	 * Code generation for a block
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
@@ -67,10 +69,12 @@ public class Block extends Statement {
 	}
 
 	public boolean isEmptyBlock() {
+
 		return statements == null;
 	}
 
 	public void resolve(BlockScope upperScope) {
+
 		if (statements != null) {
 			scope =
 				explicitDeclarations == 0
@@ -83,6 +87,7 @@ public class Block extends Statement {
 	}
 
 	public void resolveUsing(BlockScope givenScope) {
+
 		// this optimized resolve(...) is sent only on none empty blocks
 		scope = givenScope;
 		if (statements != null) {
@@ -93,7 +98,7 @@ public class Block extends Statement {
 	}
 
 	public String toString(int tab) {
-		/* slow code */
+
 		String s = tabString(tab);
 		if (this.statements == null) {
 			s += "{\n"; //$NON-NLS-1$
@@ -101,9 +106,6 @@ public class Block extends Statement {
 			s += "}"; //$NON-NLS-1$
 			return s;
 		}
-		//	s = s + (explicitDeclarations != 0
-		//				? " { // ---scope needed for "+String.valueOf(explicitDeclarations) +" locals------------ \n"
-		//				: "{// ---NO scope needed------ \n") ;
 		s += "{\n"; //$NON-NLS-1$
 		s += this.toStringStatements(tab);
 		s += tabString(tab);
@@ -112,6 +114,7 @@ public class Block extends Statement {
 	}
 
 	public String toStringStatements(int tab) {
+
 		if (this.statements == null)
 			return ""; //$NON-NLS-1$
 		StringBuffer buffer = new StringBuffer();
@@ -129,6 +132,7 @@ public class Block extends Statement {
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
 		BlockScope blockScope) {
+
 		if (visitor.visit(this, blockScope)) {
 			if (statements != null) {
 				int statementLength = statements.length;

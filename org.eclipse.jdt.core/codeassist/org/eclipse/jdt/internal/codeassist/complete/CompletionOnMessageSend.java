@@ -30,34 +30,35 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnMessageSend extends MessageSend {
-public TypeBinding resolveType(BlockScope scope) {
-	if (receiver == ThisReference.ThisImplicit)
-		throw new CompletionNodeFound(this, null, scope);
 
-	TypeBinding receiverType = receiver.resolveType(scope);
-	if (receiverType == null || receiverType.isBaseType())
-		throw new CompletionNodeFound();
+	public TypeBinding resolveType(BlockScope scope) {
+		if (receiver == ThisReference.ThisImplicit)
+			throw new CompletionNodeFound(this, null, scope);
 
-	if (receiverType.isArrayType())
-		receiverType = scope.getJavaLangObject();
-	throw new CompletionNodeFound(this, receiverType, scope);
-}
-public String toStringExpression() {
-	/*slow code*/
+		TypeBinding receiverType = receiver.resolveType(scope);
+		if (receiverType == null || receiverType.isBaseType())
+			throw new CompletionNodeFound();
 
-	String s = "<CompleteOnMessageSend:"; //$NON-NLS-1$
-	if (receiver != ThisReference.ThisImplicit)
-		s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
-	s = s + new String(selector) + "("; //$NON-NLS-1$
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-			s += arguments[i].toStringExpression();
-			if (i != arguments.length - 1) {
-				s += ", "; //$NON-NLS-1$
-			}
-		};
+		if (receiverType.isArrayType())
+			receiverType = scope.getJavaLangObject();
+		throw new CompletionNodeFound(this, receiverType, scope);
 	}
-	s = s + ")>"; //$NON-NLS-1$
-	return s;
-}
+
+	public String toStringExpression() {
+
+		String s = "<CompleteOnMessageSend:"; //$NON-NLS-1$
+		if (receiver != ThisReference.ThisImplicit)
+			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
+		s = s + new String(selector) + "("; //$NON-NLS-1$
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				s += arguments[i].toStringExpression();
+				if (i != arguments.length - 1) {
+					s += ", "; //$NON-NLS-1$
+				}
+			};
+		}
+		s = s + ")>"; //$NON-NLS-1$
+		return s;
+	}
 }

@@ -27,7 +27,7 @@ public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName
 		parameterNames = findMethodParameterNames(superTypePackageName, superTypeName, superTypeName, parameterPackageNames, parameterTypeNames);
 
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptAnonymousType",  new String[]{
+		printDebug("acceptAnonymousType",  new String[]{ //$NON-NLS-1$
 			String.valueOf(superTypePackageName),
 			String.valueOf(superTypeName),
 			String.valueOf(parameterPackageNames),
@@ -47,7 +47,7 @@ public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName
 public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptClass",  new String[]{
+		printDebug("acceptClass",  new String[]{ //$NON-NLS-1$
 			String.valueOf(packageName),
 			String.valueOf(className),
 			String.valueOf(completionName),
@@ -64,9 +64,9 @@ public void acceptClass(char[] packageName, char[] className, char[] completionN
 public void acceptError(IMarker problemMarker) {
 	
 	if(CompletionEngine.DEBUG) {
-		System.out.print("COMPLETION - acceptError(");
+		System.out.print("COMPLETION - acceptError("); //$NON-NLS-1$
 		System.out.print(problemMarker);
-		System.out.println(")");
+		System.out.println(")"); //$NON-NLS-1$
 	}
 	this.clientRequestor.acceptError(problemMarker);
 }
@@ -76,7 +76,7 @@ public void acceptError(IMarker problemMarker) {
 public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptField",  new String[]{
+		printDebug("acceptField",  new String[]{ //$NON-NLS-1$
 			String.valueOf(declaringTypePackageName),
 			String.valueOf(declaringTypeName),
 			String.valueOf(name),
@@ -96,7 +96,7 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 public void acceptInterface(char[] packageName, char[] interfaceName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptInterface",  new String[]{
+		printDebug("acceptInterface",  new String[]{ //$NON-NLS-1$
 			String.valueOf(packageName),
 			String.valueOf(interfaceName),
 			String.valueOf(completionName),
@@ -113,7 +113,7 @@ public void acceptInterface(char[] packageName, char[] interfaceName, char[] com
 public void acceptKeyword(char[] keywordName, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptKeyword",  new String[]{
+		printDebug("acceptKeyword",  new String[]{ //$NON-NLS-1$
 			String.valueOf(keywordName),
 			String.valueOf(completionStart),
 			String.valueOf(completionEnd)
@@ -127,7 +127,7 @@ public void acceptKeyword(char[] keywordName, int completionStart, int completio
 public void acceptLabel(char[] labelName, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptLabel",  new String[]{
+		printDebug("acceptLabel",  new String[]{ //$NON-NLS-1$
 			String.valueOf(labelName),
 			String.valueOf(completionStart),
 			String.valueOf(completionEnd)
@@ -141,7 +141,7 @@ public void acceptLabel(char[] labelName, int completionStart, int completionEnd
 public void acceptLocalVariable(char[] name, char[] typePackageName, char[] typeName, int modifiers, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptLocalVariable",  new String[]{
+		printDebug("acceptLocalVariable",  new String[]{ //$NON-NLS-1$
 			String.valueOf(name),
 			String.valueOf(typePackageName),
 			String.valueOf(typeName),
@@ -160,7 +160,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 		parameterNames = findMethodParameterNames(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames);
 
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptMethod",  new String[]{
+		printDebug("acceptMethod",  new String[]{ //$NON-NLS-1$
 			String.valueOf(declaringTypePackageName),
 			String.valueOf(declaringTypeName),
 			String.valueOf(selector),
@@ -208,7 +208,7 @@ public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] decl
 	}	
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptMethodDeclaration",  new String[]{
+		printDebug("acceptMethodDeclaration",  new String[]{ //$NON-NLS-1$
 			String.valueOf(declaringTypePackageName),
 			String.valueOf(declaringTypeName),
 			String.valueOf(selector),
@@ -231,7 +231,7 @@ public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] decl
 public void acceptModifier(char[] modifierName, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptModifier",  new String[]{
+		printDebug("acceptModifier",  new String[]{ //$NON-NLS-1$
 			String.valueOf(modifierName),
 			String.valueOf(completionStart),
 			String.valueOf(completionEnd)
@@ -245,7 +245,7 @@ public void acceptModifier(char[] modifierName, int completionStart, int complet
 public void acceptPackage(char[] packageName, char[] completionName, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptPackage",  new String[]{
+		printDebug("acceptPackage",  new String[]{ //$NON-NLS-1$
 			String.valueOf(packageName),
 			String.valueOf(completionName),
 			String.valueOf(completionStart),
@@ -260,7 +260,7 @@ public void acceptPackage(char[] packageName, char[] completionName, int complet
 public void acceptType(char[] packageName, char[] typeName, char[] completionName, int completionStart, int completionEnd) {
 	
 	if(CompletionEngine.DEBUG) {
-		printDebug("acceptType",  new String[]{
+		printDebug("acceptType",  new String[]{ //$NON-NLS-1$
 			String.valueOf(packageName),
 			String.valueOf(typeName),
 			String.valueOf(completionName),
@@ -273,8 +273,8 @@ public void acceptType(char[] packageName, char[] typeName, char[] completionNam
 public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd){
 	
 	if(CompletionEngine.DEBUG) {
-		System.out.println("COMPLETION - acceptVariableName");
-		printDebug("acceptVariableName",  new String[]{
+		System.out.println("COMPLETION - acceptVariableName"); //$NON-NLS-1$
+		printDebug("acceptVariableName",  new String[]{ //$NON-NLS-1$
 			String.valueOf(typePackageName),
 			String.valueOf(typeName),
 			String.valueOf(name),
@@ -321,17 +321,17 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 
 private void printDebug(String header, String[] param){
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("COMPLETION - ");
+	buffer.append("COMPLETION - "); //$NON-NLS-1$
 	buffer.append(header);
-	buffer.append("(");
+	buffer.append("(");//$NON-NLS-1$
 	
 	for (int i = 0; i < param.length; i++) {
 		if(i != 0)
-			buffer.append(", ");
+			buffer.append(", ");//$NON-NLS-1$
 		buffer.append(param[i]);
 	}
 
-	buffer.append(")");
+	buffer.append(")");//$NON-NLS-1$
 	System.out.println(buffer.toString());
 }
 }

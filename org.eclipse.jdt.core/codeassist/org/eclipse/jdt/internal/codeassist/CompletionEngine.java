@@ -610,11 +610,11 @@ public final class CompletionEngine
 	public void complete(ICompilationUnit sourceUnit, int completionPosition) {
 
 		if(DEBUG) {
-			System.out.print("COMPLETION IN ");
+			System.out.print("COMPLETION IN "); //$NON-NLS-1$
 			System.out.print(sourceUnit.getFileName());
-			System.out.print(" AT POSITION ");
+			System.out.print(" AT POSITION "); //$NON-NLS-1$
 			System.out.println(completionPosition);
-			System.out.println("COMPLETION - Source :");
+			System.out.println("COMPLETION - Source :"); //$NON-NLS-1$
 			System.out.println(sourceUnit.getContents());
 		}
 		try {
@@ -626,7 +626,7 @@ public final class CompletionEngine
 			//		boolean completionNodeFound = false;
 			if (parsedUnit != null) {
 				if(DEBUG) {
-					System.out.println("COMPLETION - Diet AST :");
+					System.out.println("COMPLETION - Diet AST :"); //$NON-NLS-1$
 					System.out.println(parsedUnit.toString());
 				}
 
@@ -657,7 +657,7 @@ public final class CompletionEngine
 							parsedUnit.scope.faultInTypes();
 							parseMethod(parsedUnit, actualCompletionPosition);
 							if(DEBUG) {
-								System.out.println("COMPLETION - AST :");
+								System.out.println("COMPLETION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
 							parsedUnit.resolve();
@@ -666,7 +666,7 @@ public final class CompletionEngine
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
 							if(DEBUG) {
-								System.out.print("COMPLETION - Completion node : ");
+								System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
 								System.out.println(e.astNode.toString());
 							}
 							// if null then we found a problem in the completion node

@@ -202,9 +202,9 @@ public IJavaElement[] getElements() {
 protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement addition) {
 	
 	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - accept new element(");
+		System.out.print("SELECTION - accept new element("); //$NON-NLS-1$
 		System.out.print(addition.toString());
-		System.out.println(")");
+		System.out.println(")"); //$NON-NLS-1$
 	}
 	IJavaElement[] old = array;
 	array = new IJavaElement[old.length + 1];

@@ -14,7 +14,8 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class Clinit extends AbstractMethodDeclaration {
-	public final static char[] ConstantPoolName = "<clinit>" .toCharArray(); //$NON-NLS-1$
+	
+	public final static char[] ConstantPoolName = "<clinit>".toCharArray(); //$NON-NLS-1$
 
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
@@ -23,7 +24,7 @@ public class Clinit extends AbstractMethodDeclaration {
 		modifiers = 0;
 		selector = ConstantPoolName;
 	}
-	
+
 	public void analyseCode(
 		ClassScope classScope,
 		InitializationFlowContext staticInitializerFlowContext,
@@ -67,7 +68,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			this.ignoreFurtherInvestigation = true;
 		}
 	}
-	
+
 	/**
 	 * Bytecode generation for a <clinit> method
 	 *
@@ -75,6 +76,7 @@ public class Clinit extends AbstractMethodDeclaration {
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 */
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
+
 		int clinitOffset = 0;
 		if (ignoreFurtherInvestigation) {
 			// should never have to add any <clinit> problem method
@@ -101,8 +103,9 @@ public class Clinit extends AbstractMethodDeclaration {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
 					classFile.codeStream.wideMode = true; // request wide mode 
-					this.generateCode(classScope, classFile, clinitOffset); // restart method generation
-				} catch(AbortMethod e2) {
+					this.generateCode(classScope, classFile, clinitOffset);
+					// restart method generation
+				} catch (AbortMethod e2) {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
 				}
@@ -113,103 +116,112 @@ public class Clinit extends AbstractMethodDeclaration {
 			}
 		}
 	}
-	
+
 	/**
 	 * Bytecode generation for a <clinit> method
 	 *
 	 * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 */
-	private void generateCode(ClassScope classScope, ClassFile classFile, int clinitOffset) {
-			ConstantPool constantPool = classFile.constantPool;
-			int constantPoolOffset = constantPool.currentOffset;
-			int constantPoolIndex = constantPool.currentIndex;
-			classFile.generateMethodInfoHeaderForClinit();
-			int codeAttributeOffset = classFile.contentsOffset;
-			classFile.generateCodeAttributeHeader();
-			CodeStream codeStream = classFile.codeStream;
-			this.resolve(classScope);
+	private void generateCode(
+		ClassScope classScope,
+		ClassFile classFile,
+		int clinitOffset) {
 
-			codeStream.reset(this, classFile);
-			TypeDeclaration declaringType = classScope.referenceContext;
+		ConstantPool constantPool = classFile.constantPool;
+		int constantPoolOffset = constantPool.currentOffset;
+		int constantPoolIndex = constantPool.currentIndex;
+		classFile.generateMethodInfoHeaderForClinit();
+		int codeAttributeOffset = classFile.contentsOffset;
+		classFile.generateCodeAttributeHeader();
+		CodeStream codeStream = classFile.codeStream;
+		this.resolve(classScope);
 
-			// initialize local positions - including initializer scope.
-			scope.computeLocalVariablePositions(0, codeStream); // should not be necessary
-			MethodScope staticInitializerScope = declaringType.staticInitializerScope;
-			staticInitializerScope.computeLocalVariablePositions(0, codeStream);
-			// offset by the argument size
+		codeStream.reset(this, classFile);
+		TypeDeclaration declaringType = classScope.referenceContext;
 
-			// 1.4 feature
-			// This has to be done before any other initialization
-			if (this.assertionSyntheticFieldBinding != null) {
-				// generate code related to the activation of assertion for this class
-				codeStream.generateClassLiteralAccessForType(
-					classScope.enclosingSourceType(),
-					classLiteralSyntheticField);
-				codeStream.invokeJavaLangClassDesiredAssertionStatus();
-				Label falseLabel = new Label(codeStream);
-				codeStream.ifne(falseLabel);
-				codeStream.iconst_1();
-				Label jumpLabel = new Label(codeStream);
-				codeStream.goto_(jumpLabel);
-				falseLabel.place();
-				codeStream.iconst_0();
-				jumpLabel.place();
-				codeStream.putstatic(this.assertionSyntheticFieldBinding);
-			}
-			// generate initializers
-			if (declaringType.fields != null) {
-				for (int i = 0, max = declaringType.fields.length; i < max; i++) {
-					FieldDeclaration fieldDecl;
-					if ((fieldDecl = declaringType.fields[i]).isStatic()) {
-						fieldDecl.generateCode(staticInitializerScope, codeStream);
-					}
+		// initialize local positions - including initializer scope.
+		scope.computeLocalVariablePositions(0, codeStream); // should not be necessary
+		MethodScope staticInitializerScope = declaringType.staticInitializerScope;
+		staticInitializerScope.computeLocalVariablePositions(0, codeStream);
+		// offset by the argument size
+
+		// 1.4 feature
+		// This has to be done before any other initialization
+		if (this.assertionSyntheticFieldBinding != null) {
+			// generate code related to the activation of assertion for this class
+			codeStream.generateClassLiteralAccessForType(
+				classScope.enclosingSourceType(),
+				classLiteralSyntheticField);
+			codeStream.invokeJavaLangClassDesiredAssertionStatus();
+			Label falseLabel = new Label(codeStream);
+			codeStream.ifne(falseLabel);
+			codeStream.iconst_1();
+			Label jumpLabel = new Label(codeStream);
+			codeStream.goto_(jumpLabel);
+			falseLabel.place();
+			codeStream.iconst_0();
+			jumpLabel.place();
+			codeStream.putstatic(this.assertionSyntheticFieldBinding);
+		}
+		// generate initializers
+		if (declaringType.fields != null) {
+			for (int i = 0, max = declaringType.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl;
+				if ((fieldDecl = declaringType.fields[i]).isStatic()) {
+					fieldDecl.generateCode(staticInitializerScope, codeStream);
 				}
 			}
-			if (codeStream.position == 0) {
-				// do not need to output a Clinit if no bytecodes
-				// so we reset the offset inside the byte array contents.
-				classFile.contentsOffset = clinitOffset;
-				// like we don't addd a method we need to undo the increment on the method count
-				classFile.methodCount--;
-				// reset the constant pool to its state before the clinit
-				constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
-			} else {
-				if (needFreeReturn) {
-					int oldPosition = codeStream.position;
-					codeStream.return_();
-					codeStream.updateLocalVariablesAttribute(oldPosition);
-				}
-				// Record the end of the clinit: point to the declaration of the class
-				codeStream.recordPositionsFrom(0, declaringType.sourceStart);
-				classFile.completeCodeAttributeForClinit(codeAttributeOffset);
+		}
+		if (codeStream.position == 0) {
+			// do not need to output a Clinit if no bytecodes
+			// so we reset the offset inside the byte array contents.
+			classFile.contentsOffset = clinitOffset;
+			// like we don't addd a method we need to undo the increment on the method count
+			classFile.methodCount--;
+			// reset the constant pool to its state before the clinit
+			constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
+		} else {
+			if (needFreeReturn) {
+				int oldPosition = codeStream.position;
+				codeStream.return_();
+				codeStream.updateLocalVariablesAttribute(oldPosition);
 			}
+			// Record the end of the clinit: point to the declaration of the class
+			codeStream.recordPositionsFrom(0, declaringType.sourceStart);
+			classFile.completeCodeAttributeForClinit(codeAttributeOffset);
+		}
 	}
 
-
 	public boolean isClinit() {
+
 		return true;
 	}
 
 	public boolean isInitializationMethod() {
+
 		return true;
 	}
 
 	public boolean isStatic() {
+
 		return true;
 	}
+
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		//the clinit is filled by hand .... 
 	}
+
 	public void resolve(ClassScope scope) {
+
 		this.scope = new MethodScope(scope, scope.referenceContext, true);
 	}
 
 	public String toString(int tab) {
-		/* slow code */
-		String s = "" ; //$NON-NLS-1$
+
+		String s = ""; //$NON-NLS-1$
 		s = s + tabString(tab);
-		s = s + "<clinit>()" ; //$NON-NLS-1$
+		s = s + "<clinit>()"; //$NON-NLS-1$
 		s = s + toStringStatements(tab + 1);
 		return s;
 	}
@@ -217,12 +229,14 @@ public class Clinit extends AbstractMethodDeclaration {
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
 		ClassScope classScope) {
+
 		visitor.visit(this, classScope);
 		visitor.endVisit(this, classScope);
 	}
 
 	// 1.4 feature
 	public void addSupportForAssertion(FieldBinding assertionSyntheticFieldBinding) {
+
 		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
 
 		// we need to add the field right now, because the field infos are generated before the methods

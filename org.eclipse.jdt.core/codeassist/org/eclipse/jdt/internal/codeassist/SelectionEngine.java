@@ -335,13 +335,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		char[] source = sourceUnit.getContents();
 		
 		if(DEBUG) {
-			System.out.print("SELECTION IN ");
+			System.out.print("SELECTION IN "); //$NON-NLS-1$
 			System.out.print(sourceUnit.getFileName());
-			System.out.print(" FROM ");
+			System.out.print(" FROM "); //$NON-NLS-1$
 			System.out.print(selectionSourceStart);
-			System.out.print(" TO ");
+			System.out.print(" TO "); //$NON-NLS-1$
 			System.out.println(selectionSourceEnd);
-			System.out.println("SELECTION - Source :");
+			System.out.println("SELECTION - Source :"); //$NON-NLS-1$
 			System.out.println(source);
 		}
 		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd))
@@ -354,7 +354,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			if (parsedUnit != null) {
 				if(DEBUG) {
-					System.out.println("SELECTION - Diet AST :");
+					System.out.println("SELECTION - Diet AST :"); //$NON-NLS-1$
 					System.out.println(parsedUnit.toString());
 				}
 				
@@ -389,14 +389,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							selectDeclaration(parsedUnit);
 							parseMethod(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
-								System.out.println("SELECTION - AST :");
+								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
 							parsedUnit.resolve();
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
 								if(DEBUG) {
-									System.out.println("SELECTION - Selection binding:");
+									System.out.println("SELECTION - Selection binding:"); //$NON-NLS-1$
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
@@ -533,7 +533,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			if (parsedUnit != null && parsedUnit.types != null) {
 				if(DEBUG) {
-					System.out.println("SELECTION - Diet AST :");
+					System.out.println("SELECTION - Diet AST :"); //$NON-NLS-1$
 					System.out.println(parsedUnit.toString());
 				}
 				// find the type declaration that corresponds to the original source type
@@ -589,7 +589,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
 								if(DEBUG) {
-									System.out.println("SELECTION - Selection binding :");
+									System.out.println("SELECTION - Selection binding :"); //$NON-NLS-1$
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
