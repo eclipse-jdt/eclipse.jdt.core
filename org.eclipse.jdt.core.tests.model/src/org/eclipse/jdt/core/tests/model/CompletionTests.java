@@ -206,6 +206,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
 	suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
 	suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
+	suite.addTest(new CompletionTests("testCompletion2InterfacesWithSameMethod"));
 	
 	// completion keywords tests
 	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
@@ -8592,6 +8593,22 @@ public void testCompletionInsideStaticMethod() throws JavaModelException {
 
 	assertEquals(
 			"element:doTheThing    completion:doTheThing()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65737
+ */
+public void testCompletion2InterfacesWithSameMethod() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion2InterfacesWithSameMethod.java");
+
+	String str = cu.getSource();
+	String completeBehind = "var.meth";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:method    completion:method()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
 			requestor.getResults());
 }
 }

@@ -2082,6 +2082,9 @@ public final class CompletionEngine
 						if(method.declaringClass == scope.getJavaLangObject())
 							continue next;
 						
+						if (method.declaringClass.isInterface())
+							continue next;
+						
 						if (!superCall && method
 							.declaringClass
 							.implementsInterface(otherMethod.declaringClass, true))
