@@ -985,6 +985,7 @@ public class JavaModelManager implements ISaveParticipant {
 						}
 						buffer.append(" 	}"); //$NON-NLS-1$
 						Util.verbose(buffer.toString());
+						new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 					}			    
 					return previousContainer;
 			    }
@@ -1003,6 +1004,7 @@ public class JavaModelManager implements ISaveParticipant {
 					"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
 					"	variable: "+ variableName + '\n' + //$NON-NLS-1$
 					"	previous value: " + previousPath); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
 			return previousPath;
 		}
