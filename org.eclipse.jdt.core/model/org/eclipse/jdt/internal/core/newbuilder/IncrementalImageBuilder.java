@@ -311,7 +311,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 						return;
 					case IResourceDelta.REMOVED :
 						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(location.toString());
-						if (definedTypeNames == null) {
+						if (definedTypeNames == null || definedTypeNames.length == 0) {
 							removeClassFile(typePath);
 						} else {
 							IPath packagePath = typePath.removeLastSegments(1);
