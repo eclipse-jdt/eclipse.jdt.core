@@ -517,7 +517,6 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
 		case IProblem.UnsafeRawExpressionAssignment:
-		case IProblem.UnsafeRawVariableAssignment:
 		case IProblem.UnsafeConstructorWithRawArguments:
 		case IProblem.UnsafeMethodWithRawArguments:
 		case IProblem.UnsafeRawFieldAssignment:
@@ -3464,7 +3463,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 }
 public void unsafeRawAssignment(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		expressionType.isRawType() ? IProblem.UnsafeRawExpressionAssignment : IProblem.UnsafeRawVariableAssignment,
+		IProblem.UnsafeRawExpressionAssignment,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,

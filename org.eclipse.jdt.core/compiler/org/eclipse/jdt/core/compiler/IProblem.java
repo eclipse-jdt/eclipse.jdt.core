@@ -842,16 +842,14 @@ public interface IProblem {
 	int UnsafeConstructorWithRawArguments = TypeRelated + 533;
     /** @since 3.1 */
 	int UnsafeMethodWithRawArguments = TypeRelated + 534;
-    /** @since 3.1 */
-	int UnsafeRawVariableAssignment = TypeRelated + 535;
 	/** @since 3.1 */
-	int IllegalArrayOfParameterizedType = TypeRelated + 536;
+	int IllegalArrayOfParameterizedType = TypeRelated + 535;
 	/** @since 3.1 */
-	int UnsafeRawFieldAssignment = TypeRelated + 537;
+	int UnsafeRawFieldAssignment = TypeRelated + 536;
 	/** @since 3.1 */
-	int InvalidClassInstantiationWithWildcards = Internal + 538;
+	int InvalidClassInstantiationWithWildcards = Internal + 537;
 	/** @since 3.1 */
-	int FinalBoundForTypeVariable = TypeRelated + 539;
+	int FinalBoundForTypeVariable = TypeRelated + 538;
 	
 	/**
 	 * Foreach

@@ -1903,34 +1903,28 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-
-			"import java.io.IOException;\n" + 
-			"\n" + 
-			"public class X<T extends Exception> {\n" + 
-			"\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"		X x = new X();\n" + 
-			"		X<IOException> xioe = new X<IOException>(); // ok\n" + 
-			"		\n" + 
-			"		X x2 = xioe;\n" + 
-			"		X<IOException> xioe2 = x; // unsafe\n" + 
-			"	}\n" + 
-			"}\n", 
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"public class X<T extends Exception> {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		X<IOException> xioe = new X<IOException>(); // ok\n" + 
+				"		\n" + 
+				"		X x2 = xioe;\n" + 
+				"		X<IOException> xioe2 = x; // unsafe\n" + 
+				"	}\n" + 
+				"}\n", 
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	X x2 = xioe;\n" + 
-		"	       ^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of type X<IOException> to raw type X. References to generic type X<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	X<IOException> xioe2 = x; // unsafe\n" + 
-		"	                       ^\n" + 
-		"Unsafe type operation: Should not assign expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	X<IOException> xioe2 = x; // unsafe\n" + 
+			"	                       ^\n" + 
+			"Unsafe type operation: Should not assign expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
 	}
 
 	// JSR14-v10[§2.1,§2.2]: Invalid PT declaration (mix with reference)
@@ -1939,21 +1933,21 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Valid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1 extends X2<A2>> {\n" + 
-					"	A1 a1;\n" +
-					"}\n" + 
-					"// Valid Parameterized Type Declaration\n" + 
-					"class X2<A2>{\n" + 
-					"	A2 a2;\n" +
-					"}\n"
+				"// Valid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1 extends X2<A2>> {\n" + 
+				"	A1 a1;\n" +
+				"}\n" + 
+				"// Valid Parameterized Type Declaration\n" + 
+				"class X2<A2>{\n" + 
+				"	A2 a2;\n" +
+				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X1.java (at line 3)\n" + 
-				"	public class X1<A1 extends X2<A2>> {\n" + 
-				"	                              ^^\n" + 
-				"A2 cannot be resolved to a type\n" + 
-				"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1<A1 extends X2<A2>> {\n" + 
+			"	                              ^^\n" + 
+			"A2 cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -1963,21 +1957,21 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Valid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1< A1 extends X2	<	A2	>     			> {\n" + 
-					"	A1 a1;\n" +
-					"}\n" + 
-					"// Valid Parameterized Type Declaration\n" + 
-					"class X2<A2>{\n" + 
-					"	A2 a2;\n" +
-					"}\n"
+				"// Valid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1< A1 extends X2	<	A2	>     			> {\n" + 
+				"	A1 a1;\n" +
+				"}\n" + 
+				"// Valid Parameterized Type Declaration\n" + 
+				"class X2<A2>{\n" + 
+				"	A2 a2;\n" +
+				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X1.java (at line 3)\n" + 
-				"	public class X1< A1 extends X2	<	A2	>     			> {\n" + 
-				"	                              	 	^^\n" + 
-				"A2 cannot be resolved to a type\n" + 
-				"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1< A1 extends X2	<	A2	>     			> {\n" + 
+			"	                              	 	^^\n" + 
+			"A2 cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -1988,14 +1982,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1 extends X2<A2> {\n" + 
-					"	A1 a1;\n" +
-					"}\n" + 
-					"// Invalid Parameterized Type Declaration\n" + 
-					"class X2<A2 {\n" + 
-					"	A2 a2;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1 extends X2<A2> {\n" + 
+				"	A1 a1;\n" +
+				"}\n" + 
+				"// Invalid Parameterized Type Declaration\n" + 
+				"class X2<A2 {\n" + 
+				"	A2 a2;\n" +
+				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in test\\X1.java (at line 3)\n" + 
@@ -2027,14 +2021,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1 extends X2<A2 {\n" + 
-					"	A1 a1;\n" +
-					"}\n" + 
-					"// Invalid Parameterized Type Declaration\n" + 
-					"class X2<A2> {\n" + 
-					"	A2 a2;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1 extends X2<A2 {\n" + 
+				"	A1 a1;\n" +
+				"}\n" + 
+				"// Invalid Parameterized Type Declaration\n" + 
+				"class X2<A2> {\n" + 
+				"	A2 a2;\n" +
+				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in test\\X1.java (at line 3)\n" + 
@@ -2052,17 +2046,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1>> {\n" + 
-					"	A1 a1;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1>> {\n" + 
+				"	A1 a1;\n" +
+				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X1.java (at line 3)\n" + 
-				"	public class X1<A1>> {\n" + 
-				"	                  ^^\n" + 
-				"Syntax error on token \">>\", > expected\n" + 
-				"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1<A1>> {\n" + 
+			"	                  ^^\n" + 
+			"Syntax error on token \">>\", > expected\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2072,17 +2066,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1 < A1 > > {\n" + 
-					"	A1 a1;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1 < A1 > > {\n" + 
+				"	A1 a1;\n" +
+				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X1.java (at line 3)\n" + 
-				"	public class X1 < A1 > > {\n" + 
-				"	                       ^\n" + 
-				"Syntax error on token \">\", delete this token\n" + 
-				"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1 < A1 > > {\n" + 
+			"	                       ^\n" + 
+			"Syntax error on token \">\", delete this token\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2093,17 +2087,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1>>> {\n" + 
-					"	A1 a1;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1>>> {\n" + 
+				"	A1 a1;\n" +
+				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X1.java (at line 3)\n" + 
-				"	public class X1<A1>>> {\n" + 
-				"	                  ^^^\n" + 
-				"Syntax error on token \">>>\", > expected\n" + 
-				"----------\n"
+			"1. ERROR in test\\X1.java (at line 3)\n" + 
+			"	public class X1<A1>>> {\n" + 
+			"	                  ^^^\n" + 
+			"Syntax error on token \">>>\", > expected\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2114,14 +2108,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1<A1 extends X2<A1>>> {\n" + 
-					"	A1 a1;\n" +
-					"}\n" + 
-					"// Valid Parameterized Type Declaration\n" + 
-					"class X2<A2> {\n" + 
-					"	A2 a2;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1<A1 extends X2<A1>>> {\n" + 
+				"	A1 a1;\n" +
+				"}\n" + 
+				"// Valid Parameterized Type Declaration\n" + 
+				"class X2<A2> {\n" + 
+				"	A2 a2;\n" +
+				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in test\\X1.java (at line 3)\n" + 
@@ -2138,10 +2132,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"test/X1.java",
 				"package test;\n" +
-					"// Invalid Consecutive Parameterized Type Declaration\n" + 
-					"public class X1 < A1 > > > {\n" + 
-					"	A1 a1;\n" +
-					"}\n"
+				"// Invalid Consecutive Parameterized Type Declaration\n" + 
+				"public class X1 < A1 > > > {\n" + 
+				"	A1 a1;\n" +
+				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in test\\X1.java (at line 3)\n" + 
@@ -2639,8 +2633,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	
 	public void test087() {
 		Map customOptions = getCompilerOptions();
+		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" + 
@@ -2649,7 +2644,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"        AX ax = new AX();\n" + 
 				"        AX ax2 = ax.p;\n" + 
 				"        AX ax3 = new AX<String>();\n" + 
-				"        System.out.println(ax3);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n" + 
 				"\n" + 
@@ -2657,21 +2652,18 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    AX<P> p;\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	AX ax3 = new AX<String>();\n" + 
-		"	         ^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n",
+		"SUCCESS",
 		null,
 		true,
+		null,
 		customOptions);		
 	}			
 	
 	public void test088() {
 		Map customOptions = getCompilerOptions();
+		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" + 
@@ -2684,14 +2676,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    AX<P> p;\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	AX ax3 = new AX<String>();\n" + 
-		"	         ^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of type AX<String> to raw type AX. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n",
+		"",
 		null,
 		true,
+		null,
 		customOptions);		
 	}				
 
@@ -2714,8 +2702,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 
 	public void test090() {
 		Map customOptions = getCompilerOptions();
+		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" + 
@@ -2725,21 +2714,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"         X<String[]> xss = new X<String[]>();\n" + 
 				"         X<X<String[]>> xxs = new X<X<String[]>>();\n" + 
 				"         xxs.q = xss;\n" + 
+				"         System.out.println(\"SUCCESS\");\n" + 
 				"     }\n" + 
 				"      void foo(X[] xs) {\n" + 
 				"          xs[0] = new X<String>();\n" + 
-				"         System.out.println(\"SUCCESS\");\n" + 
 				"     }\n" +
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	xs[0] = new X<String>();\n" + 
-		"	        ^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of type X<String> to raw type X. References to generic type X<T> should be parameterized\n" + 
-		"----------\n",
+		"SUCCESS",
 		null,
 		true,
+		null,
 		customOptions);		
 	}				
 
@@ -3220,5 +3205,35 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		true,
 		customOptions);		
 	}			
-
+	// class literal: Integer.class of type Class<Integer>
+	public void test108() {
+	    // also ensure no unsafe type operation problem is issued (assignment to variable of type raw)
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"public class X {\n" + 
+			"    Class k;\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        new X().foo();\n" + 
+			"    }\n" + 
+			"    void foo() {\n" + 
+			"        Class c = this.getClass();\n" + 
+			"        this.k = this.getClass();\n" + 
+			"        this.k = Integer.class;\n" + 
+			"        try {\n" + 
+			"            Integer i = Integer.class.newInstance();\n" + 
+			"        } catch (Exception e) {\n" + 
+			"        }\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n",
+			},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		customOptions);		
+	}	
 }
