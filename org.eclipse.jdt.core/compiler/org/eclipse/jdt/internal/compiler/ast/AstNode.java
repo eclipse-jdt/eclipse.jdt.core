@@ -25,7 +25,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
-	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, method decl)
+	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10; 					// value for return (expression) 
 	public final static int Bit6 = 0x20; 					// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 					// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)

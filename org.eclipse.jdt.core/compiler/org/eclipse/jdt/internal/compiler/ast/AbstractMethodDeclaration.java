@@ -363,7 +363,7 @@ public abstract class AbstractMethodDeclaration
 				statements[i].resolve(scope);
 			}
 		} else if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
-			scope.problemReporter().undocumentedEmptyBlock(this.sourceEnd, this.declarationSourceEnd);
+			scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 		}
 	}
 

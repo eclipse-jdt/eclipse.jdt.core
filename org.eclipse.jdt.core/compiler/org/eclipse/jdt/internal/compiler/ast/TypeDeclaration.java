@@ -797,8 +797,10 @@ public class TypeDeclaration
 			ignoreFurtherInvestigation = true;
 			return;
 		}
-
 		try {
+			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+			}
 			// check superclass & interfaces
 			if (binding.superclass != null) // watch out for Object ! (and other roots)	
 				if (isTypeUseDeprecated(binding.superclass, scope))

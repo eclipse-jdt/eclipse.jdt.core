@@ -1012,6 +1012,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
 		}
+		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
+			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
 		astPtr--;
 		astLengthPtr--;
 		
@@ -1426,6 +1429,9 @@ protected void consumeClassDeclaration() {
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = endStatementPosition;
+	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
+		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
+	}
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeClassHeader() {
@@ -2250,6 +2256,9 @@ protected void consumeInterfaceDeclaration() {
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = endStatementPosition;
+	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
+		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
+	}
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeInterfaceHeader() {
