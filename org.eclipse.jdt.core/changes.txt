@@ -124,6 +124,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  1GKOFO6: ITPJCORE:WINNT - Internal error searching for class references
   1GK96A0: ITPJCORE:WINNT - NPE during search operation
   1GK9B5Q: ITPJCORE:WINNT - Class reference search broken
   1GBOFK5: ITPJUI:ALL - "References to" on methods in jars
