@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -413,8 +414,15 @@ public class SetClasspathOperation extends JavaModelOperation {
 					// Need to updated dependents in case old and/or new entries are exported and have an access restriction
 					ClasspathEntry oldEntry = (ClasspathEntry) oldResolvedPath[i];
 					ClasspathEntry newEntry = (ClasspathEntry) newResolvedPath[index];
-					needToUpdateDependents |= (oldEntry.isExported && oldEntry.getImportRestriction() != null) || 
-						(newEntry.isExported && newEntry.getImportRestriction() != null);
+					if (oldEntry.isExported || newEntry.isExported) { // then we need to verify if there's access restriction
+						AccessRestriction oldRestriction = oldEntry.getImportRestriction();
+						AccessRestriction newRestriction = newEntry.getImportRestriction();
+						if (index != i) { // entry has been moved
+							needToUpdateDependents |= (oldRestriction != null || newRestriction != null); // there's an access restriction, this may change combination
+						} else {
+							needToUpdateDependents |= !oldRestriction.equals(newRestriction); // access restriction has changed
+						}
+					}
 					this.needCycleCheck |= (oldEntry.isExported() != newEntry.isExported());
 					continue; 
 				}				
