@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -517,7 +518,15 @@ protected String getPluginDirectoryPath() {
 		int index = javaCorePath.indexOf(JavaCore.PLUGIN_ID);
 		if (index != -1) {
 			String pluginsPath = javaCorePath.substring(0, index);
-			return pluginsPath + "org.eclipse.jdt.core.tests.model";
+			File pluginsFile = new File(pluginsPath);
+			String[] list = pluginsFile.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.startsWith( "org.eclipse.jdt.core.tests.model");
+				}
+			});
+			if (list != null && list.length > 0) {
+				return pluginsPath + list[0];
+			}
 		}
 	}
 	return null;
