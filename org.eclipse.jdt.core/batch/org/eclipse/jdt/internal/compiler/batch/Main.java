@@ -434,6 +434,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		boolean didSpecifyDefaultEncoding = false;
 		boolean didSpecifyTarget = false;
 		boolean didSpecifyDeprecation = false;
+		boolean didSpecifyWarnings = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -735,7 +736,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					new StringTokenizer(warningOption.substring(6, warningOption.length()), ","); //$NON-NLS-1$
 				int tokenCounter = 0;
 
-				disableWarnings();
+				if (!didSpecifyWarnings) {
+					// clear default warning level
+					// but allow multiple warning option on the command line
+					disableWarnings();
+				}
 				if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
 					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				}
@@ -882,6 +887,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (tokenCounter == 0)
 					throw new InvalidInputException(
 						Main.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+				didSpecifyWarnings = true;
 				continue;
 			}
 			if (currentArg.equals("-target")) { //$NON-NLS-1$
