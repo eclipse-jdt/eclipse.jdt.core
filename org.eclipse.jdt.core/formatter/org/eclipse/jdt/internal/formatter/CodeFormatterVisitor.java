@@ -229,6 +229,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return builder;
 	}
 
+	private CascadingMethodInvocationFragmentBuilder buildFragments(MessageSend messageSend, BlockScope scope) {
+		CascadingMethodInvocationFragmentBuilder builder = new CascadingMethodInvocationFragmentBuilder();
+
+		messageSend.traverse(builder, scope);
+		return builder;
+	}	
 	public boolean checkChunkStart(int kind) {
 		if (this.chunkKind != kind) {
 			this.chunkKind = kind;
@@ -818,6 +824,79 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 	}
 
+	private void formatCascadingMessageSends(CascadingMethodInvocationFragmentBuilder builder, BlockScope scope) {
+		int size = builder.size();
+		MessageSend[] fragments = builder.fragments();
+		Expression fragment = fragments[0].receiver;
+		if (!fragment.isImplicitThis()) {
+			fragment.traverse(this, scope);
+		}
+		Alignment cascadingMessageSendAlignment = this.scribe.createAlignment("cascadingMessageSendAlignment", Alignment.M_COMPACT_SPLIT, Alignment.R_OUTERMOST, size, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		this.scribe.enterAlignment(cascadingMessageSendAlignment);
+		boolean ok = false;
+		do {
+			try {
+				if (!fragment.isImplicitThis()) {
+					this.scribe.alignFragment(cascadingMessageSendAlignment, 0);
+					this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+				}
+				for (int i = 1; i < size; i++) {
+					MessageSend currentMessageSend = fragments[i];
+					final int numberOfParens = (currentMessageSend.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+					if (numberOfParens > 0) {
+						manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
+					}
+					AstNode[] arguments = currentMessageSend.arguments;
+					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
+					this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+					if (arguments != null) {
+						int argumentLength = arguments.length;
+						Alignment argumentsAlignment = this.scribe.createAlignment(
+								"messageArguments", //$NON-NLS-1$
+								this.preferences.message_send_arguments_alignment,
+								argumentLength,
+								this.scribe.scanner.currentPosition);
+						this.scribe.enterAlignment(argumentsAlignment);
+						boolean okForArguments = false;
+						do {
+							try {
+								if (this.preferences.insert_space_within_message_send) {
+									this.scribe.space();
+								}
+								for (int j = 0; j < argumentLength; j++) {
+									if (j > 0) {
+										this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+									}
+									this.scribe.alignFragment(argumentsAlignment, j);
+									if (j > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+										this.scribe.space();
+									}
+									arguments[j].traverse(this, scope);
+								}
+								okForArguments = true;
+							} catch (AlignmentException e) {
+								this.scribe.redoAlignment(e);
+							}
+						} while (!okForArguments);
+						this.scribe.exitAlignment(argumentsAlignment, true);
+					}
+					this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+					if (numberOfParens > 0) {
+						manageClosingParenthesizedExpression(currentMessageSend, numberOfParens);
+					}
+					if (i < size - 1) {
+						this.scribe.alignFragment(cascadingMessageSendAlignment, i);
+						this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+					}
+				}
+				ok = true;
+			} catch(AlignmentException e){
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);		
+		this.scribe.exitAlignment(cascadingMessageSendAlignment, true);
+	}
+	
 	/*
 	 * Merged traversal of member (types, fields, methods)
 	 */
@@ -894,7 +973,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printTrailingComment();
 	}	
 
-	public void formatMessageSend(
+	private void formatMessageSend(
 		MessageSend messageSend,
 		BlockScope scope,
 		Alignment messageAlignment) {
@@ -943,7 +1022,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 	}
 
-	public void formatMethodArguments(
+	private void formatMethodArguments(
 			AbstractMethodDeclaration methodDeclaration, 
 			boolean spaceBeforeOpenParen, 
 			boolean spaceBetweenEmptyArgument,
@@ -1003,10 +1082,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace);
 
 		this.scribe.printTrailingComment();
-		this.scribe.printNewLine();
 	}
 
-	public void formatStatements(BlockScope scope, final Statement[] statements, boolean insertNewLineAfterLastStatement) {
+	private void formatStatements(BlockScope scope, final Statement[] statements, boolean insertNewLineAfterLastStatement) {
 		int statementsLength = statements.length;
 		for (int i = 0; i < statementsLength; i++) {
 			final Statement statement = statements[i];
@@ -1303,7 +1381,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		return false;
 	}
-	
+
 	private void manageClosingParenthesizedExpression(Expression expression, int numberOfParens) {
 		for (int i = 0; i < numberOfParens; i++) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_parenthesized_expression);
@@ -1816,6 +1894,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		final Statement[] statements = block.statements;
 		if (statements != null) {
+			this.scribe.printNewLine();
 			formatStatements(scope, statements, true);
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
@@ -2578,16 +2657,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		
 		if (elseStatement != null) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameelse, true);
-			if (this.preferences.insert_new_line_in_control_statements) {
-				this.scribe.printTrailingComment();
-				if (elseStatement instanceof IfStatement) {
-					if (!this.preferences.compact_else_if) {
-						this.scribe.printNewLine();
-					}
-				} else {
-					this.scribe.printNewLine();
-				}
-			}
 			if (elseStatement instanceof Block) {
 				elseStatement.traverse(this, scope);
 			} else if (elseStatement instanceof IfStatement) {
@@ -2815,27 +2884,33 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(messageSend, numberOfParens);
 		}
-		Alignment messageAlignment = null;
-		if (!messageSend.receiver.isImplicitThis()) {
-			messageSend.receiver.traverse(this, scope);
-			messageAlignment = this.scribe.createAlignment(
-					"messageAlignment", //$NON-NLS-1$
-					this.preferences.message_send_selector_alignment,
-					1,
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(messageAlignment);
-			boolean ok = false;
-			do {
-				try {
-					formatMessageSend(messageSend, scope, messageAlignment);
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
-				}
-			} while (!ok);
-			this.scribe.exitAlignment(messageAlignment, true);
+		CascadingMethodInvocationFragmentBuilder builder = buildFragments(messageSend, scope);
+		
+		if (builder.size() >= 3) {
+			formatCascadingMessageSends(builder, scope);
 		} else {
-			formatMessageSend(messageSend, scope, null);			
+			Alignment messageAlignment = null;
+			if (!messageSend.receiver.isImplicitThis()) {
+				messageSend.receiver.traverse(this, scope);
+				messageAlignment = this.scribe.createAlignment(
+						"messageAlignment", //$NON-NLS-1$
+						this.preferences.message_send_selector_alignment,
+						1,
+						this.scribe.scanner.currentPosition);
+				this.scribe.enterAlignment(messageAlignment);
+				boolean ok = false;
+				do {
+					try {
+						formatMessageSend(messageSend, scope, messageAlignment);
+						ok = true;
+					} catch (AlignmentException e) {
+						this.scribe.redoAlignment(e);
+					}
+				} while (!ok);
+				this.scribe.exitAlignment(messageAlignment, true);
+			} else {
+				formatMessageSend(messageSend, scope, null);			
+			}
 		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(messageSend, numberOfParens);
