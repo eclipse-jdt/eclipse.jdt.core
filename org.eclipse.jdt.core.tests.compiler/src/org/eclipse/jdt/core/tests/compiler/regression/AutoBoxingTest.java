@@ -2474,11 +2474,16 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"      }\n" + 
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	Short s2 = _byte; // ko\n" + 
-			"	      ^^\n" + 
-			"Type mismatch: cannot convert from byte to Short\n" + 
-			"----------\n");
+            "----------\n" + 
+            "1. WARNING in X.java (at line 4)\n" + 
+            "   Short s = (short) _byte; // cast reported is necessary\n" + 
+            "             ^^^^^^^^^^^^^\n" + 
+            "The expression of type short is boxed into Short\n" + 
+            "----------\n" + 
+            "2. ERROR in X.java (at line 5)\n" + 
+            "   Short s2 = _byte; // ko\n" + 
+            "         ^^\n" + 
+            "Type mismatch: cannot convert from byte to Short\n" + 
+            "----------\n");
 	}			
 }
