@@ -7306,12 +7306,13 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//files are located at Parser.class directory
 
-	InputStream stream = new BufferedInputStream(Parser.class.getResourceAsStream(filename));
+	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
 		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
 	}
 	byte[] bytes = null;
 	try {
+		stream = new BufferedInputStream(stream);
 		bytes = Util.getInputStreamAsByteArray(stream, -1);
 	} finally {
 		try {
