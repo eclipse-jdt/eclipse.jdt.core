@@ -228,13 +228,13 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	}
 	/**
 	 * Sets the default position in which to create the new type
-	 * member. By default, the new element is positioned as the
-	 * last child of the parent element in which it is created.
+	 * member. 
 	 * Operations that require a different default position must
 	 * override this method.
 	 */
 	protected void initializeDefaultPosition() {
-	
+		// By default, the new element is positioned as the
+		// last child of the parent element in which it is created.
 	}
 	/**
 	 * Inserts the given child into the given JDOM, 
@@ -271,6 +271,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * Only used for <code>CreateTypeMemberOperation</code>
 	 */
 	protected void setAlteredName(String newName) {
+		// implementation in CreateTypeMemberOperation
 	}
 	/**
 	 * Instructs this operation to position the new element relative

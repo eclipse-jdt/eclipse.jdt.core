@@ -27,11 +27,6 @@ public class JavaModelInfo extends OpenableElementInfo {
 	Object[] nonJavaResources;
 
 /**
- * Constructs a new Java Model Info 
- */
-protected JavaModelInfo() {
-}
-/**
  * Compute the non-java resources contained in this java project.
  */
 private Object[] computeNonJavaResources() {

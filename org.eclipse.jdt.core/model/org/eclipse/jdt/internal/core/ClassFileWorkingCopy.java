@@ -45,6 +45,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
 	 */
 	public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	
 	/*
@@ -84,6 +85,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see ICompilationUnit#discardWorkingCopy
 	 */
 	public void discardWorkingCopy() throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	
 	/*
@@ -313,6 +315,7 @@ public IType findPrimaryType() {
 	 * @see IOpenable#close()
 	 */
 	public void close() throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
 	/*
@@ -387,6 +390,7 @@ public IType findPrimaryType() {
 	 * @deprecated
 	 */
 	public void destroy() {
+		// not a read working copy: ignore
 	}
 
 	/**
