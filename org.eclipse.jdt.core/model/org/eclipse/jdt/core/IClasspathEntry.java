@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -212,43 +212,43 @@ public interface IClasspathEntry {
 	 * '?' matches 1 character within a segment. So <code>?.java</code> 
 	 * matches <code>a.java</code>, <code>A.java</code>, 
 	 * but not <code>.java</code> or <code>xyz.java</code> (neither have
-	 * just one character before <code>.java<code>).
+	 * just one character before <code>.java</code>).
 	 * </p>
 	 * <p>
 	 * Combinations of *'s and ?'s are allowed.
 	 * </p>
 	 * <p>
 	 * The special pattern '**' matches zero or more segments. A path 
-	 * like <code>tests/<code> that ends in a trailing separator is interpreted
-	 * as <code>tests/&#42;&#42;<code>, and would match all files under the 
-	 * the folder named <code>tests<code>.
+	 * like <code>tests/</code> that ends in a trailing separator is interpreted
+	 * as <code>tests/&#42;&#42;</code>, and would match all files under the 
+	 * the folder named <code>tests</code>.
 	 * </p>
 	 * <p>
 	 * Examples:
 	 * <ul>
 	 * <li>
-	 * <code>tests/&#42;&#42;<code> (or simply <code>tests/<code>) 
+	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
 	 * matches all files under a root folder
-	 * named <code>tests<code>. This includes <code>tests/Foo.java<code>
-	 * and <code>tests/com/example/Foo.java<code>, but not 
-	 * <code>com/example/tests/Foo.java<code> (not under a root folder named
-	 * <code>tests<code>).
+	 * named <code>tests</code>. This includes <code>tests/Foo.java</code>
+	 * and <code>tests/com/example/Foo.java</code>, but not 
+	 * <code>com/example/tests/Foo.java</code> (not under a root folder named
+	 * <code>tests</code>).
 	 * </li>
 	 * <li>
-	 * <code>tests/&#42;<code> matches all files directly below a root 
-	 * folder named <code>tests<code>. This includes <code>tests/Foo.java<code>
-	 * and <code>tests/FooHelp.java<code>
-	 * but not <code>tests/com/example/Foo.java<code> (not directly under
-	 * a folder named <code>tests<code>) or 
-	 * <code>com/Foo.java<code> (not under a folder named <code>tests<code>).
+	 * <code>tests/&#42;</code> matches all files directly below a root 
+	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>
+	 * and <code>tests/FooHelp.java</code>
+	 * but not <code>tests/com/example/Foo.java</code> (not directly under
+	 * a folder named <code>tests</code>) or 
+	 * <code>com/Foo.java</code> (not under a folder named <code>tests</code>).
 	 * </li>
 	 * <li>
-	 * <code>&#42;&#42;/tests/&#42;&#42;<code> matches all files under any
-	 * folder named <code>tests<code>. This includes <code>tests/Foo.java<code>,
-	 * <code>com/examples/tests/Foo.java<code>, and 
-	 * <code>com/examples/tests/unit/Foo.java<code>, but not 
-	 * <code>com/example/Foo.java<code> (not under a folder named
-	 * <code>tests<code>).
+	 * <code>&#42;&#42;/tests/&#42;&#42;</code> matches all files under any
+	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>,
+	 * <code>com/examples/tests/Foo.java</code>, and 
+	 * <code>com/examples/tests/unit/Foo.java</code>, but not 
+	 * <code>com/example/Foo.java</code> (not under a folder named
+	 * <code>tests</code>).
 	 * </li>
 	 * </ul>
 	 * </p>
