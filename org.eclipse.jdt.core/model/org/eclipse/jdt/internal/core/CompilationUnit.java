@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
+    // TODO (jerome) remove
 	public static final boolean USE_LOCAL_ELEMENTS = true;
 	
 	public WorkingCopyOwner owner;
