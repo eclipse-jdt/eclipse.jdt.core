@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IMethod;
@@ -838,7 +839,7 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 		INameEnvironment nameEnvironment = project.getSearchableNameEnvironment();
 		IProblemFactory problemFactory = new DefaultProblemFactory();
 
-		CompilerOptions options = new CompilerOptions(null);
+		CompilerOptions options = new CompilerOptions(JavaCore.getOptions());
 		ProblemReporter problemReporter =
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -846,7 +847,7 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 				problemFactory);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
-		this.parser = new MatchLocatorParser(problemReporter);
+		this.parser = new MatchLocatorParser(problemReporter, options.getAssertMode());
 		this.parsedUnits = new HashtableOfObject(10);
 		return this.pattern.initializeFromLookupEnvironment(this.lookupEnvironment);
 	}

@@ -92,8 +92,8 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 }
 
-public MatchLocatorParser(ProblemReporter problemReporter) {
-	super(problemReporter);
+public MatchLocatorParser(ProblemReporter problemReporter, boolean assertMode) {
+	super(problemReporter, true, assertMode);
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
