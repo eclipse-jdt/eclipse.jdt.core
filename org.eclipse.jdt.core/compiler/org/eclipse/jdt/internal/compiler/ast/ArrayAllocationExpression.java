@@ -158,7 +158,8 @@ public class ArrayAllocationExpression extends Expression {
 			if (dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			if (referenceType.isParameterizedType() || referenceType.isGenericType() || referenceType.isTypeVariable()) {
+			// allow new List<?>[5]
+			if (referenceType.isBoundParameterizedType() || referenceType.isGenericType() || referenceType.isTypeVariable()) {
 			    scope.problemReporter().illegalGenericArray(referenceType, this);
 			}
 			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
