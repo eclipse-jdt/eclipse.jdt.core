@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -58,6 +60,28 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		deleteProject("P");
 		
 		super.tearDownSuite();
+	}
+
+	protected void assertTypeBindingsEqual(String message, String expected, ITypeBinding[] types) {
+		StringBuffer buffer = new StringBuffer();
+		if (types == null) {
+			buffer.append("<null>");
+		} else {
+			for (int i = 0, length = types.length; i < length; i++){
+				buffer.append(types[i].getQualifiedName());
+				if (i != length-1) {
+					buffer.append("\n");
+				}
+			}
+		}
+		if (!expected.equals(buffer.toString())) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		}
+		assertEquals(
+			message,
+			expected,
+			buffer.toString()
+		);
 	}
 
 	/*
@@ -440,6 +464,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	
 	/*
 	 * Ensures that computing binding for an AST tales the owner's working copies into account.
+	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
 	 */
 	public void testParseCompilationUnit1() throws CoreException {
 		ICompilationUnit workingCopy1 = null;
@@ -461,11 +486,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy2.makeConsistent(null);
 
 			CompilationUnit cu = AST.parseCompilationUnit(workingCopy1, true, owner);
-			TypeDeclaration type = (TypeDeclaration)cu.types().get(0);
+			List types = cu.types();
+			assertEquals("Unexpected number of types in AST", 1, types.size());
+			TypeDeclaration type = (TypeDeclaration)types.get(0);
 			ITypeBinding typeBinding = type.resolveBinding();
-			ITypeBinding[] interfaces = typeBinding.getInterfaces();
-			assertEquals("Should implement one interface", 1, interfaces.length);
-			assertEquals("Unexpected interface name", "I", interfaces[0].getName());
+			assertTypeBindingsEqual(
+				"Unexpected interfaces", 
+				"I",
+				typeBinding.getInterfaces());
 		} finally {
 			if (workingCopy1 != null) {
 				workingCopy1.discardWorkingCopy();
