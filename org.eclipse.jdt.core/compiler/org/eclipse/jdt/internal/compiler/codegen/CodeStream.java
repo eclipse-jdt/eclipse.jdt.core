@@ -1770,51 +1770,6 @@ public void generateInlinedValue(boolean inlinedValue) {
 	else
 		this.iconst_0();
 }
-public void generateObjectWrapperForType(TypeBinding valueType) {
-
-	/* The top of stack must be encapsulated inside 
-	 * a wrapper object if it corresponds to a base type
-	 */
-	char[][] wrapperTypeCompoundName = null;
-	switch (valueType.id) {
-		case T_int : // new: java.lang.Integer
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Integer".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_boolean : // new: java.lang.Boolean
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Boolean".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_byte : // new: java.lang.Byte
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Byte".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_char : // new: java.lang.Character
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Character".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_float : // new: java.lang.Float
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Float".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_double : // new: java.lang.Double
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Double".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_short : // new: java.lang.Short
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Short".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_long : // new: java.lang.Long
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-	}
-	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
-	new_(wrapperType);
-	if (valueType.id == T_long || valueType.id == T_double) {
-		dup_x2();
-		dup_x2();
-		pop();
-	} else {
-		dup_x1();
-		swap();
-	}
-	MethodBinding methodBinding = methodDeclaration.scope.getMethod(wrapperType, QualifiedNamesConstants.Init, new TypeBinding[] {valueType}, null);
-	invokespecial(methodBinding);
-}
 public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite, Scope scope) {
 	if (mappingSequence == null)
 		return;
