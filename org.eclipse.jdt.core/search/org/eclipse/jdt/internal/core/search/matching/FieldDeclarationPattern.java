@@ -245,16 +245,18 @@ public int matchLevel(Binding binding) {
 		if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 	}
 
-	// field type
-	int newLevel = this.matchLevelForType(this.typeSimpleName, this.typeQualification, field.type);
-	switch (newLevel) {
-		case IMPOSSIBLE_MATCH:
-			return IMPOSSIBLE_MATCH;
-		case ACCURATE_MATCH: // keep previous level
-			break;
-		default: // ie. INACCURATE_MATCH
-			level = newLevel;
-			break;
+	// look at field type only if declaring type is not specified
+	if (this.declaringSimpleName == null) {
+		int newLevel = this.matchLevelForType(this.typeSimpleName, this.typeQualification, field.type);
+		switch (newLevel) {
+			case IMPOSSIBLE_MATCH:
+				return IMPOSSIBLE_MATCH;
+			case ACCURATE_MATCH: // keep previous level
+				break;
+			default: // ie. INACCURATE_MATCH
+				level = newLevel;
+				break;
+		}
 	}
 	
 	return level;

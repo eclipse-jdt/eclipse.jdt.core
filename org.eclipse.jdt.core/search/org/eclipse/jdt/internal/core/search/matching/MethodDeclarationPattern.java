@@ -111,11 +111,14 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 		}
 	}
 
-	// return type
 	String methodDescriptor = new String(method.getMethodDescriptor()).replace('/', '.');
-	String returnTypeSignature = Signature.toString(Signature.getReturnType(methodDescriptor));
-	if (!this.matchesType(this.returnSimpleName, this.returnQualification, returnTypeSignature.toCharArray())) {
-		return false;
+
+	// look at return type only if declaring type is not specified
+	if (this.declaringSimpleName == null) {
+		String returnTypeSignature = Signature.toString(Signature.getReturnType(methodDescriptor));
+		if (!this.matchesType(this.returnSimpleName, this.returnQualification, returnTypeSignature.toCharArray())) {
+			return false;
+		}
 	}
 		
 	// parameter types
@@ -199,16 +202,18 @@ public int matchLevel(Binding binding) {
 		return IMPOSSIBLE_MATCH;
 	}
 
-	// return type
-	int newLevel = this.matchLevelForType(this.returnSimpleName, this.returnQualification, method.returnType);
-	switch (newLevel) {
-		case IMPOSSIBLE_MATCH:
-			return IMPOSSIBLE_MATCH;
-		case ACCURATE_MATCH: // keep previous level
-			break;
-		default: // ie. INACCURATE_MATCH
-			level = newLevel;
-			break;
+	// look at return type only if declaring type is not specified
+	if (this.declaringSimpleName == null) {
+		int newLevel = this.matchLevelForType(this.returnSimpleName, this.returnQualification, method.returnType);
+		switch (newLevel) {
+			case IMPOSSIBLE_MATCH:
+				return IMPOSSIBLE_MATCH;
+			case ACCURATE_MATCH: // keep previous level
+				break;
+			default: // ie. INACCURATE_MATCH
+				level = newLevel;
+				break;
+		}
 	}
 		
 	// parameter types
@@ -220,7 +225,7 @@ public int matchLevel(Binding binding) {
 		for (int i = 0; i < parameterCount; i++) {
 			char[] qualification = this.parameterQualifications[i];
 			char[] type = this.parameterSimpleNames[i];
-			newLevel = this.matchLevelForType(type, qualification, method.parameters[i]);
+			int newLevel = this.matchLevelForType(type, qualification, method.parameters[i]);
 			switch (newLevel) {
 				case IMPOSSIBLE_MATCH:
 					return IMPOSSIBLE_MATCH;
