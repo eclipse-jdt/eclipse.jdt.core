@@ -120,10 +120,23 @@ public class JavaProject
 			// default to original path
 			return externalPath;
 		}
-		// keep only segments that were in original path and device if it was there
-		IPath result =
-			canonicalPath.removeFirstSegments(
-				canonicalPath.segmentCount() - externalPath.segmentCount());
+		
+		IPath result;
+		if (externalPath.isAbsolute()) {
+			result = canonicalPath;
+		} else {
+			// if path is relative, remove the first segments that were added by the java.io.File canonicalization
+			// e.g. 'lib/classes.zip' was converted to 'd:/myfolder/lib/classes.zip'
+			int externalLength = externalPath.segmentCount();
+			int canonicalLength = canonicalPath.segmentCount();
+			if (canonicalLength > externalLength) {
+				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
+			} else {
+				result = canonicalPath;
+			}
+		}
+		
+		// keep device only if it was specified (this is because File.getCanonicalPath() converts '/lib/classed.zip' to 'd:/lib/classes/zip')
 		if (externalPath.getDevice() == null) {
 			return result.setDevice(null);
 		} else {
