@@ -12,7 +12,6 @@ STREAM: 2.0
     -> Image builder rework
 
   OT
-    -> Looking at the JDOM problems. Right now JDOM is broken. On 155 tests, we got 19 failures and 1 error.
     -> JCK1.4 compliance diagnosing
 
   DA

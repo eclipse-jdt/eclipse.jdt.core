@@ -848,7 +848,7 @@ protected void consumeModifiers() {
 protected void consumePackageDeclarationName() {
 	/* persisting javadoc positions */
 	pushOnIntArrayStack(this.getJavaDocPositions());
-
+	
 	super.consumePackageDeclarationName();
 	ImportReference importReference = compilationUnit.currentPackage;
 
@@ -921,24 +921,6 @@ protected void consumeStaticOnly() {
 	jumpOverMethodBody();
 	nestedMethod[nestedType]++;
 	resetModifiers();
-}
-protected void consumeToken(int type) {
-	super.consumeToken(type);
-
-	switch (type) {
-		case TokenNamevoid :
-		case TokenNameboolean :
-		case TokenNamebyte :
-		case TokenNamechar :
-		case TokenNamedouble :
-		case TokenNamefloat :
-		case TokenNameint :
-		case TokenNamelong :
-		case TokenNameshort :
-		// we need this position to know where the base type name ends.
-			pushOnIntStack(scanner.currentPosition - 1);
-			break;
-	}
 }
 /**
  *
