@@ -208,10 +208,7 @@ public final void computeConstant(TypeBinding leftType, TypeBinding rightType) {
 			constant = Constant.fromValue(!constant.booleanValue());
 	} else {
 		this.constant = NotAConstant;
-		// optimization for null == null
-		if (this.left instanceof NullLiteral && this.right instanceof NullLiteral) {
-			this.optimizedBooleanConstant = Constant.fromValue(((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL);
-		}
+		// no optimization for null == null
 	}
 }
 /**
