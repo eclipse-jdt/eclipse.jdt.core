@@ -235,6 +235,7 @@ public class ClassFile
 		// leave two bytes for the number of attributes and store the current offset
 		int attributeOffset = contentsOffset;
 		contentsOffset += 2;
+		int contentsLength;
 
 		// source attribute
 		if ((produceDebugAttributes & CompilerOptions.Source) != 0) {
@@ -247,7 +248,6 @@ public class ClassFile
 			}
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
-			int contentsLength;
 			if (contentsOffset + 8 >= (contentsLength = contents.length)) {
 				System.arraycopy(
 					contents,
@@ -276,7 +276,6 @@ public class ClassFile
 		if (referenceBinding.isDeprecated()) {
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
-			int contentsLength;
 			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
 				System.arraycopy(
 					contents,
@@ -299,7 +298,6 @@ public class ClassFile
 		// Inner class attribute
 		if (numberOfInnerClasses != 0) {
 			// Generate the inner class attribute
-			int contentsLength;
 			int exSize;
 			if (contentsOffset + (exSize = (8 * numberOfInnerClasses + 8))
 				>= (contentsLength = contents.length)) {
@@ -366,6 +364,15 @@ public class ClassFile
 			attributeNumber++;
 		}
 		// update the number of attributes
+		contentsLength = contents.length;
+		if (attributeOffset + 2 >= contentsLength) {
+			System.arraycopy(
+				contents,
+				0,
+				(contents = new byte[contentsLength + INCREMENT_SIZE]),
+				0,
+				contentsLength);
+		}
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
 
