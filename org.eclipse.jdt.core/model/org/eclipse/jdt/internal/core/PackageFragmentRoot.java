@@ -237,6 +237,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 	}
 	try {
 		JavaProject javaProject = (JavaProject)getJavaProject();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IResource[] members = folder.members();
 		boolean hasIncluded = isIncluded;
 		for (int i = 0, max = members.length; i < max; i++) {
@@ -252,7 +253,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 					    if (isMemberIncluded || inclusionPatterns != null) { 
 							// eliminate binary output only if nested inside direct subfolders
 							if (javaProject.contains(member)) {
-								String[] newNames = Util.arrayConcat(pkgName, memberName.intern());
+								String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
 								computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 							}
 						}

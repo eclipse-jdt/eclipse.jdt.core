@@ -243,9 +243,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			if (existing != null) break;
 			existingLength--;
 		}
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = existingLength; i < length; i++) {
 			System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
-			existing[i] = pkgName[i].intern();
+			existing[i] = manager.intern(pkgName[i]);
 			packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 		}
 		

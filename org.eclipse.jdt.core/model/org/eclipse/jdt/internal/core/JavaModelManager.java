@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -75,6 +76,12 @@ public class JavaModelManager implements ISaveParticipant {
 	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
 	 */
 	private ThreadLocal classpathsBeingResolved = new ThreadLocal();
+	
+	/*
+	 * A pool of symbols used in the Java model.
+	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
+	 */
+	private WeakHashSet symbols = new WeakHashSet(5);
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -1330,6 +1337,23 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		return container;
+	}
+	
+	public synchronized String intern(String s) {
+		return (String) this.symbols.add(s);
+		
+		// Note1: String#intern() cannot be used as on some VMs this prevents the string from being garbage collected
+		// Note 2: Instead of using a WeakHashset, one could use a WeakHashMap with the following implementation
+		// 			   This would costs more per entry (one Entry object and one WeakReference more))
+		
+		/*
+		WeakReference reference = (WeakReference) this.symbols.get(s);
+		String existing;
+		if (reference != null && (existing = (String) reference.get()) != null)
+			return existing;
+		this.symbols.put(s, new WeakReference(s));
+		return s;
+		*/	
 	}
 	
 	private HashSet getClasspathBeingResolved() {
