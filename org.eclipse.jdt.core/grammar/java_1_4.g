@@ -175,7 +175,7 @@ Goal ::= '||' ImportDeclaration
 Goal ::= '?' PackageDeclaration
 Goal ::= '+' TypeDeclaration
 Goal ::= '/' GenericMethodDeclaration
-Goal ::= '&' ClassBodyDeclaration
+Goal ::= '&' ClassBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
 -- completion parser

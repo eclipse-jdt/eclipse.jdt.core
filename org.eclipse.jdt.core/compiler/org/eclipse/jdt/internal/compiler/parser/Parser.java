@@ -459,9 +459,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
             5,6,0,0,9,10,11,0,13,14,15,16,17,18,19,
             20,21,0,23,53,3,26,27,28,0,0,24,0,0,12,
             0,0,0,31,32,33,34,35,36,37,38,39,25,0,0,
-            0,0,0,53,0,0,0,0,22,0,0,54,0,0,57,
-            58,59,60,61,62,63,64,65,66,24,53,40,0,0,0,
-            0,31,32,33,34,35,36,37,38,39,54,55,0,57,58,
+            0,0,0,53,3,0,0,0,22,0,0,54,0,12,57,
+            58,59,60,61,62,63,64,65,66,24,24,25,0,0,0,
+            0,31,32,33,34,35,36,37,38,39,54,55,56,57,58,
             59,60,61,62,63,64,65,66,0,54,0,0,57,58,59,
             60,61,62,63,64,65,66,0,1,2,0,4,5,6,0,
             0,9,10,11,0,13,14,15,16,17,18,19,20,21,0,
@@ -538,29 +538,29 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
             13,14,15,16,17,0,0,0,0,0,0,0,54,0,0,
             57,58,59,60,61,62,63,64,65,66,0,54,22,0,57,
             58,59,60,61,62,63,64,65,66,0,82,0,0,0,86,
-            0,0,22,0,0,0,0,0,0,0,0,0,0,0,54,
-            55,22,57,58,59,60,61,62,63,64,65,66,0,0,0,
-            22,0,0,0,54,0,56,57,58,59,60,61,62,63,64,
-            65,66,0,54,0,0,57,58,59,60,61,62,63,64,65,
-            66,29,54,0,0,57,58,59,60,61,62,63,64,65,66,
-            0,0,0,0,3,0,0,0,0,0,0,54,0,12,57,
-            58,59,60,61,62,63,64,65,66,24,0,25,0,0,0,
-            0,31,32,33,34,35,36,37,38,39,0,0,0,0,0,
-            0,3,0,0,24,0,0,0,0,0,12,31,32,33,34,
-            35,36,37,38,39,24,0,24,25,0,0,0,31,32,33,
-            34,35,36,37,38,39,81,0,83,0,0,0,3,0,0,
-            24,0,0,0,0,0,12,31,32,33,34,35,36,37,38,
-            39,24,0,24,25,0,0,0,31,32,33,34,35,36,37,
-            38,39,0,0,0,0,0,0,3,0,0,24,0,0,0,
-            0,0,12,31,32,33,34,35,36,37,38,39,22,0,0,
-            0,3,3,3,29,30,0,0,0,3,12,12,12,0,0,
-            0,0,0,12,0,22,0,0,24,25,25,0,29,30,0,
-            24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            40,0,22,0,0,0,0,0,0,0,0,0,0,0,54,
+            55,22,57,58,59,60,61,62,63,64,65,66,0,0,22,
+            0,0,0,0,54,55,0,57,58,59,60,61,62,63,64,
+            65,66,0,54,0,56,57,58,59,60,61,62,63,64,65,
+            66,54,29,0,57,58,59,60,61,62,63,64,65,66,0,
+            0,0,0,0,0,3,0,0,0,0,22,0,54,0,12,
+            57,58,59,60,61,62,63,64,65,66,24,24,25,0,0,
+            0,0,31,32,33,34,35,36,37,38,39,0,54,0,0,
+            57,58,59,60,61,62,63,64,65,66,24,0,0,0,0,
+            0,0,31,32,33,34,35,36,37,38,39,0,0,0,0,
+            0,3,3,0,0,24,0,81,0,83,12,12,31,32,33,
+            34,35,36,37,38,39,24,0,25,25,0,0,0,31,32,
+            33,34,35,36,37,38,39,0,0,0,0,0,0,3,0,
+            0,24,0,0,0,0,53,12,31,32,33,34,35,36,37,
+            38,39,24,0,24,25,0,0,0,31,32,33,34,35,36,
+            37,38,39,0,0,0,3,3,3,0,0,0,0,0,0,
+            12,12,12,0,0,0,0,0,0,0,22,0,22,24,25,
+            0,0,29,30,29,30,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0
+            0,0,0,0,0,0
     };
 
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
@@ -671,7 +671,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
             "DoubleLiteral", //$NON-NLS-1$
             "CharacterLiteral", //$NON-NLS-1$
             "StringLiteral", //$NON-NLS-1$
-            UNEXPECTED_EOF, //$NON-NLS-1$
+            UNEXPECTED_EOF,
             "Invalid Character", //$NON-NLS-1$
             "Goal", //$NON-NLS-1$
             "CompilationUnit", //$NON-NLS-1$
@@ -688,7 +688,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
             "PackageDeclaration", //$NON-NLS-1$
             "TypeDeclaration", //$NON-NLS-1$
             "GenericMethodDeclaration", //$NON-NLS-1$
-            "ClassBodyDeclaration", //$NON-NLS-1$
+            "ClassBodyDeclarations", //$NON-NLS-1$
             "Expression", //$NON-NLS-1$
             "ConstructorBlockStatementsopt", //$NON-NLS-1$
             "BlockStatementsopt", //$NON-NLS-1$
@@ -740,7 +740,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
             "InterfaceTypeList", //$NON-NLS-1$
             "InterfaceType", //$NON-NLS-1$
             "ClassBodyDeclarationsopt", //$NON-NLS-1$
-            "ClassBodyDeclarations", //$NON-NLS-1$
+            "ClassBodyDeclaration", //$NON-NLS-1$
             "ClassMemberDeclaration", //$NON-NLS-1$
             "ConstructorDeclaration", //$NON-NLS-1$
             "Diet", //$NON-NLS-1$
@@ -3494,7 +3494,7 @@ protected void consumeRightParen() {
 	pushOnIntStack(rParenPos);
 }
 
- // This method is part of an automatic generation : do NOT edit-modify  
+// This method is part of an automatic generation : do NOT edit-modify  
 protected void consumeRule(int act) {
   switch ( act ) {
     case 29 : // System.out.println("Type ::= PrimitiveType");
@@ -4402,7 +4402,7 @@ protected void consumeRule(int act) {
 			break ;
  
 	}
-}  
+} 
 	
 protected void consumeSimpleAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ';'
@@ -5962,7 +5962,7 @@ Goal ::= '||' ImportDeclaration
 Goal ::= '?' PackageDeclaration
 Goal ::= '+' TypeDeclaration
 Goal ::= '/' GenericMethodDeclaration
-Goal ::= '&' ClassBodyDeclaration
+Goal ::= '&' ClassBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
 -- completion parser
