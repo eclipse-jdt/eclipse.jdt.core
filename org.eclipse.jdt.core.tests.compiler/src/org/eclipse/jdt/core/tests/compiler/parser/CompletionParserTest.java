@@ -8239,7 +8239,7 @@ public void test006(){
 		"  <CompleteOnType:clon>;\n" + 
 		"  public X() {\n" +
 		"  }\n" +
-		"  foo(); \n" +
+		"  foo();\n" +
 		"}\n";
 
 	checkDietParse(
