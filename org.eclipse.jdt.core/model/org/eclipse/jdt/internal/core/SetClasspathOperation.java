@@ -255,11 +255,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 		Map allRemovedRoots = manager.deltaProcessor.removedRoots;
 		Map removedRoots = null;
 		if (allRemovedRoots != null) {
-			removedRoots = new HashMap();
 			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) allRemovedRoots.get(project);
-			for (int i = 0; i < roots.length; i++) {
-				IPackageFragmentRoot root = roots[i];
-				removedRoots.put(root.getPath(), root);
+			if (roots != null) {
+				removedRoots = new HashMap();
+				for (int i = 0; i < roots.length; i++) {
+					IPackageFragmentRoot root = roots[i];
+					removedRoots.put(root.getPath(), root);
+				}
 			}
 		}
 		for (int i = 0; i < oldResolvedPath.length; i++) {
