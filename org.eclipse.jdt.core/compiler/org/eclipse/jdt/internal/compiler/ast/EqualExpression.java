@@ -269,7 +269,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
-	int pc = codeStream.position;
 	if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 		if ((left.implicitConversion & 0xF) /*compile-time*/ == T_boolean) {
 			generateOptimizedBooleanEqual(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
@@ -283,7 +282,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			generateOptimizedNonBooleanEqual(currentScope, codeStream, falseLabel, trueLabel, valueRequired);
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean generation for == with boolean operands
@@ -292,18 +290,15 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
  */
 public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
 
-	int pc = codeStream.position;
 	// optimized cases: true == x, false == x
 	if (left.constant != NotAConstant) {
 		boolean inline = left.constant.booleanValue();
 		right.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	} // optimized cases: x == true, x == false
 	if (right.constant != NotAConstant) {
 		boolean inline = right.constant.booleanValue();
 		left.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
 	// default case
@@ -324,7 +319,8 @@ public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream co
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
+	// reposition the endPC
+	codeStream.updateLastRecordedEndPC(codeStream.position);					
 }
 /**
  * Boolean generation for == with non-boolean operands

@@ -699,7 +699,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int pc = codeStream.position;
 		int promotedTypeID = left.implicitConversion >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
@@ -721,7 +720,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 			// x > 0
@@ -742,7 +742,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 		}
@@ -769,7 +770,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpl();
 							codeStream.ifgt(trueLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				}
 			} else {
@@ -791,7 +793,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpl();
 							codeStream.ifle(falseLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -810,7 +813,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int pc = codeStream.position;
 		int promotedTypeID = left.implicitConversion >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
@@ -832,7 +834,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 			// x >= 0
@@ -853,7 +856,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 		}
@@ -880,7 +884,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpl();
 							codeStream.ifge(trueLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				}
 			} else {
@@ -902,7 +907,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpl();
 							codeStream.iflt(falseLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -1032,7 +1038,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int pc = codeStream.position;
 		int promotedTypeID = left.implicitConversion >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
@@ -1054,7 +1059,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 			// x <= 0
@@ -1075,7 +1081,8 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);					
 				return;
 			}
 		}
@@ -1102,7 +1109,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.ifle(trueLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				}
 			} else {
@@ -1124,7 +1132,8 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.ifgt(falseLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -1143,7 +1152,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 			
-		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
@@ -1189,8 +1197,9 @@ public class BinaryExpression extends OperatorExpression {
 							}
 						}
 					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
@@ -1236,8 +1245,9 @@ public class BinaryExpression extends OperatorExpression {
 							}
 						}
 					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		}
@@ -1262,7 +1272,8 @@ public class BinaryExpression extends OperatorExpression {
 				}
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(codeStream.position);					
 	}
 	
 	/**
@@ -1275,7 +1286,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 			
-		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
@@ -1302,6 +1312,8 @@ public class BinaryExpression extends OperatorExpression {
 							}
 						}
 					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 				} else {
 					// <something equivalent to false> | x
 					left.generateOptimizedBoolean(
@@ -1321,7 +1333,6 @@ public class BinaryExpression extends OperatorExpression {
 							valueRequired);
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
@@ -1348,6 +1359,8 @@ public class BinaryExpression extends OperatorExpression {
 							}
 						}
 					}
+					// reposition the endPC
+					codeStream.updateLastRecordedEndPC(codeStream.position);					
 				} else {
 					// x | <something equivalent to false>
 					if ((bits & OnlyValueRequiredMASK) != 0) {
@@ -1367,7 +1380,6 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		}
@@ -1392,7 +1404,8 @@ public class BinaryExpression extends OperatorExpression {
 				}
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(codeStream.position);					
 	}
 	
 	/**
@@ -1405,7 +1418,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 			
-		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
 			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
@@ -1442,7 +1454,6 @@ public class BinaryExpression extends OperatorExpression {
 							valueRequired);
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
@@ -1479,7 +1490,6 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		}
@@ -1504,7 +1514,8 @@ public class BinaryExpression extends OperatorExpression {
 				}
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		// reposition the endPC
+		codeStream.updateLastRecordedEndPC(codeStream.position);					
 	}
 	
 	public void generateOptimizedStringBuffer(

@@ -124,6 +124,7 @@ public class AND_AND_Expression extends BinaryExpression {
 		Label trueLabel,
 		Label falseLabel,
 		boolean valueRequired) {
+			
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
@@ -169,9 +170,9 @@ public class AND_AND_Expression extends BinaryExpression {
 						}
 					}
 				}
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);
 			}
-			// reposition the endPC
-			codeStream.updateLastRecordedEndPC(codeStream.position);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
@@ -228,9 +229,9 @@ public class AND_AND_Expression extends BinaryExpression {
 						}
 					}
 				}
+				// reposition the endPC
+				codeStream.updateLastRecordedEndPC(codeStream.position);
 			}
-			// reposition the endPC
-			codeStream.updateLastRecordedEndPC(codeStream.position);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,

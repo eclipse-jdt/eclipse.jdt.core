@@ -248,7 +248,7 @@ public class ConditionalExpression extends OperatorExpression {
 				codeStream.goto_(endifLabel);
 				codeStream.updateLastRecordedEndPC(position);
 				// Tune codestream stack size
-				//if (valueRequired) {
+				//if (valueRequired) { // TODO: don't we need it ?
 				//	codeStream.decrStackSize(returnTypeSlotSize);
 				//}
 			}
