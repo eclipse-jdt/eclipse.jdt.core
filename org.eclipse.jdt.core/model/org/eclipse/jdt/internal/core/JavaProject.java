@@ -1133,6 +1133,7 @@ public class JavaProject
 	 * refresh, then this functionnality should be used to trigger a refresh. In particular, if a change to the file is performed,
 	 * during an operation where this change needs to be reflected before the operation ends, then an explicit refresh is
 	 * necessary.
+	 * Note that classpath markers are NOT created.
 	 * 
 	 * @param monitor a progress monitor for reporting operation progress
 	 * @exception JavaModelException if the classpath could not be updated. Reasons
@@ -1156,7 +1157,7 @@ public class JavaProject
 		boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
 		try {
 			// force to (re)read the property file
-			IClasspathEntry[] fileEntries = readClasspathFile(!ResourcesPlugin.getWorkspace().isTreeLocked()/*create markers*/, false/*don't log problems*/);
+			IClasspathEntry[] fileEntries = readClasspathFile(false/*don't create markers*/, false/*don't log problems*/);
 			if (fileEntries == null) {
 				return; // could not read, ignore 
 			}
@@ -1292,7 +1293,7 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)	throws JavaModelException {
 			
-			return getExpandedClasspath(ignoreUnresolvedVariable, false, null, null);
+			return getExpandedClasspath(ignoreUnresolvedVariable, false/*don't create markers*/, null, null);
 	}
 		
 	/**
