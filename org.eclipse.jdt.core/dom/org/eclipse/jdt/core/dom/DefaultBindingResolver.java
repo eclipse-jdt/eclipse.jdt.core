@@ -318,6 +318,9 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			}
 		} else if (type.isPrimitiveType()) {
+			/* Handle the void primitive type returned by getReturnType for a method declaration 
+			 * that is a constructor declaration. It prevents null from being returned
+			 */
 			if (((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.VOID) {
 				return this.getTypeBinding(BaseTypes.VoidBinding);
 			}
