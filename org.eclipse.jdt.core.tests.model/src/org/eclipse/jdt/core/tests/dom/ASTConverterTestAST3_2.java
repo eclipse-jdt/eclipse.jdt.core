@@ -5254,5 +5254,25 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		final IProblem[] problems = unit.getProblems();
 		assertEquals("Wrong number of problems", 1, problems.length); //$NON-NLS-1$
 	}
-
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77968
+	 */
+	public void test0573() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0573", "Z.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String source = sourceUnit.getSource();
+		int pos = source.indexOf("his.ba");
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, pos, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("Missing node", node);
+		assertEquals("Wrong type", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertNotNull("Missing node", expression);
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 1, problems.length); //$NON-NLS-1$
+	}
 }

@@ -624,6 +624,8 @@ class CompilationUnitResolver extends Compiler {
 					
 					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
 					
+					this.parser.scanner.setSource(unit.compilationResult);
+					
 		 			if (node != null) {
 						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
 		  				if (node instanceof AbstractMethodDeclaration) {
