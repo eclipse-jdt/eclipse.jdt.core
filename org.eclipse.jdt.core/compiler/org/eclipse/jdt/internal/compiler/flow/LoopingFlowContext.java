@@ -84,6 +84,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 
 	public String individualToString() {
 		StringBuffer buffer = new StringBuffer("Looping flow context"); //$NON-NLS-1$
+		buffer.append("[initsOnBreak -").append(initsOnBreak.toString()).append(']'); //$NON-NLS-1$
 		buffer.append("[initsOnContinue -").append(initsOnContinue.toString()).append(']'); //$NON-NLS-1$
 		return buffer.toString();
 	}
