@@ -175,7 +175,7 @@ class DocCommentParser extends AbstractCommentParser {
 			} else {
 				Name typeRef = (Name) receiver;
 				methodRef.setQualifier(typeRef);
-				methodRef.setSourceRange(typeRef.getStartPosition(), end-typeRef.getStartPosition()+1);
+				start = typeRef.getStartPosition();
 			}
 			// Add arguments
 			if (arguments != null) {
