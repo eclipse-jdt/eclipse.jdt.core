@@ -1208,7 +1208,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    Allow to specify some filters to control the resource copy process
 	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
 	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
-	 *     - default:			".*"
+	 *     - default:			""
 	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
@@ -1330,7 +1330,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		defaultOptions.put("org.eclipse.jdt.core.compiler.compliance", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Builder settings
-		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyExclusionFilter", ".*"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyExclusionFilter", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// JavaCore settings
 		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
