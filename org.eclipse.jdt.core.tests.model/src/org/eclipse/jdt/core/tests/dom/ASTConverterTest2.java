@@ -18,7 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.*; 
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
