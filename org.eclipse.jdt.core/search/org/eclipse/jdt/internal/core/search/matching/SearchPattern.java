@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -1202,6 +1203,16 @@ private static char[][] enclosingTypeNames(IType type) {
 	IJavaElement parent = type.getParent();
 	switch (parent.getElementType()) {
 		case IJavaElement.CLASS_FILE:
+			// For a binary type, the parent is not the enclosing type, but the declaring type is.
+			// (see bug 20532  Declaration of member binary type not found)
+			IType declaringType = type.getDeclaringType();
+			if (declaringType == null) {
+				return NO_CHAR_CHAR;
+			} else {
+				return CharOperation.arrayConcat(
+					enclosingTypeNames(declaringType), 
+					declaringType.getElementName().toCharArray());
+			}
 		case IJavaElement.COMPILATION_UNIT:
 			return 	NO_CHAR_CHAR;
 		case IJavaElement.TYPE:
