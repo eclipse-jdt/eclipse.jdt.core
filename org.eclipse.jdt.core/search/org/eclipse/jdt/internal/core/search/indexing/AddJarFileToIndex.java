@@ -194,6 +194,7 @@ public int hashCode() {
 				JobManager.verbose("-> failed to index " + this.path + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
+			manager.removeIndex(this.path);
 			return FAILED;
 		}
 		return COMPLETE;

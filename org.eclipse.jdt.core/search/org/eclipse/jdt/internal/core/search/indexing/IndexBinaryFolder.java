@@ -139,12 +139,14 @@ public int hashCode() {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
+			manager.removeIndex(this.folder.getFullPath());
 			return FAILED;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
+			manager.removeIndex(this.folder.getFullPath());
 			return FAILED;
 		} finally {
 			monitor.exitRead(); // free read lock
