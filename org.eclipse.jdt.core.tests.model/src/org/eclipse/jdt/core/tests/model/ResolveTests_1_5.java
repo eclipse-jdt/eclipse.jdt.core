@@ -33,12 +33,19 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new ResolveTests_1_5("test0028"));			
+	suite.addTest(new ResolveTests_1_5("test0082"));			
 	return suite;
 }
 
 public ResolveTests_1_5(String name) {
 	super(name);
+}
+private IJavaElement[] select(String path, String source, String selection) throws JavaModelException {
+	this.wc = getWorkingCopy(path, source);
+	String str = wc.getSource();
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	return wc.codeSelect(start, length);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -1802,4 +1809,34 @@ public void test0081() throws JavaModelException {
 		elements
 	);
 }
+public void test0082() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0082/Test.java",
+			"package test0082;\n" +
+			"public class Test<T> {\n" +
+			"}",
+			"Test");
+	assertEquals("test0082.Test<T>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+}
+public void test0083() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0083/Test.java",
+			"package test0083;\n" +
+			"public class Test<T> {\n" +
+			"  Test<String> field;\n" +
+			"}",
+			"Test");
+	assertEquals("test0083.Test<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+}
+public void test0084() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0084/Test.java",
+			"package test0084;\n" +
+			"public class Test<T> {\n" +
+			"  Test field;\n" +
+			"}",
+			"Test");
+	assertEquals("test0084.Test", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+}
+
 }

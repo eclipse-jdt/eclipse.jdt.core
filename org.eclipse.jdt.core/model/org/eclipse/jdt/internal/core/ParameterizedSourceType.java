@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Handle representing a source type that is parameterized.
