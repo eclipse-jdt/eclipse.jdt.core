@@ -10,7 +10,7 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build 20020423 - 23th April 2002 
+Eclipse SDK Build 20020423 - 23rd April 2002 
 <br>Project org.eclipse.jdt.core v_242a
 <h2>
 What's new in this drop</h2>
@@ -41,6 +41,9 @@ What's new in this drop</h2>
 	<li><code>ClasspathContainerResolver </code></li>
 	</ul>
 	</li>
+	<li>DOM/AST:<br>A new type of node has been added to handle properly the instanceof expression. So the new InstanceofExpression node 
+	replaced the usage of InfixExpression with the operator InfixExpression.Operator.INSTANCEOF. This operator has been
+	deprecated and is expected to be removed for the next integration build. See bug <A HREF="http://dev.eclipse.org/bugs/show_bug.cgi?id=14453">14453</a>.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -60,8 +63,6 @@ AST/DOM : IVariableBinding.getDeclaringClass() for 'length' field of an array re
 ClassFileReader.getEnclosingTypeName() should return null for anonymous types  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12363">12363</a>
 Better integration of the batch compiler with ant javac task option -extdirs 
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13807">13807</a>
-null binding returned for fully qualified array declaration 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14217">14217</a>
 DOM/AST: wrong start position for expression statement 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14106">14106</a>
