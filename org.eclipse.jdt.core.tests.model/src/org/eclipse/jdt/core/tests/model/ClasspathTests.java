@@ -41,7 +41,7 @@ public class ClasspathTests extends ModifyingResourceTests {
 		}
 		public IPath getPath() { return this.path; }
 		public IClasspathEntry[] getClasspathEntries() { return this.entries;	}
-		public String getDescription() { return null; 	}
+		public String getDescription() { return this.path.toString(); 	}
 		public int getKind() { return 0; }
 	};
 
