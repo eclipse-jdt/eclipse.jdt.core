@@ -330,7 +330,7 @@ public class JavaProject
 
 					if (target instanceof IFolder || target instanceof IProject){
 						accumulatedRoots.add(
-							new PackageFragmentRoot((IResource)target, this));
+							getPackageFragmentRoot((IResource)target));
 						rootIDs.add(rootID);
 					}
 				}
@@ -348,19 +348,10 @@ public class JavaProject
 					
 					// internal target
 					IResource resource = (IResource) target;
-					switch (resource.getType()){
-						case IResource.FOLDER :
-							accumulatedRoots.add(
-								new PackageFragmentRoot(resource, this));
-							rootIDs.add(rootID);
-							break;
-						case IResource.FILE :
-							if (Util.isArchiveFileName(resource.getName())) {
-								accumulatedRoots.add(
-									new JarPackageFragmentRoot(resource, this));
-								rootIDs.add(rootID);
-							}
-						break;
+					IPackageFragmentRoot root = getPackageFragmentRoot(resource);
+					if (root != null) {
+						accumulatedRoots.add(root);
+						rootIDs.add(rootID);
 					}
 				} else {
 					// external target - only JARs allowed
@@ -1111,17 +1102,25 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 
-		if (resource.getType() == IResource.FILE
-			&& (Util.isArchiveFileName(resource.getName()))) {
-			return new JarPackageFragmentRoot(resource, this);
-		} else {
-			if (resource.getProject().equals(getProject())) {
-				// name of root will be the project relative path (source forlders and library folder in same project)
-				return new PackageFragmentRoot(resource, this);
-			} else {
-				// name of root will be the full path (library folder in another project)
-				return new PackageFragmentRoot(resource, this, resource.getFullPath().toString());
-			}
+		switch (resource.getType()) {
+			case IResource.FILE:
+				if (Util.isArchiveFileName(resource.getName())) {
+					return new JarPackageFragmentRoot(resource, this);
+				} else {
+					return null;
+				}
+			case IResource.FOLDER:
+				if (resource.getProject().equals(getProject())) {
+					// name of root is the project relative path (case of source folders and library folder in same project)
+					return new PackageFragmentRoot(resource, this, resource.getProjectRelativePath().toString());
+				} else {
+					// name of root is the full path (case of library folder in another project)
+					return new PackageFragmentRoot(resource, this, resource.getFullPath().toString());
+				}
+			case IResource.PROJECT:
+				return new PackageFragmentRoot(resource, this, ""); //$NON-NLS-1$
+			default:
+				return null;
 		}
 	}
 
