@@ -638,6 +638,7 @@ class ASTConverter2 extends ASTConverter {
 								parameterizedType2.typeArguments().add(type2);
 								end = type2.getStartPosition() + type2.getLength() - 1;
 							}
+							end = retrieveClosingAngleBracketPosition(end + 1);
 							parameterizedType2.setSourceRange(start, end - start + 1);							
 							currentType = parameterizedType2;
 						} else {

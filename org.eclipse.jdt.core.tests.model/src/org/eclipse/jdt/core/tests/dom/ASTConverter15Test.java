@@ -62,7 +62,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0017"));
+		suite.addTest(new ASTConverter15Test("test0019"));
 		return suite;
 	}
 		
@@ -573,10 +573,91 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0018() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0018", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
-//		char[] source = sourceUnit.getSource().toCharArray();
+		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
-	}	
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "Float", source);
+		Type innerType = parameterizedType.getType();
+		assertTrue("Not a qualified type", innerType.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		QualifiedType qualifiedType = (QualifiedType) innerType;
+		checkSourceRange(qualifiedType.getName(), "C", source);
+		Type qualifier = qualifiedType.getQualifier();
+		checkSourceRange(qualifier, "test0018.A<String>.B", source);
+		assertTrue("Not a qualified type", qualifier.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		qualifiedType = (QualifiedType) qualifier;
+		checkSourceRange(qualifiedType.getName(), "B", source);
+		qualifier = qualifiedType.getQualifier();
+		checkSourceRange(qualifier, "test0018.A<String>", source);
+		assertTrue("Not a parameterized type", qualifier.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType2 = (ParameterizedType) qualifier;
+		typeArguments = parameterizedType2.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "String", source);
+		innerType = parameterizedType2.getType();
+		assertTrue("Not a simple type", innerType.getNodeType() == ASTNode.SIMPLE_TYPE);
+		SimpleType simpleType = (SimpleType) innerType;
+		checkSourceRange(simpleType, "test0018.A", source);
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
+		QualifiedName qualifiedName = (QualifiedName) name;
+		checkSourceRange(qualifiedName.getQualifier(), "test0018", source);
+		checkSourceRange(qualifiedName.getName(), "A", source);		
+	}
+	
+	public void test0019() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0019", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a qualified type", type.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		QualifiedType qualifiedType = (QualifiedType) type;
+		checkSourceRange(qualifiedType.getName(), "C", source);
+		Type qualifier = qualifiedType.getQualifier();
+		checkSourceRange(qualifier, "test0019.A<String>.B<Integer>", source);
+		assertTrue("Not a parameterized type", qualifier.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) qualifier;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "Integer", source);
+		Type innerType = parameterizedType.getType();
+		assertTrue("Not a qualified type", innerType.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		qualifiedType = (QualifiedType) innerType;
+		checkSourceRange(qualifiedType.getName(), "B", source);
+		qualifier = qualifiedType.getQualifier();
+		checkSourceRange(qualifier, "test0019.A<String>", source);
+		assertTrue("Not a parameterized type", qualifier.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType2 = (ParameterizedType) qualifier;
+		typeArguments = parameterizedType2.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "String", source);
+		innerType = parameterizedType2.getType();
+		assertTrue("Not a simple type", innerType.getNodeType() == ASTNode.SIMPLE_TYPE);
+		SimpleType simpleType = (SimpleType) innerType;
+		checkSourceRange(simpleType, "test0019.A", source);
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
+		QualifiedName qualifiedName = (QualifiedName) name;
+		checkSourceRange(qualifiedName.getQualifier(), "test0019", source);
+		checkSourceRange(qualifiedName.getName(), "A", source);		
+	}
 }
 
