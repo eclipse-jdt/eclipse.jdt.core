@@ -783,7 +783,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			
 			// /** Spec. \n @deprecated Use {@link #foo() bar} instead. */public class MyClass {}
 			TypeDeclaration td = localAst.newTypeDeclaration();
-			td.setModifiers(Modifier.PUBLIC);
+			td.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 			td.setInterface(false); 
 			td.setName(localAst.newSimpleName("MyClass")); //$NON-NLS-1$
 			{ 
@@ -822,13 +822,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			f1.setInitializer(localAst.newBooleanLiteral(true));
 			FieldDeclaration fd = localAst.newFieldDeclaration(f1);
 			fd.setType(localAst.newPrimitiveType(PrimitiveType.BOOLEAN));
-			fd.setModifiers(Modifier.PRIVATE | Modifier.STATIC);
+			fd.modifiers().add(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
+			fd.modifiers().add(Modifier.ModifierKeyword.STATIC_KEYWORD);
 			td.bodyDeclarations().add(fd);
 			assertTrue(fd.getRoot() == cu);
 			
 			// public static void main();
 			MethodDeclaration md = localAst.newMethodDeclaration();
-			md.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
+			md.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			md.modifiers().add(Modifier.ModifierKeyword.STATIC_KEYWORD);
 			md.setConstructor(false);
 			md.setName(localAst.newSimpleName("main")); //$NON-NLS-1$
 			md.setReturnType(localAst.newPrimitiveType(PrimitiveType.VOID));
@@ -894,7 +896,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			
 			// new String(10);
 			ClassInstanceCreation cr1 = localAst.newClassInstanceCreation();
-			cr1.setName(localAst.newSimpleName("String")); //$NON-NLS-1$
+			cr1.setType(localAst.newSimpleType(localAst.newSimpleName("String"))); //$NON-NLS-1$
 			cr1.arguments().add(localAst.newNumberLiteral("10"));		 //$NON-NLS-1$
 			b.statements().add(localAst.newExpressionStatement(cr1));
 			assertTrue(cr1.getRoot() == cu);
@@ -903,9 +905,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ClassInstanceCreation cr2 = localAst.newClassInstanceCreation();
 			AnonymousClassDeclaration ad1 = localAst.newAnonymousClassDeclaration();
 			cr2.setAnonymousClassDeclaration(ad1);
-			cr2.setName(localAst.newSimpleName("Listener")); //$NON-NLS-1$
+			cr2.setType(localAst.newSimpleType(localAst.newSimpleName("Listener"))); //$NON-NLS-1$
 			MethodDeclaration md0 = localAst.newMethodDeclaration();
-			md0.setModifiers(Modifier.PUBLIC);
+			md0.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 			md0.setName(localAst.newSimpleName("handleEvent")); //$NON-NLS-1$
 			md0.setBody(localAst.newBlock());
 			ad1.bodyDeclarations().add(md0);
