@@ -104,7 +104,7 @@ IJavaElement getOriginal(IJavaElement workingCopyElement);
 IJavaElement getOriginalElement();
 /**
  * Returns a shared working copy on this element using the given factory to create
- * the buffer, or this element if this element is a working copy.
+ * the buffer, or this element if this element is already a working copy.
  * <p>
  * The life time of a shared working copy is as follows:
  * <ul>
@@ -137,9 +137,12 @@ IJavaElement getOriginalElement();
  */
 IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**
- * Returns a working copy of this element if this element is not
- * a working copy, or this element if this element is a working copy.
+ * Returns a new working copy of this element if this element is not
+ * a working copy, or this element if this element is already a working copy.
  *
+ * Note: if intending to share a working copy amongst several clients, then 
+ * <code>#getSharedWorkingCopy</code> should be used insted.
+ * 
  * @exception JavaModelException if the contents of this element can
  *   not be determined. Reasons include:
  * <ul>
@@ -148,12 +151,15 @@ IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory facto
  */
 IJavaElement getWorkingCopy() throws JavaModelException;
 /**
- * Returns an open working copy of this element using the given factory to create
- * the buffer, or this element if this element is a working copy.
+ * Returns a new working copy of this element using the given factory to create
+ * the buffer, or this element if this element is already a working copy.
  * Note that this factory will be used for the life time of this working copy, i.e. if the 
- * working copy is closed then reopened, this factory will be used.
+ * working copy is closed then reopened, this factory will be reused.
  * The buffer will be automatically initialized with the original's compilation unit content
  * upon creation.
+ *
+ * Note: if intending to share a working copy amongst several clients, then 
+ * <code>#getSharedWorkingCopy</code> should be used insted.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
  *                 or <code>null</code> if no progress should be reported 
