@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -78,8 +79,13 @@ public class ClassLiteralAccess extends Expression {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
 		}
-
-		return this.resolvedType = scope.getJavaLangClass();
+		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
+		    // Integer.class is of type Class<Integer>
+		    this.resolvedType = scope.createParameterizedType(scope.getJavaLangClass(), new TypeBinding[]{ targetType });
+		} else {
+		    this.resolvedType = scope.getJavaLangClass();
+		}
+		return this.resolvedType;
 	}
 
 	public void traverse(
