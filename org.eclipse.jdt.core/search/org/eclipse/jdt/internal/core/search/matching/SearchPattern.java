@@ -610,7 +610,7 @@ private static SearchPattern createTypePattern(String fullyQualifiedName, int li
 		enclosingTypeName = fullyQualifiedName.substring(lastDot+1, lastDollar).toCharArray();
 		simpleName = fullyQualifiedName.substring(lastDollar+1, fullyQualifiedName.length()).toCharArray();
 	} else {
-		enclosingTypeName = new char[0];
+		enclosingTypeName = NO_CHAR;
 		simpleName = (lastDot != -1 ? fullyQualifiedName.substring(lastDot + 1) : fullyQualifiedName).toCharArray();
 	}
 	char[] qualification = lastDot != -1 ? fullyQualifiedName.substring(0, lastDot).toCharArray() : null;
@@ -630,10 +630,17 @@ private static SearchPattern createTypePattern(String fullyQualifiedName, int li
 			searchPattern = new SuperInterfaceReferencePattern(qualification, simpleName, EXACT_MATCH, CASE_SENSITIVE);
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
-			enclosingTypeNames = CharOperation.splitOn('$', enclosingTypeName);
+			char[] fullQualification;
+			if (enclosingTypeName.length > 0) {
+				fullQualification = CharOperation.concat(qualification, enclosingTypeName, '.');
+				enclosingTypeNames = CharOperation.splitOn('$', enclosingTypeName);
+			} else {
+				fullQualification = qualification;
+				enclosingTypeNames = NO_CHAR_CHAR;
+			}
 			searchPattern = new OrPattern(
 				new TypeDeclarationPattern(qualification, enclosingTypeNames, simpleName, TYPE_SUFFIX, EXACT_MATCH, CASE_SENSITIVE), 
-				new TypeReferencePattern(qualification, simpleName, EXACT_MATCH, CASE_SENSITIVE));
+				new TypeReferencePattern(fullQualification, simpleName, EXACT_MATCH, CASE_SENSITIVE));
 			break;
 	}
 	return searchPattern;

@@ -63,6 +63,14 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		return true;
 	}
+	public boolean visit(
+			MemberTypeDeclaration memberTypeDeclaration,
+			ClassScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(memberTypeDeclaration);
+		}
+		return true;
+	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
 			matchSet.checkMatching(methodDeclaration);
