@@ -707,63 +707,60 @@ public class DeltaProcessor {
 		
 		// find JARs to refresh
 		HashSet archivePathsToRefresh = new HashSet();
-		try {
-			Iterator iterator = this.refreshedElements.iterator();
-			while (iterator.hasNext()) {
-				IJavaElement element = (IJavaElement)iterator.next();
-				switch(element.getElementType()){
-					case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-						archivePathsToRefresh.add(element.getPath());
+		Iterator iterator = this.refreshedElements.iterator();
+		this.refreshedElements = null; // null out early to avoid concurrent modification exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63534)
+		while (iterator.hasNext()) {
+			IJavaElement element = (IJavaElement)iterator.next();
+			switch(element.getElementType()){
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+					archivePathsToRefresh.add(element.getPath());
+					break;
+				case IJavaElement.JAVA_PROJECT :
+					JavaProject project = (JavaProject) element;
+					if (!JavaProject.hasJavaNature(project.getProject())) {
+						// project is not accessible or has lost its Java nature
 						break;
-					case IJavaElement.JAVA_PROJECT :
-						JavaProject project = (JavaProject) element;
+					}
+					IClasspathEntry[] classpath;
+					try {
+						classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+						for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+							if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+								archivePathsToRefresh.add(classpath[j].getPath());
+							}
+						}
+					} catch (JavaModelException e) {
+						// project doesn't exist -> ignore
+					}
+					break;
+				case IJavaElement.JAVA_MODEL :
+					IJavaProject[] projects;
+					try {
+						projects = this.manager.getJavaModel().getOldJavaProjectsList();
+					} catch (JavaModelException e1) {
+						// cannot retrieve old projects list -> ignore
+						continue;
+					}
+					for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
+						project = (JavaProject) projects[j];
 						if (!JavaProject.hasJavaNature(project.getProject())) {
 							// project is not accessible or has lost its Java nature
-							break;
-						}
-						IClasspathEntry[] classpath;
-						try {
-							classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
-							for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
-								if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-									archivePathsToRefresh.add(classpath[j].getPath());
-								}
-							}
-						} catch (JavaModelException e) {
-							// project doesn't exist -> ignore
-						}
-						break;
-					case IJavaElement.JAVA_MODEL :
-						IJavaProject[] projects;
-						try {
-							projects = this.manager.getJavaModel().getOldJavaProjectsList();
-						} catch (JavaModelException e1) {
-							// cannot retrieve old projects list -> ignore
 							continue;
 						}
-						for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
-							project = (JavaProject) projects[j];
-							if (!JavaProject.hasJavaNature(project.getProject())) {
-								// project is not accessible or has lost its Java nature
-								continue;
-							}
-							try {
-								classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
-							} catch (JavaModelException e2) {
-								// project doesn't exist -> ignore
-								continue;
-							}
-							for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
-								if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-									archivePathsToRefresh.add(classpath[k].getPath());
-								}
+						try {
+							classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+						} catch (JavaModelException e2) {
+							// project doesn't exist -> ignore
+							continue;
+						}
+						for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
+							if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+								archivePathsToRefresh.add(classpath[k].getPath());
 							}
 						}
-						break;
-				}
+					}
+					break;
 			}
-		} finally {
-			this.refreshedElements = null;
 		}
 		
 		// perform refresh
