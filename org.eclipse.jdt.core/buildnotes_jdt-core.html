@@ -81,10 +81,18 @@ one to be assignable to the other as in the past). This is required by JLS 3rd e
      requires the index version to be incremented. Indexes will be automatically regenerated upon
      subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
+<li>The spec for MethodDeclaration.typeParameters was changed to remove the
+clause that said that type parameters were not meaningful for
+constructors. Acoording to the lastest JLS3, both constructors and methods
+are allowed to have type parameters.
+(bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70665">70665</a>).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70618">70618</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70665">70665</a>
+[DOM/AST] missing type parameters for constructor declaration in JLS3
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70618">70618</a>
 [1.5] Variable T should be allowed as argument of supertype
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70616">70616</a>
 [1.5] Unable to bind type variable in binary from Enum<E>
