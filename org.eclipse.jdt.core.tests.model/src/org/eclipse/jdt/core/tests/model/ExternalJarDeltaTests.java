@@ -114,7 +114,7 @@ public void testExternalJarChanged1() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
 	} finally {
 		if(f != null) {
@@ -146,7 +146,7 @@ public void testExternalJarChanged2() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
 	} finally {
 		if(f != null) {
@@ -179,7 +179,7 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
 	} finally {
 		if(f != null) {
@@ -210,7 +210,7 @@ public void testExternalJarAdded1() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}"
+			"	"+f.getCanonicalPath()+"[+]: {}"
 		);
 	} finally {
 		if(f != null) {
@@ -241,7 +241,7 @@ public void testExternalJarAdded2() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}"
+			"	"+f.getCanonicalPath()+"[+]: {}"
 		);
 	} finally {
 		if(f != null) {
@@ -273,7 +273,7 @@ public void testExternalJarAdded3() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}"
+			"	"+f.getCanonicalPath()+"[+]: {}"
 		);
 	} finally {
 		if(f != null) {
@@ -305,7 +305,7 @@ public void testExternalJarRemoved1() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}"
+			"	"+f.getCanonicalPath()+"[-]: {}"
 		);
 	} finally {
 		if(f != null) {
@@ -337,7 +337,7 @@ public void testExternalJarRemoved2() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}"
+			"	"+f.getCanonicalPath()+"[-]: {}"
 		);
 	} finally {
 		if(f != null) {
@@ -370,7 +370,7 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}"
+			"	"+f.getCanonicalPath()+"[-]: {}"
 		);
 	} finally {
 		if(f != null) {
