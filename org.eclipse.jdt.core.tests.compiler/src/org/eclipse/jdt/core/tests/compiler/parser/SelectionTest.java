@@ -2160,4 +2160,190 @@ public void test49() {
 		expectedReplacedSource,
 		testName);
 }
+/*
+ * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
+ */
+public void test50() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo() {\n" +
+		"    new Object(){\n" +
+		"      void bar(){\n" +
+		"        bar2();\n" +
+		"      }\n" +
+		"      void bar2() {\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }  \n" +
+		"}								 \n";
+		
+	String selection = "bar2";
+	
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:bar2()>";
+	
+	String completionIdentifier = "bar2";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    new Object() {\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"      void bar() {\n" + 
+		"        <SelectOnMessageSend:bar2()>;\n" + 
+		"      }\n" + 
+		"      void bar2() {\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "bar2()";
+	String testName = "<select inside anonymous type>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+/*
+ * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
+ */
+public void test51() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo() {\n" +
+		"    new Object(){\n" +
+		"      void foo0(){\n" +
+		"        new Object(){\n" +
+		"          void bar(){\n" +
+		"            bar2();\n" +
+		"          }\n" +
+		"          void bar2() {\n" +
+		"          }\n" +
+		"        }\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
+		"}								 \n";
+		
+	String selection = "bar2";
+	
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:bar2()>";
+	
+	String completionIdentifier = "bar2";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    new Object() {\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"      void foo0() {\n" + 
+		"        new Object() {\n" + 
+		"          () {\n" + 
+		"          }\n" + 
+		"          void bar() {\n" + 
+		"            <SelectOnMessageSend:bar2()>;\n" + 
+		"          }\n" + 
+		"          void bar2() {\n" + 
+		"          }\n" + 
+		"        };\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "bar2()";
+	String testName = "<select inside anonymous type>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+/*
+ * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
+ */
+public void test52() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo() {\n" +
+		"    new Object(){\n" +
+		"      void foo0(){\n" +
+		"        new Object(){\n" +
+		"          void bar(){\n" +
+		"            bar2();\n" +
+		"          }\n" +
+		
+		"        }\n" +
+		"      }\n" +
+		"      void bar2() {\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
+		"}								 \n";
+		
+	String selection = "bar2";
+	
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:bar2()>";
+	
+	String completionIdentifier = "bar2";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    new Object() {\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"      void foo0() {\n" + 
+		"        new Object() {\n" + 
+		"          () {\n" + 
+		"          }\n" + 
+		"          void bar() {\n" + 
+		"            <SelectOnMessageSend:bar2()>;\n" + 
+		"          }\n" + 
+		"        };\n" + 
+		"      }\n" + 
+		"      void bar2() {\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "bar2()";
+	String testName = "<select inside anonymous type>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

@@ -696,9 +696,17 @@ protected boolean resumeAfterRecovery() {
 	if (this.assistNode != null
 		&& !(referenceContext instanceof CompilationUnitDeclaration)){
 		currentElement.preserveEnclosingBlocks();
-		if (currentElement.enclosingType() == null){
-			this.resetStacks();
-			return false;
+		if (currentElement.enclosingType() == null) {
+			if(!(currentElement instanceof RecoveredType)) {
+				this.resetStacks();
+				return false;
+			}
+			
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			if(recoveredType.typeDeclaration != null && recoveredType.typeDeclaration.allocation == this.assistNode){
+				this.resetStacks();
+				return false;
+			}
 		}
 	}
 	return super.resumeAfterRecovery();			
