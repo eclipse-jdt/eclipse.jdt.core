@@ -281,7 +281,8 @@ public interface IMethodBinding extends IBinding {
 	 * Specification, Second Edition</em> (JLS2).
 	 * 
 	 * @param method the method that is possibly overriden
-	 * @return whether this method overrides the given method
+	 * @return <code>true</code> if this method overrides the given method,
+	 * and <code>false</code> otherwise
 	 * @since 3.1
 	 */
 	public boolean overrides(IMethodBinding method);

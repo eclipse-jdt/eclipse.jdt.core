@@ -127,7 +127,8 @@ public interface ITypeBinding extends IBinding {
 	 * Specification, Second Edition</em> (JLS2).
 	 * 
 	 * @param type the type to check compatibility against
-	 * @return whether this type is assigment compatible with the given type
+	 * @return <code>true</code> if this type is assigment compatible with the
+	 * given type, and <code>false</code> otherwise
 	 * @since 3.1
 	 */
 	public boolean isAssignmentCompatible(ITypeBinding type);
@@ -138,7 +139,8 @@ public interface ITypeBinding extends IBinding {
 	 * Specification, Second Edition</em> (JLS2).
 	 * 
 	 * @param type the type to check compatibility against
-	 * @return whether this type is cast compatible with the given type
+	 * @return <code>true</code> if this type is cast compatible with the
+	 * given type, and <code>false</code> otherwise
 	 * @since 3.1
 	 */
 	public boolean isCastCompatible(ITypeBinding type);
@@ -599,7 +601,8 @@ public interface ITypeBinding extends IBinding {
 	 * Specification, Third Edition</em> (JLS3).
 	 * 
 	 * @param type the type to check compatibility against
-	 * @return whether this type is subtype compatible with the given type
+	 * @return <code>true</code> if this type is subtype compatible with the
+	 * given type, and <code>false</code> otherwise
 	 * @since 3.1
 	 */
 	public boolean isSubTypeCompatible(ITypeBinding type);
