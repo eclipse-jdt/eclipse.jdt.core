@@ -88,18 +88,21 @@ public static Test suite() {
 	suite.addTest(TypeHierarchyTests.suite());
 	suite.addTest(TypeHierarchyNotificationTests.suite());
 	
-	//Resolve type tests
+	// Resolve type tests
 	suite.addTest(TypeResolveTests.suite());
 
-	//Reconciler tests
+	// Reconciler tests
 	suite.addTest(ReconcilerTests.suite());
 
-	//Copy and move operation tests
+	// Copy and move operation tests
 	suite.addTest(CopyMoveElementsTests.suite());
 	suite.addTest(CopyMoveResourcesTests.suite());
 
-	//Rename tests
+	// Rename tests
 	suite.addTest(RenameTests.suite());
+	
+	// Exclusion patterns tests
+	suite.addTest(ExclusionPatternsTests.suite());
 	
 	return suite;
 }

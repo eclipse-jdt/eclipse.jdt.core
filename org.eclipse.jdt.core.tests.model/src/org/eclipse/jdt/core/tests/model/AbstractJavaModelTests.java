@@ -56,6 +56,38 @@ protected void addJavaNature(String projectName) throws CoreException {
 	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 	project.setDescription(description, null);
 }
+protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
+	this.sortElements(elements);
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = elements.length; i < length; i++){
+		buffer.append(elements[i].getElementName());
+		if (i != length-1) buffer.append("\n");
+	}
+	if (!expected.equals(buffer.toString())) {
+		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+	}
+	assertEquals(
+		message,
+		expected,
+		buffer.toString()
+	);
+}
+protected void assertResourcesEqual(String message, String expected, Object[] resources) {
+	this.sortResources(resources);
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = resources.length; i < length; i++){
+		buffer.append(((IResource)resources[i]).getName());
+		if (i != length-1)buffer.append("\n");
+	}
+	if (!expected.equals(buffer.toString())) {
+		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+	}
+	assertEquals(
+		message,
+		expected,
+		buffer.toString()
+	);
+}
 /**
  * Ensures the elements are present after creation.
  */
@@ -700,6 +732,26 @@ public void setUpSuite() throws Exception {
 		description.setAutoBuilding(false);
 		getWorkspace().setDescription(description);
 	}
+}
+protected void sortElements(IJavaElement[] elements) {
+	Util.Comparer comparer = new Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IJavaElement elementA = (IJavaElement)a;
+			IJavaElement elementB = (IJavaElement)b;
+			return elementA.getElementName().compareTo(elementB.getElementName());
+		}
+	};
+	Util.sort(elements, comparer);
+}
+protected void sortResources(Object[] resources) {
+	Util.Comparer comparer = new Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IResource resourceA = (IResource)a;
+			IResource resourceB = (IResource)b;
+			return resourceA.getName().compareTo(resourceB.getName());
+		}
+	};
+	Util.sort(resources, comparer);
 }
 protected void sortTypes(IType[] types) {
 	Util.Comparer comparer = new Util.Comparer() {

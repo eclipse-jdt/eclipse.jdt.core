@@ -190,7 +190,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	 * 	 
 	 */
 	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement, boolean isMove) {
-		if (org.eclipse.jdt.internal.core.Util.isExcluded(destinationElement)) return;
+		if (org.eclipse.jdt.internal.core.Util.isExcluded(sourceElement) || org.eclipse.jdt.internal.core.Util.isExcluded(destinationElement)) return;
 		IJavaProject destProject = destinationElement.getJavaProject();
 		if (isMove) {
 			IJavaProject sourceProject = sourceElement.getJavaProject();
