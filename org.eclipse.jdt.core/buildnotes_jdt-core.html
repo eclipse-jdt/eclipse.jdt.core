@@ -43,9 +43,9 @@ specified portions of the resource tree rooted at this source entry's path. Excl
 are expressed using the Ant file pattern syntax (i.e. **, *, ? wild-cards; where ** can stand for
 one or many folder names).
    <ul>
-   <li>Added <code>JavaCore#newSourceEntry(IPath path, <b>IPath[] exclusionPatterns</b>)</code>
+   <li>Added <code>JavaCore.newSourceEntry(IPath path, <b>IPath[] exclusionPatterns</b>)</code>
    </li>
-   <li>Added <code>IClasspathEntry#getExclusionPatterns()</code>
+   <li>Added <code>IClasspathEntry.getExclusionPatterns()</code>
    </li>
    </ul>
    Full implementation will be available by 2.1 milestone-4.
@@ -53,15 +53,15 @@ one or many folder names).
 <li><b>Multiple output folder API</b> - Source folders can be associated with a specific output
 location. The project output location is now corresponding to a default output location.
    <ul>
-   <li>Added <code>JavaCore#newSourceEntry(IPath path, IPath[] exclusionPatterns, <b>IPath specificOutputLocation</b>)</code>
+   <li>Added <code>JavaCore.newSourceEntry(IPath path, IPath[] exclusionPatterns, <b>IPath specificOutputLocation</b>)</code>
    </li>
-   <li>Added <code>IClasspathEntry#getOutputLocation()</code>
+   <li>Added <code>IClasspathEntry.getOutputLocation()</code>
    </li>
    </ul>
    Full implementation will be available by 2.1 milestone-4.
 </li>
 <li>The Java builder now iterates over the resource tree, allowing to take advantage of forthcoming 
-workspace structure enhancements (in particular: mount points). As a consequence, the Java builder
+workspace structure enhancements (in particular: linked folders). As a consequence, the Java builder
 will only consider the resources officially reflected in the resource tree (as opposed to existing 
 underlying files not yet reflected when the resource tree is out of sync).
 </li>
