@@ -15,7 +15,7 @@ public interface IGenericMethod {
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
  */
-// We have added AccDeprecated & AccSynthetic.
+// We have added AccDeprecated
 int getModifiers();
 
 /**
