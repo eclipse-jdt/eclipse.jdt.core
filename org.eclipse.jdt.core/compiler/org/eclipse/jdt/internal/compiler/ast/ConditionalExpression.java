@@ -46,6 +46,10 @@ public class ConditionalExpression extends OperatorExpression {
 		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
 		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
 
+		cst = this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == NotAConstant);
 
 		if (isConditionTrue) {
@@ -76,8 +80,10 @@ public class ConditionalExpression extends OperatorExpression {
 
 		// store a copy of the merged info, so as to compute the local variable attributes afterwards
 		FlowInfo trueInfo = flowInfo.initsWhenTrue().copy();
+		if (isConditionOptimizedFalse) trueInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
 		thenInitStateIndex = currentScope.methodScope().recordInitializationStates(trueInfo);
 		FlowInfo falseInfo = flowInfo.initsWhenFalse().copy();
+		if (isConditionOptimizedTrue) falseInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
 		elseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseInfo);
 
 		// propagate analysis
