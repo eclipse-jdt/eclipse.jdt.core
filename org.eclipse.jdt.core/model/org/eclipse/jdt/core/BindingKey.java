@@ -33,6 +33,31 @@ public class BindingKey {
 	}
 	
 	/**
+	 * Creates a new array type binding key from the given type binding key and the given array dimension.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createArrayTypeBindingKey("Ljava/lang/Object;", 1) -> "[Ljava/lang/Object;"
+	 * createArrayTypeBindingKey("I", 2) -> "[[I"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param typeKey the binding key of the given type
+	 * @param arrayDimension the given array dimension
+	 * @return a new array type binding key
+	 */
+	public static String createArrayTypeBindingKey(String typeKey, int arrayDimension) {
+		// Note this implementation is heavily dependent on ArrayTypeBinding#computeUniqueKey() 
+		StringBuffer buffer = new StringBuffer();
+		while (arrayDimension-- > 0)
+			buffer.append('[');
+		buffer.append(typeKey);
+		return buffer.toString();
+	}
+	
+	/**
 	 * Creates a new parameterized type binding key from the given generic type binding key and the given argument type binding keys.
 	 * If the argument type keys array is empty, then a raw type binding key is created.
 	 * <p>
@@ -50,7 +75,7 @@ public class BindingKey {
 	 * @return a new parameterized type binding key
 	 */
 	public static String createParameterizedTypeBindingKey(String genericTypeKey, String[] argumentTypeKeys) {
-		// Note this implementation is heavily dependent on ParameterizedTypeBinding#computeUniqueKey()
+		// Note this implementation is heavily dependent on ParameterizedTypeBinding#computeUniqueKey() and its subclasses
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(genericTypeKey);
 		buffer.insert(buffer.length()-1, '<');

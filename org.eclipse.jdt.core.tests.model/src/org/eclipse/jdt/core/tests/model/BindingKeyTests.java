@@ -233,4 +233,24 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Ljava/util/List<>;",
 			key);
 	}
+
+	/*
+	 * Create an array type binding key
+	 */
+	public void test020() {
+		String key = BindingKey.createArrayTypeBindingKey("Ljava/lang/Object;", 1);
+		assertBindingKeyEquals(
+			"[Ljava/lang/Object;",
+			key);
+	}
+
+	/*
+	 * Create an array type binding key
+	 */
+	public void test021() {
+		String key = BindingKey.createArrayTypeBindingKey("I", 2);
+		assertBindingKeyEquals(
+			"[[I",
+			key);
+	}
 }
