@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.compiler.problem;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.Util;

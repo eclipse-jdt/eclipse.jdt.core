@@ -761,7 +761,8 @@ class ASTConverter {
 			}
 		}
 		AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
-		anonymousClassDeclaration.setSourceRange(expression.bodyStart, expression.bodyEnd - expression.bodyStart + 1);
+		int start = retrieveStartBlockPosition(declarationSourceStart, expression.bodyEnd);
+		anonymousClassDeclaration.setSourceRange(start, expression.bodyEnd - start + 1);
 		classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
 		buildBodyDeclarations(expression, anonymousClassDeclaration);
 		if (this.resolveBindings) {

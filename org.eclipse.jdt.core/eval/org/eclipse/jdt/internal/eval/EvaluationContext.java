@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.eval;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.core.ICompletionRequestor;
-import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.IProblem;

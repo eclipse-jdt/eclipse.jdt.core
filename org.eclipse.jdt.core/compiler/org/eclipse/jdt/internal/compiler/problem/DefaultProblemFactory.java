@@ -6,7 +6,6 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.text.*;
 import java.util.*;
 
-import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
