@@ -308,7 +308,7 @@ public void setUpSuite() throws Exception {
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearch");
-	
+
 	super.tearDownSuite();
 }
 public static Test suite() {
