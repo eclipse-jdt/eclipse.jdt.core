@@ -440,7 +440,7 @@ public class TryStatement extends SubRoutineStatement {
 		
 		if (finallyBlock != null) {
 			if (finallyBlock.isEmptyBlock()) {
-				if ((finallyBlock.bits & UncommentedEmptyBlockMASK) != 0) {
+				if ((finallyBlock.bits & UndocumentedEmptyBlockMASK) != 0) {
 					scope.problemReporter().undocumentedEmptyBlock(finallyBlock);
 				}
 			} else {

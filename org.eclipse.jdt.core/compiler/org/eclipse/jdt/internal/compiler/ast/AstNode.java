@@ -106,7 +106,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static final int IsUsefulEmptyStatementMASK = Bit1;
 
 	// for block
-	public static final int UncommentedEmptyBlockMASK = Bit4;
+	public static final int UndocumentedEmptyBlockMASK = Bit4;
 
 	public AstNode() {
 

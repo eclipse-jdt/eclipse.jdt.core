@@ -1276,7 +1276,7 @@ protected void consumeBlock() {
 		block.sourceEnd = endStatementPosition;
 		// check whether this block at least contains some comment in it
 		if (!containsComment(block.sourceStart, block.sourceEnd)) {
-			block.bits |= AstNode.UncommentedEmptyBlockMASK;
+			block.bits |= AstNode.UndocumentedEmptyBlockMASK;
 		}
 		realBlockPtr--; // still need to pop the block variable counter
 	} else {
@@ -1361,7 +1361,7 @@ protected void consumeClassBodyDeclaration() {
 	//optimize the push/pop
 	nestedMethod[nestedType]--;
 	Block block = (Block) astStack[astPtr];
-	block.bits &= ~AstNode.UncommentedEmptyBlockMASK; // clear bit since was diet
+	if (diet) block.bits &= ~AstNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
 	Initializer initializer = new Initializer(block, 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	initializer.bodyStart = intStack[intPtr--];
@@ -4102,7 +4102,7 @@ protected void consumeStaticInitializer() {
 	//push an Initializer
 	//optimize the push/pop
 	Block block = (Block) astStack[astPtr];
-	block.bits &= ~AstNode.UncommentedEmptyBlockMASK; // clear bit set since was diet
+	if (diet) block.bits &= ~AstNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
 	Initializer initializer = new Initializer(block, AccStatic);
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;	
@@ -5783,7 +5783,7 @@ public void parse(
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
-			initializer.block.bits |= AstNode.UncommentedEmptyBlockMASK;
+			initializer.block.bits |= AstNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 	
