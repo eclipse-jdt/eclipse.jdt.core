@@ -15,7 +15,7 @@ STREAM: 2.0
   PRs Fixed in this Release
   ================================================================================
   1GIIBC3: ITPJCORE:WINNT - search for method references - missing matches
-  1GEUQHJ: ITPJUI:WINNT - search does not work in inner class
+  1GGNOTF: ITPJCORE:WINNT - Search doesn't find method referenced in anonymous inner class
   1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when searching references in JAR
 
   PRs Closed in this Release

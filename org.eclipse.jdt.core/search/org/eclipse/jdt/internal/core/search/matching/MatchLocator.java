@@ -75,7 +75,11 @@ public class MatchLocator implements ITypeRequestor {
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-		this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+		BinaryTypeBinding binaryBinding =  new BinaryTypeBinding(packageBinding, binaryType, this.lookupEnvironment);
+		ReferenceBinding cachedType = this.lookupEnvironment.getCachedType(binaryBinding.compoundName);
+		if (cachedType == null || cachedType instanceof UnresolvedReferenceBinding) { // NB: cachedType is not null if already cached as a source type
+			this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+		}
 	}
 
 	/**
