@@ -63,7 +63,7 @@ public class Main implements ProblemSeverities {
 	public long lineCount;
 	public boolean generatePackagesStructure;
 
-	public Hashtable options;
+	public Map options;
 	public String[] filenames;
 	public String[] encodings;
 	public String[] classpaths;
@@ -96,67 +96,7 @@ public class Main implements ProblemSeverities {
 		this.err = errWriter;
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		exportedClassFilesCounter = 0;
-		options = new Hashtable();
-		options.put(
-			CompilerOptions.OPTION_LocalVariableAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		options.put(
-			CompilerOptions.OPTION_LineNumberAttribute,
-			CompilerOptions.GENERATE);
-		options.put(
-			CompilerOptions.OPTION_SourceFileAttribute,
-			CompilerOptions.GENERATE);
-		options.put(
-			CompilerOptions.OPTION_PreserveUnusedLocal,
-			CompilerOptions.OPTIMIZE_OUT);
-		options.put(
-			CompilerOptions.OPTION_ReportUnreachableCode,
-			CompilerOptions.ERROR);
-		options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
-		options.put(
-			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-			CompilerOptions.WARNING);
-		options.put(
-			CompilerOptions.OPTION_ReportMethodWithConstructorName,
-			CompilerOptions.WARNING);
-		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-		options.put(
-			CompilerOptions.OPTION_ReportHiddenCatchBlock,
-			CompilerOptions.WARNING);
-		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-		options.put(
-			CompilerOptions.OPTION_ReportUnusedParameter,
-			CompilerOptions.IGNORE);
-		options.put(
-			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-			CompilerOptions.IGNORE);
-		options.put(
-			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-			CompilerOptions.IGNORE);
-		options.put(
-			CompilerOptions.OPTION_ReportAssertIdentifier,
-			CompilerOptions.IGNORE);
-		options.put(
-			CompilerOptions.OPTION_Compliance,
-			CompilerOptions.VERSION_1_3);
-		options.put(
-			CompilerOptions.OPTION_Source,
-			CompilerOptions.VERSION_1_3);
-		options.put(
-			CompilerOptions.OPTION_TargetPlatform,
-			CompilerOptions.VERSION_1_1);
-		options.put(
-			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-			CompilerOptions.WARNING);
-		options.put(
-			CompilerOptions.OPTION_ReportStaticAccessReceiver,
-			CompilerOptions.WARNING);			
-		options.put(
-			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-			CompilerOptions.WARNING);
-		options.put(
-			CompilerOptions.OPTION_ReportUnusedPrivateMember,
-			CompilerOptions.IGNORE);
+		this.options = getDefaultOptions();
 	}
 
 	/*
