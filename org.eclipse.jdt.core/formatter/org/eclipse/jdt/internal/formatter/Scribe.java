@@ -291,11 +291,13 @@ public class Scribe {
 	
 	public void enterAlignment(Alignment alignment){
 		alignment.enclosing = this.currentAlignment;
+		alignment.location.lastLocalDeclarationSourceStart = this.formatter.lastLocalDeclarationSourceStart;
 		this.currentAlignment = alignment;
 	}
 
 	public void enterMemberAlignment(Alignment alignment) {
 		alignment.enclosing = this.memberAlignment;
+		alignment.location.lastLocalDeclarationSourceStart = this.formatter.lastLocalDeclarationSourceStart;
 		this.memberAlignment = alignment;
 	}
 
@@ -309,7 +311,7 @@ public class Scribe {
 			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
 		}
 		this.indentationLevel = alignment.location.outputIndentationLevel;
-			
+		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;	
 		if (discardAlignment){ 
 			this.currentAlignment = alignment.enclosing;
 		}
@@ -325,6 +327,7 @@ public class Scribe {
 			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
 		}
 		this.indentationLevel = current.location.outputIndentationLevel;
+		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;	
 		this.memberAlignment = current.enclosing;
 	}
 	
@@ -1261,7 +1264,6 @@ public class Scribe {
 		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.currentAlignment.chunkKind = 0;
-		this.formatter.lastLocalDeclarationSourceStart = -1;
 	}
 
 	void redoMemberAlignment(AlignmentException e){
@@ -1270,7 +1272,6 @@ public class Scribe {
 		this.scanner.resetTo(this.memberAlignment.location.inputOffset, this.scanner.eofPosition);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.memberAlignment.chunkKind = 0;
-		this.formatter.lastLocalDeclarationSourceStart = -1;
 	}
 
 	public void reset() {
@@ -1293,6 +1294,7 @@ public class Scribe {
 		if (this.editsIndex > 0) {
 			this.edits[this.editsIndex - 1] = location.textEdit;
 		}
+		this.formatter.lastLocalDeclarationSourceStart = location.lastLocalDeclarationSourceStart;
 	}
 
 	private void resize() {
