@@ -134,20 +134,22 @@ public void acceptPackage(char[] packageName) {
 protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
 	String name = new String(selector);
 	IMethod[] methods = null;
+	IJavaElement[] matches = new IJavaElement[] {};
 	try {
 		methods = type.getMethods();
-	} catch (JavaModelException e) {
-		return;
-	}
-	IJavaElement[] matches = new IJavaElement[] {};
-	for (int i = 0; i < methods.length; i++) {
-		if (methods[i].getElementName().equals(name) && methods[i].getParameterTypes().length == parameterTypeNames.length) {
-			matches = growAndAddToArray(matches, methods[i]);
+		for (int i = 0; i < methods.length; i++) {
+			if (methods[i].getElementName().equals(name) && methods[i].getParameterTypes().length == parameterTypeNames.length) {
+				matches = growAndAddToArray(matches, methods[i]);
+			}
 		}
+	} catch (JavaModelException e) {
+		return; 
 	}
 
 	// if no matches, nothing to report
 	if (matches.length == 0) {
+		// no match was actually found, but a method was originally given -> default constructor
+		fElements = growAndAddToArray(fElements, type);
 		return;
 	}
 
@@ -182,7 +184,7 @@ protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, 
 	IType type= resolveType(packageName, typeName, acceptFlags);
 	if (type != null) {
 		fElements= growAndAddToArray(fElements, type);
-	}
+	} 
 	
 }
 /**
