@@ -1790,9 +1790,19 @@ class ASTConverter {
 		forStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		org.eclipse.jdt.internal.compiler.ast.Statement[] initializations = statement.initializations;
 		if (initializations != null) {
-			int initializationsLength = initializations.length;
-			for (int i = 0; i < initializationsLength; i++) {
-				forStatement.initializers().add(convertToExpression(initializations[i]));
+			// we know that we have at least one initialization
+			if (initializations[0] instanceof LocalDeclaration) {
+				VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression((LocalDeclaration) initializations[0]);
+				int initializationsLength = initializations.length;
+				for (int i = 1; i < initializationsLength; i++) {
+					variableDeclarationExpression.fragments().add(convertToVariableDeclarationFragment((LocalDeclaration)initializations[i]));
+				}
+				forStatement.initializers().add(variableDeclarationExpression);
+			} else {
+				int initializationsLength = initializations.length;
+				for (int i = 0; i < initializationsLength; i++) {
+					forStatement.initializers().add(convertToExpression(initializations[i]));
+				}
 			}
 		}
 		if (statement.condition != null) {
@@ -1821,41 +1831,9 @@ class ASTConverter {
 	public Expression convertToExpression(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Expression) statement);
-		} else if (statement instanceof LocalDeclaration) {
-			LocalDeclaration localDeclaration = (LocalDeclaration) statement;
-			VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
-			SimpleName name = this.ast.newSimpleName(localDeclaration.name());
-			name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
-			variableDeclarationFragment.setName(name);
-			variableDeclarationFragment.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
-			if (localDeclaration.initialization != null) {
-				variableDeclarationFragment.setInitializer(convert(localDeclaration.initialization));
-			}
-			VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-			if (this.resolveBindings) {
-				recordNodes(variableDeclarationFragment, localDeclaration);
-			}
-			variableDeclarationExpression.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
-			/**
-			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-			 * This handles cases where the parser built variables with invalid modifiers.
-			 * The compilation unit is tagged as having wrong modifiers for the local.
-			 * Only final is allowed in this case.
-			 */
-			try {
-				variableDeclarationExpression.setModifiers(localDeclaration.modifiers);
-			} catch(IllegalArgumentException e) {
-				variableDeclarationExpression.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
-				variableDeclarationExpression.setFlags(ASTNode.MALFORMED);
-			}
-			variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
-			Type type = convertType(localDeclaration.type);
-			setTypeForVariableDeclarationExpression(variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
-			return variableDeclarationExpression;
-		} else {
-			// unsupported
-			throw new IllegalArgumentException("Not yet implemented: convert(" + statement.getClass() + ")");//$NON-NLS-1$//$NON-NLS-2$
 		}
+		// unsupported
+		throw new IllegalArgumentException("Not yet implemented: convert(" + statement.getClass() + ")");//$NON-NLS-1$//$NON-NLS-2$
 	}
 	
 	public IfStatement convert(org.eclipse.jdt.internal.compiler.ast.IfStatement statement) {
@@ -2568,6 +2546,30 @@ class ASTConverter {
 		return variableDeclarationStatement;
 	}
 	
+	private VariableDeclarationExpression convertToVariableDeclarationExpression(LocalDeclaration localDeclaration) {
+		VariableDeclarationFragment variableDeclarationFragment = convertToVariableDeclarationFragment(localDeclaration);
+		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
+		if (this.resolveBindings) {
+			recordNodes(variableDeclarationFragment, localDeclaration);
+		}
+		variableDeclarationExpression.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
+		Type type = convertType(localDeclaration.type);
+		setTypeForVariableDeclarationExpression(variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built variables with invalid modifiers.
+		 * The compilation unit is tagged as having wrong modifiers for the local.
+		 * Only final is allowed in this case.
+		 */
+		try {
+			variableDeclarationExpression.setModifiers(localDeclaration.modifiers);
+		} catch(IllegalArgumentException e) {
+			variableDeclarationExpression.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
+			variableDeclarationExpression.setFlags(ASTNode.MALFORMED);
+		}
+		return variableDeclarationExpression;
+	}
+	
 	private void setTypeForField(FieldDeclaration fieldDeclaration, Type type, int extraDimension) {
 		if (extraDimension != 0) {
 			if (type.isArrayType()) {
@@ -2879,3 +2881,4 @@ class ASTConverter {
 		}
 	}
 }
+
