@@ -4,11 +4,9 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFile;
@@ -16,8 +14,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.Util;
@@ -139,7 +138,7 @@ public IImageBuilder createState(IProject project, IImageContext buildContext, I
 /**
  * @see IDevelopmentContext
  */
-public IImageBuilder createState(IProject project, IImageContext buildContext, IProblemReporter problemReporter, ConfigurableOption[] compilerOptions) {
+public IImageBuilder createState(IProject project, IImageContext buildContext, IProblemReporter problemReporter, Map compilerOptions) {
 	StateImpl state = new StateImpl(this, project, buildContext);
 	BatchImageBuilder builder = new BatchImageBuilder(state, compilerOptions);
 	if (problemReporter != null) {
@@ -169,11 +168,8 @@ public IBinaryBroker getBinaryBroker() {
  */
 byte[] getBinaryFromFileSystem(org.eclipse.core.resources.IFile file) {
 	try {
-		IPath location = file.getLocation();
-		if (location == null) return new byte[0];
-		InputStream input = new java.io.FileInputStream(location.toOSString());
-		return org.eclipse.jdt.internal.core.Util.readContentsAsBytes(input);
-	} catch (IOException e) {
+		return Util.getResourceContentsAsByteArray(file);
+	} catch (JavaModelException e) {
 		return new byte[0];
 	}
 }
@@ -204,8 +200,8 @@ public IState getCurrentState() throws NotPresentException {
 /**
  * Reads the default compiler options.
  */
-protected static ConfigurableOption[] getDefaultCompilerOptions() {
-	return JavaModelManager.getOptions();
+protected static Map getDefaultCompilerOptions() {
+	return JavaCore.getOptions();
 }
 /**
  * Returns the default package handle (java.lang).

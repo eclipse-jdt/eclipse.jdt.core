@@ -197,7 +197,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 			&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
 			&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-			&& ((operation.implicitConversion >> 4) != T_String)) { // exclude string concatenation which would occur backwards
+			&& ((operation.left.implicitConversion >> 4) != T_String)) { // exclude string concatenation which would occur backwards
 			// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 			variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
 			return;
@@ -414,7 +414,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	}
 	// perform the actual compound operation
 	int operationTypeID;
-	if ((operationTypeID = implicitConversion >> 4) == T_String) {
+	if ((operationTypeID = implicitConversion >> 4) == T_String || operationTypeID == T_Object) {
+		// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
+		// operation is java.lang.Object
+		// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
 		codeStream.generateStringAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type

@@ -50,10 +50,6 @@ void acceptImport(
 	int declarationEnd,
 	char[] name,
 	boolean onDemand);
-void acceptInitializer(
-	int modifiers, 
-	int declarationSourceStart, 
-	int declarationSourceEnd);
 /*
  * Table of line separator position. This table is passed once at the end
  * of the parse action, so as to allow computation of normalized ranges.
@@ -97,6 +93,9 @@ void enterField(
 	char[] name,
 	int nameSourceStart,
 	int nameSourceEnd);
+void enterInitializer(
+	int declarationStart,
+	int modifiers);
 void enterInterface(
 	int declarationStart,
 	int modifiers,
@@ -128,6 +127,7 @@ void exitConstructor(int declarationEnd);
  *  null for final fields (so as to minimize char[] allocations).
  */
 void exitField(/*char[] initializationSource, */int declarationEnd);
+void exitInitializer(int declarationEnd);
 void exitInterface(int declarationEnd);
 void exitMethod(int declarationEnd);
 }

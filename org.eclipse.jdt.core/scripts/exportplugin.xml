@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!-- build script to create a plugin from org.eclipse.jdt.core -->
 <project name="org.eclipse.jdt.core" default="export" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="destdir" value="../../plugin-update" />
+		<property name="destdir" value="../../plugin-export" />
 		<property name="dest"  value="${destdir}/org.eclipse.jdt.core" />
 	</target>
 
@@ -16,8 +18,7 @@
 		<echo message="UPDATE jdtcore.jar" />
 		<jar 
 			jarfile="${dest}/jdtcore.jar"
-			basedir="bin"
-		/>
+			basedir="bin" />
 		
 		<echo message="UPDATE plugin.xml" />
 		<copy file="plugin.xml" todir="${dest}" />
@@ -38,6 +39,7 @@
 		    <zipfileset dir="Eclipse Java Evaluation" />
 		    <zipfileset dir="Eclipse Java Model" />
 		    <zipfileset dir="Eclipse Java Formatter" />
+		    <zipfileset dir="Eclipse Java DOM" />
   		</zip>		
 	</target>
 </project>

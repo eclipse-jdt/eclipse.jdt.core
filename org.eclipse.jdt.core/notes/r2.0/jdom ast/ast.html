@@ -1,0 +1,289 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>JDT - Abstract Syntax Trees</title>
+</head>
+<body>
+
+<h2>
+Abstract Syntax Trees</h2>
+Last revised 12:05 Friday September 14, 2001
+<p>Original work item: "Exposing the AST API."
+<p>Related work item: "Improved Java code manipulation support, address
+JDOM limitations; JDOM doesn't preserve markers and isn't document aware;
+JDOM finer grained update support (e.g. change method name, type name);
+buffer contents is duplicated in Java UI document and needs to be manually
+synchronized."
+<h4>
+Background</h4>
+
+<ul>
+<li>
+refactoring is a key customer (Dirk B.)</li>
+
+<li>
+for 2.0: have good support in place so that refactoring can be made open
+API; would need corresponding core apis for core refactoring</li>
+
+<li>
+current refactoring appoach uses AST visitor which runs post-resolve on
+designated compilation unit</li>
+
+<li>
+visitor collects info (parent stack) including source positions</li>
+
+<li>
+uses name environment to validate/locate</li>
+
+<li>
+all changes are formulated as reified undoable edits in a source buffer</li>
+
+<li>
+a batch of changes are made at a time</li>
+
+<li>
+refactoring does not reason hypothetically (changes are undoable)</li>
+
+<li>
+JDOM is not used by refactoring, but potentially could be (JDOM is used
+inside Java Model)</li>
+</ul>
+Dirk's wish list with regard to the AST support:
+<ul>
+<li>
+consistent positions in AST (e.g. sourceStart and sourceEnd should always
+cover the whole node).</li>
+
+<li>
+comment handling in AST. Some node contain preceding comments other don't</li>
+
+<li>
+Parent pointer in AST node (?)</li>
+
+<li>
+Data pointer in AST node (?).</li>
+
+<li>
+Expression should provide getType method (cached value of resolveType(Scope)).</li>
+</ul>
+
+<h4>
+Summary from Sept. 10-11 meetings</h4>
+Dirk travelled to SNZ to discuss refactoring requirements and possible
+solutions with Philippe M. and Jeem.
+<p>Some of the forms of solutions discussed, but ultimately abandoned:
+<ul>
+<li>
+A vanilla DOM.</li>
+
+<ul>
+<li>
+too limiting: difficult to provide for pre-computing bindings.</li>
+
+<li>
+clumsy for clients to use without AST node types represented by different
+Java types</li>
+</ul>
+
+<li>
+AST plus resolves info in form of Java model elements.</li>
+
+<ul>
+<li>
+Java model methods are unsuitable canonical representation for resolved
+methods because parameter types are as per source.</li>
+
+<li>
+Would need additional Java model elements to represent variable declarations.</li>
+
+<li>
+Would need special Java element implementations for local types, methods,
+and fields.</li>
+</ul>
+</ul>
+In the end, we agreed on AST plus bindings:
+<ul>
+<li>
+AST is simple tree of typed nodes as determined by parser.</li>
+
+<li>
+A different Java type for each AST node type.</li>
+
+<li>
+TBD: are node types API classes, API interfaces, or both?</li>
+
+<li>
+Simple case: no bindings.</li>
+
+<li>
+Basic AST Lifecycle: client requests AST; compilation unit is parsed and
+nodes are created; root is handed back to client; AST is garbage collected
+after client lets go of all AST nodes. AST is not affected if underlying
+compilation unit is changed (i.e., eager parse, with no residual dependence
+on state of file in workspace).</li>
+
+<li>
+Any syntax errors detected need to be reported to client. Parser should
+try to localize errors, e.g., to a single method declaration or statement.</li>
+
+<li>
+Predicatable trees with simple correspondence to source code (parser should
+not optimize ASTs).</li>
+
+<li>
+Reliable source position information for all nodes.</li>
+
+<li>
+Scratch "data" field on each AST node for client to record an Object.</li>
+
+<li>
+Navigate AST upwards as well as downwards. Parent link.</li>
+
+<li>
+AST walker for convenient traversal.</li>
+
+<li>
+ASTs can be read-only or read-write.</li>
+
+<li>
+Read-write ASTs can be modified in terms of ASTs. AST node factories (no
+Java parser required). Cut/copy/paste.</li>
+
+<li>
+Cut/copy/paste between separate ASTs requires fragment cloning to preserve
+independence of storage.</li>
+
+<li>
+Client may be interested in cut/copy/pasting comments too.</li>
+
+<li>
+New nodes would not carry source positions.</li>
+
+<li>
+Read-write AST can be serialized back to compilation unit char[].</li>
+
+<ul>
+<li>
+Preserve existing comments, whitespace, and use of \u.</li>
+
+<li>
+Control whitespace and use of \u for insertions.</li>
+
+<li>
+Provide edit map for updating markers.</li>
+</ul>
+
+<li>
+Resolved ASTs: basic AST annotated with bindings (non-syntactic information).</li>
+
+<li>
+Binding information is derived from AST plus the Java model (relative to
+some project).</li>
+
+<li>
+Availability/validity of bindings ceases when Java model changes.</li>
+
+<li>
+Client must request up front that bindings be created.</li>
+
+<li>
+Certain AST nodes get decorated with bindings.</li>
+
+<li>
+Client should have ways to communicate up front what kind of bindings are
+required and where.</li>
+
+<li>
+Availability/validity of bindings for a read-write AST ceases when it is
+first modified.</li>
+
+<li>
+Bindings (non-syntactic information) includes things such as the following:</li>
+
+<ul>
+<li>
+Resolved names - which type, field, method, or local variable does a AST
+name refernce resolve to.</li>
+
+<li>
+Resolved types - what is the resolved type of an AST expression or type
+reference.</li>
+
+<li>
+Resolved supertypes - what are the resolved supertypes of a resolved type.</li>
+
+<li>
+Resolved declarations - what resolved type, field, method, or local variable
+does an AST declaration map to.</li>
+
+<li>
+Thrown exceptions - what are the resolved types of the exceptions thrown
+by a given expression or statement.</li>
+
+<li>
+Resolved members - what are the resolved members of a resolved type.</li>
+</ul>
+
+<li>
+Problems also should be reported with resolving. Problems are opaque: line
+position plus human-readable message.</li>
+
+<li>
+Space for bindings storage is significant; increases monotonically as more
+bindings are accessed.</li>
+
+<li>
+Space for bindings is for lifetime of the AST. Retaining bindinfs</li>
+
+<li>
+Advanced AST Lifecycle: client requests AST with bindings; compilation
+unit is parsed, nodes created, and perhaps some bindings created and annotated
+on nodes; root is handed back to client; AST is garbage collected after
+client lets go of all AST nodes and bindings. AST itself is not affected
+if underlying compilation unit is changed (i.e., eager parse, with no residual
+dependence on state of file in workspace). Bindings may become stale or
+invalid if workspace changes (i.e., possibly lazy and incremental construction
+of bindings using Java model).</li>
+
+<li>
+Bindings from two ASTs are not generally comparable.</li>
+</ul>
+AST will either extend or replace JDOM. In the latter case, JDOM would
+be deprecated.
+<p>AST will exist along side Java model.
+<h4>
+AST Node Types - Classes, interface, or both</h4>
+There are on the order of 87 node types for Java ASTs. Bindings will add
+some more. There are a couple of way this can be mapped to Java types.
+<p>(1) Use org.w3c.DOM interfaces as API. Provide a private concrete implementation
+of the DOM.
+<p>Pro: Very small, and standard API for read-write documents.
+<br>Con: API is not convenient for clients.
+<br>Con: API is not amenable to exposing bindings and other non-structural
+information.
+<p>(2) Concrete API class per AST node type.
+<p>Pro: API as small as possible.
+<br>Pro: Client can create nodes directly.
+<p>Con: Cannot easily hide implementation details; e.g. representation
+and mechanism for reassembling compilation unit text after editing; lazy
+binding creation.
+<p>Clients who create node from scratch only ever need basic constructors
+(the nodes they create do not have source positions, bindings, or other
+decorations). On the other hand, the parser needs to remember more info
+including fine-grained source positions.
+<p>(3) API interface per AST node type, along with node factory methods.
+Provide a private concrete implementation. Allow clients to reimplement
+node types (from scratch) and supply a factory.
+<p>Like JDOM (except JDOM does not permit client to reimplement) and org.w3c.DOM.
+<p>Pro: API as small as possible.
+<br>Pro: Easy to tailor different kinds of representation: read-write vs.
+read-only ASTs; raw ASTs vs. AST+bindings.
+<p>Con:&nbsp; Hidden concrete implementation classes takes more space.
+<br>Con: Using factory methods is a bit less direct than using constructors.
+<p>We should go for this last option and provide API interfaces with hidden
+implementation classes.
+<br>&nbsp;
+</body>
+</html>

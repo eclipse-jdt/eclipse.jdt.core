@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -485,7 +486,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 	switch (element.getElementType()) {
 		case IJavaElement.FIELD :
 			IField field = (IField) element; 
-			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');;
+			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');
 			lastDot = fullDeclaringName.lastIndexOf('.');
 			char[] declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
 			char[] declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : NO_CHAR;
@@ -588,7 +589,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			break;
 		case IJavaElement.TYPE :
 			IType type = (IType) element;
-			searchPattern = createTypePattern(type.getFullyQualifiedName(), limitTo);
+			String packageName = type.getPackageFragment().getElementName();
+			String fullyQualifiedName = packageName + "." + type.getTypeQualifiedName(); // NB: if default package, the fully qualified name as to be ".X" so that createTypePattern(String) creates a pattern with the NO_CHAR qualification
+			searchPattern = createTypePattern(fullyQualifiedName, limitTo);
 			break;
 		case IJavaElement.PACKAGE_DECLARATION :
 		case IJavaElement.PACKAGE_FRAGMENT :
@@ -835,30 +838,35 @@ public String toString(){
  */
 protected char[][][] collectSuperTypeNames(char[] declaringQualification, char[] declaringSimpleName, int matchMode, LookupEnvironment env) {
 
-	char[][] declaringTypeName = null;
-	if (declaringQualification != null 
-			&& declaringSimpleName != null
-			&& matchMode == EXACT_MATCH) {
-		char[][] qualification = CharOperation.splitOn('.', declaringQualification);
-		declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
-	}
-	if (declaringTypeName != null) {
-		for (int i = 0, max = declaringTypeName.length; i < max; i++) {
-			ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
-			if (matchingDeclaringType != null 
-				&& (matchingDeclaringType.isValidBinding()
-					|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
-				return this.collectSuperTypeNames(matchingDeclaringType);
-			}
-			// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
-			int last = declaringTypeName.length - 1;
-			if (last == 0) break; 
-			declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
-			declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
+	try {
+		char[][] declaringTypeName = null;
+		if (declaringQualification != null 
+				&& declaringSimpleName != null
+				&& matchMode == EXACT_MATCH) {
+			char[][] qualification = CharOperation.splitOn('.', declaringQualification);
+			declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
 		}
-		return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
-	} else {
-		// non exact match: use the null value so that matches is more tolerant
+		if (declaringTypeName != null) {
+			for (int i = 0, max = declaringTypeName.length; i < max; i++) {
+				ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
+				if (matchingDeclaringType != null 
+					&& (matchingDeclaringType.isValidBinding()
+						|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
+					return this.collectSuperTypeNames(matchingDeclaringType);
+				}
+				// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
+				int last = declaringTypeName.length - 1;
+				if (last == 0) break; 
+				declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
+				declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
+			}
+			return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
+		} else {
+			// non exact match: use the null value so that matches is more tolerant
+			return null;
+		}
+	} catch (AbortCompilation e) {
+		// classpath problem: default to null value so that matches is more tolerant
 		return null;
 	}
 }
@@ -937,7 +945,8 @@ public abstract int matchLevel(AstNode node, boolean resolve);
 /**
  * Finds out whether the given binding matches this search pattern.
  * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve failed.
+ * Returns INACCURATE_MATCH if resolve failed but match is still possible.
+ * Retunrs IMPOSSIBLE_MATCH otherwise.
  * Default is to return INACCURATE_MATCH.
  */
 public int matchLevel(Binding binding) {
@@ -1011,12 +1020,17 @@ protected int matchLevelForType(char[][][] declaringTypes, ReferenceBinding rece
  */
 protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
 	if (type == null) return INACCURATE_MATCH;
+	char[] qualifiedPackageName = type.qualifiedPackageName();
+	char[] qualifiedSourceName = 
+		type instanceof LocalTypeBinding ?
+			CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') :
+			type.qualifiedSourceName();
 	if (this.matchesType(
 			simpleNamePattern, 
 			qualificationPattern, 
-			type.qualifiedPackageName().length == 0 ? 
-				type.qualifiedSourceName() : 
-				CharOperation.concat(type.qualifiedPackageName(), type.qualifiedSourceName(), '.'))) {
+			qualifiedPackageName.length == 0 ? 
+				qualifiedSourceName : 
+				CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.'))) {
 		return ACCURATE_MATCH;
 	} else {
 		return IMPOSSIBLE_MATCH;

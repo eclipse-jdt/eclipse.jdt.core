@@ -166,4 +166,8 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) 
 	}
 	visitor.endVisit(this, blockScope);
 }
+public void resetStateForCodeGeneration() {
+	this.breakLabel.resetStateForCodeGeneration();
+	this.continueLabel.resetStateForCodeGeneration();
+}
 }

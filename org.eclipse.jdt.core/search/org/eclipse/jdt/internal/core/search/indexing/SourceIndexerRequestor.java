@@ -22,11 +22,13 @@ public class SourceIndexerRequestor implements ISourceElementRequestor, IIndexCo
 	char[] packageName;
 	char[][] enclosingTypeNames = new char[5][];
 	int depth = 0;
-	public SourceIndexerRequestor(SourceIndexer indexer, IDocument document) {
-		super();
-		this.indexer = indexer;
-		this.document= document;
-	}
+	int methodDepth = 0;
+	
+public SourceIndexerRequestor(SourceIndexer indexer, IDocument document) {
+	super();
+	this.indexer = indexer;
+	this.document= document;
+}
 /**
  * acceptConstructorReference method comment.
  */
@@ -54,11 +56,6 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	for (int i = 0, length = qualification.length; i < length; i++) {
 		this.indexer.addNameReference(qualification[i]);
 	}
-}
-/**
- * acceptInitializer method comment.
- */
-public void acceptInitializer(int modifiers, int declarationSourceStart, int declarationSourceEnd) {
 }
 /**
  * acceptLineSeparatorPositions method comment.
@@ -140,7 +137,13 @@ public void enterClass(int declarationStart, int modifiers, char[] name, int nam
 			superinterfaces[i] = CharOperation.lastSegment(superinterfaces[i], '.');
 		}
 	}
-	this.indexer.addClassDeclaration(modifiers, packageName, name, enclosingTypeNames(), superclass, superinterfaces);
+	char[][] enclosingTypeNames;
+	if (this.methodDepth > 0) {
+		enclosingTypeNames = ONE_ZERO_CHAR;
+	} else {
+		enclosingTypeNames = this.enclosingTypeNames();
+	}
+	this.indexer.addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces);
 	this.pushTypeName(name);
 }
 /**
@@ -153,12 +156,20 @@ public void enterCompilationUnit() {
  */
 public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addConstructorDeclaration(name, parameterTypes, exceptionTypes);
+	this.methodDepth++;
 }
 /**
  * enterField method comment.
  */
 public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd) {
 	this.indexer.addFieldDeclaration(type, name);
+	this.methodDepth++;
+}
+/**
+ * enterInitializer method comment.
+ */
+public void enterInitializer(int declarationSourceStart, int modifiers) {
+	this.methodDepth++;
 }
 /**
  * enterInterface method comment.
@@ -170,7 +181,13 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
 			superinterfaces[i] = CharOperation.lastSegment(superinterfaces[i], '.');
 		}
 	}	
-	this.indexer.addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames(), superinterfaces);
+	char[][] enclosingTypeNames;
+	if (this.methodDepth > 0) {
+		enclosingTypeNames = ONE_ZERO_CHAR;
+	} else {
+		enclosingTypeNames = this.enclosingTypeNames();
+	}
+	this.indexer.addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces);
 	this.pushTypeName(name);	
 }
 /**
@@ -178,6 +195,7 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
  */
 public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addMethodDeclaration(name, parameterTypes, returnType, exceptionTypes);
+	this.methodDepth++;
 }
 /**
  * exitClass method comment.
@@ -194,11 +212,19 @@ public void exitCompilationUnit(int declarationEnd) {
  * exitConstructor method comment.
  */
 public void exitConstructor(int declarationEnd) {
+	this.methodDepth--;
 }
 /**
  * exitField method comment.
  */
 public void exitField(int declarationEnd) {
+	this.methodDepth--;
+}
+/**
+ * exitInitializer method comment.
+ */
+public void exitInitializer(int declarationEnd) {
+	this.methodDepth--;
 }
 /**
  * exitInterface method comment.
@@ -210,6 +236,7 @@ public void exitInterface(int declarationEnd) {
  * exitMethod method comment.
  */
 public void exitMethod(int declarationEnd) {
+	this.methodDepth--;
 }
 public void popTypeName(){
 	enclosingTypeNames[depth--] = null;

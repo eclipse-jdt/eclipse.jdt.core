@@ -224,6 +224,12 @@ private boolean checkClassLiteralAccess() {
 			int dim = this.isAfterArrayType() ? this.intStack[this.intPtr--] : 0;
 			SingleTypeReference typeRef = (SingleTypeReference)TypeReference.baseTypeReference(-length, dim);
 			typeRef.sourceStart = this.intStack[this.intPtr--];
+			if (dim == 0) {
+				typeRef.sourceEnd = this.intStack[this.intPtr--];
+			} else {
+				this.intPtr--;
+				typeRef.sourceEnd = this.endPosition;
+			}
 			//typeRef.sourceEnd = typeRef.sourceStart + typeRef.token.length; // NB: It's ok to use the length of the token since it doesn't contain any unicode
 
 			// find the completion identifier and its source positions

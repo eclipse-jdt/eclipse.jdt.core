@@ -109,10 +109,16 @@ public void connect(IGenericType suppliedType, IGenericType superclass, IGeneric
 	}
 	IType[] interfaceHandles= null;
 	if (superinterfaces != null && superinterfaces.length > 0) {
-		interfaceHandles= new IType[superinterfaces.length];
-		for (int i= 0; i < interfaceHandles.length; i++) {
-			interfaceHandles[i]= getHandle(superinterfaces[i]);
+		int length = superinterfaces.length;
+		IType[] resolvedInterfaceHandles= new IType[length];
+		int index = 0;
+		for (int i= 0; i < length; i++) {
+			if (superinterfaces[i] != null) {
+				resolvedInterfaceHandles[index++]= getHandle(superinterfaces[i]);
+			}
 		}
+		// resize
+		System.arraycopy(resolvedInterfaceHandles, 0, interfaceHandles = new IType[index], 0, index);
 	}
 
 	// now do the caching

@@ -147,8 +147,8 @@ public int matchLevel(Binding binding, MessageSend messageSend) {
 	ReferenceBinding receiverType = 
 		binding == null ? 
 			null : 
-			(!isVirtualInvoke(method, messageSend) ? method.declaringClass : (ReferenceBinding)messageSend.receiverType);
-	if (this.isVirtualInvoke(method, messageSend)) {
+			method.declaringClass;
+	if (this.isVirtualInvoke(method, messageSend) && (!(messageSend.receiverType instanceof ArrayBinding))) {
 		level = this.matchLevelAsSubtype(receiverType, this.declaringSimpleName, this.declaringQualification);
 		if (level == IMPOSSIBLE_MATCH) {
 			level = this.matchLevelForType(this.allSuperDeclaringTypeNames, receiverType);

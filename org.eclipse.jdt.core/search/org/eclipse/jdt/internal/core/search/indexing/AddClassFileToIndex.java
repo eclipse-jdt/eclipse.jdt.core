@@ -41,7 +41,7 @@ public boolean execute(){
 			monitor.enterWrite(); // ask permission to write
 			byte[] contents = this.getContents();
 			if (contents == null) return FAILED;
-			index.add(new IFileDocument(resource, contents), new BinaryIndexer());
+			index.add(new IFileDocument(resource, contents), new BinaryIndexer(true));
 		} finally {
 			monitor.exitWrite(); // free write lock
 		}
@@ -61,7 +61,7 @@ public void initializeContents() {
 		try {
 			IPath location = resource.getLocation();
 			if (location != null){;
-				this.contents = Util.getFileByteContent(resource.getLocation().toFile());
+				this.contents = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(resource.getLocation().toFile());
 			}
 		} catch (IOException e) {
 		}

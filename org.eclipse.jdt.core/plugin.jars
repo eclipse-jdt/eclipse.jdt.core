@@ -6,4 +6,5 @@ jdtcore.jar=\
 	Eclipse Java Compiler,\
 	Eclipse Java Evaluation,\
 	Eclipse Java Core Search,\
-	Eclipse Java Model
+	Eclipse Java Model, \
+	Eclipse Java DOM

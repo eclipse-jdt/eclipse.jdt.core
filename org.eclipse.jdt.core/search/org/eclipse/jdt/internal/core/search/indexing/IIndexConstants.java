@@ -34,4 +34,8 @@ public interface IIndexConstants extends IJobConstants {
 	char[] ONE_STAR = new char[] {'*'};
 	char[] NO_CHAR = new char[0];
 	char[][] NO_CHAR_CHAR = new char[0][];
+
+	// used as special marker for enclosing type name of local and anonymous classes
+	char[] ONE_ZERO = new char[] {'0'}; 
+	char[][] ONE_ZERO_CHAR = new char[][] {ONE_ZERO};
 }

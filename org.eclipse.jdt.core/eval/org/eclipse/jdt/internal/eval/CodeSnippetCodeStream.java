@@ -13,6 +13,13 @@ import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CodeSnippetCodeStream extends CodeStream {
+	static InvocationSite NO_INVOCATION_SITE = 
+		new InvocationSite(){	
+			public boolean isSuperAccess(){ return false; }
+			public boolean isTypeAccess() { return false; }
+			public void setDepth(int depth) {}
+			public void setFieldIndex(int depth){}
+		};
 /**
  * CodeSnippetCodeStream constructor comment.
  * @param classFile org.eclipse.jdt.internal.compiler.ClassFile
@@ -172,6 +179,55 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.dup();
 	this.iconst_1();
 	localCodeStream.invokeAccessibleObjectSetAccessible();
+}
+public void generateObjectWrapperForType(TypeBinding valueType) {
+
+	/* The top of stack must be encapsulated inside 
+	 * a wrapper object if it corresponds to a base type
+	 */
+	char[][] wrapperTypeCompoundName = null;
+	switch (valueType.id) {
+		case T_int : // new: java.lang.Integer
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Integer".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_boolean : // new: java.lang.Boolean
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Boolean".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_byte : // new: java.lang.Byte
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Byte".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_char : // new: java.lang.Character
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Character".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_float : // new: java.lang.Float
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Float".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_double : // new: java.lang.Double
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Double".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_short : // new: java.lang.Short
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Short".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+		case T_long : // new: java.lang.Long
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+			break;
+	}
+	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
+	new_(wrapperType);
+	if (valueType.id == T_long || valueType.id == T_double) {
+		dup_x2();
+		dup_x2();
+		pop();
+	} else {
+		dup_x1();
+		swap();
+	}
+	MethodBinding methodBinding = methodDeclaration.scope.getMethod(
+				wrapperType, 
+				QualifiedNamesConstants.Init, 
+				new TypeBinding[] {valueType}, 
+				NO_INVOCATION_SITE);
+	invokespecial(methodBinding);
 }
 public void getBaseTypeValue(int baseTypeID) {
 	countLabels = 0;

@@ -210,8 +210,9 @@ private IPath getSourceFolderPath(IResource resource) {
 	IResource affectedResource = delta.getResource();
 	boolean processChildren = true;
 	switch (delta.getKind()) {
-		case IResourceDelta.ADDED:
 		case IResourceDelta.CHANGED:
+			if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) break; // only consider content change
+		case IResourceDelta.ADDED:
 			processChildren = copyToOutput(affectedResource);
 			break;
 		case IResourceDelta.REMOVED:

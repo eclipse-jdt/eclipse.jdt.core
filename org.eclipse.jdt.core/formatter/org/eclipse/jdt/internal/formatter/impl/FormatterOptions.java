@@ -1,5 +1,5 @@
 package org.eclipse.jdt.internal.formatter.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -7,41 +7,49 @@ package org.eclipse.jdt.internal.formatter.impl;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.formatter.*;
 import java.util.*;
-
+
 public class FormatterOptions {	
-
-	/**
+/**
 	 * Option IDs
 	 */
-	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace"; //$NON-NLS-1$
-	public static final String OPTION_InsertNewlineInControlStatement = CodeFormatter.class.getName() + ".newlineControlStatement"; //$NON-NLS-1$
-	public static final String OPTION_InsertNewLineBetweenElseAndIf = CodeFormatter.class.getName() + ".newlineElseIf"; //$NON-NLS-1$
-	public static final String OPTION_InsertNewLineInEmptyBlock = CodeFormatter.class.getName() + ".newlineEmptyBlock"; //$NON-NLS-1$
-	public static final String OPTION_ClearAllBlankLines = CodeFormatter.class.getName() + ".newlineClearAll"; //$NON-NLS-1$
-	public static final String OPTION_SplitLineExceedingLength = CodeFormatter.class.getName() + ".lineSplit"; //$NON-NLS-1$
-	public static final String OPTION_CompactAssignment = CodeFormatter.class.getName() + ".compactAssignment"; //$NON-NLS-1$
-	public static final String OPTION_TabulationChar = CodeFormatter.class.getName() + ".tabulationChar"; //$NON-NLS-1$
-	public static final String OPTION_TabulationSize = CodeFormatter.class.getName() + ".tabulationSize"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewlineBeforeOpeningBrace = "org.eclipse.jdt.core.formatter.newline.openingBrace"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewlineInControlStatement = "org.eclipse.jdt.core.formatter.newline.controlStatement"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewLineBetweenElseAndIf = "org.eclipse.jdt.core.formatter.newline.elseIf"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewLineInEmptyBlock = "org.eclipse.jdt.core.formatter.newline.emptyBlock"; //$NON-NLS-1$
+	public static final String OPTION_ClearAllBlankLines = "org.eclipse.jdt.core.formatter.newline.clearAll"; //$NON-NLS-1$
+	public static final String OPTION_SplitLineExceedingLength = "org.eclipse.jdt.core.formatter.lineSplit"; //$NON-NLS-1$
+	public static final String OPTION_CompactAssignment = "org.eclipse.jdt.core.formatter.style.assignment"; //$NON-NLS-1$
+	public static final String OPTION_TabulationChar = "org.eclipse.jdt.core.formatter.tabulation.char"; //$NON-NLS-1$
+	public static final String OPTION_TabulationSize = "org.eclipse.jdt.core.formatter.tabulation.size"; //$NON-NLS-1$
+	
+	public static final String INSERT = "insert"; //$NON-NLS-1$
+	public static final String DO_NOT_INSERT = "do not insert"; //$NON-NLS-1$
+	public static final String PRESERVE_ONE = "preserve one"; //$NON-NLS-1$
+	public static final String CLEAR_ALL = "clear all"; //$NON-NLS-1$
+	public static final String NORMAL = "normal"; //$NON-NLS-1$
+	public static final String COMPACT = "compact"; //$NON-NLS-1$
+	public static final String TAB = "tab"; //$NON-NLS-1$
+	public static final String SPACE = "space"; //$NON-NLS-1$
 	
 	// by default, do not insert blank line before opening brace
 	public boolean newLineBeforeOpeningBraceMode = false;
-
+
 	// by default, do not insert blank line behind keywords (ELSE, CATCH, FINALLY,...) in control statements
 	public boolean newlineInControlStatementMode = false;
-
+
 	// by default, preserve one blank line per sequence of blank lines
 	public boolean clearAllBlankLinesMode = false;
 	
 	// line splitting will occur when line exceeds this length
 	public int maxLineLength = 80;
-
+
 	public boolean compactAssignmentMode = false; // if isTrue, assignments look like x= 12 (not like x = 12);
-
+
 	//number of consecutive spaces used to replace the tab char
 	public int tabSize = 4; // n spaces for one tab
 	public boolean indentWithTab = true;
-
-	public boolean compactElseIfMode = false; // if true, else and if are kept on the same line.
+
+	public boolean compactElseIfMode = true; // if true, else and if are kept on the same line.
 	public boolean newLineInEmptyBlockMode = true; // if false, no new line in {} if it's empty.
 	
 	public char[] lineSeparatorSequence = System.getProperty("line.separator").toCharArray(); //$NON-NLS-1$
@@ -53,14 +61,87 @@ public FormatterOptions(){
 /** 
  * Initializing the formatter options with external settings
  */
-public FormatterOptions(ConfigurableOption[] settings){
+public FormatterOptions(Map settings){
 	if (settings == null) return;
 
-	// filter options which are related to the formatter component
-	String componentName = CodeFormatter.class.getName();
-	for (int i = 0, max = settings.length; i < max; i++){
-		if (settings[i].getComponentName().equals(componentName)){
-			this.setOption(settings[i]);
+	// filter options which are related to the assist component
+	Object[] entries = settings.entrySet().toArray();
+	for (int i = 0, max = entries.length; i < max; i++){
+		Map.Entry entry = (Map.Entry)entries[i];
+		if (!(entry.getKey() instanceof String)) continue;
+		if (!(entry.getValue() instanceof String)) continue;
+		String optionID = (String) entry.getKey();
+		String optionValue = (String) entry.getValue();
+		
+		if(optionID.equals(OPTION_InsertNewlineBeforeOpeningBrace)){
+			if (optionValue.equals(INSERT)){
+				this.newLineBeforeOpeningBraceMode = true;
+			} else if (optionValue.equals(DO_NOT_INSERT)){
+				this.newLineBeforeOpeningBraceMode = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_InsertNewlineInControlStatement)){
+			if (optionValue.equals(INSERT)){
+				this.newlineInControlStatementMode = true;
+			} else if (optionValue.equals(DO_NOT_INSERT)){
+				this.newlineInControlStatementMode = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_ClearAllBlankLines)){
+			if (optionValue.equals(CLEAR_ALL)){
+				this.clearAllBlankLinesMode = true;
+			} else if (optionValue.equals(PRESERVE_ONE)){
+				this.clearAllBlankLinesMode = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_InsertNewLineBetweenElseAndIf)){
+			if (optionValue.equals(INSERT)){
+				this.compactElseIfMode = false;
+			} else if (optionValue.equals(DO_NOT_INSERT)){
+				this.compactElseIfMode = true;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_InsertNewLineInEmptyBlock)){
+			if (optionValue.equals(INSERT)){
+				this.newLineInEmptyBlockMode = true;
+			} else if (optionValue.equals(DO_NOT_INSERT)){
+				this.newLineInEmptyBlockMode = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_SplitLineExceedingLength)){
+			try {
+				int val = Integer.parseInt(optionValue);
+				if (val >= 0) this.maxLineLength = val;
+			} catch(NumberFormatException e){
+			}
+		}
+		if(optionID.equals(OPTION_CompactAssignment)){
+			if (optionValue.equals(COMPACT)){
+				this.compactAssignmentMode = true;
+			} else if (optionValue.equals(NORMAL)){
+				this.compactAssignmentMode = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_TabulationChar)){
+			if (optionValue.equals(TAB)){
+				this.indentWithTab = true;
+			} else if (optionValue.equals(SPACE)){
+				this.indentWithTab = false;
+			}
+			continue;
+		}
+		if(optionID.equals(OPTION_TabulationSize)){
+			try {
+				int val = Integer.parseInt(optionValue);
+				if (val > 0) this.tabSize = val;
+			} catch(NumberFormatException e){
+			}
 		}
 	}
 }
@@ -96,98 +177,20 @@ public boolean isCompactingElseIf() {
 public boolean isUsingTabForIndenting() {
 	return indentWithTab;
 }
-public void setClearAllBlankLinesMode(boolean flag) {
-	clearAllBlankLinesMode = flag;
+public void setLineSeparator(String lineSeparator) {
+	lineSeparatorSequence = lineSeparator.toCharArray();
 }
-/** Set the behaviour of the formatter about the braces.<br>
- * @param boolean newBraceIndentationLevel<ul>
- * <li>if true, the formatter add new line & indent before the opening brace.
- * <li>if false, the formatter leaves the brace on the same line.</ul> 
+/**
+ * @deprecated - should use a Map when creating the options.
  */
-public void setCompactAssignmentMode(boolean flag) {
-	compactAssignmentMode = flag;
+public void setMaxLineLength(int maxLineLength) {
+	this.maxLineLength = maxLineLength;
 }
-/** Set the behaviour of the formatter about else if.<br>
- * @param boolean flag<ul>
- * <li>if true, a <code>else if</code> sequence is kept on the same line.
- * <li>if false, <code>else if</code> is formatted like:
- <pre>
- else
- 	if
- </pre>
- </ul> 
+/**
+ * @deprecated - should use a Map when creating the options.
  */
 public void setCompactElseIfMode(boolean flag) {
 	compactElseIfMode = flag;
 }
-/** Defines whether to use tab characters or sequence of spaces when indenting
- * @param boolean useTab <ul>
- * <li>if true, the formatter add new line & indent before the opening brace.
- * <li>if false, the formatter leaves the brace on the same line.</ul> 
- */
-public void setIndentationUsesTab(boolean flag) {
-	indentWithTab = flag;
-}
-public void setLineSeparator(String lineSeparator) {
-	lineSeparatorSequence = lineSeparator.toCharArray();
-}
-public void setMaxLineLength(int maxLineLength) {
-	this.maxLineLength = maxLineLength;
-}
-/** Set the behaviour of the formatter about the braces.<br>
- * @param boolean newBraceIndentationLevel<ul>
- * <li>if true, the formatter add new line & indent before the opening brace.
- * <li>if false, the formatter leaves the brace on the same line.</ul> 
- */
-public void setNewLineBeforeOpeningBraceMode(boolean flag) {
-	newLineBeforeOpeningBraceMode = flag;
-}
-public void setNewlineInControlStatementMode(boolean flag) {
-	newlineInControlStatementMode = flag;
-}
-public void setNewLineInEmptyBlockMode(boolean flag) {
-	newLineInEmptyBlockMode = flag;
-}
-/**
- * Change the value of the option corresponding to the option number
- *
- * @param optionNumber <CODE>int</CODE>
- * @param newValue <CODE>int</CODE>
- */
-public void setOption(ConfigurableOption setting) {
-	
-	String optionID = setting.getID();
-	
-	if(optionID.equals(OPTION_InsertNewlineBeforeOpeningBrace)){
-		setNewLineBeforeOpeningBraceMode(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_InsertNewlineInControlStatement)){
-		setNewlineInControlStatementMode(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_ClearAllBlankLines)){
-		setClearAllBlankLinesMode(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_InsertNewLineBetweenElseAndIf)){
-		setCompactElseIfMode(setting.getValueIndex() == 1);
-	}else if(optionID.equals(OPTION_InsertNewLineInEmptyBlock)){
-		setNewLineInEmptyBlockMode(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_SplitLineExceedingLength)){
-		try {
-			setMaxLineLength(Integer.parseInt(setting.getValue()));
-		} catch(NumberFormatException e){
-		}
-	}else if(optionID.equals(OPTION_CompactAssignment)){
-		setCompactAssignmentMode(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_TabulationChar)){
-		setIndentationUsesTab(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_TabulationSize)){
-		try {
-			setTabSize(Integer.parseInt(setting.getValue()));
-		} catch(NumberFormatException e){
-		}
-	}
-}
 
-public void setReuseExistingLayoutMode(boolean flag) {
-}
-public void setTabSize(int size) {
-	this.tabSize = size;
-}
 }

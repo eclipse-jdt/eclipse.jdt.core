@@ -66,6 +66,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 		}
+		// remember the initialization at this
+		// point for dealing with blank final variables.
+		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+
 		FlowContext parentContext;
 		if ((parentContext = traversedContext.parent) == null) { // top-context
 			break;
@@ -77,9 +81,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if ((subroutines != null) && (subIndex != maxSub)) {
 		System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
 	}
-	// the top returning context may want to remember the initialization at this
-	// point for dealing with blank final fields.
-	traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
 	// no need to save a constant value
 	if((expression != null) && (expression.constant != NotAConstant)){

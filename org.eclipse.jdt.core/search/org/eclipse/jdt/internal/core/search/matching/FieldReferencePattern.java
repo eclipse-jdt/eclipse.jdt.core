@@ -141,12 +141,10 @@ protected boolean matchIndexEntry() {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[] declaringTypeName = CharOperation.concat(this.declaringQualification, this.declaringSimpleName, '.');
-	char[][] qualifiedName = CharOperation.splitOn('.', CharOperation.concat(declaringTypeName, this.name, '.'));
-	locator.reportQualifiedReference(reference.sourceStart, reference.sourceEnd, qualifiedName, element, accuracy);
+	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
 }
 /**
- * Returns whether a method declaration or message send will need to be resolved to 
+ * Returns whether a field reference or name reference will need to be resolved to 
  * find out if this method pattern matches it.
  */
 private boolean needsResolve() {

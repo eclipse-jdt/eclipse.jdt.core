@@ -1370,7 +1370,7 @@ public static final int[] get_PLUS(){
 	table[(T_String<<4)+T_short] 		= (String2String<<12)+(Short2Short<<4)+T_String ;
 //	table[(T_String<<4)+T_void] 		= T_undefined ;
 	table[(T_String<<4)+T_String] 		= (String2String<<12)+(String2String<<4)+T_String ;
-	table[(T_String<<4)+T_Object] 		= (String2String<<12)+(T_Object<<8)+(T_Object<<4)+T_String ;
+	table[(T_String<<4)+T_Object] 		= (String2String<<12)+(Object2Object<<4)+T_String ;
 	table[(T_String<<4)+T_double] 		= (String2String<<12)+(Double2Double<<4)+T_String ;
 	table[(T_String<<4)+T_float] 		= (String2String<<12)+(Float2Float<<4)+T_String ; 
 	table[(T_String<<4)+T_boolean] 		= (String2String<<12)+(Boolean2Boolean<<4)+T_String ;
@@ -1383,7 +1383,7 @@ public static final int[] get_PLUS(){
 //	table[(T_Object<<4)+T_long] 		= T_undefined ;
 //	table[(T_Object<<4)+T_short]		= T_undefined ;
 //	table[(T_Object<<4)+T_void] 		= T_undefined ;
-	table[(T_Object<<4)+T_String] 		= (T_Object<<16)+(T_Object<<12)+(String2String<<4)+T_String ;
+	table[(T_Object<<4)+T_String] 		= (Object2Object<<12)+(String2String<<4)+T_String ;
 //	table[(T_Object<<4)+T_Object] 		= T_undefined ;
 //	table[(T_Object<<4)+T_double] 		= T_undefined ;
 //	table[(T_Object<<4)+T_float] 		= T_undefined ;

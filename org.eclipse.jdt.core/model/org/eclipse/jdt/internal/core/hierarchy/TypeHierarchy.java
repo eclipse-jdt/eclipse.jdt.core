@@ -747,11 +747,26 @@ private boolean hasVisibilityChange(IJavaElementDelta delta) {
  * the simple name of one of the types in this hierarchy.
  */
 private boolean includesSupertypeOf(IType type) {
-	IType[] supertypes = getSupertypes(type);
-	for (int i = 0, length = supertypes.length; i < length; i++) {
-		if (hasTypeNamed(supertypes[i].getElementName())) {
-			return true;
+	try {
+		// check superclass
+		String superclassName = type.getSuperclassName();
+		if (superclassName != null) {
+			int lastSeparator = superclassName.lastIndexOf('.');
+			String simpleName = (lastSeparator > -1) ? superclassName.substring(lastSeparator) : superclassName;
+			if (hasTypeNamed(simpleName)) return true;
 		}
+	
+		// check superinterfaces
+		String[] superinterfaceNames = type.getSuperInterfaceNames();
+		if (superinterfaceNames != null) {
+			for (int i = 0, length = superinterfaceNames.length; i < length; i++) {
+				String superinterfaceName = superinterfaceNames[i];
+				int lastSeparator = superinterfaceName.lastIndexOf('.');
+				String simpleName = (lastSeparator > -1) ? superinterfaceName.substring(lastSeparator) : superinterfaceName;
+				if (hasTypeNamed(simpleName)) return true;
+			}
+		}
+	} catch (JavaModelException e) {
 	}
 	return false;
 }

@@ -48,7 +48,7 @@ protected void indexFile(IDocument document) throws IOException {
 
 	// Create a new Parser
 	SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
-	SourceElementParser parser = new SourceElementParser(requestor, problemFactory);
+	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, true); // index local declarations
 
 	// Launch the parser
 	char[] source = null;

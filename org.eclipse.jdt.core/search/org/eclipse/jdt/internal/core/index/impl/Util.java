@@ -36,46 +36,6 @@ public class Util {
 		}
 		return len1 - len2;
 	}
-public static byte[] getFileByteContent(File file) throws java.io.IOException {
-	int fileLength;
-	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-	BufferedInputStream stream = null;
-	try {
-		stream = new BufferedInputStream(new FileInputStream(file));
-		int bytesRead = 0;
-		int lastReadSize = 0;
-		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-			lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-			bytesRead += lastReadSize;
-		}
-	} finally {
-		if (stream != null)
-			stream.close();
-	}
-	return classFileBytes;
-}
-	public static char[] getFileCharContent(File file) throws java.io.IOException {
-		byte[] bytes= null;
-		BufferedReader reader = null;
-		char[] contents= null;
-		try {
-			reader= new BufferedReader(new FileReader(file));
-			int length= (int) file.length();
-			contents= new char[length];
-			int len= 0;
-			int readSize= 0;
-			while ((readSize != -1) && (len != length)) {
-				len += readSize;
-				readSize= reader.read(contents, len, length - len);
-			}
-			if (len != length)
-				System.arraycopy(contents, 0, (contents= new char[len]), 0, len);
-		} finally {
-			if (reader != null)
-				reader.close();
-		}
-		return contents;
-	}
 	/**
 	 * Adds all files with the given suffix in the given directory 
 	 * and all its subdirectories to the given Vector.

@@ -160,7 +160,10 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	executeNestedOperation(op, 1);
 
 	JavaElement destination = (JavaElement) getDestinationParent(element);
-	destination.getCompilationUnit().close();
+	ICompilationUnit unit= destination.getCompilationUnit();
+	if (!unit.isWorkingCopy()) {
+		unit.close();
+	}
 
 	if (createElementInCUOperation && isMove() && !isRenamingMainType(element, destination)) {
 		DeleteElementsOperation deleteOp = new DeleteElementsOperation(new IJavaElement[] { element }, fForce);

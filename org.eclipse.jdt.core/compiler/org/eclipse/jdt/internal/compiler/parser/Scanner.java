@@ -24,7 +24,8 @@ public class Scanner implements TerminalSymbols {
 	// 1.4 feature
 	public boolean assertMode;
 	public boolean useAssertAsAnIndentifier = false;
-	public boolean containsAssertKeyword = false;
+	//flag indicating if processed source contains occurrences of keyword assert 
+	public boolean containsAssertKeyword = false; 
 	
 	public boolean recordLineSeparator;
 	public char currentCharacter;
@@ -662,7 +663,7 @@ public int getNextToken() throws InvalidInputException {
 						if (recordLineSeparator) {
 							pushLineSeparator();
 						} else {
-							linePtr++;
+							currentLine = null;
 						}
 					}
 					isWhiteSpace = 
@@ -939,11 +940,9 @@ public int getNextToken() throws InvalidInputException {
 						throw e; // rethrow
 					}
 					if (checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
-						currentLineNr = linePtr;
-						if (currentLineNr != previousLineNr) {
-							currentLine= new NLSLine(currentLineNr);
+						if (currentLine == null) {
+							currentLine= new NLSLine();
 							lines.add(currentLine);
-							previousLineNr= currentLineNr;
 						}
 						currentLine.add(
 							new StringLiteral(
@@ -1026,7 +1025,7 @@ public int getNextToken() throws InvalidInputException {
 											pushLineSeparator();
 										}
 									} else {
-										linePtr++;
+										currentLine = null;
 									}
 								}
 								if (tokenizeComments) {
@@ -1065,7 +1064,7 @@ public int getNextToken() throws InvalidInputException {
 								if (recordLineSeparator) {
 									pushLineSeparator();
 								} else {
-									linePtr++;
+									currentLine = null;
 								}
 							}
 							try { //get the next char 
@@ -1090,7 +1089,7 @@ public int getNextToken() throws InvalidInputException {
 										if (recordLineSeparator) {
 											pushLineSeparator();
 										} else {
-											linePtr++;
+											currentLine = null;
 										}
 									}
 									star = currentCharacter == '*';
@@ -1750,6 +1749,11 @@ final char[] optimizedCurrentTokenSource6() {
 public final void pushLineSeparator() throws InvalidInputException {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
+	
+	if (this.checkNonExternalizedStringLiterals) {
+	// reinitialize the current line for non externalize strings purpose
+		currentLine = null;
+	}
 	//currentCharacter is at position currentPosition-1
 
 	// cr 000D
@@ -1809,6 +1813,11 @@ public final void pushUnicodeLineSeparator() {
 	final int INCREMENT = 250;
 	//currentCharacter is at position currentPosition-1
 
+	if (this.checkNonExternalizedStringLiterals) {
+	// reinitialize the current line for non externalize strings purpose
+		currentLine = null;
+	}
+	
 	// cr 000D
 	if (currentCharacter == '\r') {
 		int separatorPos = currentPosition - 6;
@@ -2975,7 +2984,7 @@ public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean che
 }
 
 private void checkNonExternalizeString()  throws InvalidInputException {
-	if (currentLine == null || currentLineNr != linePtr)
+	if (currentLine == null)
 		return;
 	parseTags(currentLine);
 }
@@ -2994,9 +3003,8 @@ private void parseTags(NLSLine line) throws InvalidInputException {
 		} catch (NumberFormatException e) {
 			i = -1; // we don't want to consider this as a valid NLS tag
 		}
-		int listIndex = lineLength - i - 1;
-		if (line.exists(listIndex)) {
-			line.set(listIndex, null);
+		if (line.exists(i)) {
+			line.set(i, null);
 		}
 		pos = s.indexOf(TAG_PREFIX, start);
 	}
