@@ -108,7 +108,7 @@ import java.util.Map;
  * problem (support for this is planned for a future release).
  * </p>
  * 
- * @see AST#parseCompilationUnit
+ * @see AST All AST.parseCompilationUnit(*) methods
  * @see ASTVisitor
  * @since 2.0
  */
@@ -722,15 +722,15 @@ public abstract class ASTNode {
 			 * Method declared on <code>Iterator</code>.
 			 */
 			public boolean hasNext() {
-				return position < store.size();
+				return this.position < NodeList.this.store.size();
 			}
 			
 			/* (non-Javadoc)
 			 * Method declared on <code>Iterator</code>.
 			 */
 			public Object next() {
-				Object result = store.get(position);
-				position++;
+				Object result = NodeList.this.store.get(this.position);
+				this.position++;
 				return result;
 		    }
 			
@@ -750,9 +750,9 @@ public abstract class ASTNode {
 			 * @param delta +1 for add, and -1 for remove
 			 */
 			void update(int index, int delta) {
-				if (position > index) {
+				if (this.position > index) {
 					// the cursor has passed the added or removed element
-					position += delta;
+					this.position += delta;
 				}
 			}
 		}
@@ -791,14 +791,14 @@ public abstract class ASTNode {
 		 * @see java.util.AbstractCollection#size()
 		 */
 		public int size() {
-			return store.size();
+			return this.store.size();
 		}
 	
 		/* (non-javadoc)
 		 * @see AbstractList#get(int)
 		 */
 		public Object get(int index) {
-			return store.get(index);
+			return this.store.get(index);
 		}
 	
 		/* (non-javadoc)
@@ -807,12 +807,12 @@ public abstract class ASTNode {
 		public Object set(int index, Object element) {
 			// delink old child from parent, and link new child to parent
 			ASTNode newChild = (ASTNode) element;
-			ASTNode oldChild = (ASTNode) store.get(index);
+			ASTNode oldChild = (ASTNode) this.store.get(index);
 			if (oldChild == newChild) {
 				return oldChild;
 			}
-			ASTNode.checkNewChild(ASTNode.this, newChild, cycleCheck, nodeType);
-			Object result = store.set(index, newChild);
+			ASTNode.checkNewChild(ASTNode.this, newChild, this.cycleCheck, this.nodeType);
+			Object result = this.store.set(index, newChild);
 			// n.b. setParent will call modifying()
 			oldChild.setParent(null);
 			newChild.setParent(ASTNode.this);
@@ -825,8 +825,8 @@ public abstract class ASTNode {
 		public void add(int index, Object element) {
 			// link new child to parent
 			ASTNode newChild = (ASTNode) element;
-			ASTNode.checkNewChild(ASTNode.this, newChild, cycleCheck, nodeType);
-			store.add(index, element);
+			ASTNode.checkNewChild(ASTNode.this, newChild, this.cycleCheck, this.nodeType);
+			this.store.add(index, element);
 			updateCursors(index, +1);
 			// n.b. setParent will call modifying()
 			newChild.setParent(ASTNode.this);
@@ -837,10 +837,10 @@ public abstract class ASTNode {
 		 */
 		public Object remove(int index) {
 			// delink old child from parent
-			ASTNode oldChild = (ASTNode) store.get(index);
+			ASTNode oldChild = (ASTNode) this.store.get(index);
 			// n.b. setParent will call modifying()
 			oldChild.setParent(null);
-			Object result = store.remove(index);
+			Object result = this.store.remove(index);
 			updateCursors(index, -1);
 			return result;
 
@@ -854,12 +854,12 @@ public abstract class ASTNode {
 		 *    of the list
 		 */
 		Cursor newCursor() {
-			if (cursors == null) {
+			if (this.cursors == null) {
 				// convert null to empty list
-				cursors = new ArrayList(1);
+				this.cursors = new ArrayList(1);
 			}
 			Cursor result = new Cursor();
-			cursors.add(result);
+			this.cursors.add(result);
 			return result;
 		}
 		
@@ -869,11 +869,11 @@ public abstract class ASTNode {
 		 * @param cursor the cursor
 		 */
 		void releaseCursor(Cursor cursor) {
-			cursors.remove(cursor);
-			if (cursors.isEmpty()) {
+			this.cursors.remove(cursor);
+			if (this.cursors.isEmpty()) {
 				// important: convert empty list back to null
 				// otherwise the node will hang on to needless junk
-				cursors = null;
+				this.cursors = null;
 			}
 		}
 
@@ -886,11 +886,11 @@ public abstract class ASTNode {
 		 * @param delta +1 for add, and -1 for remove
 		 */
 		private void updateCursors(int index, int delta) {
-			if (cursors == null) {
+			if (this.cursors == null) {
 				// there are no cursors to worry about
 				return;
 			}
-			for (Iterator it = cursors.iterator(); it.hasNext(); ) {
+			for (Iterator it = this.cursors.iterator(); it.hasNext(); ) {
 				Cursor c = (Cursor) it.next();
 				c.update(index, delta);
 			}
@@ -951,7 +951,7 @@ public abstract class ASTNode {
 		if (ast == null) {
 			throw new IllegalArgumentException();
 		}
-		owner = ast;
+		this.owner = ast;
 		modifying();
 	}
 	
@@ -965,7 +965,7 @@ public abstract class ASTNode {
 	 * @return the AST that owns this node
 	 */ 
 	public AST getAST() {
-		return owner;
+		return this.owner;
 	}
 	
 	/**
@@ -979,7 +979,7 @@ public abstract class ASTNode {
 	 * @return the parent of this node, or <code>null</code> if none
 	 */ 
 	public ASTNode getParent() {
-		return parent;
+		return this.parent;
 	}
 		
 	/**
@@ -1122,20 +1122,20 @@ public abstract class ASTNode {
 		if (propertyName == null) {
 			throw new IllegalArgumentException();
 		}
-		if (property1 == null) {
+		if (this.property1 == null) {
 			// node has no properties at all
 			return null;
 		}
-		if (property1 instanceof String) {
+		if (this.property1 instanceof String) {
 			// node has only a single property
-			if (propertyName.equals(property1)) {
-				return property2;
+			if (propertyName.equals(this.property1)) {
+				return this.property2;
 			} else {
 				return null;
 			}
 		}
 		// otherwise node has table of properties
-		Map m = (Map) property1;
+		Map m = (Map) this.property1;
 		return m.get(propertyName);
 	}
 	
@@ -1164,27 +1164,27 @@ public abstract class ASTNode {
 		}
 		// N.B. DO NOT CALL modifying();
 
-		if (property1 == null) {
+		if (this.property1 == null) {
 			// node has no properties at all
 			if (data == null) {
 				// we already know this
 				return;
 			}
 			// node gets its fist property
-			property1 = propertyName;
-			property2 = data;
+			this.property1 = propertyName;
+			this.property2 = data;
 			return;
 		}
 
-		if (property1 instanceof String) {
+		if (this.property1 instanceof String) {
 			// node has only a single property
-			if (propertyName.equals(property1)) {
+			if (propertyName.equals(this.property1)) {
 				// we're in luck
-				property2 = data;
+				this.property2 = data;
 				if (data == null) {
 					// just deleted last property
-					property1 = null;
-					property2 = null;
+					this.property1 = null;
+					this.property2 = null;
 				}
 				return;
 			}
@@ -1195,23 +1195,23 @@ public abstract class ASTNode {
 			// node already has one property - getting its second
 			// convert to more flexible representation
 			HashMap m = new HashMap(2);
-			m.put(property1, property2);
+			m.put(this.property1, this.property2);
 			m.put(propertyName, data);
-			property1 = m;
-			property2 = null;
+			this.property1 = m;
+			this.property2 = null;
 			return;
 		}
 			
 		// node has two or more properties
-		HashMap m = (HashMap) property1;
+		HashMap m = (HashMap) this.property1;
 		if (data == null) {
 			m.remove(propertyName);
 			// check for just one property left
 			if (m.size() == 1) {
 				// convert to more efficient representation
 				Map.Entry[] entries = (Map.Entry[]) m.entrySet().toArray(new Map.Entry[1]);
-				property1 = entries[0].getKey();
-				property2 = entries[0].getValue();
+				this.property1 = entries[0].getKey();
+				this.property2 = entries[0].getValue();
 			}
 			return;
 		} else {
@@ -1229,21 +1229,21 @@ public abstract class ASTNode {
 	 *   (key type: <code>String</code>; value type: <code>Object</code>)
 	 */
 	public Map properties() {
-		if (property1 == null) {
+		if (this.property1 == null) {
 			// node has no properties at all
 			return UNMODIFIABLE_EMPTY_MAP;
 		} 
-		if (property1 instanceof String) {
+		if (this.property1 instanceof String) {
 			// node has a single property
-			return Collections.singletonMap(property1, property2);
+			return Collections.singletonMap(this.property1, this.property2);
 		}
 		
 		// node has two or more properties
-		if (property2 == null) {
-			property2 = Collections.unmodifiableMap((Map) property1);
+		if (this.property2 == null) {
+			this.property2 = Collections.unmodifiableMap((Map) this.property1);
 		}
 		// property2 is unmodifiable wrapper for map in property1
-		return (Map) property2;
+		return (Map) this.property2;
 	}
 	
 	/**
@@ -1464,7 +1464,7 @@ public abstract class ASTNode {
 	 * </p>
 	 * 
 	 * @param visitor the visitor object
-	 * @param child the child AST node to dispatch too, or <code>null</code>
+	 * @param children the child AST node to dispatch too, or <code>null</code>
 	 *    if none
 	 */
 	final void acceptChildren(ASTVisitor visitor, ASTNode.NodeList children) {
@@ -1486,14 +1486,14 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node begins.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getLength()
-	 * @see AST#parseCompilationUnit
+	 * @see AST All AST.parseCompilationUnit(*) methods
 	 */
 	public int getStartPosition() {
 		return this.startPosition;
@@ -1504,24 +1504,24 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node ends.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * See {@link AST AST.parseCompilationUnit(*)} methods for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getStartPosition()
-	 * @see AST#parseCompilationUnit
+	 * @see AST All AST.parseCompilationUnit(*) methods
 	 */
 	public int getLength() {
 		return this.length;
 	}
-	
+
 	/**
 	 * Sets the source range of the original source file where the source
 	 * fragment corresponding to this node was found.
 	 * <p>
-	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
@@ -1533,7 +1533,7 @@ public abstract class ASTNode {
 	 *    for this node
 	 * @see #getStartPosition()
 	 * @see #getLength()
-	 * @see AST#parseCompilationUnit
+	 * @see AST All AST.parseCompilationUnit(*) methods
 	 */
 	public void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {
