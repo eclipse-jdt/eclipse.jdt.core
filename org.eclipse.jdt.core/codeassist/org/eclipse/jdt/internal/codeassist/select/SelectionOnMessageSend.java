@@ -32,25 +32,7 @@ public class SelectionOnMessageSend extends MessageSend {
 		super.resolveType(scope);
 
 		// tolerate some error cases
-		if ((binding == null || binding.problemId() == ProblemReasons.NotFound )&&
-			receiverType != null &&
-			receiverType.isValidBinding() &&
-			selector != null &&
-			selector.length > 0) {
-				
-			MethodBinding closestMethod = null;
-			if(binding != null) {
-				closestMethod = ((ProblemMethodBinding)binding).closestMatch;
-			} else if(receiverType instanceof ReferenceBinding) {
-				closestMethod = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
-			}
-			
-			if(closestMethod == null) {
-				throw new SelectionNodeFound();
-			} else {
-				throw new SelectionNodeFound(closestMethod);
-			}
-		} else if(binding == null ||
+		if(binding == null ||
 					!(binding.isValidBinding() || 
 						binding.problemId() == ProblemReasons.NotVisible
 						|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
