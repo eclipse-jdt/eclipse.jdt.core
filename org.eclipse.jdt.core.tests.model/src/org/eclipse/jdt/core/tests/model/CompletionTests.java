@@ -117,6 +117,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
 	suite.addTest(new CompletionTests("testCompletionObjectsMethodWithInterfaceReceiver"));
 	suite.addTest(new CompletionTests("testCompletionConstructorForAnonymousType"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance1"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance2"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -894,7 +896,7 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n"+
 		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
@@ -2129,6 +2131,41 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25578
+*/
+public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethodRelevance1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:foo1    completion:public void foo1()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:foo2    completion:public void foo2()    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n" +
+		"element:foo3    completion:public void foo3()    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25578
+*/
+public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethodRelevance2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "eq";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n" +
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }

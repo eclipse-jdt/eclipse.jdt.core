@@ -1981,6 +1981,7 @@ public final class CompletionEngine
 
 			int relevance = R_DEFAULT;
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 
 			requestor.acceptMethodDeclaration(
 				method.declaringClass.qualifiedPackageName(),
