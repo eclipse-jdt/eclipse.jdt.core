@@ -1027,6 +1027,9 @@ protected void consumeAllocationHeader() {
 	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
 	this.restartRecovery = true; // request to restart from here on
 }
+protected void consumeAnnotationAsModifier() {
+	// nothing to do
+}
 protected void consumeAnnotationTypeDeclaration() {
 	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
@@ -4481,6 +4484,10 @@ protected void consumeRule(int act) {
  
     case 100 : if (DEBUG) { System.out.println("Modifiers ::= Modifiers Modifier"); }  //$NON-NLS-1$
 		    consumeModifiers2();  
+			break;
+ 
+    case 112 : if (DEBUG) { System.out.println("Modifier ::= Annotation"); }  //$NON-NLS-1$
+		    consumeAnnotationAsModifier();  
 			break;
  
     case 113 : if (DEBUG) { System.out.println("ClassDeclaration ::= ClassHeader ClassBody"); }  //$NON-NLS-1$

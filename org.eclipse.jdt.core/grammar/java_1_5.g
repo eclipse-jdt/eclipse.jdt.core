@@ -414,7 +414,8 @@ Modifier -> 'synchronized'
 Modifier -> 'transient'
 Modifier -> 'volatile'
 Modifier -> 'strictfp'
-Modifier -> Annotation
+Modifier ::= Annotation
+/.$putCase consumeAnnotationAsModifier(); $break ./
 /:$readableName Modifier:/
 
 --18.8 Productions from 8: Class Declarations
