@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -24,8 +25,8 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
-import org.eclipse.jdt.core.tests.util.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -45,6 +46,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected static String[] testsNames = null; // list of test names to perform
 	protected static int[] testsNumbers = null; // list of test numbers to perform
 	protected static int[] testsRange = null; // range of test numbers to perform
+	protected static NumberFormat methNameFormat = NumberFormat.getIntegerInstance();
+	static {
+		methNameFormat.setMinimumIntegerDigits(3);
+		methNameFormat.setMaximumIntegerDigits(3);
+	}
 
 
 	protected INameEnvironment javaClassLib;
@@ -391,7 +397,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		this.verifier.shutDown();
 	}
 	public static Test suite(Class evaluationTestClass) {
-		TestSuite suite = new TestSuite(evaluationTestClass.getName());
+		TestSuite suite = new TestSuite(evaluationTestClass);
+		return suite;
+	}
+	public static Test suite(Class evaluationTestClass, String suiteName, String complianceLevel) {
+		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
 		try {
 			Class[] paramTypes = new Class[] { String.class };
 			Constructor constructor = evaluationTestClass.getConstructor(paramTypes);
@@ -404,23 +414,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 			else if (testsNumbers != null) {
 				for (int i = 0; i < testsNumbers.length; i++) {
-					String meth = "test";
-					int num = testsNumbers[i];
-					if (num < 10) meth += "0";
-					if (num < 100) meth += "0";
-					meth += num;
-					Object[] params = {meth};
+					Object[] params = {"test" + methNameFormat.format(testsNumbers[i])};
 					suite.addTest((Test)constructor.newInstance(params));
 				}
 			}
 			else if (testsRange != null && testsRange.length == 2) {
 				if (testsRange[0]>=0 && testsRange[0]<=testsRange[1]) {
 					for (int i=testsRange[0]; i<=testsRange[1]; i++) {
-						String meth = "test";
-						if (i<10) meth += "0";
-						if (i<100) meth += "0";
-						meth += i;
-						Object[] params = {meth};
+						Object[] params = {"test" + methNameFormat.format(i)};
 						suite.addTest((Test)constructor.newInstance(params));
 					}
 				} else if (testsRange[0] <0) { // run all tests under a specific test number
@@ -454,7 +455,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 								}
 							} catch (NumberFormatException e1) {
 								// do nothing
-								e1.printStackTrace();							
 							}
 						}
 					}
@@ -472,7 +472,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		return suite;
+		return new RegressionTestSetup(suite, complianceLevel);
 	}
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {

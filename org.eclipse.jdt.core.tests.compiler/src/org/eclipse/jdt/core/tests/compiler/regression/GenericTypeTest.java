@@ -24,7 +24,11 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeTest extends AbstractRegressionTest {
-	static boolean runJavac = false; // by default, do not test Sun compilation
+	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
+	static boolean runJavac;
+	{
+		runJavac = RUN_SUN_JAVAC.equals(CompilerOptions.ENABLED);
+	}
 	IPath dirPath;
 	
 	public GenericTypeTest(String name) {
@@ -52,7 +56,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
-			return suite(testClass());
+			return new RegressionTestSetup(suite(testClass()), highestComplianceLevels());
 		} else {
 			return setupSuite(testClass());
 		}
