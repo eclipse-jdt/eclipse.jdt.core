@@ -1052,11 +1052,13 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			((SortFieldDeclaration) this.currentElement).declarationSourceEnd = normalizedDeclarationSourceEnd;
 		}
 		pop(declarationEnd);
-		SortElement element = this.currentElement.children[this.currentElement.children_count - 1];
-		if (element.id == SortJavaElement.MULTIPLE_FIELD) {
-			SortMultipleFielDeclaration multipleFielDeclaration = (SortMultipleFielDeclaration) element;
-			multipleFielDeclaration.innerFields[multipleFielDeclaration.fieldCounter - 1].declarationSourceEnd = normalizedDeclarationSourceEnd;
-			multipleFielDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
+		if (this.currentElement.children != null) {
+			SortElement element = this.currentElement.children[this.currentElement.children_count - 1];
+			if (element.id == SortJavaElement.MULTIPLE_FIELD) {
+				SortMultipleFielDeclaration multipleFielDeclaration = (SortMultipleFielDeclaration) element;
+				multipleFielDeclaration.innerFields[multipleFielDeclaration.fieldCounter - 1].declarationSourceEnd = normalizedDeclarationSourceEnd;
+				multipleFielDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
+			}
 		}
 	}
 
