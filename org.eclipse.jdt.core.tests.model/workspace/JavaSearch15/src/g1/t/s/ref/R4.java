@@ -10,17 +10,17 @@ import g1.t.s.def.Generic;
  */
 public class R4 {
 	// Simple name
-	public Generic.Member gm;
-	public Generic<Object>.Member gm_obj;
-	public Generic<Exception>.Member gm_exc;
-	public Generic<?>.Member gm_qmk;
-	public Generic<? extends Throwable>.Member gm_thr;
-	public Generic<? super RuntimeException>.Member gm_run;
+	public Generic.Member gen;
+	public Generic<Object>.Member gen_obj;
+	public Generic<Exception>.Member gen_exc;
+	public Generic<?>.Member gen_wld;
+	public Generic<? extends Throwable>.Member gen_thr;
+	public Generic<? super RuntimeException>.Member gen_run;
 	// Qualified name
-	public g1.t.s.def.Generic.Member qgm;
-	public g1.t.s.def.Generic<Object>.Member qgm_obj;
-	public g1.t.s.def.Generic<Exception>.Member qgm_exc;
-	public g1.t.s.def.Generic<?>.Member qgm_qmk;
-	public g1.t.s.def.Generic<? extends Throwable>.Member qgm_thr;
-	public g1.t.s.def.Generic<? super RuntimeException>.Member qgm_run;
+	public g1.t.s.def.Generic.Member qgen;
+	public g1.t.s.def.Generic<Object>.Member qgen_obj;
+	public g1.t.s.def.Generic<Exception>.Member qgen_exc;
+	public g1.t.s.def.Generic<?>.Member qgen_wld;
+	public g1.t.s.def.Generic<? extends Throwable>.Member qgen_thr;
+	public g1.t.s.def.Generic<? super RuntimeException>.Member qgen_run;
 }

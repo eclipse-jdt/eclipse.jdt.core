@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class FieldPattern extends VariablePattern implements IIndexConstants {
@@ -24,8 +26,11 @@ protected char[] declaringSimpleName;
 protected char[] typeQualification;
 protected char[] typeSimpleName;
 	
-// SEARCH_15 Store type names
-protected char[][] typeNames;
+// Additional information for generics search
+protected boolean declaration;	// show whether the search is based on a declaration or an instance
+protected char[][] typeNames;	// type arguments names storage
+protected TypeBinding[] typeBindings;	// cache for type arguments bindings
+protected int[] wildcards;	// show wildcard kind for each type arguments
 
 protected static char[][] REF_CATEGORIES = { REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
@@ -55,7 +60,9 @@ public FieldPattern(
 
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
-// SEARCH_15 Create field pattern with generics additional information
+/*
+ * Instanciate a field pattern with additional information for generics search
+ */
 public FieldPattern(
 	boolean findDeclarations,
 	boolean readAccess,
@@ -66,6 +73,7 @@ public FieldPattern(
 	char[] typeQualification, 
 	char[] typeSimpleName,
 	char[][] typeNames,
+	int[] wildcards,
 	int matchRule) {
 
 	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
@@ -73,6 +81,7 @@ public FieldPattern(
 	if (typeNames != null) {
 		this.typeNames= typeNames;
 	}
+	this.wildcards = wildcards;
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;
@@ -89,6 +98,25 @@ public char[][] getIndexCategories() {
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
+}
+/*
+ * Get binding of type argument from a class unit scope and its index position.
+ * Cache is lazy initialized and if no binding is found, then store a problem binding
+ * to avoid making research twice...
+ */
+protected TypeBinding getTypeNameBinding(CompilationUnitScope unitScope, int index) {
+	int length = this.typeNames.length;
+	if (this.typeBindings == null) this.typeBindings = new TypeBinding[length];
+	if (index <0 || index > length) return null;
+	TypeBinding typeBinding = this.typeBindings[index];
+	if (typeBinding == null) {
+		typeBinding = unitScope.getType(this.typeNames[index]);
+		this.typeBindings[index] = typeBinding;
+	} 
+	if (!typeBinding.isValidBinding()) {
+		typeBinding = null;
+	}
+	return typeBinding;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	return true; // index key is not encoded so query results all match

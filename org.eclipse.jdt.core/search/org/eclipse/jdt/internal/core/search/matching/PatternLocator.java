@@ -22,7 +22,6 @@ public abstract class PatternLocator implements IIndexConstants {
 
 protected int matchMode;
 protected boolean isCaseSensitive;
-// SEARCH_15
 protected CompilationUnitScope unitScope;
 
 /* match levels */
@@ -91,6 +90,45 @@ public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
 	this.matchMode = matchRule - (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+}
+/* (non-Javadoc)
+ * Modify PatternLocator.qualifiedPattern behavior:
+ * do not add star before simple name pattern when qualification pattern is null.
+ * This avoid to match p.X when pattern is only X...
+ */
+protected char[] getQualifiedPattern(char[] simpleNamePattern, char[] qualificationPattern) {
+	// NOTE: if case insensitive search then simpleNamePattern & qualificationPattern are assumed to be lowercase
+	if (simpleNamePattern == null) {
+		if (qualificationPattern == null) return null;
+		return CharOperation.concat(qualificationPattern, ONE_STAR, '.');
+	} else if (qualificationPattern == null) {
+		return simpleNamePattern;
+	} else {
+		return CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
+	}
+}
+/* (non-Javadoc)
+ * Modify PatternLocator.qualifiedSourceName behavior:
+ * also concatene enclosing type name when type is a only a member type.
+ */
+protected char[] getQualifiedSourceName(TypeBinding binding) {
+	if (binding instanceof ReferenceBinding) {
+		ReferenceBinding type = (ReferenceBinding) binding;
+		if (type.isLocalType()) {
+			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, type.sourceName());
+		} else if (type.isMemberType()) {
+			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), type.sourceName(), '.');
+		}
+	}
+	return binding != null ? binding.qualifiedSourceName() : null;
+}
+/*
+ * Get binding of type argument from a class unit scope and its index position.
+ * Cache is lazy initialized and if no binding is found, then store a problem binding
+ * to avoid making research twice...
+ */
+protected TypeBinding getTypeNameBinding(int index) {
+	return null;
 }
 /**
  * Initializes this search pattern so that polymorphic search can be performed.
@@ -316,6 +354,173 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	return CharOperation.match(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;
+}
+/* (non-Javadoc)
+ * Resolve level for type with a given binding with all pattern information.
+ */
+protected int resolveLevelForType (char[] simpleNamePattern,
+									char[] qualificationPattern,
+									char[][] typeNames,
+									int[] wildcards,
+									boolean mustResolve,
+									boolean declaration,
+									TypeBinding type) {
+	// standard search with no generic additional information must succeed
+	int level = resolveLevelForType(simpleNamePattern, qualificationPattern, type);
+	if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+	if (type == null) return level;
+
+	// pattern has no type parameter, return standard result
+	if (typeNames == null || typeNames.length == 0) {
+		return level;
+	}
+	
+	// pattern has type parameter(s) or type argument(s)
+	boolean isRawType = type.isRawType();
+	if (type.isGenericType()) {
+		// Binding is generic, get its type variable(s)
+		TypeVariableBinding[] typeVariables = null;
+		if (type instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) type;
+			typeVariables = sourceTypeBinding.typeVariables;
+		} else if (type instanceof BinaryTypeBinding) {
+			BinaryTypeBinding binaryTypeBinding = (BinaryTypeBinding) type;
+			if (mustResolve)
+				typeVariables = binaryTypeBinding.typeVariables(); // TODO (frederic) verify performance
+		}
+		// type variables length must match at least specified type names length
+		if (typeVariables == null || typeVariables.length == 0) {
+			return IMPOSSIBLE_MATCH;
+		}
+		int length = typeNames.length;
+		if (typeVariables.length != length) return IMPOSSIBLE_MATCH;
+		// TODO (frederic) do we need to verify each parameter?
+		return level; // we can't do better
+	} else if (!type.isParameterizedType() && !isRawType) {
+		// Standard types (ie. neither generic nor parameterized nor raw types)
+		// cannot match pattern with type parameters or arguments
+		return IMPOSSIBLE_MATCH;
+	} else {
+		// Binding is parameterized type
+		ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) type;
+		if (paramTypeBinding.arguments == null) {
+			// binding has no type parameters => ok for raw types
+			if (isRawType) return level;
+			// need to verify hierarchy for member types (raw type of generic member
+			// are stored as parameterized types...)
+			if (type.isMemberType() && qualificationPattern != null) {
+				int lastDot = CharOperation.lastIndexOf('.', qualificationPattern);
+				char[] enclosingQualificationPattern = lastDot==-1 ? null : CharOperation.subarray(qualificationPattern, 0, lastDot);
+				char[] enclosingSimpleNamePattern = lastDot==-1 ? qualificationPattern : CharOperation.subarray(qualificationPattern, lastDot+1, qualificationPattern.length);
+				if (resolveLevelForType(enclosingSimpleNamePattern, enclosingQualificationPattern, typeNames, wildcards, mustResolve, declaration, paramTypeBinding.enclosingType()) == IMPOSSIBLE_MATCH) {
+					return IMPOSSIBLE_MATCH;
+				}
+				return level;
+			}
+			return IMPOSSIBLE_MATCH;
+		}
+
+		// type parameters length must match at least specified type names length
+		int length = typeNames.length;
+		if (paramTypeBinding.arguments.length != length) return IMPOSSIBLE_MATCH;
+
+		// for generic type declaration, verification is different than for parameterized type
+		if (declaration) {
+			// TODO (frederic) more verification to do here with type parameter bounds?
+			return level;
+		}
+
+		// verify each pattern type parameter
+		nextTypeArgument: for (int i= 0; i<length; i++) {
+			char[] argType = typeNames[i];
+			TypeBinding argTypeBinding = paramTypeBinding.arguments[i];
+			// get corresponding pattern wildcard
+			int patternWildcard = wildcards == null ? -1 : wildcards[i];
+			if (patternWildcard == Wildcard.UNBOUND) continue; // unbound parameter always match
+
+			// try to resolve pattern
+			TypeBinding patternBinding = getTypeNameBinding(i);
+			if (patternBinding != null) {
+				// We can bind pattern type name => verify that types are compatible
+				if (argTypeBinding == patternBinding) continue;
+				if (argTypeBinding.isWildcard()) {
+					TypeBinding bound = ((WildcardBinding) argTypeBinding).bound;
+					switch (patternWildcard) {
+						case Wildcard.SUPER:
+							if (bound == null || patternBinding.isCompatibleWith(bound))
+								// argument type is in bound hierarchy => match
+								continue;
+							break;
+						case Wildcard.EXTENDS:
+							if (bound == null || bound.isCompatibleWith(patternBinding))
+								// argument type is a subclass of bound => match
+								continue;
+							break;
+						default: //UNBOUND
+							// there's no bound name => match
+							continue;
+					}
+				}
+				return IMPOSSIBLE_MATCH;
+			}
+			
+			// pattern hasn't be solved, try to see if names match in hierarchy
+			// First if type argument is a wildcard
+			if (argTypeBinding.isWildcard()) {
+				WildcardBinding wildcardBinding = (WildcardBinding) argTypeBinding;
+				switch (wildcardBinding.kind) {
+					case Wildcard.EXTENDS:
+						// We cannot know in this case...
+						level = INACCURATE_MATCH;
+					case Wildcard.UNBOUND:
+						// there's no bound name to match => valid
+						continue;
+				}
+				// try to match name in hierarchy
+				ReferenceBinding boundBinding = (ReferenceBinding) wildcardBinding.bound;
+				while (boundBinding != null) {
+					if (CharOperation.equals(argType, boundBinding.shortReadableName(), this.isCaseSensitive) ||
+						CharOperation.equals(argType, boundBinding.readableName(), this.isCaseSensitive)) {
+						// found name in hierarchy => match
+						continue nextTypeArgument;
+					}
+					boundBinding = boundBinding.superclass();
+				}
+				return IMPOSSIBLE_MATCH;
+			}
+			
+			// try to match names when there's no wildcard
+			// first get real binding
+			ReferenceBinding refBinding = null;
+			if (argTypeBinding.isArrayType()) {
+				TypeBinding leafBinding = ((ArrayBinding) argTypeBinding).leafComponentType;
+				if (!leafBinding.isBaseType()) {
+					refBinding = (ReferenceBinding) leafBinding;
+				}
+			} else if (!argTypeBinding.isBaseType()) {
+				refBinding = (ReferenceBinding) argTypeBinding;
+			}
+			// Compare name
+			if (refBinding == null) {
+				// Based type
+				if (!CharOperation.equals(argType, argTypeBinding.shortReadableName(), this.isCaseSensitive) &&
+					!CharOperation.equals(argType, argTypeBinding.readableName(), this.isCaseSensitive)) {
+					return IMPOSSIBLE_MATCH;
+				}
+			} else {
+				while (refBinding != null) {
+					if (CharOperation.equals(argType, refBinding.shortReadableName(), this.isCaseSensitive) ||
+						CharOperation.equals(argType, refBinding.readableName(), this.isCaseSensitive)) {
+						// found name in hierarchy => match
+						continue nextTypeArgument;
+					}
+					refBinding = refBinding.superclass();
+				}
+				return IMPOSSIBLE_MATCH;
+			}
+		}
+		return level;
+	}
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$

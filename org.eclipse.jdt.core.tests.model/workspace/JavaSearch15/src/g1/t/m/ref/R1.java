@@ -10,17 +10,17 @@ import g1.t.m.def.Generic;
  */
 public class R1 {
 	// Simple name
-	public Generic g;
-	public Generic<Object, Exception, RuntimeException> g_obj;
-	public Generic<Exception, Exception, RuntimeException> g_exc;
-	public Generic<?, ?, ?> g_qmk;
-	public Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> g_thr;
-	public Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> g_run;
+	public Generic gen;
+	public Generic<Object, Exception, RuntimeException> gen_obj;
+	public Generic<Exception, Exception, RuntimeException> gen_exc;
+	public Generic<?, ?, ?> gen_wld;
+	public Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> gen_thr;
+	public Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> gen_run;
 	// qualified name
-	public g1.t.m.def.Generic qg;
-	public g1.t.m.def.Generic<Object, Exception, RuntimeException> qg_obj;
-	public g1.t.m.def.Generic<Exception, Exception, RuntimeException> qg_exc;
-	public g1.t.m.def.Generic<?, ?, ?> qg_qmk;
-	public g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> qg_thr;
-	public g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> qg_run;
+	public g1.t.m.def.Generic qgen;
+	public g1.t.m.def.Generic<Object, Exception, RuntimeException> qgen_obj;
+	public g1.t.m.def.Generic<Exception, Exception, RuntimeException> qgen_exc;
+	public g1.t.m.def.Generic<?, ?, ?> qgen_wld;
+	public g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> qgen_thr;
+	public g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> qgen_run;
 }

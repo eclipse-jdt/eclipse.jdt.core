@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -23,7 +21,7 @@ public class TypeReferencePattern extends AndPattern implements IIndexConstants 
 protected char[] qualification;
 protected char[] simpleName;
 	
-// SEARCH_15 Additional information for generics search
+// Additional information for generics search
 protected boolean declaration;	// show whether the search is based on a declaration or an instance
 protected char[][] typeNames;	// type arguments names storage
 protected TypeBinding[] typeBindings;	// cache for type arguments bindings
@@ -50,7 +48,9 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRu
 
 	((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
-// SEARCH_15 Instanciate a type reference pattern with additional information for generics search
+/*
+ * Instanciate a type reference pattern with additional information for generics search
+ */
 public TypeReferencePattern(char[] qualification, char[] simpleName, char[][] typeNames, boolean fromJavaElement, int[] wildcards, int matchRule) {
 	this(qualification, simpleName,matchRule);
 
@@ -94,12 +94,9 @@ protected TypeBinding getTypeNameBinding(CompilationUnitScope unitScope, int ind
 	TypeBinding typeBinding = this.typeBindings[index];
 	if (typeBinding == null) {
 		typeBinding = unitScope.getType(this.typeNames[index]);
-		if (typeBinding == null) {
-			this.typeBindings[index] = new ProblemReferenceBinding(this.typeNames[index], ProblemReasons.NotFound);
-		} else {
-			this.typeBindings[index] = typeBinding;
-		}
-	} else if (!typeBinding.isValidBinding()) {
+		this.typeBindings[index] = typeBinding;
+	}
+	if (!typeBinding.isValidBinding()) {
 		typeBinding = null;
 	}
 	return typeBinding;

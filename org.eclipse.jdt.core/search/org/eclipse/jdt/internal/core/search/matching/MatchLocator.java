@@ -58,8 +58,6 @@ public int matchContainer;
 public SearchRequestor requestor;
 public IJavaSearchScope scope;
 public IProgressMonitor progressMonitor;
-// SEARCH_15
-public CompilationUnitScope unitScope;
 
 public org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
 public HandleFactory handleFactory;
@@ -1286,7 +1284,7 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 }
 
 /**
- * SEARCH_15
+ * @since 3.1
  * Finds the accurate positions of the sequence of tokens given by qualifiedName
  * in the source and reports a reference to this this qualified name
  * to the search requestor.
@@ -1316,11 +1314,18 @@ protected void reportAccurateParameterizedTypeReference(ASTNode typeRef, char[] 
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
 			// extends selection end for parameterized types if necessary
 			try {
-				while (token != TerminalTokens.TokenNameGREATER) {
+				int count = 0;
+				while (token != TerminalTokens.TokenNameGREATER || count > 0) {
 					token = scanner.getNextToken();
-					if (token == TerminalTokens.TokenNameEOF) {
-						// TODO (search-frederic) Abnormal end of file, perhaps trace something in DEBUG
-						return;
+					switch (token) {
+						case TerminalTokens.TokenNameLESS:
+							count++;
+							break;
+						case TerminalTokens.TokenNameGREATER:
+							count--;
+							break;
+						case TerminalTokens.TokenNameEOF:
+							return;
 					}
 				}
 			} catch (InvalidInputException e1) {
@@ -1487,15 +1492,12 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 }
 /**
  * Visit the given resolved parse tree and report the nodes that match the search pattern.
- * SEARCH_15
- * 	Add unit scope storage in pattern locator. This will allow some additional verification
- * 	while resolving levels of type arguments.
  */
 protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
 	if (mustResolve) {
-		this.unitScope = unit.scope.compilationUnitScope();
-		this.patternLocator.unitScope = this.unitScope;
+		CompilationUnitScope unitScope= unit.scope.compilationUnitScope();
+		this.patternLocator.unitScope = unitScope;
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
@@ -1516,7 +1518,6 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 	} else {
-		this.unitScope = null;
 		this.patternLocator.unitScope = null;
 	}
 

@@ -752,9 +752,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	/* (non-Javadoc) 
 	 * SEARCH_15
-	 * 	Modified to handle generics.
-	 * 	Note that no change are done for declaration patterns as the search works well for generics
-	 * 	without any additional information.
+	 * 	Modified to handle generics:
 	 * 		1) Field defined on parameterized types
 	 * 			In this case, we need to split the erasure name and type argument names.
 	 * 			Erasure name is used as type simple name and type argument names
@@ -762,6 +760,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 		2) Generic types declaration
 	 * 			In this case, type arguments names are got from IType and stored
 	 * 			in instanciated type reference pattern.
+	 * 	Note that no change was done for declaration patterns as the search works well for generics
+	 * 	without any additional information.
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 		SearchPattern searchPattern = null;
@@ -779,28 +779,51 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				char[] typeSimpleName;
 				char[] typeQualification;
 				char[][] typeNames = null;
+				int[] wildcards = null;
 				try {
 					char[] typeSignature = field.getTypeSignature().toCharArray();
-					// SEARCH_15 (start)
 					char[] typeErasure = null;
 					if (CharOperation.indexOf(Signature.C_GENERIC_START, typeSignature) == -1) {
 						typeErasure = Signature.toCharArray(typeSignature);
 					} else {
 						typeErasure = Signature.toCharArray(Signature.getTypeErasure(typeSignature));
 						CharOperation.replace(typeErasure, '$', '.');
-						if ((typeNames = Signature.getTypeArguments(typeSignature)) != null) {
+						try {
+							typeNames = Signature.getTypeArguments(typeSignature);
+						}
+						catch (IllegalArgumentException iae) {
+							// do nothing
+						}
+						if (typeNames != null) {
 							int length = typeNames.length;
+							wildcards = new int[length];
 							for (int i=0; i<length; i++) {
-								typeNames[i] = Signature.toCharArray(typeNames[i]);
+								char[] typeName = typeNames[i];
+								switch (typeName[0]) {
+									case Signature.C_STAR:
+										wildcards[i] = Wildcard.UNBOUND;
+										break;
+									case Signature.C_EXTENDS:
+										wildcards[i] = Wildcard.EXTENDS;
+										typeNames[i] = Signature.toCharArray(CharOperation.subarray(typeName, 1, typeName.length));
+										break;
+									case Signature.C_SUPER:
+										wildcards[i] = Wildcard.SUPER;
+										typeNames[i] = Signature.toCharArray(CharOperation.subarray(typeName, 1, typeName.length));
+										break;
+									default:
+										wildcards[i] = -1;
+										typeNames[i] = Signature.toCharArray(typeName);
+										break;
+								}
 							}
 						}
 					}
-					// end
 					if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
 						typeSimpleName = typeErasure;
 						typeQualification = null;
 					} else {
-						typeSimpleName = CharOperation.subarray(typeErasure, 0, lastDot + 1);
+						typeSimpleName = CharOperation.subarray(typeErasure, lastDot + 1, typeErasure.length);
 						typeQualification = CharOperation.subarray(typeErasure, 0, lastDot);
 						if (!field.isBinary()) {
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
@@ -823,6 +846,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeNames,
+								wildcards,
 								R_EXACT_MATCH | R_CASE_SENSITIVE);
 						break;
 					case IJavaSearchConstants.REFERENCES :
@@ -837,6 +861,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeNames,
+								wildcards,
 								R_EXACT_MATCH | R_CASE_SENSITIVE);
 						break;
 					case IJavaSearchConstants.READ_ACCESSES :
@@ -851,6 +876,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeNames,
+								wildcards,
 								R_EXACT_MATCH | R_CASE_SENSITIVE);
 						break;
 					case IJavaSearchConstants.WRITE_ACCESSES :
@@ -865,6 +891,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeNames,
+								wildcards,
 								R_EXACT_MATCH | R_CASE_SENSITIVE);
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
@@ -879,6 +906,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeNames,
+								wildcards,
 								R_EXACT_MATCH | R_CASE_SENSITIVE);
 						break;
 				}
@@ -896,10 +924,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							elementName.substring(lastDot+1).toCharArray(),
 							elementName.substring(0, lastDot).toCharArray(),
 							null,
-							// SEARCH_15 (start)
 							null,
 							false,
-							// end
 							limitTo);
 				}
 				break;
@@ -1092,10 +1118,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							type.getElementName().toCharArray(), 
 							type.getPackageFragment().getElementName().toCharArray(),
 							enclosingTypeNames(type),
-							// SEARCH_15 (start)
 							typeParameterNames(type),
 							true, /* generic type */
-							// end
 							limitTo);
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
@@ -1120,11 +1144,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				return new TypeReferencePattern(
 					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 					simpleName,
-					// SEARCH_15 (start)
 					typeNames,
 					generic,
 					null,
-					// end
 					R_EXACT_MATCH | R_CASE_SENSITIVE);
 			case IJavaSearchConstants.IMPLEMENTORS : 
 				return new SuperTypeReferencePattern(
@@ -1143,32 +1165,28 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					new TypeReferencePattern(
 						CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 						simpleName,
-						// SEARCH_15 (start)
 						typeNames,
 						generic,
 						null,
-						// end
 						R_EXACT_MATCH | R_CASE_SENSITIVE));
 		}
 		return null;
 	}
 	/**
-	 * Type pattern are formed by [qualification.]type
+	 * Type pattern are formed by [qualification.]type.
 	 * e.g. java.lang.Object
 	 *		Runnable
-	 */
-	/* (non-Javadoc)
-	 * SEARCH_15
-	 * 	Modified to be able to identify type arguments in pattern
-	 * 	Note that:
-	 * 		1) '?' is understood as a wildcard when it is inside <>
-	 * 		2) '*' is not treated yet inside <>
-	 * 		3) that nested <> are not treated yet
-	 * 		4) that only one type arguments definition is allowed
-	 * 			(ie. Gen<Exception>.Member<Object> will be treated same as
-	 * 			 Gen<Exception>.Member pattern)
-	 * 	Using regexp syntax, we can described allowed patterns as:
+	 *
+	 * @since 3.1
+	 *		Type arguments can be specified to search references to parameterized types.
+	 * 	Then patterns will look as follow:
 	 * 		[qualification.] type [ '<' [ [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* ] '>' ]
+	 * 	Please note that:
+	 * 		- '*' is not valid inside type arguments definition <>
+	 * 		- '?' is treated as a wildcard when it is inside <> (ie. it must be put on first position of the type argument)
+	 * 		- nested <> are not allowed; List<List<Object>> will be treated as pattern List<List>
+	 * 		- only one type arguments definition is allowed; Gen<Exception>.Member<Object>
+	 *				will be treated as pattern Gen<Exception>.Member
 	 */
 	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule) {
 		
@@ -1185,14 +1203,14 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		int parameterized = 0;
 		int paramPtr = -1;
 		char[][] paramNames = null;
-		int[] wildcards = new int[10];
+		int[] wildcards = null;
 		while (token != TerminalTokens.TokenNameEOF) {
 			if (token != TerminalTokens.TokenNameWHITESPACE) {
 				if (storeParam) {
 					switch (token) {
 						case TerminalTokens.TokenNameMULTIPLY:
 							if (parameterized > 0) {
-								// SEARCH_15 (frederic) Not treated yet...
+								// TODO (frederic) Should warn user that syntax is not valid
 							}
 							break;
 						case TerminalTokens.TokenNameQUESTION:
@@ -1200,7 +1218,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								if (wildcards[paramPtr] == -1) {
 									wildcards[paramPtr] = Wildcard.UNBOUND;
 								} else {
-									// SEARCH_15 (frederic) Invalid syntax
+									// TODO (frederic) Should warn user that syntax is not valid
 								}
 							}
 							break;
@@ -1209,7 +1227,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								if (wildcards[paramPtr] == Wildcard.UNBOUND) {
 									wildcards[paramPtr] = Wildcard.EXTENDS;
 								} else {
-									// SEARCH_15 (frederic) Invalid syntax
+									// TODO (frederic) Should warn user that syntax is not valid
 								}
 							}
 							break;
@@ -1218,7 +1236,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								if (wildcards[paramPtr] == Wildcard.UNBOUND) {
 									wildcards[paramPtr] = Wildcard.SUPER;
 								} else {
-									// SEARCH_15 (frederic) Invalid syntax
+									// TODO (frederic) Should warn user that syntax is not valid
 								}
 							}
 							break;
@@ -1236,6 +1254,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							if (parameterized == 0) {
 								paramNames = new char[10][]; // 10 parameters max
 								paramPtr++;
+								wildcards = new int[10]; // 10 parameters max
 								wildcards[paramPtr] = -1;
 								storeType = false;
 							}
@@ -1340,8 +1359,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 	}
 	/**
-	 * Returns the enclosing type names of the given type.
-	 * TODO (frederic) Add-on for generic search
+	 * Returns the type parameter names of the given type.
 	 */
 	private static char[][] typeParameterNames(IType type) {
 		char[][] paramNames = null;

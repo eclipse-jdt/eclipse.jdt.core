@@ -30,6 +30,13 @@ public FieldLocator(FieldPattern pattern) {
 
 	this.isDeclarationOfAccessedFieldsPattern = this.pattern instanceof DeclarationOfAccessedFieldsPattern;
 }
+/*
+ * Get binding of type argument from an index position.
+ * Delegate this search to the pattern which can cache results.
+ */
+protected TypeBinding getTypeNameBinding(int index) {
+	return ((FieldPattern) this.pattern).getTypeNameBinding(this.unitScope, index);
+}
 //public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
@@ -84,47 +91,13 @@ protected int matchField(FieldBinding field, boolean matchName) {
 	// look at field type only if declaring type is not specified
 	if (fieldPattern.declaringSimpleName == null) return declaringLevel;
 
-	int typeLevel = resolveLevelForType(fieldPattern.typeSimpleName, fieldPattern.typeQualification, field.type);
-	
-		// SEARCH_15 (frederic) Specific field pattern verification for generics (not fully tested yet...)
-		if (typeLevel == IMPOSSIBLE_MATCH) {
-			return IMPOSSIBLE_MATCH;
-		}
-		TypeBinding typeBinding = field.type;
-		if (typeBinding != null) {
-			boolean isParameterized = typeBinding.isParameterizedType();
-			boolean isRawType = typeBinding.isRawType();
-			if (fieldPattern.typeNames== null) {
-				if (isParameterized && !isRawType) return IMPOSSIBLE_MATCH;
-			} else {
-				if (!isParameterized) return IMPOSSIBLE_MATCH;
-				ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) typeBinding;
-				if (paramTypeBinding.arguments == null) {
-					return IMPOSSIBLE_MATCH;
-				}
-				int length = fieldPattern.typeNames.length;
-				if (paramTypeBinding.arguments.length != length) return IMPOSSIBLE_MATCH;
-				for (int i= 0; i<length; i++) {
-					char[] argType = fieldPattern.typeNames[i];
-					TypeBinding argTypeBinding = paramTypeBinding.arguments[i];
-					if (!CharOperation.equals(argType, argTypeBinding.shortReadableName(), fieldPattern.isCaseSensitive) &&
-						!CharOperation.equals(argType, argTypeBinding.readableName(), fieldPattern.isCaseSensitive)) {
-						return IMPOSSIBLE_MATCH;
-					}
-				}
-			}
-		}
-		/* Try to pull-up generics verification in PatternLocator?
-		int typeLevel = resolveLevelForType(
-				fieldPattern.typeSimpleName,
-				fieldPattern.typeQualification,
-				fieldPattern.typeNames,
-				fieldPattern.mustResolve(),
-				true // parameterized,
-				field.type);
-		*/
-		// end
+	// get real field binding
+	FieldBinding fieldBinding = field;
+	if (field instanceof ParameterizedFieldBinding) {
+		fieldBinding = ((ParameterizedFieldBinding) field).originalField;
+	}
 
+	int typeLevel = resolveLevelForType(fieldBinding.type);
 	return declaringLevel > typeLevel ? typeLevel : declaringLevel; // return the weaker match
 }
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
@@ -315,5 +288,39 @@ protected int resolveLevel(NameReference nameRef) {
 		}
 	}
 	return IMPOSSIBLE_MATCH;
+}
+/* (non-Javadoc)
+ * Resolve level for type with a given binding.
+ */
+protected int resolveLevelForType(TypeBinding typeBinding) {
+	FieldPattern fieldPattern = (FieldPattern) this.pattern;
+	return resolveLevelForType(
+			fieldPattern.typeSimpleName,
+			fieldPattern.typeQualification,
+			fieldPattern.typeNames,
+			fieldPattern.wildcards,
+			((InternalSearchPattern)this.pattern).mustResolve,
+			fieldPattern.declaration,
+			typeBinding);
+}
+/* (non-Javadoc)
+ * Overrides PatternLocator method behavior in order to accept member pattern as X.Member
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#resolveLevelForType(char[], char[], org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+protected int resolveLevelForType (char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
+	char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
+	int level = resolveLevelForType(qualifiedPattern, type);
+	if (level == ACCURATE_MATCH || type == null) return level;
+	boolean match = false;
+	if (type.isMemberType() || type.isLocalType()) {
+		if (qualificationPattern != null) {
+			match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(type), this.isCaseSensitive);
+		} else {
+			match = CharOperation.equals(qualifiedPattern, type.sourceName(), this.isCaseSensitive);
+		}
+	} else if (qualificationPattern == null) {
+		match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(type), this.isCaseSensitive);
+	}
+	return match ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 }
 }

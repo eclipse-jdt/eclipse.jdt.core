@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class SignatureTests extends AbstractJavaModelTests {
 public SignatureTests(String name) {
@@ -32,7 +31,18 @@ protected void assertInvalidTypeSignature(String typeName, boolean isResolved, S
 	assertEquals(expected, actual);
 }
 public static Test suite() {
-	return new TestSuite(SignatureTests.class);
+	return buildTestSuite(SignatureTests.class);
+//	return buildTestSuite(SignatureTests.class, "testGetTypeErasure", null);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	testsNames = new String[] { "testGetTypeErasure5", "testGetTypeErasure9", "testGetTypeErasure10" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 8 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { -1, -1 };
 }
 /**
  * @see Signature
@@ -461,6 +471,47 @@ public void testGetTypeArguments6() {
 	);
 }
 
+public void testGetTypeArguments7() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"",
+		Signature.getTypeArguments("QX<QObject;>.Member;")
+	);
+}
+
+public void testGetTypeArguments8() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QObject;\n",
+		Signature.getTypeArguments("QX<QObject;>.Member<QObject;>;")
+	);
+}
+
+public void testGetTypeArguments9() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QObject;\n",
+		Signature.getTypeArguments("QX.Member<QObject;>;")
+	);
+}
+
+public void testGetTypeArguments10() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QList<QT;>;\n" +
+		"QMap<QU;QABC<QT;>;>;\n",
+		Signature.getTypeArguments("QX<QObject;>.Member<QList<QT;>;QMap<QU;QABC<QT;>;>;>;")
+	);
+}
+
+public void testGetTypeArguments11() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QObject;\n",
+		Signature.getTypeArguments("QX<QList<QT;>;QMap<QU;QABC<QT;>;>;>.Member<QObject;>;")
+	);
+}
+
 /**
  * @see Signature
  */
@@ -475,6 +526,48 @@ public void testGetTypeErasure2() {
 	assertEquals(
 		"QList;",
 		Signature.getTypeErasure("QList;")
+	);
+}
+
+public void testGetTypeErasure3() {
+	assertEquals(
+		"QX;",
+		Signature.getTypeErasure("QX<QList<QT;>;QMap<QU;QABC<QT;>;>;>;")
+	);
+}
+
+public void testGetTypeErasure4() {
+	assertEquals(
+		"QX.Member;",
+		Signature.getTypeErasure("QX<QObject;>.Member;")
+	);
+}
+
+public void testGetTypeErasure5() {
+	assertEquals(
+		"QX.Member;",
+		Signature.getTypeErasure("QX<QObject;>.Member<QObject;>;")
+	);
+}
+
+public void testGetTypeErasure6() {
+	assertEquals(
+		"QX.Member;",
+		Signature.getTypeErasure("QX.Member<QObject;>;")
+	);
+}
+
+public void testGetTypeErasure7() {
+	assertEquals(
+		"QX.Member;",
+		Signature.getTypeErasure("QX<QObject;>.Member<QList<QT;>;QMap<QU;QABC<QT;>;>;>;")
+	);
+}
+
+public void testGetTypeErasure8() {
+	assertEquals(
+		"QX.Member;",
+		Signature.getTypeErasure("QX<QList<QT;>;QMap<QU;QABC<QT;>;>;>.Member<QObject;>;")
 	);
 }
 

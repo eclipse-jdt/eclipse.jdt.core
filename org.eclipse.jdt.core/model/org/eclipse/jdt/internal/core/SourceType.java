@@ -407,7 +407,8 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	return info.typeParameters;
 }
 
-// SEARCH_15 Get type parameter names
+// Get type parameter names
+// TODO (frederic) see if this method needs to be added to API
 public char[][] getTypeParameterNames() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	return info.getTypeParameterNames();

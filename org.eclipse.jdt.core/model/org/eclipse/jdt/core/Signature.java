@@ -1443,7 +1443,10 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
  * @since 3.1
  */
 public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throws IllegalArgumentException {
-	int start = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
+	int lastDot = CharOperation.lastIndexOf(C_DOT, parameterizedTypeSignature);
+	int start = lastDot == -1
+		? CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature)
+		: CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature, lastDot+1);
 	if (start == -1) 
 		return CharOperation.NO_CHAR_CHAR;
 	ArrayList args = new ArrayList();
@@ -1492,12 +1495,37 @@ public static String[] getTypeArguments(String parameterizedTypeSignature) throw
  * @since 3.1
  */
 public static char[] getTypeErasure(char[] parameterizedTypeSignature) throws IllegalArgumentException {
-	int genericStart = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
-	if (genericStart == -1) return parameterizedTypeSignature;
-	char[] result = new char[genericStart+1];
-	System.arraycopy(parameterizedTypeSignature, 0, result, 0, genericStart);
-	result[genericStart] = C_SEMICOLON;
-	return result;
+	int end = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
+	if (end == -1) return parameterizedTypeSignature;
+	int length = parameterizedTypeSignature.length;
+	char[] result = new char[length];
+	int pos = 0;
+	int start = 0;
+	int deep= 0;
+	for (int idx=end; idx<length; idx++) {
+		switch (parameterizedTypeSignature[idx]) {
+			case C_GENERIC_START:
+				if (deep == 0) {
+					int size = idx-start;
+					System.arraycopy(parameterizedTypeSignature, start, result, pos, size);
+					end = idx;
+					pos += size;
+				}
+				deep++;
+				break;
+			case C_GENERIC_END:
+				deep--;
+				if (deep < 0) throw new IllegalArgumentException();
+				if (deep == 0) start = idx+1;
+				break;
+		}
+	}
+	if (deep > 0) throw new IllegalArgumentException();
+	int size = pos+length-start;
+	char[] resized = new char[size];
+	System.arraycopy(result, 0, resized, 0, pos);
+	System.arraycopy(parameterizedTypeSignature, start, resized, pos, length-start);
+	return resized;
 }
 
 /**

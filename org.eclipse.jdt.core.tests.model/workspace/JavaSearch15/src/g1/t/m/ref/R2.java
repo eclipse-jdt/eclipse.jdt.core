@@ -10,17 +10,17 @@ import g1.t.m.def.NonGeneric;
  */
 public class R2 {
 	// Simple name
-	public NonGeneric.GenericMember ygm;
-	public NonGeneric.GenericMember<Object, Exception, RuntimeException> ygm_obj;
-	public NonGeneric.GenericMember<Exception, Exception, RuntimeException> ygm_exc;
-	public NonGeneric.GenericMember<?, ?, ?> ygm_qmk;
-	public NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException> ygm_thr;
-	public NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> ygm_run;
+	public NonGeneric.GenericMember gen;
+	public NonGeneric.GenericMember<Object, Exception, RuntimeException> gen_obj;
+	public NonGeneric.GenericMember<Exception, Exception, RuntimeException> gen_exc;
+	public NonGeneric.GenericMember<?, ?, ?> gen_wld;
+	public NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException> gen_thr;
+	public NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> gen_run;
 	// Qualified name
-	public g1.t.m.def.NonGeneric.GenericMember qygm;
-	public g1.t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException> qygm_obj;
-	public g1.t.m.def.NonGeneric.GenericMember<Exception, Exception, RuntimeException> qygm_exc;
-	public g1.t.m.def.NonGeneric.GenericMember<?, ?, ?> qygm_qmk;
-	public g1.t.m.def.NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException> qygm_thr;
-	public g1.t.m.def.NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> qygm_run;
+	public g1.t.m.def.NonGeneric.GenericMember qgen;
+	public g1.t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException> qgen_obj;
+	public g1.t.m.def.NonGeneric.GenericMember<Exception, Exception, RuntimeException> qgen_exc;
+	public g1.t.m.def.NonGeneric.GenericMember<?, ?, ?> qgen_wld;
+	public g1.t.m.def.NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException> qgen_thr;
+	public g1.t.m.def.NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> qgen_run;
 }

@@ -10,17 +10,17 @@ import g1.t.s.def.Generic;
  */
 public class R1 {
 	// Simple name
-	public Generic g;
-	public Generic<Object> g_obj;
-	public Generic<Exception> g_exc;
-	public Generic<?> g_qmk;
-	public Generic<? extends Throwable> g_thr;
-	public Generic<? super RuntimeException> g_run;
+	public Generic gen;
+	public Generic<Object> gen_obj;
+	public Generic<Exception> gen_exc;
+	public Generic<?> gen_wld;
+	public Generic<? extends Throwable> gen_thr;
+	public Generic<? super RuntimeException> gen_run;
 	// qualified name
-	public g1.t.s.def.Generic qg;
-	public g1.t.s.def.Generic<Object> qg_obj;
-	public g1.t.s.def.Generic<Exception> qg_exc;
-	public g1.t.s.def.Generic<?> qg_qmk;
-	public g1.t.s.def.Generic<? extends Throwable> qg_thr;
-	public g1.t.s.def.Generic<? super RuntimeException> qg_run;
+	public g1.t.s.def.Generic qgen;
+	public g1.t.s.def.Generic<Object> qgen_obj;
+	public g1.t.s.def.Generic<Exception> qgen_exc;
+	public g1.t.s.def.Generic<?> qgen_wld;
+	public g1.t.s.def.Generic<? extends Throwable> qgen_thr;
+	public g1.t.s.def.Generic<? super RuntimeException> qgen_run;
 }

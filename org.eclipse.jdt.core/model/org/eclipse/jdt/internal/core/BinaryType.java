@@ -466,7 +466,8 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	return typeParameters;
 }
 
-// SEARCH_15 Get type parameter names
+// Get type parameter names
+// TODO (frederic) see if this method needs to be added to API
 public char[][] getTypeParameterNames() throws JavaModelException {
 	String[] typeParameterSignatures = getTypeParameterSignatures();
 	int length = typeParameterSignatures.length;

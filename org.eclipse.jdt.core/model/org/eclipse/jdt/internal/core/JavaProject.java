@@ -127,7 +127,7 @@ public class JavaProject
 	/**
 	 * Name of file containing custom project preferences
 	 * @deprecated WARNING Visibility will be reduce to private before M9
-	 * 	If you use this variable, change your implementation to avoid future comilation error...
+	 * 	If you use this variable, change your implementation to avoid future compilation error...
 	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
 	 * TODO (frederic) set visibility from public to private
 	 */

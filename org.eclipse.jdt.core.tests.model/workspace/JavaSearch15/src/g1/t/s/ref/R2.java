@@ -10,17 +10,17 @@ import g1.t.s.def.NonGeneric;
  */
 public class R2 {
 	// Simple name
-	public NonGeneric.GenericMember xgm;
-	public NonGeneric.GenericMember<Object> xgm_obj;
-	public NonGeneric.GenericMember<Exception> xgm_exc;
-	public NonGeneric.GenericMember<?> xgm_qmk;
-	public NonGeneric.GenericMember<? extends Throwable> xgm_thr;
-	public NonGeneric.GenericMember<? super RuntimeException> xgm_run;
+	public NonGeneric.GenericMember gen;
+	public NonGeneric.GenericMember<Object> gen_obj;
+	public NonGeneric.GenericMember<Exception> gen_exc;
+	public NonGeneric.GenericMember<?> gen_wld;
+	public NonGeneric.GenericMember<? extends Throwable> gen_thr;
+	public NonGeneric.GenericMember<? super RuntimeException> gen_run;
 	// Qualified name
-	public g1.t.s.def.NonGeneric.GenericMember qxgm;
-	public g1.t.s.def.NonGeneric.GenericMember<Object> qxgm_obj;
-	public g1.t.s.def.NonGeneric.GenericMember<Exception> qxgm_exc;
-	public g1.t.s.def.NonGeneric.GenericMember<?> qxgm_qmk;
-	public g1.t.s.def.NonGeneric.GenericMember<? extends Throwable> qxgm_thr;
-	public g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException> qxgm_run;
+	public g1.t.s.def.NonGeneric.GenericMember qgen;
+	public g1.t.s.def.NonGeneric.GenericMember<Object> qgen_obj;
+	public g1.t.s.def.NonGeneric.GenericMember<Exception> qgen_exc;
+	public g1.t.s.def.NonGeneric.GenericMember<?> qgen_wld;
+	public g1.t.s.def.NonGeneric.GenericMember<? extends Throwable> qgen_thr;
+	public g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException> qgen_run;
 }
