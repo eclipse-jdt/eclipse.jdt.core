@@ -2396,6 +2396,7 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 
 		instanceOfExpression.expression.traverse(this, scope);
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameinstanceof, true);
+		this.scribe.space();
 		instanceOfExpression.type.traverse(this, scope);
 		
 		if (numberOfParens > 0) manageClosingParenthesizedExpression(instanceOfExpression, numberOfParens);
