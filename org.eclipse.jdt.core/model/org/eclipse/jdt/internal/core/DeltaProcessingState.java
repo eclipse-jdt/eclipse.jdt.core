@@ -180,13 +180,15 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			}
 		}
 		synchronized(this) {
-			this.oldRoots = this.roots == null ? new Hashtable() : this.roots;
-			this.oldOtherRoots = this.otherRoots == null ? new Hashtable() : this.otherRoots;			
-			if (newRoots != null) {
-				this.roots = newRoots;
-				this.otherRoots = newOtherRoots;
-				this.sourceAttachments = newSourceAttachments;
-				this.rootsAreStale = false;
+			if (this.rootsAreStale) { // double check again
+				this.oldRoots = this.roots == null ? new Hashtable() : this.roots;
+				this.oldOtherRoots = this.otherRoots == null ? new Hashtable() : this.otherRoots;			
+				if (newRoots != null) {
+					this.roots = newRoots;
+					this.otherRoots = newOtherRoots;
+					this.sourceAttachments = newSourceAttachments;
+					this.rootsAreStale = false;
+				}
 			}
 		}
 	}
