@@ -159,7 +159,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}			    
 				}
 				if (argHasError) return null;
-				if ((this.bits & ASTNode.IsSuperType) != 0)
+// TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
+				if (isClassScope)
 					if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
 						return null;
 
@@ -181,7 +182,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 				qualifiedType = parameterizedType;
 		    } else {
-				if ((this.bits & ASTNode.IsSuperType) != 0)
+// TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
+				if (isClassScope)
 					if (((ClassScope) scope).detectCycle(currentType, this, null))
 						return null;
 

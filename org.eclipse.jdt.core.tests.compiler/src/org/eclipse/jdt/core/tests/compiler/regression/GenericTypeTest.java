@@ -4207,25 +4207,35 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}		
 	// method compatibility
-	// TODO (kent) name clash: toArray(java.lang.Object[]) in X and <T>toArray(T[]) in java.util.Collection<java.lang.Object> have the same erasure, yet neither overrides the other
 	public void test149() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public abstract class X implements java.util.Collection {\n" + 
+				"	public Object[] toArray(Object[] a) {\n" + 
+				"		return a;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	   System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Collection;\n" + 
-				"\n" + 
-				"public abstract class X implements Collection<Object> {\n" + 
-				"\n" + 
+				"public abstract class X implements java.util.Collection<Object> {\n" + 
 				"	public Object[] toArray(Object[] a) {\n" + 
 				"		return a;\n" + 
 				"	}\n" + 
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
 			"	public Object[] toArray(Object[] a) {\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with Collection<Object>.toArray(T[])\n" + 
+// TODO (kent) name clash: toArray(java.lang.Object[]) in X and <T>toArray(T[]) in java.util.Collection<java.lang.Object> have the same erasure, yet neither overrides the other
 			"----------\n");
 	}			
 	public void test150() {

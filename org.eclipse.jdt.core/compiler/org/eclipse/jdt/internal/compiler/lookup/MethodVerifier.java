@@ -102,11 +102,16 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 			if (!areReturnTypeErasuresEqual(currentMethod, inheritedMethod)) {
 				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 				continue nextMethod;
-			} else if (inheritedMethod.typeVariables.length > currentMethod.typeVariables.length) {
+			} else if (inheritedMethod.typeVariables.length != currentMethod.typeVariables.length) {
 				// TODO (kent) work to do on this case
-				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-//				this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
-				continue nextMethod;
+				if (currentMethod.typeVariables.length == 0 && inheritedMethod.declaringClass.isRawType()) {
+					// bug 69626
+					// no error since the inheritedMethod's type variables are ignored in raw types... why does a raw type binding not remove the type variables?
+				} else {
+					this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+//					this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
+					continue nextMethod;
+				}
 			}
 		}
 
