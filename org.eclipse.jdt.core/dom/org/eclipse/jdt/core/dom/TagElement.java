@@ -90,7 +90,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChildren(visitor, fragments);
+			acceptChildren(visitor, this.fragments);
 		}
 		visitor.endVisit(this);
 	}
@@ -121,7 +121,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * represent the material at the start of a doc comment preceding
 	 * the first explicit tag.
 	 *
-	 * @param name the tag name, or <code>null</code> if none
+	 * @param tagName the tag name, or <code>null</code> if none
 	 */ 
 	public void setTagName(String tagName) {
 		modifying();
@@ -143,7 +143,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * <ul>
 	 * <li>"@see Foo#bar()" - TagElement with tag name "@see";
 	 * fragments() contains a single MethodRef node</li>
-	 * <li>"@deprected Use {@link #foo foo} instead." - 
+	 * <li>"@deprecated Use {@link #foo foo} instead." - 
 	 * TagElement with tag name "@deprecated";
 	 * 3 fragments: TextElement ("Use "),
 	 * TagElement (for "@link #foo foo"),
@@ -171,7 +171,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @return the live list of doc elements in this tag element
 	 */ 
 	public List fragments() {
-		return fragments;
+		return this.fragments;
 	}
 
 	/**
@@ -184,7 +184,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * "@see" are only meaningful as top-level tags.
 	 * <p>
 	 * This convenience methods checks to see whether the parent
-	 * of this node is of type {@link TagElement TagElement).
+	 * of this node is of type {@link TagElement TagElement)}.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this node is a nested tag element,
@@ -199,7 +199,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 2 * 4 + stringSize(optionalTagName);
+		int size = BASE_NODE_SIZE + 2 * 4 + stringSize(this.optionalTagName);
 		return size;
 	}
 	
@@ -207,6 +207,6 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + fragments.listSize();
+		return memSize() + this.fragments.listSize();
 	}
 }
