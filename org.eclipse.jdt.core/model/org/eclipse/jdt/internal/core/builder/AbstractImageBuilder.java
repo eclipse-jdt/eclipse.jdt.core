@@ -377,7 +377,8 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					IMarker.DONE, 
 					IMarker.CHAR_START, 
 					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER},
+					IMarker.LINE_NUMBER,
+					"readOnly"}, //TODO: improve once IMarker constant is added //$NON-NLS-1$
 				new Object[] { 
 					task.getMessage(),
 					new Integer(priority),
@@ -385,6 +386,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
+					new Boolean(true),
 				});
 		}
 	}
