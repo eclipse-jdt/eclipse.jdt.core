@@ -1874,7 +1874,7 @@ public class JavaProject
 	 */
 	private void savePreferences(Preferences preferences) {
 
-		if (preferences == null || !preferences.needsSaving()) {
+		if (preferences == null || (!preferences.needsSaving() && preferences.propertyNames().length != 0)) {
 			// nothing to save
 			return;
 		}
