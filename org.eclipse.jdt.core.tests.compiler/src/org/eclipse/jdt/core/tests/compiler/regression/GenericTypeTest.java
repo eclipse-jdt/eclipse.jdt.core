@@ -11265,5 +11265,29 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"class C extends A {}\n",
 			},
 			"[A:class A][A:class B][A:class C]");
-	}				
+	}			
+	
+	// check inferred return types are truly based on arguments, and not on parameter erasures
+	public void test427() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <E extends A> E m(E e, E... e2) { System.out.print(\"[A:\"+e.getClass()+\"]\"); return e; }\n" + 
+				"    static <F extends B> F m(F f, F... f2) { System.out.print(\"[B:\"+f.getClass()+\"]\"); return f; }\n" + 
+				"    static <G extends C> G m(G g, G... g2) { System.out.print(\"[C:\"+g.getClass()+\"]\"); return g; }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        A a = m(new A(), new A());\n" + 
+				"        B b = m(new B(), new B());\n" + 
+				"        C c = m(new C(), new C());\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n" + 
+				"class C extends A {}\n",
+			},
+			"[A:class A][B:class B][C:class C]");
+	}			
 }
