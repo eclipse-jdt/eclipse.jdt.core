@@ -48,9 +48,9 @@ public interface IPackageFragmentRoot
 	String DEFAULT_PACKAGEROOT_PATH = ""; //$NON-NLS-1$
 	/**
 	 * Attaches the source archive identified by the given absolute path to this
-	 * binary package fragment root. For source archives, 
-	 * <code>rootPath</code> specifies the location of the root within the archive 
-	 * (<code>null</code> or empty specifies the default root).
+	 * binary package fragment root. <code>rootPath</code> specifies the location 
+	 * of the root within the archive or folder (empty specifies the default root 
+	 * and <code>null</code> specifies the root path should be detected).
 	 * Once a source archive or folder is attached to the package fragment root,
 	 * the <code>getSource</code> and <code>getSourceRange</code>
 	 * methods become operational for binary types/members.
@@ -59,7 +59,8 @@ public interface IPackageFragmentRoot
 	 *
 	 * @param sourcePath the given absolute path to the source archive or folder
 	 * @param rootPath specifies the location of the root within the archive 
-	 *              (<code>null</code> or empty specifies the default root)
+	 *              (empty specifies the default root and <code>null</code> specifies 
+	 *               automatic detection of the root path)
 	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this operation fails. Reasons include:
 	 * <ul>
@@ -70,6 +71,17 @@ public interface IPackageFragmentRoot
 	 * </ul>
 	 */
 	void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor monitor)
+		throws JavaModelException;
+	/**
+	 * Computes and returns the source attachment root path for the given source attachment path.
+	 * Returns <code>null</code> if none could be found.
+	 * 
+	 * @param sourceAttachmentPath the given absolute path to the source archive or folder
+	 * @return the computed source attachment root path or <code>null</cde> if none could be found
+	 * @throws JavaModelException
+	 * @since 2.1
+	 */
+	IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) 
 		throws JavaModelException;
 		
 	/**

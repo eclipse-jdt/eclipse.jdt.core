@@ -1887,7 +1887,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
-	 *    or <code>null</code> if <code>sourceAttachmentPath</code> is also <code>null</code>.
+	 *    or <code>null</code> if this location should be automatically detected.
 	 * @return a new library classpath entry
 	 * 
 	 * @see #newLibraryEntry(IPath, IPath, IPath, boolean)
@@ -1922,7 +1922,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
-	 *    or <code>null</code> if <code>sourceAttachmentPath</code> is also <code>null</code>.
+	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
 	 * @return a new library classpath entry

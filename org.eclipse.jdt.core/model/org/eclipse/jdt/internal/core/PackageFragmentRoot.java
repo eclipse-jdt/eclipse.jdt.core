@@ -236,6 +236,22 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 		throw new JavaModelException(e);
 	}
 }
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#computeSourceAttachmentRootPath(IPath)
+ */
+public IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) throws JavaModelException {
+	IPath sourcePath = this.getSourceAttachmentPath();
+	if (sourcePath == null) return null;
+	SourceMapper mapper = 
+		new SourceMapper(
+		sourcePath, 
+		null, // detect root path
+		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true) // only project options if associated with resource
+	);
+	if (mapper.rootPath == null) return null;
+	return new Path(mapper.rootPath);
+}
+
 
 /**
  * Returns a new element info for this element.

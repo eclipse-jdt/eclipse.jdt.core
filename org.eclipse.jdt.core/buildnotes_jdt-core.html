@@ -38,12 +38,26 @@ Eclipse SDK 2.1 Build - ?th November 2002
 <h2>
 What's new in this drop</h2>
 <ul> 
-<li><b>Source attachment enhancement:</b> The source attachment mechanism got generalized to all binary package fragment root. In the past, 
-only archives did support to carry a source attachment, in the form of a source archive. Now, both
-binary folder or archive can be associated with sources, which can be either a source archive or a 
-source folder. In particular, mixed modes are supported (binary archive associated to source folder 
-and reciprocally). For more details, see <code>IPackageFragmentRoot.attachSource(IPath, IPath, 
-IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>.
+<li><b>Source attachment enhancements:</b> 
+	<ul>
+	<li><b>Source folder attachment:</b> The source attachment mechanism got generalized to all binary 
+		  package fragment root. In the past, only archives did support to carry a source attachment, in the 
+		  form of a source archive. Now, both binary folder or archive can be associated with sources, which 
+		  can be either a source archive or a source folder. In particular, mixed modes are supported (binary 
+		  archive associated to source folder and reciprocally). For more details, see 
+		  <code>IPackageFragmentRoot.attachSource(IPath, IPath, IProgressMonitor)</code> and 
+		  <code>JavaCore.newLibraryEntry(...)</code>.
+	</li>
+	<li><b>Automatic root path detection:</b> If null is specified as the root path (see 
+		  <code>JavaCore.newLibraryEntry(...)</code> and <code>IPackageFragmentRoot.attachSource(...)</code>), 
+		  then the Java Model will do its best to compute this root path automatically. The underlying algorithm 
+		  finds the first .java file, parses it, and extract the package declaration to compute the root path.
+	</li>
+	<li><b>Root path detection:</b> The new API 
+		  <code>IPackageFragmentRoot.computeSourceAttachmentRootPath(IPath sourceAttachmentPath)</code> 
+		  allows to detect the root path for a given source attachment and package fragment root.
+	</li>
+	</ul>
 </li>
 <li><b>Code completion enhancement:</b>
    <ul>
