@@ -196,6 +196,7 @@ public void tearDown() throws Exception {
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler");
+	deleteProject("Reconciler15");
 	super.tearDownSuite();
 }
 /**
