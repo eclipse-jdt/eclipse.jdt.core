@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
@@ -161,7 +162,7 @@ class ASTConverter2 extends ASTConverter {
 					TypeReference[] typeArguments = parameterizedAllocationExpression.typeArguments;
 					if (typeArguments != null) {
 						for (int i = 0, max = typeArguments.length; i < max; i++) {
-							classInstanceCreation.typeArguments().add(convert(typeArguments[i]));
+							classInstanceCreation.typeArguments().add(convertType(typeArguments[i]));
 						}
 					}
 			}
@@ -260,6 +261,70 @@ class ASTConverter2 extends ASTConverter {
 
 	public EnumDeclaration convert(org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration) {
 		return null;
+	}
+
+	public Statement convert(org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall statement) {
+		Statement newStatement;
+		if (statement.isSuperAccess() || statement.isSuper()) {
+			SuperConstructorInvocation superConstructorInvocation = this.ast.newSuperConstructorInvocation();
+			if (statement.qualification != null) {
+				superConstructorInvocation.setExpression(convert(statement.qualification));
+			}
+			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = statement.arguments;
+			if (arguments != null) {
+				int length = arguments.length;
+				for (int i = 0; i < length; i++) {
+					superConstructorInvocation.arguments().add(convert(arguments[i]));
+				}
+			}
+			if (statement instanceof ParameterizedExplicitConstructorCall) {
+				switch(this.ast.apiLevel) {
+					case AST.LEVEL_2_0 :
+						superConstructorInvocation.setFlags(ASTNode.MALFORMED);
+						break;
+					case AST.LEVEL_3_0 :
+						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
+						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
+						if (typeArguments != null) {
+							for (int i = 0, max = typeArguments.length; i < max; i++) {
+								superConstructorInvocation.typeArguments().add(convertType(typeArguments[i]));
+							}
+						}
+				}
+			}
+			newStatement = superConstructorInvocation;
+		} else {
+			ConstructorInvocation constructorInvocation = this.ast.newConstructorInvocation();
+			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = statement.arguments;
+			if (arguments != null) {
+				int length = arguments.length;
+				for (int i = 0; i < length; i++) {
+					constructorInvocation.arguments().add(convert(arguments[i]));
+				}
+			}
+			if (statement instanceof ParameterizedExplicitConstructorCall) {
+				switch(this.ast.apiLevel) {
+					case AST.LEVEL_2_0 :
+						constructorInvocation.setFlags(ASTNode.MALFORMED);
+						break;
+					case AST.LEVEL_3_0 :
+						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
+						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
+						if (typeArguments != null) {
+							for (int i = 0, max = typeArguments.length; i < max; i++) {
+								constructorInvocation.typeArguments().add(convertType(typeArguments[i]));
+							}
+						}
+				}
+			}
+			newStatement = constructorInvocation;
+		}
+		newStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		retrieveSemiColonPosition(newStatement);
+		if (this.resolveBindings) {
+			recordNodes(newStatement, statement);
+		}
+		return newStatement;
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Expression expression) {

@@ -25,7 +25,9 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -49,6 +51,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 
@@ -63,7 +66,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0022"));
+		suite.addTest(new ASTConverter15Test("test0025"));
 		return suite;
 	}
 		
@@ -753,6 +756,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, typeParameters.size());
 		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
 		checkSourceRange(typeParameter, "T", source);
+	}
+	
+	public void test0024() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0024", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement declarationStatement = (VariableDeclarationStatement) node;
+		List fragments = declarationStatement.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		List typeArguments = classInstanceCreation.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		Type type = (Type) typeArguments.get(0);
+		checkSourceRange(type, "String", source);
+	}
+	
+	public void test0025() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0025", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
+		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
+		List typeArguments = constructorInvocation.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		Type type = (Type) typeArguments.get(0);
+		checkSourceRange(type, "E", source);
 	}
 }
 

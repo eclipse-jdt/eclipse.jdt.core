@@ -336,14 +336,14 @@ class ASTConverter {
 		}
 		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;
 		if (isConstructor) {
+			org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration constructorDeclaration = (org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration) methodDeclaration;
+			explicitConstructorCall = constructorDeclaration.constructorCall;
 			switch(this.ast.apiLevel) {
 				case AST.LEVEL_2_0 :
 					// set the return type to VOID
 					PrimitiveType returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
 					returnType.setSourceRange(methodDeclaration.sourceStart, 0);
 					methodDecl.setReturnType(returnType);
-					org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration constructorDeclaration = (org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration) methodDeclaration;
-					explicitConstructorCall = constructorDeclaration.constructorCall;
 					break;
 				case AST.LEVEL_3_0 :
 					methodDecl.setReturnType2(null);
