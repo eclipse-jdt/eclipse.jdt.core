@@ -19,14 +19,32 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
-//TODO: (david) should explain related JavaCore options.
 /**
  * Provides methods for computing Java-specific names.
  * <p>
+ * The bevavior of the methods is dependent of several JavaCore options.<br>
+ * The possible options are :
+ * <ul>
+ * <li>CODEASSIST_FIELD_PREFIXES : Define the Prefixes for Field Name.</li>
+ * <li>CODEASSIST_STATIC_FIELD_PREFIXES : Define the Prefixes for Static Field Name.</li>
+ * <li>CODEASSIST_LOCAL_PREFIXES : Define the Prefixes for Local Variable Name.</li>
+ * <li>CODEASSIST_ARGUMENT_PREFIXES : Define the Prefixes for Argument Name.</li>
+ * <li>CODEASSIST_FIELD_SUFFIXES : Define the Suffixes for Field Name.</li>
+ * <li>CODEASSIST_STATIC_FIELD_SUFFIXES : Define the Suffixes for Static Field Name.</li>
+ * <li>CODEASSIST_LOCAL_SUFFIXES : Define the Suffixes for Local Variable Name.</li>
+ * <li>CODEASSIST_ARGUMENT_SUFFIXES : Define the Suffixes for Argument Name.</li>
+ * </ul>
+ * <p>
+ * 
+ * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
+ * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+ * 
  * This class provides static methods and constants only; it is not intended to be
  * instantiated or subclassed by clients.
  * </p>
  * 
+ * @see JavaCore#setOptions
+ * @see JavaCore#getDefaultOptions
  * @since 2.1
  */
 public final class NamingConventions {
@@ -141,11 +159,22 @@ public final class NamingConventions {
 	}
 
 	/**
-	 * Remove prefix and suffix from an argument name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from an argument name.<br>
+	 * If argument name prefix is <code>pre</code> and argument name suffix is <code>suf</code>
+	 * then for an argument named <code>preArgsuf</code> the result of this method is <code>arg</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preArgsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and
+	 * CODEASSIST_ARGUMENT_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+ 	 * 
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
 	 * @return char[] the name without prefix and suffix.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[] removePrefixAndSuffixForArgumentName(IJavaProject javaProject, char[] argumentName) {
 		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
@@ -156,25 +185,48 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Remove prefix and suffix from an argument name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from an argument name.<br>
+	 * If argument name prefix is <code>pre</code> and argument name suffix is <code>suf</code>
+	 * then for an argument named <code>preArgsuf</code> the result of this method is <code>arg</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preArgsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and
+	 * CODEASSIST_ARGUMENT_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+ 	 * 
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
-	 * @return String the name without prefix and suffix.
+	 * @return char[] the name without prefix and suffix.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String removePrefixAndSuffixForArgumentName(IJavaProject javaProject, String argumentName) {
 		return String.valueOf(removePrefixAndSuffixForArgumentName(javaProject, argumentName.toCharArray()));
 	}
 
 	/**
-	 * Remove prefix and suffix from a field name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from a field name.<br>
+	 * If field name prefix is <code>pre</code> and field name suffix is <code>suf</code>
+	 * then for a field named <code>preFieldsuf</code> the result of this method is <code>field</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preFieldsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
 	 * @return char[] the name without prefix and suffix.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[] removePrefixAndSuffixForFieldName(IJavaProject javaProject, char[] fieldName, int modifiers) {
 		boolean isStatic = Flags.isStatic(modifiers);
@@ -186,24 +238,47 @@ public final class NamingConventions {
 	}
 
 	/**
-	 * Remove prefix and suffix from a field name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from a field name.<br>
+	 * If field name prefix is <code>pre</code> and field name suffix is <code>suf</code>
+	 * then for a field named <code>preFieldsuf</code> the result of this method is <code>field</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preFieldsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
-	 * @return String the name without prefix and suffix.
+	 * @return char[] the name without prefix and suffix.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String removePrefixAndSuffixForFieldName(IJavaProject javaProject, String fieldName, int modifiers) {
 		return String.valueOf(removePrefixAndSuffixForFieldName(javaProject, fieldName.toCharArray(), modifiers));
 	}
 	/**
-	 * Remove prefix and suffix from a local variable name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from a local variable name.<br>
+	 * If local variable name prefix is <code>pre</code> and local variable name suffix is <code>suf</code>
+	 * then for a local variable named <code>preLocalsuf</code> the result of this method is <code>local</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preLocalsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and 
+	 * CODEASSIST_LOCAL_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
 	 * @return char[] the name without prefix and suffix.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[] removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, char[] localName) {
 		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
@@ -214,18 +289,40 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Remove prefix and suffix from a local variable name.
-	 * TODO: (david) should explain better, provide example
+	 * Remove prefix and suffix from a local variable name.<br>
+	 * If local variable name prefix is <code>pre</code> and local variable name suffix is <code>suf</code>
+	 * then for a local variable named <code>preLocalsuf</code> the result of this method is <code>local</code>.
+	 * If there is no prefix or suffix defined in JavaCore options the result is the unchanged
+	 * name <code>preLocalsuf</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and 
+	 * CODEASSIST_LOCAL_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
-	 * @return String the name without prefix and suffix.
+	 * @return char[] the name without prefix and suffix.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, String localName) {
 		return String.valueOf(removePrefixAndSuffixForLocalVariableName(javaProject, localName.toCharArray()));
 	}
+
 	/**
-	 * Suggest names for an argument. The name is computed from argument's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for an argument. The name is computed from argument's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the argument is <code>TypeName</code>, the prefix for argument is <code>pre</code>
+	 * and the suffix for argument is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and 
+	 * CODEASSIST_ARGUMENT_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the argument.
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
@@ -233,6 +330,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
 		Map options = javaProject.getOptions(true);
@@ -251,15 +350,27 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest names for an argument. The name is computed from argument's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for an argument. The name is computed from argument's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the argument is <code>TypeName</code>, the prefix for argument is <code>pre</code>
+	 * and the suffix for argument is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_ARGUMENT_PREFIXES and 
+	 * CODEASSIST_ARGUMENT_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
+	 * 
 	 * @param javaProject project which contains the argument.
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
 	 * @param dim argument's dimension (0 if the argument is not an array).
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String[] an array of names.
+	 * @return char[][] an array of names.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String[] suggestArgumentNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
 		return convertCharsToString(
@@ -271,8 +382,18 @@ public final class NamingConventions {
 				convertStringToChars(excludedNames)));
 	}
 	/**
-	 * Suggest names for a field. The name is computed from field's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for a field. The name is computed from field's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the field is <code>TypeName</code>, the prefix for field is <code>pre</code>
+	 * and the suffix for field is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES and for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param javaProject project which contains the field.
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
@@ -283,6 +404,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {
 		boolean isStatic = Flags.isStatic(modifiers);
@@ -303,8 +426,18 @@ public final class NamingConventions {
 	}
 
 	/**
-	 * Suggest names for a field. The name is computed from field's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for a field. The name is computed from field's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the field is <code>TypeName</code>, the prefix for field is <code>pre</code>
+	 * and the suffix for field is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES and for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param javaProject project which contains the field.
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
@@ -313,8 +446,10 @@ public final class NamingConventions {
 	 * <code>Flags</code>.
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String[] an array of names.
+	 * @return char[][] an array of names.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String[] suggestFieldNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, int modifiers, String[] excludedNames) {
 		return convertCharsToString(
@@ -328,8 +463,17 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest names for a local variable. The name is computed from variable's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for a local variable. The name is computed from variable's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the local variable is <code>TypeName</code>, the prefix for local variable is <code>pre</code>
+	 * and the suffix for local variable is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and
+	 * CODEASSIST_LOCAL_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param javaProject project which contains the variable.
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
@@ -337,6 +481,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestLocalVariableNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
 		Map options = javaProject.getOptions(true);
@@ -355,15 +501,26 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest names for a local variable. The name is computed from variable's type.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest names for a local variable. The name is computed from variable's type
+	 * and possible prefixes or suffixes are added.<br>
+	 * If the type of the local variable is <code>TypeName</code>, the prefix for local variable is <code>pre</code>
+	 * and the suffix for local variable is <code>suf</code> then the proposed names are <code>preTypeNamesuf</code>
+	 * and <code>preNamesuf</code>. If there is no prefix or suffix the proposals are <code>typeName</code>
+	 * and <code>name</code>.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_LOCAL_PREFIXES and
+	 * CODEASSIST_LOCAL_SUFFIXES.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param javaProject project which contains the variable.
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
 	 * @param dim variable's dimension (0 if the variable is not an array).
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String[] an array of names.
+	 * @return char[][] an array of names.
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String[] suggestLocalVariableNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
 		return convertCharsToString(
@@ -497,8 +654,18 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest name for a getter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest name for a getter method. The name is computed from field's name
+	 * and possible prefixes or suffixes are removed.<br>
+	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
+	 * the suffix for field is <code>suf</code> then the prosposed name is <code>isFieldName</code> for boolean field or
+	 * <code>getFieldName</code> for others. If there is no prefix and suffix the proposal is <code>isPreFieldNamesuf</code>
+	 * for boolean field or <code>getPreFieldNamesuf</code> for others.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -508,6 +675,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 		if (isBoolean) {
@@ -531,8 +700,18 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest name for a getter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest name for a getter method. The name is computed from field's name
+	 * and possible prefixes or suffixes are removed.<br>
+	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
+	 * the suffix for field is <code>suf</code> then the prosposed name is <code>isFieldName</code> for boolean field or
+	 * <code>getFieldName</code> for others. If there is no prefix and suffix the proposal is <code>isPreFieldNamesuf</code>
+	 * for boolean field or <code>getPreFieldNamesuf</code> for others.<br>
+	 * 
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -540,8 +719,10 @@ public final class NamingConventions {
 	 * @param isBoolean <code>true</code> if the field's type is boolean
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String a name.
+	 * @return char[] a name.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String suggestGetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(
@@ -554,8 +735,16 @@ public final class NamingConventions {
 	}
 
 	/**
-	 * Suggest name for a setter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest name for a setter method. The name is computed from field's name
+	 * and possible prefixes or suffixes are removed.<br>
+	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
+	 * the suffix for field is <code>suf</code> then the prosposed name is <code>setFieldName</code>.
+	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.<br>
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -565,6 +754,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 
@@ -593,8 +784,16 @@ public final class NamingConventions {
 	}
 	
 	/**
-	 * Suggest name for a setter method. The name is computed from field's name.
-	 * TODO: (david) should explain better, provide example
+	 * Suggest name for a setter method. The name is computed from field's name
+	 * and possible prefixes or suffixes are removed.<br>
+	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
+	 * the suffix for field is <code>suf</code> then the prosposed name is <code>setFieldName</code>.
+	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.<br>
+	 * This method is affected by the following JavaCore options : CODEASSIST_FIELD_PREFIXES, 
+	 * CODEASSIST_FIELD_SUFFIXES for instance field and CODEASSIST_STATIC_FIELD_PREFIXES,
+	 * CODEASSIST_STATIC_FIELD_SUFFIXES for static field.<br>
+	 * For a complete description of these configurable options, see <code>getDefaultOptions</code>.
+	 * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -602,8 +801,10 @@ public final class NamingConventions {
 	 * @param isBoolean <code>true</code> if the field's type is boolean
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
-	 * @return String a name.
+	 * @return char[] a name.
 	 * @see Flags
+	 * @see JavaCore#setOptions
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(
