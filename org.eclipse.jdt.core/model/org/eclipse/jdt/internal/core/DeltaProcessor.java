@@ -78,7 +78,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	int currentEventType;
 	
-	HashSet projectsToUpdate = new HashSet();
+	public HashSet projectsToUpdate = new HashSet();
+	public HashSet externalJarPathsToUpdate = new HashSet();
 	
 	JavaModelManager manager;
 
@@ -852,6 +853,37 @@ private JavaModelException newInvalidElementType() {
 	}
 
 	/**
+	 * Generate deltas for affected package fragment roots
+	 */
+	public IJavaElementDelta processExternalJarChanges() {
+		
+		// did any external JAR change ?
+		if (this.externalJarPathsToUpdate.isEmpty()) return null;
+		try {
+			JavaModel model = manager.getJavaModel();
+			fCurrentDelta = new JavaElementDelta(model);
+			IJavaProject[] projects =model.getOldJavaProjectsList();
+			for (int i = 0, length = projects.length; i < length; i++) {
+				IJavaProject project = projects[i];
+				IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+				for (int j = 0; j < roots.length; j++){
+					if (this.externalJarPathsToUpdate.contains(roots[j].getPath())){
+						if (VERBOSE){
+							System.out.println("External JAR changed, affecting root: "+roots[j].getElementName());
+						}
+						contentChanged((Openable)roots[j], null);
+					}
+				}
+			}
+			return fCurrentDelta;
+		} catch (JavaModelException e) { // nothing can be done
+		} finally {
+			this.externalJarPathsToUpdate.clear();
+		}
+		return null;
+	}
+	
+	/**
 	 * Converts a <code>IResourceDelta</code> rooted in a <code>Workspace</code> into
 	 * the corresponding set of <code>IJavaElementDelta</code>, rooted in the
 	 * relevant <code>JavaModel</code>s.
@@ -1055,6 +1087,10 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 								for (int i= 0; i < translatedDeltas.length; i++) {
 									this.manager.registerJavaModelDelta(translatedDeltas[i]);
 								}
+							}
+							IJavaElementDelta externalDelta = this.processExternalJarChanges();
+							if (externalDelta != null){
+								this.manager.registerJavaModelDelta(externalDelta);
 							}
 							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
 						}		

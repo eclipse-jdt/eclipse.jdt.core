@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -55,6 +56,7 @@ public class JavaModel extends Openable implements IJavaModel {
 	 * Note this cache is kept for the whole session.
 	 */ 
 	public static HashSet existingExternalFiles = new HashSet();
+	public static HashMap externalTimeStamps = new HashMap();
 	
 /**
  * Constructs a new Java Model on the given workspace.
@@ -483,6 +485,18 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 		if (externalFile.exists()) {
 			// cache external file
 			existingExternalFiles.add(externalFile);
+			
+			// check timestamp to figure if JAR has changed in some way
+			Long oldTimestamp =(Long) externalTimeStamps.get(path);
+			long newTimeStamp = externalFile.lastModified() + externalFile.length();
+			if (oldTimestamp != null){
+				if (oldTimestamp.longValue() != newTimeStamp){
+					// jar has changed - need to refresh
+					JavaModelManager.getJavaModelManager().deltaProcessor.externalJarPathsToUpdate.add(path);
+				}
+			}
+			
+			externalTimeStamps.put(path, new Long(newTimeStamp));
 			return externalFile;
 		}
 	}
