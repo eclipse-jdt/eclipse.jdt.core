@@ -214,6 +214,8 @@ public class CompilationUnit extends ASTNode {
 	 * Finds the corresponding AST node in the given compilation unit from 
 	 * which the given binding originated. Returns <code>null</code> if the
 	 * binding does not correspond to any node in this compilation unit.
+	 * This method always returns <code>null</code> if bindings were not requested
+	 * when this AST was built.
 	 * <p>
 	 * The following table indicates the expected node type for the various
 	 * different kinds of bindings:
@@ -235,16 +237,61 @@ public class CompilationUnit extends ASTNode {
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
+	 * Each call to <code>AST.parseCompilationUnit</code> with a request for bindings
+	 * gives rise to separate universe of binding objects. This method always returns
+	 * <code>null</code> when the binding object comes from a different AST.
+	 * Use <code>findDeclaringNode(binding.getKey())</code> when the binding comes
+	 * from a different AST.
 	 * </p>
 	 * 
 	 * @param binding the binding
-	 * @return the corresponding node where the bindings is declared, 
-	 *    or <code>null</code> if none
+	 * @return the corresponding node where the given binding is declared,
+	 * or <code>null</code> if the binding does not correspond to a node in this
+	 * compilation unit or if bindings were not requested when this AST was built
+	 * @see #findDeclaringNode(java.lang.String)
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return getAST().getBindingResolver().findDeclaringNode(binding);
+	}
+	
+	/**
+	 * Finds the corresponding AST node in the given compilation unit from 
+	 * which the binding with the given key originated. Returns
+	 * <code>null</code> if the corresponding node cannot be determined.
+	 * This method always returns <code>null</code> if bindings were not requested
+	 * when this AST was built.
+	 * <p>
+	 * The following table indicates the expected node type for the various
+	 * different kinds of binding keys:
+	 * <ul>
+	 * <li></li>
+	 * <li>package - a <code>PackageDeclaration</code></li>
+	 * <li>class or interface - a <code>TypeDeclaration</code> or a
+	 *    <code>ClassInstanceCreation</code> (for anonymous classes) </li>
+	 * <li>primitive type - none</li>
+	 * <li>array type - none</li>
+	 * <li>field - a <code>VariableDeclarationFragment</code> in a 
+	 *    <code>FieldDeclaration</code> </li>
+	 * <li>local variable - a <code>SingleVariableDeclaration</code>, or
+	 *    a <code>VariableDeclarationFragment</code> in a 
+	 *    <code>VariableDeclarationStatement</code> or 
+	 *    <code>VariableDeclarationExpression</code></li>
+	 * <li>method - a <code>MethodDeclaration</code> </li>
+	 * <li>constructor - a <code>MethodDeclaration</code> </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @param key the binding key, or <code>null</code>
+	 * @return the corresponding node where a binding with the given
+	 * key is declared, or <code>null</code> if the key is <code>null</code>
+	 * or if the key does not correspond to a node in this compilation unit
+	 * or if bindings were not requested when this AST was built
+	 * @see IBinding#getKey
+	 * @since 2.1
+	 */
+	public ASTNode findDeclaringNode(String key) {
+		// TODO - supply missing implementation
+		return null;
 	}
 	
 	/**
