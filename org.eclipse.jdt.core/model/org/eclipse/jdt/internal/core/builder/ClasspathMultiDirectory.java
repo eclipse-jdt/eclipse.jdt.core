@@ -25,6 +25,7 @@ ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[]
 	this.exclusionPatterns = exclusionPatterns;
 	this.hasIndependentOutputFolder = false;
 
+	// TODO: don't think this can ever occur (see ClasspathEntry#fullExclusionPatternChars computation)
 	if (this.exclusionPatterns != null && this.exclusionPatterns.length == 0)
 		this.exclusionPatterns = null;
 }
