@@ -426,6 +426,7 @@ public abstract class Scope
 			currentType = getJavaLangObject();
 		}
 
+		boolean isCompliant14 = compilationUnitScope().environment.options.complianceLevel >= CompilerOptions.JDK1_4;
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		while (currentType != null) {
@@ -435,7 +436,7 @@ public abstract class Scope
 			/*
 			 * if 1.4 compliant, must filter out redundant protected methods from superclasses
 			 */
-			if (compilationUnitScope().environment.options.complianceLevel >= CompilerOptions.JDK1_4){			 
+			if (isCompliant14){			 
 				nextMethod: for (int i = 0; i < currentLength; i++){
 					MethodBinding currentMethod = currentMethods[i];
 					// protected method need to be checked only - default access is already dealt with in #canBeSeen implementation
@@ -482,8 +483,15 @@ public abstract class Scope
 
 		int foundSize = found.size;
 		if (foundSize == 0) {
-			if (matchingMethod != null && areParametersAssignable(matchingMethod.parameters, argumentTypes))
+			if (matchingMethod != null && areParametersAssignable(matchingMethod.parameters, argumentTypes)) {
+				// (if no default abstract) must explicitly look for one instead, which could be a better match
+				if (!matchingMethod.canBeSeenBy(receiverType, invocationSite, this)) {
+					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
+					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
+					if (interfaceMethod != null) return interfaceMethod;
+				}
 				return matchingMethod;
+			} 
 			return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 		}
 
