@@ -2070,23 +2070,23 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(0);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(0);
 			rewrite.set(enumConst, EnumConstantDeclaration.NAME_PROPERTY, ast.newSimpleName("X"), null);
 			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			listRewrite.remove((ASTNode) enumConst.arguments().get(0), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(1);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(1);
 			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			listRewrite.insertFirst(ast.newNumberLiteral("1"), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(2);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(2);
 			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			listRewrite.insertFirst(ast.newNumberLiteral("2"), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(3);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(3);
 			ListRewrite listRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			listRewrite.remove((ASTNode) enumConst.arguments().get(0), null);
 		}
@@ -2102,12 +2102,12 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	private static final boolean BUG_76181= true;
-	
+
 	public void testEnumConstantDeclaration2() throws Exception {
 		if (BUG_76181) {
 			return;
 		}
-		
+
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2147,13 +2147,13 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(0);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(0);
 		
 			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(1);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(1);
 		
 			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
@@ -2162,7 +2162,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(2);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(2);
 		
 			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
 			
@@ -2170,24 +2170,24 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(3);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(3);
 			
 			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(4);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(4);
 			
 			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(5);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(5);
 		
 			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(6);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(6);
 		
 			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
@@ -2195,13 +2195,13 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(7);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(7);
 		
 			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
 			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
-			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.bodyDeclarations().get(8);
+			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(8);
 			
 			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(1), null);
 		}
