@@ -1,13 +1,13 @@
 STREAM: 2.0
 
-What's new in this drop
+What's new in this drop (since 0.9)
 ==================================================================================
   * JCK1.3a compliant. 
   * All messages have been externalized. 
   * Added 2 new APIs on JavaConventions: 
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
-
+ * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
