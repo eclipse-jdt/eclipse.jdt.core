@@ -780,15 +780,9 @@ public class ClassScope extends Scope {
 		if (argTypes != null) {
 			for (int i = 0, l = argTypes.length; i < l; i++) {
 				TypeBinding argType = argTypes[i].leafComponentType();
-			    if (argType instanceof SourceTypeBinding) {
-			    	SourceTypeBinding argSourceType = (SourceTypeBinding) argType;
+				if ((argType.tagBits & BeginHierarchyCheck) == 0 && argType instanceof SourceTypeBinding)
 			    	// ensure if this is a source argument type that it has already been checked
-			    	if (argSourceType.scope != null) // null if already processed
-				    	argSourceType.scope.connectTypeHierarchyWithoutMembers();
-			    }
-//			    if (argType instanceof SourceTypeBinding)
-			    	// ensure if this is a source superclass that it has already been checked
-//			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
+			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
 			}
 		}
 
@@ -800,15 +794,9 @@ public class ClassScope extends Scope {
 			return detectCycle(referenceContext.binding, superType, reference);
 		}
 
-		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding) {
-	    	SourceTypeBinding superSourceType = (SourceTypeBinding) superType;
-	    	// ensure if this is a source superclass that it has already been checked
-	    	if (superSourceType.scope != null) // null if already processed
-		    	superSourceType.scope.connectTypeHierarchyWithoutMembers();
-		}
-//		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
+		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
 			// ensure if this is a source superclass that it has already been checked
-//			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
 		return false;
 	}
 
