@@ -1038,14 +1038,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyBindings(TagElement tagElement) {
 		// Verify each fragment
-		int tagElementStart = tagElement.getStartPosition();
 		Iterator elements = tagElement.fragments().listIterator();
 		IBinding previousBinding = null;
 		ASTNode previousFragment = null;
 		boolean resolvedBinding = false;
 		while (elements.hasNext()) {
 			ASTNode fragment = (ASTNode) elements.next();
-			int fragmentStart = fragment.getStartPosition();
 			if (fragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
 				TextElement text = (TextElement) fragment;
 				if (resolvedBinding) {
@@ -1104,7 +1102,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyNameBindings(Name name) {
 		if (name != null) {
-			int nameStart = name.getStartPosition();
 			IBinding binding = name.resolveBinding();
 			if (name.toString().indexOf("Unknown") > 0) {
 				assumeNull(this.prefix+name+" binding should be null!", binding);
@@ -1116,7 +1113,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			while (name.isQualifiedName()) {
 				simpleName = ((QualifiedName) name).getName();
 				binding = simpleName.resolveBinding();
-				int simpleNameStart = simpleName.getStartPosition();
 				if (simpleName.getIdentifier().equalsIgnoreCase("Unknown")) {
 					assumeNull(this.prefix+simpleName+" binding should be null!", binding);
 				} else {

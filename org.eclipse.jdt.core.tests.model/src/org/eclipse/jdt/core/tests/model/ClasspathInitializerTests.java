@@ -804,7 +804,7 @@ public void testUserLibraryInitializer1() throws CoreException {
 		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
 
 		// Create java project
-		IJavaProject p = createJavaProject("p61872");
+		createJavaProject("p61872");
 		IFile jarFile = createFile("/p61872/swt.jar", "");
 		IFile srcFile = createFile("/p61872/swtsrc.zip", "");
 
@@ -832,7 +832,7 @@ public void testUserLibraryInitializer1() throws CoreException {
 		IClasspathEntry[] entries = getJavaProject("p61872").getResolvedClasspath(true);
 		assertEquals("Invalid entries number in resolved classpath for project p61872!", 1, entries.length);
 		assertEquals("Invalid path for project 61872 classpath entry!", jarFullPath.toLowerCase(), entries[0].getPath().toString().toLowerCase());
-		assertNull("Project 61872 classpath entry should not have a,y source attached!", entries[0].getSourceAttachmentPath());
+		assertNull("Project 61872 classpath entry should not have any source attached!", entries[0].getSourceAttachmentPath());
 
 		// Modify user library
 		propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
