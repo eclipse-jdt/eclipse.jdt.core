@@ -119,7 +119,7 @@ public void alreadyDefinedLabel(char[] labelName, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void annotationInvalidParam(Argument param) {
+public void annotationMissingParamTag(Argument param) {
 	String[] arguments = new String[] {String.valueOf(param.name)};
 	this.handle(
 		IProblem.AnnotationMissingParamTag,

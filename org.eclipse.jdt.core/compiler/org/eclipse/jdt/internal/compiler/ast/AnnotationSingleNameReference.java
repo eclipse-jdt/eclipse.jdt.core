@@ -24,17 +24,10 @@ public class AnnotationSingleNameReference extends SingleNameReference {
 
 	public void resolve(BlockScope scope) {
 		
-		Binding existingVariable = scope.getBinding(token, BindingIds.VARIABLE, this, true /*resolve*/);
-		if (existingVariable != null && existingVariable.isValidBinding()){
-			if (existingVariable instanceof VariableBinding) {
-				if (existingVariable instanceof LocalVariableBinding) {
-					LocalVariableBinding local = (LocalVariableBinding) existingVariable;
-					if (local.isArgument) {
-						this.binding = local;
-						return;
-					}
-				}
-			} 
+		LocalVariableBinding variableBinding = scope.findVariable(token);
+		if (variableBinding != null && variableBinding.isValidBinding() && variableBinding.isArgument) {
+			this.binding = variableBinding;
+			return;
 		}
 		scope.problemReporter().annotationInvalidParamName(this, false);
 	}

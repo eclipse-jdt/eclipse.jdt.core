@@ -38,7 +38,7 @@ public class Annotation extends AstNode {
 			}
 		}
 		if (this.returnStatement != null) {
-			printIndent(indent + 1, output).append(" * @return "); //$NON-NLS-1$		
+			printIndent(indent + 1, output).append(" * @return\n"); //$NON-NLS-1$		
 		}
 		if (this.thrownExceptions != null) {
 			for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
@@ -145,7 +145,7 @@ public class Annotation extends AstNode {
 		if (paramTagsSize == 0) {
 			for (int i = 0; i < argumentsSize; i++) {
 				Argument arg = md.arguments[i];
-				methScope.problemReporter().annotationInvalidParam(arg);
+				methScope.problemReporter().annotationMissingParamTag(arg);
 			}
 		} else {
 			LocalVariableBinding[] bindings = new LocalVariableBinding[paramTagsSize];
@@ -181,7 +181,7 @@ public class Annotation extends AstNode {
 					}
 				}
 				if (!found) {
-					methScope.problemReporter().annotationInvalidParam(arg);
+					methScope.problemReporter().annotationMissingParamTag(arg);
 				}
 			}
 		}
