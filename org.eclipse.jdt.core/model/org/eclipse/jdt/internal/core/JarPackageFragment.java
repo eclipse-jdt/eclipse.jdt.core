@@ -22,13 +22,14 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * A package fragment that represents a package fragment found in a JAR.
  *
  * @see IPackageFragment
  */
-class JarPackageFragment extends PackageFragment {
+class JarPackageFragment extends PackageFragment implements SuffixConstants {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
  */
@@ -70,7 +71,7 @@ protected boolean computeChildren(OpenableElementInfo info) {
 	for (int i = 0; i < max; i++) {
 		String resName = resNames[i];
 		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
-		if (!resName.toLowerCase().endsWith(".java")) { //$NON-NLS-1$
+		if (!resName.toLowerCase().endsWith(SUFFIX_STRING_java)) {
 			if (!this.isDefaultPackage()) {
 				resName = this.getElementName().replace('.', '/') + "/" + resName;//$NON-NLS-1$
 			}

@@ -18,6 +18,7 @@ import java.util.Iterator;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -27,7 +28,7 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 /**
  * Scope limited to the subtype and supertype hierarchy of a given type.
  */
-public class HierarchyScope extends AbstractSearchScope {
+public class HierarchyScope extends AbstractSearchScope implements SuffixConstants {
 
 	public IType focusType;
 	private String focusPath;
@@ -84,7 +85,7 @@ public class HierarchyScope extends AbstractSearchScope {
 				zipFileName
 					+ JAR_FILE_ENTRY_SEPARATOR
 					+ type.getFullyQualifiedName().replace('.', '/')
-					+ ".class";//$NON-NLS-1$
+					+ SUFFIX_STRING_class;
 		} else {
 			this.focusPath = type.getPath().toString();
 		}
@@ -127,7 +128,7 @@ public class HierarchyScope extends AbstractSearchScope {
 					zipFileName
 						+ JAR_FILE_ENTRY_SEPARATOR
 						+ type.getFullyQualifiedName().replace('.', '/')
-						+ ".class";//$NON-NLS-1$
+						+ SUFFIX_STRING_class;
 				
 				this.resourcePaths.add(resourcePath);
 				paths.put(jarPath, type);

@@ -45,12 +45,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * @see IClassFile
  */
 
-public class ClassFile extends Openable implements IClassFile {
+public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 	protected BinaryType fBinaryType = null;
 	private boolean checkAutomaticSourceMapping;
 /*
@@ -78,7 +79,7 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
 				null,
-				elementName.substring(0, elementName.length()-".class".length()) + ".java", //$NON-NLS-1$ //$NON-NLS-2$
+				elementName.substring(0, elementName.length()-SUFFIX_STRING_class.length()) + SUFFIX_STRING_java,
 				encoding); 
 		codeComplete(cu, cu, offset, requestor);
 	}
@@ -95,7 +96,7 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 		while ((parent = current.getDeclaringType()) != null){
 			current = parent;
 		}
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + ".java", null); //$NON-NLS-1$
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + SUFFIX_STRING_java, null);
 		return super.codeSelect(cu, offset, length);
 	} else {
 		//has no associated souce
@@ -454,7 +455,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 				return cu.getBuffer();
 			} else	{
 				// root is a class folder
-				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension("java"); //$NON-NLS-1$
+				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension(EXTENSION_java);
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				if (workspace == null) {
 					checkAutomaticSourceMapping = true; // we don't want to check again

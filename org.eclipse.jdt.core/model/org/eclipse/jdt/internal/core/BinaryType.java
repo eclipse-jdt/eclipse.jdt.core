@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
 /**
@@ -27,7 +28,7 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
  * @see IType
  */
 
-public class BinaryType extends BinaryMember implements IType {
+public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	
 	private static final IField[] NO_FIELDS = new IField[0];
 	private static final IMethod[] NO_METHODS = new IMethod[0];
@@ -194,7 +195,7 @@ public IType getDeclaringType() {
 				return null;
 			} 
 			
-			return getPackageFragment().getClassFile(new String(enclosingTypeName) + ".class").getType(); //$NON-NLS-1$;
+			return getPackageFragment().getClassFile(new String(enclosingTypeName) + SUFFIX_STRING_class).getType();
 		} catch (JavaModelException npe) {
 			return null;
 		}
@@ -217,7 +218,7 @@ public IType getDeclaringType() {
 			return null;
 		} else {
 			String enclosingName = classFileName.substring(0, lastDollar);
-			String enclosingClassFileName = enclosingName + ".class"; //$NON-NLS-1$
+			String enclosingClassFileName = enclosingName + SUFFIX_STRING_class;
 			return 
 				new BinaryType(
 					this.getPackageFragment().getClassFile(enclosingClassFileName),
@@ -348,7 +349,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
  * @see IType#getType(String)
  */
 public IType getType(String name) {
-	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + ".class"); //$NON-NLS-2$ //$NON-NLS-1$
+	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + SUFFIX_STRING_class); //$NON-NLS-1$
 	return new BinaryType(classFile, name);
 }
 /**

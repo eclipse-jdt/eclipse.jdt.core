@@ -14,13 +14,14 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 
 /**
  * An <code>JarFileEntryDocument</code> represents an jar file.
  */
 
-public class JarFileEntryDocument extends PropertyDocument {
+public class JarFileEntryDocument extends PropertyDocument implements SuffixConstants {
 	protected ZipEntry zipEntry;
 	protected byte[] byteContents;
 	protected Path zipFilePath;
@@ -71,7 +72,7 @@ public String getStringContent() throws java.io.IOException {
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getType()
 	 */
 	public String getType() {
-		return "class"; //$NON-NLS-1$
+		return EXTENSION_class;
 	}
 public void setBytes(byte[] byteContents) {
 	this.byteContents = byteContents;

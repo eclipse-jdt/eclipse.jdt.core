@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -212,7 +213,7 @@ public class ToolFactory {
 			if (zipEntry == null) {
 				return null;
 			}
-			if (!zipEntryName.toLowerCase().endsWith(".class")) {//$NON-NLS-1$
+			if (!zipEntryName.toLowerCase().endsWith(SuffixConstants.SUFFIX_STRING_class)) {
 				return null;
 			}
 			byte classFileBytes[] = Util.getZipEntryByteContent(zipEntry, zipFile);

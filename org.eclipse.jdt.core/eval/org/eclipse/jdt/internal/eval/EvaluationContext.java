@@ -26,11 +26,12 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext
  */
-public class EvaluationContext implements EvaluationConstants {
+public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	/**
 	 * Whether timing information should be output to the stdout
 	 */
@@ -102,7 +103,7 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, "java".toCharArray(), '.'); //$NON-NLS-1$
+			return CharOperation.concat(className, SUFFIX_java);
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();
@@ -513,7 +514,7 @@ public void select(
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, "java".toCharArray(), '.'); //$NON-NLS-1$
+			return CharOperation.concat(className, SUFFIX_java);
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();

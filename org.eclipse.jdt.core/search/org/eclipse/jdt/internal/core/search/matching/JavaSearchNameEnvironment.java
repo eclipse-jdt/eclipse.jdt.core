@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -31,7 +32,7 @@ import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 /*
  * A name environment based on the classpath of a Java project.
  */
-public class JavaSearchNameEnvironment implements INameEnvironment {
+public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConstants {
 	
 	ClasspathLocation[] locations;
 	
@@ -89,7 +90,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		NameEnvironmentAnswer answer;
 		if (location instanceof ClasspathSourceDirectory) {
 			if (sourceFileName == null) {
-				qSourceFileName = qualifiedTypeName + ".java"; //$NON-NLS-1$
+				qSourceFileName = qualifiedTypeName + SUFFIX_STRING_java;
 				sourceFileName = qSourceFileName;
 				qPackageName =  ""; //$NON-NLS-1$
 				if (qualifiedTypeName.length() > typeName.length) {
@@ -104,7 +105,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				qSourceFileName);
 		} else {
 			if (binaryFileName == null) {
-				qBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
+				qBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 				binaryFileName = qBinaryFileName;
 				qPackageName =  ""; //$NON-NLS-1$
 				if (qualifiedTypeName.length() > typeName.length) {

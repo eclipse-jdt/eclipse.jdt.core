@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -46,7 +47,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * </ul>
  *
  */
-public class CopyResourceElementsOperation extends MultiOperation {
+public class CopyResourceElementsOperation extends MultiOperation implements SuffixConstants {
 	/**
 	 * A collection of renamed compilation units.  These cus do
 	 * not need to be saved as they no longer exist.
@@ -458,7 +459,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			// Update package statement in compilation unit if needed
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
 				for (int i = 0; i < resources.length; i++) {
-					if (resources[i].getName().endsWith(".java")) { //$NON-NLS-1$
+					if (resources[i].getName().endsWith(SUFFIX_STRING_java)) {
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());

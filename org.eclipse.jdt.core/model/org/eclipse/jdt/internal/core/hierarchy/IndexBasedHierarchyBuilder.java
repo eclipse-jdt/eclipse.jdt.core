@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
@@ -45,7 +46,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 
-public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
+public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
 	/**
 	 * A temporary cache of compilation units to handles to speed info
@@ -466,7 +467,7 @@ public static void searchAllPossibleSubTypes(
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
 			pathRequestor.acceptPath(resourcePath);
-			int suffix = resourcePath.toLowerCase().indexOf(".class"); //$NON-NLS-1$
+			int suffix = resourcePath.toLowerCase().indexOf(SUFFIX_STRING_class);
 			if (suffix != -1){ 
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
 				if (binaryType == null){

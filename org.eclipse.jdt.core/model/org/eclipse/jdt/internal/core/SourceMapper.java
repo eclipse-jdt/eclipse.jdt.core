@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
@@ -52,17 +53,15 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
  */
 public class SourceMapper
 	extends ReferenceInfoAdapter
-	implements ISourceElementRequestor {
+	implements ISourceElementRequestor, SuffixConstants {
 		
-	private final static String SUFFIX_JAVA = ".JAVA"; //$NON-NLS-1$
-	private final static String SUFFIX_java = ".java"; //$NON-NLS-1$
 	public static boolean VERBOSE = false;
 	/**
 	 * Specifies the file name filter use to compute the root paths.
 	 */
 	private static final FilenameFilter FILENAME_FILTER = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
-			return name.endsWith(SUFFIX_JAVA) || name.endsWith(SUFFIX_java); //$NON-NLS-1$
+			return name.endsWith(SUFFIX_STRING_JAVA) || name.endsWith(SUFFIX_STRING_java); //$NON-NLS-1$
 		}
 	};
 	/**
@@ -838,12 +837,12 @@ public class SourceMapper
 					while (enclosingType.getDeclaringType() != null) {
 						enclosingType = enclosingType.getDeclaringType();
 					}
-					return enclosingType.getElementName() + ".java"; //$NON-NLS-1$
+					return enclosingType.getElementName() + SUFFIX_STRING_java;
 				} else if (type.isLocal() || type.isAnonymous()){
 					String typeQualifiedName = type.getTypeQualifiedName();
-					return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + ".java"; //$NON-NLS-1$
+					return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + SUFFIX_STRING_java;
 				} else {
-					return type.getElementName() + ".java"; //$NON-NLS-1$
+					return type.getElementName() + SUFFIX_STRING_java;
 				}
 			} catch (JavaModelException e) {
 			}
@@ -1092,7 +1091,7 @@ public class SourceMapper
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse);
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, null, type.getElementName() + ".java", encoding), //$NON-NLS-1$
+				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, encoding),
 				doFullParse);
 			if (elementToFind != null) {
 				ISourceRange range = this.getNameRange(elementToFind);

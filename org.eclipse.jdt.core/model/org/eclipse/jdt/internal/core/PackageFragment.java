@@ -28,11 +28,12 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * @see IPackageFragment
  */
-public class PackageFragment extends Openable implements IPackageFragment {
+public class PackageFragment extends Openable implements IPackageFragment, SuffixConstants {
 	/**
 	 * Constant empty list of class files
 	 */
@@ -62,9 +63,9 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 	int kind = getKind();
 	String extType;
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
-		extType = "java"; //$NON-NLS-1$
+		extType = EXTENSION_java;
 	} else {
-		extType = "class"; //$NON-NLS-1$
+		extType = EXTENSION_class;
 	}
 	try {
 		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();

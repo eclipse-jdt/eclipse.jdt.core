@@ -27,12 +27,13 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * Element info for <code>ClassFile</code> handles.
  */
  
-/* package */ class ClassFileInfo extends OpenableElementInfo {
+/* package */ class ClassFileInfo extends OpenableElementInfo implements SuffixConstants {
 	/** 
 	 * The children of the <code>BinaryType</code> corresponding to our
 	 * <code>ClassFile</code>. These are kept here because we don't have
@@ -83,7 +84,7 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap n
 	if (innerTypes != null) {
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
-			IClassFile classFile= ((IPackageFragment)fClassFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + ".class"); //$NON-NLS-1$
+			IClassFile classFile= ((IPackageFragment)fClassFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
 			IType innerType = new BinaryType(classFile, new String(ClassFile.simpleName(binaryType.getName())));
 			children.add(innerType);
 		}

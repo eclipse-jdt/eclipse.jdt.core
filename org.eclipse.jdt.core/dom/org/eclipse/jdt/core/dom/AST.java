@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * Umbrella owner and abstract syntax tree node factory.
@@ -357,7 +358,7 @@ public final class AST {
 			if (!resolveBindings) {
 				return AST.parseCompilationUnit(source);
 			}
-			StringBuffer buffer = new StringBuffer(".java"); //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
 			
 			String classFileName = classFile.getElementName(); // this includes the trailing .class
 			buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));

@@ -31,12 +31,13 @@ import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Provides convenient utility methods to other types in this package.
  */
-public class Util {
+public class Util implements SuffixConstants {
 
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
@@ -64,15 +65,6 @@ public class Util {
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
 	private final static String bundleName = "org.eclipse.jdt.internal.core.messages"; //$NON-NLS-1$
-
-	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_jar = ".jar".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_JAR = ".JAR".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_zip = ".zip".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_ZIP = ".ZIP".toCharArray(); //$NON-NLS-1$
 
 	static {
 		relocalize();

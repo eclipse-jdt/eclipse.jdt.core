@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.PerThreadObject;
 /**
  * A <code>NameLookup</code> provides name resolution within a Java project.
@@ -47,7 +48,7 @@ import org.eclipse.jdt.internal.core.util.PerThreadObject;
  * in real time through an <code>IJavaElementRequestor</code>.
  *
  */
-public class NameLookup {
+public class NameLookup implements SuffixConstants {
 	/**
 	 * Accept flag for specifying classes.
 	 */
@@ -196,7 +197,7 @@ public class NameLookup {
 		if (index != -1) {
 			cuName= cuName.substring(0, index);
 		}
-		cuName += ".java"; //$NON-NLS-1$
+		cuName += SUFFIX_STRING_java;
 		IPackageFragment[] frags= (IPackageFragment[]) fPackageFragments.get(pkgName);
 		if (frags != null) {
 			for (int i= 0; i < frags.length; i++) {
@@ -642,10 +643,10 @@ public class NameLookup {
 		 * the compilationUnits always will. So add it if we're looking for 
 		 * an exact match.
 		 */
-		String unitName = partialMatch ? matchName.toLowerCase() : matchName + ".java"; //$NON-NLS-1$
+		String unitName = partialMatch ? matchName.toLowerCase() : matchName + SUFFIX_STRING_java;
 		String potentialUnitName = null;
 		if (potentialMemberType) {
-			potentialUnitName = partialMatch ? potentialMatchName.toLowerCase() : potentialMatchName + ".java"; //$NON-NLS-1$
+			potentialUnitName = partialMatch ? potentialMatchName.toLowerCase() : potentialMatchName + SUFFIX_STRING_java;
 		}
 
 		for (int i= 0; i < length; i++) {

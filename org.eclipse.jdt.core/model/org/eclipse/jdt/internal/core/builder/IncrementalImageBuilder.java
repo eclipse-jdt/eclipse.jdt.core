@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
@@ -504,7 +505,7 @@ protected void removeClassFile(IPath typePath, IContainer outputFolder) throws C
 			System.out.println("Found removed type " + typePath); //$NON-NLS-1$
 		addDependentsOf(typePath, true); // when member types are removed, their enclosing type is structurally changed
 	}
-	IFile classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
+	IFile classFile = outputFolder.getFile(typePath.addFileExtension(SuffixConstants.EXTENSION_class));
 	if (classFile.exists()) {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Deleting class file of removed type " + typePath); //$NON-NLS-1$

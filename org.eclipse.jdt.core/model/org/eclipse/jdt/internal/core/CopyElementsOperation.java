@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -59,7 +60,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * </ul>
  *
  */
-public class CopyElementsOperation extends MultiOperation {
+public class CopyElementsOperation extends MultiOperation implements SuffixConstants {
 
 	
 	private Map fSources = new HashMap();
@@ -99,7 +100,7 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest);
 			case IJavaElement.TYPE :
 				if (isRenamingMainType(element, dest)) {
-					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + ".java"}, fForce); //$NON-NLS-1$
+					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + SUFFIX_STRING_java}, fForce); //$NON-NLS-1$
 				} else {
 					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 				}

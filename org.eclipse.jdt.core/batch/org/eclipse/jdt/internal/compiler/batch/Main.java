@@ -43,10 +43,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class Main implements ProblemSeverities {
+public class Main implements ProblemSeverities, SuffixConstants {
 
 	public boolean noWarn = false;
 
@@ -75,7 +76,6 @@ public class Main implements ProblemSeverities {
 	public int globalWarningsCount;
 	public int exportedClassFilesCounter;
 
-	public static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
 	public final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	public final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
@@ -407,7 +407,7 @@ public class Main implements ProblemSeverities {
 				}
 			}
 
-			if (currentArg.endsWith(".java")) { //$NON-NLS-1$
+			if (currentArg.endsWith(SUFFIX_STRING_java)) {
 				if (filenames == null) {
 					filenames = new String[argCount - index];
 					encodings = new String[argCount - index];
@@ -1431,7 +1431,7 @@ public class Main implements ProblemSeverities {
 					int length = filename.length;
 					char[] relativeName = new char[length + 6];
 					System.arraycopy(filename, 0, relativeName, 0, length);
-					System.arraycopy(CLASS_FILE_EXTENSION, 0, relativeName, length, 6);
+					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
 						ClassFile.writeToDisk(
@@ -1454,7 +1454,7 @@ public class Main implements ProblemSeverities {
 					int length = filename.length;
 					char[] relativeName = new char[length + 6];
 					System.arraycopy(filename, 0, relativeName, 0, length);
-					System.arraycopy(CLASS_FILE_EXTENSION, 0, relativeName, length, 6);
+					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
 						ClassFile.writeToDisk(

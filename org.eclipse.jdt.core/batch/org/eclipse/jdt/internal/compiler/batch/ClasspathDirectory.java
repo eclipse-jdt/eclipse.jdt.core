@@ -15,8 +15,9 @@ import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
-public class ClasspathDirectory implements FileSystem.Classpath {
+public class ClasspathDirectory implements FileSystem.Classpath, SuffixConstants {
 
 String path;
 Hashtable directoryCache;
@@ -84,10 +85,10 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	String fileName = new String(typeName);
-	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + ".class", qualifiedPackageName); //$NON-NLS-1$
-	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + ".java", qualifiedPackageName); //$NON-NLS-1$
+	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + SUFFIX_STRING_class, qualifiedPackageName);
+	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + SUFFIX_STRING_java, qualifiedPackageName);
 	if (sourceExists) {
-		String fullSourcePath = path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + ".java"; //$NON-NLS-1$
+		String fullSourcePath = path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
 		if (!binaryExists)
 			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
 

@@ -23,12 +23,13 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * @see ICompilationUnit
  */
 
-public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit {
+public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
 	public static boolean SHARED_WC_VERBOSE = false;
 	
@@ -205,7 +206,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 		} else {
 			// iterate through all the types inside the receiver and see if one of them can fit
 			IType[] types = getTypes();
-			String typeNodeName = nodeName.substring(0, nodeName.indexOf(".java")); //$NON-NLS-1$
+			String typeNodeName = nodeName.substring(0, nodeName.indexOf(SUFFIX_STRING_java));
 			for (int i = 0, max = types.length; i < max; i++) {
 				if (types[i].getElementName().equals(typeNodeName)) {
 					return true;

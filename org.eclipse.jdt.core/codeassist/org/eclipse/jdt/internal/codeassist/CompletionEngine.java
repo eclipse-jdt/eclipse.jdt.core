@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.*;
@@ -47,7 +48,7 @@ import org.eclipse.jdt.internal.core.TypeConverter;
  */
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants {
+	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants {
 	
 	public static boolean DEBUG = false;
 
@@ -764,7 +765,7 @@ public final class CompletionEngine
 			topLevelType = topLevelType.getDeclaringType();
 		}
 		
-		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1, this.compilerOptions.maxProblemsPerUnit); //$NON-NLS-1$
+		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + SUFFIX_STRING_java).toCharArray(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 	
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	

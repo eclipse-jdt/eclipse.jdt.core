@@ -17,8 +17,9 @@ import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
-public class FileSystem implements INameEnvironment  {
+public class FileSystem implements INameEnvironment, SuffixConstants {
 	Classpath[] classpaths;
 	String[] knownFileNames;
 
@@ -110,7 +111,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		if (qualifiedTypeName.equals(knownFileNames[i]))
 			return null; // looking for a file which we know was provided at the beginning of the compilation
 
-	String qualifiedBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
+	String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 	String qualifiedPackageName =
 		qualifiedTypeName.length() == typeName.length
 			? "" //$NON-NLS-1$

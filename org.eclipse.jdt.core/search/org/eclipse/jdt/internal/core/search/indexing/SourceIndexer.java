@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
 
@@ -34,9 +35,9 @@ import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
  * - Types;<br>
  * - Constructors.
  */
-public class SourceIndexer extends AbstractIndexer {
+public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 	
-	public static final String[] FILE_TYPES= new String[] {"java"}; //$NON-NLS-1$
+	public static final String[] FILE_TYPES= new String[] {EXTENSION_java};
 	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
 	IFile resourceFile;
 	

@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 import org.w3c.dom.Document;
@@ -57,7 +58,7 @@ import org.xml.sax.SAXException;
  */
 public class JavaProject
 	extends Openable
-	implements IJavaProject, IProjectNature {
+	implements IJavaProject, IProjectNature, SuffixConstants {
 
 	/**
 	 * Whether the underlying file system is case sensitive.
@@ -790,8 +791,8 @@ public class JavaProject
 					return pkgFragments[0];
 				}
 			} else if (
-				extension.equalsIgnoreCase("java") //$NON-NLS-1$
-					|| extension.equalsIgnoreCase("class")) {  //$NON-NLS-1$
+				extension.equalsIgnoreCase(EXTENSION_java)
+					|| extension.equalsIgnoreCase(EXTENSION_class)) {
 				IPath packagePath = path.removeLastSegments(1);
 				String packageName = packagePath.toString().replace(IPath.SEPARATOR, '.');
 				String typeName = path.lastSegment();

@@ -33,8 +33,6 @@ BuildNotifier notifier;
 char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
 
-public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
-
 public static boolean DEBUG = false;
 
 /**

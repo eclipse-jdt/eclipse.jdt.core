@@ -18,10 +18,11 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileStruct;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.IDocument;
 
-public class BinaryIndexer extends AbstractIndexer {
-	public static final String[] FILE_TYPES= new String[] {"class"}; //$NON-NLS-1$
+public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
+	public static final String[] FILE_TYPES= new String[] {EXTENSION_class};
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
 	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$

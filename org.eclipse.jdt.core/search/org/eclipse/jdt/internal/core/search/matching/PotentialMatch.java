@@ -23,9 +23,10 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 
-public class PotentialMatch implements ICompilationUnit {
+public class PotentialMatch implements ICompilationUnit, SuffixConstants {
 	public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-NLS-1$
 
 	public static IType getTopLevelType(IType binaryType) {
@@ -38,7 +39,7 @@ public class PotentialMatch implements ICompilationUnit {
 			if (Character.isDigit(typeName.charAt(lastDollar+1))) {
 				// local or anonymous type
 				typeName = typeName.substring(0, lastDollar);
-				IClassFile classFile = binaryType.getPackageFragment().getClassFile(typeName+".class"); //$NON-NLS-1$
+				IClassFile classFile = binaryType.getPackageFragment().getClassFile(typeName+SUFFIX_STRING_class);
 				try {
 					binaryType = classFile.getType();
 				} catch (JavaModelException e) {

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 
 import java.io.*;
@@ -434,7 +435,7 @@ protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, bo
 		filePath = new Path(filePath.lastSegment());
 	}
 
-	IFile file = container.getFile(filePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
+	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
 	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType);
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();

@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
@@ -25,7 +26,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * @see IDOMCompilationUnit
  * @see DOMNode
  */
-class DOMCompilationUnit extends DOMNode implements IDOMCompilationUnit {
+class DOMCompilationUnit extends DOMNode implements IDOMCompilationUnit, SuffixConstants {
 
 	/**
 	 * The comment and/or whitespace preceding the
@@ -106,7 +107,7 @@ public String getName() {
 		topLevelType= firstType;
 	}
 	if (topLevelType != null) {
-		return topLevelType.getName() + ".java";  //$NON-NLS-1$
+		return topLevelType.getName() + SUFFIX_STRING_java;
 	} else {
 		return null;
 	}

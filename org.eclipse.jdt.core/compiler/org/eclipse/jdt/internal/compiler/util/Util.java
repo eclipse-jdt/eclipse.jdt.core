@@ -25,26 +25,19 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 
-public class Util {
+public class Util implements SuffixConstants {
 
 	public interface Displayable {
 		String displayString(Object o);
 	}
+
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	public static char[] LINE_SEPARATOR_CHARS = LINE_SEPARATOR.toCharArray();
-	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_jar = ".jar".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_JAR = ".JAR".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_zip = ".zip".toCharArray(); //$NON-NLS-1$
-	public final static char[] SUFFIX_ZIP = ".ZIP".toCharArray(); //$NON-NLS-1$
-		
+	
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 	private static final int DEFAULT_READING_SIZE = 8192;
-	
+
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
 	private final static String bundleName =
