@@ -3223,9 +3223,12 @@ public final class JavaCore extends Plugin {
 	 * point "org.eclipse.jdt.core.ClasspathContainerInitializer"). 
 	 * <p>
 	 * In reaction to changing container values, the JavaModel will be updated to reflect the new
-	 * state of the updated container. 
+	 * state of the updated container. A combined Java element delta will be notified to describe the corresponding 
+	 * classpath changes resulting from the container update. This operation is batched, and automatically eliminates
+	 * unnecessary updates (new container is same as old one). This operation does not acquire any resource lock.
 	 * <p>
-	 * This functionality cannot be used while the resource tree is locked.
+	 * This functionality cannot be used while the workspace is locked, since
+	 * it may create/remove some resource markers.
 	 * <p>
 	 * Classpath container values are persisted locally to the workspace, but 
 	 * are not preserved from a session to another. It is thus highly recommended to register a 
@@ -3427,7 +3430,13 @@ public final class JavaCore extends Plugin {
 	 * Sets the values of all the given classpath variables at once.
 	 * Null paths can be used to request corresponding variable removal.
 	 * <p>
-	 * This functionality cannot be used while the resource tree is locked.
+	 * A combined Java element delta will be notified to describe the corresponding 
+	 * classpath changes resulting from the variables update. This operation is batched, 
+	 * and automatically eliminates unnecessary updates (new variable is same as old one). 
+	 * This operation does not acquire any resource lock.
+	 * <p>
+	 * This functionality cannot be used while the workspace is locked, since
+	 * it may create/remove some resource markers.
 	 * <p>
 	 * Classpath variable values are persisted locally to the workspace, and 
 	 * are preserved from session to session.
