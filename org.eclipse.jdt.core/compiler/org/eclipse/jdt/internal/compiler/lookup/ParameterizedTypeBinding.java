@@ -69,18 +69,36 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        if (otherEquivalent == null) {
 	        	// allow LinkedList<String> to match List<T> (downcast scenario)
 		    	equivalent = this.findSuperTypeErasingTo((ReferenceBinding)otherType.erasure());
-	        	if (equivalent == null || !equivalent.isParameterizedType())
-	        		return;
+	        	if (equivalent == null) return;
 	        	otherEquivalent = (ReferenceBinding)otherType;
 	        }
-	        if (equivalent.isParameterizedType() && otherEquivalent.isParameterizedType()) {
-	        	ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) equivalent;
-	        	ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherEquivalent;
-	            for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
-	                parameterizedType.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
-	            }
-	        } else if (equivalent.isParameterizedType() && otherEquivalent.isRawType()) {
-	        	substitutes.clear(); // clear all variables to indicate raw generic method in the end
+	        TypeBinding[] elements;
+	        switch (equivalent.kind()) {
+	        	case Binding.GENERIC_TYPE :
+	        		elements = equivalent.typeVariables();
+	        		break;
+	        	case Binding.PARAMETERIZED_TYPE :
+	        		elements = ((ParameterizedTypeBinding)equivalent).arguments;
+	        		break;
+	        	default :
+	        		return;
+	        }
+	        TypeBinding[] otherElements;
+	        switch (otherEquivalent.kind()) {
+	        	case Binding.GENERIC_TYPE :
+	        		otherElements = otherEquivalent.typeVariables();
+	        		break;
+	        	case Binding.PARAMETERIZED_TYPE :
+	        		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
+	        		break;
+	        	case Binding.RAW_TYPE :
+	        		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+	        		return;
+	        	default :
+	        		return;
+	        }
+            for (int i = 0, length = elements.length; i < length; i++) {
+                elements[i].collectSubstitutes(otherElements[i], substitutes);
 	        }
 	    }
 	}

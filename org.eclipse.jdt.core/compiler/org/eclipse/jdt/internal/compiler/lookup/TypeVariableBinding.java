@@ -146,6 +146,93 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return this.superclass; // java/lang/Object
 	}	
 
+/**
+ * Find supertype which erases to a given well-known type, or null if not found
+ * (using id avoids triggering the load of well-known type: 73740)
+ * NOTE: only works for erasures of well-known types, as random other types may share
+ * same id though being distincts.
+ * Override super-method since erasure() is answering firstBound (first supertype) already
+ */
+public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsClass) {
+
+//    if (this.id == erasureId) return this; // no ID for type variable
+    ReferenceBinding currentType = this;
+    // iterate superclass to avoid recording interfaces if searched supertype is class
+    if (erasureIsClass) {
+		while ((currentType = currentType.superclass()) != null) { 
+			if (currentType.erasure().id == erasureId) return currentType;
+		}    
+		return null;
+    }
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	int lastPosition = -1;
+	do {
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]).erasure().id == erasureId)
+				return currentType;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return null;
+}
+/**
+ * Find supertype which erases to a given type, or null if not found
+ * Override super-method since erasure() is answering firstBound (first supertype) already
+ */
+public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
+
+    if (this == erasure) return this;
+    ReferenceBinding currentType = this;
+    if (erasure.isClass()) {
+		while ((currentType = currentType.superclass()) != null) {
+			if (currentType.erasure() == erasure) return currentType;
+		}
+		return null;
+    }
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	int lastPosition = -1;
+	do {
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]).erasure() == erasure)
+				return currentType;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return null;
+}
+	
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>

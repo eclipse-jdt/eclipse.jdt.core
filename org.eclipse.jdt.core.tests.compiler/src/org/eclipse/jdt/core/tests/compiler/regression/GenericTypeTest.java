@@ -11476,5 +11476,45 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 		"");
+	}
+	// 80144
+	public void test433() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"interface Alpha<\n" + 
+				"	A1 extends Alpha<A1, B1>, \n" + 
+				"	B1 extends Beta<A1, B1>> {\n" + 
+				"}\n" + 
+				"interface Beta<\n" + 
+				"	A2 extends Alpha<A2, B2>, \n" + 
+				"	B2 extends Beta<A2, B2>> {\n" + 
+				"}\n" + 
+				"interface Phi<\n" + 
+				"	A3 extends Alpha<A3, B3>, \n" + 
+				"	B3 extends Beta<A3, B3>> {\n" + 
+				"	\n" + 
+				"	public void latinize(A3 s);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<\n" + 
+				"	A extends Alpha<A, B>, \n" + 
+				"	B extends Beta<A, B>, \n" + 
+				"	P extends Phi<A, B>> extends ArrayList<P> implements Phi<A, B> {\n" + 
+				"	\n" + 
+				"	public final void latinize(A a) {\n" + 
+				"		frenchify(this, a); // (X<A,B,P>, A)\n" + 
+				"	}\n" + 
+				"	// -----------------------------------------------------------------\n" + 
+				"	public static final <AA extends Alpha<AA, BB>, BB extends Beta<AA, BB>> \n" + 
+				"	void frenchify(Collection< ? extends Phi<AA, BB>> phis, AA aa) {\n" + 
+				"		for (final Phi<AA, BB> phi : phis)\n" + 
+				"			phi.latinize(aa);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+		"");
 	}		
 }
