@@ -4703,6 +4703,7 @@ public void record(LocalVariableBinding local) {
 	}
 	locals[allLocalsCounter++] = local;
 	local.initializationPCs = new int[4];
+	local.initializationCount = 0;
 }
 public void recordPositionsFrom(int startPC, AstNode node) {
 
