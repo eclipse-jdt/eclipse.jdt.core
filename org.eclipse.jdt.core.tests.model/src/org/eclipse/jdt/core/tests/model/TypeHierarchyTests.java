@@ -167,7 +167,7 @@ public void testGetType() throws JavaModelException {
 /**
  * Ensures that a hierarchy on an inner type is correctly rooted.
  */
-public void testInnerType() throws JavaModelException {
+public void testInnerType1() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p5", "X.java").getType("X").getType("Inner");
 	ITypeHierarchy hierarchy = null;
 	try {
@@ -183,6 +183,29 @@ public void testInnerType() throws JavaModelException {
 		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
 		"Sub types:\n" +
 		"  Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n",
+		hierarchy.toString());
+}
+/**
+ * Ensures that a hierarchy on an inner type has the correct subtype.
+ * (regression test for bug 43274 Type hierarchy broken)
+ */
+public void testInnerType2() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p6", "A.java").getType("A").getType("Inner");
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newTypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertEquals(
+		"Unexpected hierarchy", 
+		"Focus: p6.A$Inner\n" +
+		"Super types:\n" +
+		"  Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" +
+		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
+		"Sub types:\n" +
+		"  Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" +
+		"    B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
 		hierarchy.toString());
 }
 /**
