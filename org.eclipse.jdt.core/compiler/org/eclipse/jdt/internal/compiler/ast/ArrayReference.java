@@ -51,10 +51,9 @@ public class ArrayReference extends Reference {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		return position.analyseCode(
-			currentScope,
-			flowContext,
-			receiver.analyseCode(currentScope, flowContext, flowInfo));
+		flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo);
+		receiver.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+		return position.analyseCode(currentScope, flowContext, flowInfo);
 	}
 
 	public void generateAssignment(

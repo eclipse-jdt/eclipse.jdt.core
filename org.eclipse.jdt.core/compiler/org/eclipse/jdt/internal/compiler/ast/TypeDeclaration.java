@@ -734,7 +734,7 @@ public class TypeDeclaration
 		}
 		// add superclass enclosing instance arg for anonymous types (if necessary)
 		if (binding.isAnonymousType()) { 
-			ReferenceBinding superclassBinding = binding.superclass;
+			ReferenceBinding superclassBinding = (ReferenceBinding)binding.superclass.erasure();
 			if (superclassBinding.enclosingType() != null && !superclassBinding.isStatic()) {
 				if (!superclassBinding.isLocalType()
 						|| ((NestedTypeBinding)superclassBinding).getSyntheticField(superclassBinding.enclosingType(), true) != null){

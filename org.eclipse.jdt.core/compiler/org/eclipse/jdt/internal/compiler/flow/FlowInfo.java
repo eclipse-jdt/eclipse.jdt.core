@@ -16,7 +16,11 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 public abstract class FlowInfo {
 
 	public final static int REACHABLE = 0;
-	public final static int UNREACHABLE = 1; 
+	public final static int UNREACHABLE = 1;
+	
+	public final static int UNKNOWN = 0;
+	public final static int NULL = 1;
+	public final static int NON_NULL = -1;
 	
 	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
 	static {
@@ -60,7 +64,25 @@ public abstract class FlowInfo {
 	 */
 	public abstract boolean isDefinitelyAssigned(LocalVariableBinding local);
 
-	//abstract public int reachMode(); 
+	/**
+	 * Check status of definite null assignment for a field.
+	 */
+	 abstract public boolean isDefinitelyNonNull(FieldBinding field);   
+
+	/**
+	 * Check status of definite null assignment for a local.
+	 */
+	public abstract boolean isDefinitelyNonNull(LocalVariableBinding local);
+
+	/**
+	 * Check status of definite null assignment for a field.
+	 */
+	 abstract public boolean isDefinitelyNull(FieldBinding field);   
+
+	/**
+	 * Check status of definite null assignment for a local.
+	 */
+	public abstract boolean isDefinitelyNull(LocalVariableBinding local);
 
 	/**
 	 * Check status of potential assignment for a field.
@@ -79,6 +101,26 @@ public abstract class FlowInfo {
 	 * Record a field got definitely assigned.
 	 */
 	abstract public void markAsDefinitelyAssigned(FieldBinding field);
+
+	/**
+	 * Record a local got definitely assigned to a non-null value.
+	 */
+	abstract public void markAsDefinitelyNonNull(LocalVariableBinding local);
+
+	/**
+	 * Record a field got definitely assigned to a non-null value.
+	 */
+	abstract public void markAsDefinitelyNonNull(FieldBinding field);
+
+	/**
+	 * Record a local got definitely assigned to null.
+	 */
+	abstract public void markAsDefinitelyNull(LocalVariableBinding local);
+
+	/**
+	 * Record a field got definitely assigned.
+	 */
+	abstract public void markAsDefinitelyNull(FieldBinding field);
 
 	/**
 	 * Record a local got definitely assigned.

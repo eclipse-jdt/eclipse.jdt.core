@@ -219,6 +219,7 @@ public class QualifiedNameReference extends NameReference {
 				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 				}
+				this.checkNonNull(currentScope, flowInfo);
 		}
 		if (needValue) {
 			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
@@ -257,6 +258,38 @@ public class QualifiedNameReference extends NameReference {
 		bits |= Binding.FIELD;
 		return getOtherFieldBindings(scope);
 	}
+	
+	public FlowInfo checkNonNull(BlockScope scope, FlowInfo flowInfo) {
+
+		switch (bits & RestrictiveFlagMASK) {
+			case Binding.FIELD : // reading a field
+				break;
+			case Binding.LOCAL : // reading a local variable
+				LocalVariableBinding local = (LocalVariableBinding) this.binding;
+				if (flowInfo.isDefinitelyNull(local)) {
+					scope.problemReporter().localVariableCanOnlyBeNull(local, this);
+				}
+				flowInfo.markAsDefinitelyNonNull(local); // from thereon it is set
+				break;
+		}
+		return flowInfo;
+	}
+
+	public FlowInfo checkNull(BlockScope scope, FlowInfo flowInfo) {
+
+		switch (bits & RestrictiveFlagMASK) {
+			case Binding.FIELD : // reading a field
+				break;
+			case Binding.LOCAL : // reading a local variable
+				LocalVariableBinding local = (LocalVariableBinding) this.binding;
+				if (flowInfo.isDefinitelyNonNull(local)) {
+					scope.problemReporter().localVariableCannotBeNull(local, this);
+				}
+				flowInfo.markAsDefinitelyNull(local); // from thereon it is set
+				break;
+		}
+		return flowInfo;
+	}	
 	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)

@@ -21,6 +21,44 @@ public class EqualExpression extends BinaryExpression {
 	public EqualExpression(Expression left, Expression right,int operator) {
 		super(left,right,operator);
 	}
+	public void checkNullComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+		
+		LocalVariableBinding local = this.left.localVariableBinding();
+		if (local != null) {
+			checkVariableComparison(scope, flowInfo, initsWhenTrue, initsWhenFalse, local, right.nullStatus(flowInfo), this.left);
+		}
+		local = this.right.localVariableBinding();
+		if (local != null) {
+			checkVariableComparison(scope, flowInfo, initsWhenTrue, initsWhenFalse, local, left.nullStatus(flowInfo), this.right);
+		}
+	}
+	private void checkVariableComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
+		switch (nullStatus) {
+			case FlowInfo.NULL :
+				if (flowInfo.isDefinitelyNonNull(local)) {
+					scope.problemReporter().localVariableCannotBeNull(local, reference);
+				} else if (flowInfo.isDefinitelyNull(local)) {
+					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				}
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					initsWhenTrue.markAsDefinitelyNull(local); // from thereon it is set
+					initsWhenFalse.markAsDefinitelyNonNull(local); // from thereon it is set
+				} else {
+					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set
+					initsWhenFalse.markAsDefinitelyNull(local); // from thereon it is set
+				}
+				break;
+			case FlowInfo.NON_NULL :
+				if (flowInfo.isDefinitelyNull(local)) {
+					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				}
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set
+				}
+				break;
+		}	
+	}
+	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 			if ((left.constant != NotAConstant) && (left.constant.typeID() == T_boolean)) {

@@ -345,7 +345,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 			assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit compilationUnit = (CompilationUnit) result; 
-			assertEquals("Wrong number of problems", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
+			// TODO (olivier) problem count  got incremented (null check)
+			assertEquals("Wrong number of problems", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 			assertEquals("Unexpected problem", "The import java.lang is never used", compilationUnit.getProblems()[0].getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			BindingsCollectorVisitor bindingsCollectorVisitor = new BindingsCollectorVisitor();
 			compilationUnit.accept(bindingsCollectorVisitor);

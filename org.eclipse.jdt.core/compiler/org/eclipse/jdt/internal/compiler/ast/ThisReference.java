@@ -97,6 +97,10 @@ public class ThisReference extends Reference {
 		return true ;
 	}
 
+	public int nullStatus(FlowInfo flowInfo) {
+		return FlowInfo.NON_NULL;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 	
 		if (this.isImplicitThis()) return output;

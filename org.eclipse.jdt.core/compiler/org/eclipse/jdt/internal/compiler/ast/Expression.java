@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Expression extends Statement {
-
+	
 	public static final boolean isConstantValueRepresentable(
 		Constant constant,
 		int constantTypeID,
@@ -401,6 +401,30 @@ public abstract class Expression extends Statement {
 		return true;
 	}	
 	
+	public FlowInfo checkNullStatus(BlockScope scope, FlowInfo flowInfo, int nullStatus) {
+
+		LocalVariableBinding local = this.localVariableBinding();
+		if (local != null) {
+			switch(nullStatus) {
+				case FlowInfo.NULL :
+					if (flowInfo.isDefinitelyNonNull(local)) {
+						scope.problemReporter().localVariableCannotBeNull(local, this);
+					}
+					flowInfo.markAsDefinitelyNull(local); // from thereon it is set
+					break;
+				case FlowInfo.NON_NULL :
+					if (flowInfo.isDefinitelyNull(local)) {
+						scope.problemReporter().localVariableCanOnlyBeNull(local, this);
+					}
+					flowInfo.markAsDefinitelyNonNull(local); // from thereon it is set
+					break;
+				case FlowInfo.UNKNOWN :
+					break;
+			}
+		}
+		return flowInfo;
+	}
+
 	private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
 		ArrayList collector = new ArrayList();
 		getAllInheritedMethods0(binding, collector);
@@ -417,6 +441,9 @@ public abstract class Expression extends Statement {
 		for (int i = 0, max = superInterfaces.length; i < max; i++) {
 			getAllInheritedMethods0(superInterfaces[i], collector);
 		}
+	}
+	public void checkNullComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+		// do nothing by default - see EqualExpression
 	}
 
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -656,6 +683,18 @@ public abstract class Expression extends Statement {
 		return false;
 	}
 	
+	public int nullStatus(FlowInfo flowInfo) {
+		LocalVariableBinding local = localVariableBinding();
+		if (local != null) {
+			if (flowInfo.isDefinitelyNull(local))
+				return FlowInfo.NULL;
+			if (flowInfo.isDefinitelyNonNull(local))
+				return FlowInfo.NON_NULL;
+			return FlowInfo.UNKNOWN;
+		}
+		return FlowInfo.NON_NULL;
+	}
+	
 	/**
 	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
 	 * since it is not strictly equivalent to the definition of constant expressions.
@@ -752,5 +791,12 @@ public abstract class Expression extends Statement {
 	}
 	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
 		// do nothing by default
+	}
+	/**
+	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
+	 * or thru a cast expression etc...
+	 */
+	public LocalVariableBinding localVariableBinding() {
+		return null;
 	}
 }

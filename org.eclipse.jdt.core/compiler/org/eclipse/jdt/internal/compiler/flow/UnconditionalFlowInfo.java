@@ -27,6 +27,11 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public long extraDefiniteInits[];
 	public long extraPotentialInits[];
 	
+	public long definiteNulls;
+	public long definiteNonNulls;
+	public long extraDefiniteNulls[];
+	public long extraDefiniteNonNulls[];
+
 	public int reachMode; // by default
 
 	public int maxFieldCount;
@@ -53,6 +58,11 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		// union of potentially set ones
 		potentialInits |= otherInits.potentialInits;
 	
+		// union of definitely null variables, 
+		definiteNulls |= otherInits.definiteNulls;
+		// union of definitely non null variables,
+		definiteNonNulls |= otherInits.definiteNonNulls;
+
 		// treating extra storage
 		if (extraDefiniteInits != null) {
 			if (otherInits.extraDefiniteInits != null) {
@@ -64,7 +74,9 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
 					while (i < length) {
 						extraDefiniteInits[i] |= otherInits.extraDefiniteInits[i];
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						extraDefiniteNulls[i] |= otherInits.extraDefiniteNulls[i];
+						extraDefiniteNonNulls[i] |= otherInits.extraDefiniteNonNulls[i++];
 					}
 					while (i < otherLength) {
 						extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
@@ -73,10 +85,15 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is longer
 					while (i < otherLength) {
 						extraDefiniteInits[i] |= otherInits.extraDefiniteInits[i];
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						extraDefiniteNulls[i] |= otherInits.extraDefiniteNulls[i];
+						extraDefiniteNonNulls[i] |= otherInits.extraDefiniteNonNulls[i++];
 					}
-					while (i < length)
-						extraDefiniteInits[i++] = 0;
+					while (i < length) {
+						extraDefiniteInits[i] = 0;
+						extraDefiniteNulls[i] = 0;
+						extraDefiniteNonNulls[i++] = 0;
+					}
 				}
 			} else {
 				// no extra storage on otherInits
@@ -87,6 +104,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				int otherLength;
 				System.arraycopy(otherInits.extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length]), 0, otherLength);			
 				System.arraycopy(otherInits.extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, otherLength);
+				System.arraycopy(otherInits.extraDefiniteNulls, 0, (extraDefiniteNulls = new long[otherLength]), 0, otherLength);			
+				System.arraycopy(otherInits.extraDefiniteNonNulls, 0, (extraDefiniteNonNulls = new long[otherLength]), 0, otherLength);			
 			}
 		return this;
 	}
@@ -114,6 +133,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
 					System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength]), 0, length);
 					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
+					System.arraycopy(extraDefiniteNulls, 0, (extraDefiniteNulls = new long[otherLength]), 0, length);
+					System.arraycopy(extraDefiniteNonNulls, 0, (extraDefiniteNonNulls = new long[otherLength]), 0, length);
 					while (i < length) {
 						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
 					}
@@ -133,6 +154,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				int otherLength;
 				extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];			
 				System.arraycopy(otherInits.extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, otherLength);
+				extraDefiniteNulls = new long[otherLength];			
+				extraDefiniteNonNulls = new long[otherLength];			
 			}
 		return this;
 	}
@@ -152,13 +175,17 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		// copy slots
 		copy.definiteInits = this.definiteInits;
 		copy.potentialInits = this.potentialInits;
+		copy.definiteNulls = this.definiteNulls;
+		copy.definiteNonNulls = this.definiteNonNulls;
 		copy.reachMode = this.reachMode;
 		copy.maxFieldCount = this.maxFieldCount;
 		
 		if (this.extraDefiniteInits != null) {
 			int length;
-			System.arraycopy(this.extraDefiniteInits, 0, (copy.extraDefiniteInits = new long[ (length = extraDefiniteInits.length)]), 0, length);
+			System.arraycopy(this.extraDefiniteInits, 0, (copy.extraDefiniteInits = new long[length = extraDefiniteInits.length]), 0, length);
 			System.arraycopy(this.extraPotentialInits, 0, (copy.extraPotentialInits = new long[length]), 0, length);
+			System.arraycopy(this.extraDefiniteNulls, 0, (copy.extraDefiniteNulls = new long[length]), 0, length);
+			System.arraycopy(this.extraDefiniteNonNulls, 0, (copy.extraDefiniteNonNulls = new long[length]), 0, length);
 		}
 		return copy;
 	}
@@ -171,12 +198,16 @@ public class UnconditionalFlowInfo extends FlowInfo {
 			long mask = (1L << limit)-1;
 			this.definiteInits &= ~mask;
 			this.potentialInits &= ~mask;
+			this.definiteNulls &= ~mask;
+			this.definiteNonNulls &= ~mask;
 			return this;
 		} 
 
 		this.definiteInits = 0;
 		this.potentialInits = 0;
-
+		this.definiteNulls = 0;
+		this.definiteNonNulls = 0;
+		
 		// use extra vector
 		if (extraDefiniteInits == null) {
 			return this; // if vector not yet allocated, then not initialized
@@ -188,10 +219,14 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		for (int i = 0; i < vectorIndex; i++) {
 			this.extraDefiniteInits[i] = 0L;
 			this.extraPotentialInits[i] = 0L;
+			this.extraDefiniteNulls[i] = 0L;
+			this.extraDefiniteNonNulls[i] = 0L;
 		}
 		long mask = (1L << (limit % BitCacheSize))-1;
 		this.extraDefiniteInits[vectorIndex] &= ~mask;
 		this.extraPotentialInits[vectorIndex] &= ~mask;
+		this.extraDefiniteNulls[vectorIndex] &= ~mask;
+		this.extraDefiniteNonNulls[vectorIndex] &= ~mask;
 		return this;
 	}
 
@@ -203,6 +238,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 			long mask = (1L << limit)-1;
 			this.definiteInits &= mask;
 			this.potentialInits &= mask;
+			this.definiteNulls &= mask;
+			this.definiteNonNulls &= mask;
 			return this;
 		} 
 		// use extra vector
@@ -216,9 +253,13 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		long mask = (1L << (limit % BitCacheSize))-1;
 		this.extraDefiniteInits[vectorIndex] &= mask;
 		this.extraPotentialInits[vectorIndex] &= mask;
+		this.extraDefiniteNulls[vectorIndex] &= mask;
+		this.extraDefiniteNonNulls[vectorIndex] &= mask;
 		for (int i = vectorIndex+1; i < length; i++) {
 			this.extraDefiniteInits[i] = 0L;
 			this.extraPotentialInits[i] = 0L;
+			this.extraDefiniteNulls[i] = 0L;
+			this.extraDefiniteNonNulls[i] = 0L;
 		}
 		return this;
 	}
@@ -255,6 +296,48 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	}
 	
 	/**
+	 * Check status of definite non-null assignment at a given position.
+	 * It deals with the dual representation of the InitializationInfo2:
+	 * bits for the first 64 entries, then an array of booleans.
+	 */
+	final private boolean isDefinitelyNonNull(int position) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// id is zero-based
+		if (position < BitCacheSize) {
+			return (definiteNonNulls & (1L << position)) != 0; // use bits
+		}
+		// use extra vector
+		if (extraDefiniteNonNulls == null)
+			return false; // if vector not yet allocated, then not initialized
+		int vectorIndex;
+		if ((vectorIndex = (position / BitCacheSize) - 1) >= extraDefiniteNonNulls.length)
+			return false; // if not enough room in vector, then not initialized 
+		return ((extraDefiniteNonNulls[vectorIndex]) & (1L << (position % BitCacheSize))) != 0;
+	}
+
+	/**
+	 * Check status of definite null assignment at a given position.
+	 * It deals with the dual representation of the InitializationInfo2:
+	 * bits for the first 64 entries, then an array of booleans.
+	 */
+	final private boolean isDefinitelyNull(int position) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// id is zero-based
+		if (position < BitCacheSize) {
+			return (definiteNulls & (1L << position)) != 0; // use bits
+		}
+		// use extra vector
+		if (extraDefiniteNulls == null)
+			return false; // if vector not yet allocated, then not initialized
+		int vectorIndex;
+		if ((vectorIndex = (position / BitCacheSize) - 1) >= extraDefiniteNulls.length)
+			return false; // if not enough room in vector, then not initialized 
+		return ((extraDefiniteNulls[vectorIndex]) & (1L << (position % BitCacheSize))) != 0;
+	}
+
+	/**
 	 * Check status of definite assignment for a field.
 	 */
 	final public boolean isDefinitelyAssigned(FieldBinding field) {
@@ -275,9 +358,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		// We do not want to complain in unreachable code
 		if ((this.reachMode & UNREACHABLE) != 0)
 			return true;
-		if (local.isArgument) {
-			return true;
-		}
+
 		// final constants are inlined, and thus considered as always initialized
 		if (local.isConstantValue()) {
 			return true;
@@ -285,6 +366,58 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return isDefinitelyAssigned(local.id + maxFieldCount);
 	}
 	
+	/**
+	 * Check status of definite non-null assignment for a field.
+	 */
+	final public boolean isDefinitelyNonNull(FieldBinding field) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// We do not want to complain in unreachable code
+		if ((this.reachMode & UNREACHABLE) != 0)  
+			return false;
+		return isDefinitelyNonNull(field.id); 
+	}
+	
+	/**
+	 * Check status of definite non-null assignment for a local.
+	 */
+	final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// We do not want to complain in unreachable code
+		if ((this.reachMode & UNREACHABLE) != 0)
+			return false;
+		// final constants are inlined, and thus considered as always initialized
+		if (local.isConstantValue()) {
+			return true;
+		}
+		return isDefinitelyNonNull(local.id + maxFieldCount);
+	}
+
+	/**
+	 * Check status of definite null assignment for a field.
+	 */
+	final public boolean isDefinitelyNull(FieldBinding field) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// We do not want to complain in unreachable code
+		if ((this.reachMode & UNREACHABLE) != 0)  
+			return false;
+		return isDefinitelyNull(field.id); 
+	}
+	
+	/**
+	 * Check status of definite null assignment for a local.
+	 */
+	final public boolean isDefinitelyNull(LocalVariableBinding local) {
+		
+		// Dependant of CodeStream.isDefinitelyAssigned(..)
+		// We do not want to complain in unreachable code
+		if ((this.reachMode & UNREACHABLE) != 0)
+			return false;
+		return isDefinitelyNull(local.id + maxFieldCount);
+	}
+
 	public boolean isReachable() {
 		
 		return this.reachMode == REACHABLE;
@@ -324,9 +457,6 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 		
-		if (local.isArgument) {
-			return true;
-		}
 		// final constants are inlined, and thus considered as always initialized
 		if (local.isConstantValue()) {
 			return true;
@@ -349,6 +479,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				long mask;
 				definiteInits |= (mask = 1L << position);
 				potentialInits |= mask;
+				definiteNulls &= ~mask;
+				definiteNonNulls &= ~mask;
 			} else {
 				// use extra vector
 				int vectorIndex = (position / BitCacheSize) - 1;
@@ -356,16 +488,22 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					int length;
 					extraDefiniteInits = new long[length = vectorIndex + 1];
 					extraPotentialInits = new long[length];
+					extraDefiniteNulls = new long[length];
+					extraDefiniteNonNulls = new long[length];
 				} else {
 					int oldLength; // might need to grow the arrays
 					if (vectorIndex >= (oldLength = extraDefiniteInits.length)) {
 						System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[vectorIndex + 1]), 0, oldLength);
 						System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[vectorIndex + 1]), 0, oldLength);
+						System.arraycopy(extraDefiniteNulls, 0, (extraDefiniteNulls = new long[vectorIndex + 1]), 0, oldLength);
+						System.arraycopy(extraDefiniteNonNulls, 0, (extraDefiniteNonNulls = new long[vectorIndex + 1]), 0, oldLength);
 					}
 				}
 				long mask;
 				extraDefiniteInits[vectorIndex] |= (mask = 1L << (position % BitCacheSize));
 				extraPotentialInits[vectorIndex] |= mask;
+				extraDefiniteNulls[vectorIndex] &= ~mask;
+				extraDefiniteNonNulls[vectorIndex] &= ~mask;
 			}
 		}
 	}
@@ -385,6 +523,88 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		if (this != DEAD_END)
 			markAsDefinitelyAssigned(local.id + maxFieldCount);
 	}
+
+	/**
+	 * Record a definite non-null assignment at a given position.
+	 * It deals with the dual representation of the InitializationInfo2:
+	 * bits for the first 64 entries, then an array of booleans.
+	 */
+	final private void markAsDefinitelyNonNull(int position) {
+		
+		if (this != DEAD_END) {
+	
+			// position is zero-based
+			if (position < BitCacheSize) {
+				// use bits
+				long mask;
+				definiteNonNulls |= (mask = 1L << position);
+				definiteNulls &= ~mask;
+			} else {
+				// use extra vector
+				int vectorIndex = (position / BitCacheSize) - 1;
+				long mask;
+				extraDefiniteNonNulls[vectorIndex] |= (mask = 1L << (position % BitCacheSize));
+				extraDefiniteNulls[vectorIndex] &= ~mask;
+			}
+		}
+	}
+
+	/**
+	 * Record a field got definitely assigned to non-null value.
+	 */
+	public void markAsDefinitelyNonNull(FieldBinding field) {
+		if (this != DEAD_END)
+			markAsDefinitelyNonNull(field.id);
+	}
+	
+	/**
+	 * Record a local got definitely assigned to non-null value.
+	 */
+	public void markAsDefinitelyNonNull(LocalVariableBinding local) {
+		if (this != DEAD_END)
+			markAsDefinitelyNonNull(local.id + maxFieldCount);
+	}
+
+	/**
+	 * Record a definite null assignment at a given position.
+	 * It deals with the dual representation of the InitializationInfo2:
+	 * bits for the first 64 entries, then an array of booleans.
+	 */
+	final private void markAsDefinitelyNull(int position) {
+		
+		if (this != DEAD_END) {
+	
+			// position is zero-based
+			if (position < BitCacheSize) {
+				// use bits
+				long mask;
+				definiteNulls |= (mask = 1L << position);
+				definiteNonNulls &= ~mask;
+			} else {
+				// use extra vector
+				int vectorIndex = (position / BitCacheSize) - 1;
+				long mask;
+				extraDefiniteNulls[vectorIndex] |= (mask = 1L << (position % BitCacheSize));
+				extraDefiniteNonNulls[vectorIndex] &= ~mask;
+			}
+		}
+	}
+
+	/**
+	 * Record a field got definitely assigned to null.
+	 */
+	public void markAsDefinitelyNull(FieldBinding field) {
+		if (this != DEAD_END)
+			markAsDefinitelyAssigned(field.id);
+	}
+	
+	/**
+	 * Record a local got definitely assigned to null.
+	 */
+	public void markAsDefinitelyNull(LocalVariableBinding local) {
+		if (this != DEAD_END)
+			markAsDefinitelyNull(local.id + maxFieldCount);
+	}
 	
 	/**
 	 * Clear initialization information at a given position.
@@ -400,6 +620,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				long mask;
 				definiteInits &= ~(mask = 1L << position);
 				potentialInits &= ~mask;
+				definiteNulls &= ~mask;
+				definiteNonNulls &= ~mask;
 			} else {
 				// use extra vector
 				int vectorIndex = (position / BitCacheSize) - 1;
@@ -413,6 +635,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				long mask;
 				extraDefiniteInits[vectorIndex] &= ~(mask = 1L << (position % BitCacheSize));
 				extraPotentialInits[vectorIndex] &= ~mask;
+				extraDefiniteNulls[vectorIndex] &= ~mask;
+				extraDefiniteNonNulls[vectorIndex] &= ~mask;
 			}
 		}
 	}
@@ -461,6 +685,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		this.definiteInits &= otherInits.definiteInits;
 		// union of potentially set ones
 		this.potentialInits |= otherInits.potentialInits;
+		// intersection of definitely null variables, 
+		this.definiteNulls &= otherInits.definiteNulls;
+		// intersection of definitely non-null variables, 
+		this.definiteNonNulls &= otherInits.definiteNonNulls;
 	
 		// treating extra storage
 		if (this.extraDefiniteInits != null) {
@@ -471,9 +699,13 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
 					System.arraycopy(this.extraDefiniteInits, 0, (this.extraDefiniteInits = new long[otherLength]), 0, length);
 					System.arraycopy(this.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteNulls, 0, (this.extraDefiniteNulls = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteNonNulls, 0, (this.extraDefiniteNonNulls = new long[otherLength]), 0, length);
 					while (i < length) {
 						this.extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
-						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						this.extraDefiniteNulls[i] &= otherInits.extraDefiniteNulls[i];
+						this.extraDefiniteNonNulls[i] &= otherInits.extraDefiniteNonNulls[i++];
 					}
 					while (i < otherLength) {
 						this.extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
@@ -482,16 +714,24 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is longer
 					while (i < otherLength) {
 						this.extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
-						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						this.extraDefiniteNulls[i] &= otherInits.extraDefiniteNulls[i];
+						this.extraDefiniteNonNulls[i] &= otherInits.extraDefiniteNonNulls[i++];
 					}
-					while (i < length)
-						this.extraDefiniteInits[i++] = 0;
+					while (i < length) {
+						this.extraDefiniteInits[i] = 0;
+						this.extraDefiniteNulls[i] = 0;
+						this.extraDefiniteNonNulls[i++] = 0;
+					}
 				}
 			} else {
 				// no extra storage on otherInits
 				int i = 0, length = this.extraDefiniteInits.length;
-				while (i < length)
-					this.extraDefiniteInits[i++] = 0;
+				while (i < length) {
+					this.extraDefiniteInits[i] = 0;
+					this.extraDefiniteNulls[i] = 0;
+					this.extraDefiniteNonNulls[i++] = 0;
+				}
 			}
 		} else
 			if (otherInits.extraDefiniteInits != null) {
@@ -499,6 +739,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				int otherLength;
 				this.extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];
 				System.arraycopy(otherInits.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, otherLength);
+				this.extraDefiniteNulls = new long[otherLength];
+				this.extraDefiniteNonNulls = new long[otherLength];
 			}
 		return this;
 	}
@@ -547,6 +789,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return "FlowInfo<def: "+ this.definiteInits //$NON-NLS-1$
 			+", pot: " + this.potentialInits  //$NON-NLS-1$
 			+ ", reachable:" + ((this.reachMode & UNREACHABLE) == 0) //$NON-NLS-1$
+			+", defNull: " + this.definiteNulls  //$NON-NLS-1$
+			+", defNonNull: " + this.definiteNonNulls  //$NON-NLS-1$
 			+">"; //$NON-NLS-1$
 	}
 	

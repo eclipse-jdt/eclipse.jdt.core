@@ -321,6 +321,17 @@ public class CastExpression extends Expression {
 		return current;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#localVariableBinding()
+	 */
+	public LocalVariableBinding localVariableBinding() {
+		return this.expression.localVariableBinding();
+	}
+	
+	public int nullStatus(FlowInfo flowInfo) {
+		return this.expression.nullStatus(flowInfo);
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append('(');

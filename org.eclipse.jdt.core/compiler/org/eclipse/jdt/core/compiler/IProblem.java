@@ -304,40 +304,17 @@ public interface IProblem {
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
 
 	// variable hiding
-	/**
-	 * The local variable {0} is hiding another local variable defined in an enclosing type scope 
-	 * @since 3.0
-	 */
+	/** @since 3.0 */
 	int LocalVariableHidingLocalVariable = Internal + 90;		
-
-	/**
-	 * The local variable {0} is hiding the field {1}.{2} 
-	 * @since 3.0
-	 */
+	/** @since 3.0 */
 	int LocalVariableHidingField = Internal + FieldRelated + 91;		
-	 
-	/**
-	 * The field {0}.{1} is hiding another local variable defined in an enclosing type scope
-	 * @since 3.0 
-	 */
+	/** @since 3.0 */
 	int FieldHidingLocalVariable = Internal + FieldRelated + 92;		
-
-	/**
-	 * The field {0}.{1} is hiding the field {2}.{3}
-	 * @since 3.0 
-	 */
+	/** @since 3.0 */
 	int FieldHidingField = Internal + FieldRelated + 93;		
-
-	/**
-	 * The argument {0} is hiding another local variable defined in an enclosing type scope
-	 * @since 3.0 
-	 */
+	/** @since 3.0 */
 	int ArgumentHidingLocalVariable = Internal + 94;		
-
-	/**
-	 * The argument {0} is hiding the field {2}.{3}
-	 * @since 3.0 
-	 */
+	/** @since 3.0 */
 	int ArgumentHidingField = Internal + 95;		
 	/** @since 3.1 */
 	int MissingSerialVersion = Internal + 96;
@@ -685,6 +662,10 @@ public interface IProblem {
 	// local variable related problems
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;
+	/** @since 3.1 */
+	int LocalVariableCannotBeNull = MethodRelated + 397;
+	/** @since 3.1 */
+	int LocalVariableCanOnlyBeNull = MethodRelated + 398;
 
 	// method verifier problems
 	int AbstractMethodMustBeImplemented = MethodRelated + 400;

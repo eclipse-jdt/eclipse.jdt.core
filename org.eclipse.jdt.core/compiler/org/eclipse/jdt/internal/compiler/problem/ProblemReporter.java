@@ -581,6 +581,10 @@ public int computeSeverity(int problemId){
 		case IProblem.ConstructorVarargsArgumentNeedCast :
 			return this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast);
 
+		case IProblem.LocalVariableCannotBeNull :
+		case IProblem.LocalVariableCanOnlyBeNull :
+			return this.options.getSeverity(CompilerOptions.InconsistentNullCheck);
+			
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -681,7 +685,7 @@ public int computeSeverity(int problemId){
 			} else {
 				return ProblemSeverities.Ignore;
 			}
-
+			
 		// by default problems are errors.
 		default:
 			return Error;
@@ -3238,6 +3242,24 @@ private String javadocVisibilityArgument(int visibility, int modifiers) {
 			break;
 	}
 	return argument;
+}
+public void localVariableCannotBeNull(LocalVariableBinding local, ASTNode location) {
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.LocalVariableCannotBeNull,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode location) {
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.LocalVariableCanOnlyBeNull,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
 	if (hiddenVariable instanceof LocalVariableBinding) {

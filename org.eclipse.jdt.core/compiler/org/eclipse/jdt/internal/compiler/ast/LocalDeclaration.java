@@ -40,21 +40,24 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		if (flowInfo.isReachable()) {
 			bits |= IsLocalDeclarationReachableMASK; // only set if actually reached
 		}
-		if (initialization == null) 
+		if (this.initialization == null) 
 			return flowInfo;
 			
+		int nullStatus = this.initialization.nullStatus(flowInfo);
 		flowInfo =
-			initialization
+			this.initialization
 				.analyseCode(currentScope, flowContext, flowInfo)
 				.unconditionalInits();
-
-		// final int i = (i = 0);
-		// no need to complain since (i = 0) part will get the blame
-		//if (binding.isFinal() && flowInfo.isPotentiallyAssigned(binding)) {
-		//	currentScope.problemReporter().duplicateInitializationOfFinalLocal(binding, this);
-		//}
-				
+		
 		flowInfo.markAsDefinitelyAssigned(binding);
+		switch(nullStatus) {
+			case FlowInfo.NULL :
+				flowInfo.markAsDefinitelyNull(this.binding);
+				break;
+			case FlowInfo.NON_NULL :
+				flowInfo.markAsDefinitelyNonNull(this.binding);
+				break;
+		}
 		return flowInfo;
 	}
 

@@ -37,7 +37,10 @@ public class MessageSend extends Expression implements InvocationSite {
 	
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
-	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic()).unconditionalInits();
+	boolean nonStatic = !binding.isStatic();
+	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
+	if (nonStatic) receiver.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+
 	if (arguments != null) {
 		int length = arguments.length;
 		for (int i = 0; i < length; i++) {
@@ -209,6 +212,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}
 }
 
+public int nullStatus(FlowInfo flowInfo) {
+	return FlowInfo.UNKNOWN;
+}
+	
 public StringBuffer printExpression(int indent, StringBuffer output){
 	
 	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');

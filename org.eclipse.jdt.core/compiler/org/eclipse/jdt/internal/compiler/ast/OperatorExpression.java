@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 
 	public static int[][] OperatorSignatures = new int[NumberOfTables][];
@@ -1554,6 +1556,10 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		return "unknown operator"; //$NON-NLS-1$
 	}
 
+	public int nullStatus(FlowInfo flowInfo) {
+		return FlowInfo.UNKNOWN;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 
 		output.append('(');

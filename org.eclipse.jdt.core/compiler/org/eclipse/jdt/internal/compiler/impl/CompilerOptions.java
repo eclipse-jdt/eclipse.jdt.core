@@ -90,6 +90,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
 	public static final String OPTION_TaskCaseSensitive = "org.eclipse.jdt.core.compiler.taskCaseSensitive"; //$NON-NLS-1$
 	public static final String OPTION_InlineJsr = "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
+	public static final String OPTION_ReportInconsistentNullCheck = "org.eclipse.jdt.core.compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.include"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionExclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
@@ -165,6 +166,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long EnumUsedAsAnIdentifier = ASTNode.Bit34L;	
 	public static final long ForbiddenReference = ASTNode.Bit35L;
 	public static final long VarargsArgumentNeedCast = ASTNode.Bit36L;
+	public static final long InconsistentNullCheck = ASTNode.Bit37L;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -185,7 +187,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| UnsafeTypeOperation
 		| MissingSerialVersion
 		| VarargsArgumentNeedCast
-		| ForbiddenReference;
+		| ForbiddenReference
+		| InconsistentNullCheck;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -354,6 +357,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ImportRestrictionExclude, this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,','))); //$NON-NLS-1$
 		optionsMap.put(OPTION_ImportRestrictionInclude, this.exportRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionInclude,','))); //$NON-NLS-1$
 		optionsMap.put(OPTION_ExportRestrictionExclude, this.exportRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionExclude,','))); //$NON-NLS-1$
+		optionsMap.put(OPTION_ReportInconsistentNullCheck, getSeverityString(InconsistentNullCheck)); 
 		return optionsMap;		
 	}
 	
@@ -609,7 +613,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportVarargsArgumentNeedCast)) != null) updateSeverity(VarargsArgumentNeedCast, optionValue);
-
+		if ((optionValue = optionsMap.get(OPTION_ReportInconsistentNullCheck)) != null) updateSeverity(InconsistentNullCheck, optionValue);
+		
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -765,6 +770,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- import access restriction excludes: ").append(this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- export access restriction includes: ").append(this.exportRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- export access restriction excludes: ").append(this.exportRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n\t- inconsistent null check: ").append(getSeverityString(InconsistentNullCheck)); //$NON-NLS-1$
 		return buf.toString();
 	}
 

@@ -390,7 +390,7 @@ public class ConditionalExpression extends OperatorExpression {
 			valueIfFalse.computeConversion(scope, valueIfFalseType, valueIfFalseType);
 			return this.resolvedType = valueIfFalseType;
 		}
-		// 1.5 addition: allow most common type 
+		// 1.5 addition: allow most common supertype 
 		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {

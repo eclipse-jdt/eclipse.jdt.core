@@ -999,6 +999,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+					} else if (token.equals("nullCheck")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportInconsistentNullCheck,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}

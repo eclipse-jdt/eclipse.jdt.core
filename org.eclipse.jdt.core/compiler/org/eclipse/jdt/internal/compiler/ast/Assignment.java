@@ -42,9 +42,27 @@ public class Assignment extends Expression {
 		// a field reference, a blank final field reference, a field of an enclosing instance or 
 		// just a local variable.
 
-		return ((Reference) lhs)
+		LocalVariableBinding local = this.lhs.localVariableBinding();
+		int nullStatus = this.expression.nullStatus(flowInfo);
+		if (local != null && nullStatus == FlowInfo.NULL) {
+				if (flowInfo.isDefinitelyNull(local)) {
+					currentScope.problemReporter().localVariableCanOnlyBeNull(local, this.lhs);
+				}
+		}
+		flowInfo = ((Reference) lhs)
 			.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 			.unconditionalInits();
+		if (local != null) {
+			switch(nullStatus) {
+				case FlowInfo.NULL :
+					flowInfo.markAsDefinitelyNull(local);
+					break;
+				case FlowInfo.NON_NULL :
+					flowInfo.markAsDefinitelyNonNull(local);
+					break;
+			}
+		}		
+		return flowInfo;
 	}
 
 	void checkAssignmentEffect(BlockScope scope) {
@@ -119,6 +137,11 @@ public class Assignment extends Expression {
 	    }
 	    return null;
 	}	
+
+	public int nullStatus(FlowInfo flowInfo) {
+		return this.expression.nullStatus(flowInfo);
+	}
+	
 	public StringBuffer print(int indent, StringBuffer output) {
 
 		//no () when used as a statement 

@@ -77,6 +77,13 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			
+			// tag parameters as being set
+			if (this.arguments != null) {
+				for (int i = 0, count = this.arguments.length; i < count; i++) {
+					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
+				}
+			}
+			
 			// propagate to constructor call
 			if (constructorCall != null) {
 				// if calling 'this(...)', then flag all non-static fields as definitely

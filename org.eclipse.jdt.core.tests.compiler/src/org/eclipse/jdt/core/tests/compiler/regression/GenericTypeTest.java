@@ -11290,4 +11290,39 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"[A:class A][B:class B][C:class C]");
 	}			
+
+	// 79390
+	public void test428() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   Zork z;\n" + 
+				"	public static void foo() {\n" + 
+				"		class A<T extends Number> {\n" + 
+				"			T t = null;\n" + 
+				"			T get() {\n" + 
+				"				return t;\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		A<Long> a = new A<Long>() {\n" + 
+				"			Long get() {\n" + // TODO (kent) should not issue warning for unchecked conversion
+				"				return new Long(5);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	Long get() {\n" + 
+			"	^^^^\n" + 
+			"Type safety: The return type Long of the method get() of type new A<Long>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"----------\n");
+	}		
 }

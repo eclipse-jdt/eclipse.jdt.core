@@ -67,6 +67,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					scope,
 					FlowInfo.DEAD_END);
 
+			// tag parameters as being set
+			if (this.arguments != null) {
+				for (int i = 0, count = this.arguments.length; i < count; i++) {
+					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
+				}
+			}
 			// propagate to statements
 			if (statements != null) {
 				boolean didAlreadyComplain = false;

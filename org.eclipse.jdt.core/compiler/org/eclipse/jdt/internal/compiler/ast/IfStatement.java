@@ -71,6 +71,11 @@ public class IfStatement extends Statement {
 		if (isConditionOptimizedFalse) {
 			thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
+		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
+		if (isConditionOptimizedTrue) {
+			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
+		}
+		this.condition.checkNullComparison(currentScope, flowInfo, thenFlowInfo, elseFlowInfo);
 		if (this.thenStatement != null) {
 			// Save info for code gen
 			thenInitStateIndex =
@@ -84,10 +89,6 @@ public class IfStatement extends Statement {
 		this.thenExit =  !thenFlowInfo.isReachable();
 
 		// process the ELSE part
-		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
-		if (isConditionOptimizedTrue) {
-			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
-		}
 		if (this.elseStatement != null) {
 		    // signal else clause unnecessarily nested, tolerate else-if code pattern
 		    if (thenFlowInfo == FlowInfo.DEAD_END 

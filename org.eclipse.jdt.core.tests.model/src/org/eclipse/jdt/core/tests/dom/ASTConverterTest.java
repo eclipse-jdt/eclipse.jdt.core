@@ -4577,7 +4577,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("No problem", 0, unit.getProblems().length);
+		// TODO (olivier) problem count  got incremented (null check)
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); 
 		ASTNode node2 = getASTNode(unit, 1, 0, 1);
 		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;

@@ -146,6 +146,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		return flowInfo;
 	}
+	
 	public TypeBinding checkFieldAccess(BlockScope scope) {
 	
 		FieldBinding fieldBinding = (FieldBinding) binding;
@@ -197,7 +198,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			} 	
 		}
 		super.computeConversion(scope, runtimeTimeType, compileTimeType);
-}	
+	}	
 
 	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 	
@@ -686,4 +687,18 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 		return new String(token);
 	}
+	
+	/**
+	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
+	 * or thru a cast expression etc...
+	 */
+	public LocalVariableBinding localVariableBinding() {
+		switch (bits & RestrictiveFlagMASK) {
+			case Binding.FIELD : // reading a field
+				break;
+			case Binding.LOCAL : // reading a local variable
+				return (LocalVariableBinding) this.binding;
+		}
+		return null;
+	}	
 }

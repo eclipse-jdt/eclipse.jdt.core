@@ -54,6 +54,10 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	
+	public int nullStatus(FlowInfo flowInfo) {
+		return FlowInfo.NON_NULL;
+	}
+	
 	public String operatorToString() {
 		switch (operator) {
 			case PLUS :

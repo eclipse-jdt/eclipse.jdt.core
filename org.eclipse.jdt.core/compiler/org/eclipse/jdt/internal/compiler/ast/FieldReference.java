@@ -112,7 +112,10 @@ public class FieldReference extends Reference implements InvocationSite {
 		FlowInfo flowInfo,
 		boolean valueRequired) {
 
-		receiver.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic());
+		boolean nonStatic = !binding.isStatic();
+		receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
+		if (nonStatic) receiver.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+		
 		if (valueRequired) {
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 		}
