@@ -11,6 +11,11 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+
 /**
  * AST node for a Javadoc comment.
  * 
@@ -93,7 +98,29 @@ public class Javadoc extends ASTNode {
 		if (javadocComment == null) {
 			throw new IllegalArgumentException();
 		}
-		if (javadocComment.length() < 5 || !javadocComment.startsWith("/**") || !javadocComment.endsWith("*/")) {//$NON-NLS-1$//$NON-NLS-2$
+		char[] source = javadocComment.toCharArray();
+		IScanner scanner = ToolFactory.createScanner(true, true, false, false);
+		scanner.resetTo(0, source.length);
+		scanner.setSource(source);
+		try {
+			int token;
+			boolean onlyOneComment = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				switch(token) {
+					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+						if (onlyOneComment) {
+							throw new IllegalArgumentException();
+						}
+						onlyOneComment = true;
+						break;
+					default:
+						onlyOneComment = false;
+				}
+			}
+			if (!onlyOneComment) {
+				throw new IllegalArgumentException();
+			}
+		} catch (InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
 		modifying();

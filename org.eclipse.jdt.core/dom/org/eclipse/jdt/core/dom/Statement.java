@@ -11,6 +11,11 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+
 /**
  * Abstract base class of AST nodes that represent statements.
  * There are many kinds of statements.
@@ -108,12 +113,31 @@ public abstract class Statement extends ASTNode {
 	 */
 	public void setLeadingComment(String comment) {
 		if (comment != null) {
-			if (comment.startsWith("/*") && comment.endsWith("*/") && comment.length() >= 4) {//$NON-NLS-1$//$NON-NLS-2$
-				// this is ok
-			} else if (comment.startsWith("//") && comment.indexOf('\n') < 0) {//$NON-NLS-1$
-				// this is ok too
-			} else {
-				// but anything else if not good
+			char[] source = comment.toCharArray();
+			IScanner scanner = ToolFactory.createScanner(true, true, false, false);
+			scanner.resetTo(0, source.length);
+			scanner.setSource(source);
+			try {
+				int token;
+				boolean onlyOneComment = false;
+				while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+					switch(token) {
+						case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
+						case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+						case ITerminalSymbols.TokenNameCOMMENT_LINE :
+							if (onlyOneComment) {
+								throw new IllegalArgumentException();
+							}
+							onlyOneComment = true;
+							break;
+						default:
+							onlyOneComment = false;
+					}
+				}
+				if (!onlyOneComment) {
+					throw new IllegalArgumentException();
+				}
+			} catch (InvalidInputException e) {
 				throw new IllegalArgumentException();
 			}
 		}
