@@ -733,16 +733,25 @@ private static int encodeTypeSignature(char[] typeName, int start, boolean isRes
 	    end = -1;
 	}
 	buffer.append(isResolved ? C_RESOLVED : C_UNRESOLVED);
-    pos = encodeQualifiedName(typeName, pos, length, buffer);
-	checkPos = checkNextChar(typeName, '<', pos, length, true);
-	if (checkPos > 0) {
-		buffer.append(C_GENERIC_START);
-	    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
-	    while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+	while (true) { // loop on qualifiedName[<args>][.qualifiedName[<args>]*
+	    pos = encodeQualifiedName(typeName, pos, length, buffer);
+		checkPos = checkNextChar(typeName, '<', pos, length, true);
+		if (checkPos > 0) {
+			buffer.append(C_GENERIC_START);
 		    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
-	    }
-	    pos = checkNextChar(typeName, '>', pos, length, false);
-		buffer.append(C_GENERIC_END);
+		    while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+			    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+		    }
+		    pos = checkNextChar(typeName, '>', pos, length, false);
+			buffer.append(C_GENERIC_END);
+		}
+		checkPos = checkNextChar(typeName, '.', pos, length, true);
+		if (checkPos > 0) {
+			buffer.append(C_DOT);
+			pos = checkPos;
+		} else {
+			break;
+		}
 	}
 	buffer.append(C_NAME_END);
 	if (end > 0) pos = end; // skip array dimension which were preprocessed
@@ -1527,11 +1536,26 @@ public static String getReturnType(String methodSignature) throws IllegalArgumen
  * @since 2.0
  */
 public static char[] getSimpleName(char[] name) {
-	int lastDot = CharOperation.lastIndexOf(C_DOT, name);
+	int lastDot = -1;
+	int depth = 0;
+	int length = name.length;
+	for (int i = 0; i < length; i++) {
+		switch (name[i]) {
+			case C_DOT:
+				if (depth == 0) lastDot = i;
+				break;
+			case C_GENERIC_START:
+				depth++;
+				break;
+			case C_GENERIC_END:
+				depth--;
+				break;
+		}
+	}
 	if (lastDot == -1) {
 		return name;
 	}
-	return CharOperation.subarray(name, lastDot + 1, name.length);
+	return CharOperation.subarray(name, lastDot + 1, length);
 }
 /**
  * Returns the last segment of the given dot-separated qualified name.
@@ -1550,11 +1574,26 @@ public static char[] getSimpleName(char[] name) {
  * @exception NullPointerException if name is null
  */
 public static String getSimpleName(String name) {
-	int lastDot = name.lastIndexOf(C_DOT);
+	int lastDot = -1;
+	int depth = 0;
+	int length = name.length();
+	for (int i = 0; i < length; i++) {
+		switch (name.charAt(i)) {
+			case C_DOT:
+				if (depth == 0) lastDot = i;
+				break;
+			case C_GENERIC_START:
+				depth++;
+				break;
+			case C_GENERIC_END:
+				depth--;
+				break;
+		}
+	}
 	if (lastDot == -1) {
 		return name;
 	}
-	return name.substring(lastDot + 1, name.length());
+	return name.substring(lastDot + 1, length);
 }
 /**
  * Returns all segments of the given dot-separated qualified name.

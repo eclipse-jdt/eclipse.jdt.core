@@ -51,7 +51,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		char[][] qParamName = new char[length][];
 		for (int i = 0; i < length; i++) {
 			StringBuffer buffer = new StringBuffer(5);
-			if (i > 0) buffer.append('.');
 			buffer.append(this.tokens[i]);
 			TypeReference[] arguments = this.typeArguments[i];
 			if (arguments != null) {
