@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 
 /**
  * An <code>JarFileDocument</code> represents an jar file.
@@ -49,7 +50,12 @@ public class JarFileDocument extends PropertyDocument {
 	}
 
 	public File getFile() {
-		return file.getLocation().toFile();
+		IPath location = file.getLocation();
+		if (location == null) {
+			return null;
+		} else {
+			return location.toFile();
+		}
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()

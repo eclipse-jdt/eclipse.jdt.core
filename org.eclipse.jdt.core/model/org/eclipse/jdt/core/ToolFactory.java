@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -177,7 +178,9 @@ public class ToolFactory {
 					}
 					return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
 				} else {
-					return createDefaultClassFileReader(classfile.getResource().getLocation().toOSString(), decodingFlag);
+					IPath location = classfile.getResource().getLocation();
+					if (location == null) return null;
+					return createDefaultClassFileReader(location.toOSString(), decodingFlag);
 				}
 			} catch(CoreException e){
 			}

@@ -1055,14 +1055,22 @@ public class JavaModelManager implements ISaveParticipant {
 			if (file == null || file.getType() != IResource.FILE) {
 				fileSystemPath= path.toOSString();
 			} else {
-				fileSystemPath= file.getLocation().toOSString();
+				IPath location = file.getLocation();
+				if (location == null) {
+					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
+				}
+				fileSystemPath= location.toOSString();
 			}
 		} else if (!path.isAbsolute()) {
 			file= root.getFile(path);
 			if (file == null || file.getType() != IResource.FILE) {
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
 			}
-			fileSystemPath= file.getLocation().toOSString();
+			IPath location = file.getLocation();
+			if (location == null) {
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
+			}
+			fileSystemPath= location.toOSString();
 		} else {
 			fileSystemPath= path.toOSString();
 		}

@@ -272,6 +272,7 @@ public class MatchLocator implements ITypeRequestor {
 			try {
 				if (root.isArchive()) {
 					IPath zipPath = root.isExternal() ? root.getPath() : root.getResource().getLocation();
+					if (zipPath == null) return null; // location is null
 					ZipFile zipFile = null;
 					try {
 						if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
