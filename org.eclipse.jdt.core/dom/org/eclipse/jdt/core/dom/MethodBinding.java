@@ -154,6 +154,7 @@ class MethodBinding implements IMethodBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
+		// TODO (olivier) would improve to compute key once and cache it
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(this.getDeclaringClass().getKey());
 		buffer.append('/');
