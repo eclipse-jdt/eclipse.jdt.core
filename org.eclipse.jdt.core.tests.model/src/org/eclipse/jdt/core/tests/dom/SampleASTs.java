@@ -54,7 +54,7 @@ public class SampleASTs {
 			EnumDeclaration ed = target.newEnumDeclaration();
 			td.bodyDeclarations().add(ed);	
 			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
-			ed.bodyDeclarations().add(ec);	
+			ed.enumConstants().add(ec);	
 		}
 		
 		MethodDeclaration md = target.newMethodDeclaration();

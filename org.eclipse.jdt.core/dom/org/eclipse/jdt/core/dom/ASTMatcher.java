@@ -808,6 +808,7 @@ public class ASTMatcher {
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())
+				&& safeSubtreeListMatch(node.enumConstants(), o.enumConstants())
 				&& safeSubtreeListMatch(
 					node.bodyDeclarations(),
 					o.bodyDeclarations()));
@@ -1078,7 +1079,7 @@ public class ASTMatcher {
 	 * When this parameter is <code>true</code>, the implementation
 	 * tests whether the other object is also a <code>Javadoc</code>
 	 * with structurally isomorphic child subtrees; the comment string 
-	 * ({@link Javadoc#getComment() Javadoc.getComment}) is ignored.
+	 * (<code>Javadoc.getComment()</code>) is ignored.
 	 * Conversely, when the parameter is <code>false</code>, the
 	 * implementation tests whether the other object is also a
 	 * <code>Javadoc</code> with exactly the same comment string; 

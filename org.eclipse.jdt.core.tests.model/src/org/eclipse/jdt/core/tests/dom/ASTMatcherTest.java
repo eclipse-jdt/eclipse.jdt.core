@@ -844,8 +844,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(N1);
 		x1.superInterfaceTypes().add(T1);
 		x1.superInterfaceTypes().add(T2);
-		x1.bodyDeclarations().add(EC1);
-		x1.bodyDeclarations().add(EC2);
+		x1.enumConstants().add(EC1);
+		x1.enumConstants().add(EC2);
+		x1.bodyDeclarations().add(FD1);
+		x1.bodyDeclarations().add(FD2);
 		basicMatch(x1);
 	}
 	public void testExpressionStatement() {

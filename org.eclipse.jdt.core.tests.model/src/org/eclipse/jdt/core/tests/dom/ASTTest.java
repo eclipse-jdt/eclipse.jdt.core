@@ -2668,6 +2668,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
+	/**
+	 * @deprecated (Uses getEnumConstants() which is deprecated)
+	 */
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2690,6 +2693,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.superInterfaceTypes().size() == 0);
+		assertTrue(x.enumConstants().size()== 0);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.ENUM_DECLARATION);
 		assertTrue(x.structuralPropertiesForType() == EnumDeclaration.propertyDescriptors(ast.apiLevel()));
@@ -2728,6 +2732,28 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
+		genericPropertyListTest(x, x.enumConstants(),
+				  new Property("EnumConstants", true, EnumConstantDeclaration.class) { //$NON-NLS-1$
+					public ASTNode sample(AST targetAst, boolean parented) {
+						EnumConstantDeclaration result = targetAst.newEnumConstantDeclaration();
+						if (parented) {
+							// use fact that EnumConstantDeclaration is also a BodyDeclaration
+							TypeDeclaration d = targetAst.newTypeDeclaration();
+							d.bodyDeclarations().add(result);
+						}
+						return result;
+					}
+					public ASTNode wrap() {
+						EnumConstantDeclaration s1 = x.getAST().newEnumConstantDeclaration();
+						s1.bodyDeclarations().add(x);
+						return s1;
+					}
+					public void unwrap() {
+						EnumConstantDeclaration s1 = (EnumConstantDeclaration) x.getParent();
+						s1.bodyDeclarations().remove(x);
+					}
+				});
+				
 		genericPropertyListTest(x, x.bodyDeclarations(),
 		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -2760,26 +2786,20 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		TypeDeclaration t1 = ast.newTypeDeclaration();
 		TypeDeclaration t2 = ast.newTypeDeclaration();
 
-		x.bodyDeclarations().add(c1);
-		x.bodyDeclarations().add(c2);
-		x.bodyDeclarations().add(ast.newInitializer());
+		x.enumConstants().add(c1);
+		x.enumConstants().add(c2);
 		x.bodyDeclarations().add(f1);
-		x.bodyDeclarations().add(ast.newInitializer());
 		x.bodyDeclarations().add(f2);
-		x.bodyDeclarations().add(ast.newInitializer());
-		x.bodyDeclarations().add(t1);
-		x.bodyDeclarations().add(ast.newInitializer());
 		x.bodyDeclarations().add(m1);
-		x.bodyDeclarations().add(ast.newInitializer());
 		x.bodyDeclarations().add(m2);
-		x.bodyDeclarations().add(ast.newInitializer());
+		x.bodyDeclarations().add(t1);
 		x.bodyDeclarations().add(t2);
-		x.bodyDeclarations().add(ast.newInitializer());
 
-		List es = Arrays.asList(x.getEnumConstants());
-		assertTrue(es.size() == 2);
-		assertTrue(es.contains(c1));
-		assertTrue(es.contains(c2));
+		// getEnumConstants() is deprecated - this test will be removed after 3.1M3
+		EnumConstantDeclaration[] cs = x.getEnumConstants();
+		assertTrue(cs.length == 2);
+		assertEquals(c1, cs[0]);
+		assertEquals(c2, cs[1]);
 		
 		// check that TypeDeclarations in body are classified correctly
 		assertTrue(t1.isLocalTypeDeclaration() == false);

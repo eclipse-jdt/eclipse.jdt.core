@@ -1572,7 +1572,8 @@ public final class AST {
 	 * Creates an unparented enum declaration node owned by this AST.
 	 * The name of the enum is an unspecified, but legal, name; 
 	 * no doc comment; no modifiers or annotations; 
-	 * no superinterfaces; and no body declarations.
+	 * no superinterfaces; and empty lists of enum constants
+	 * and body declarations.
 	 * 
 	 * @return a new unparented enum declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
