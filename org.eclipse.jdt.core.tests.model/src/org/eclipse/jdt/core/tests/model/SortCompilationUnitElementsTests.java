@@ -54,10 +54,10 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 	ICompilationUnit copy = unit.getWorkingCopy(null);
 	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
-	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
+	assertEquals("Different output", expectedResult, sortedSource); //$NON-NLS-1$
 	if (testPositions) {
 		for (int i = 0, max = positions.length; i < max; i++) {
-			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i])); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], expectedResult.charAt(positions[i]), initialSource[i]); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }

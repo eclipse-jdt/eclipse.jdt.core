@@ -3182,12 +3182,17 @@ public String toString() {
 	if (this.currentPosition > this.source.length)
 		return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
 
-	char front[] = new char[this.startPosition];
-	System.arraycopy(this.source, 0, front, 0, this.startPosition);
+	char front[];
+	if (this.startPosition > -1) {
+		front = new char[this.startPosition];
+		System.arraycopy(this.source, 0, front, 0, this.startPosition);
+	} else {
+		front = CharOperation.NO_CHAR;
+	}
 
 	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
 	char middle[];
-	if (middleLength > -1) {
+	if (middleLength > -1 && this.startPosition > -1) {
 		middle = new char[middleLength];
 		System.arraycopy(
 			this.source, 
