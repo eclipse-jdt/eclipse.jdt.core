@@ -20,8 +20,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
  *
  * @see ICompletionRequestor
  * @since 2.0
- * TODO (jerome - once CompletionRequestor is working) @ deprecated Subclass {@link CompletionRequestor} instead.
  */
+// TODO (jerome - once CompletionRequestor is working) @ deprecated Subclass {@link CompletionRequestor} instead.
 public class CompletionRequestorAdapter implements ICompletionRequestor {
 
 	/*
