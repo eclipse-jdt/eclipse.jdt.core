@@ -39,8 +39,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/**
 	 * The "modifiers" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	 */
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 	

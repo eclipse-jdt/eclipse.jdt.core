@@ -59,6 +59,7 @@ public interface ICodeAssist {
 	 * @since 2.0
 	 * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor)} instead.
  	 */
+	// TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor)} instead.
 	void codeComplete(int offset, ICompletionRequestor requestor)
 		throws JavaModelException;
 	
@@ -110,6 +111,7 @@ public interface ICodeAssist {
 	 * @since 3.0
      * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor, WorkingCopyOwner)} instead.
 	 */
+    // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link #codeComplete(int, CompletionRequestor, WorkingCopyOwner)} instead.
 	void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)
 		throws JavaModelException;
 

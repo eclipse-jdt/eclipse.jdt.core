@@ -40,8 +40,8 @@ public class TypeDeclarationStatement extends Statement {
 	/**
 	 * The "typeDeclaration" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * TODO (jeem) - @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the 3.0 API.
 	 */
+	// TODO (jeem) - @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the 3.0 API.
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 

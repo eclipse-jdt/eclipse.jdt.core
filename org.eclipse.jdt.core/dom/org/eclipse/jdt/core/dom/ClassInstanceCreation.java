@@ -83,8 +83,8 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * The "name" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * TODO (jeem) - @deprecated Replaced by {@link #TYPE_PROPERTY} in the 3.0 API.
 	 */
+	// TODO (jeem) - @deprecated Replaced by {@link #TYPE_PROPERTY} in the 3.0 API.
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
