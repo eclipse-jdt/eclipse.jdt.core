@@ -12,36 +12,14 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.DOMException;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMNode;
-import org.eclipse.jdt.core.jdom.IDOMPackage;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -150,7 +128,7 @@ private IResource[] collectResourcesOfInterest(IPackageFragment source) throws J
 /**
  * Creates any destination package fragment(s) which do not exists yet.
  */
-private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName) throws JavaModelException {
+private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
 	IContainer parentFolder = (IContainer) root.getUnderlyingResource();
 	JavaElementDelta projectDelta = getDeltaFor(root.getJavaProject());
 	String[] names = Signature.getSimpleNames(newFragName);
@@ -160,7 +138,10 @@ private void createNeededPackageFragments(IPackageFragmentRoot root, String newF
 		sideEffectPackageName.append(subFolderName);
 		IResource subFolder = parentFolder.findMember(subFolderName);
 		if (subFolder == null) {
-			createFolder(parentFolder, subFolderName, fForce);
+			// create deepest folder only if not a move (folder will be moved in processPackageFragmentResource)
+			if (!(moveFolder && i == names.length-1)) {
+				createFolder(parentFolder, subFolderName, fForce);
+			}
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
 			if (i < names.length - 1) { // all but the last one are side effect packages
@@ -359,89 +340,122 @@ protected void processElements() throws JavaModelException {
 private void processPackageFragmentResource(IPackageFragment source, IPackageFragmentRoot root, String newName) throws JavaModelException {
 	try {
 		String newFragName = (newName == null) ? source.getElementName() : newName;
-		createNeededPackageFragments(root, newFragName);
 		IPackageFragment newFrag = root.getPackageFragment(newFragName);
-
-		// process the leaf resources
 		IResource[] resources = collectResourcesOfInterest(source);
-		if (resources.length > 0) {
-			IPath destPath = newFrag.getUnderlyingResource().getFullPath();
-			if (isRename()) {
-				if (! destPath.equals(source.getUnderlyingResource().getFullPath())) {
-					moveResources(resources, destPath);
-				}
-			} else if (isMove()) {
-				// we need to delete this resource if this operation wants to override existing resources
-				for (int i = 0, max = resources.length; i < max; i++) {
-					IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
-					if (destinationResource != null) {
-						if (fForce) {
-							deleteResource(destinationResource, IResource.KEEP_HISTORY);
-						} else {
-							throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
-						}
-					}
-				}
-				moveResources(resources, destPath);
+		
+		// if isMove() can we move the folder itself ? (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=22458)
+		boolean shouldMoveFolder = isMove() && !newFrag.getResource().exists(); // if new pkg fragment exists, it is an override
+		IFolder srcFolder = (IFolder)source.getResource();
+		IPath destPath = newFrag.getPath();
+		if (shouldMoveFolder) {
+			// check if destination is not included in source
+			if (srcFolder.getFullPath().isPrefixOf(destPath)) {
+				shouldMoveFolder = false;
 			} else {
-				// we need to delete this resource if this operation wants to override existing resources
-				for (int i = 0, max = resources.length; i < max; i++) {
-					IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
-					if (destinationResource != null) {
-						if (fForce) {
-							// we need to delete this resource if this operation wants to override existing resources
-							deleteResource(destinationResource, IResource.KEEP_HISTORY);
-						} else {
-							throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
-						}
+				// check if there are no sub-packages
+				IResource[] members = srcFolder.members();
+				for (int i = 0; i < members.length; i++) {
+					if ( members[i] instanceof IFolder) {
+						shouldMoveFolder = false;
+						break;
 					}
 				}
-				copyResources(resources, destPath);
-			}
-			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
-				for (int i = 0; i < resources.length; i++) {
-					if (resources[i].getName().endsWith(".java")) { //$NON-NLS-1$
-						// we only consider potential compilation units
-						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
-						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
-						if (domCU != null) {
-							updatePackageStatement(domCU, newFragName);
-							IBuffer buffer = cu.getBuffer();
-							if (buffer == null) continue;
-							String bufferContents = buffer.getContents();
-							if (bufferContents == null) continue;
-							String domCUContents = domCU.getContents();
-							String cuContents = null;
-							if (domCUContents != null) {
-								cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+			}	
+		}
+		createNeededPackageFragments(root, newFragName, shouldMoveFolder);
+
+		// Process resources
+		if (shouldMoveFolder) {
+			// move underlying resource
+			srcFolder.move(destPath, fForce, getSubProgressMonitor(1));
+			this.hasModifiedResource = true;
+		} else {
+			// process the leaf resources
+			if (resources.length > 0) {
+				if (isRename()) {
+					if (! destPath.equals(source.getUnderlyingResource().getFullPath())) {
+						moveResources(resources, destPath);
+					}
+				} else if (isMove()) {
+					// we need to delete this resource if this operation wants to override existing resources
+					for (int i = 0, max = resources.length; i < max; i++) {
+						IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
+						if (destinationResource != null) {
+							if (fForce) {
+								deleteResource(destinationResource, IResource.KEEP_HISTORY);
 							} else {
-								// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=11285
-								cuContents = bufferContents;//$NON-NLS-1$
+								throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 							}
-							buffer.setContents(cuContents);
-							cu.save(null, false);
 						}
 					}
+					moveResources(resources, destPath);
+				} else {
+					// we need to delete this resource if this operation wants to override existing resources
+					for (int i = 0, max = resources.length; i < max; i++) {
+						IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
+						if (destinationResource != null) {
+							if (fForce) {
+								// we need to delete this resource if this operation wants to override existing resources
+								deleteResource(destinationResource, IResource.KEEP_HISTORY);
+							} else {
+								throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+							}
+						}
+					}
+					copyResources(resources, destPath);
 				}
 			}
 		}
 
-		// discard empty old package (if still empty after the rename)
+		// Discard empty old package (if still empty after the rename)
 		if (isMove()) {
 			// delete remaining files in this package (.class file in the case where Proj=src=bin)
-			IResource[] remaingFiles = ((IContainer)source.getUnderlyingResource()).members();
-			boolean isEmpty = true;
-			for (int i = 0, length = remaingFiles.length; i < length; i++) {
-				IResource file = remaingFiles[i];
-				if (file instanceof IFile) {
-					this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
-				} else {
-					isEmpty = false;
+			boolean isEmpty;
+			if (!srcFolder.exists()) {
+				isEmpty = true;
+			} else {
+				isEmpty = true;
+				IResource[] remaingFiles = srcFolder.members();
+				for (int i = 0, length = remaingFiles.length; i < length; i++) {
+					IResource file = remaingFiles[i];
+					if (file instanceof IFile) {
+						this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
+					} else {
+						isEmpty = false;
+					}
 				}
 			}
 			if (isEmpty) {
 				// delete recursively empty folders
 				deleteEmptyPackageFragment(source, false);
+			}
+		}
+
+		// Update package statement in compilation unit if needed
+		if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
+			for (int i = 0; i < resources.length; i++) {
+				if (resources[i].getName().endsWith(".java")) { //$NON-NLS-1$
+					// we only consider potential compilation units
+					ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
+					IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
+					if (domCU != null) {
+						updatePackageStatement(domCU, newFragName);
+						IBuffer buffer = cu.getBuffer();
+						if (buffer == null) continue;
+						String bufferContents = buffer.getContents();
+						if (bufferContents == null) continue;
+						String domCUContents = domCU.getContents();
+						String cuContents = null;
+						if (domCUContents != null) {
+							cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+						} else {
+							// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=11285
+							cuContents = bufferContents;//$NON-NLS-1$
+						}
+						buffer.setContents(cuContents);
+						cu.save(null, false);
+					}
+				}
 			}
 		}
 
