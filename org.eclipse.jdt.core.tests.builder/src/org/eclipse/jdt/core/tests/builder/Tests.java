@@ -70,7 +70,7 @@ public class Tests extends TestCase {
 			System.out.println("ERRORS\n");
 			System.out.println(Util.displayString(actualError));
 		}
-		assertTrue("unexpected error", actualError.indexOf(expectedError) != -1);
+		assertTrue("unexpected error : " + actualError + " expected : " + expectedError, actualError.indexOf(expectedError) != -1);
 
 		String actualOutput = verifier.getExecutionOutput();
 		if (actualOutput.indexOf(expectingOutput) == -1){
