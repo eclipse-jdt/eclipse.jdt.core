@@ -239,7 +239,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		AnnotationTypeMemberDeclaration result = new AnnotationTypeMemberDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(

@@ -116,7 +116,7 @@ public class SimpleType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		SimpleType result = new SimpleType(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((Name) (getName()).clone(target));

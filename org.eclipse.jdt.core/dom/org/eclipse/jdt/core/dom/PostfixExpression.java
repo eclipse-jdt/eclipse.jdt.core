@@ -217,7 +217,7 @@ public class PostfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		PostfixExpression result = new PostfixExpression(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOperator(getOperator());

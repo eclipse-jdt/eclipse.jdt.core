@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -44,9 +43,9 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestOptions.class);
 		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
+		testsNames = null;
+		testsNumbers= null;
+		testsRange = null;
 	}
 	
 	
@@ -91,7 +90,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		return suite;
 	}
 
-	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) {
 		Test suite = suite(testClass, "Doc "+support);
 		return new RegressionTestSetup(suite, level, support);
 	}

@@ -159,7 +159,7 @@ public class TypeDeclarationStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		TypeDeclarationStatement result = 
 			new TypeDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());

@@ -388,8 +388,7 @@ public void testContainerInitializer6() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			"P2[*]: {CONTENT}\n" + 
-			"	ResourceDelta(/P2/.project)[*]"
+			""
 		);
 	} finally {
 		stopDeltas();

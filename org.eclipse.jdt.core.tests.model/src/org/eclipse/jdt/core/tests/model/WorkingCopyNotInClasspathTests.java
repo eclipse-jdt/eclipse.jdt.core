@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -156,6 +157,27 @@ public void testReconcileNonExistingProject() throws CoreException {
 		if (wc != null) {
 			wc.discardWorkingCopy();
 		}
+	}
+}
+/*
+ * Ensures that a working copy created in a simple project can be reconciled.
+ * (regression test for bug 55421 Cannot save a .java file in a non-java project anymore)
+ */
+public void testReconcileSimpleProject() throws CoreException {
+	ICompilationUnit wc = null;
+	try {
+	    IProject project = createProject("SimpleProject");
+		IFile file = project.getFile("A.java");
+		wc = JavaCore.createCompilationUnitFrom(file);
+		ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+		wc.becomeWorkingCopy(pbRequestor, null);
+		wc.getBuffer().setContents("public class A {}");
+		wc.reconcile(false, true/*force problem detection*/, null, null);
+	} finally {
+		if (wc != null) {
+			wc.discardWorkingCopy();
+		}
+		deleteProject("SimpleProject");
 	}
 }
 /*

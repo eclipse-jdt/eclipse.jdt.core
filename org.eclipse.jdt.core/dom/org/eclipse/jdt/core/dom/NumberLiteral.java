@@ -110,7 +110,7 @@ public class NumberLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		NumberLiteral result = new NumberLiteral(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setToken(getToken());

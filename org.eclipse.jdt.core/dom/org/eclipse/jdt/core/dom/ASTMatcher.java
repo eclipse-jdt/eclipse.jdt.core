@@ -1838,7 +1838,7 @@ public class ASTMatcher {
 			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
 				return false;
 			}
-			if (node.isVariableArity() != o.isVariableArity()) {
+			if (node.isVarargs() != o.isVarargs()) {
 				return false;
 			}
 		}

@@ -111,7 +111,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		AnonymousClassDeclaration result = new AnonymousClassDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.bodyDeclarations().addAll(

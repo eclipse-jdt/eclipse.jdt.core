@@ -212,7 +212,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		AnnotationTypeDeclaration result = new AnnotationTypeDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(

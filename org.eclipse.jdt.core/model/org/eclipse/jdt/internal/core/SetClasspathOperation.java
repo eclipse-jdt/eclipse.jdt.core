@@ -287,9 +287,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-		if (this.classpathWasSaved) {
-			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
-		}
 		boolean hasDelta = false;
 		if (this.classpathWasSaved) {
 			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
@@ -768,7 +765,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			IProject projectResource = this.project.getProject();
 			IProjectDescription description = projectResource.getDescription();
 			 
-			IProject[] projectReferences = description.getReferencedProjects();
+			IProject[] projectReferences = description.getDynamicReferences();
 			
 			HashSet oldReferences = new HashSet(projectReferences.length);
 			for (int i = 0; i < projectReferences.length; i++){
@@ -814,7 +811,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
 			}
 	
-			description.setReferencedProjects(requiredProjectArray);
+			description.setDynamicReferences(requiredProjectArray);
 			projectResource.setDescription(description, this.progressMonitor);
 	
 		} catch(CoreException e){

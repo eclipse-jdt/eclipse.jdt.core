@@ -142,9 +142,9 @@ public class MemberValuePair extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		MemberValuePair result = new MemberValuePair(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) ASTNode.copySubtree(target, getName()));
 		result.setValue((Expression) ASTNode.copySubtree(target, getValue()));
 		return result;

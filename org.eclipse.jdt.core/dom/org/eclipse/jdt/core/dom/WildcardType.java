@@ -154,9 +154,9 @@ public class WildcardType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		WildcardType result = new WildcardType(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setBound((Type) ASTNode.copySubtree(target, getBound()), isUpperBound());
 		return result;
 	}

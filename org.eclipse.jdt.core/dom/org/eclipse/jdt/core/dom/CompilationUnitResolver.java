@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -289,6 +289,7 @@ class CompilationUnitResolver extends Compiler {
 		String unitName,
 		IJavaProject javaProject,
 		NodeSearcher nodeSearcher,
+		Map options,
 		boolean cleanUp,
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
@@ -304,11 +305,9 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					javaProject.getOptions(true),
+					options,
 					getRequestor(),
 					problemFactory);
-
-			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 
 			unit = 
 				resolver.resolve(
@@ -317,7 +316,7 @@ class CompilationUnitResolver extends Compiler {
 						source,
 						packageName,
 						unitName,
-						encoding),
+						javaProject),
 					nodeSearcher,
 					true, // method verification
 					true, // analyze code

@@ -530,9 +530,9 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Method declared on ASTNode.
 	 * @since 3.0
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		Modifier result = new Modifier(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setKeyword(getKeyword());
 		return result;
 	}

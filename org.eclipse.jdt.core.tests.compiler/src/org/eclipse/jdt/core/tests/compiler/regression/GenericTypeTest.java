@@ -74,11 +74,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 		return options;
 	}
+	// Use this static initializer to specify subset for tests
+	// All specified tests which does not belong to the class are skipped...
 	static {
-		// Use this static to specify a subset of tests using testsNames, testsNumbers or testsRange arrays
-//		testsNames = new String[] { "MissingTagsErrorPublicOverriding" };
-//		testsRange = new int[] { 78, -1 };
-//		testsNumbers = new int[] { 58, 79 };
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		testsNumbers = new int[] { 3, 7, 10, 21 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { 21, 50 };
+//		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
+//		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {

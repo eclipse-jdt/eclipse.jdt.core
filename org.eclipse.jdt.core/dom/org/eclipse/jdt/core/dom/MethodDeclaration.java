@@ -446,7 +446,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		MethodDeclaration result = new MethodDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
@@ -623,10 +623,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    and <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a 2.0 AST
-	 * @see SingleVariableDeclaration#isVariableArity()
+	 * @see SingleVariableDeclaration#isVarargs()
 	 * @since 3.0
 	 */ 
-	public boolean isVariableArity() {
+	public boolean isVarargs() {
 		// more efficient than just calling unsupportedIn2() to check
 		if (this.modifiers == null) {
 			unsupportedIn2();
@@ -635,8 +635,17 @@ public class MethodDeclaration extends BodyDeclaration {
 			return false;
 		} else {
 			SingleVariableDeclaration v = (SingleVariableDeclaration) parameters().get(parameters().size() - 1);
-			return v.isVariableArity();
+			return v.isVarargs();
 		}
+	}
+	
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed isVarargs
+	 * TODO (jeem) - Remove before M9
+	 */ 
+	public boolean isVariableArity() {
+		return isVarargs();
 	}
 	
 	/**

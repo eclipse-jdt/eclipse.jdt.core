@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser3();  // handles JLS3 (J2SE 1.5)
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);  // handles JLS3 (J2SE 1.5)
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
@@ -623,7 +623,7 @@ public class ASTParser {
 						}
 					} else if (this.rawSource != null) {
 						source = this.rawSource;
-						if (this.unitName == null || this.project == null) {
+						if (this.unitName == null || this.project == null || this.compilerOptions == null) {
 							needToResolveBindings = false;
 						} else {
 							fileName = this.unitName;
@@ -636,7 +636,7 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
-					if (needToResolveBindings) {
+					if (needToResolveBindings && this.project != null) {
 						try {
 							// parse and resolve
 							compilationUnitDeclaration = 
@@ -646,6 +646,7 @@ public class ASTParser {
 									fileName,
 									this.project,
 									searcher,
+									this.compilerOptions,
 									false,
 									this.workingCopyOwner,
 									monitor);
@@ -682,6 +683,7 @@ public class ASTParser {
 	private ASTNode convert(IProgressMonitor monitor, CompilationUnitDeclaration compilationUnitDeclaration, char[] source, boolean needToResolveBindings) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(this.apiLevel);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
 		if (AST.LEVEL_2_0 == this.apiLevel) {
 			ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
@@ -706,6 +708,8 @@ public class ASTParser {
 			compilationUnit = converter.convert(compilationUnitDeclaration, source);
 			compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
 		}
+		ast.setDefaultNodeFlag(0);
+		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
 	}
 
@@ -785,6 +789,7 @@ public class ASTParser {
 		converter.scanner.setSource(this.rawSource);
 		
 		AST ast = AST.newAST(this.apiLevel);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
@@ -808,12 +813,16 @@ public class ASTParser {
 						}
 					}
 					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 			case K_EXPRESSION :
@@ -827,12 +836,16 @@ public class ASTParser {
 				if (expression != null) {
 					Expression expression2 = converter.convert(expression);
 					rootNodeToCompilationUnit(expression2.getAST(), compilationUnit, expression2, codeSnippetParsingUtil.recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return expression2;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 			case K_CLASS_BODY_DECLARATIONS :
@@ -846,12 +859,16 @@ public class ASTParser {
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
 					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return typeDeclaration;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 		}

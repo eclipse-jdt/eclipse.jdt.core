@@ -211,7 +211,7 @@ public class Initializer extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		Initializer result = new Initializer(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		if (this.ast.apiLevel == AST.LEVEL_2_0) {

@@ -105,7 +105,7 @@ public class ArrayInitializer extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		ArrayInitializer result = new ArrayInitializer(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.expressions().addAll(ASTNode.copySubtrees(target, expressions()));

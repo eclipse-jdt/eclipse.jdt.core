@@ -15,9 +15,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.core.dom.rewrite.RewriteException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
@@ -256,7 +260,7 @@ public class CompilationUnit extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
 		// n.b do not copy line number table or messages
 		result.setSourceRange(this.getStartPosition(), this.getLength());
@@ -786,6 +790,67 @@ public class CompilationUnit extends ASTNode {
 			}
 		}
 		return size;
+	}
+	
+	/**
+	 * Enables the recording of changes to this compilation
+	 * unit and its descendents. The compilation unit must have
+	 * been created by <code>ASTParser</code> and still be in
+	 * its original state. Once recording is on,
+	 * arbitrary changes to the subtree rooted at this compilation
+	 * unit are recorded internally. Once the modification has
+	 * been completed, call <code>rewrite</code> to get an object
+	 * representing the corresponding edits to the original 
+	 * source code string.
+	 *
+	 * @throws RewriteException if this compilation unit is marked
+	 * as unmodifiable, or if this compilation unit has already 
+	 * been tampered with, or recording has already been enabled
+	 * TODO - eliminate RewriteException in favor of an unchecked exception
+	 * @see #rewrite(IDocument, Map)
+	 * @since 3.0
+	 */
+	public void recordModifications() throws RewriteException {
+		getAST().recordModifications(this);
+	}
+	
+	/**
+	 * Converts all modifications recorded for this compilation
+	 * unit into an object representing the corresponding text
+	 * edits to the given document containing the original source
+	 * code for this compilation unit.
+	 * <p>
+	 * The compilation unit must have been created by
+	 * <code>ASTParser</code> from the source code string in the
+	 * given document, and recording must have been turned
+	 * on with a prior call to <code>recordModifications</code>
+	 * while the AST was still in its original state.
+	 * </p>
+	 * <p>
+	 * Calling this methods does not discard the modifications
+	 * on record. Subsequence modifications made to the AST
+	 * are added to the ones already on record. If this method
+	 * is called again later, the resulting text edit object will
+	 * accurately reflect the net cumulative affect of all those
+	 * changes.
+	 * </p>
+	 * 
+	 * @param document original document containing source code
+	 * for this compilation unit
+	 * @param options the table of formatter options
+	 * (key type: <code>String</code>; value type: <code>String</code>);
+	 * or <code>null</code> to use the standard global options
+	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
+	 * @return text edit object describing the changes to the
+	 * document corresponding to the recorded AST modifications
+	 * @throws RewriteException if <code>recordModifications</code>
+	 * was not called to enable recording
+	 * TODO - eliminate RewriteException in favor of an unchecked exception
+	 * @see #recordModifications()
+	 * @since 3.0
+	 */
+	public TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+		return getAST().rewrite(document, options);
 	}
 }
 

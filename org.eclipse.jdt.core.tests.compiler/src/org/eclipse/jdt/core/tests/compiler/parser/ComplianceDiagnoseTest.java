@@ -16,18 +16,24 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
-public ComplianceDiagnoseTest(String name) {
-	super(name);
-}
+	public ComplianceDiagnoseTest(String name) {
+		super(name);
+	}
+	// Use this static initializer to specify subset for tests
+	// All specified tests which does not belong to the class are skipped...
 	static {
-		// Use this static to specify a subset of tests using testsNames, testsNumbers or testsRange arrays
-//		testsNames = new String[] { "MissingTagsErrorPublicOverriding" };
-//		testsNumbers = new int[] { 23 };
-//		testsRange = new int[] { 78, -1 };
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		testsNumbers = new int[] { 3, 7, 10, 21 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { 21, 50 };
+//		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
+//		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
-			return new RegressionTestSetup(suite(testClass(), testClass().getName(), 4), highestComplianceLevels());
+			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
 			// To run a specific test, just uncomment line with testNumbers in static initializer above
 			// and put numbers of tests you want to perform

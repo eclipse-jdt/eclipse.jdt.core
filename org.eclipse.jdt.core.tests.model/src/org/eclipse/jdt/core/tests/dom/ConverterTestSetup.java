@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
@@ -158,7 +159,16 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		parser.setProject(project);
 		return parser.createAST(null);
 	}
-	
+
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(source);
+		parser.setUnitName(unitName);
+		parser.setProject(project);
+		parser.setCompilerOptions(options);
+		return parser.createAST(null);
+	}	
+
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);

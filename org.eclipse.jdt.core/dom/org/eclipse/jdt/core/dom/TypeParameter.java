@@ -145,7 +145,7 @@ public class TypeParameter extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		TypeParameter result = new TypeParameter(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) ((ASTNode) getName()).clone(target));

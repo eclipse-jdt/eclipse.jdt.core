@@ -96,7 +96,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0539"));
+		suite.addTest(new ASTConverterTest2("test0540"));
 		return suite;
 	}
 	/**
@@ -4370,5 +4370,37 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(anonymousClassDeclaration2, "{}", source);
 		assertNotNull("No anonymous class declaration", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{/*x*/}", source);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11125
+	 */
+	public void test0540() {
+		char[] source = 
+				("package test0540;\n" +  //$NON-NLS-1$
+				"\n" +  //$NON-NLS-1$
+				"class Test {\n" +  //$NON-NLS-1$
+				"	public void foo(int arg) {\n" +//$NON-NLS-1$
+				"		assert true;\n" +//$NON-NLS-1$
+				"	}\n" +  //$NON-NLS-1$
+				"}").toCharArray(); //$NON-NLS-1$
+		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
+		Map options = project.getOptions(true);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		ASTNode result = runConversion(source, "Test.java", project, options); //$NON-NLS-1$
+		assertNotNull("No compilation unit", result); //$NON-NLS-1$
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("Problems found", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertTrue("not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "Test", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong package", "test0540", typeBinding.getPackage().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("Not an interface", typeBinding.isClass()); //$NON-NLS-1$
 	}	
 }

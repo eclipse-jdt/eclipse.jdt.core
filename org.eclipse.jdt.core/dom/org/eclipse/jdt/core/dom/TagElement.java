@@ -233,7 +233,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		TagElement result = new TagElement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setTagName(getTagName());

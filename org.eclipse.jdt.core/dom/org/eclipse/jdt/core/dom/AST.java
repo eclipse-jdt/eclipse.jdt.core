@@ -22,8 +22,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Umbrella owner and abstract syntax tree node factory.
@@ -50,11 +53,22 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * the original source characters.
  * </p>
  * <p>
- * Note that there is no built-in way to serialize a modified AST to a source
- * code string. Naive serialization of a newly-constructed AST to a string is
- * a straightforward application of an AST visitor. However, preserving comments
- * and formatting from the originating source code string is a challenging
- * problem (support for this is planned for a future release).
+ * Compilation units created by <code>ASTParser</code> from a
+ * source document can be serialized after arbitrary modifications
+ * with minimal loss of original formatting. Here is an example:
+ * <pre>
+ * Document doc = new Document("import java.util.List;\nclass X {}\n");
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
+ * parser.setSource(doc.get().toCharArray());
+ * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+ * cu.recordModifications();
+ * AST ast = cu.getAST();
+ * ImportDeclaration id = ast.newImportDeclaration();
+ * id.setName(ast.newName(new String[] {"java", "util", "Set"});
+ * cu.imports().add(id); // add import declaration at end
+ * TextEdit edits = cu.rewrite(document, null);
+ * UndoEdit undo = edits.apply(document);
+ * </pre>
  * </p>
  * <p>
  * Clients may create instances of this class, which is not intended to be
@@ -149,6 +163,14 @@ public final class AST {
 	 * <b>by one or more</b> as the AST is successively modified.
 	 */
 	private long modificationCount = 0;
+	
+	/**
+	 * Internal original modification count; value is equals to <code>
+	 * modificationCount</code> at the end of the parse (<code>ASTParser
+	 * </code>). If this ast is not created with a parser then value is 0.
+	 * @since 3.0
+	 */
+	private long originalModificationCount = 0;
 
 	/**
 	 * When disableEvents > 0, events are not reported and
@@ -167,7 +189,17 @@ public final class AST {
 	 * like CharacterLiteral, NumberLiteral, StringLiteral or SimpleName.
 	 */
 	Scanner scanner;
-
+	
+	/**
+	 * Internal ast rewriter used to record ast modification when record mode is enabled.
+	 */
+	InternalASTRewrite rewriter;
+	
+	/**
+	 * Default value of <code>flag<code> when a new node is created.
+	 */
+	private int defaultNodeFlag = 0;
+	
 	/**
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules. 
@@ -544,6 +576,51 @@ public final class AST {
 		try {
 			this.disableEvents++;
 			this.eventHandler.postValueChangeEvent(node, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node is about to be cloned.
+	 * 
+	 * @param node the node to be cloned
+	 * @since 3.0
+	 */
+	void preCloneNodeEvent(ASTNode node) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preCloneNodeEvent(node);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node has just been cloned.
+	 * 
+	 * @param node the node that was cloned
+	 * @param clone the clone of <code>node</code>
+	 * @since 3.0
+	 */
+	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postCloneNodeEvent(node, clone);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
@@ -1472,6 +1549,35 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		this.eventHandler = eventHandler;
+	}
+	
+	/**
+	 * Returns default node flags of new nodes of this AST.
+	 * 
+	 * @return the default node flags of new nodes of this AST
+	 * @since 3.0
+	 */
+	int getDefaultNodeFlag() {
+		return this.defaultNodeFlag;
+	}
+	
+	/**
+	 * Sets default node flags of new nodes of this AST.
+	 * 
+	 * @param default node flags of new nodes of this AST
+	 * @since 3.0
+	 */
+	void setDefaultNodeFlag(int flag) {
+		this.defaultNodeFlag = flag;
+	}
+	
+	/**
+	 * Set <code>originalModificationCount</code> to the current modification count
+	 * 
+	 * @since 3.0
+	 */
+	void setOriginalModificationCount(long count) {
+		this.originalModificationCount = count;
 	}
 
 	/** 
@@ -3085,6 +3191,70 @@ public final class AST {
 	public MemberValuePair newMemberValuePair() {
 		MemberValuePair result = new MemberValuePair(this);
 		return result;
+	}
+	
+	/**
+	 * Enables the recording of changes to the given compilation
+	 * unit and its descendents. The compilation unit must have
+	 * been created by <code>ASTParser</code> and still be in
+	 * its original state. Once recording is on,
+	 * arbitrary changes to the subtree rooted at the compilation
+	 * unit are recorded internally. Once the modification has
+	 * been completed, call <code>rewrite</code> to get an object
+	 * representing the corresponding edits to the original 
+	 * source code string.
+	 *
+	 * @throws RewriteException if the compilation unit is marked
+	 * as unmodifiable, or if the compilation unit has already 
+	 * been tampered with, or if recording has already been enabled,
+	 * or if <code>root</code> is not owned by this AST
+	 * @see CompilationUnit#recordModifications()
+	 * @since 3.0
+	 */
+	void recordModifications(CompilationUnit root) throws RewriteException {
+		if(this.modificationCount != this.originalModificationCount) {
+			throw new RewriteException("AST is already modified"); //$NON-NLS-1$
+		} else if(this.rewriter  != null) {
+			throw new RewriteException("AST modifications are already recorded"); //$NON-NLS-1$
+		} else if((root.getFlags() & ASTNode.PROTECT) != 0) {
+			throw new RewriteException("Root node is unmodifiable"); //$NON-NLS-1$
+		} else if(root.getAST() != this) {
+			throw new RewriteException("Root node is not owned by this ast"); //$NON-NLS-1$
+		}
+		
+		this.rewriter = new InternalASTRewrite(root);
+		this.setEventHandler(this.rewriter);
+	}
+	
+	/**
+	 * Converts all modifications recorded into an object
+	 * representing the corresponding text edits to the
+	 * given document containing the original source
+	 * code for the compilation unit that gave rise to
+	 * this AST.
+	 * 
+	 * @param document original document containing source code
+	 * for the compilation unit
+	 * @param options the table of formatter options
+	 * (key type: <code>String</code>; value type: <code>String</code>);
+	 * or <code>null</code> to use the standard global options
+	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
+	 * @return text edit object describing the changes to the
+	 * document corresponding to the recorded AST modifications
+	 * @throws RewriteException if <code>recordModifications</code>
+	 * was not called to enable recording
+	 * @throws IllegalArgumentException if document is null
+	 * @see CompilationUnit#rewrite(IDocument, Map)
+	 * @since 3.0
+	 */
+	TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
+		if(this.rewriter  == null) {
+			throw new RewriteException("Modifications record is not enabled"); //$NON-NLS-1$
+		}
+		return this.rewriter.rewriteAST(document, options);
 	}
 }
 
