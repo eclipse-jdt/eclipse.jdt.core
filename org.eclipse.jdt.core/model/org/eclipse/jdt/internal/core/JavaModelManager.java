@@ -341,12 +341,17 @@ public class JavaModelManager implements ISaveParticipant {
 						// if the resource is a file, then remove the last segment which
 						// is the file name in the package
 						pkgPath = pkgPath.removeLastSegments(1);
+						
+						// don't check validity of package name (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=26706)
+						String pkgName = pkgPath.toString().replace('/', '.');
+						return root.getPackageFragment(pkgName);
+					} else {
+						String pkgName = Util.packageName(pkgPath);
+						if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
+							return null;
+						}
+						return root.getPackageFragment(pkgName);
 					}
-					String pkgName = Util.packageName(pkgPath);
-					if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
-						return null;
-					}
-					return root.getPackageFragment(pkgName);
 				}
 			}
 		} catch (JavaModelException npe) {
