@@ -890,8 +890,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qua
 		if (token != TerminalTokens.TokenNameEOF) {
 			char[] currentTokenSource = scanner.getCurrentTokenSource();
 			boolean equals = false;
-			while (i < tokenNumber && !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource))) {
-			}
+			while (i < tokenNumber && !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource)));
 			if (equals && (previousValid == -1 || previousValid == i - 2)) {
 				previousValid = i - 1;
 				if (refSourceStart == -1)
