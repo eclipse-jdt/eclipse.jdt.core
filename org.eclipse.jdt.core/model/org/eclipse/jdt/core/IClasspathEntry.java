@@ -52,13 +52,12 @@ import org.eclipse.core.runtime.IPath;
  *      <code>JavaCore.getResolvedClasspathVariable</code>.</li>
  * </ul>
  * </p>
- * Any classpath entry except for a source folder one  (<code>CPE_SOURCE</code>) can
- * be marked as being exported. When doing so, the entry will automatically be contributed to
- * any dependent of the current project, along with the default output location contribution (the 
- * output location will always be coming before the exported entries). 
- * This allows, for instance, a project to contain some libraries, and still be referred to as 
- * a project from dependent projects (without needing additional library entries to denote 
- * the project internals).
+ * <p>
+ * Any classpath entry other than a source folder (kind <code>CPE_SOURCE</code>) can
+ * be marked as being exported. Exported entries are automatically contributed to
+ * dependent projects, along with the project's output folder, which is implicitly
+ * exported. The project's output folder is always listed first, followed by the
+ * any exported entries.
  * <p>
  * This interface is not intended to be implemented by clients.
  * Classpath entries can be created via methods on <code>JavaCore</code>.
@@ -67,6 +66,7 @@ import org.eclipse.core.runtime.IPath;
  * @see JavaCore#newLibraryEntry
  * @see JavaCore#newProjectEntry
  * @see JavaCore#newSourceEntry
+ * @see JavaCore#newVariableEntry
  */
 public interface IClasspathEntry {
 
@@ -176,8 +176,10 @@ public interface IClasspathEntry {
 	IPath getSourceAttachmentRootPath();
 	
 	/**
-	 * Returns true if the entry is to be exported to other dependent projects.
-	 * Unless explicitly marked as being exported, an entry is not exported.
+	 * Returns whether this entry is exported to dependent projects.
+	 * 
+	 * @return <code>true</code> if exported, and <code>false</code> otherwise
+	 * @since 2.0
 	 */
 	boolean isExported();
 }
