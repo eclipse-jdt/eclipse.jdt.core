@@ -15,8 +15,6 @@ import java.net.ServerSocket;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
 
-	public static int MAX_PORT_NUMBER = 9999;
-
 public static String[] concatWithClassLibs(String classpath, boolean inFront) {
 	String[] classLibs = getJavaClassLibs();
 	final int length = classLibs.length;
