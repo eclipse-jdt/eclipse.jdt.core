@@ -711,7 +711,7 @@ public class QualifiedNameReference extends NameReference {
 		            index, 
 		            currentScope.enclosingSourceType().getUpdatedFieldBinding(
 		                    getCodegenBinding(fieldBinding, index), 
-		                    (ReferenceBinding)lastReceiverType.rawType()), 
+		                    (ReferenceBinding)lastReceiverType.erasure()), 
 		         	null/*reuse existing*/);
 		}
 	}
@@ -790,9 +790,16 @@ public class QualifiedNameReference extends NameReference {
 					bits &= ~RestrictiveFlagMASK; // clear bits
 					bits |= TYPE;
 				case TYPE : //=============only type ==============
-					if (isTypeUseDeprecated((TypeBinding) binding, scope))
-						scope.problemReporter().deprecatedType((TypeBinding) binding, this);
-					return this.resolvedType = (TypeBinding) binding;
+				    TypeBinding type = (TypeBinding) binding;
+					if (isTypeUseDeprecated(type, scope))
+						scope.problemReporter().deprecatedType(type, this);
+					if (type instanceof ReferenceBinding) {
+					    ReferenceBinding referenceType = (ReferenceBinding) type;
+					    if (referenceType.typeVariables() != NoTypeVariables) {
+					        return this.resolvedType = scope.createRawType(referenceType); // raw type
+					    }
+					}							
+					return this.resolvedType = type;
 			}
 		}
 		//========error cases===============

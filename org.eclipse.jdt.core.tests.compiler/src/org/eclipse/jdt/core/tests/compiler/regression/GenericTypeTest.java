@@ -696,12 +696,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	private T foo(T t) {\n" + 
 			"	          ^^^^^^^^\n" + 
-			"The private method foo(T) from the type X is never used locally\n" + 
+			"The private method foo(T) from the type X<T> is never used locally\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	foo(new XY());\n" + 
 			"	^^^\n" + 
-			"The method foo(T) in the type X is not applicable for the arguments (XY)\n" + 
+			"The method foo(T) in the type X<T> is not applicable for the arguments (XY)\n" + 
 			"----------\n");
 	}
 	public void test020() {
@@ -758,7 +758,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	foo(x);\n" + 
 			"	^^^\n" + 
-			"The method foo(T) in the type X is not applicable for the arguments (String)\n" + 
+			"The method foo(T) in the type X<T> is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	new X<String>().foo(new Object());\n" + 
@@ -1050,12 +1050,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(E e){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Method foo(E) has the same erasure foo(Object) as another method in type X\n" + 
+			"Method foo(E) has the same erasure foo(Object) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	void foo(T t){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Method foo(T) has the same erasure foo(Object) as another method in type X\n" + 
+			"Method foo(T) has the same erasure foo(Object) as another method in type X<E,T>\n" + 
 			"----------\n");
 	}		
 	
@@ -1072,12 +1072,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(E e){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Method foo(E) has the same erasure foo(Exception) as another method in type X\n" + 
+			"Method foo(E) has the same erasure foo(Exception) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	void foo(T t){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Method foo(T) has the same erasure foo(Exception) as another method in type X\n" + 
+			"Method foo(T) has the same erasure foo(Exception) as another method in type X<E,T>\n" + 
 			"----------\n");
 	}	
 	
@@ -1094,12 +1094,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(E e, Thread t){}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^\n" + 
-			"Method foo(E, Thread) has the same erasure foo(Exception, Thread) as another method in type X\n" + 
+			"Method foo(E, Thread) has the same erasure foo(Exception, Thread) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	void foo(Exception e, T t){}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method foo(Exception, T) has the same erasure foo(Exception, Thread) as another method in type X\n" + 
+			"Method foo(Exception, T) has the same erasure foo(Exception, Thread) as another method in type X<E,T>\n" + 
 			"----------\n");
 	}	
 	
@@ -1169,17 +1169,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(L<E> l1){}\n" + 
 			"	     ^^^^^^^^^^^^\n" + 
-			"Method foo(L<E>) has the same erasure foo(L) as another method in type X\n" + 
+			"Method foo(L<E>) has the same erasure foo(L<E>) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	void foo(L<T> l2){}\n" + 
 			"	     ^^^^^^^^^^^^\n" + 
-			"Method foo(L<T>) has the same erasure foo(L) as another method in type X\n" + 
+			"Method foo(L<T>) has the same erasure foo(L<E>) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	void foo(L l){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Duplicate method foo(L) in type X\n" + 
+			"Duplicate method foo(L) in type X<E,T>\n" + 
 			"----------\n");
 	}
 	
@@ -1577,7 +1577,7 @@ public void test056() {
 		"1. WARNING in p\\A.java (at line 7)\n" + 
 		"	protected void print(P p) {\n" + 
 		"	                       ^\n" + 
-		"The parameter p is hiding a field from type A\n" + 
+		"The parameter p is hiding a field from type A<P>\n" + 
 		"----------\n");
 }
 
@@ -1646,12 +1646,11 @@ public void test057() {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X.java (at line 7)\n" + 
-				"	X<String, Number, Integer> x;\n" + 
-				"	^\n" + 
-				"Incorrect number of arguments for type X; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
-				"----------\n"
-		);
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	X<String, Number, Integer> x;\n" + 
+			"	^\n" + 
+			"Incorrect number of arguments for type X<A1,A2,A3,A4>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
+			"----------\n");
 	}
 	public void test060() {
 		this.runNegativeTest(
@@ -1667,11 +1666,11 @@ public void test057() {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X.java (at line 7)\n" + 
-				"	X<String, Number, Integer> x;\n" + 
-				"	^\n" + 
-				"Incorrect number of arguments for type X; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
-				"----------\n"
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	X<String, Number, Integer> x;\n" + 
+			"	^\n" + 
+			"Incorrect number of arguments for type X<A1,A2>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
+			"----------\n"
 		);
 	}
 	public void test061() {
@@ -1727,7 +1726,6 @@ public void test057() {
 	}
 	// TODO (philippe) reenable once array type arguments are supported
 	public void _test062() {
-		
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -1743,4 +1741,101 @@ public void test057() {
 			""
 		);
 	}
+	public void test063() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends p.A<T> {\n" + 
+				"    \n" + 
+				"    X(T t) {\n" + 
+				"        super(t);\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X x = new X(args);\n" + 
+				"        X<String> xs = new X<String>(args);\n" + 
+				"	}\n" + 
+				"}\n", 
+				"p/A.java",
+				"package p; \n" +
+				"public class A<P> {\n" + 
+				"	 protected P p;\n" +
+				"    protected A(P p) {\n" +
+				"       this.p = p; \n" +
+				"    } \n" +
+				"    protected void print(P p) {\n" + 
+				"        System.out.println(\"SUCCESS\"+p);\n" + 
+				"    }\n" + 
+				"}\n", 
+			},
+		// TODO (philippe) should also issue unchecked warning
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	X<String> xs = new X<String>(args);\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X<String>(String[]) is undefined\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p\\A.java (at line 7)\n" + 
+		"	protected void print(P p) {\n" + 
+		"	                       ^\n" + 
+		"The parameter p is hiding a field from type A<P>\n" + 
+		"----------\n");
+	}
+	// raw type: variable map to its strict erasure 
+	public void test064() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Exception & IX> {\n" + 
+				"    T t;\n" + 
+				"    void bar(T t) {\n" + 
+				"        t.getMessage();\n" + 
+				"        t.foo();\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + // raw type
+				"		x.t.getMessage();\n" + // T is strictly exception !
+				"		x.t.foo();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IX {\n" + 
+				"    void foo();\n" + 
+				"}\n", 
+			},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void bar(T t) {\n" + 
+		"	           ^\n" + 
+		"The parameter t is hiding a field from type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	x.t.foo();\n" + 
+		"	    ^^^\n" + 
+		"The method foo() is undefined for the type Exception\n" + 
+		"----------\n");
+	}
+	// raw type: assignments 
+	public void test065() {
+	    // TODO raise severity of unchecked warning to ERROR
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+
+			"import java.io.IOException;\n" + 
+			"\n" + 
+			"public class X<T extends Exception> {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		X<IOException> xioe = new X<IOException>(); // ok\n" + 
+			"		\n" + 
+			"		X x2 = xioe;\n" + 
+			"		X<IOException> xioe2 = x; // unchecked\n" + 
+			"	}\n" + 
+			"}\n", 
+			},
+		"unchecked warning assigning raw type X to X<IOException>");
+	}
+
 }

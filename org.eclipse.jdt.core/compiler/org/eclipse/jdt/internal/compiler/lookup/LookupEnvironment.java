@@ -37,6 +37,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
 	private SimpleLookupTable uniqueParameterizedTypeBindings;
+	private SimpleLookupTable uniqueRawTypeBindings;
 	
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private int lastUnitIndex = -1;
@@ -63,6 +64,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.uniqueArrayBindings = new ArrayBinding[5][];
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
 }
 /* Ask the oracle for a type which corresponds to the compoundName.
 * Answer null if the name cannot be found.
@@ -346,10 +348,10 @@ PackageBinding createPackage(char[][] compoundName) {
 	return packageBinding;
 }
 
-public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType, TypeBinding[] typeArguments) {
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments) {
 
 	// cached info is array of already created parameterized types for this raw type
-	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(rawType);
+	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
 	int argLength = typeArguments.length;
 	boolean needToGrow = false;
 	if (cachedInfo != null){
@@ -369,18 +371,29 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType
 		needToGrow = true;
 	} else {
 		cachedInfo = new ParameterizedTypeBinding[1];
-		this.uniqueParameterizedTypeBindings.put(rawType, cachedInfo);
+		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
 	}
 	// grow cache ?
 	if (needToGrow){
 		int length = cachedInfo.length;
 		System.arraycopy(cachedInfo, 0, cachedInfo = new ParameterizedTypeBinding[length+1], 0, length);
-		this.uniqueParameterizedTypeBindings.put(rawType, cachedInfo);
+		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(rawType,typeArguments, this);
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, this);
 	cachedInfo[cachedInfo.length-1] = parameterizedType;
 	return parameterizedType;
+}
+
+public RawTypeBinding createRawType(ReferenceBinding genericType) {
+
+	// cached info is array of already created parameterized types for this raw type
+	RawTypeBinding cachedInfo = (RawTypeBinding)this.uniqueRawTypeBindings.get(genericType);
+	if (cachedInfo == null) {
+	    cachedInfo = new RawTypeBinding(genericType, this);
+		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
+	}
+	return cachedInfo;
 }
 
 /* Answer the type for the compoundName if it exists in the cache.
@@ -602,6 +615,7 @@ public void reset() {
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
 	
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;

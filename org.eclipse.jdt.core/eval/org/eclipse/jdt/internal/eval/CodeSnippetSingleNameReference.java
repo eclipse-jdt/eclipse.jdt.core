@@ -588,7 +588,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 					&& !fieldBinding.isStatic()
 					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding((FieldBinding)this.codegenBinding, (ReferenceBinding)this.delegateThis.type.rawType());
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding((FieldBinding)this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
 		}
 	}
 }

@@ -442,7 +442,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			this.codegenBinding =
 				currentScope.enclosingSourceType().getUpdatedFieldBinding(
 					this.codegenBinding,
-					(ReferenceBinding) this.receiverType.rawType());
+					(ReferenceBinding) this.receiverType.erasure());
 		}
 	}
 

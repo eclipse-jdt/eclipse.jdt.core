@@ -589,7 +589,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				this.codegenBinding = 
 				    currentScope.enclosingSourceType().getUpdatedFieldBinding(
 					        (FieldBinding) this.codegenBinding, 
-					        (ReferenceBinding)this.actualReceiverType.rawType());
+					        (ReferenceBinding)this.actualReceiverType.erasure());
 			}
 		}
 	}
@@ -649,9 +649,16 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				case TYPE : //========only type==============
 					constant = Constant.NotAConstant;
 					//deprecated test
-					if (isTypeUseDeprecated((TypeBinding) binding, scope))
-						scope.problemReporter().deprecatedType((TypeBinding) binding, this);
-					return this.resolvedType = (TypeBinding) binding;
+					TypeBinding type = (TypeBinding)binding;
+					if (isTypeUseDeprecated(type, scope))
+						scope.problemReporter().deprecatedType(type, this);
+					if (type instanceof ReferenceBinding) {
+					    ReferenceBinding referenceType = (ReferenceBinding) type;
+					    if (referenceType.typeVariables() != NoTypeVariables) {
+					        return this.resolvedType = scope.createRawType(referenceType); // raw type
+					    }
+					}		
+					return this.resolvedType = type;
 			}
 		}
 	

@@ -94,7 +94,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fieldCount()
 	 */
 	public int fieldCount() {
-		return this.type.fieldCount();
+		return this.type.fieldCount(); // same as erasure (lazy)
 	}
 
 	/**
@@ -282,6 +282,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isCompatibleWith(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+     */
+    public boolean isCompatibleWith(TypeBinding right) {
+       return super.isCompatibleWith(right)
+       					|| this.type.isCompatibleWith(right); // compatible with its own erasure
+    }
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
 	 */
 	public boolean isParameterizedType() {
@@ -324,10 +331,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.type.qualifiedSourceName();
 	}
 
-	public TypeBinding rawType() {
-	    return this.type.rawType(); // erasure
-	}
-	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
 	 */

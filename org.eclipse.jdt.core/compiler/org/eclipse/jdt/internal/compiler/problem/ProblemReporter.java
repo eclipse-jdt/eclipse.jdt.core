@@ -3361,6 +3361,15 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		nameRef.sourceStart,
 		end);
 }
+public void unsafeRawAssignment(Assignment assignment, TypeBinding leftType, TypeBinding rightType) {
+	this.handle(
+		IProblem.UndefinedName,
+		arguments,
+		arguments,
+		severity,
+		nameRef.sourceStart,
+		end);    
+}
 public void unusedArgument(LocalDeclaration localDecl) {
 
 	String[] arguments = new String[] {new String(localDecl.name)};

@@ -434,6 +434,7 @@ public boolean isHierarchyBeingConnected() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 public boolean isCompatibleWith(TypeBinding right) {
+    
 	if (right == this)
 		return true;
 	if (right.id == T_Object)
@@ -441,6 +442,9 @@ public boolean isCompatibleWith(TypeBinding right) {
 	if (!(right instanceof ReferenceBinding))
 		return false;
 
+	if (right.isRawType()) {
+	    return isCompatibleWith(((RawTypeBinding) right).type);
+	}
 	ReferenceBinding referenceBinding = (ReferenceBinding) right;
 	if (referenceBinding.isInterface())
 		return implementsInterface(referenceBinding, true);
@@ -561,17 +565,17 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	} else {
 		readableName = CharOperation.concatWith(compoundName, '.');
 	}
-//	TypeVariableBinding[] typeVars;
-//	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
-//	    StringBuffer nameBuffer = new StringBuffer(10);
-//	    nameBuffer.append(readableName).append('<');
-//	    for (int i = 0, length = typeVars.length; i < length; i++) {
-//	        if (i > 0) nameBuffer.append(',');
-//	        nameBuffer.append(typeVars[i].readableName());
-//	    }
-//	    nameBuffer.append('>');
-//	    readableName = nameBuffer.toString().toCharArray();
-//	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(readableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].readableName());
+	    }
+	    nameBuffer.append('>');
+	    readableName = nameBuffer.toString().toCharArray();
+	}
 	return readableName;
 }
 
@@ -582,17 +586,17 @@ public char[] shortReadableName() /*Object*/ {
 	} else {
 		shortReadableName = this.sourceName;
 	}
-//	TypeVariableBinding[] typeVars;
-//	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
-//	    StringBuffer nameBuffer = new StringBuffer(10);
-//	    nameBuffer.append(shortReadableName).append('<');
-//	    for (int i = 0, length = typeVars.length; i < length; i++) {
-//	        if (i > 0) nameBuffer.append(',');
-//	        nameBuffer.append(typeVars[i].shortReadableName());
-//	    }
-//	    nameBuffer.append('>');
-//	    shortReadableName = nameBuffer.toString().toCharArray();
-//	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(shortReadableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].shortReadableName());
+	    }
+	    nameBuffer.append('>');
+	    shortReadableName = nameBuffer.toString().toCharArray();
+	}
 	return shortReadableName;
 }
 

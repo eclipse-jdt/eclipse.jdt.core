@@ -53,7 +53,6 @@ String debugName() {
 public int dimensions(){
 	return 0;
 }
-// TODO (philippe) similar to #rawType except for TypeVariableBinding, need to check again later
 public TypeBinding erasure() {
     return this;
 }
@@ -138,8 +137,8 @@ public char[] qualifiedPackageName() {
 
 public abstract char[] qualifiedSourceName();
 
-public TypeBinding rawType() {
-    return this;
+public boolean isRawType() {
+    return false;
 }
 
 /* Answer the receiver's signature.

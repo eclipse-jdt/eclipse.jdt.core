@@ -312,7 +312,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 					&& !this.binding.isStatic()
 					&& this.binding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 				|| !this.binding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding)this.delegateThis.type.rawType());
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
 		}
 	} else if (this.binding.declaringClass != this.receiverType
 		&& !this.receiverType.isArrayType()
@@ -321,7 +321,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding) this.receiverType.rawType());
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding) this.receiverType.erasure());
 	}
 }
 public TypeBinding resolveType(BlockScope scope) {

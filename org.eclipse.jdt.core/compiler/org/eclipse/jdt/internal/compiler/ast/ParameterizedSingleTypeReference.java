@@ -41,6 +41,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
         return null; // not supported here - combined with resolveType(...)
     }	
 
+    /*
+     * No need to check for reference to raw type per construction
+     */
 	private TypeBinding internalResolveType(Scope scope) {
 	    
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;

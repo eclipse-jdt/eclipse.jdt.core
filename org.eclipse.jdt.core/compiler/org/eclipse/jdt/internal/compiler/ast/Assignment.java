@@ -122,13 +122,13 @@ public class Assignment extends Expression {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;
 		}
-		this.resolvedType = lhs.resolveType(scope); // expressionType contains the assignment type (lhs Type)
+		this.resolvedType = lhs.resolveType(scope); 
 		TypeBinding rhsType = expression.resolveType(scope);
 		if (this.resolvedType == null || rhsType == null) {
 			return null;
 		}
 		checkAssignmentEffect(scope);
-				
+		
 		// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 		// may require to widen the rhs expression at runtime
 		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, this.resolvedType)
