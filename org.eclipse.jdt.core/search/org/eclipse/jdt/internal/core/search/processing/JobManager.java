@@ -24,7 +24,7 @@ public abstract class JobManager implements Runnable {
 	protected boolean executing = false;
 
 	/* background processing */
-	protected Thread thread;
+	protected Thread processingThread;
 
 	/* flag indicating whether job execution is enabled or not */
 	private boolean enabled = true;
@@ -99,7 +99,7 @@ public abstract class JobManager implements Runnable {
 				currentJob.cancel();
 			
 				// wait until current active job has finished
-				while (thread != null && executing){
+				while (processingThread != null && executing){
 					try {
 						if (VERBOSE)
 							JobManager.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$ //$NON-NLS-2$
@@ -232,12 +232,12 @@ public abstract class JobManager implements Runnable {
 						subProgress.beginTask("", totalWork); //$NON-NLS-1$
 						concurrentJobWork = concurrentJobWork / 2;
 					}
-					int originalPriority = this.thread.getPriority();
+					int originalPriority = this.processingThread.getPriority();
 					try {
 						synchronized(this) {
 							
 							// use local variable to avoid potential NPE (see Bug 20435 NPE when searching java method)
-							Thread t = this.thread;
+							Thread t = this.processingThread;
 							if (t != null) {
 								t.setPriority(Thread.currentThread().getPriority());
 							}
@@ -268,7 +268,7 @@ public abstract class JobManager implements Runnable {
 							this.awaitingClients--;
 							
 							// use local variable to avoid potential NPE (see Bug 20435 NPE when searching java method)
-							Thread t = this.thread;
+							Thread t = this.processingThread;
 							if (t != null) {
 								t.setPriority(originalPriority);
 							}
@@ -320,15 +320,15 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			JobManager.verbose("Reset"); //$NON-NLS-1$
 
-		if (thread != null) {
+		if (processingThread != null) {
 			discardJobs(null); // discard all jobs
 		} else {
 			/* initiate background processing */
-			thread = new Thread(this, this.processName());
-			thread.setDaemon(true);
+			processingThread = new Thread(this, this.processName());
+			processingThread.setDaemon(true);
 			// less prioritary by default, priority is raised if clients are actively waiting on it
-			thread.setPriority(Thread.NORM_PRIORITY-1); 
-			thread.start();
+			processingThread.setPriority(Thread.NORM_PRIORITY-1); 
+			processingThread.start();
 		}
 	}
 	/**
@@ -339,7 +339,7 @@ public abstract class JobManager implements Runnable {
 		long idlingStart = -1;
 		activateProcessing();
 		try {
-			while (this.thread != null) {
+			while (this.processingThread != null) {
 				try {
 					IJob job;
 					if ((job = currentJob()) == null) {
@@ -373,24 +373,24 @@ public abstract class JobManager implements Runnable {
 				}
 			}
 		} catch (RuntimeException e) {
-			if (this.thread != null) { // if not shutting down
+			if (this.processingThread != null) { // if not shutting down
 				// log exception
 				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
 				
 				// keep job manager alive
 				this.discardJobs(null);
-				this.thread = null;
+				this.processingThread = null;
 				this.reset(); // this will fork a new thread with no waiting jobs, some indexes will be inconsistent
 			}
 			throw e;
 		} catch (Error e) {
-			if (this.thread != null && !(e instanceof ThreadDeath)) {
+			if (this.processingThread != null && !(e instanceof ThreadDeath)) {
 				// log exception
 				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
 				
 				// keep job manager alive
 				this.discardJobs(null);
-				this.thread = null;
+				this.processingThread = null;
 				this.reset(); // this will fork a new thread with no waiting jobs, some indexes will be inconsistent
 			}
 			throw e;
@@ -403,11 +403,11 @@ public abstract class JobManager implements Runnable {
 
 		disable();
 		discardJobs(null); // will wait until current executing job has completed
-		Thread workThread = this.thread;
-		this.thread = null; // mark the job manager as shutting down so that the thread will stop by itself
+		Thread thread = this.processingThread;
+		this.processingThread = null; // mark the job manager as shutting down so that the thread will stop by itself
 		try {
-			if (workThread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
-				workThread.join();
+			if (thread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
+				thread.join();
 			}
 		} catch (InterruptedException e) {
 		}

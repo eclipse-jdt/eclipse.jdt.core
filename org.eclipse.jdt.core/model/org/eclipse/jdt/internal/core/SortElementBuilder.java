@@ -48,12 +48,12 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 		protected void setParameters(MethodDeclaration methodDeclaration, String[] parameterNames, String[] parameterTypes) {
 			for (int i = 0, max = parameterNames.length; i < max; i++) {
-				String type = parameterTypes[i];
+				String paramType = parameterTypes[i];
 				SingleVariableDeclaration singleVariableDeclaration = ast.newSingleVariableDeclaration();
 				singleVariableDeclaration.setName(ast.newSimpleName(parameterNames[i]));
 				int indexOfArrayBrace;
-				if (type.indexOf('.') != -1) {
-					String[] typeParts = splitOn('.', type);
+				if (paramType.indexOf('.') != -1) {
+					String[] typeParts = splitOn('.', paramType);
 					int length = typeParts.length;
 					indexOfArrayBrace = typeParts[length - 1].indexOf('[');
 					if (indexOfArrayBrace != -1) {
@@ -71,12 +71,12 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 						}
 						singleVariableDeclaration.setType(ast.newSimpleType(ast.newName(typeSubstrings)));
 					}
-				} else if ((indexOfArrayBrace = type.indexOf('[')) != -1) {
-					int dimensions = occurencesOf('[', type);
-					type = type.substring(0, indexOfArrayBrace);
-					singleVariableDeclaration.setType(ast.newArrayType(newType(type), dimensions));
+				} else if ((indexOfArrayBrace = paramType.indexOf('[')) != -1) {
+					int dimensions = occurencesOf('[', paramType);
+					paramType = paramType.substring(0, indexOfArrayBrace);
+					singleVariableDeclaration.setType(ast.newArrayType(newType(paramType), dimensions));
 				} else {
-					singleVariableDeclaration.setType(newType(type));
+					singleVariableDeclaration.setType(newType(paramType));
 				}
 				methodDeclaration.parameters().add(singleVariableDeclaration);
 			}
@@ -506,7 +506,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	class SortMultipleFieldDeclaration extends SortElement {
-		int declarationStart;
+		int declarationStart; // TODO (olivier) is it intentionally hiding the other field ?
 		
 		SortMultipleFieldDeclaration(SortFieldDeclaration fieldDeclaration) {
 			super(fieldDeclaration.declarationStart, fieldDeclaration.modifiers);

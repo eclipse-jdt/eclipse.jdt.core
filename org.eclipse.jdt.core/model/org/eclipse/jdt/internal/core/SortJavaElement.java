@@ -144,13 +144,13 @@ public abstract class SortJavaElement implements Comparable {
 	}
 	
 	private ASTNode[] convertChildren() {
-		ASTNode[] astNodes = new ASTNode[this.children_count];
+		ASTNode[] convertedNodes = new ASTNode[this.children_count];
 		for (int i = 0, max = this.children_count; i < max; i++) {
 			SortElementBuilder.SortElement currentElement = this.children[i];
 			ASTNode newNode = currentElement.convert();
 			newNode.setProperty(CORRESPONDING_ELEMENT, currentElement);
-			astNodes[i] = newNode;
+			convertedNodes[i] = newNode;
 		}
-		return astNodes;
+		return convertedNodes;
 	}
 }
