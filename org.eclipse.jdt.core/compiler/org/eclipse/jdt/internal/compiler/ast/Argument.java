@@ -23,7 +23,7 @@ public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 		scope.problemReporter().redefineArgument(this);
 	} else {
 		scope.addLocalVariable(this.binding = new LocalVariableBinding(this.name, typeBinding, modifierFlag, true)); //true stand for argument instead of just local
-		if (isTypeUseDeprecated(typeBinding, scope))
+		if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
 			scope.problemReporter().deprecatedType(typeBinding, this.type);
 		this.binding.declaration = this;
 		this.binding.used = used;

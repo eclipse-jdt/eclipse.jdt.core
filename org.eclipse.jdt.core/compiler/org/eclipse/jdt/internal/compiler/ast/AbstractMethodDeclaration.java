@@ -99,10 +99,14 @@ public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowIn
 public void bindArguments() {
 	//bind and add argument's binding into the scope of the method
 
-	if (arguments != null && binding != null) {
+	if (arguments != null) {
+		// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
+		boolean used = binding == null || binding.isAbstract() || binding.isNative();
+		
 		int length = arguments.length;
 		for (int i = 0; i < length; i++) {
-			arguments[i].bind(scope, binding.parameters[i], binding.isAbstract() | binding.isNative());// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
+			TypeBinding argType = binding == null ? null : binding.parameters[i];
+			arguments[i].bind(scope, argType, used);
 		}
 	}
 }
