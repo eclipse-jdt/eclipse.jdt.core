@@ -48,8 +48,9 @@ public boolean equals(Object o) {
 } 
 
 protected boolean isExcluded(IResource resource) {
-	if (this.exclusionPatterns != null && this.sourceFolder.equals(this.binaryFolder))
-		return Util.isExcluded(resource, this.inclusionPatterns, this.exclusionPatterns);
+	if (this.exclusionPatterns != null || this.inclusionPatterns != null)
+		if (this.sourceFolder.equals(this.binaryFolder))
+			return Util.isExcluded(resource, this.inclusionPatterns, this.exclusionPatterns);
 	return false;
 }
 
