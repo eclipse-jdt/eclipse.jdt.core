@@ -139,9 +139,8 @@ public void checkAnnotation() {
 				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
 			} else if (reference instanceof AnnotationMessageSend) {
 				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
-				if (messageSend.arguments != null) {
-					requestor.acceptMethodReference(messageSend.selector, messageSend.arguments.length, messageSend.sourceStart);
-				}
+				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
+				requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
 			}
 		}
 	}
