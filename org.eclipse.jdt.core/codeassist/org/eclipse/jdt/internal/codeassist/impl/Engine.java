@@ -200,7 +200,7 @@ public abstract class Engine implements ITypeRequestor {
 	
 	public static char[] getSignature(Binding binding) {
 		char[] result = null;
-		if ((binding.bindingType() & Binding.TYPE) != 0) {
+		if ((binding.kind() & Binding.TYPE) != 0) {
 			TypeBinding typeBinding = (TypeBinding)binding;
 			if(typeBinding.isLocalType()) {
 				LocalTypeBinding localTypeBinding = (LocalTypeBinding)typeBinding;
@@ -211,7 +211,7 @@ public abstract class Engine implements ITypeRequestor {
 				}
 			}
 			result = typeBinding.genericTypeSignature();
-		} else if ((binding.bindingType() & Binding.METHOD) != 0) {
+		} else if ((binding.kind() & Binding.METHOD) != 0) {
 			MethodBinding methodBinding = (MethodBinding)binding;
 			int oldMod = methodBinding.modifiers;
 			//TODO remove the next line when method from binary type will be able to generate generic siganute

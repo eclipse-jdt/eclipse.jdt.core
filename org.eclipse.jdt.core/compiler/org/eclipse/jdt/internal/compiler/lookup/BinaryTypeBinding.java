@@ -59,7 +59,7 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
-	switch (type.bindingType()) {
+	switch (type.kind()) {
 		
 		case Binding.PARAMETERIZED_TYPE :
 			return ((ParameterizedTypeBinding) type).resolve();
@@ -172,7 +172,7 @@ public MethodBinding[] availableMethods() {
 	return availableMethods;
 }
 
-public int bindingType() {
+public int kind() {
 	if (this.typeVariables != NoTypeVariables) return GENERIC_TYPE;
 	return TYPE;
 }	
@@ -683,7 +683,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	
     if (this == otherType) return true;
     if (otherType == null) return false;
-    switch(otherType.bindingType()) {
+    switch(otherType.kind()) {
 
     	case Binding.WILDCARD_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);

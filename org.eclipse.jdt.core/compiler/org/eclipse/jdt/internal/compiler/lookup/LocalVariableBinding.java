@@ -50,7 +50,7 @@ public class LocalVariableBinding extends VariableBinding {
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
 	*/
-	public final int bindingType() {
+	public final int kind() {
 
 		return LOCAL;
 	}

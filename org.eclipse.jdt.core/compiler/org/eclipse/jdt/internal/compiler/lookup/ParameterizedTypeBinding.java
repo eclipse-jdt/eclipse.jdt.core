@@ -52,7 +52,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return ((this.tagBits & HasDirectWildcard) == 0) // cannot instantiate param type with wildcard arguments
 							&& super.canBeInstantiated();
 	}
-	public int bindingType() {
+	public int kind() {
 		return PARAMETERIZED_TYPE;
 	}	
 	
@@ -416,7 +416,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    return true;
 	    if (otherType == null) 
 	        return false;
-	    switch(otherType.bindingType()) {
+	    switch(otherType.kind()) {
 	
 	    	case Binding.WILDCARD_TYPE :
 	        	return ((WildcardBinding) otherType).boundCheck(this);
@@ -607,7 +607,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 		
-		switch (originalType.bindingType()) {
+		switch (originalType.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
 				TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;

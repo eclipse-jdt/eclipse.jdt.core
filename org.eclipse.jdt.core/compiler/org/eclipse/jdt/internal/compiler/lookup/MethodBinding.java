@@ -120,7 +120,7 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 * Answer the receiver's binding type from Binding.BindingID.
 */
 
-public final int bindingType() {
+public final int kind() {
 	return METHOD;
 }
 /* Answer true if the receiver is visible to the invocationPackage.

@@ -28,6 +28,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public static final int RAW_TYPE = TYPE | ASTNode.Bit10;
 	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit11;
 	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit12;
+	public static final int ANNOTATION_BINDING = TYPE | ASTNode.Bit13; // for annotation refs
 
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
@@ -35,7 +36,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	* Note: Do NOT expect this to be used very often... only in switch statements with
 	* more than 2 possible choices.
 	*/
-	public abstract int bindingType();
+	public abstract int kind();
 	/*
 	 * Computes a key that uniquely identifies this binding.
 	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.

@@ -278,7 +278,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 	    
-		switch (originalType.bindingType()) {
+		switch (originalType.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
 		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;

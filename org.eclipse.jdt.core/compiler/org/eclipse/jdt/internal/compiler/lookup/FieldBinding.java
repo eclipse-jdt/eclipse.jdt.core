@@ -43,7 +43,7 @@ public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaring
 * Answer the receiver's binding type from Binding.BindingID.
 */
 
-public final int bindingType() {
+public final int kind() {
 	return FIELD;
 }
 /* Answer true if the receiver is visible to the invocationPackage.

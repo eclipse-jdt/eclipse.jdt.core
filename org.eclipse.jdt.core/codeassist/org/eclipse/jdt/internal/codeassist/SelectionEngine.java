@@ -453,7 +453,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	private void completeLocalTypes(Binding binding){
-		switch(binding.bindingType()) {
+		switch(binding.kind()) {
 			case Binding.PARAMETERIZED_TYPE :
 			case Binding.RAW_TYPE :
 				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) binding;

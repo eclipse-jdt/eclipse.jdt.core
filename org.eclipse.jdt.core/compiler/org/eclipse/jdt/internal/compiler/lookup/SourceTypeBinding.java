@@ -458,7 +458,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	return accessMethod;
 }
 
-public int bindingType() {
+public int kind() {
 	if (this.typeVariables != NoTypeVariables) return GENERIC_TYPE;
 	return TYPE;
 }	
@@ -750,7 +750,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 
 	if (this == otherType) return true;
     if (otherType == null) return false;
-    switch(otherType.bindingType()) {
+    switch(otherType.kind()) {
 
     	case Binding.WILDCARD_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);

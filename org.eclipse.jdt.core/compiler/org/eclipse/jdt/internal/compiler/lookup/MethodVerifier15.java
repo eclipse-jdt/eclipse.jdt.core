@@ -57,7 +57,7 @@ boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
 
-	switch (one.bindingType()) {
+	switch (one.kind()) {
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
 			return one.isEquivalentTo(two);
@@ -89,7 +89,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 	// then when do you need a bridge method?
 	if (originalInherited.returnType != currentMethod.returnType) {
-		switch (originalInherited.returnType.leafComponentType().bindingType()) {
+		switch (originalInherited.returnType.leafComponentType().kind()) {
 			case Binding.PARAMETERIZED_TYPE :
 				if (!currentMethod.returnType.leafComponentType().isParameterizedType())
 					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);

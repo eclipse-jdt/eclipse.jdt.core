@@ -646,7 +646,7 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 	if (type.isArrayType())
 		type = ((ArrayBinding) type).leafComponentType;
 
-	switch (type.bindingType()) {
+	switch (type.kind()) {
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
 			return null;

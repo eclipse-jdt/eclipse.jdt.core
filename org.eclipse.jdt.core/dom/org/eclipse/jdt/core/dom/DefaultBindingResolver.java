@@ -179,7 +179,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 	
 	IBinding getBinding(org.eclipse.jdt.internal.compiler.lookup.Binding binding) {
-		switch (binding.bindingType()) {
+		switch (binding.kind()) {
 			case Binding.PACKAGE:
 				return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 			case Binding.TYPE:
@@ -558,7 +558,7 @@ class DefaultBindingResolver extends BindingResolver {
 				if (importReference.onDemand) {
 					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, importReference.isStatic());
 					if (binding != null) {
-						if ((binding.bindingType() & Binding.PACKAGE) != 0) {
+						if ((binding.kind() & Binding.PACKAGE) != 0) {
 							IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 							if (packageBinding == null) {
 								return null;

@@ -60,7 +60,7 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
  * Answer the receiver's binding type from Binding.BindingID.
  */
 
-public int bindingType() {
+public int kind() {
 	return TYPE;
 }
 /* Answer true if the receiver can be instantiated
@@ -230,12 +230,12 @@ public boolean isPartOfRawType() {
 public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 	if (this == otherType) return false;
 	if (depth > 1) return true;
-	switch (otherType.bindingType()) {
+	switch (otherType.kind()) {
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
 			return false;
 	}
-	switch(bindingType()) {
+	switch(kind()) {
 		
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
@@ -244,7 +244,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 		case Binding.PARAMETERIZED_TYPE :
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
 			if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure(), depth)) return true;
-			switch (otherType.bindingType()) {
+			switch (otherType.kind()) {
 				case Binding.GENERIC_TYPE :
 				case Binding.RAW_TYPE :
 					return false;
@@ -285,7 +285,7 @@ public boolean isReifiable() {
 		return true;
 	ReferenceBinding current = (ReferenceBinding) leafType;
 	do {
-		switch(current.bindingType()) {
+		switch(current.kind()) {
 			
 			case Binding.TYPE_PARAMETER :
 			case Binding.WILDCARD_TYPE :

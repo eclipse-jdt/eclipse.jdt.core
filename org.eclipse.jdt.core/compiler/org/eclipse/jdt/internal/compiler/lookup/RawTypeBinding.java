@@ -40,7 +40,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return new ParameterizedGenericMethodBinding(originalMethod, this, this.environment);
 	}
 	
-	public int bindingType() {
+	public int kind() {
 		return RAW_TYPE;
 	}	
 	
@@ -127,7 +127,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 	    
-		switch (originalType.bindingType()) {
+		switch (originalType.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
 		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;

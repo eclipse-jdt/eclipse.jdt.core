@@ -3581,7 +3581,7 @@ public final class CompletionEngine
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
-						if((binding.bindingType() & Binding.TYPE) != 0) {
+						if((binding.kind() & Binding.TYPE) != 0) {
 							this.findMemberTypes(
 									token,
 									(ReferenceBinding) binding,
@@ -3591,7 +3591,7 @@ public final class CompletionEngine
 									typesFound);
 						}
 					} else {
-						if ((binding.bindingType() & Binding.TYPE) != 0) {
+						if ((binding.kind() & Binding.TYPE) != 0) {
 							ReferenceBinding typeBinding = (ReferenceBinding) binding;
 							int typeLength = token.length;
 							
@@ -3822,7 +3822,7 @@ public final class CompletionEngine
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
-						if((binding.bindingType() & Binding.TYPE) != 0) {
+						if((binding.kind() & Binding.TYPE) != 0) {
 							findFields(
 								token,
 								(ReferenceBinding)binding,
@@ -3851,7 +3851,7 @@ public final class CompletionEngine
 								false);
 						}
 					} else {
-						if ((binding.bindingType() & Binding.FIELD) != 0) {
+						if ((binding.kind() & Binding.FIELD) != 0) {
 								findFields(
 										token,
 										new FieldBinding[]{(FieldBinding)binding},

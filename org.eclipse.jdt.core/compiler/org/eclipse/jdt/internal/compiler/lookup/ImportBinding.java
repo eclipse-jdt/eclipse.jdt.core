@@ -30,7 +30,7 @@ public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding,
 * Answer the receiver's binding type from Binding.BindingID.
 */
 
-public final int bindingType() {
+public final int kind() {
 	return IMPORT;
 }
 public boolean isStatic() {

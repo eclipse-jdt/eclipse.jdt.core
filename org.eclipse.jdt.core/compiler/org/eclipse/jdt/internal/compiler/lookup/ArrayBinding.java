@@ -36,7 +36,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
     	this.tagBits |= type.tagBits & (HasTypeVariable | HasDirectWildcard);
 }
 
-public int bindingType() {
+public int kind() {
 	return ARRAY_TYPE;
 }
 

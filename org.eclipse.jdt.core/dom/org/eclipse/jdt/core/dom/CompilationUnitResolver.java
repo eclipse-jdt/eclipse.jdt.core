@@ -197,7 +197,7 @@ class CompilationUnitResolver extends Compiler {
 		Binding compilerBinding = bindingKey.getCompilerBinding();
 		if (compilerBinding == null) return null;
 		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
-		if (compilerBinding.bindingType() == Binding.ARRAY_TYPE) {
+		if (compilerBinding.kind() == Binding.ARRAY_TYPE) {
 			return new TypeBinding(resolver, (ArrayBinding) compilerBinding);
 		} else {
 			return resolver.getBinding(compilerBinding);

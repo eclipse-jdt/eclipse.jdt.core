@@ -59,7 +59,7 @@ void addType(ReferenceBinding element) {
 * Answer the receiver's binding type from Binding.BindingID.
 */
 
-public final int bindingType() {
+public final int kind() {
 	return PACKAGE;
 }
 /*
