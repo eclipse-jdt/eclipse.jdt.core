@@ -432,20 +432,27 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 			} else { // QualifiedNameReference
 				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
 				FieldBinding fieldBinding = null;
-				if (binding instanceof FieldBinding && this.matchesName(this.name, (fieldBinding = (FieldBinding)binding).name)) {
-					return this.matchLevel(fieldBinding);
-				} else {
-					int otherLevel = IMPOSSIBLE_MATCH;
-					int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
-					for (int i = 0; i < otherMax && (otherLevel == IMPOSSIBLE_MATCH); i++){
-						char[] token = qNameRef.tokens[i + qNameRef.indexOfFirstFieldBinding];
-						if (this.matchesName(this.name, token)) {
-							FieldBinding otherBinding = qNameRef.otherBindings[i];
-							otherLevel = this.matchLevel(otherBinding);
-						}
+				if (binding instanceof FieldBinding) {
+					fieldBinding = (FieldBinding)binding;
+					char[] name = fieldBinding.name;
+					int lastDot = CharOperation.lastIndexOf('.', name);
+					if (lastDot > -1) {
+						name = CharOperation.subarray(name, lastDot+1, name.length);
 					}
-					return otherLevel;
+					if (this.matchesName(this.name, name)) {
+						return this.matchLevel(fieldBinding);
+					} 
+				} 
+				int otherLevel = IMPOSSIBLE_MATCH;
+				int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
+				for (int i = 0; i < otherMax && (otherLevel == IMPOSSIBLE_MATCH); i++){
+					char[] token = qNameRef.tokens[i + qNameRef.indexOfFirstFieldBinding];
+					if (this.matchesName(this.name, token)) {
+						FieldBinding otherBinding = qNameRef.otherBindings[i];
+						otherLevel = this.matchLevel(otherBinding);
+					}
 				}
+				return otherLevel;
 			}
 		}
 	}

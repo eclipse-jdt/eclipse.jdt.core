@@ -299,6 +299,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testReadWriteFieldReferenceInCompoundExpression"));
 	suite.addTest(new JavaSearchTests("testReadWriteAccessInQualifiedNameReference"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInBrackets"));
+	suite.addTest(new JavaSearchTests("testAccurateFieldReference1"));
 	
 	// or pattern
 	suite.addTest(new JavaSearchTests("testOrPattern"));
@@ -334,6 +335,24 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testExternalJarScope"));
 
 	return suite;
+}
+/**
+ * Type reference test.
+ */
+public void testAccurateFieldReference1() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"d6.X.CONSTANT", 
+		FIELD,
+		REFERENCES, 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {
+			getPackageFragment("JavaSearch", "src", "d6")
+		}), 
+		resultCollector);
+	assertEquals(
+		"src/d6/Y.java d6.Y.T [CONSTANT]",
+		resultCollector.toString());
 }
 /**
  * Regression test for 1GBK7B2: ITPJCORE:WINNT - package references: could be more precise
