@@ -82,9 +82,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	// check if this compilation unit can be opened
 	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
-		IStatus status = validateCompilationUnit();
+		IStatus status = validateCompilationUnit(underlyingResource);
 		if (!status.isOK()) throw newJavaModelException(status);
-		if (!underlyingResource.isAccessible()) throw newNotPresentException();
 	}
 	
 	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
@@ -458,7 +457,7 @@ public boolean exists() {
 	if (getPerWorkingCopyInfo() != null) return true;	
 	
 	// if not a working copy, it exists only if it is a primary compilation unit
-	return isPrimary() && super.exists() && validateCompilationUnit().isOK();
+	return isPrimary() && validateCompilationUnit(getResource()).isOK();
 }
 /**
  * @see ICompilationUnit#findElements(IJavaElement)
@@ -936,7 +935,7 @@ public boolean isPrimary() {
 protected boolean isSourceElement() {
 	return true;
 }
-protected IStatus validateCompilationUnit() {
+protected IStatus validateCompilationUnit(IResource resource) {
 	IPackageFragmentRoot root = getPackageFragmentRoot();
 	try {
 		if (root.getKind() != IPackageFragmentRoot.K_SOURCE) 
@@ -944,12 +943,13 @@ protected IStatus validateCompilationUnit() {
 	} catch (JavaModelException e) {
 		return e.getJavaModelStatus();
 	}
-	IResource resource = getResource();
 	if (resource != null) {
 		char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
 		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 		if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) 
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this);
+		if (!resource.isAccessible())
+			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this);
 	}
 	return JavaConventions.validateCompilationUnitName(getElementName());
 }
