@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -39,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.TypeConverter;
 
@@ -2848,38 +2848,9 @@ public final class CompletionEngine
 			
 		if(sourceName == null || sourceName.length == 0)
 			return;
-		
-		char[][] names = CharOperation.NO_CHAR_CHAR;
-		switch (kind) {
-			case FIELD :
-				names = NamingConventions.suggestFieldNames(
-					javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					modifiers,
-					excludeNames);
-				break;
-			case LOCAL :
-				names = NamingConventions.suggestLocalVariableNames(
-					javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					excludeNames);
-				break;
-			case ARGUMENT :
-				names = NamingConventions.suggestArgumentNames(
-					javaProject,
-					qualifiedPackageName,
-					qualifiedSourceName,
-					dim,
-					excludeNames);
-				break;
-		}
 
 		// compute variable name for non base type
-		char[] displayName;
+		final char[] displayName;
 		if (dim > 0){
 			int l = qualifiedSourceName.length;
 			displayName = new char[l+(2*dim)];
@@ -2892,29 +2863,76 @@ public final class CompletionEngine
 			displayName = qualifiedSourceName;
 		}
 		
-		next : for(int i = 0 ; i < names.length ; i++){
-			char[] name = names[i];
+		final char[] t = token;
+		final char[] q = qualifiedPackageName;
+		INamingRequestor namingRequestor = new INamingRequestor() {
+			public void acceptNameWithPrefixAndSuffix(char[] name) {
+				accept(name, R_NAME_PREFIX + R_NAME_SUFFIX);
+			}
+
+			public void acceptNameWithPrefix(char[] name) {
+				accept(name, R_NAME_PREFIX);
+			}
+
+			public void acceptNameWithSuffix(char[] name) {
+				accept(name, R_NAME_SUFFIX);
+			}
+
+			public void acceptNameWithoutPrefixAndSuffix(char[] name) {
+				accept(name, 0);
+			}
+			private void accept(char[] name, int prefixAndSuffixRelevance){
+				if (CharOperation.prefixEquals(t, name, false)) {
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForCaseMatching(t, name);
+					relevance += prefixAndSuffixRelevance;
+
+					// accept result
+					requestor.acceptVariableName(
+						q,
+						displayName,
+						name,
+						name,
+						startPosition - offset,
+						endPosition - offset,
+						relevance);
+				}
+			}
+		};
 		
-			if (!CharOperation.prefixEquals(token, name, false))
-				continue next;
-			
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(token, name);
-			
-			// accept result
-			requestor.acceptVariableName(
-				qualifiedPackageName,
-				displayName,
-				name,
-				name,
-				startPosition - offset,
-				endPosition - offset,
-				relevance);
+		switch (kind) {
+			case FIELD :
+				InternalNamingConventions.suggestFieldNames(
+					javaProject,
+					qualifiedPackageName,
+					qualifiedSourceName,
+					dim,
+					modifiers,
+					excludeNames,
+					namingRequestor);
+				break;
+			case LOCAL :
+				InternalNamingConventions.suggestLocalVariableNames(
+					javaProject,
+					qualifiedPackageName,
+					qualifiedSourceName,
+					dim,
+					excludeNames,
+					namingRequestor);
+				break;
+			case ARGUMENT :
+				InternalNamingConventions.suggestArgumentNames(
+					javaProject,
+					qualifiedPackageName,
+					qualifiedSourceName,
+					dim,
+					excludeNames,
+					namingRequestor);
+				break;
 		}
-		
 	}
-	
+
 	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames, int kind, int modifiers){
 
 		if(type != null &&

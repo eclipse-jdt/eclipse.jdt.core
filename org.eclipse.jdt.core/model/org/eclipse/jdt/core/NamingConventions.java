@@ -10,14 +10,11 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.INamingRequestor;
+import org.eclipse.jdt.internal.core.InternalNamingConventions;
+
 
 /**
  * Provides methods for computing Java-specific names.
@@ -48,76 +45,94 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * @since 2.1
  */
 public final class NamingConventions {
-	private static final char[] DEFAULT_NAME = "name".toCharArray(); //$NON-NLS-1$
-	
 	private static final char[] GETTER_BOOL_NAME = "is".toCharArray(); //$NON-NLS-1$
 	private static final char[] GETTER_NAME = "get".toCharArray(); //$NON-NLS-1$
 	private static final char[] SETTER_NAME = "set".toCharArray(); //$NON-NLS-1$
+	
+	private static class NamingRequestor implements INamingRequestor {
+		private final static int SIZE = 10;
+		private char[][] prefixAndSuffixResults = new char[SIZE][];
+		private int prefixAndSuffixResultsCount = 0;
+		private char[][] prefixResults = new char[SIZE][];
+		private int prefixResultsCount = 0;
+		private char[][] suffixResults = new char[SIZE][];
+		private int suffixResultsCount = 0;
+		private char[][] otherResults = new char[SIZE][];
+		private int otherResultsCount = 0;
+		public void acceptNameWithPrefixAndSuffix(char[] name) {
+			int length = prefixAndSuffixResults.length;
+			if(length == prefixAndSuffixResultsCount) {
+				System.arraycopy(
+					prefixAndSuffixResults,
+					0,
+					prefixAndSuffixResults = new char[length * 2][],
+					0,
+					length);
+			}
+			prefixAndSuffixResults[prefixAndSuffixResultsCount++] = name;
+		}
+
+		public void acceptNameWithPrefix(char[] name) {
+			int length = prefixResults.length;
+			if(length == prefixResultsCount) {
+				System.arraycopy(
+					prefixResults,
+					0,
+					prefixResults = new char[length * 2][],
+					0,
+					length);
+			}
+			prefixResults[prefixResultsCount++] = name;
+		}
+
+		public void acceptNameWithSuffix(char[] name) {
+			int length = suffixResults.length;
+			if(length == suffixResultsCount) {
+				System.arraycopy(
+				suffixResults,
+					0,
+				suffixResults = new char[length * 2][],
+					0,
+					length);
+			}
+			suffixResults[suffixResultsCount++] = name;
+		}
+
+		public void acceptNameWithoutPrefixAndSuffix(char[] name) {
+			int length = otherResults.length;
+			if(length == otherResultsCount) {
+				System.arraycopy(
+				otherResults,
+					0,
+				otherResults = new char[length * 2][],
+					0,
+					length);
+			}
+			otherResults[otherResultsCount++] = name;
+		}
+		public char[][] getResults(){
+			int count = prefixAndSuffixResultsCount + prefixResultsCount + suffixResultsCount + otherResultsCount;
+			char[][] results = new char[count][];
+			
+			int index = 0;
+			System.arraycopy(prefixAndSuffixResults, 0, results, index, prefixAndSuffixResultsCount);
+			index += prefixAndSuffixResultsCount;
+			System.arraycopy(prefixResults, 0, results, index, prefixResultsCount);
+			index += prefixResultsCount;
+			System.arraycopy(suffixResults, 0, results, index, suffixResultsCount);
+			index += suffixResultsCount;
+			System.arraycopy(otherResults, 0, results, index, otherResultsCount);
+			
+			return results;
+		}
+	}
+
 	
 	/**
 	 * Not instantiable.
 	 */
 	private NamingConventions() {}
-	
-	private static char[] computeBaseNames(char firstName, char[][] prefixes, char[][] excludedNames){
-		char[] name = new char[]{firstName};
-		
-		for(int i = 0 ; i < excludedNames.length ; i++){
-			if(CharOperation.equals(name, excludedNames[i], false)) {
-				name[0]++;
-				if(name[0] > 'z')
-					name[0] = 'a';
-				if(name[0] == firstName)
-					return null;
-				i = 0;
-			}	
-		}
-		
-		return name;
-	}
-	
 
-	private static char[][] computeNames(char[] sourceName){
-		char[][] names = new char[5][];
-		int nameCount = 0;
-		boolean previousIsUpperCase = false;
-		boolean previousIsLetter = true;
-		for(int i = sourceName.length - 1 ; i >= 0 ; i--){
-			boolean isUpperCase = Character.isUpperCase(sourceName[i]);
-			boolean isLetter = Character.isLetter(sourceName[i]);
-			if(isUpperCase && !previousIsUpperCase && previousIsLetter){
-				char[] name = CharOperation.subarray(sourceName,i,sourceName.length);
-				if(name.length > 1){
-					if(nameCount == names.length) {
-						System.arraycopy(names, 0, names = new char[nameCount * 2][], 0, nameCount);
-					}
-					name[0] = Character.toLowerCase(name[0]);
-					names[nameCount++] = name;
-				}
-			}
-			previousIsUpperCase = isUpperCase;
-			previousIsLetter = isLetter;
-		}
-		if(nameCount == 0){
-			names[nameCount++] = CharOperation.toLowerCase(sourceName);				
-		}
-		System.arraycopy(names, 0, names = new char[nameCount][], 0, nameCount);
-		return names;
-	}
-	
-
-	private static Scanner getNameScanner(CompilerOptions compilerOptions) {
-		return
-			new Scanner(
-				false /*comment*/, 
-				false /*whitespace*/, 
-				false /*nls*/, 
-				compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, 
-				compilerOptions.complianceLevel >= CompilerOptions.JDK1_4 /*strict comment*/,
-				null /*taskTags*/, 
-				null/*taskPriorities*/);
-	}
-	
 	private static char[] removePrefixAndSuffix(char[] name, char[][] prefixes, char[][] suffixes) {
 		// remove longer prefix
 		char[] withoutPrefixName = name;
@@ -334,19 +349,16 @@ public final class NamingConventions {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
-		Map options = javaProject.getOptions(true);
-		CompilerOptions compilerOptions = new CompilerOptions(options);
-		AssistOptions assistOptions = new AssistOptions(options);
+		NamingRequestor requestor = new NamingRequestor();
+		InternalNamingConventions.suggestArgumentNames(
+			javaProject,
+			packageName,
+			qualifiedTypeName,
+			dim,
+			excludedNames,
+			requestor);
 
-		return
-			suggestNames(
-				packageName,
-				qualifiedTypeName,
-				dim,
-				assistOptions.argumentPrefixes,
-				assistOptions.argumentSuffixes,
-				excludedNames,
-				getNameScanner(compilerOptions));
+		return requestor.getResults();
 	}
 	
 	/**
@@ -408,23 +420,19 @@ public final class NamingConventions {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {
-		boolean isStatic = Flags.isStatic(modifiers);
-		
-		Map options = javaProject.getOptions(true);
-		CompilerOptions compilerOptions = new CompilerOptions(options);
-		AssistOptions assistOptions = new AssistOptions(options);
+		NamingRequestor requestor = new NamingRequestor();
+		InternalNamingConventions.suggestFieldNames(
+			javaProject,
+			packageName,
+			qualifiedTypeName,
+			dim,
+			modifiers,
+			excludedNames,
+			requestor);
 
-		return
-			suggestNames(
-				packageName,
-				qualifiedTypeName,
-				dim,
-				isStatic ? assistOptions.staticFieldPrefixes : assistOptions.fieldPrefixes,
-				isStatic ? assistOptions.staticFieldSuffixes : assistOptions.fieldSuffixes,
-				excludedNames,
-				getNameScanner(compilerOptions));
+		return requestor.getResults();
 	}
-
+	
 	/**
 	 * Suggest names for a field. The name is computed from field's type
 	 * and possible prefixes or suffixes are added.<br>
@@ -485,19 +493,16 @@ public final class NamingConventions {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public static char[][] suggestLocalVariableNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
-		Map options = javaProject.getOptions(true);
-		CompilerOptions compilerOptions = new CompilerOptions(options);
-		AssistOptions assistOptions = new AssistOptions(options);
+		NamingRequestor requestor = new NamingRequestor();
+		InternalNamingConventions.suggestLocalVariableNames(
+			javaProject,
+			packageName,
+			qualifiedTypeName,
+			dim,
+			excludedNames,
+			requestor);
 
-		return
-			suggestNames(
-				packageName,
-				qualifiedTypeName,
-				dim,
-				assistOptions.localPrefixes,
-				assistOptions.localSuffixes,
-				excludedNames,
-				getNameScanner(compilerOptions));
+		return requestor.getResults();
 	}
 	
 	/**
@@ -530,136 +535,6 @@ public final class NamingConventions {
 				qualifiedTypeName.toCharArray(),
 				dim,
 				convertStringToChars(excludedNames)));
-	}
-	
-	private static char[][] suggestNames(
-		char[] packageName,
-		char[] qualifiedTypeName,
-		int dim,
-		char[][] prefixes,
-		char[][] suffixes,
-		char[][] excludedNames,
-		Scanner nameScanner){
-			
-		if(qualifiedTypeName == null || qualifiedTypeName.length == 0)
-			return CharOperation.NO_CHAR_CHAR;
-			
-		char[] typeName = CharOperation.lastSegment(qualifiedTypeName, '.');
-		
-		if(prefixes == null || prefixes.length == 0) {
-			prefixes = new char[1][0];
-		} else {
-			int length = prefixes.length;
-			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 1, length);
-			prefixes[0] = CharOperation.NO_CHAR;
-		}
-		
-		if(suffixes == null || suffixes.length == 0) {
-			suffixes = new char[1][0];
-		} else {
-			int length = suffixes.length;
-			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 1, length);
-			suffixes[0] = CharOperation.NO_CHAR;
-		}
-		
-		char[][] names = new char[5][];
-		int namesCount = 0;
-		
-		char[][] tempNames = null;
-		
-		// compute variable name for base type
-		try{
-			nameScanner.setSource(typeName);
-			switch (nameScanner.getNextToken()) {
-				case TerminalTokens.TokenNameint :
-				case TerminalTokens.TokenNamebyte :
-				case TerminalTokens.TokenNameshort :
-				case TerminalTokens.TokenNamechar :
-				case TerminalTokens.TokenNamelong :
-				case TerminalTokens.TokenNamefloat :
-				case TerminalTokens.TokenNamedouble :
-				case TerminalTokens.TokenNameboolean :	
-					char[] name = computeBaseNames(typeName[0], prefixes, excludedNames);
-					if(name != null) {
-						tempNames =  new char[][]{name};
-					}
-					break;
-			}	
-		} catch(InvalidInputException e){
-		}
-
-		// compute variable name for non base type
-		if(tempNames == null) {
-			tempNames = computeNames(typeName);
-		}
-		
-		for (int i = 0; i < tempNames.length; i++) {
-			char[] tempName = tempNames[i];
-			if(dim > 0) {
-				int length = tempName.length;
-				if (tempName[length-1] == 's'){
-					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
-					tempName[length] = 'e';
-					tempName[length+1] = 's';
-				} else if(tempName[length-1] == 'y') {
-					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
-					tempName[length-1] = 'i';
-					tempName[length] = 'e';
-					tempName[length+1] = 's';
-				} else {
-					System.arraycopy(tempName, 0, tempName = new char[length + 1], 0, length);
-					tempName[length] = 's';
-				}
-			}
-			
-			for (int j = 0; j < prefixes.length; j++) {
-				if(prefixes[j].length > 0
-					&& Character.isLetterOrDigit(prefixes[j][prefixes[j].length - 1])) {
-					tempName[0] = Character.toUpperCase(tempName[0]);
-				} else {
-					tempName[0] = Character.toLowerCase(tempName[0]);
-				}
-				char[] prefixName = CharOperation.concat(prefixes[j], tempName);
-				for (int k = 0; k < suffixes.length; k++) {
-					char[] suffixName = CharOperation.concat(prefixName, suffixes[k]);
-					suffixName =
-						excludeNames(
-							suffixName,
-							prefixName,
-							suffixes[k],
-							excludedNames);
-					if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-						names[namesCount++] = suffixName;
-					} else {
-						suffixName = CharOperation.concat(
-							prefixName,
-							String.valueOf(1).toCharArray(),
-							suffixes[k]
-						);
-						suffixName =
-							excludeNames(
-								suffixName,
-								prefixName,
-								suffixes[k],
-								excludedNames);
-						if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-							names[namesCount++] = suffixName;
-						}
-					}
-					if(namesCount == names.length) {
-						System.arraycopy(names, 0, names = new char[namesCount * 2][], 0, namesCount);
-					}
-				}
-				
-			}
-		}
-		System.arraycopy(names, 0, names = new char[namesCount][], 0, namesCount);
-		
-		// if no names were found
-		if(names.length == 0) {
-			names = new char[][]{excludeNames(DEFAULT_NAME, DEFAULT_NAME, CharOperation.NO_CHAR, excludedNames)};
-		}
-		return names;
 	}
 	
 	/**
@@ -872,27 +747,5 @@ public final class NamingConventions {
 			}
 		}
 		return c;
-	}
-	
-	private static char[] excludeNames(
-		char[] suffixName,
-		char[] prefixName,
-		char[] suffix,
-		char[][] excludedNames) {
-		int count = 2;
-		int m = 0;
-		while (m < excludedNames.length) {
-			if(CharOperation.equals(suffixName, excludedNames[m], false)) {
-				suffixName = CharOperation.concat(
-					prefixName,
-					String.valueOf(count++).toCharArray(),
-					suffix
-				);
-				m = 0;
-			} else {
-				m++;
-			}
-		}
-		return suffixName;
 	}
 }

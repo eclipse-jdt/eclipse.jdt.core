@@ -8082,14 +8082,14 @@ public void testCompletionCatchArgumentName2() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	cu.codeComplete(cursorLocation, requestor);
 
-	assertEquals(
-		"element:exception    completion:exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
-		requestor.getResults());
-		
 	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,argumentPrefixPreviousValue);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,localPrefixPreviousValue);
 	JavaCore.setOptions(options);
+
+	assertEquals(
+		"element:exception    completion:exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX),
+		requestor.getResults());
 }
 public void testCompletionArrayAccess1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
