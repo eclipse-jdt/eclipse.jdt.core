@@ -1160,7 +1160,7 @@ public class JavaProject
 		
 		try {
 
-			IClasspathEntry[] correspondingEntries = this.getResolvedClasspath(new IClasspathEntry[]{entry}, true, false);
+			IClasspathEntry[] correspondingEntries = this.getResolvedClasspath(new IClasspathEntry[]{entry}, null, true, false);
 			return computePackageFragmentRoots(correspondingEntries, false);
 
 		} catch (JavaModelException e) {
@@ -1314,7 +1314,7 @@ public class JavaProject
 			if (infoPath != null) return infoPath;
 		}
 
-		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
+		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), getOutputLocation(), ignoreUnresolvedEntry, generateMarkerOnError);
 
 		info.lastResolvedClasspath = resolvedPath;
 		return resolvedPath;
@@ -1325,6 +1325,7 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getResolvedClasspath(
 		IClasspathEntry[] classpathEntries,
+		IPath projectOutputLocation, // only set if should generate markers and full validation is necessary
 		boolean ignoreUnresolvedEntry,
 		boolean generateMarkerOnError)
 		throws JavaModelException {
@@ -1429,9 +1430,9 @@ public class JavaProject
 		IClasspathEntry[] resolvedPath = new IClasspathEntry[resolvedEntries.size()];
 		resolvedEntries.toArray(resolvedPath);
 
-		if (generateMarkerOnError) {
+		if (generateMarkerOnError && projectOutputLocation != null) {
 			IJavaModelStatus status =
-				JavaConventions.validateClasspath(this, resolvedPath, this.getOutputLocation());
+				JavaConventions.validateClasspath(this, resolvedPath, projectOutputLocation);
 			if (!status.isOK()) {
 				String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
 				createClasspathProblemMarker(
@@ -1682,7 +1683,7 @@ public class JavaProject
 			
 		ArrayList prerequisites = new ArrayList();
 		// need resolution
-		entries = getResolvedClasspath(entries, true, false);
+		entries = getResolvedClasspath(entries, null, true, false); 
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {

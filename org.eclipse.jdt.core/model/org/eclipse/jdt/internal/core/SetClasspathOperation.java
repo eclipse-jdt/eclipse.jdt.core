@@ -584,7 +584,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		JavaProject jproject = getProject();
 		String[] oldRequired = jproject.getRequiredProjectNames();
-		String[] newRequired =jproject.projectPrerequisites(jproject.getResolvedClasspath(this.newRawPath, true, false));
+		String[] newRequired =jproject.projectPrerequisites(jproject.getResolvedClasspath(this.newRawPath, null, true, false));
 
 		try {		
 			IProject project = jproject.getProject();
