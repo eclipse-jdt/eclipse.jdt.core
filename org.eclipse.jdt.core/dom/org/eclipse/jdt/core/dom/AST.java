@@ -702,6 +702,7 @@ public final class AST {
 					CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
 					buffer.toString(),
 					project,
+					null/*no node searcher*/,
 					false/*don't cleanup*/,
 					owner,
 					monitor);
