@@ -193,8 +193,12 @@ public int hashCode() {
 						+ zip.getName() + " (" //$NON-NLS-1$
 						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
-				if (zip != null)
+				if (zip != null) {
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + zip); //$NON-NLS-1$	//$NON-NLS-2$
+					}
 					zip.close();
+				}
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException e) {
