@@ -2576,7 +2576,7 @@ public class EnumTest extends AbstractComparableTest {
 				"	X(){}\n" + 
 				"  Zork z;\n" +
 				"	public abstract X getReverse();\n" + 
-				"}\n"
+				"}\n",
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 21)\n" + 
@@ -2643,4 +2643,116 @@ public class EnumTest extends AbstractComparableTest {
 			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 		}
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88625
+	public void test085() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Test1 {\n" + 
+				"		test11, test12\n" + 
+				"	};\n" + 
+				"	enum Test2 {\n" + 
+				"		test21, test22\n" + 
+				"	};\n" + 
+				"\n" + 
+				"	void foo1(Test1 t1, Test2 t2) {\n" + 
+				"		boolean b = t1 == t2;\n" + 
+				"	}\n" + 
+				"	void foo2(Test1 t1, Object t2) {\n" + 
+				"		boolean b = t1 == t2;\n" + 
+				"	}\n" + 
+				"	void foo3(Test1 t1, Enum t2) {\n" + 
+				"		boolean b = t1 == t2;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		boolean booleanTest = (Test1.test11 == Test2.test22);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	boolean b = t1 == t2;\n" + 
+			"	            ^^^^^^^^\n" + 
+			"Incompatible operand types X.Test1 and X.Test2\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	boolean booleanTest = (Test1.test11 == Test2.test22);\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Incompatible operand types X.Test1 and X.Test2\n" + 
+			"----------\n");
+	}	
+	public void test086() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		static int foo = 0;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	public void test087() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		interface Foo {}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	public void test088() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"	}\n" + 
+				"	Object foo() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static class Sub extends X {\n" + 
+				"		@Override\n" + 
+				"		Test1 foo() {\n" + 
+				"			return Test1.V;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	public void test089() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	enum Test1 {\n" + 
+				"		V;\n" + 
+				"		protected final Test1 clone() { return V; }\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	protected final Test1 clone() { return V; }\n" + 
+			"	                      ^^^^^^^\n" + 
+			"Cannot override the final method from Enum<X.Test1>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	protected final Test1 clone() { return V; }\n" + 
+			"	                      ^^^^^^^\n" + 
+			"The method clone() of type X.Test1 should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
+	}			
 }

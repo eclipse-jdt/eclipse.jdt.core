@@ -300,7 +300,7 @@ public abstract class Expression extends Statement {
 				}
 				// recursively on the type variable upper bound
 				return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
-			} else if (castType.isClass()) {
+			} else if (castType.isClass() || castType.isEnum()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
 				if (castType.id == T_JavaLangObject) {
 					tagAsUnnecessaryCast(scope, castType);
@@ -326,7 +326,7 @@ public abstract class Expression extends Statement {
 			return checkCastTypesCompatibility(scope, castType, expressionType.erasure(), expression);
 		}
 		
-		if (expressionType.isClass()) {
+		if (expressionType.isClass() || expressionType.isEnum()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
 				if (expressionType.id == T_JavaLangObject) { // potential runtime error
@@ -340,7 +340,7 @@ public abstract class Expression extends Statement {
 				}
 				// recursively on the type variable upper bound
 				return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
-			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
+			} else if (castType.isClass() || castType.isEnum()) { // ----- (castType.isClass) expressionType.isClass ------
 				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
 				if (match != null) {
 					if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
@@ -388,7 +388,7 @@ public abstract class Expression extends Statement {
 			}
 			// recursively on the type variable upper bound
 			return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
-		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
+		} else if (castType.isClass() || castType.isEnum()) { // ----- (castType.isClass) expressionType.isInterface --------
 
 			if (castType.id == T_JavaLangObject) { // no runtime error
 				tagAsUnnecessaryCast(scope, castType);

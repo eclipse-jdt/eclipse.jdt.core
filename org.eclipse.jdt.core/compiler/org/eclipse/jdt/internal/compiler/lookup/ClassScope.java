@@ -230,7 +230,7 @@ public class ClassScope extends Scope {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
 				if (memberContext.kind() == IGenericType.INTERFACE_DECL
 					&& sourceType.isNestedType()
-					&& sourceType.isClass()
+					&& sourceType.isClass() // no need to check for enum, since implicitly static
 					&& !sourceType.isStatic()) {
 					problemReporter().nestedClassCannotDeclareInterface(memberContext);
 					continue nextMember;
