@@ -96,7 +96,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 					potentialRefs[i] = 0;
 			}
 			// check to see that there are still potential references after the merge
-			while (--potentialLength >= 0 && potentialRefs[potentialLength] == 0) {}
+			while (--potentialLength >= 0 && potentialRefs[potentialLength] == 0);
 			if (potentialLength == -1) return;
 		}
 	} while (this.hasNextQuery());
