@@ -949,7 +949,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, int b, int c) {\n"
 				+ "	                  ^^^\n"
-				+ "inr cannot be resolved (or is not a valid type) for the argument a of the method p_foo\n"
+				+ "inr cannot be resolved (or is not a valid type) for the parameter a of the method p_foo\n"
 				+ "----------\n");
 	}
 
@@ -971,17 +971,17 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                  ^^^\n"
-				+ "inr cannot be resolved (or is not a valid type) for the argument a of the method p_foo\n"
+				+ "inr cannot be resolved (or is not a valid type) for the parameter a of the method p_foo\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                         ^^^\n"
-				+ "inx cannot be resolved (or is not a valid type) for the argument b of the method p_foo\n"
+				+ "inx cannot be resolved (or is not a valid type) for the parameter b of the method p_foo\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                                ^^^\n"
-				+ "inq cannot be resolved (or is not a valid type) for the argument c of the method p_foo\n"
+				+ "inq cannot be resolved (or is not a valid type) for the parameter c of the method p_foo\n"
 				+ "----------\n");
 	}
 

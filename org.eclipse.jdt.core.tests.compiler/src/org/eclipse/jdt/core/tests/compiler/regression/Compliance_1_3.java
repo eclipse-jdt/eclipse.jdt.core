@@ -1976,12 +1976,12 @@ public void test055() {
 		"1. WARNING in p\\X.java (at line 11)\n" + 
 		"	void foo(int a);\n" + 
 		"	             ^\n" + 
-		"The argument a is hiding a field from type X.I1\n" + 
+		"The parameter a is hiding a field from type X.I1\n" + 
 		"----------\n" + 
 		"2. WARNING in p\\X.java (at line 14)\n" + 
 		"	public void foo(int a) {\n" + 
 		"	                    ^\n" + 
-		"The argument a is hiding a field from type X.I1\n" + 
+		"The parameter a is hiding a field from type X.I1\n" + 
 		"----------\n" + 
 		"3. ERROR in p\\X.java (at line 17)\n" + 
 		"	System.out.println(\"X$1::foo-\" + a);\n" + 

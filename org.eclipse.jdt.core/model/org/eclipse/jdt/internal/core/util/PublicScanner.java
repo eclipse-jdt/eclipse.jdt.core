@@ -216,8 +216,8 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 			if (tagLength == 0) continue nextTag;
 
 			// ensure tag is not leaded with letter if tag starts with a letter
-			if (Character.isLetterOrDigit(tag[0])) {
-				if (Character.isLetterOrDigit(previous)) {
+			if (Character.isJavaIdentifierStart(tag[0])) {
+				if (Character.isJavaIdentifierPart(previous)) {
 					continue nextTag;
 				}
 			}
@@ -227,8 +227,8 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 					continue nextTag;
 			}
 			// ensure tag is not followed with letter if tag finishes with a letter
-			if (i+tagLength < commentEnd && Character.isLetterOrDigit(src[i+tagLength-1])) {
-				if (Character.isLetterOrDigit(src[i + tagLength]))
+			if (i+tagLength < commentEnd && Character.isJavaIdentifierPart(src[i+tagLength-1])) {
+				if (Character.isJavaIdentifierPart(src[i + tagLength]))
 					continue nextTag;
 			}
 			if (this.foundTaskTags == null) {

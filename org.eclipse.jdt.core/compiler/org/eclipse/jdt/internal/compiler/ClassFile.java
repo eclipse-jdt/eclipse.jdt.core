@@ -68,7 +68,8 @@ public class ClassFile
 	public static final int INNER_CLASSES_SIZE = 5;
 	public CodeStream codeStream;
 	protected int problemLine;	// used to create line number attributes for problem methods
-
+	public long targetJDK;
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods creates a new instance of the receiver.
@@ -89,6 +90,7 @@ public class ClassFile
 		SourceTypeBinding aType,
 		ClassFile enclosingClassFile,
 		boolean creatingProblemType) {
+	    
 		referenceBinding = aType;
 		header = new byte[INITIAL_HEADER_SIZE];
 		// generate the magic numbers inside the header
@@ -97,13 +99,11 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		long targetJDK = referenceBinding.scope.environment().options.targetJDK;
-		// TODO[1.5]  until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
-		if (targetJDK == ClassFileConstants.JDK1_5) targetJDK = ClassFileConstants.JDK1_4;
-		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
-		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
-		header[headerOffset++] = (byte) (targetJDK >> 24); // major high
-		header[headerOffset++] = (byte) (targetJDK >> 16); // major low
+		this.targetJDK = referenceBinding.scope.environment().options.targetJDK;
+		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
+		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
+		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
+		header[headerOffset++] = (byte) (this.targetJDK >> 16); // major low
 
 		constantPoolOffset = headerOffset;
 		headerOffset += 2;
@@ -2501,6 +2501,7 @@ public class ClassFile
 		// Deprecated attribute
 		// Check that there is enough space to write the deprecated attribute
 		if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+		    // TODO (olivier) why isn't space check inside the condition #isDeprecated ?
 			System.arraycopy(
 				contents,
 				0,
@@ -2524,6 +2525,7 @@ public class ClassFile
 		// Synthetic attribute
 		// Check that there is enough space to write the deprecated attribute
 		if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+		    // TODO (olivier) why isn't space check inside the condition #isSynthetic ?
 			System.arraycopy(
 				contents,
 				0,
@@ -2531,7 +2533,7 @@ public class ClassFile
 				0,
 				contentsLength);
 		}
-		if (methodBinding.isSynthetic()) {
+		if (this.targetJDK < ClassFileConstants.JDK1_5 && methodBinding.isSynthetic()) {
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
 			contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
@@ -2571,6 +2573,10 @@ public class ClassFile
 				contentsLength);
 		}
 		int accessFlags = methodBinding.getAccessFlags();
+		if (targetJDK < ClassFileConstants.JDK1_5) {
+		    // pre 1.5, synthetic was an attribute, not a modifier
+		    accessFlags &= ~AccSynthetic;
+		}
 		if (methodBinding.isRequiredToClearPrivateModifier()) {
 			accessFlags &= ~AccPrivate;
 		}
