@@ -111,6 +111,8 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5214      TVT: Apostrophe shows up multiple times in Java error messages in some translations (italian) 
+  5263      TVT: Compiler error messages are hard for translators to understand
   3251      Types not included in code assist list for import (1GD06W9)
   5277      Code assist on assert method do an AbortException
   5070      search: missing interface method reference  
@@ -119,7 +121,8 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
-
+  3209      DCR - JM -Invalid references to IPath.getDevice() potentially breaking on Linux (1G4U1R7)
+                    
 
 **********************************************************************************
 *** BUILD 206 (2.0 STREAM, v_206) ************************************************
