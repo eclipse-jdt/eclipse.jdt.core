@@ -244,6 +244,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath";	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CORE_CIRCULAR_CLASSPATH = PLUGIN_ID + ".circularClasspath";
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.0
 	 */
 	public static final String CORE_JAVA_BUILD_INVALID_CLASSPATH = PLUGIN_ID + ".builder.invalidClasspath"; //$NON-NLS-1$
@@ -1078,6 +1090,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ any of the supported encoding name}.
 	 *     - default:			<platform default>
 	 * 
+	 * JAVACORE / Reporting Incomplete Classpath
+	 *    An entry on the classpath doesn't exist or is not visible (e.g. a referenced project is closed).
+	 *     - option id:			"org.eclipse.jdt.core.incompleteClasspath"
+	 *     - possible values:	{ "error", "warning"}
+	 *     - default:			"error"
+	 * 
+	 * JAVACORE / Reporting Classpath Cycle
+	 *    A project is involved in a cycle.
+	 *     - option id:			"org.eclipse.jdt.core.circularClasspath"
+	 *     - possible values:	{ "error", "warning" }
+	 *     - default:			"error"
+	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
@@ -1532,6 +1556,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); //$NON-NLS-1$
 		optionNames.add(CORE_JAVA_BUILD_ORDER);
 	
+		preferences.setDefault(CORE_CIRCULAR_CLASSPATH, ERROR); 
+		optionNames.add(CORE_CIRCULAR_CLASSPATH);
+		
+		preferences.setDefault(CORE_INCOMPLETE_CLASSPATH, ERROR); 
+		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
+		
 		// Formatter settings
 		preferences.setDefault(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
 		optionNames.add(FORMATTER_NEWLINE_OPENING_BRACE);

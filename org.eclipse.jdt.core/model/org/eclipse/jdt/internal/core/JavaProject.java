@@ -886,6 +886,27 @@ public class JavaProject
 	public QualifiedName getClasspathPropertyName() {
 		return new QualifiedName(JavaCore.PLUGIN_ID, "classpath"); //$NON-NLS-1$
 	}
+	
+	/*
+	 * Returns the cycle marker associated with this project or null if none.
+	 */
+	public IMarker getCycleMarker(){
+		try {
+			IProject project = getProject();
+			if (project.exists()) {
+				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+				for (int i = 0, length = markers.length; i < length; i++) {
+					IMarker marker = markers[i];
+					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
+					if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
+						return marker;
+					}
+				}
+			}
+		} catch (CoreException e) {
+		}
+		return null;
+	}
 
 	/**
 	 * This is a helper method returning the expanded classpath for the project, as a list of classpath entries, 
@@ -1330,12 +1351,14 @@ public class JavaProject
 			if (generateMarkerOnError) {
 				IJavaModelStatus status =
 					JavaConventions.validateClasspathEntry(this, rawEntry, false);
-				if (!status.isOK())
+				if (!status.isOK()) {
+					String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
 					createClasspathProblemMarker(
 						status.getMessage(), 
-						IMarker.SEVERITY_ERROR,
+						JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
 						false,
 						false);
+			}
 			}
 
 			switch (rawEntry.getEntryKind()){
@@ -1379,12 +1402,14 @@ public class JavaProject
 						if (generateMarkerOnError) {
 							IJavaModelStatus status =
 								JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
-							if (!status.isOK())
+							if (!status.isOK()) {
+								String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
 								createClasspathProblemMarker(
 									status.getMessage(), 
-									IMarker.SEVERITY_ERROR,
+									JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
 									false,
 									false);
+						}
 						}
 						// if container is exported, then its nested entries must in turn be exported  (21749)
 						if (rawEntry.isExported()){
@@ -1487,22 +1512,7 @@ public class JavaProject
 	}
 	
 	public boolean hasCycleMarker(){
-	
-		try {
-			IProject project = getProject();
-			if (project.exists()) {
-				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-				for (int i = 0, length = markers.length; i < length; i++) {
-					IMarker marker = markers[i];
-					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
-					if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
-						return true;
-					}
-				}
-			}
-		} catch (CoreException e) {
-		}
-		return false;
+		return this.getCycleMarker() != null;
 	}
 
 	public int hashCode() {
@@ -2080,10 +2090,24 @@ public class JavaProject
 			JavaProject project = (JavaProject)projects[i];
 			
 			if (cycleParticipants.contains(project)){
-				if (!project.hasCycleMarker()){
+				IMarker cycleMarker = project.getCycleMarker();
+				String circularCPOption = JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH);
+				int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
+				if (cycleMarker != null) {
+					// update existing cycle marker if needed
+					try {
+						int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
+						if (existingSeverity != circularCPSeverity) {
+							cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
+						}
+					} catch (CoreException e) {
+						throw new JavaModelException(e);
+					}
+				} else {
+					// create new marker
 					project.createClasspathProblemMarker(
 						Util.bind("classpath.cycle"), //$NON-NLS-1$
-						IMarker.SEVERITY_ERROR,
+						circularCPSeverity,
 						true,
 						false); 
 				}
@@ -2171,4 +2195,23 @@ public class JavaProject
 				}
 			}
 	}
-}
+	/*
+	 * Returns the cycle marker associated with this project or null if none.
+	 */
+	public IMarker getCycleMarker(){
+		try {
+			IProject project = getProject();
+			if (project.exists()) {
+				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+				for (int i = 0, length = markers.length; i < length; i++) {
+					IMarker marker = markers[i];
+					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
+					if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
+						return marker;
+					}
+				}
+			}
+		} catch (CoreException e) {
+		}
+		return null;
+	}}
