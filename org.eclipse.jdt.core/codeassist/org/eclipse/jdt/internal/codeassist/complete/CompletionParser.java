@@ -211,7 +211,8 @@ protected void attachOrphanCompletionNode(){
 				}
 				int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr];
 				int genPtr = this.genericsPtr;
-				done : for(int i = 0; i < numberOfIdentifiers; i++){
+				done : for(int i = 0; i <= this.identifierLengthPtr && numberOfIdentifiers > 0; i++){
+					int identifierLength = this.identifierLengthStack[this.identifierLengthPtr - i];
 					int length = this.genericsLengthStack[this.genericsLengthPtr - i];
 					for(int j = 0; j < length; j++) {
 						ASTNode node = this.genericsStack[genPtr - j];
@@ -229,6 +230,7 @@ protected void attachOrphanCompletionNode(){
 						}
 					}
 					genPtr -= length;
+					numberOfIdentifiers -= identifierLength;
 				}
 				if(this.assistNodeParent != null && this.assistNodeParent instanceof TypeReference) {
 					if(this.currentElement instanceof RecoveredType) {

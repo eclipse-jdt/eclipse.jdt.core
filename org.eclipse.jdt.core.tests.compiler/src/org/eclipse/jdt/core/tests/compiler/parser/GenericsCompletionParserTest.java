@@ -7239,6 +7239,83 @@ public void test0168(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+* https://bugs.eclipse.org/bugs/show_bug.cgi?id=71705
+*/
+public void test0169(){
+	String str =
+		"public class X {\n"+
+		"  Object o;\n"+
+		"  void foo(int[] a, int[] b){\n"+
+		"    if(a.lenth < b.length)\n"+
+		"      System.out.println();\n"+
+		"  }\n"+
+		"}";
+
+
+	String completeBehind = "Object";
+	int cursorLocation = str.indexOf("Object") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Object>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Object";
+	String expectedReplacedSource = "Object";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  <CompleteOnType:Object>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(int[] a, int[] b) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+* https://bugs.eclipse.org/bugs/show_bug.cgi?id=71705
+*/
+public void test0170(){
+	String str =
+		"public class X {\n"+
+		"  bar\n"+
+		"  void foo(){\n"+
+		"    A<B\n"+
+		"  }\n"+
+		"}";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  <CompleteOnType:bar>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 public void _testXXX2(){
 	String str =
 		"public class X extends Y. {\n" +
