@@ -92,7 +92,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
-	public void testParamaterTypeSignatures1() throws JavaModelException {
+	public void testParameterTypeSignatures1() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
@@ -103,7 +103,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
-	public void testParamaterTypeSignatures2() throws JavaModelException {
+	public void testParameterTypeSignatures2() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("nongeneric").getClassFile("A.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
@@ -114,7 +114,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
-	public void testParamaterTypeSignatures3() throws JavaModelException {
+	public void testParameterTypeSignatures3() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Y.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
@@ -126,7 +126,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
-	public void testParamaterTypeSignatures4() throws JavaModelException {
+	public void testParameterTypeSignatures4() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Z.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
@@ -138,7 +138,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	/*
 	 * Ensure that the type parameter signatures of a binary type are correct.
 	 */
-	public void testParamaterTypeSignatures5() throws JavaModelException {
+	public void testParameterTypeSignatures5() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("W.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
