@@ -2174,7 +2174,6 @@ class ASTConverter {
 						count--;
 				}
 			}
-			node.setSourceRange(start, scanner.currentPosition - start);
 		} catch(InvalidInputException e) {
 		}
 	}
