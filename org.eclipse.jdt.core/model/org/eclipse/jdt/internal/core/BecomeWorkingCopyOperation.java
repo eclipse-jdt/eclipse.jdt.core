@@ -37,7 +37,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, problemRequestor);
+		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), fMonitor);
 
 		if (workingCopy.owner != DefaultWorkingCopyOwner.PRIMARY) {
