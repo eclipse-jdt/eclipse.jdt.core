@@ -853,7 +853,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportInvalidAnnotation,
 							CompilerOptions.WARNING);
-					} else if (token.equals("missingAnnotation")) { //$NON-NLS-1$
+					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportInvalidAnnotation,
+							CompilerOptions.WARNING);
 						this.options.put(
 							CompilerOptions.OPTION_ReportMissingAnnotation,
 							CompilerOptions.ENABLED);
