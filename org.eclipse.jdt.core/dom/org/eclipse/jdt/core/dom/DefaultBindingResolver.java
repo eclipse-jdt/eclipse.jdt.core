@@ -347,7 +347,6 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.ast.StringLiteral stringLiteral = (org.eclipse.jdt.internal.compiler.ast.StringLiteral) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(stringLiteral.literalType(this.retrieveEnclosingScope(expression)));
 		} else if (expression instanceof TypeLiteral) {
-			ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(this.scope.getJavaLangClass());
 		} else if (expression instanceof BooleanLiteral) {
 			BooleanLiteral booleanLiteral = (BooleanLiteral) expression;
@@ -463,6 +462,9 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
+		if (binding == null) {
+			return null;
+		}
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
 	/*
