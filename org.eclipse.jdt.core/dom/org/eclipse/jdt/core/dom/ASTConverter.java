@@ -490,9 +490,12 @@ class ASTConverter {
 					type = this.ast.newArrayType(primitiveType, dimensions);
 				} else {
 					SimpleName simpleName = this.ast.newSimpleName(new String(name));
-					simpleName.setSourceRange(sourceStart, length);
+					// we need to search for the starting position of the first brace in order to set the proper length
+					// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
+					int end = retrieveStartingLeftBracketPosition(sourceStart, sourceStart + length);
+					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
 					SimpleType simpleType = this.ast.newSimpleType(simpleName);
-					simpleType.setSourceRange(sourceStart, length);
+					simpleType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(simpleType, dimensions);
 					if (this.resolveBindings) {
 						this.recordNodes(simpleName, typeReference);
@@ -510,33 +513,30 @@ class ASTConverter {
 					}
 				}
 			}
+			type.setSourceRange(sourceStart, length);
 		} else {
 			char[][] name = ((QualifiedTypeReference) typeReference).getTypeName();
 			int nameLength = name.length;
-			String[] identifiers = new String[nameLength];
-			for (int index = 0; index < nameLength; index++) {
-				identifiers[index] = new String(name[index]);
-			}
 			long[] positions = ((QualifiedTypeReference) typeReference).sourcePositions;
 			sourceStart = (int)(positions[0]>>>32);
 			length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
 			if (dimensions != 0) {
 				// need to find out if this is an array type of primitive types or not
-				Name qualifiedName = this.ast.newName(identifiers);
-				qualifiedName.setSourceRange(sourceStart, length);
+				Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 				SimpleType simpleType = this.ast.newSimpleType(qualifiedName);
 				simpleType.setSourceRange(sourceStart, length);
 				type = this.ast.newArrayType(simpleType, dimensions);
+				int end = retrieveEndOfDimensionsPosition(sourceStart+length, this.compilationUnitSource.length);
+				type.setSourceRange(sourceStart, end - sourceStart + 1);
 			} else {
-				Name qualifiedName = this.ast.newName(identifiers);
-				qualifiedName.setSourceRange(sourceStart, length);
-				type = this.ast.newSimpleType(this.ast.newName(identifiers));
+				Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
+				type = this.ast.newSimpleType(qualifiedName);
+				type.setSourceRange(sourceStart, length);
 			}
 		}
 		if (this.resolveBindings) {
 			this.recordNodes(type, typeReference);
 		}
-		type.setSourceRange(sourceStart, length);
 		return type;
 	}
 		
@@ -2050,6 +2050,34 @@ class ASTConverter {
 	 *    It should return 0 for i, 1 for j and 2 for k.
 	 * @return int the dimension found
 	 */
+	private int retrieveEndOfDimensionsPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		int dimensions = 0;
+		int foundPosition = 0;
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameLBRACKET:
+					case Scanner.TokenNameCOMMENT_BLOCK:
+					case Scanner.TokenNameCOMMENT_JAVADOC:
+					case Scanner.TokenNameCOMMENT_LINE:
+						break;
+					case Scanner.TokenNameRBRACKET://166
+						foundPosition = scanner.currentPosition - 1;
+					default:
+						return foundPosition;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return foundPosition;
+	}
+
+	/**
+	 * This method is used to retrieve the starting position of the catch keyword.
+	 * @return int the dimension found, -1 if none
+	 */
 	private int retrieveStartingCatchPosition(int start, int end) {
 		scanner.resetTo(start, end);
 		int dimensions = 0;
@@ -2067,7 +2095,27 @@ class ASTConverter {
 	}
 
 	/**
-	 * This method is used to retrieve position before the next comma or semi-colon.
+	 * This method is used to retrieve the position just before the left bracket.
+	 * @return int the dimension found, -1 if none
+	 */
+	private int retrieveStartingLeftBracketPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		int dimensions = 0;
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameLBRACKET://225
+						return scanner.startPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+	
+	/**
+	 * This method is used to retrieve position before the next right brace or semi-colon.
 	 * @return int the position found.
 	 */
 	private void retrieveRightBraceOrSemiColonPosition(ASTNode node) {
