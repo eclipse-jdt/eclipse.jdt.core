@@ -188,7 +188,7 @@ public IField[] getFields() throws JavaModelException {
 	return array;
 }
 /**
- * @see IType#getFullyQualifiedName
+ * @see IType#getFullyQualifiedName()
  */
 public String getFullyQualifiedName() {
 	return this.getFullyQualifiedName('$');
@@ -418,7 +418,7 @@ public IType getType(String typeName) {
 	return new SourceType(this, typeName);
 }
 /**
- * @see IType#getTypeQualifiedName
+ * @see IType#getTypeQualifiedName()
  */
 public String getTypeQualifiedName() {
 	return this.getTypeQualifiedName('$');
@@ -540,7 +540,7 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
  * @exception JavaModelException if the hierarchy could not be restored, reasons include:
  *      - type is not the focus of the hierarchy or 
  *		- unable to read the input stream (wrong format, IOException during reading, ...)
- * @see ITypeHierarchy#store(OutputStream, IProgressMonitor)
+ * @see ITypeHierarchy#store(java.io.OutputStream, IProgressMonitor)
  * @since 3.0
  */
 public ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
@@ -707,13 +707,13 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 	class TypeResolveRequestor implements ISelectionRequestor {
 		String[][] answers = null;
 		void acceptType(String[] answer){
-			if (answers == null) {
-				answers = new String[][]{ answer };
+			if (this.answers == null) {
+				this.answers = new String[][]{ answer };
 			} else {
 				// grow
-				int length = answers.length;
-				System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
-				answers[length] = answer;
+				int length = this.answers.length;
+				System.arraycopy(this.answers, 0, this.answers = new String[length+1][], 0, length);
+				this.answers[length] = answer;
 			}
 		}
 		public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
