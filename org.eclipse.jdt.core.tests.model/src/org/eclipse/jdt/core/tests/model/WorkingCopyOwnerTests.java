@@ -12,9 +12,10 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.SearchEngine;
 
 import junit.framework.Test;
 
@@ -24,9 +25,6 @@ import junit.framework.Test;
 public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	public class TestWorkingCopyOwner extends WorkingCopyOwner {
-		public IBuffer createBuffer(ICompilationUnit workingCopy) {
-			return new TestBuffer(workingCopy);
-		}
 		
 		public String toString() {
 			return "Test working copy owner";
@@ -428,6 +426,40 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 			if (workingCopy2 != null) {
 				workingCopy2.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * Ensures that searching takes the owner's working copies into account.
+	 */
+	public void testSearch1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/Y.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			workingCopy.getBuffer().setContents(
+				"public class Y {\n" +
+				"  X field;\n" +
+				"}"
+			);
+			workingCopy.makeConsistent(null);
+
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine(owner).search(
+				getWorkspace(), 
+				"X", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.REFERENCES, 
+				SearchEngine.createWorkspaceScope(), 
+				resultCollector);
+			assertEquals(
+				"Y.java Y.field [X]",
+				resultCollector.toString());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
 			}
 		}
 	}

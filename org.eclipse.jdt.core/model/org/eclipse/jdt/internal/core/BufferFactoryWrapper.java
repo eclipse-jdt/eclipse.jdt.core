@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
@@ -23,13 +21,6 @@ public class BufferFactoryWrapper extends WorkingCopyOwner {
 	
 	public BufferFactoryWrapper(IBufferFactory factory) {
 		this.factory = factory;
-	}
-	public IBuffer createBuffer(ICompilationUnit workingCopy) {
-		if (this.factory == null) {
-			return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
-		} else {
-			return super.createBuffer(workingCopy);
-		}
 	}
 	public boolean equals(Object obj) {
 		if (!(obj instanceof BufferFactoryWrapper)) return false;

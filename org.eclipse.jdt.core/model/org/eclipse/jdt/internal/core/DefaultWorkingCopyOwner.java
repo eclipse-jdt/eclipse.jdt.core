@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
 /**
@@ -20,21 +19,11 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 	public static final WorkingCopyOwner PRIMARY = 
 		new WorkingCopyOwner() {
-			public IBuffer createBuffer(ICompilationUnit workingCopy) {
-				if (this.factory == null) {
-					return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
-				} else {
-					return super.createBuffer(workingCopy);
-				}
-			}
 			public String toString() {
 				return "Primary owner"; //$NON-NLS-1$
 			}
 		};
 
 	public DefaultWorkingCopyOwner() {
-	}
-	public IBuffer createBuffer(ICompilationUnit workingCopy) {
-		return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
 	}
 }

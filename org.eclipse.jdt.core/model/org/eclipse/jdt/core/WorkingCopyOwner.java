@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.jdt.internal.core.BufferManager;
+
 /**
  * The owner of an <code>ICompilationUnit</code> handle in working copy mode. 
  * An owner is used to identify a working copy and to create its buffer.
@@ -41,8 +43,12 @@ public abstract class WorkingCopyOwner {
 	 * @see IBuffer
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
-		// TODO: change to use a org.eclipse.text buffer
-		return this.factory.createBuffer(workingCopy);
+		if (this.factory == null) {
+			return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
+		} else {
+			// TODO: change to use a org.eclipse.text buffer
+			return this.factory.createBuffer(workingCopy);
+		}
 	}
 
 }
