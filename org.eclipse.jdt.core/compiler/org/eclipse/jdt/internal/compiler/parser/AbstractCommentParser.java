@@ -63,6 +63,8 @@ public abstract class AbstractCommentParser {
 	
 	// Private fields
 	private int currentTokenType = -1;
+	
+	// Line pointers
 	private int linePtr, lastLinePtr;
 	
 	// Identifier stack
@@ -1175,10 +1177,13 @@ public abstract class AbstractCommentParser {
 	 * Search the line number corresponding to a specific position.
 	 * Warning: returned position is 1-based index!
 	 * @see Scanner#getLineNumber(int) We cannot directly use this method
-	 * because lineEnds field is not initialized for DOM_PARSER
+	 * when linePtr field is not initialized.
 	 */
 	public final int getLineNumber(int position) {
 	
+		if (this.scanner.linePtr != -1) {
+			return this.scanner.getLineNumber(position);
+		}
 		if (this.lineEnds == null)
 			return 1;
 		int length = this.lineEnds.length;
@@ -1202,12 +1207,17 @@ public abstract class AbstractCommentParser {
 		return m+2;
 	}
 
-	/*
+	/**
 	 * Search the source position corresponding to the end of a given line number.
-	 * See Scanner
+	 * Warning: returned position is 1-based index!
+	 * @see Scanner#getLineEnd(int) We cannot directly use this method
+	 * when linePtr field is not initialized.
 	 */
 	public final int getLineEnd(int lineNumber) {
 	
+		if (this.scanner.linePtr != -1) {
+			return this.scanner.getLineEnd(lineNumber);
+		}
 		if (this.lineEnds == null) 
 			return -1;
 		if (lineNumber > this.lineEnds.length+1) 

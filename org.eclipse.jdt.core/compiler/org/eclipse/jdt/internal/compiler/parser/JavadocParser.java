@@ -60,11 +60,13 @@ public class JavadocParser extends AbstractCommentParser {
 
 		try {
 			this.source = this.sourceParser.scanner.source;
-			this.lineEnds = this.sourceParser.scanner.getLineEnds();
 			this.index = javadocStart +3;
 			this.endComment = javadocEnd - 2;
 			if (this.checkDocComment) {
 				// Initialization
+				this.scanner.lineEnds = this.sourceParser.scanner.lineEnds;
+				this.scanner.linePtr = this.sourceParser.scanner.linePtr;
+				this.lineEnds = this.scanner.lineEnds;
 				this.docComment = new Javadoc(javadocStart, javadocEnd);
 				parseComment(javadocStart, javadocEnd);
 			} else {
