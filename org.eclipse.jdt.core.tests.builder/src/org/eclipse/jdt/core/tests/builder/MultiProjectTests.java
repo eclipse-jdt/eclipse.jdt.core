@@ -569,7 +569,6 @@ public class MultiProjectTests extends Tests {
 			env.setBuildOrder(null);
 		}
 	}
-	
 	public void testCycle4() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
@@ -772,4 +771,62 @@ public class MultiProjectTests extends Tests {
 			env.setBuildOrder(null);
 		}
 	}
+	public void testMissingRequiredBinaries() throws JavaModelException {
+		
+		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
+		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
+		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
+
+		env.addExternalJars(p1, Util.getJavaClassLibs());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+		env.addRequiredProject(p1, p2);
+		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+
+		env.addExternalJars(p2, Util.getJavaClassLibs());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+		env.addRequiredProject(p2, p3);
+		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+		
+		env.addExternalJars(p3, Util.getJavaClassLibs());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
+		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
+		
+		IPath x = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"import p2.*;\n"+ //$NON-NLS-1$
+			"public class X extends Y{\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		IPath y = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"import p3.*;\n"+ //$NON-NLS-1$
+			"public class Y extends Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		IPath z = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		try {
+			fullBuild();
+			
+			expectingOnlySpecificProblemsFor(p1,new Problem[]{
+				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required .class files.", x),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p3.Z. Fix the build path then try rebuilding this project.", p1)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+		} finally {
+			env.setBuildOrder(null);
+		}
+	}
+	
 }
