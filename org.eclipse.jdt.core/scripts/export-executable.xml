@@ -1,0 +1,69 @@
+
+<!-- Export executable version of batch compiler, using GCJ -->
+<!--
+        gcc-target    - the gcc target name to use (for example, i686-pc-mingw32)
+        linkflags     - extra flags to pass to gcj during the link phase, if any
+        binaryname    - the name to give to the final binary
+-->
+
+<project name="export-executable" default="build" basedir="..">
+
+	<property name="gcc-path" value="d:/gcc/gcc-3.4" />
+	<property name="binaryname" value="eclipsejc" />
+	<property name="dest" value="../../bingcj/" />
+	<property name="work" value="${dest}tmp/" />
+    <target name="build">
+
+		<echo message="target: ${dest}" />
+		<mkdir dir="${dest}" />
+		<delete dir="${dest}" />
+		<mkdir dir="${dest}" />
+	
+		<copy todir="${work}">
+		    <fileset dir="batch/"/>
+		</copy>
+		<copy todir="${work}">
+		    <fileset dir="compiler/"/>
+		</copy>
+	
+        <echo message='compiling resources   -> .o'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
+            <arg value='--resource'/>
+            <srcfile/>
+            <arg value='-c'/>
+            <arg value='-o'/>
+            <targetfile/>
+            <fileset dir='${work}'>
+                <exclude name='**/*.java'/>
+                <exclude name='**/*.html'/>
+            </fileset>
+            <mapper type='glob' from='*.*' to='*.o'/>
+<!--			<mapper type='regexp' from='^(.*)\.([^.]*)$$' to='\1.o'/>
+-->
+        </apply>
+
+        <echo message='compiling sources      -> .o'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
+            <arg value='-fCLASSPATH=bin/'/>
+            <arg value='-O2'/>
+            <arg value='-g'/>
+            <arg value='-c'/>
+            <srcfile/>
+            <arg value='-o'/>
+            <targetfile/>
+            <fileset dir='${work}'>
+                <include name='**/*.java'/>
+            </fileset>
+            <mapper type='glob' from='*.java' to='*.o'/>
+        </apply>
+        
+        <echo message='linking .o -> ${binaryname}'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' parallel='true'>
+            <arg value='-fCLASSPATH=${gcc-path}/share/libgcj.jar'/>
+            <arg value='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
+            <arg line='-o ${dest}${binaryname}.exe'/>
+            <srcfile/>
+            <fileset dir='${work}' includes='**/*.o'/>
+       </apply>
+    </target>
+</project>
