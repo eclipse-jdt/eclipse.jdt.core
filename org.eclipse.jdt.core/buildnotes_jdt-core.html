@@ -43,6 +43,25 @@ Eclipse SDK 3.0M6 Build - ?th November 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Spec and implementation for <code>ITypeBinding.getBinaryName()</code> was changed to be '.' separated:
+<pre>
+ /**
+ * Returns the binary name of this type binding.
+ * The binary name of a class is defined in the Java Language 
+ * Specification 2nd edition, section 13.1.
+ *
+ * Note that in some cases, the binary name may be unavailable.
+ * This may happen, for example, for a local type declared in 
+ * unreachable code.
+ *
+ *
+ * @return the binary name of this type, or null 
+ * if the binary name is unknown
+ * @since 3.0
+ */
+public String getBinaryName();
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
