@@ -142,7 +142,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
 
 	private static Hashtable DefaultOptions;
-	private final static String PropertiesBundleName = "org.eclipse.jdt.core.pluginIni"/*nonNLS*/;
+	private final static String PropertiesBundleName = "org.eclipse.jdt.core.javacore"/*nonNLS*/;
 /**
  * Creates the Java core plug-in.
  */
@@ -468,80 +468,7 @@ public static String[] getClasspathVariableNames() {
 /**
  * Answers a set of configurable options with their default values.
  * These options allow to configure the behavior of the underlying components.
- * 
- * Recognized options are listed below, optionName = possibleValue1 / possibleValue2
- * where [] are enclosing the default value of the corresponding option.
- *
- * Note: more options might be added in further releases.
- *
- * RECOGNIZED OPTIONS:
- *
- *	COMPILER_LOCAL_VARIABLE_ATTR = [GENERATE] | DO_NOT_GENERATE
- *  	When generated, this attribute will enable local variable names to be displayed 
- * 		in debugger, only in place where variables are definitely assigned 
- *		(.class file is then bigger)
- *
- *  COMPILER_LINE_NUMBER_ATTR = [GENERATE] | DO_NOT_GENERATE 
- *		When generated, this attribute will enable source code highlighting in debugger 
- *		(.class file is then bigger).
- *		
- *  COMPILER_SOURCE_FILE_ATTR = [GENERATE] | DO_NOT_GENERATE
- *		When generated, this attribute will enable the debugger to present the 
- *		corresponding source code.
- *
- *  COMPILER_CODEGEN_UNUSED_LOCAL = [PRESERVE] | OPTIMIZE_OUT
- *		Unless requested to preserve unused local variables (i.e. never read), the 
- *		compiler will optimize them out, potentially altering debugging
- * 
- *  COMPILER_CODEGEN_TARGET_PLATFORM = [VERSION_1_1] | VERSION_1_2
- * 		Generate .class files either backward compatible with JVM 1.1 or only executable 
- *		on JVM 1.2 and later
- *
- *	COMPILER_PB_UNREACHABLE_CODE = [ERROR] | WARNING
- *		Unreachable code can either be reported as an error or a warning
- *
- *	COMPILER_PB_INVALID_IMPORT = [ERROR] | WARNING
- *		An import statement that cannot be resolved might either be reported 
- *		either as an error or as a warning
- *
- *	COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = [WARNING] | IGNORE
- *		A package default method is not visible in a different package, and thus 
- *		cannot be overriden. When enabling this option, the compiler will signal 
- *		such scenarii.
- *
- *  COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = [WARNING] | IGNORE
- * 		Naming a method with a constructor name is generally considered poor 
- *		style programming. When enabling this option, the compiler will signal such 
- *		scenarii
- *
- *  COMPILER_PB_DEPRECATION = [WARNING] | IGNORE
- *		When enabled, the compiler will signal use of deprecated API.
- *
- *	COMPILER_PB_HIDDEN_CATCH_BLOCK = [WARNING] | IGNORE
- *		Locally to a try statement, some catch blocks may hide others 
- *		(e.g. 	try {	throw new java.io.CharConversionException();
- *				} catch (java.io.CharConversionException e) {
- *				} catch (java.io.IOException e) {}). 
- *		When enabling this option, the compiler will issue a warning for hidden catch 
- *		blocks corresponding to checked exceptions
- *
- *  COMPILER_PB_UNUSED_LOCAL = WARNING | [IGNORE]
- * 		When enabled, the compiler will issue a warning for unused local variables 
- *		(i.e. variables never read from)
- *
- *	COMPILER_PB_UNUSED_PARAMETER = WARNING | [IGNORE]
- *		When enabled, the compiler will issue a warning for unused method parameters 
- *		(i.e. parameters never read from)
- *
- *	COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = WARNING | [IGNORE]
- *		When enabled, the compiler will issue a warning whenever it emulates access 
- *		to a non-accessible member of an enclosing type
- *
- *	CORE_JAVA_BUILD_ORDER = [COMPUTE] | IGNORE
- *		When enabled, the build order is automatically reflecting the classpath on each
- *		classpath change action. It can still be modified manually afterwards.
  */
- 
 public static Hashtable getDefaultOptions(){
 	if (DefaultOptions == null) {
 		DefaultOptions = new Hashtable(10);
@@ -556,9 +483,7 @@ public static Hashtable getDefaultOptions(){
 				System.out.println(id);
 				DefaultOptions.put(id,bundle.getString(id));
 			}
-		} catch(Exception ex){
-			ex.printStackTrace();
-		}
+		} catch(Exception ex){}
 	}
 
 	return (Hashtable)DefaultOptions.clone();
