@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 /**
  * Converter from a type to an AST type declaration.
