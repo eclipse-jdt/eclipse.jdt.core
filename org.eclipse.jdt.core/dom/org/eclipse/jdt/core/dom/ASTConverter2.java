@@ -255,6 +255,10 @@ class ASTConverter2 extends ASTConverter {
 		}*/
 		// The javadoc comment is now got from list store in compilation unit declaration
 		convert(annotationTypeMemberDeclaration.javadoc, annotationTypeMemberDeclaration2);
+		org.eclipse.jdt.internal.compiler.ast.Expression memberValue = annotationTypeMemberDeclaration.memberValue;
+		if (memberValue != null) {
+			annotationTypeMemberDeclaration2.setDefault(convert(memberValue));
+		}
 		if (this.resolveBindings) {
 			recordNodes(annotationTypeMemberDeclaration2, annotationTypeMemberDeclaration);
 			recordNodes(methodName, annotationTypeMemberDeclaration);
