@@ -225,7 +225,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 		return null;
 	}
-
 	this.codegenBinding = this.binding = 
 		receiver.isImplicitThis()
 			? scope.getImplicitMethod(selector, argumentTypes, this)
