@@ -57,8 +57,10 @@ public final class ListRewrite {
 	}
 	
 	/**
-	 * Returns the parent of the list for which the list rewriter was created for. 
-	 * @return The note that contains the list for which the list rewriter was created for.
+	 * Returns the parent of the list for which this list rewriter was created.
+
+	 * @return the node that contains the list for which this list rewriter was created
+	 * @see #getLocationInParent()
 	 * @since 3.1
 	 */
 	public ASTNode getParent() {
@@ -66,8 +68,10 @@ public final class ListRewrite {
 	}
 	
 	/**
-	 * Returns the property of the list for which the list rewriter was created for. 
-	 * @return The property of list for which the list rewriter was created for.
+	 * Returns the property of the parent node for which this list rewriter was created. 
+	 * 
+	 * @return the property of the parent node for which this list rewriter was created
+	 * @see #getParent()
 	 * @since 3.1
 	 */
 	public StructuralPropertyDescriptor getLocationInParent() {
