@@ -10,22 +10,22 @@ import org.eclipse.jdt.internal.compiler.*;
 
 public interface ParserBasicInformation {
 
-	public final static int
+    public final static int
       ERROR_SYMBOL      = 307,
       MAX_NAME_LENGTH   = 36,
       NUM_STATES        = 591,
       NT_OFFSET         = 308,
       SCOPE_UBOUND      = -1,
       SCOPE_SIZE        = 0,
-      LA_STATE_OFFSET   = 16965,
+      LA_STATE_OFFSET   = 16966,
       MAX_LA            = 1,
-      NUM_RULES         = 435,
+      NUM_RULES         = 436,
       NUM_TERMINALS     = 105,
       NUM_NON_TERMINALS = 203,
       NUM_SYMBOLS       = 308,
-      START_STATE       = 12259,
+      START_STATE       = 12260,
       EOFT_SYMBOL       = 158,
       EOLT_SYMBOL       = 158,
-      ACCEPT_ACTION     = 16964,
-      ERROR_ACTION      = 16965;
+      ACCEPT_ACTION     = 16965,
+      ERROR_ACTION      = 16966;
 }
