@@ -347,9 +347,16 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		parser.parseCompilationUnit(this, false);
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
-			unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
-			if(unitInfo.fTimestamp == IResource.NULL_STAMP){
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
+			try {
+				unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
+				if(unitInfo.fTimestamp == IResource.NULL_STAMP){
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
+				}
+			} catch (JavaModelException e) {
+				// if original element does not exit, ignore
+				if (!e.getJavaModelStatus().isDoesNotExist()) {
+					throw e;
+				}
 			}
 		}
 		return unitInfo.isStructureKnown();

@@ -10,25 +10,17 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IProblemRequestor;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 
 /**
  * Implementation of a working copy compilation unit. A working
@@ -79,8 +71,27 @@ protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory buffe
  * @see IWorkingCopy
  */
 public void commit(boolean force, IProgressMonitor monitor) throws JavaModelException {
-	CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
-	runOperation(op, monitor);
+	ICompilationUnit original = (ICompilationUnit)this.getOriginalElement();
+	if (original.exists()) {
+		CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
+		runOperation(op, monitor);
+	} else {
+		IFile originalRes = (IFile)original.getResource();
+		try {
+			originalRes.create(
+				new InputStream() {
+					public int read() throws IOException {
+						return -1;
+					}
+				},
+				force,
+				monitor);
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+		original.getBuffer().setContents(this.getContents());
+		original.save(monitor, force);
+	}
 }
 /**
  * Returns a new element info for this element.
@@ -134,8 +145,8 @@ public void destroy() {
 }
 
 public boolean exists() {
-	if (this.useCount == 0) return false; // no longer exists once destroyed
-	return super.exists();
+	// working copy always exists in the model until it is detroyed
+	return this.useCount != 0;
 }
 
 
@@ -346,12 +357,23 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	// set the buffer source if needed
 	if (buffer.getCharacters() == null){
 		ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
-		IBuffer originalBuffer = original.getBuffer();
+		IBuffer originalBuffer = null;
+		try {
+			originalBuffer = original.getBuffer();
+		} catch (JavaModelException e) {
+			// original element does not exist: create an empty working copy
+			if (!e.getJavaModelStatus().isDoesNotExist()) {
+				throw e;
+			}
+		}
 		if (originalBuffer != null) {
 			char[] originalContents = originalBuffer.getCharacters();
 			if (originalContents != null) {
 				buffer.setContents((char[])originalContents.clone());
 			}
+		} else {
+			// initialize buffer
+			buffer.setContents("");
 		}
 	}
 
