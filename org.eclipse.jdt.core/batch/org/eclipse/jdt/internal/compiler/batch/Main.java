@@ -360,9 +360,7 @@ public class Main implements ProblemSeverities {
 		boolean printUsageRequired = false;
 
 		boolean didSpecifyCompliance = false;
-		boolean didSpecifySourceLevel = false;
 		boolean didSpecifyDefaultEncoding = false;
-		boolean didSpecifyTarget = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -436,7 +434,6 @@ public class Main implements ProblemSeverities {
 			}
 			if (currentArg.equals("-source")) { //$NON-NLS-1$
 				mode = InsideSource;
-				didSpecifySourceLevel = true;
 				continue;
 			}
 			if (currentArg.equals("-encoding")) { //$NON-NLS-1$
@@ -750,7 +747,6 @@ public class Main implements ProblemSeverities {
 				continue;
 			}
 			if (currentArg.equals("-target")) { //$NON-NLS-1$
-				didSpecifyTarget = true;
 				mode = TargetSetting;
 				continue;
 			}
@@ -1070,31 +1066,14 @@ public class Main implements ProblemSeverities {
 			throw new InvalidInputException(Main.bind("configure.noSource")); //$NON-NLS-1$
 
 		// check and set compliance/source/target compatibilities
-		if (!didSpecifyCompliance){
-				if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				} else {
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-				}
-		}
-		String compliance = (String)options.get(CompilerOptions.OPTION_Compliance);
-		if (CompilerOptions.VERSION_1_4.equals(compliance)){
-			
-			// default 1.4 settings
-			if (!didSpecifySourceLevel){
-				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-			}
-			if (!didSpecifyTarget){
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-			}
-		} else if (CompilerOptions.VERSION_1_3.equals(compliance)){
-
-			// default 1.4 settings
-			if (!didSpecifySourceLevel){
-				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			}
-			if (!didSpecifyTarget){
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		} else {
+			String javaVMVersion = System.getProperty("java.vm.version"); //$NON-NLS-1$
+			if (javaVMVersion != null && javaVMVersion.startsWith("1.4")) { //$NON-NLS-1$
+				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 			}
 		}
 		// compliance must be 1.4 if source is 1.4
