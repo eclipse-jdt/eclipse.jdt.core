@@ -295,6 +295,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSimplePackageReference"));
 	suite.addTest(new JavaSearchTests("testPackageReference1"));
 	suite.addTest(new JavaSearchTests("testPackageReference2"));
+	suite.addTest(new JavaSearchTests("testPackageReference3"));
 	suite.addTest(new JavaSearchTests("testVariousPackageReference"));
 	suite.addTest(new JavaSearchTests("testAccuratePackageReference"));
 	suite.addTest(new JavaSearchTests("testPatternMatchPackageReference"));
@@ -2066,7 +2067,24 @@ public void testPackageReference2() throws CoreException {
 		"src/b9/Foo.java [b8]", 
 		resultCollector);
 }
-
+/**
+ * Package reference in jar test.
+ * (regression test for bug 47989 Exception when searching for IPackageFragment "java.util.zip")
+ */
+public void testPackageReference3() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "test47989.jar", "p1");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg.getParent()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		pkg, 
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"test47989.jar java.lang.Object p2.Y.foo()",
+		resultCollector);
+}
 /**
  * Test pattern match package references
  */
