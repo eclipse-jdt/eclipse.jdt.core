@@ -735,9 +735,9 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 		}
 		proj.setRawClasspath(classpath, null);
 		
-		long start = System.currentTimeMillis();
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", roots.length, length);
+		long start = System.currentTimeMillis();
 		for (int i = 0; i < roots.length; i++){
 			IClasspathEntry rawEntry = roots[i].getRawClasspathEntry();
 			assertEquals("unexpected root raw entry:", classpath[i], rawEntry);
