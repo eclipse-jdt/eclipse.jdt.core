@@ -1218,6 +1218,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		int statementsLength = statements.length;
 		for (int i = 0; i < statementsLength; i++) {
 			final Statement statement = statements[i];
+			if (i > 0 && (statements[i - 1] instanceof EmptyStatement) && !(statement instanceof EmptyStatement)) {
+				this.scribe.printNewLine();
+			}
 			statement.traverse(this, scope);
 			if (statement instanceof Expression) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -1254,7 +1257,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.printNewLine();
 					}
 				}
-			} else if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
+			} else if (i != statementsLength - 1) {
+				if (!(statement instanceof EmptyStatement) && !(statements[i + 1] instanceof EmptyStatement)) {
+					this.scribe.printNewLine();
+				}
+			} else if (i == statementsLength - 1 && insertNewLineAfterLastStatement) {
 				this.scribe.printNewLine();
 			}
 		}

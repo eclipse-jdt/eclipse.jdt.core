@@ -6,8 +6,7 @@ public class Test {
 	public void foo(int k) {
 		if (k > 0) {
 			i = 3;
-			;
-			;
+			;;
 		} else if (k == 0) {
 			i = 2;
 		}
