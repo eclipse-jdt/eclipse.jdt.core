@@ -87,14 +87,12 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 public Index(String fileName, String printableName, boolean reuseExistingFile) throws IOException {
 	this.printableName = printableName;
 
-	initialize(fileName, reuseExistingFile);
+	this.memoryIndex = new MemoryIndex();
+	this.diskIndex = new DiskIndex(fileName);
+	this.diskIndex.initialize(reuseExistingFile);
 }
 public void addIndexEntry(char[] category, char[] key, SearchDocument document) {
 	this.memoryIndex.addIndexEntry(category, key, document);
-}
-public void close() throws IOException {
-	if (this.diskIndex != null)
-		this.diskIndex.close();
 }
 public File getIndexFile() {
 	if (this.diskIndex == null) return null;
@@ -103,17 +101,6 @@ public File getIndexFile() {
 }
 public boolean hasChanged() {
 	return this.memoryIndex.hasChanged();
-}
-protected void initialize(String fileName, boolean reuseExistingFile) throws IOException {
-	this.memoryIndex = new MemoryIndex();
-	this.diskIndex = new DiskIndex(fileName);
-	this.diskIndex.initialize(reuseExistingFile);
-}
-public boolean openIfNecessary() throws IOException {
-	if (this.diskIndex == null || this.diskIndex.file != null) return false;
-
-	this.diskIndex.open();
-	return true;
 }
 /**
  * Returns the entries containing the given key in a group of categories, or null if no matches are found.
@@ -178,6 +165,14 @@ public void save() throws IOException {
 
 	this.diskIndex = this.diskIndex.mergeWith(this.memoryIndex);
 	this.memoryIndex = new MemoryIndex();
+}
+public void startQuery() throws IOException {
+	if (this.diskIndex != null)
+		this.diskIndex.startQuery();
+}
+public void stopQuery() throws IOException {
+	if (this.diskIndex != null)
+		this.diskIndex.stopQuery();
 }
 public String toString() {
 	if (this.printableName != null) return this.printableName;

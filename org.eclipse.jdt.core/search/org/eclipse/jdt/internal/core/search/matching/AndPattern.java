@@ -32,8 +32,8 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 
 	this.resetQuery();
 	SimpleSet intersectedNames = null;
-	boolean closeIt = index.openIfNecessary();
 	try {
+		index.startQuery();
 		do {
 			SearchPattern pattern = currentPattern();
 			EntryResult[] entries = pattern.queryIn(index);
@@ -63,7 +63,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			intersectedNames = newIntersectedNames;
 		} while (this.hasNextQuery());
 	} finally {
-		if (closeIt) index.close();
+		index.stopQuery();
 	}
 	if (intersectedNames == null) return;
 

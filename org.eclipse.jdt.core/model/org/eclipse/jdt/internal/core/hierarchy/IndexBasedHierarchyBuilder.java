@@ -454,7 +454,7 @@ public static void searchAllPossibleSubTypes(
 			if (currentTypeName == null) break;
 		}
 	} finally {
-		job.closeAll();
+		job.finished();
 	}
 }
 }

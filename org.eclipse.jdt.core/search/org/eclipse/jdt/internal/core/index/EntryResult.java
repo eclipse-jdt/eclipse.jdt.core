@@ -13,25 +13,25 @@ package org.eclipse.jdt.internal.core.index;
 public class EntryResult {
 
 private char[] word;
-private int[] documentIds;
+private int[] documentNumbers;
 private String[] documentNames;
 
-public EntryResult(char[] word, int[] ids) {
+public EntryResult(char[] word, int[] docNumbers) {
 	this.word = word;
-	this.documentIds = ids;
+	this.documentNumbers = docNumbers;
 }
-public void addDocumentId(int id) {
-	if (this.documentIds == null) {
-		this.documentIds = new int[]{id};
+public void addDocumentNumber(int docNumber) {
+	if (this.documentNumbers == null) {
+		this.documentNumbers = new int[]{docNumber};
 		return;
 	}
 
-	int length = this.documentIds.length;
+	int length = this.documentNumbers.length;
 	for (int i = 0; i < length; i++)
-		if (id == this.documentIds[i]) return;
+		if (docNumber == this.documentNumbers[i]) return;
 
-	System.arraycopy(this.documentIds, 0, this.documentIds = new int[length + 1], 0, length);
-	this.documentIds[length] = id;
+	System.arraycopy(this.documentNumbers, 0, this.documentNumbers = new int[length + 1], 0, length);
+	this.documentNumbers[length] = docNumber;
 }
 public void addDocumentName(String documentName) {
 	if (this.documentNames == null) {
@@ -50,14 +50,14 @@ public char[] getWord() {
 	return this.word;
 }
 public String[] getDocumentNames(Index index) throws java.io.IOException {
-	if (this.documentIds != null)
-		for (int i = 0, l = this.documentIds.length; i < l; i++)
-			addDocumentName(index.diskIndex.readDocumentName(this.documentIds[i]));
+	if (this.documentNumbers != null)
+		for (int i = 0, l = this.documentNumbers.length; i < l; i++)
+			addDocumentName(index.diskIndex.readDocumentName(this.documentNumbers[i]));
 		
 	return this.documentNames != null ? this.documentNames : new String[0];
 }
 public boolean isEmpty() {
-	return this.documentIds == null && this.documentNames == null;
+	return this.documentNumbers == null && this.documentNames == null;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(word.length * 2);

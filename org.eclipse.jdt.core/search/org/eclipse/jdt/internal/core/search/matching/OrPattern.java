@@ -42,12 +42,12 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 }
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
-	boolean closeIt = index.openIfNecessary();
 	try {
+		index.startQuery();
 		for (int i = 0, length = this.patterns.length; i < length; i++)
 			this.patterns[i].findIndexMatches(index, requestor, participant, scope, progressMonitor);
 	} finally {
-		if (closeIt) index.close();
+		index.stopQuery();
 	}
 }
 public boolean isPolymorphicSearch() {

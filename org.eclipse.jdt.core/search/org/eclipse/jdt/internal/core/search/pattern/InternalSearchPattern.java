@@ -41,8 +41,8 @@ protected SearchPattern currentPattern() {
  */
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	boolean closeIt = index.openIfNecessary();
 	try {
+		index.startQuery();
 		SearchPattern pattern = currentPattern();
 		EntryResult[] entries = pattern.queryIn(index);
 		if (entries == null) return;
@@ -60,7 +60,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			}
 		}
 	} finally {
-		if (closeIt) index.close();
+		index.stopQuery();
 	}
 }
 /**

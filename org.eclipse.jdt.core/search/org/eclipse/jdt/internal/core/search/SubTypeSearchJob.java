@@ -24,12 +24,12 @@ SimpleSet indexes = new SimpleSet(5);
 public SubTypeSearchJob(SearchPattern pattern, SearchParticipant participant, IJavaSearchScope scope, IndexQueryRequestor requestor) {
 	super(pattern, participant, scope, requestor);
 }
-public void closeAll() {
+public void finished() {
 	try {
 		Object[] values = this.indexes.values;
 		for (int i = 0, l = values.length; i < l; i++)
 			if (values[i] != null)
-				((Index) values[i]).close();
+				((Index) values[i]).stopQuery();
 	} catch(IOException e) {
 		// ignore
 	} 
@@ -37,8 +37,10 @@ public void closeAll() {
 public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
 	try {
-		if (index.openIfNecessary())
+		if (!indexes.includes(index)) {
 			indexes.add(index);
+			index.startQuery();
+		}
 	} catch (IOException e) {
 		return FAILED;
 	}
