@@ -155,6 +155,7 @@ public class BindingKey {
 					case '.':
 					case '%':
 					case ':':
+					case '>':
 						this.start = this.index+1;
 						previousTokenEnd = this.start;
 						break;
@@ -604,13 +605,6 @@ public class BindingKey {
 	}
 	
 	/*
-	 * Returns the signature of this binding key
-	 */
-	public String getSignature() {
-		return null; // TODO (jerome) implement
-	}
-	
-	/*
 	 * Finds the type binding that corresponds to this key in the given type bindings.
 	 * Returns null if not found.
 	 * This key's scanner should be positioned on the type name token.
@@ -692,7 +686,7 @@ public class BindingKey {
 	 	this.dimension = 0;
 	 }
 	 
-	 public String toString() {
+	public String toString() {
 		return getKey();
 	}
 
