@@ -553,9 +553,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		    this.codegenBinding = parameterizedField.originalField;
 		    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
 		    // extra cast needed if field type was type variable
-		    if (fieldCodegenBinding.type.isTypeVariable()) {
-		        TypeVariableBinding variableReturnType = (TypeVariableBinding) fieldCodegenBinding.type;
-		        this.genericCast = variableReturnType.genericCast(parameterizedField.type);
+		    if ((fieldCodegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
+		        this.genericCast = fieldCodegenBinding.type.genericCast(parameterizedField.type);
 		    }
 		}		
 		if ((bits & FIELD) != 0) {

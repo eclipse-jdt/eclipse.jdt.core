@@ -377,11 +377,11 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (this.binding instanceof ParameterizedFieldBinding) {
 		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
 		    this.codegenBinding = parameterizedField.originalField;
-		    // extra cast needed if field type was type variable
-		    if (this.codegenBinding.type.isTypeVariable()) {
-		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.type;
-		        this.genericCast = variableReturnType.genericCast(parameterizedField.type);
-		    }
+
+		    // extra cast needed if field type has type variable
+		    if ((this.codegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
+		        this.genericCast = this.codegenBinding.type.genericCast(parameterizedField.type);
+		    }		    
 		} else {
 		    this.codegenBinding = this.binding;
 		}

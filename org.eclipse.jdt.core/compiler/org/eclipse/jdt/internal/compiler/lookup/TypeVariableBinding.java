@@ -104,17 +104,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}	
 
 	/**
-	 * Returns the type to use for generic cast, or null if none required
-	 */
-	public TypeBinding genericCast(TypeBinding otherType) {
-	    if (this == otherType) return null;
-		if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
-		TypeBinding otherErasure = otherType.erasure();
-		if (otherErasure == this.firstBound) return null;
-		return otherErasure;
-	}
-	
-	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
 	 */

@@ -4886,4 +4886,30 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}		
+	// 60563
+	public void test175() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"    interface A<T> {\n" + 
+				"        T[] m1(T x);                          \n" + 
+				"    }\n" + 
+				"    public class X { \n" + 
+				"    	public static void main(String[] args) {\n" + 
+				"			new X().m2(new A<X>(){ \n" + 
+				"				public X[] m1(X x) { \n" + 
+				"					System.out.println(\"SUCCESS\");\n" + 
+				"					return null;\n" + 
+				"				}\n" + 
+				"			});\n" + 
+				"		}\n" + 
+				"        void m2(A<X> x) { \n" + 
+				"            m3(x.m1(new X())); \n" + 
+				"        }\n" + 
+				"        void m3(X[] x) {\n" + 
+				"        }                    \n" + 
+				"    }\n"
+			},
+			"SUCCESS");
+	}			
 }
