@@ -775,11 +775,15 @@ public class JavaProject
 				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
 				for (int i = 0, length = markers.length; i < length; i++) {
 					IMarker marker = markers[i];
-					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
-					String classpathFileFormatAttr =  (String)marker.getAttribute(IJavaModelMarker.CLASSPATH_FILE_FORMAT);
-					if ((flushCycleMarkers == (cycleAttr != null && cycleAttr.equals("true"))) //$NON-NLS-1$
-						&& (flushClasspathFormatMarkers == (classpathFileFormatAttr != null && classpathFileFormatAttr.equals("true")))){ //$NON-NLS-1$
+					if (flushCycleMarkers && flushClasspathFormatMarkers) {
 						marker.delete();
+					} else {
+						String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
+						String classpathFileFormatAttr =  (String)marker.getAttribute(IJavaModelMarker.CLASSPATH_FILE_FORMAT);
+						if ((flushCycleMarkers == (cycleAttr != null && cycleAttr.equals("true"))) //$NON-NLS-1$
+							&& (flushClasspathFormatMarkers == (classpathFileFormatAttr != null && classpathFileFormatAttr.equals("true")))){ //$NON-NLS-1$
+							marker.delete();
+						}
 					}
 				}
 			}
@@ -822,15 +826,10 @@ public class JavaProject
 
 				JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 				synchronized (perProjectInfo) {
-					// clear cache of resolved classpath
+					// cache output location
 					perProjectInfo.outputLocation = outputLocation;
 				}
 
-				// restore classpath
-				if (classpath == null) {
-					classpath = defaultClasspath();
-				}
-				
 				/* Disable validate: classpath can contain CP variables and container that need to be resolved 
 				// validate classpath and output location
 				if (classpath != INVALID_CLASSPATH
@@ -838,7 +837,7 @@ public class JavaProject
 					classpath = INVALID_CLASSPATH;
 				}
 				*/
-
+	
 				setRawClasspath0(classpath);
 
 				// only valid if reaches here				
@@ -1345,7 +1344,8 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager manager = getJavaModelManager();
+		JavaModelManager.PerProjectInfo perProjectInfo = manager.getPerProjectInfoCheckExistence(fProject);
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
 		if (ignoreUnresolvedEntry && !generateMarkerOnError && perProjectInfo != null){
@@ -1357,6 +1357,16 @@ public class JavaProject
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
 
 		if (perProjectInfo != null){
+			if (perProjectInfo.classpath == null // .classpath file could not be read
+				&& generateMarkerOnError 
+				&& fProject.isAccessible() 
+				&& manager.deltaProcessor.hasJavaNature(fProject)) {
+					this.createClasspathProblemMarker(
+						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
+						IMarker.SEVERITY_ERROR,
+						false,	//  cycle error
+						false);	//	file format error
+				}
 			perProjectInfo.lastResolvedClasspath = resolvedPath;
 		}
 		return resolvedPath;
@@ -1626,6 +1636,8 @@ public class JavaProject
 		return false;
 	}
 	
+
+	
 	/*
 	 * @see IJavaProject
 	 */
@@ -1642,7 +1654,6 @@ public class JavaProject
 		}
 		return this.findPackageFragmentRoot0(rootPath) != null;
 	}
-
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
@@ -2132,12 +2143,13 @@ public class JavaProject
 		synchronized (info) {
 			if (rawEntries == null) {
 				rawEntries = defaultClasspath();
+			} else {
+				info.classpath = rawEntries;
 			}
+			
 			// clear cache of resolved classpath
 			info.lastResolvedClasspath = null;
 			
-			info.classpath = rawEntries;
-				
 			// compute the new roots
 			updatePackageFragmentRoots();				
 		}

@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -385,6 +386,18 @@ public class DeltaProcessor implements IResourceChangeListener {
 								this.addToParentInfo((JavaProject)JavaCore.create(project));
 							} else {
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
+								
+								// flush classpath markers
+								javaProject.
+									flushClasspathProblemMarkers(
+										true, // flush cycle markers
+										true  //flush classpath format markers
+									);
+									
+								// remove problems and tasks created  by the builder
+								JavaBuilder.removeProblemsAndTasksFor(project);
+
+								// close project
 								try {
 									javaProject.close();
 								} catch (JavaModelException e) {

@@ -38,6 +38,21 @@ Eclipse SDK 2.1 Build - ?th November 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>In case someone deletes the .classpath and no corresponding classpath exists in memory,
+      a default .classpath is not automatically created any longer but a marker is created on the
+      project preventing this project from being built.
+      This covers the following scenarii:
+      <ul>
+      <li>Someone check in a .project file with the Java nature but doesn't check in the .classpath file.
+            When the project is checked out, a marker is created indicating the .classpath file could not 
+            be read.</li>
+      <li>Someone shuts down the workbench, deletes the .classpath and restart the workspace.
+            When attempting to built the project,  a marker is created indicating the .classpath file could 
+            not be read and the project is not built.</li>
+       <li>The Java nature is added to a project without a .classpath file. A marker is created indicating 
+       		the .classpath file could not be read.
+      </ul>
+</li>
 <li><b>Selectivity API</b> - Source folders can be associated with filters allowing to exclude
 specified portions of the resource tree rooted at this source entry's path. Exclusion patterns 
 are expressed using the Ant file pattern syntax (i.e. **, *, ? wild-cards; where ** can stand for
