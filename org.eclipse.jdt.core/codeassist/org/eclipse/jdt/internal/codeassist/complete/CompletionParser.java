@@ -887,6 +887,10 @@ protected void consumeCastExpressionLL1() {
 	popElement(K_CAST_STATEMENT);
 	super.consumeCastExpressionLL1();
 }
+protected void consumeClassBodyDeclaration() {
+	popElement(K_BLOCK_DELIMITER);
+	super.consumeClassBodyDeclaration();
+}
 protected void consumeClassBodyopt() {
 	popElement(K_SELECTOR_QUALIFIER);
 	popElement(K_SELECTOR_INVOCATION_TYPE);
@@ -1200,7 +1204,7 @@ protected void consumeRestoreDiet() {
 }
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
-	if(!isInsideBlock()) pushOnElementStack(K_BLOCK_DELIMITER);
+	pushOnElementStack(K_BLOCK_DELIMITER);
 }
 protected void consumePushPosition() {
 	super.consumePushPosition();
@@ -1692,6 +1696,17 @@ public void recordCompletionOnReference(){
 	}
 	if (!diet) return; // only record references attached to types
 
+}
+public void recoveryExitFromVariable() {
+	if(currentElement != null && currentElement instanceof RecoveredLocalVariable) {
+		RecoveredElement oldElement = currentElement;
+		super.recoveryExitFromVariable();
+		if(oldElement != currentElement) {
+			popElement(K_LOCAL_INITIALIZER_DELIMITER);
+		}
+	} else {
+		super.recoveryExitFromVariable();
+	}
 }
 protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 

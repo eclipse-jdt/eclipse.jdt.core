@@ -234,6 +234,10 @@ public RecoveredElement buildInitialRecoveryState(){
 	
 	return element;
 }
+protected void consumeClassBodyDeclaration() {
+	popElement(K_METHOD_DELIMITER);
+	super.consumeClassBodyDeclaration();
+}
 protected void consumeClassBodyopt() {
 	super.consumeClassBodyopt();
 	popElement(K_SELECTOR);
@@ -950,6 +954,18 @@ protected void pushOnElementStack(int kind, int info){
 		System.arraycopy(oldElementInfoStack, 0, this.elementInfoStack, 0, oldStackLength);
 		this.elementKindStack[this.elementPtr] = kind;
 		this.elementInfoStack[this.elementPtr] = info;
+	}
+}
+public void recoveryExitFromVariable() {
+	if(currentElement != null && currentElement instanceof RecoveredField
+		&& !(currentElement instanceof RecoveredInitializer)) {
+		RecoveredElement oldElement = currentElement;
+		super.recoveryExitFromVariable();
+		if(oldElement != currentElement) {
+			popElement(K_FIELD_INITIALIZER_DELIMITER);
+		}
+	} else {
+		super.recoveryExitFromVariable();
 	}
 }
 public void recoveryTokenCheck() {
