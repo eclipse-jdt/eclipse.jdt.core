@@ -590,7 +590,9 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
 		if (statements != null) {
 			Block block = this.ast.newBlock();
-			block.setSourceRange(methodDeclaration.bodyStart, methodDeclaration.bodyEnd - methodDeclaration.bodyStart + 1);
+			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
+			block.setSourceRange(start, end - start + 1);
 			int statementsLength = statements.length;
 			for (int i = 0; i < statementsLength; i++) {
 				if (statements[i] instanceof LocalDeclaration) {
@@ -601,7 +603,11 @@ class ASTConverter {
 			}
 			methodDecl.setBody(block);
 		} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-			methodDecl.setBody(this.ast.newBlock());
+			Block block = this.ast.newBlock();
+			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
+			block.setSourceRange(start, end - start + 1);
+			methodDecl.setBody(block);
 		}
 		setJavaDocComment(methodDecl);
 		return methodDecl;
@@ -2133,6 +2139,51 @@ class ASTConverter {
 		return -1;
 	}
 	
+	/**
+	 * This method is used to retrieve the start position of the block.
+	 * @return int the dimension found, -1 if none
+	 */
+	private int retrieveStartBlockPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameLBRACE://110
+						return scanner.startPosition;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+	
+	/**
+	 * This method is used to retrieve the end position of the block.
+	 * @return int the dimension found, -1 if none
+	 */
+	private int retrieveEndBlockPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		int count = 0;
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameLBRACE://110
+						count++;
+						break;
+					case Scanner.TokenNameRBRACE://95
+						count--;
+						if (count == 0) {
+							return scanner.currentPosition - 1;
+						};
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+
 	/**
 	 * This method is used to retrieve position before the next right brace or semi-colon.
 	 * @return int the position found.
