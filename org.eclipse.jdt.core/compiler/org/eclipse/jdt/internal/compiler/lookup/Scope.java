@@ -850,7 +850,7 @@ public abstract class Scope
 		}
 
 		// check for duplicate parameterized methods
-		if (compilationUnitScope().environment.options.complianceLevel >= ClassFileConstants.JDK1_5) {
+		if (compilationUnitScope().environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			for (int i = 0; i < candidatesCount; i++) {
 				MethodBinding current = candidates[i];
 				if (current instanceof ParameterizedMethodBinding)
