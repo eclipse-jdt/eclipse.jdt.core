@@ -16,11 +16,23 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class JavadocFieldReference extends FieldReference {
 
 	public int tagSourceStart, tagSourceEnd;
+	public int tagValue;
+	public MethodBinding methodBinding;
+	public boolean superAccess = false;
 
 	public JavadocFieldReference(char[] source, long pos) {
 		super(source, pos);
 		this.bits |= InsideJavadoc;
 	}
+	
+	/*
+	public Binding getBinding() {
+		if (this.methodBinding != null) {
+			return this.methodBinding;
+		}
+		return this.binding;
+	}
+	*/
 
 	/*
 	 * Resolves type on a Block or Class scope.
@@ -57,18 +69,19 @@ public class JavadocFieldReference extends FieldReference {
 		if (!fieldBinding.isValidBinding() || !(fieldBinding instanceof FieldBinding)) {
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
-				MethodBinding[] bindings = refBinding.getMethods(this.token);
-				if (bindings == null) {
+				MethodBinding[] methodBindings = refBinding.getMethods(this.token);
+				if (methodBindings == null) {
 					scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
 				} else {
-					switch (bindings.length) {
+					switch (methodBindings.length) {
 						case 0:
 							scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
 							break;
 						case 1:
-							this.binding = null;
+							this.methodBinding = methodBindings[0];
 							break;
 						default:
+							this.methodBinding = methodBindings[0];
 							scope.problemReporter().javadocAmbiguousMethodReference(this.sourceStart, this.sourceEnd, fieldBinding, scope.getDeclarationModifiers());
 							break;
 					}
@@ -88,7 +101,7 @@ public class JavadocFieldReference extends FieldReference {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */
 	public boolean isSuperAccess() {
-		return false;
+		return this.superAccess;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

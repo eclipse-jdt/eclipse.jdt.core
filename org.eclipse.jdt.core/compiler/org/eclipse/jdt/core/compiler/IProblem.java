@@ -757,9 +757,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocInvalidThrowsClassName = Javadoc + Internal + 481;
 	/** @since 3.0 */
-	int JavadocMissingSeeReference = Javadoc + Internal + 482;
+	int JavadocMissingReference = Javadoc + Internal + 482;
 	/** @since 3.0 */
-	int JavadocInvalidSeeReference = Javadoc + Internal + 483;
+	int JavadocInvalidReference = Javadoc + Internal + 483;
 	/** @since 3.0 */
 	int JavadocInvalidSeeHref = Javadoc + Internal + 484;
 	/** @since 3.0 */
@@ -836,8 +836,10 @@ public interface IProblem {
 	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
 	/** @since 3.0 */
 	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
+	/** @since 3.1 */
+	int JavadocInvalidValueReference = Javadoc + Internal + 516;
 	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 516;
+	int JavadocMessagePrefix = Internal + 519;
 
 	/**
 	 * Generics

@@ -532,7 +532,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocUnexpectedTag:
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
-		case IProblem.JavadocInvalidSeeReference:
+		case IProblem.JavadocInvalidReference:
 		case IProblem.JavadocMalformedSeeReference:
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
@@ -555,7 +555,8 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
-		case IProblem.JavadocMissingSeeReference:
+		case IProblem.JavadocMissingReference:
+		case IProblem.JavadocInvalidValueReference:
 		case IProblem.JavadocUsingDeprecatedField:
 		case IProblem.JavadocUsingDeprecatedConstructor:
 		case IProblem.JavadocUsingDeprecatedMethod:
@@ -2683,8 +2684,11 @@ public void javadocInvalidParamName(JavadocSingleNameReference param, int modifi
 		this.handle(IProblem.JavadocInvalidParamName, arguments, arguments, param.sourceStart, param.sourceEnd);
 	}
 }
-public void javadocInvalidSeeReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocInvalidReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidValueReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -2775,8 +2779,8 @@ public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifier
 		this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
-public void javadocMissingSeeReference(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocMissingReference(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);

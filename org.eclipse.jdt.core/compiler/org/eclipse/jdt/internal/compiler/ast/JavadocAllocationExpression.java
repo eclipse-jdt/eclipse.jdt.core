@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class JavadocAllocationExpression extends AllocationExpression {
 
 	public int tagSourceStart, tagSourceEnd;
+	public int tagValue;
 	public boolean superAccess = false;
 	
 	public JavadocAllocationExpression(long pos) {

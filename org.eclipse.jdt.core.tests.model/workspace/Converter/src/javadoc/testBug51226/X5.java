@@ -2,5 +2,5 @@ package javadoc.testBug51226;
 \u002F**
  * Test
  *\u002F
-public class X {
+public class X5 {
 }

@@ -79,6 +79,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	// Test package binding
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
+	// AST Level
+	protected int astLevel = AST.JLS2;
 	// Debug
 	protected String prefix = "";
 	protected boolean debug = false;
@@ -127,7 +129,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Run test cases subset
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug68017"));
+		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS2"));
+		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS3"));
+		suite.addTest(new ASTConverterJavadocTest("testBug51911"));
 		return suite;
 	}
 
@@ -211,7 +215,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		ASTParser parser = ASTParser.newParser(this.astLevel);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
@@ -221,7 +225,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
 		if (project == null) {
-			ASTParser parser = ASTParser.newParser(AST.JLS2);
+			ASTParser parser = ASTParser.newParser(this.astLevel);
 			parser.setSource(source);
 			parser.setUnitName(unitName);
 			parser.setCompilerOptions(options);
@@ -1078,31 +1082,33 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					MemberRef memberRef = (MemberRef) fragment;
 					previousBinding = memberRef.resolveBinding();
 					if (previousBinding != null) {
-						assumeNotNull(this.prefix+""+memberRef.getName()+" binding was not found!", memberRef.getName().resolveBinding());
+						SimpleName name = memberRef.getName();
+						assumeNotNull(this.prefix+""+name+" binding was not found!", name.resolveBinding());
 						verifyNameBindings(memberRef.getQualifier());
 					}
 				} else if (fragment.getNodeType() == ASTNode.METHOD_REF) {
 					MethodRef methodRef = (MethodRef) fragment;
 					previousBinding = methodRef.resolveBinding();
 					if (previousBinding != null) {
-						IBinding methNameBinding = methodRef.getName().resolveBinding();
+						SimpleName methodName = methodRef.getName();
+						IBinding methNameBinding = methodName.resolveBinding();
 						Name methodQualifier = methodRef.getQualifier();
 						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
-						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+						assumeNotNull(this.prefix+""+methodName+" binding was not found!",methNameBinding);
 						verifyNameBindings(methodQualifier);
 						/*
 						if (methodQualifier == null) {
 							if (methNameBinding == null) {
-								char firstChar = methodRef.getName().getIdentifier().charAt(0);
+								char firstChar = methodName.getIdentifier().charAt(0);
 								if (Character.isUpperCase(firstChar)) {
 									// assume that selector starting with uppercase is for constructor => signal that binding is null
 									System.out.println(this.prefix+"Binding for selector of  '"+methodRef+"' is null.");
 								}
 							} else {
-								if (methNameBinding.getName().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
-									assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+								if (methNameBinding.getName().equals(methodName.getIdentifier())) { // binding is not null only for constructor
+									assumeNotNull(this.prefix+""+methodName+" binding was not found!",methNameBinding);
 								} else {
-									assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+									assumeNull(this.prefix+""+methodName+" binding should be null!", methNameBinding);
 								}
 							}
 						} else {
@@ -1112,10 +1118,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 							} else {
 								methodSimpleType = (SimpleName) methodQualifier;
 							}
-							if (methodSimpleType.getIdentifier().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
-								assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+							if (methodSimpleType.getIdentifier().equals(methodName.getIdentifier())) { // binding is not null only for constructor
+								assumeNotNull(this.prefix+""+methodName+" binding was not found!",methNameBinding);
 							} else {
-								assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+								assumeNull(this.prefix+""+methodName+" binding should be null!", methNameBinding);
 							}
 							verifyNameBindings(methodRef.getQualifier());
 						}
@@ -1239,6 +1245,18 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Create DOM AST nodes hierarchy		
 		List unitComments = null;
+//		Map concreteOptions = options;
+		if (this.currentProject != null) {
+			if (this.astLevel == AST.JLS3) {
+				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			}
+		}
+//		else if (concreteOptions == null) {
+//			concreteOptions = JavaCore.getOptions();
+//			if (this.astLevel == AST.JLS3) {
+//				concreteOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+//			}
+//		}
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
 		if (this.compilerOption.equals(JavaCore.ERROR)) {
 			assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
@@ -1981,7 +1999,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
 			String[] tagNames = {
 				"@ejb",
-				"@ejb\"bean test non-java id character '\"",
+				"@ejb",
 				"@ejb",
 				"@ejb",
 				"@ejb",
@@ -2014,7 +2032,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			};
 			String[] tagTexts = {
 				"!bean test non-java id character '!' (val=33) in tag name",
-				"' (val=34) in tag name",
+				"\"bean test non-java id character '\"' (val=34) in tag name",
 				"#bean test non-java id character '#' (val=35) in tag name",
 				"%bean test non-java id character '%' (val=37) in tag name",
 				"&bean test non-java id character '&' (val=38) in tag name",
@@ -2132,5 +2150,30 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug68726() throws JavaModelException {
 		verifyComments("testBug68726");
+	}
+
+	/**
+	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
+	 */
+	public void testBug70892_JLS2() throws JavaModelException {
+		int level = this.astLevel;
+		this.astLevel = AST.JLS2;
+		verifyComments("testBug70892");
+		this.astLevel = level;
+	}
+	public void testBug70892_JLS3() throws JavaModelException {
+		int level = this.astLevel;
+		this.astLevel = AST.JLS3;
+		verifyComments("testBug70892");
+		this.astLevel = level;
+	}
+
+	/**
+	 * Test fix for bug 51911: [Javadoc] @see method w/out ()
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911">51911</a>
+	 */
+	public void testBug51911() throws JavaModelException {
+		verifyComments("testBug51911");
 	}
 }

@@ -65,6 +65,18 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		}
 		return suite;
 	}
+
+	public static Test buildLevelSuite() {
+		TestSuite suite = new TestSuite("JavadocTest_1_x");
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0 || (complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_4, JavadocTest_1_4.class));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_5, JavadocTest_1_5.class));
+		}
+		return suite;
+	}
 	
 	public static Test suiteForComplianceLevel(String level, Class testClass) {
 		TestSuite suite = new TestSuite(level);
@@ -96,6 +108,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		for (int i=0; i<allTestClasses.size(); i++) {
 			suite.addTest(buildSuite((Class) allTestClasses.get(i)));
 		}
+		suite.addTest(buildLevelSuite());
 		return suite;
 	}
 	

@@ -1,3 +1,4 @@
+package javadoc.testBug54424;
 import java.io.IOException;
 import java.util.ArrayList;
 

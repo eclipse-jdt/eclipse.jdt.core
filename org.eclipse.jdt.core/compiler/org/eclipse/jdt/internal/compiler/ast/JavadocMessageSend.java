@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class JavadocMessageSend extends MessageSend {
 
 	public int tagSourceStart, tagSourceEnd;
+	public int tagValue;
 	public boolean superAccess = false;
 
 	public JavadocMessageSend(char[] name, long pos) {

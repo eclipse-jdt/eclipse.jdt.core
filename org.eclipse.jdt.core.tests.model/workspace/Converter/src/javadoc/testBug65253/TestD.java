@@ -1,4 +1,4 @@
-package javadoc.testBug65174;
+package javadoc.testBug65253;
 public class TestD {
 	/** Comment previously with no error: {@link Object valid} comment on one line */
 	void foo1() {}

@@ -7,6 +7,6 @@ public class TestC {
 	 * 
 	 * @return the progress monitor
 	 */
-	public Object foo() {}
+	public Object foo() { return null; }
 }
 

@@ -1,13 +1,13 @@
 /** 
  * Comment 1
  */
-package test001;
+package javadoc.test001;
 
 /** 
  * Comment 2
  */
-public class B {
-p
+public class Test {
+
 }
 
 

@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 
 /**
  * Node representing a structured Javadoc comment
@@ -103,25 +105,7 @@ public class Javadoc extends ASTNode {
 		// @see tags
 		int seeTagsLength = this.references == null ? 0 : this.references.length;
 		for (int i = 0; i < seeTagsLength; i++) {
-			
-			// Resolve reference
-			this.references[i].resolveType(classScope);
-
-			// Some unbound field reference might be changed to message send
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
-			if (this.references[i] instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
-				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
-					// TODO (frederic) post 3.0 - avoid new instanciation of Compiler AST node
-					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
-					msgSend.receiver = fieldRef.receiver;
-					msgSend.receiverType = fieldRef.receiverType;
-					msgSend.qualifyingType = fieldRef.receiverType;
-					msgSend.superAccess = classScope.enclosingSourceType().isCompatibleWith(msgSend.receiverType);
-					msgSend.binding = classScope.findMethod((ReferenceBinding)msgSend.receiverType, msgSend.selector, new TypeBinding[0], msgSend);
-					this.references[i] = msgSend;
-				}
-			}
+			resolveReference(this.references[i], classScope);
 		}
 	}
 	
@@ -140,24 +124,8 @@ public class Javadoc extends ASTNode {
 		for (int i = 0; i < seeTagsLength; i++) {
 			
 			// Resolve reference
-			this.references[i].resolveType(methScope);
+			resolveReference(this.references[i], methScope);
 			
-			// Some unbound field reference might be changed to message send
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
-			if (this.references[i] instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
-				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
-					// TODO (frederic) post 3.0 - avoid new instanciation of Compiler AST node
-					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
-					msgSend.receiver = fieldRef.receiver;
-					msgSend.receiverType = fieldRef.receiverType;
-					msgSend.qualifyingType = fieldRef.receiverType;
-					msgSend.superAccess = methScope.enclosingSourceType().isCompatibleWith(msgSend.receiverType);
-					msgSend.binding = methScope.findMethod((ReferenceBinding)msgSend.receiverType, msgSend.selector, new TypeBinding[0], msgSend);
-					this.references[i] = msgSend;
-				}
-			}
-
 			// see whether we can have a super reference
 			try {
 				if (methDecl != null && (methDecl.isConstructor() || overriding) && !superRef) {
@@ -226,6 +194,64 @@ public class Javadoc extends ASTNode {
 		int length = this.invalidParameters == null ? 0 : this.invalidParameters.length;
 		for (int i = 0; i < length; i++) {
 			this.invalidParameters[i].resolve(methScope, false);
+		}
+	}
+	
+	private void resolveReference(Expression reference, Scope scope) {
+
+		// Perform resolve
+		switch (scope.kind) {
+			case Scope.METHOD_SCOPE:
+				reference.resolveType((MethodScope)scope);
+			break;
+			case Scope.CLASS_SCOPE:
+				reference.resolveType((ClassScope)scope);
+			break;
+		}
+
+		// Verify field references
+		boolean verifyValues = scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5;
+		if (reference instanceof JavadocFieldReference) {
+			JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
+			
+			// Verify if this is a method reference
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
+			if (fieldRef.methodBinding != null) {
+				// cannot refer to method for @value tag
+				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) {
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd);
+				}
+				else if (fieldRef.receiverType != null) {
+					fieldRef.superAccess = scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType);
+					fieldRef.methodBinding = scope.findMethod((ReferenceBinding)fieldRef.receiverType, fieldRef.token, new TypeBinding[0], fieldRef);
+				}
+			}
+
+			// Verify whether field ref should be static or not (for @value tags)
+			else if (verifyValues && fieldRef.binding != null && fieldRef.binding.isValidBinding()) {
+				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE && !fieldRef.binding.isStatic()) {
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd);
+				}
+			}
+		}
+
+		// If not 1.5 level, verification is finished
+		if (!verifyValues)  return;
+
+		// Verify that message reference are not used for @value tags
+		else if (reference instanceof JavadocMessageSend) {
+			JavadocMessageSend msgSend = (JavadocMessageSend) reference;
+			if (msgSend.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd);
+			}
+		}
+
+		// Verify that constructorreference are not used for @value tags
+		else if (reference instanceof JavadocAllocationExpression) {
+			JavadocAllocationExpression alloc = (JavadocAllocationExpression) reference;
+			if (alloc.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd);
+			}
 		}
 	}
 	

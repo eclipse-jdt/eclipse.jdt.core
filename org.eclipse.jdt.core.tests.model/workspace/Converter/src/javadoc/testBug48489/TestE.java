@@ -1,6 +1,6 @@
-package testBug48489;
+package javadoc.testBug48489;
 import java.util.*;
-public class Test {
+public class TestE {
 	/**
 	 * Javadoc
 	 */

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -57,7 +58,7 @@ class DocCommentParser extends AbstractCommentParser {
 		
 		// Parse
 		if (this.checkDocComment) {
-			parseComment(start, start+length-1);
+			commentParse(start, start+length-1);
 		}
 		this.docComment.setSourceRange(start, length);
 		if (this.ast.apiLevel == AST.JLS2) {
@@ -192,6 +193,34 @@ class DocCommentParser extends AbstractCommentParser {
 				throw new InvalidInputException();
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTag()
+	 */
+	protected void createTag() {
+		TagElement tag = this.ast.newTagElement();
+		int start = this.tagSourceStart;
+		tag.setTagName(new String(this.source, start, this.tagSourceEnd-start+1));
+		if (this.inlineTagStarted) {
+			start = this.inlineTagStart;
+			TagElement previousTag = null;
+			if (this.astPtr == -1) {
+				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(start, this.tagSourceEnd-start+1);
+				pushOnAstStack(previousTag, true);
+			} else {
+				previousTag = (TagElement) this.astStack[this.astPtr];
+			}
+			int previousStart = previousTag.getStartPosition();
+			previousTag.fragments().add(tag);
+			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
+		} else {
+			pushOnAstStack(tag, true);
+		}
+		tag.setSourceRange(start, this.tagSourceEnd-start+1);
+//		return true;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
@@ -268,34 +297,219 @@ class DocCommentParser extends AbstractCommentParser {
 	 * Parse @return tag declaration
 	 */
 	protected boolean parseReturn() {
-		return parseTag();
+		createTag();
+		return true;
 	}
 
-	/*
-	 * Parse tag declaration
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
 	 */
-	protected boolean parseTag() {
-		TagElement tag = this.ast.newTagElement();
-		int start = this.tagSourceStart;
-		tag.setTagName(new String(this.source, start, this.tagSourceEnd-start+1));
-		if (this.inlineTagStarted) {
-			start = this.inlineTagStart;
-			TagElement previousTag = null;
-			if (this.astPtr == -1) {
-				previousTag = this.ast.newTagElement();
-				previousTag.setSourceRange(start, this.tagSourceEnd-start+1);
-				pushOnAstStack(previousTag, true);
-			} else {
-				previousTag = (TagElement) this.astStack[this.astPtr];
+	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		
+		// Read tag name
+		int token = readTokenAndConsume();
+		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+		char[] tag = this.scanner.getCurrentIdentifierSource(); // first token is either an identifier or a keyword
+
+		// Try to get tag name other than java identifier
+		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
+		int tk = token;
+		int le = this.lineEnd;
+		char pc = peekChar();
+		tagNameToken: while (tk != TerminalTokens.TokenNameEOF) {
+			this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+			token = tk;
+			// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
+			switch (pc) {
+				case '}':
+				case '!':
+				case '#':
+				case '%':
+				case '&':
+				case '\'':
+				case '"':
+				case ':':
+				// case '-': allowed in tag names as this character is often used in doclets (bug 68087)
+				case '<':
+				case '>':
+				case '*': // break for '*' as this is perhaps the end of comment (bug 65288)
+					break tagNameToken;
+				default:
+					if (pc == ' ' || Character.isWhitespace(pc)) break tagNameToken;
 			}
-			int previousStart = previousTag.getStartPosition();
-			previousTag.fragments().add(tag);
-			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
-		} else {
-			pushOnAstStack(tag, true);
+			tk = readTokenAndConsume();
+			pc = peekChar();
 		}
-		tag.setSourceRange(start, this.tagSourceEnd-start+1);
-		return true;
+		int length = this.tagSourceEnd-this.tagSourceStart+1;
+		tag = new char[length];
+		System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+		this.index = this.tagSourceEnd+1;
+		this.scanner.currentPosition = this.tagSourceEnd+1;
+		this.tagSourceStart = previousPosition;
+		this.lineEnd = le;
+
+		// Decide which parse to perform depending on tag name
+		this.tagValue = NO_TAG_VALUE;
+		boolean valid = true;
+		switch (token) {
+			case TerminalTokens.TokenNameIdentifier :
+				switch (tag[0]) {
+					case 'd':
+						if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+							this.deprecated = true;
+							this.tagValue = TAG_DEPRECATED_VALUE;
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+						}
+						createTag();
+					break;
+					case 'i':
+						if (CharOperation.equals(tag, TAG_INHERITDOC)) {
+							// inhibits inherited flag when tags have been already stored
+							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
+							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
+							// was encountered in comment. But it cannot be the case for COMPILER_PARSER
+							// and so is enough as it is only this parser which signals the missing tag warnings...
+							this.inherited = this.astPtr==-1;
+							this.tagValue = TAG_INHERITDOC_VALUE;
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+						}
+						createTag();
+					break;
+					case 'p':
+						if (CharOperation.equals(tag, TAG_PARAM)) {
+							this.tagValue = TAG_PARAM_VALUE;
+							valid = parseParam();
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+					break;
+					case 'e':
+						if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+							this.tagValue = TAG_EXCEPTION_VALUE;
+							valid = parseThrows();
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+					break;
+					case 's':
+						if (CharOperation.equals(tag, TAG_SEE)) {
+							this.tagValue = TAG_SEE_VALUE;
+							if (this.inlineTagStarted) {
+								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+								// Cannot have @see inside inline comment
+								valid = false;
+							} else {
+								valid = parseReference();
+							}
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+					break;
+					case 'l':
+						if (CharOperation.equals(tag, TAG_LINK)) {
+							this.tagValue = TAG_LINK_VALUE;
+						} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
+							this.tagValue = TAG_LINKPLAIN_VALUE;
+						}
+						if (this.tagValue != NO_TAG_VALUE)  {
+							if (this.inlineTagStarted) {
+								valid = parseReference();
+							} else {
+								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+								// Cannot have @link outside inline comment
+								valid = false;
+							}
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+					break;
+					case 'v':
+						if (CharOperation.equals(tag, TAG_VALUE) && this.ast.apiLevel() >= AST.JLS3) {
+							this.tagValue = TAG_VALUE_VALUE;
+							if (this.inlineTagStarted) {
+								valid = parseReference();
+							} else {
+								valid = false;
+							}
+						} else {
+							this.tagValue = TAG_OTHERS_VALUE;
+							createTag();
+						}
+					break;
+					default:
+						this.tagValue = TAG_OTHERS_VALUE;
+						createTag();
+				}
+				break;
+			case TerminalTokens.TokenNamereturn :
+				this.tagValue = TAG_RETURN_VALUE;
+				valid = parseReturn();
+				break;
+			case TerminalTokens.TokenNamethrows :
+				this.tagValue = TAG_THROWS_VALUE;
+				valid = parseThrows();
+				break;
+			case TerminalTokens.TokenNameabstract:
+			case TerminalTokens.TokenNameassert:
+			case TerminalTokens.TokenNameboolean:
+			case TerminalTokens.TokenNamebreak:
+			case TerminalTokens.TokenNamebyte:
+			case TerminalTokens.TokenNamecase:
+			case TerminalTokens.TokenNamecatch:
+			case TerminalTokens.TokenNamechar:
+			case TerminalTokens.TokenNameclass:
+			case TerminalTokens.TokenNamecontinue:
+			case TerminalTokens.TokenNamedefault:
+			case TerminalTokens.TokenNamedo:
+			case TerminalTokens.TokenNamedouble:
+			case TerminalTokens.TokenNameelse:
+			case TerminalTokens.TokenNameextends:
+			case TerminalTokens.TokenNamefalse:
+			case TerminalTokens.TokenNamefinal:
+			case TerminalTokens.TokenNamefinally:
+			case TerminalTokens.TokenNamefloat:
+			case TerminalTokens.TokenNamefor:
+			case TerminalTokens.TokenNameif:
+			case TerminalTokens.TokenNameimplements:
+			case TerminalTokens.TokenNameimport:
+			case TerminalTokens.TokenNameinstanceof:
+			case TerminalTokens.TokenNameint:
+			case TerminalTokens.TokenNameinterface:
+			case TerminalTokens.TokenNamelong:
+			case TerminalTokens.TokenNamenative:
+			case TerminalTokens.TokenNamenew:
+			case TerminalTokens.TokenNamenull:
+			case TerminalTokens.TokenNamepackage:
+			case TerminalTokens.TokenNameprivate:
+			case TerminalTokens.TokenNameprotected:
+			case TerminalTokens.TokenNamepublic:
+			case TerminalTokens.TokenNameshort:
+			case TerminalTokens.TokenNamestatic:
+			case TerminalTokens.TokenNamestrictfp:
+			case TerminalTokens.TokenNamesuper:
+			case TerminalTokens.TokenNameswitch:
+			case TerminalTokens.TokenNamesynchronized:
+			case TerminalTokens.TokenNamethis:
+			case TerminalTokens.TokenNamethrow:
+			case TerminalTokens.TokenNametransient:
+			case TerminalTokens.TokenNametrue:
+			case TerminalTokens.TokenNametry:
+			case TerminalTokens.TokenNamevoid:
+			case TerminalTokens.TokenNamevolatile:
+			case TerminalTokens.TokenNamewhile:
+				this.tagValue = TAG_OTHERS_VALUE;
+				createTag();
+				break;
+		}
+		this.textStart = this.index;
+		return valid;
 	}
 
 	/* (non-Javadoc)
@@ -314,17 +528,23 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushSeeRef(java.lang.Object)
 	 */
-	protected boolean pushSeeRef(Object statement, boolean plain) {
+	protected boolean pushSeeRef(Object statement) {
 		TagElement seeTag = this.ast.newTagElement();
 		ASTNode node = (ASTNode) statement;
 		seeTag.fragments().add(node);
 		int end = node.getStartPosition()+node.getLength()-1;
 		if (this.inlineTagStarted) {
 			seeTag.setSourceRange(this.inlineTagStart, end-this.inlineTagStart+1);
-			if (plain) {
-				seeTag.setTagName(TagElement.TAG_LINKPLAIN);
-			} else {
-				seeTag.setTagName(TagElement.TAG_LINK);
+			switch (this.tagValue) {
+				case TAG_LINK_VALUE:
+					seeTag.setTagName(TagElement.TAG_LINK);
+				break;
+				case TAG_LINKPLAIN_VALUE:
+					seeTag.setTagName(TagElement.TAG_LINKPLAIN);
+				break;
+				case TAG_VALUE_VALUE:
+					seeTag.setTagName(TagElement.TAG_VALUE);
+				break;
 			}
 			TagElement previousTag = null;
 			int previousStart = this.inlineTagStart;
@@ -400,12 +620,15 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
 	 */
-	protected boolean pushThrowName(Object typeRef, boolean real) {
+	protected boolean pushThrowName(Object typeRef) {
 		TagElement throwsTag = this.ast.newTagElement();
-		if (real) {
-			throwsTag.setTagName(TagElement.TAG_THROWS);
-		} else {
-			throwsTag.setTagName(TagElement.TAG_EXCEPTION);
+		switch (this.tagValue) {
+			case TAG_THROWS_VALUE:
+				throwsTag.setTagName(TagElement.TAG_THROWS);
+			break;
+			case TAG_EXCEPTION_VALUE:
+				throwsTag.setTagName(TagElement.TAG_EXCEPTION);
+			break;
 		}
 		throwsTag.setSourceRange(this.tagSourceStart, this.scanner.getCurrentTokenEndPosition()-this.tagSourceStart+1);
 		throwsTag.fragments().add(typeRef);

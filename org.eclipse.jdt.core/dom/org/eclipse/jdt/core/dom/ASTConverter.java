@@ -3394,21 +3394,14 @@ class ASTConverter {
 	
 	protected void recordNodes(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, TagElement tagElement) {
 		Iterator fragments = tagElement.fragments().listIterator();
-		int size = tagElement.fragments().size();
-		int[] replaceIndex = new int[size];
-		int idx = 0;
 		while (fragments.hasNext()) {
 			ASTNode node = (ASTNode) fragments.next();
-			replaceIndex[idx] = 0;
 			if (node.getNodeType() == ASTNode.MEMBER_REF) {
 				MemberRef memberRef = (MemberRef) node;
 				Name name = memberRef.getName();
 				// get compiler node and record nodes
 				int start = name.getStartPosition();
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
-				if (compilerNode instanceof JavadocMessageSend) {
-					replaceIndex[idx] = 1;
-				}
 				if (compilerNode!= null) {
 					recordNodes(name, compilerNode);
 					recordNodes(node, compilerNode);
@@ -3491,18 +3484,6 @@ class ASTConverter {
 			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
 				// resolve member and method references binding
 				recordNodes(javadoc, (TagElement) node);
-			}
-		}
-		for (int i=0; i<size; i++) {
-			if (replaceIndex[i] == 1) {
-				MemberRef memberRef = (MemberRef) tagElement.fragments().remove(i);
-				MethodRef methodRef = this.ast.newMethodRef();
-				methodRef.setName((SimpleName)memberRef.getName().clone(this.ast));
-				if (memberRef.getQualifier() != null) {
-					methodRef.setQualifier((Name)memberRef.getQualifier().clone(this.ast));
-				}
-				methodRef.setSourceRange(memberRef.getStartPosition(), memberRef.getLength());
-				tagElement.fragments().add(i, methodRef);
 			}
 		}
 	}

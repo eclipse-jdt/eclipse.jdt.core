@@ -36,11 +36,7 @@ public class JavadocTestMixed extends JavadocTest {
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] {
-//			"Bug68017conform", "Bug68017negative", "Bug68017javadocWarning1","Bug68017javadocWarning2",
-//			"Bug68025conform", "Bug68025negative",
-//			"Bug69272classValid", "Bug69272classInvalid", "Bug69272fieldValid", "Bug69272fieldInvalid", "Bug69272methodValid", "Bug69272methodInvalid", 
-//			"Bug69275conform", "Bug69275negative",
-//			"Bug69302conform1", "Bug69302conform2", "Bug69302negative"
+//			"testBug70892conform1", "testBug70892conform2"
 //		};
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
@@ -3752,6 +3748,42 @@ public class JavadocTestMixed extends JavadocTest {
 				"	       ^^^^^^^\n" + 
 				"Javadoc: Unknown cannot be resolved to a type\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
+	 * These two tests should pass whatever the source level...
+	 */
+	public void testBug70892conform1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					" * {@value}\n" + 
+					" * {@value }\n" + 
+					" * {@value #field}\n" + 
+					" */\n" + 
+					"public class X {\n" + 
+					"	static int field;\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug70892conform2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**{@value #field}*/\n" + 
+					"	static int field;\n" + 
+					"}\n"
+			}
 		);
 	}
 }
