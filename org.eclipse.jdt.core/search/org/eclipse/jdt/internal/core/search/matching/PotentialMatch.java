@@ -57,6 +57,18 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 		}
 	}
 }
+public PotentialMatch(
+		MatchLocator locator, 
+		IResource resource, 
+		Openable openable,
+		CompilationUnitDeclaration parsedUnit,
+		MatchSet matchSet) {
+	this.locator = locator;
+	this.resource = resource;
+	this.openable = openable;
+	this.parsedUnit = parsedUnit;
+	this.matchSet = matchSet;
+}
 private void buildTypeBindings(final char[] source) {
 	// get qualified name
 	char[] qualifiedName;

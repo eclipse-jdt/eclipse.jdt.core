@@ -6,7 +6,7 @@ STREAM: 2.0
 
   JBL
   ================================================================================
-  * Search for field read and field write references.
+  * Search PRs.
 
   KJ
   ================================================================================
@@ -133,6 +133,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to member constructor
   1GKYS7Y: ITPJCORE:WINNT - Main not found
   1GELSDQ: ITPJUI:WINNT - JDOM: IType.createMethod does not insert nicely for inner types
   1GF67VL: ITPJUI:WIN98 - DCR - CodeCompletion - Code-assist for listener methods

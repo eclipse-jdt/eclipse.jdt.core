@@ -93,6 +93,11 @@ public void addTrustedMatch(AstNode node) {
 public void checkMatching(AstNode node) {
 	this.locator.pattern.matchCheck(node, this);
 }
+public boolean isEmpty() {
+	return 
+		this.potentialMatchingNodes.size() == 0 
+		&& this.matchingNodes.size() == 0;
+}
 /**
  * Returns the matching nodes that are in the given range.
  */

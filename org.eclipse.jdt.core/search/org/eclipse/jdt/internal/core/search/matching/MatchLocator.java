@@ -101,7 +101,7 @@ public class MatchLocator implements ITypeRequestor {
 		ISourceType sourceType = sourceTypes[0];
 		while (sourceType.getEnclosingType() != null)
 			sourceType = sourceType.getEnclosingType();
-		CompilationUnitDeclaration unit;
+		CompilationUnitDeclaration unit = null;
 		if (sourceType instanceof SourceTypeElementInfo) {
 			// get source
 			SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
@@ -129,8 +129,31 @@ public class MatchLocator implements ITypeRequestor {
 				};
 
 				// diet parse
+				boolean initializingSearchPattern = this.parser.matchSet == null;
+				if (initializingSearchPattern) {
+					this.parser.matchSet = new MatchSet(this);
+				}
 				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
-				unit = this.parser.dietParse(sourceUnit, compilationResult);
+				try {
+					unit = this.parser.dietParse(sourceUnit, compilationResult);
+				} finally {
+					if (initializingSearchPattern) {
+						if (!this.parser.matchSet.isEmpty() 
+								&& unit != null) {
+							// potential matches were found while initializing the search pattern
+							// from the lookup environment: add them in the list of potential matches
+							PotentialMatch potentialMatch = 
+								new PotentialMatch(
+									this,
+									file, 
+									(CompilationUnit)type.getCompilationUnit(), 
+									unit,
+									this.parser.matchSet);
+							this.addPotentialMatch(potentialMatch);
+						}
+						this.parser.matchSet = null;
+					}
+				}
 			} catch (JavaModelException e) {
 				unit = null;
 			}
@@ -743,28 +766,37 @@ public class MatchLocator implements ITypeRequestor {
 			accuracy);
 	}
 
-	private void addPotentialMatch(IResource resource, Openable openable)
-		throws JavaModelException {
-		try {
-			if (this.potentialMatchesLength == this.potentialMatches.length) {
-				System.arraycopy(
-					this.potentialMatches,
-					0,
-					this.potentialMatches = new PotentialMatch[this.potentialMatchesLength * 2],
-					0,
-					this.potentialMatchesLength);
-			}
-			PotentialMatch potentialMatch = new PotentialMatch(this, resource, openable);
-			if (!this.includesPotentialMatch(potentialMatch)) {
-				this.potentialMatches[this.potentialMatchesLength++] = potentialMatch;
-			}
-		} catch (AbortCompilation e) {
-			// problem with class path: it could not find base classes
-			throw new JavaModelException(
-				e,
-				IJavaModelStatusConstants.BUILDER_INITIALIZATION_ERROR);
-		}
+private PotentialMatch newPotentialMatch(IResource resource, Openable openable) {
+	PotentialMatch potentialMatch;
+	try {
+		potentialMatch = new PotentialMatch(this, resource, openable);
+	} catch (AbortCompilation e) {
+		// problem with class path: ignore this potential match
+		return null;
 	}
+	return potentialMatch;
+}
+private void addPotentialMatch(IResource resource, Openable openable)
+		throws JavaModelException {
+		
+	PotentialMatch potentialMatch = this.newPotentialMatch(resource, openable);
+	if (potentialMatch != null) {
+		this.addPotentialMatch(potentialMatch);
+	}
+}
+private void addPotentialMatch(PotentialMatch potentialMatch) {
+	if (this.potentialMatchesLength == this.potentialMatches.length) {
+		System.arraycopy(
+			this.potentialMatches,
+			0,
+			this.potentialMatches = new PotentialMatch[this.potentialMatchesLength * 2],
+			0,
+			this.potentialMatchesLength);
+	}
+	if (!this.includesPotentialMatch(potentialMatch)) {
+		this.potentialMatches[this.potentialMatchesLength++] = potentialMatch;
+	}
+}
 
 	/**
 	 * Create a new parser for the given project, as well as a lookup environment.
