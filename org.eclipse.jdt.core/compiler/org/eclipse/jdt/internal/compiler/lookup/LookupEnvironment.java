@@ -645,7 +645,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 				binding = ShortBinding;
 				break;
 			default :
-				throw new Error(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
+				problemReporter.abortDueToInternalError(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
 		}
 	} else {
 		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized);
