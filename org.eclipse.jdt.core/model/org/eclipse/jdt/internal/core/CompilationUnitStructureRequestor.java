@@ -253,10 +253,12 @@ public void enterConstructor(
 	int nameSourceEnd,
 	char[][] parameterTypes,
 	char[][] parameterNames,
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 		enterMethod(declarationStart, modifiers, null, name, nameSourceStart,
-			nameSourceEnd,	parameterTypes, parameterNames, exceptionTypes, true);
+			nameSourceEnd,	parameterTypes, parameterNames, exceptionTypes, true, typeParameterNames, typeParameterBounds);
 }
 /**
  * @see ISourceElementRequestor
@@ -351,10 +353,12 @@ public void enterMethod(
 	int nameSourceEnd,
 	char[][] parameterTypes,
 	char[][] parameterNames,
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 		enterMethod(declarationStart, modifiers, returnType, name, nameSourceStart,
-			nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, false);
+			nameSourceEnd, parameterTypes, parameterNames, exceptionTypes, false, typeParameterNames, typeParameterBounds);
 }
 /**
  * @see ISourceElementRequestor
@@ -369,7 +373,9 @@ protected void enterMethod(
 	char[][] parameterTypes,
 	char[][] parameterNames,
 	char[][] exceptionTypes,
-	boolean isConstructor) {
+	boolean isConstructor,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
@@ -407,7 +413,9 @@ protected void enterMethod(
 		info.setArgumentTypeNames(parameterTypes);
 		info.setReturnType(returnType == null ? new char[]{'v', 'o','i', 'd'} : returnType);
 		info.setExceptionTypeNames(exceptionTypes);
-
+		info.setTypeParameterNames(typeParameterNames);
+		info.setTypeParameterBounds(typeParameterBounds);
+		
 		parentInfo.addChild(handle);
 		this.newElements.put(handle, info);
 		this.infoStack.push(info);

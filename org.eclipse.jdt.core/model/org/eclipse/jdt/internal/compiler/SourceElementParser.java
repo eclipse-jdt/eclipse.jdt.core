@@ -813,6 +813,27 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
 		}
 		if (isInRange){
+			TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+			char[][] typeParameterNames = null;
+			char[][][] typeParameterBounds = null;
+			if (typeParameters != null) {
+				int typeParametersLength = typeParameters.length;
+				typeParameterNames = new char[typeParametersLength][];
+				typeParameterBounds = new char[typeParametersLength][][];
+				for (int i = 0; i < typeParametersLength; i++) {
+					typeParameterNames[i] = typeParameters[i].name;
+					TypeReference[] bounds = typeParameters[i].bounds;
+					if (bounds != null) {
+						int boundLength = bounds.length;
+						char[][] boundNames = new char[boundLength][];
+						for (int j = 0; j < boundLength; j++) {
+							boundNames[j] = 
+								CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+						}
+						typeParameterBounds[i] = boundNames;
+					}
+				}
+			}			
 			requestor.enterConstructor(
 				methodDeclaration.declarationSourceStart, 
 				methodDeclaration.modifiers, 
@@ -821,7 +842,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes);
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
 		}
 		if (reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -855,6 +878,27 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
 	}
 	if (isInRange) {
+		TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+		char[][] typeParameterNames = null;
+		char[][][] typeParameterBounds = null;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			typeParameterNames = new char[typeParametersLength][];
+			typeParameterBounds = new char[typeParametersLength][][];
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameterNames[i] = typeParameters[i].name;
+				TypeReference[] bounds = typeParameters[i].bounds;
+				if (bounds != null) {
+					int boundLength = bounds.length;
+					char[][] boundNames = new char[boundLength][];
+					for (int j = 0; j < boundLength; j++) {
+						boundNames[j] = 
+							CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+					}
+					typeParameterBounds[i] = boundNames;
+				}
+			}
+		}
 		int currentModifiers = methodDeclaration.modifiers;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		if (methodDeclaration instanceof MethodDeclaration) {
@@ -868,7 +912,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes);
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
 		} else {
 			TypeReference returnType = ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
 			requestor.enterMethod(
@@ -880,7 +926,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes);
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
 		}
 	}		
 		

@@ -229,7 +229,9 @@ public void enterConstructor(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	currentType.addMethod(
 		currentMethod = 
@@ -344,7 +346,9 @@ public void enterMethod(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	currentType.addMethod(
 		currentMethod = 

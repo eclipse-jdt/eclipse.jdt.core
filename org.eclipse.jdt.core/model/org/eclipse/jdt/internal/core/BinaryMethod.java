@@ -37,7 +37,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions) {
+				char[][] exceptions, 
+				char[][] typeParameterNames, 
+				char[][][] typeParameterBounds) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];
@@ -55,7 +57,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions) {
+				char[][] exceptions, 
+				char[][] typeParameterNames, 
+				char[][][] typeParameterBounds) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];

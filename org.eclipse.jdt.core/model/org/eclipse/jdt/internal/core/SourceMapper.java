@@ -592,7 +592,9 @@ public class SourceMapper
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes, 
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		enterMethod(
 			declarationStart,
 			modifiers,
@@ -602,7 +604,9 @@ public class SourceMapper
 			nameSourceEnd,
 			parameterTypes,
 			parameterNames,
-			exceptionTypes);
+			exceptionTypes,
+			typeParameterNames,
+			typeParameterBounds);
 	}
 	
 	/**
@@ -668,7 +672,9 @@ public class SourceMapper
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes, 
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		if (typeDepth >= 0) {
 			fMemberName[typeDepth] = new String(name);
 			fMemberNameRange[typeDepth] =

@@ -86,7 +86,7 @@ public interface ISourceElementRequestor {
 	void enterCompilationUnit();
 
 	void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes);
+			char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds);
 
 	void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd);
 	
@@ -96,7 +96,7 @@ public interface ISourceElementRequestor {
 			char[][] typeParameterNames, char[][][] typeParameterBounds);
 	
 	void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
-			char[][] parameterNames, char[][] exceptionTypes);
+			char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds);
 	
 	void exitClass(int declarationEnd);
 	
