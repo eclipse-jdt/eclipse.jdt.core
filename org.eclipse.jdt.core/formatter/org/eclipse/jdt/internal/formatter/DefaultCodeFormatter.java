@@ -166,7 +166,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	}
 	
 	public DefaultCodeFormatter() {
-		this.preferences = FormattingPreferences.getSunSetttings();
+		this.preferences = FormattingPreferences.getDefault();
 		this.options = JavaCore.getOptions();
 	}
 	

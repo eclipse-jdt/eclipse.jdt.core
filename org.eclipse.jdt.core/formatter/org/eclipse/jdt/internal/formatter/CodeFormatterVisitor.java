@@ -613,7 +613,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
-	 * TODO handle positions mapping
 	 */
 	public String format(String string, int[] positions, AstNode[] nodes) {
 		// reset the scribe
@@ -657,7 +656,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
-	 * TODO handle positions mapping
 	 */
 	public String format(String string, int[] positions, CompilationUnitDeclaration compilationUnitDeclaration) {
 		// reset the scribe
@@ -689,7 +687,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
-	 * TODO handle positions mapping
 	 */
 	public String format(String string, int[] positions, Expression expression) {
 		// reset the scribe
@@ -721,7 +718,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
-	 * TODO handle positions mapping
 	 */
 	public String format(String string, int[] positions, ConstructorDeclaration constructorDeclaration) {
 		// reset the scribe

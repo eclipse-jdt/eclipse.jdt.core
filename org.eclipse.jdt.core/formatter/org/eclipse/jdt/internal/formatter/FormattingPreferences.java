@@ -274,9 +274,9 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = true;
 	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = true;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 1;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 0;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 1;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 1;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 1;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE = false;
@@ -287,7 +287,7 @@ public class FormattingPreferences {
 	public static final int DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT;
 	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
 	public static final int DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
-	public static final int DEFAULT_TYPE_MEMBER_ALIGNMENT = Alignment.M_MULTICOLUMN;
+	public static final int DEFAULT_TYPE_MEMBER_ALIGNMENT = Alignment.M_NO_ALIGNMENT;
 	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
 	public static final int DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
 	public static final int DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
@@ -1292,7 +1292,7 @@ public class FormattingPreferences {
 		sunSettings.insert_space_in_catch_expression = false;
 		sunSettings.insert_space_before_catch_expression = true;
 		sunSettings.insert_space_before_while_condition = true;
-		sunSettings.insert_new_line_in_control_statements = true;
+		sunSettings.insert_new_line_in_control_statements = false;
 		sunSettings.insert_space_before_binary_operator = true;
 		sunSettings.insert_space_after_binary_operator = true;
 		sunSettings.insert_space_before_unary_operator = false;
