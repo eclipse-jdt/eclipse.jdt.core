@@ -592,7 +592,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	/**
 	 * Update projects which are affected by this classpath change:
-	 * those which refers to the current project as source
+	 * those which refers to the current project as source (indirectly)
 	 */
 	protected void updateAffectedProjects(IPath prerequisiteProjectPath) {
 
