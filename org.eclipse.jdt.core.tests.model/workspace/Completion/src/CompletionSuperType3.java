@@ -1,1 +1,0 @@
-public class CompletionSuperType3 implements CompletionSuper

@@ -1,1 +1,0 @@
-public interface CompletionSuperType7 extends CompletionSuperClass2.Inner
