@@ -94,6 +94,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public String toString() { return getDescription(); }
 	};
 	
+	private static final String BUFFER_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/buffermanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
@@ -598,7 +599,10 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void configurePluginDebugOptions(){
 		if(JavaCore.getPlugin().isDebugging()){
-			String option = Platform.getDebugOption(BUILDER_DEBUG);
+			String option = Platform.getDebugOption(BUFFER_MANAGER_DEBUG);
+			if(option != null) BufferManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(BUILDER_DEBUG);
 			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 			
 			option = Platform.getDebugOption(COMPILER_DEBUG);

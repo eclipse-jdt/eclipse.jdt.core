@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IOpenable;
 public class BufferManager implements IBufferFactory {
 
 	protected static BufferManager DEFAULT_BUFFER_MANAGER;
+	protected static boolean VERBOSE;
 
 	/**
 	 * LRU cache of buffers. The key and value for an entry
@@ -42,7 +43,13 @@ public BufferManager() {
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {
+	if (VERBOSE) {
+		System.out.println("Adding buffer for owner " + ((Openable)buffer.getOwner()).toStringWithAncestors()); //$NON-NLS-1$
+	}
 	openBuffers.put(buffer.getOwner(), buffer);
+	if (VERBOSE) {
+		System.out.println("-> Buffer cache filling ratio = " + openBuffers.fillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+	}
 }
 /**
  * @see IBufferFactory#createBuffer(IOpenable)
@@ -100,6 +107,12 @@ public Enumeration getOpenBuffers() {
  * Removes a buffer from the table of open buffers.
  */
 protected void removeBuffer(IBuffer buffer) {
+	if (VERBOSE) {
+		System.out.println("Removing buffer for owner " + ((Openable)buffer.getOwner()).toStringWithAncestors()); //$NON-NLS-1$
+	}
 	openBuffers.remove(buffer.getOwner());
+	if (VERBOSE) {
+		System.out.println("-> Buffer cache filling ratio = " + openBuffers.fillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+	}
 }
 }

@@ -1,6 +1,9 @@
 # Turn on debug tracing for org.eclipse.jdt.core plugin
 org.eclipse.jdt.core/debug=true
 
+# Reports buffer manager activity
+org.eclipse.jdt.core/debug/buffermanager=false
+
 # Reports incremental builder activity : nature of build, built state reading, indictment process
 org.eclipse.jdt.core/debug/builder=false
 
