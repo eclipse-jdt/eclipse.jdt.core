@@ -69,6 +69,7 @@ public abstract class SearchParticipant {
 	/**
 	 * Index the given document.
 	 * Implementation should call addIndexEntry(...)
+	 * If delegating to another participant, it should use the original index location (and not the delegatee's one)
 	 * TODO (jerome) improve spec
 	 */
 	public abstract void indexDocument(SearchDocument document, IPath indexPath);

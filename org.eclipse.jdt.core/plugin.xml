@@ -57,6 +57,14 @@
 	id="codeFormatter"
 	schema="schema/codeFormatter.exsd"/>
 
+<!-- =================================================================================== -->
+<!-- Extension Point: Search Participants                                                -->
+<!-- =================================================================================== -->
+
+<extension-point name="%searchParticipantsName" 
+	id="searchParticipant" 
+	schema="schema/searchParticipant.exsd"/>
+
 
 <!-- =================================================================================== -->
 <!-- Extension: Java Nature                                                              -->

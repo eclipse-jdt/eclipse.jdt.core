@@ -233,6 +233,12 @@ public final boolean isAbstract() {
 	return (modifiers & AccAbstract) != 0;
 }
 
+/* Answer true if the receiver is a bridge method
+*/
+public final boolean isBridge() {
+	return (modifiers & AccBridge) != 0;
+}
+
 /* Answer true if the receiver is a constructor
 */
 public final boolean isConstructor() {
@@ -354,6 +360,12 @@ public final boolean isSynchronized() {
 */
 public final boolean isSynthetic() {
 	return (modifiers & AccSynthetic) != 0;
+}
+
+/* Answer true if the receiver is a vararg method
+*/
+public final boolean isVararg() {
+	return (modifiers & AccVarargs) != 0;
 }
 
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
