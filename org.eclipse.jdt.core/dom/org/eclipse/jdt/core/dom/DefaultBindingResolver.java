@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -680,6 +681,9 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getVariableBinding(((LocalDeclaration)node).binding);
 		} else if (node instanceof FieldReference) {
 			return getVariableBinding(((FieldReference) node).binding);
+		} else if (node instanceof SingleTypeReference) {
+			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
+			return this.getTypeBinding(singleTypeReference.binding);
 		}
 		return null;
 	}
