@@ -41,7 +41,13 @@ public class WhileStatement extends Statement {
 		breakLabel = new Label();
 		continueLabel = new Label(); 
 
-		Constant condConstant = this.condition.constant;
+		Constant cst = this.condition.constant;
+		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
+
+		cst = this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 		
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -54,13 +60,17 @@ public class WhileStatement extends Statement {
 				flowInfo);
 
 		LoopingFlowContext loopingContext;
+		FlowInfo actionInfo;
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= CompilerOptions.JDK1_3)) {
 			condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
-			if ((condConstant != NotAConstant) && (condConstant.booleanValue() == true)) {
-				return FlowInfo.DeadEnd;
+			if (isConditionTrue) {
+				return FlowInfo.DEAD_END;
 			} else {
 				FlowInfo mergedInfo = postCondInfo.initsWhenFalse().unconditionalInits();
+				if (isConditionOptimizedTrue){
+					mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+				}
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergedInfo);
 				return mergedInfo;
@@ -75,10 +85,14 @@ public class WhileStatement extends Statement {
 					breakLabel,
 					continueLabel,
 					currentScope);
-			FlowInfo actionInfo = // TODO: shouldn't it use optimized constant here?
-				((condConstant != Constant.NotAConstant) && (condConstant.booleanValue() == false))
-					? FlowInfo.DeadEnd
-					: postCondInfo.initsWhenTrue().copy();
+			if (isConditionFalse) {
+				actionInfo = FlowInfo.DEAD_END;
+			} else {
+				actionInfo = postCondInfo.initsWhenTrue().copy();
+				if (isConditionOptimizedFalse){
+					actionInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+				}
+			}
 
 			// for computing local var attributes
 			condIfTrueInitStateIndex =
@@ -90,9 +104,7 @@ public class WhileStatement extends Statement {
 			}
 
 			// code generation can be optimized when no need to continue in the loop
-			if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
-				&& ((loopingContext.initsOnContinue == FlowInfo.DeadEnd)
-					|| loopingContext.initsOnContinue.isFakeReachable())) {
+			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
 				condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
@@ -102,7 +114,7 @@ public class WhileStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if ((condConstant != Constant.NotAConstant) && (condConstant.booleanValue() == true)) {
+		if (isConditionTrue) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(
 					mergedInfo = loopingContext.initsOnBreak);
@@ -113,6 +125,9 @@ public class WhileStatement extends Statement {
 		mergedInfo =
 			postCondInfo.initsWhenFalse().unconditionalInits().mergedWith(
 				loopingContext.initsOnBreak);
+		if (isConditionOptimizedTrue && continueLabel == null){
+			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

@@ -35,7 +35,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 			associatedNode,
 			NoExceptions, // no exception allowed by default
 			scope, 
-			FlowInfo.DeadEnd);
+			FlowInfo.DEAD_END);
 	}
 
 	public void checkInitializerExceptions(

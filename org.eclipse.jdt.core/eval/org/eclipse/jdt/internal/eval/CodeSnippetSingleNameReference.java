@@ -64,7 +64,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 			}
-			localBinding.useFlag = flowInfo.isFakeReachable() ? LocalVariableBinding.FAKE_USED : LocalVariableBinding.USED;
+			localBinding.useFlag = flowInfo.isReachable() ? LocalVariableBinding.USED : LocalVariableBinding.FAKE_USED;
 	}
 	return flowInfo;
 }

@@ -92,7 +92,7 @@ public abstract class AbstractMethodDeclaration
 					this,
 					binding.thrownExceptions,
 					scope,
-					FlowInfo.DeadEnd);
+					FlowInfo.DEAD_END);
 
 			// propagate to statements
 			if (statements != null) {
@@ -109,10 +109,9 @@ public abstract class AbstractMethodDeclaration
 			// check for missing returning path
 			TypeBinding returnType = binding.returnType;
 			if ((returnType == VoidBinding) || isAbstract()) {
-				needFreeReturn =
-					!((flowInfo == FlowInfo.DeadEnd) || flowInfo.isFakeReachable());
+				this.needFreeReturn = flowInfo.isReachable();
 			} else {
-				if (flowInfo != FlowInfo.DeadEnd) {
+				if (flowInfo != FlowInfo.DEAD_END) {  // TODO: should rather simply be isReachable?
 					// special test for empty methods that should return something
 					if ((statements == null) && (returnType != VoidBinding)) {
 						scope.problemReporter().shouldReturn(returnType, this);
@@ -268,7 +267,7 @@ public abstract class AbstractMethodDeclaration
 				for (int i = 0, max = statements.length; i < max; i++)
 					statements[i].generateCode(scope, codeStream);
 			}
-			if (needFreeReturn) {
+			if (this.needFreeReturn) {
 				codeStream.return_();
 			}
 			// local variable attributes

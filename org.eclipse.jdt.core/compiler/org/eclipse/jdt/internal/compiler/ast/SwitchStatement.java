@@ -45,7 +45,7 @@ public class SwitchStatement extends Statement {
 
 		// analyse the block by considering specially the case/default statements (need to bind them 
 		// to the entry point)
-		FlowInfo caseInits = FlowInfo.DeadEnd;
+		FlowInfo caseInits = FlowInfo.DEAD_END;
 		// in case of statements before the first case
 		preSwitchInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);

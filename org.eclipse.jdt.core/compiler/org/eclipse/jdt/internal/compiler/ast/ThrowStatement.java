@@ -33,7 +33,7 @@ public class ThrowStatement extends Statement {
 		exception.analyseCode(currentScope, flowContext, flowInfo);
 		// need to check that exception thrown is actually caught somewhere
 		flowContext.checkExceptionHandlers(exceptionType, this, flowInfo, currentScope);
-		return FlowInfo.DeadEnd;
+		return FlowInfo.DEAD_END;
 	}
 
 	/**

@@ -83,7 +83,7 @@ public class TryStatement extends Statement {
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
 						flowInfo.copy())
 					.unconditionalInits();
-			if (!((subInfo == FlowInfo.DeadEnd) || subInfo.isFakeReachable())) {
+			if (subInfo.isReachable()) {
 				subRoutineCannotReturn = false;
 			}
 		}
@@ -102,7 +102,7 @@ public class TryStatement extends Statement {
 			tryBlockExit = false;
 		} else {
 			tryInfo = tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-			tryBlockExit = (tryInfo == FlowInfo.DeadEnd) || tryInfo.isFakeReachable();
+			tryBlockExit = !tryInfo.isReachable();
 		}
 
 		// check unreachable catch blocks
@@ -134,15 +134,14 @@ public class TryStatement extends Statement {
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
 				if (tryBlock.statements == null) {
-					catchInfo.markAsFakeReachable(true);
+					catchInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
 				}
 				catchInfo =
 					catchBlocks[i].analyseCode(
 						currentScope,
 						insideSubContext == null ? flowContext : insideSubContext,
 						catchInfo);
-				catchExits[i] =
-					((catchInfo == FlowInfo.DeadEnd) || catchInfo.isFakeReachable());
+				catchExits[i] = !catchInfo.isReachable();
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 			}
 		}
@@ -156,7 +155,7 @@ public class TryStatement extends Statement {
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
 		tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn);
 		finallyContext.complainOnRedundantFinalAssignments(tryInfo, currentScope);
-		if (subInfo == FlowInfo.DeadEnd) {
+		if (subInfo == FlowInfo.DEAD_END) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(subInfo);
 			return subInfo;

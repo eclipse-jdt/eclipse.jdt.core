@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ForStatement extends Statement {
@@ -71,15 +72,18 @@ public class ForStatement extends Statement {
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 
-		boolean conditionIsInlinedToTrue = 
-			condition == null || (condition.constant != NotAConstant && condition.constant.booleanValue() == true);
-		boolean conditionIsInlinedToFalse = 
-			! conditionIsInlinedToTrue && (condition.constant != NotAConstant && condition.constant.booleanValue() == false);
+		Constant cst = this.condition == null ? null : this.condition.constant;
+		boolean isConditionTrue = cst == null || (cst != NotAConstant && cst.booleanValue() == true);
+		boolean isConditionFalse = cst != null && (cst != NotAConstant && cst.booleanValue() == false);
+
+		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst == null ||  (cst != NotAConstant && cst.booleanValue() == true);
+		boolean isConditionOptimizedFalse = cst != null && (cst != NotAConstant && cst.booleanValue() == false);
 		
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
 		if (condition != null) {
-			if (!conditionIsInlinedToTrue) {
+			if (!isConditionTrue) {
 				flowInfo =
 					condition.analyseCode(
 						scope,
@@ -96,10 +100,10 @@ public class ForStatement extends Statement {
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= CompilerOptions.JDK1_3)) {
 			if (condLoopContext != null)
 				condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
-			if (conditionIsInlinedToTrue) {
-				return FlowInfo.DeadEnd;
+			if (isConditionTrue) {
+				return FlowInfo.DEAD_END;
 			} else {
-				if (conditionIsInlinedToFalse){
+				if (isConditionFalse){
 					continueLabel = null; // for(;false;p());
 				}
 				actionInfo = flowInfo.initsWhenTrue().copy();
@@ -113,17 +117,20 @@ public class ForStatement extends Statement {
 			condIfTrueInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(initsWhenTrue);
 
-				actionInfo = conditionIsInlinedToFalse
-					? FlowInfo.DeadEnd  // unreachable when condition inlined to false
-					: initsWhenTrue.copy();
+				if (isConditionFalse) {
+					actionInfo = FlowInfo.DEAD_END;
+				} else {
+					actionInfo = initsWhenTrue.copy();
+					if (isConditionOptimizedFalse){
+						actionInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+					}
+				}
 			if (!actionInfo.complainIfUnreachable(action, scope, false)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
 			}
 
 			// code generation can be optimized when no need to continue in the loop
-			if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
-				&& ((loopingContext.initsOnContinue == FlowInfo.DeadEnd)
-					|| loopingContext.initsOnContinue.isFakeReachable())) {
+			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
 				if (condLoopContext != null)
@@ -145,7 +152,7 @@ public class ForStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if (conditionIsInlinedToTrue) {
+		if (isConditionTrue) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(
 					mergedInfo = loopingContext.initsOnBreak);
@@ -156,6 +163,9 @@ public class ForStatement extends Statement {
 		mergedInfo =
 			flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
 				loopingContext.initsOnBreak.unconditionalInits());
+		if (isConditionOptimizedTrue && continueLabel == null){
+			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

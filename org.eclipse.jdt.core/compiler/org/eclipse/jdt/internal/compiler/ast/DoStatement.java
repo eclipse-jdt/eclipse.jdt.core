@@ -61,9 +61,8 @@ public class DoStatement extends Statement {
 			flowInfo = action.analyseCode(currentScope, loopingContext, flowInfo.copy());
 
 			// code generation can be optimized when no need to continue in the loop
-			if ((flowInfo == FlowInfo.DeadEnd) || flowInfo.isFakeReachable()) {
-				if ((loopingContext.initsOnContinue == FlowInfo.DeadEnd)
-					|| loopingContext.initsOnContinue.isFakeReachable()) {
+			if (!flowInfo.isReachable()) {
+				if (!loopingContext.initsOnContinue.isReachable()) {
 					continueLabel = null;
 				} else {
 					flowInfo = loopingContext.initsOnContinue; // for condition

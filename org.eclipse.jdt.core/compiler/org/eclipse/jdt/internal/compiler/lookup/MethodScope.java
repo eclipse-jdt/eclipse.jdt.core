@@ -374,9 +374,8 @@ public class MethodScope extends BlockScope {
 
 	public final int recordInitializationStates(FlowInfo flowInfo) {
 
-		if ((flowInfo == FlowInfo.DeadEnd) || (flowInfo.isFakeReachable())) {
-			return -1;
-		}
+		if (!flowInfo.isReachable()) return -1;
+
 		UnconditionalFlowInfo unconditionalFlowInfo = flowInfo.unconditionalInits();
 		long[] extraInits = unconditionalFlowInfo.extraDefiniteInits;
 		long inits = unconditionalFlowInfo.definiteInits;

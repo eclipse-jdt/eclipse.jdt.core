@@ -378,7 +378,7 @@ public class FlowContext implements TypeConstants {
 
 	public FlowInfo initsOnBreak() {
 
-		return FlowInfo.DeadEnd;
+		return FlowInfo.DEAD_END;
 	}
 
 	public boolean isBreakable() {

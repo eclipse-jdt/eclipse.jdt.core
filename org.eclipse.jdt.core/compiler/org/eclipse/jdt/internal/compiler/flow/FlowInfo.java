@@ -17,8 +17,21 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 public abstract class FlowInfo {
 
-	public static final UnconditionalFlowInfo DeadEnd = new UnconditionalFlowInfo(); // Represents a dead branch status of initialization
-
+	public final static int REACHABLE = 0;
+	public final static int UNREACHABLE = 1; // report all, optimized out
+	public final static int IGNORE_DEFINITE_INIT_PB = 2; // hide def-init pb
+	public final static int IGNORE_POTENTIAL_INIT_PB = 4; // hide potential-init pb
+	public final static int IGNORE_UNREACH_PB = 8; // hide unreachable pb
+	// helpers
+	public final static int FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB;
+	public final static int SILENT_FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB | IGNORE_DEFINITE_INIT_PB | IGNORE_POTENTIAL_INIT_PB;
+	public final static int CHECK_POT_INIT_FAKE_REACHABLE = UNREACHABLE | IGNORE_UNREACH_PB | IGNORE_DEFINITE_INIT_PB;
+	
+	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
+	static {
+		DEAD_END = new UnconditionalFlowInfo();
+		DEAD_END.reachMode = UNREACHABLE | IGNORE_DEFINITE_INIT_PB | IGNORE_POTENTIAL_INIT_PB;
+	}
 	abstract public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits);
 
 	abstract public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits);
@@ -52,11 +65,6 @@ public abstract class FlowInfo {
 
 	abstract public FlowInfo initsWhenTrue();
 
-	final public boolean isDeadEnd() {
-
-		return this == DeadEnd;
-	}
-
 	/**
 	 * Check status of definite assignment for a field.
 	 */
@@ -67,7 +75,7 @@ public abstract class FlowInfo {
 	 */
 	public abstract boolean isDefinitelyAssigned(LocalVariableBinding local);
 
-	abstract public boolean isFakeReachable();
+	//abstract public int reachMode(); 
 
 	/**
 	 * Check status of potential assignment for a field.
@@ -80,6 +88,8 @@ public abstract class FlowInfo {
 
 	 abstract public boolean isPotentiallyAssigned(LocalVariableBinding field);   
 
+	abstract public boolean isReachable();
+	
 	/**
 	 * Record a field got definitely assigned.
 	 */
@@ -100,7 +110,9 @@ public abstract class FlowInfo {
 	 */
 	abstract public void markAsDefinitelyNotAssigned(LocalVariableBinding local);
 
-	abstract public FlowInfo markAsFakeReachable(boolean isFakeReachable);
+	abstract public int reachMode();
+
+	abstract public FlowInfo setReachMode(int reachMode);
 
 	/**
 	 * Returns the receiver updated in the following way: <ul>
@@ -112,8 +124,8 @@ public abstract class FlowInfo {
 
 	public String toString(){
 
-		if (this == DeadEnd){
-			return "FlowInfo.DeadEnd"; //$NON-NLS-1$
+		if (this == DEAD_END){
+			return "FlowInfo.DEAD_END"; //$NON-NLS-1$
 		}
 		return super.toString();
 	}

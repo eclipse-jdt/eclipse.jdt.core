@@ -77,7 +77,7 @@ public class Continue extends BranchStatement {
 		if (subIndex != maxSub) {
 			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
 		}
-		return FlowInfo.DeadEnd;
+		return FlowInfo.DEAD_END;
 	}
 
 	public String toString(int tab) {

@@ -24,7 +24,7 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 		FlowContext parent,
 		AstNode associatedNode) {
 		super(parent, associatedNode);
-		this.initsOnReturn = FlowInfo.DeadEnd;				
+		this.initsOnReturn = FlowInfo.DEAD_END;				
 	}
 	
 	public boolean isNonReturningContext() {

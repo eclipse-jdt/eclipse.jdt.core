@@ -79,9 +79,13 @@ public class ConditionalFlowInfo extends FlowInfo {
 				&& initsWhenFalse.isDefinitelyAssigned(local);
 	}
 	
-	public boolean isFakeReachable(){
+	public int reachMode(){
+		return unconditionalInits().reachMode();
+	}
+	
+	public boolean isReachable(){
 		
-		return unconditionalInits().isFakeReachable();	
+		return unconditionalInits().isReachable();	
 		//should maybe directly be: false
 	}
 	
@@ -139,10 +143,10 @@ public class ConditionalFlowInfo extends FlowInfo {
 		initsWhenFalse.markAsDefinitelyNotAssigned(local);	
 	}
 	
-	public FlowInfo markAsFakeReachable(boolean isFakeReachable) {
+	public FlowInfo setReachMode(int reachMode) {
 		
-		initsWhenTrue.markAsFakeReachable(isFakeReachable);
-		initsWhenFalse.markAsFakeReachable(isFakeReachable);
+		initsWhenTrue.setReachMode(reachMode);
+		initsWhenFalse.setReachMode(reachMode);
 		return this;
 	}
 	

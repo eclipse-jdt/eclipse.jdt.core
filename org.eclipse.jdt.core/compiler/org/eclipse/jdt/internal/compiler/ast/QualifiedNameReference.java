@@ -77,7 +77,7 @@ public class QualifiedNameReference extends NameReference {
 					.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 				}
-				localBinding.useFlag = flowInfo.isFakeReachable() ? LocalVariableBinding.FAKE_USED : LocalVariableBinding.USED;
+				localBinding.useFlag = flowInfo.isReachable() ? LocalVariableBinding.USED : LocalVariableBinding.FAKE_USED;
 			}
 		}
 		if (indexOfFirstValueRequired == 0) {
@@ -216,7 +216,7 @@ public class QualifiedNameReference extends NameReference {
 					.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 				}
-				localBinding.useFlag = flowInfo.isFakeReachable() ? LocalVariableBinding.FAKE_USED : LocalVariableBinding.USED;
+				localBinding.useFlag = flowInfo.isReachable() ? LocalVariableBinding.USED : LocalVariableBinding.FAKE_USED;
 		}
 		if (indexOfFirstValueRequired == 0) {
 			manageEnclosingInstanceAccessIfNecessary(currentScope);

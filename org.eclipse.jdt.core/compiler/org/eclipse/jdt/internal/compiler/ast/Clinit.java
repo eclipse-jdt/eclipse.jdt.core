@@ -45,11 +45,10 @@ public class Clinit extends AbstractMethodDeclaration {
 					this,
 					NoExceptions,
 					scope,
-					FlowInfo.DeadEnd);
+					FlowInfo.DEAD_END);
 
 			// check for missing returning path
-			needFreeReturn =
-				!((flowInfo == FlowInfo.DeadEnd) || flowInfo.isFakeReachable());
+			this.needFreeReturn = flowInfo.isReachable();
 
 			// check missing blank final field initializations
 			flowInfo = flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);
@@ -186,7 +185,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			// reset the constant pool to its state before the clinit
 			constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
 		} else {
-			if (needFreeReturn) {
+			if (this.needFreeReturn) {
 				int oldPosition = codeStream.position;
 				codeStream.return_();
 				codeStream.updateLocalVariablesAttribute(oldPosition);

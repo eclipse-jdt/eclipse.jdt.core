@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
  */
 public class SwitchFlowContext extends FlowContext {
 	public Label breakLabel;
-	public UnconditionalFlowInfo initsOnBreak = FlowInfo.DeadEnd;
+	public UnconditionalFlowInfo initsOnBreak = FlowInfo.DEAD_END;
 	
 	public SwitchFlowContext(
 		FlowContext parent,
@@ -42,11 +42,11 @@ public class SwitchFlowContext extends FlowContext {
 	}
 
 	public void recordBreakFrom(FlowInfo flowInfo) {
-		if (initsOnBreak == FlowInfo.DeadEnd) {
+		if (initsOnBreak == FlowInfo.DEAD_END) {
 			initsOnBreak = flowInfo.copy().unconditionalInits();
 		} else {
 			// ignore if not really reachable (1FKEKRP)
-			if (flowInfo.isFakeReachable())
+			if (!flowInfo.isReachable())
 				return;
 			initsOnBreak.mergedWith(flowInfo.unconditionalInits());
 		};

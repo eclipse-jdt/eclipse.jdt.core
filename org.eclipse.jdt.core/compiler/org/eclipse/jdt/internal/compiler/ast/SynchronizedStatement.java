@@ -53,9 +53,8 @@ public class SynchronizedStatement extends Statement {
 				expression.analyseCode(scope, flowContext, flowInfo));
 
 		// optimizing code gen
-		if ((flowInfo == FlowInfo.DeadEnd) || flowInfo.isFakeReachable()) {
-			blockExit = true;
-		}
+		this.blockExit = !flowInfo.isReachable();
+
 		return flowInfo;
 	}
 

@@ -69,7 +69,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		} else if (traversedContext instanceof InitializationFlowContext) {
 				currentScope.problemReporter().cannotReturnInInitializer(this);
-				return FlowInfo.DeadEnd;
+				return FlowInfo.DEAD_END;
 		}
 
 		// remember the initialization at this
@@ -99,7 +99,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.expression.bits |= ValueForReturnMASK;
 		}
 	}
-	return FlowInfo.DeadEnd;
+	return FlowInfo.DEAD_END;
 }
  
 /**

@@ -67,17 +67,22 @@ public class IfStatement extends Statement {
 
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
-		Constant condConstant = this.condition.constant; 
-		Constant optimizedConstant = this.condition.optimizedBooleanConstant();
+
+		Constant cst = this.condition.constant;
+		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
+
+		cst = this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 		
 		// process the THEN part
 		if (this.thenStatement == null) {
 			thenFlowInfo = flowInfo.initsWhenTrue();
 		} else {
-			thenFlowInfo =
-				(optimizedConstant != NotAConstant && optimizedConstant.booleanValue() == false)
-					? flowInfo.initsWhenTrue().copy().markAsFakeReachable(true)
-					: flowInfo.initsWhenTrue().copy();
+			thenFlowInfo = flowInfo.initsWhenTrue().copy();
+			if (isConditionOptimizedFalse) thenFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+
 			// Save info for code gen
 			thenInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(thenFlowInfo);
@@ -87,16 +92,15 @@ public class IfStatement extends Statement {
 			}
 		};
 		// optimizing the jump around the ELSE part
-		this.thenExit = (thenFlowInfo == FlowInfo.DeadEnd) || thenFlowInfo.isFakeReachable();
+		this.thenExit = !thenFlowInfo.isReachable();
 
 		// process the ELSE part
 		if (this.elseStatement == null) {
 			elseFlowInfo = flowInfo.initsWhenFalse();
 		} else {
-			elseFlowInfo =
-				(optimizedConstant != NotAConstant && optimizedConstant.booleanValue() == true)
-					? flowInfo.initsWhenFalse().copy().markAsFakeReachable(true)
-					: flowInfo.initsWhenFalse().copy();
+			elseFlowInfo = flowInfo.initsWhenFalse().copy();
+			if (isConditionOptimizedTrue) elseFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+
 			// Save info for code gen
 			elseInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(elseFlowInfo);
@@ -106,36 +110,21 @@ public class IfStatement extends Statement {
 			}
 		}
 
+		boolean elseExit = !elseFlowInfo.isReachable();
+		
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
-		if (condConstant != NotAConstant && condConstant.booleanValue() == true) {
-			// IF (TRUE)
-			if (this.thenExit) {
-				mergedInfo = elseFlowInfo.markAsFakeReachable(true);
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(mergedInfo);
-				return mergedInfo;
-			} else {
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(thenFlowInfo);
-				return thenFlowInfo;
-			}
+		if (isConditionTrue){
+			mergedInfo = this.thenExit ? elseFlowInfo : thenFlowInfo;
+		} else if (isConditionFalse) {
+			mergedInfo = elseExit ? thenFlowInfo : elseFlowInfo;
 		} else {
-			// IF (FALSE)
-			if (condConstant != NotAConstant && condConstant.booleanValue() == false) {
-				if (elseFlowInfo == FlowInfo.DeadEnd || elseFlowInfo.isFakeReachable()) {
-					mergedInfo = thenFlowInfo.markAsFakeReachable(true);
-					mergedInitStateIndex =
-						currentScope.methodScope().recordInitializationStates(mergedInfo);
-					return mergedInfo;
-				} else {
-					mergedInitStateIndex =
-						currentScope.methodScope().recordInitializationStates(elseFlowInfo);
-					return elseFlowInfo;
-				}
-			}
+			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
 		}
-		mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
+		if ((isConditionOptimizedTrue && this.thenExit)
+				|| (isConditionOptimizedFalse && elseExit)) {
+			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

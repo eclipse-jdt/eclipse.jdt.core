@@ -141,11 +141,11 @@ public class TypeDeclaration
 						initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
 					}
 					fieldInfo = field.analyseCode(initializerScope, initializerContext, fieldInfo);
-					if (fieldInfo == FlowInfo.DeadEnd) {
+					if (fieldInfo == FlowInfo.DEAD_END) {
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
 						initializerScope.problemReporter().initializerMustCompleteNormally(field);
-						fieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+						fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 					}
 				}
 			}
@@ -208,9 +208,9 @@ public class TypeDeclaration
 								staticFieldInfo);
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
-						if (staticFieldInfo == FlowInfo.DeadEnd) {
+						if (staticFieldInfo == FlowInfo.DEAD_END) { // TODO: could move behavior onto flowInfo
 							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 						}
 					} else {
 						if (field.isField()){
@@ -221,9 +221,9 @@ public class TypeDeclaration
 						nonStaticFieldInfo = field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
-						if (nonStaticFieldInfo == FlowInfo.DeadEnd) {
+						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 						}
 					}
 				}
@@ -295,11 +295,11 @@ public class TypeDeclaration
 					if (!fields[i].isStatic()) {
 						fieldInfo =
 							field.analyseCode(initializerScope, initializerContext, fieldInfo);
-						if (fieldInfo == FlowInfo.DeadEnd) {
+						if (fieldInfo == FlowInfo.DEAD_END) {
 							// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 							// branch, since the previous initializer already got the blame.
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							fieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+							fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 						}
 					}
 				}
@@ -359,9 +359,9 @@ public class TypeDeclaration
 								staticFieldInfo);
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
-						if (staticFieldInfo == FlowInfo.DeadEnd) {
+						if (staticFieldInfo == FlowInfo.DEAD_END) {
 							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 						}
 					} else {
 						if (field.isField()){
@@ -373,9 +373,9 @@ public class TypeDeclaration
 							field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
-						if (nonStaticFieldInfo == FlowInfo.DeadEnd) {
+						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).markAsFakeReachable(true);
+							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.FAKE_REACHABLE);
 						}
 					}
 				}

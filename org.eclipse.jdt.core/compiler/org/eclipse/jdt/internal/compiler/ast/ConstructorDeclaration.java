@@ -51,7 +51,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					this,
 					binding.thrownExceptions,
 					scope,
-					FlowInfo.DeadEnd);
+					FlowInfo.DEAD_END);
 			initializerFlowContext.checkInitializerExceptions(
 				scope,
 				constructorContext,
@@ -98,8 +98,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			// check for missing returning path
-			needFreeReturn =
-				!((flowInfo == FlowInfo.DeadEnd) || flowInfo.isFakeReachable());
+			this.needFreeReturn = flowInfo.isReachable();
 
 			// check missing blank final field initializations
 			if ((constructorCall != null)
@@ -292,7 +291,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					statements[i].generateCode(scope, codeStream);
 				}
 			}
-			if (needFreeReturn) {
+			if (this.needFreeReturn) {
 				codeStream.return_();
 			}
 			// local variable attributes

@@ -63,11 +63,11 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 				isReached[cacheIndex] |= bitMask;
 				this.initsOnExceptions[i] = flowInfo.copy().unconditionalInits();
 			} else {
-				this.initsOnExceptions[i] = FlowInfo.DeadEnd;
+				this.initsOnExceptions[i] = FlowInfo.DEAD_END;
 			}
 		}
 		System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
-		this.initsOnReturn = FlowInfo.DeadEnd;	
+		this.initsOnReturn = FlowInfo.DEAD_END;	
 	}
 
 	public void complainIfUnusedExceptionHandlers(
@@ -121,7 +121,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		
 		int index;
 		if ((index = indexes.get(exceptionType)) < 0) {
-			return FlowInfo.DeadEnd;
+			return FlowInfo.DEAD_END;
 		}
 		return initsOnExceptions[index];
 	}
@@ -142,7 +142,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		}
 		this.isReached[cacheIndex] |= bitMask;
 		initsOnExceptions[index] =
-			initsOnExceptions[index] == FlowInfo.DeadEnd
+			initsOnExceptions[index] == FlowInfo.DEAD_END
 				? flowInfo.copy().unconditionalInits()
 				: initsOnExceptions[index].mergedWith(flowInfo);
 	}

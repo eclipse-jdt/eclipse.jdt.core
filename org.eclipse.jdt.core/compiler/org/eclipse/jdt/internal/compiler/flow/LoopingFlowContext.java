@@ -25,12 +25,14 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  *	try statements, exception handlers, etc...
  */
 public class LoopingFlowContext extends SwitchFlowContext {
+	
 	public Label continueLabel;
-	public UnconditionalFlowInfo initsOnContinue = FlowInfo.DeadEnd;
+	public UnconditionalFlowInfo initsOnContinue = FlowInfo.DEAD_END;
 	Reference finalAssignments[];
 	VariableBinding finalVariables[];
 	int assignCount = 0;
 	Scope associatedScope;
+	
 	public LoopingFlowContext(
 		FlowContext parent,
 		AstNode associatedNode,
@@ -89,15 +91,16 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	}
 
 	public boolean isContinuedTo() {
-		return initsOnContinue != FlowInfo.DeadEnd;
+		return initsOnContinue != FlowInfo.DEAD_END;
 	}
 
 	public void recordContinueFrom(FlowInfo flowInfo) {
-		if (initsOnContinue == FlowInfo.DeadEnd) {
+
+		if (initsOnContinue == FlowInfo.DEAD_END) {
 			initsOnContinue = flowInfo.copy().unconditionalInits();
 		} else {
 			// ignore if not really reachable (1FKEKRP)
-			if (flowInfo.isFakeReachable())
+			if (!flowInfo.isReachable())
 				return;
 			initsOnContinue.mergedWith(flowInfo.unconditionalInits());
 		};

@@ -24,11 +24,14 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  */
 public class UnconditionalFlowInfo extends FlowInfo {
 
+	
 	public long definiteInits;
 	long potentialInits;
 	public long extraDefiniteInits[];
 	long extraPotentialInits[];
-	public boolean isFakeReachable;
+	
+	public int reachMode = REACHABLE; // by default
+
 	public int maxFieldCount;
 	
 	// Constants
@@ -40,9 +43,9 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// unions of both sets of initialization - used for try/finally
 	public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits) {
 	
-		if (this == DeadEnd)
+		if (this == DEAD_END)
 			return this;
-		if (otherInits == DeadEnd)
+		if (otherInits == DEAD_END)
 			return this;
 			
 		// union of definitely assigned variables, 
@@ -91,10 +94,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// unions of both sets of initialization - used for try/finally
 	public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits) {
 	
-		if (this == DeadEnd){
+		if (this == DEAD_END){
 			return this;
 		}
-		if (otherInits == DeadEnd){
+		if (otherInits == DEAD_END){
 			return this;
 		}
 		// union of potentially set ones
@@ -135,13 +138,13 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// Report an error if necessary
 	public boolean complainIfUnreachable(Statement statement, BlockScope scope, boolean didAlreadyComplain) {
 	
-		boolean isNotReachable;
-		if ((isNotReachable = (this == DeadEnd)) || isFakeReachable) {
+		if ((this.reachMode & UNREACHABLE) != 0) {
 			statement.bits &= ~AstNode.IsReachableMASK;
-	
-			if (!didAlreadyComplain && isNotReachable) 
+			boolean reported = (this.reachMode & IGNORE_UNREACH_PB) == 0;
+			if (!didAlreadyComplain && reported) {
 				scope.problemReporter().unreachableCode(statement);
-			return isNotReachable;
+			}
+			return reported; // keep going for fake reachable
 		}
 		return false;
 	}
@@ -152,22 +155,22 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public FlowInfo copy() {
 		
 		// do not clone the DeadEnd
-		if (this == DeadEnd)
+		if (this == DEAD_END)
 			return this;
 	
 		// look for an unused preallocated object
 		UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
 	
 		// copy slots
-		copy.definiteInits = definiteInits;
-		copy.potentialInits = potentialInits;
-		copy.isFakeReachable = isFakeReachable;
-		copy.maxFieldCount = maxFieldCount;
+		copy.definiteInits = this.definiteInits;
+		copy.potentialInits = this.potentialInits;
+		copy.reachMode = this.reachMode;
+		copy.maxFieldCount = this.maxFieldCount;
 		
-		if (extraDefiniteInits != null) {
+		if (this.extraDefiniteInits != null) {
 			int length;
-			System.arraycopy(extraDefiniteInits, 0, (copy.extraDefiniteInits = new long[ (length = extraDefiniteInits.length)]), 0, length);
-			System.arraycopy(extraPotentialInits, 0, (copy.extraPotentialInits = new long[length]), 0, length);
+			System.arraycopy(this.extraDefiniteInits, 0, (copy.extraDefiniteInits = new long[ (length = extraDefiniteInits.length)]), 0, length);
+			System.arraycopy(this.extraPotentialInits, 0, (copy.extraPotentialInits = new long[length]), 0, length);
 		};
 		return copy;
 	}
@@ -210,7 +213,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		
 		// Dependant of CodeStream.isDefinitelyAssigned(..)
 		// We do not want to complain in unreachable code
-		if ((this == DeadEnd) || (this.isFakeReachable))
+		if ((this.reachMode & (UNREACHABLE | IGNORE_DEFINITE_INIT_PB)) == (UNREACHABLE | IGNORE_DEFINITE_INIT_PB))
 			return true;
 		return isDefinitelyAssigned(field.id); 
 	}
@@ -222,7 +225,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		
 		// Dependant of CodeStream.isDefinitelyAssigned(..)
 		// We do not want to complain in unreachable code
-		if ((this == DeadEnd) || (this.isFakeReachable))
+		if ((this.reachMode & (UNREACHABLE | IGNORE_DEFINITE_INIT_PB)) == (UNREACHABLE | IGNORE_DEFINITE_INIT_PB))
 			return true;
 		if (local.isArgument) {
 			return true;
@@ -230,9 +233,9 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return isDefinitelyAssigned(local.id + maxFieldCount);
 	}
 	
-	public boolean isFakeReachable() {
+	public boolean isReachable() {
 		
-		return isFakeReachable;
+		return this.reachMode == REACHABLE;
 	}
 	
 	/**
@@ -262,7 +265,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	final public boolean isPotentiallyAssigned(FieldBinding field) {
 		
 		// We do not want to complain in unreachable code
-		if ((this == DeadEnd) || (this.isFakeReachable))
+		if ((this.reachMode & (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB)) == (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB))
 			return false;
 		return isPotentiallyAssigned(field.id); 
 	}
@@ -273,7 +276,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 		
 		// We do not want to complain in unreachable code
-		if ((this == DeadEnd) || (this.isFakeReachable))
+		if ((this.reachMode & (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB)) == (UNREACHABLE | IGNORE_POTENTIAL_INIT_PB))
 			return false;
 		if (local.isArgument) {
 			return true;
@@ -288,7 +291,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	final private void markAsDefinitelyAssigned(int position) {
 		
-		if (this != DeadEnd) {
+		if (this != DEAD_END) {
 	
 			// position is zero-based
 			if (position < BitCacheSize) {
@@ -321,7 +324,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 * Record a field got definitely assigned.
 	 */
 	public void markAsDefinitelyAssigned(FieldBinding field) {
-		if (this != DeadEnd)
+		if (this != DEAD_END)
 			markAsDefinitelyAssigned(field.id);
 	}
 	
@@ -329,7 +332,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 * Record a local got definitely assigned.
 	 */
 	public void markAsDefinitelyAssigned(LocalVariableBinding local) {
-		if (this != DeadEnd)
+		if (this != DEAD_END)
 			markAsDefinitelyAssigned(local.id + maxFieldCount);
 	}
 	
@@ -339,7 +342,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 * bits for the first 64 entries, then an array of booleans.
 	 */
 	final private void markAsDefinitelyNotAssigned(int position) {
-		if (this != DeadEnd) {
+		if (this != DEAD_END) {
 	
 			// position is zero-based
 			if (position < BitCacheSize) {
@@ -370,7 +373,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	public void markAsDefinitelyNotAssigned(FieldBinding field) {
 		
-		if (this != DeadEnd)
+		if (this != DEAD_END)
 			markAsDefinitelyNotAssigned(field.id);
 	}
 	
@@ -380,16 +383,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	
 	public void markAsDefinitelyNotAssigned(LocalVariableBinding local) {
 		
-		if (this != DeadEnd)
+		if (this != DEAD_END)
 			markAsDefinitelyNotAssigned(local.id + maxFieldCount);
 	}
-	
-	public FlowInfo markAsFakeReachable(boolean isFakeReachable) {
 		
-		this.isFakeReachable = isFakeReachable;
-		return this;
-	}
-	
 	/**
 	 * Returns the receiver updated in the following way: <ul>
 	 * <li> intersection of definitely assigned variables, 
@@ -398,55 +395,54 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	 */
 	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 	
-		if (this == DeadEnd) return otherInits;
-		if (otherInits == DeadEnd) return this;
+		if (this == DEAD_END) return otherInits;
+		if (otherInits == DEAD_END) return this;
 	
 		// if one branch is not fake reachable, then the merged one is reachable
-		if (!otherInits.isFakeReachable())
-			markAsFakeReachable(false);
+		this.reachMode &= otherInits.reachMode;
 	
 		// intersection of definitely assigned variables, 
-		definiteInits &= otherInits.definiteInits;
+		this.definiteInits &= otherInits.definiteInits;
 		// union of potentially set ones
-		potentialInits |= otherInits.potentialInits;
+		this.potentialInits |= otherInits.potentialInits;
 	
 		// treating extra storage
-		if (extraDefiniteInits != null) {
+		if (this.extraDefiniteInits != null) {
 			if (otherInits.extraDefiniteInits != null) {
 				// both sides have extra storage
 				int i = 0, length, otherLength;
-				if ((length = extraDefiniteInits.length) < (otherLength = otherInits.extraDefiniteInits.length)) {
+				if ((length = this.extraDefiniteInits.length) < (otherLength = otherInits.extraDefiniteInits.length)) {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
-					System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength]), 0, length);
-					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteInits, 0, (this.extraDefiniteInits = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, length);
 					while (i < length) {
-						extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
 					}
 					while (i < otherLength) {
-						extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
 					}
 				} else {
 					// current storage is longer
 					while (i < otherLength) {
-						extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraDefiniteInits[i] &= otherInits.extraDefiniteInits[i];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
 					}
 					while (i < length)
-						extraDefiniteInits[i++] = 0;
+						this.extraDefiniteInits[i++] = 0;
 				}
 			} else {
 				// no extra storage on otherInits
-				int i = 0, length = extraDefiniteInits.length;
+				int i = 0, length = this.extraDefiniteInits.length;
 				while (i < length)
-					extraDefiniteInits[i++] = 0;
+					this.extraDefiniteInits[i++] = 0;
 			}
 		} else
 			if (otherInits.extraDefiniteInits != null) {
 				// no storage here, but other has extra storage.
 				int otherLength;
-				extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];
-				System.arraycopy(otherInits.extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, otherLength);
+				this.extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];
+				System.arraycopy(otherInits.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, otherLength);
 			}
 		return this;
 	}
@@ -465,12 +461,28 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return count;
 	}
 	
+	public int reachMode(){
+		return this.reachMode;
+	}
+	
+	public FlowInfo setReachMode(int reachMode) {
+		if (this == DEAD_END) return this; // cannot modify DEAD_END
+		this.reachMode = reachMode;
+		return this;
+	}
+
 	public String toString(){
 		
-		if (this == DeadEnd){
-			return "FlowInfo.DeadEnd"; //$NON-NLS-1$
+		if (this == DEAD_END){
+			return "FlowInfo.DEAD_END"; //$NON-NLS-1$
 		}
-		return "FlowInfo<def: "+ definiteInits +", pot: " + potentialInits + ">"; //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+		return "FlowInfo<def: "+ this.definiteInits //$NON-NLS-1$
+			+", pot: " + this.potentialInits  //$NON-NLS-1$
+			+ ", reachable:" + ((this.reachMode & UNREACHABLE) == 0) //$NON-NLS-1$
+			+ ", reportDefInitPb:" + ((this.reachMode & IGNORE_DEFINITE_INIT_PB) == 0) //$NON-NLS-1$
+			+ ", reportPotInitPb:" + ((this.reachMode & IGNORE_POTENTIAL_INIT_PB) == 0) //$NON-NLS-1$
+			+ ", reportUnreachPb:" + ((this.reachMode & IGNORE_UNREACH_PB) == 0) //$NON-NLS-1$
+			+">"; //$NON-NLS-1$
 	}
 	
 	public UnconditionalFlowInfo unconditionalInits() {

@@ -48,11 +48,16 @@ public class AND_AND_Expression extends BinaryExpression {
 		 // need to be careful of scenario:
 		//		(x && y) && !z, if passing the left info to the right, it would be swapped by the !
 		FlowInfo rightInfo = leftInfo.initsWhenTrue().unconditionalInits().copy();
-		if (opConstant != NotAConstant && opConstant.booleanValue() == false) rightInfo.markAsFakeReachable(true);
-
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
+
+		int mode = rightInfo.reachMode();
+		if (opConstant != NotAConstant && opConstant.booleanValue() == false){
+			rightInfo.setReachMode(FlowInfo.SILENT_FAKE_REACHABLE);
+		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
+		rightInfo.setReachMode(mode); // reset mode on way out
+		
 		FlowInfo mergedInfo =
 			FlowInfo.conditional(
 				rightInfo.initsWhenTrue().copy(),

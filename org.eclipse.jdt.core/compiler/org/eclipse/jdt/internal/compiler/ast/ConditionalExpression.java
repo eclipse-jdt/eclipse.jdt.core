@@ -42,52 +42,49 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant conditionConstant = condition.constant;
+		Constant cst = this.condition.constant;
+		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
 
-		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, conditionConstant == NotAConstant);
+		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == NotAConstant);
 
-		if (conditionConstant != NotAConstant) {
-			if (conditionConstant.booleanValue() == true) {
-				// TRUE ? left : right
-				FlowInfo resultInfo =
-					valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.initsWhenTrue().unconditionalInits());
-				// analyse valueIfFalse, but do not take into account any of its infos
-				valueIfFalse.analyseCode(
-					currentScope,
-					flowContext,
-					flowInfo.initsWhenFalse().copy().unconditionalInits().markAsFakeReachable(true));
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(resultInfo);
-				return resultInfo;
-			} else {
-				// FALSE ? left : right
-				// analyse valueIfTrue, but do not take into account any of its infos			
-				valueIfTrue.analyseCode(
-					currentScope,
-					flowContext,
-					flowInfo.initsWhenTrue().copy().unconditionalInits().markAsFakeReachable(true));
-				FlowInfo mergeInfo =
-					valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.initsWhenFalse().unconditionalInits());
-				mergedInitStateIndex =
-					currentScope.methodScope().recordInitializationStates(mergeInfo);
-				return mergeInfo;
-			}
+		if (isConditionTrue) {
+			// TRUE ? left : right
+			FlowInfo resultInfo =
+				valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.initsWhenTrue().unconditionalInits());
+			// analyse valueIfFalse, but do not take into account any of its infos
+			valueIfFalse.analyseCode(
+				currentScope,
+				flowContext,
+				flowInfo.initsWhenFalse().copy().unconditionalInits().setReachMode(FlowInfo.SILENT_FAKE_REACHABLE));
+			mergedInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(resultInfo);
+			return resultInfo;
+		} else if (isConditionFalse) {
+			// FALSE ? left : right
+			// analyse valueIfTrue, but do not take into account any of its infos			
+			valueIfTrue.analyseCode(
+				currentScope,
+				flowContext,
+				flowInfo.initsWhenTrue().copy().unconditionalInits().setReachMode(FlowInfo.SILENT_FAKE_REACHABLE));
+			FlowInfo mergeInfo =
+				valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.initsWhenFalse().unconditionalInits());
+			mergedInitStateIndex =
+				currentScope.methodScope().recordInitializationStates(mergeInfo);
+			return mergeInfo;
 		}
 
 		// store a copy of the merged info, so as to compute the local variable attributes afterwards
-		FlowInfo trueInfo = flowInfo.initsWhenTrue();
-		thenInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(trueInfo);
-		FlowInfo falseInfo = flowInfo.initsWhenFalse();
-		elseInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(falseInfo);
+		FlowInfo trueInfo = flowInfo.initsWhenTrue().copy();
+		thenInitStateIndex = currentScope.methodScope().recordInitializationStates(trueInfo);
+		FlowInfo falseInfo = flowInfo.initsWhenFalse().copy();
+		elseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseInfo);
 
 		// propagate analysis
-		trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo.copy());
-		falseInfo =
-			valueIfFalse.analyseCode(currentScope, flowContext, falseInfo.copy());
+		trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo);
+		falseInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseInfo);
 
-		// merge back using a conditional info -  1GK2BLM
+		// merge using a conditional info -  1GK2BLM
 		// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
 		FlowInfo mergedInfo =
 			FlowInfo.conditional(
@@ -95,19 +92,7 @@ public class ConditionalExpression extends OperatorExpression {
 					falseInfo.initsWhenTrue().copy().unconditionalInits()),
 				trueInfo.initsWhenFalse().unconditionalInits().mergedWith(
 					falseInfo.initsWhenFalse().unconditionalInits()));
-		/*			
-			FlowInfo mergedInfo = valueIfTrue.analyseCode(
-				currentScope,
-				flowContext,
-				flowInfo.initsWhenTrue().copy()).
-					unconditionalInits().
-						mergedWith(
-							valueIfFalse.analyseCode(
-								currentScope,
-								flowContext,
-								flowInfo.initsWhenFalse().copy()).
-									unconditionalInits());
-		*/
+
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
