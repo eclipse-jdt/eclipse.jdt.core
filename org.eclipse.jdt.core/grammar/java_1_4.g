@@ -265,6 +265,7 @@ Header -> MethodHeader
 Header -> ConstructorHeader
 Header -> FieldDeclaration
 Header -> AllocationHeader
+Header -> ArrayCreationHeader 
 
 CatchHeader ::= 'catch' '(' FormalParameter ')' '{'
 /.$putCase consumeCatchHeader(); $break ./
@@ -891,6 +892,12 @@ EnterAnonymousClassBody ::= $empty
 ArgumentList ::= Expression
 ArgumentList ::= ArgumentList ',' Expression
 /.$putCase consumeArgumentList(); $break ./
+
+ArrayCreationHeader ::= 'new' PrimitiveType DimWithOrWithOutExprs
+/.$putCase consumeArrayCreationHeader(); $break ./
+
+ArrayCreationHeader ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
+/.$putCase consumeArrayCreationHeader(); $break ./
 
 ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
 /.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
