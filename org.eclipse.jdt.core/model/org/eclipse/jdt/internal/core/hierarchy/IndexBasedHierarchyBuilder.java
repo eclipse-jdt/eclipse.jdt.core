@@ -157,10 +157,10 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 					new SubProgressMonitor(this.hierarchy.progressMonitor, amountOfWorkForSubtypes);
 			String[] allPossibleSubtypes = this.determinePossibleSubTypes(possibleSubtypesMonitor);
 			if (allPossibleSubtypes != null) {
-			IProgressMonitor buildMonitor = 
-				this.hierarchy.progressMonitor == null ? 
-					null : 
-					new SubProgressMonitor(this.hierarchy.progressMonitor, 100 - amountOfWorkForSubtypes);
+				IProgressMonitor buildMonitor = 
+					this.hierarchy.progressMonitor == null ? 
+						null : 
+						new SubProgressMonitor(this.hierarchy.progressMonitor, 100 - amountOfWorkForSubtypes);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
 				buildFromPotentialSubtypes(allPossibleSubtypes, buildMonitor);
 			}
