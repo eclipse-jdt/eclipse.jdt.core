@@ -639,19 +639,14 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 		// Then the size of the stringName array
 		//writeU2(utf8Constant.length);
 		int savedCurrentOffset = currentOffset;
-		if (currentOffset + 2 >= poolContent.length) {
+		int utf8encodingLength = utf8encoding.length;
+		if (currentOffset + 2 + utf8encodingLength >= poolContent.length) {
 			// we need to resize the poolContent array because we won't have
 			// enough space to write the length
-			int length = poolContent.length;
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+			resizePoolContents(2 + utf8encodingLength);
 		}
 		currentOffset += 2;
 		// add in once the whole byte array
-		int length = poolContent.length;
-		int utf8encodingLength = utf8encoding.length;
-		if (currentOffset + utf8encodingLength >= length) {
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + utf8encodingLength + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		}
 		System.arraycopy(utf8encoding, 0, poolContent, currentOffset, utf8encodingLength);
 		currentOffset += utf8encodingLength;
 		// Now we know the length that we have to write in the constant pool
@@ -678,8 +673,7 @@ public int literalIndex(char[] utf8Constant) {
 		if (currentOffset + 2 >= poolContent.length) {
 			// we need to resize the poolContent array because we won't have
 			// enough space to write the length
-			int length = poolContent.length;
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+			resizePoolContents(2);
 		}
 		currentOffset += 2;
 		int length = 0;
@@ -766,14 +760,12 @@ public int literalIndex(double key) {
 		writeU1(DoubleTag);
 		// Then add the 8 bytes representing the double
 		long temp = java.lang.Double.doubleToLongBits(key);
+		int length = poolContent.length;
+		if (currentOffset + 8 >= length) {
+			resizePoolContents(8);
+		}
 		for (int i = 0; i < 8; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (temp >>> (56 - (i << 3)));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[(length << 1) + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (temp >>> (56 - (i << 3)));
-			}
+			poolContent[currentOffset++] = (byte) (temp >>> (56 - (i << 3)));
 		}
 	}
 	return index;
@@ -804,14 +796,11 @@ public int literalIndex(float key) {
 		writeU1(FloatTag);
 		// Then add the 4 bytes representing the float
 		int temp = java.lang.Float.floatToIntBits(key);
+		if (currentOffset + 4 >= poolContent.length) {
+			resizePoolContents(4);
+		}
 		for (int i = 0; i < 4; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (temp >>> (24 - i * 8));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length * 2 + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (temp >>> (24 - i * 8));
-			}
+			poolContent[currentOffset++] = (byte) (temp >>> (24 - i * 8));
 		}
 	}
 	return index;
@@ -841,14 +830,11 @@ public int literalIndex(int key) {
 		// First add the tag
 		writeU1(IntegerTag);
 		// Then add the 4 bytes representing the int
+		if (currentOffset + 4 >= poolContent.length) {
+			resizePoolContents(4);
+		}
 		for (int i = 0; i < 4; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (key >>> (24 - i * 8));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length * 2 + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (key >>> (24 - i * 8));
-			}
+			poolContent[currentOffset++] = (byte) (key >>> (24 - i * 8));
 		}
 	}
 	return index;
@@ -881,14 +867,11 @@ public int literalIndex(long key) {
 		// First add the tag
 		writeU1(LongTag);
 		// Then add the 8 bytes representing the long
+		if (currentOffset + 8 >= poolContent.length) {
+			resizePoolContents(8);
+		}
 		for (int i = 0; i < 8; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (key >>> (56 - (i << 3)));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[(length << 1) + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (key >>> (56 - (i << 3)));
-			}
+			poolContent[currentOffset++] = (byte) (key >>> (56 - (i << 3)));
 		}
 	}
 	return index;
@@ -2925,8 +2908,7 @@ public int literalIndexForLdc(char[] stringCharArray) {
 			if (currentOffset + 2 >= poolContent.length) {
 				// we need to resize the poolContent array because we won't have
 				// enough space to write the length
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+				resizePoolContents(2);
 			}
 			currentOffset += 2;
 			int length = 0;
@@ -3064,20 +3046,24 @@ public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
 		UTF8Cache.remove(QualifiedNamesConstants.Clinit);
 	}
 }
+
+/**
+ * Resize the pool contents
+ */
+private final void resizePoolContents(int minimalSize) {
+	final int length = poolContent.length;
+	System.arraycopy(poolContent, 0, (poolContent = new byte[length + Math.max(minimalSize, CONSTANTPOOL_GROW_SIZE)]), 0, length);
+}
 /**
  * Write a unsigned byte into the byte array
  * 
  * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU1(int value) {
-	try {
-		poolContent[currentOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		//currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) value;
+	if (currentOffset + 1 >= poolContent.length) {
+		resizePoolContents(1);
 	}
+	poolContent[currentOffset++] = (byte) value;
 }
 /**
  * Write a unsigned byte into the byte array
@@ -3085,22 +3071,11 @@ protected final void writeU1(int value) {
  * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU2(int value) {
+	if (currentOffset + 2 >= poolContent.length) {
+		resizePoolContents(2);
+	}
 	//first byte
-	try {
-		poolContent[currentOffset++] = (byte) (value >> 8);
-	} catch (IndexOutOfBoundsException e) {
-		 //currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) (value >> 8);
-	}
-	try {
-		poolContent[currentOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		 //currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) value;
-	}
+	poolContent[currentOffset++] = (byte) (value >> 8);
+	poolContent[currentOffset++] = (byte) value;
 }
 }

@@ -212,7 +212,6 @@ public class ClassFile
 		// leave two bytes for the number of attributes and store the current offset
 		int attributeOffset = contentsOffset;
 		contentsOffset += 2;
-		int contentsLength;
 
 		// source attribute
 		if ((produceDebugAttributes & CompilerOptions.Source) != 0) {
@@ -225,13 +224,8 @@ public class ClassFile
 			}
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
-			if (contentsOffset + 8 >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (contentsOffset + 8 >= contents.length) {
+				resizePoolContents(8);
 			}
 			int sourceAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SourceName);
@@ -253,13 +247,8 @@ public class ClassFile
 		if (referenceBinding.isDeprecated()) {
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
-			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (contentsOffset + 6 >= contents.length) {
+				resizePoolContents(6);
 			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
@@ -277,15 +266,8 @@ public class ClassFile
 			// Generate the inner class attribute
 			int exSize;
 			if (contentsOffset + (exSize = (8 * numberOfInnerClasses + 8))
-				>= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents =
-						new byte[contentsLength
-							+ (exSize >= INCREMENT_SIZE ? exSize : INCREMENT_SIZE)]),
-					0,
-					contentsLength);
+				>= this.contents.length) {
+				resizePoolContents(exSize);
 			}
 			// Now we now the size of the attribute and the number of entries
 			// attribute name
@@ -341,14 +323,8 @@ public class ClassFile
 			attributeNumber++;
 		}
 		// update the number of attributes
-		contentsLength = contents.length;
-		if (attributeOffset + 2 >= contentsLength) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (attributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
@@ -386,14 +362,8 @@ public class ClassFile
 		int attributeNumber = 0;
 		// check that there is enough space to write all the bytes for the field info corresponding
 		// to the @fieldBinding
-		int contentsLength;
-		if (contentsOffset + 30 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (contentsOffset + 30 >= contents.length) {
+			resizePoolContents(30);
 		}
 		// Generate two attribute: constantValueAttribute and SyntheticAttribute
 		// Now we can generate all entries into the byte array
@@ -914,33 +884,26 @@ public class ClassFile
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
-		byte[] localContents = contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside localContents byte array before we started to write// any information about the codeAttribute// That means that to write the attribute_length you need to offset by 2 the value of codeAttributeOffset// to get the right position, 6 for the max_stack etc...
 		int max_stack = codeStream.stackMax;
-		localContents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
-		localContents[codeAttributeOffset + 7] = (byte) max_stack;
+		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
+		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = codeStream.maxLocals;
-		localContents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
-		localContents[codeAttributeOffset + 9] = (byte) max_locals;
+		this.contents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
+		this.contents[codeAttributeOffset + 9] = (byte) max_locals;
 		int code_length = codeStream.position;
-		localContents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
-		localContents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
-		localContents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
-		localContents[codeAttributeOffset + 13] = (byte) code_length;
+		this.contents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
+		this.contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
+		this.contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
+		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 		// write the exception table
-		int contentsLength;
-		if (localContentsOffset + 50 >= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (localContentsOffset + 50 >= this.contents.length) {
+			resizePoolContents(50);
 		}
-
-		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
@@ -955,45 +918,39 @@ public class ClassFile
 			    */
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
-			localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) lineNumberNameIndex;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 6;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 1;
+			this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 6;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
 				problemLine = searchLineNumber(startLineIndexes, binding.sourceStart());
 			}
 			// first entry at pc = 0
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = (byte) (problemLine >> 8);
-			localContents[localContentsOffset++] = (byte) problemLine;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = (byte) (problemLine >> 8);
+			this.contents[localContentsOffset++] = (byte) problemLine;
 			// now we change the size of the line number attribute
 			attributeNumber++;
 		}
 		
 		// then we do the local variable attribute
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
-		if (codeAttributeAttributeOffset + 2
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
-		localContents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		localContents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
-		localContents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
-		localContents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
-		localContents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
-		localContents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
+		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
+		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
+		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
 
@@ -1222,71 +1179,58 @@ public class ClassFile
 	 */
 	public void completeCodeAttribute(int codeAttributeOffset) {
 		// reinitialize the localContents with the byte modified by the code stream
-		byte[] localContents = contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside localContents byte array before we started to write
 		// any information about the codeAttribute
 		// That means that to write the attribute_length you need to offset by 2 the value of codeAttributeOffset
 		// to get the right position, 6 for the max_stack etc...
-		int contentsLength;
 		int code_length = codeStream.position;
 		if (code_length > 65535) {
 			codeStream.methodDeclaration.scope.problemReporter().bytecodeExceeds64KLimit(
 				codeStream.methodDeclaration);
 		}
-		if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (localContentsOffset + 20 >= this.contents.length) {
+			resizePoolContents(20);
 		}
 		int max_stack = codeStream.stackMax;
-		localContents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
-		localContents[codeAttributeOffset + 7] = (byte) max_stack;
+		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
+		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = codeStream.maxLocals;
-		localContents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
-		localContents[codeAttributeOffset + 9] = (byte) max_locals;
-		localContents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
-		localContents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
-		localContents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
-		localContents[codeAttributeOffset + 13] = (byte) code_length;
+		this.contents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
+		this.contents[codeAttributeOffset + 9] = (byte) max_locals;
+		this.contents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
+		this.contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
+		this.contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
+		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 
 		// write the exception table
 		int exceptionHandlersNumber = codeStream.exceptionHandlersNumber;
 		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
 		int exSize;
 		if (localContentsOffset + (exSize = (exceptionHandlersNumber * 8 + 2))
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents =
-					contents =
-						new byte[contentsLength + (exSize > INCREMENT_SIZE ? exSize : INCREMENT_SIZE)]),
-				0,
-				contentsLength);
+			>= this.contents.length) {
+			resizePoolContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
-		localContents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
-		localContents[localContentsOffset++] = (byte) exceptionHandlersNumber;
+		this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
+		this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
 		for (int i = 0; i < exceptionHandlersNumber; i++) {
 			ExceptionLabel exceptionHandler = exceptionHandlers[i];
 			int start = exceptionHandler.start;
-			localContents[localContentsOffset++] = (byte) (start >> 8);
-			localContents[localContentsOffset++] = (byte) start;
+			this.contents[localContentsOffset++] = (byte) (start >> 8);
+			this.contents[localContentsOffset++] = (byte) start;
 			int end = exceptionHandler.end;
-			localContents[localContentsOffset++] = (byte) (end >> 8);
-			localContents[localContentsOffset++] = (byte) end;
+			this.contents[localContentsOffset++] = (byte) (end >> 8);
+			this.contents[localContentsOffset++] = (byte) end;
 			int handlerPC = exceptionHandler.position;
-			localContents[localContentsOffset++] = (byte) (handlerPC >> 8);
-			localContents[localContentsOffset++] = (byte) handlerPC;
+			this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+			this.contents[localContentsOffset++] = (byte) handlerPC;
 			if (exceptionHandler.exceptionType == null) {
 				// any exception handler
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
 			} else {
 				int nameIndex;
 				if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
@@ -1295,8 +1239,8 @@ public class ClassFile
 				} else {
 					nameIndex = constantPool.literalIndex(exceptionHandler.exceptionType);
 				}
-				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) nameIndex;
+				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) nameIndex;
 			}
 		}
 		// debug attributes
@@ -1318,16 +1262,11 @@ public class ClassFile
 				&& (codeStream.pcToSourceMapSize != 0)) {
 				int lineNumberNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
-				if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-					System.arraycopy(
-						contents,
-						0,
-						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-						0,
-						contentsLength);
+				if (localContentsOffset + 8 >= this.contents.length) {
+					resizePoolContents(8);
 				}
-				localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) lineNumberNameIndex;
+				this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
 				int lineNumberTableOffset = localContentsOffset;
 				localContentsOffset += 6;
 				// leave space for attribute_length and line_number_table_length
@@ -1335,30 +1274,25 @@ public class ClassFile
 				int length = codeStream.pcToSourceMapSize;
 				for (int i = 0; i < length;) {
 					// write the entry
-					if (localContentsOffset + 4 >= (contentsLength = localContents.length)) {
-						System.arraycopy(
-							contents,
-							0,
-							(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-							0,
-							contentsLength);
+					if (localContentsOffset + 4 >= this.contents.length) {
+						resizePoolContents(4);
 					}
 					int pc = pcToSourceMapTable[i++];
-					localContents[localContentsOffset++] = (byte) (pc >> 8);
-					localContents[localContentsOffset++] = (byte) pc;
+					this.contents[localContentsOffset++] = (byte) (pc >> 8);
+					this.contents[localContentsOffset++] = (byte) pc;
 					int lineNumber = pcToSourceMapTable[i++];
-					localContents[localContentsOffset++] = (byte) (lineNumber >> 8);
-					localContents[localContentsOffset++] = (byte) lineNumber;
+					this.contents[localContentsOffset++] = (byte) (lineNumber >> 8);
+					this.contents[localContentsOffset++] = (byte) lineNumber;
 					numberOfEntries++;
 				}
 				// now we change the size of the line number attribute
 				int lineNumberAttr_length = numberOfEntries * 4 + 2;
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 24);
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 16);
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 8);
-				localContents[lineNumberTableOffset++] = (byte) lineNumberAttr_length;
-				localContents[lineNumberTableOffset++] = (byte) (numberOfEntries >> 8);
-				localContents[lineNumberTableOffset++] = (byte) numberOfEntries;
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 24);
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 16);
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 8);
+				this.contents[lineNumberTableOffset++] = (byte) lineNumberAttr_length;
+				this.contents[lineNumberTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[lineNumberTableOffset++] = (byte) numberOfEntries;
 				attributeNumber++;
 			}
 		}
@@ -1368,44 +1302,34 @@ public class ClassFile
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-			if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 8 >= this.contents.length) {
+				resizePoolContents(8);
 			}
-			localContents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) localVariableNameIndex;
+			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
 			int descriptorIndex;
 			if (!codeStream.methodDeclaration.isStatic()) {
 				numberOfEntries++;
-				if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-					System.arraycopy(
-						contents,
-						0,
-						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-						0,
-						contentsLength);
+				if (localContentsOffset + 10 >= this.contents.length) {
+					resizePoolContents(10);
 				}
-				localContents[localContentsOffset++] = 0; // the startPC for this is always 0
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = (byte) (code_length >> 8);
-				localContents[localContentsOffset++] = (byte) code_length;
+				this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+				this.contents[localContentsOffset++] = (byte) code_length;
 				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
-				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) nameIndex;
+				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) nameIndex;
 				descriptorIndex =
 					constantPool.literalIndex(
 						codeStream.methodDeclaration.binding.declaringClass.signature());
-				localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-				localContents[localContentsOffset++] = (byte) descriptorIndex;
-				localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
-				localContents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) descriptorIndex;
+				this.contents[localContentsOffset++] = 0;// the resolved position for this is always 0
+				this.contents[localContentsOffset++] = 0;
 			}
 			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
@@ -1418,63 +1342,52 @@ public class ClassFile
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
-						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-							System.arraycopy(
-								contents,
-								0,
-								(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-								0,
-								contentsLength);
+						if (localContentsOffset + 10 >= this.contents.length) {
+							resizePoolContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
-						localContents[localContentsOffset++] = (byte) (startPC >> 8);
-						localContents[localContentsOffset++] = (byte) startPC;
+						this.contents[localContentsOffset++] = (byte) (startPC >> 8);
+						this.contents[localContentsOffset++] = (byte) startPC;
 						int length = endPC - startPC;
-						localContents[localContentsOffset++] = (byte) (length >> 8);
-						localContents[localContentsOffset++] = (byte) length;
+						this.contents[localContentsOffset++] = (byte) (length >> 8);
+						this.contents[localContentsOffset++] = (byte) length;
 						nameIndex = constantPool.literalIndex(localVariable.name);
-						localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-						localContents[localContentsOffset++] = (byte) nameIndex;
+						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) nameIndex;
 						descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
-						localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-						localContents[localContentsOffset++] = (byte) descriptorIndex;
+						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = localVariable.resolvedPosition;
-						localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
-						localContents[localContentsOffset++] = (byte) resolvedPosition;
+						this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+						this.contents[localContentsOffset++] = (byte) resolvedPosition;
 					}
 				}
 			}
 			int value = numberOfEntries * 10 + 2;
 			localVariableTableOffset += 2;
-			localContents[localVariableTableOffset++] = (byte) (value >> 24);
-			localContents[localVariableTableOffset++] = (byte) (value >> 16);
-			localContents[localVariableTableOffset++] = (byte) (value >> 8);
-			localContents[localVariableTableOffset++] = (byte) value;
-			localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
-			localContents[localVariableTableOffset] = (byte) numberOfEntries;
+			this.contents[localVariableTableOffset++] = (byte) (value >> 24);
+			this.contents[localVariableTableOffset++] = (byte) (value >> 16);
+			this.contents[localVariableTableOffset++] = (byte) (value >> 8);
+			this.contents[localVariableTableOffset++] = (byte) value;
+			this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+			this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the localContents array
-		if (codeAttributeAttributeOffset + 2
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
-		localContents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		localContents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
 
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
-		localContents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
-		localContents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
-		localContents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
-		localContents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
+		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
+		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
+		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
 
@@ -1492,71 +1405,57 @@ public class ClassFile
 	 */
 	public void completeCodeAttributeForClinit(int codeAttributeOffset) {
 		// reinitialize the contents with the byte modified by the code stream
-		byte[] localContents = contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside contents byte array before we started to write
 		// any information about the codeAttribute
 		// That means that to write the attribute_length you need to offset by 2 the value of codeAttributeOffset
 		// to get the right position, 6 for the max_stack etc...
-		int contentsLength;
 		int code_length = codeStream.position;
 		if (code_length > 65535) {
 			codeStream.methodDeclaration.scope.problemReporter().bytecodeExceeds64KLimit(
 				codeStream.methodDeclaration.scope.referenceType());
 		}
-		if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (localContentsOffset + 20 >= this.contents.length) {
+			resizePoolContents(20);
 		}
 		int max_stack = codeStream.stackMax;
-		localContents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
-		localContents[codeAttributeOffset + 7] = (byte) max_stack;
+		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
+		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = codeStream.maxLocals;
-		localContents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
-		localContents[codeAttributeOffset + 9] = (byte) max_locals;
-		localContents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
-		localContents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
-		localContents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
-		localContents[codeAttributeOffset + 13] = (byte) code_length;
+		this.contents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
+		this.contents[codeAttributeOffset + 9] = (byte) max_locals;
+		this.contents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
+		this.contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
+		this.contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
+		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 
 		// write the exception table
 		int exceptionHandlersNumber = codeStream.exceptionHandlersNumber;
 		ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
 		int exSize;
-		if (localContentsOffset + (exSize = (exceptionHandlersNumber * 8 + 2))
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents =
-					contents =
-						new byte[contentsLength + (exSize > INCREMENT_SIZE ? exSize : INCREMENT_SIZE)]),
-				0,
-				contentsLength);
+		if (localContentsOffset + (exSize = (exceptionHandlersNumber * 8 + 2)) >= this.contents.length) {
+			resizePoolContents(exSize);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
-		localContents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
-		localContents[localContentsOffset++] = (byte) exceptionHandlersNumber;
+		this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
+		this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
 		for (int i = 0; i < exceptionHandlersNumber; i++) {
 			ExceptionLabel exceptionHandler = exceptionHandlers[i];
 			int start = exceptionHandler.start;
-			localContents[localContentsOffset++] = (byte) (start >> 8);
-			localContents[localContentsOffset++] = (byte) start;
+			this.contents[localContentsOffset++] = (byte) (start >> 8);
+			this.contents[localContentsOffset++] = (byte) start;
 			int end = exceptionHandler.end;
-			localContents[localContentsOffset++] = (byte) (end >> 8);
-			localContents[localContentsOffset++] = (byte) end;
+			this.contents[localContentsOffset++] = (byte) (end >> 8);
+			this.contents[localContentsOffset++] = (byte) end;
 			int handlerPC = exceptionHandler.position;
-			localContents[localContentsOffset++] = (byte) (handlerPC >> 8);
-			localContents[localContentsOffset++] = (byte) handlerPC;
+			this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+			this.contents[localContentsOffset++] = (byte) handlerPC;
 			if (exceptionHandler.exceptionType == null) {
 				// any exception handler
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
 			} else {
 				int nameIndex;
 				if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
@@ -1565,8 +1464,8 @@ public class ClassFile
 				} else {
 					nameIndex = constantPool.literalIndex(exceptionHandler.exceptionType);
 				}
-				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) nameIndex;
+				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) nameIndex;
 			}
 		}
 		// debug attributes
@@ -1588,16 +1487,11 @@ public class ClassFile
 				&& (codeStream.pcToSourceMapSize != 0)) {
 				int lineNumberNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
-				if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-					System.arraycopy(
-						contents,
-						0,
-						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-						0,
-						contentsLength);
+				if (localContentsOffset + 8 >= this.contents.length) {
+					resizePoolContents(8);
 				}
-				localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) lineNumberNameIndex;
+				this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
 				int lineNumberTableOffset = localContentsOffset;
 				localContentsOffset += 6;
 				// leave space for attribute_length and line_number_table_length
@@ -1605,30 +1499,25 @@ public class ClassFile
 				int length = codeStream.pcToSourceMapSize;
 				for (int i = 0; i < length;) {
 					// write the entry
-					if (localContentsOffset + 4 >= (contentsLength = localContents.length)) {
-						System.arraycopy(
-							contents,
-							0,
-							(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-							0,
-							contentsLength);
+					if (localContentsOffset + 4 >= this.contents.length) {
+						resizePoolContents(4);
 					}
 					int pc = pcToSourceMapTable[i++];
-					localContents[localContentsOffset++] = (byte) (pc >> 8);
-					localContents[localContentsOffset++] = (byte) pc;
+					this.contents[localContentsOffset++] = (byte) (pc >> 8);
+					this.contents[localContentsOffset++] = (byte) pc;
 					int lineNumber = pcToSourceMapTable[i++];
-					localContents[localContentsOffset++] = (byte) (lineNumber >> 8);
-					localContents[localContentsOffset++] = (byte) lineNumber;
+					this.contents[localContentsOffset++] = (byte) (lineNumber >> 8);
+					this.contents[localContentsOffset++] = (byte) lineNumber;
 					numberOfEntries++;
 				}
 				// now we change the size of the line number attribute
 				int lineNumberAttr_length = numberOfEntries * 4 + 2;
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 24);
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 16);
-				localContents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 8);
-				localContents[lineNumberTableOffset++] = (byte) lineNumberAttr_length;
-				localContents[lineNumberTableOffset++] = (byte) (numberOfEntries >> 8);
-				localContents[lineNumberTableOffset++] = (byte) numberOfEntries;
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 24);
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 16);
+				this.contents[lineNumberTableOffset++] = (byte) (lineNumberAttr_length >> 8);
+				this.contents[lineNumberTableOffset++] = (byte) lineNumberAttr_length;
+				this.contents[lineNumberTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[lineNumberTableOffset++] = (byte) numberOfEntries;
 				attributeNumber++;
 			}
 		}
@@ -1641,16 +1530,11 @@ public class ClassFile
 				&& (codeStream.pcToSourceMapSize != 0)) {
 				int localVariableNameIndex =
 					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-				if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-					System.arraycopy(
-						contents,
-						0,
-						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-						0,
-						contentsLength);
+				if (localContentsOffset + 8 >= this.contents.length) {
+					resizePoolContents(8);
 				}
-				localContents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) localVariableNameIndex;
+				this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
 				localContentsOffset += 6;
 				// leave space for attribute_length and local_variable_table_length
 				int nameIndex;
@@ -1666,63 +1550,52 @@ public class ClassFile
 									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
-							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-								System.arraycopy(
-									contents,
-									0,
-									(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-									0,
-									contentsLength);
+							if (localContentsOffset + 10 >= this.contents.length) {
+								resizePoolContents(10);
 							}
 							// now we can safely add the local entry
 							numberOfEntries++;
-							localContents[localContentsOffset++] = (byte) (startPC >> 8);
-							localContents[localContentsOffset++] = (byte) startPC;
+							this.contents[localContentsOffset++] = (byte) (startPC >> 8);
+							this.contents[localContentsOffset++] = (byte) startPC;
 							int length = endPC - startPC;
-							localContents[localContentsOffset++] = (byte) (length >> 8);
-							localContents[localContentsOffset++] = (byte) length;
+							this.contents[localContentsOffset++] = (byte) (length >> 8);
+							this.contents[localContentsOffset++] = (byte) length;
 							nameIndex = constantPool.literalIndex(localVariable.name);
-							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-							localContents[localContentsOffset++] = (byte) nameIndex;
+							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) nameIndex;
 							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
-							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-							localContents[localContentsOffset++] = (byte) descriptorIndex;
+							this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
-							localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
-							localContents[localContentsOffset++] = (byte) resolvedPosition;
+							this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							this.contents[localContentsOffset++] = (byte) resolvedPosition;
 						}
 					}
 				}
 				int value = numberOfEntries * 10 + 2;
 				localVariableTableOffset += 2;
-				localContents[localVariableTableOffset++] = (byte) (value >> 24);
-				localContents[localVariableTableOffset++] = (byte) (value >> 16);
-				localContents[localVariableTableOffset++] = (byte) (value >> 8);
-				localContents[localVariableTableOffset++] = (byte) value;
-				localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
-				localContents[localVariableTableOffset] = (byte) numberOfEntries;
+				this.contents[localVariableTableOffset++] = (byte) (value >> 24);
+				this.contents[localVariableTableOffset++] = (byte) (value >> 16);
+				this.contents[localVariableTableOffset++] = (byte) (value >> 8);
+				this.contents[localVariableTableOffset++] = (byte) value;
+				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 				attributeNumber++;
 			}
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
-		if (codeAttributeAttributeOffset + 2
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
-		localContents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		localContents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
-		localContents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
-		localContents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
-		localContents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
-		localContents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
+		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
+		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
+		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
 
@@ -1743,40 +1616,34 @@ public class ClassFile
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
-		byte[] localContents = contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside contents byte array before we started to write
 		// any information about the codeAttribute
 		// That means that to write the attribute_length you need to offset by 2 the value of codeAttributeOffset
 		// to get the right position, 6 for the max_stack etc...
-		int contentsLength;
 		int code_length = codeStream.position;
 		if (code_length > 65535) {
 			codeStream.methodDeclaration.scope.problemReporter().bytecodeExceeds64KLimit(
 				codeStream.methodDeclaration.scope.referenceType());
 		}
-		if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (localContentsOffset + 20 >= this.contents.length) {
+			resizePoolContents(20);
 		}
 		int max_stack = codeStream.stackMax;
-		localContents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
-		localContents[codeAttributeOffset + 7] = (byte) max_stack;
+		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
+		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = codeStream.maxLocals;
-		localContents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
-		localContents[codeAttributeOffset + 9] = (byte) max_locals;
-		localContents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
-		localContents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
-		localContents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
-		localContents[codeAttributeOffset + 13] = (byte) code_length;
+		this.contents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
+		this.contents[codeAttributeOffset + 9] = (byte) max_locals;
+		this.contents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
+		this.contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
+		this.contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
+		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 
 		// write the exception table
-		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
 
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
@@ -1785,13 +1652,8 @@ public class ClassFile
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
-			if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 20 >= this.contents.length) {
+				resizePoolContents(20);
 			}			
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
@@ -1801,19 +1663,19 @@ public class ClassFile
 			    */
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
-			localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) lineNumberNameIndex;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 6;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 1;
+			this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 6;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 1;
 			// first entry at pc = 0
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = (byte) (problemLine >> 8);
-			localContents[localContentsOffset++] = (byte) problemLine;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = (byte) (problemLine >> 8);
+			this.contents[localContentsOffset++] = (byte) problemLine;
 			// now we change the size of the line number attribute
 			attributeNumber++;
 		}
@@ -1821,43 +1683,32 @@ public class ClassFile
 		if (codeStream.generateLocalVariableTableAttributes) {
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-			if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 8 >= this.contents.length) {
+				resizePoolContents(8);
 			}
-			localContents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) localVariableNameIndex;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 2;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 2;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
 			attributeNumber++;
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
-		if (codeAttributeAttributeOffset + 2
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
-		localContents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		localContents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
-		localContents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
-		localContents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
-		localContents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
-		localContents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
+		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
+		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
+		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
 
@@ -1879,47 +1730,36 @@ public class ClassFile
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
-		byte[] localContents = contents = codeStream.bCodeStream;
+		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
 		// codeAttributeOffset is the position inside localContents byte array before we started to write// any information about the codeAttribute// That means that to write the attribute_length you need to offset by 2 the value of codeAttributeOffset// to get the right position, 6 for the max_stack etc...
 		int max_stack = codeStream.stackMax;
-		localContents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
-		localContents[codeAttributeOffset + 7] = (byte) max_stack;
+		this.contents[codeAttributeOffset + 6] = (byte) (max_stack >> 8);
+		this.contents[codeAttributeOffset + 7] = (byte) max_stack;
 		int max_locals = codeStream.maxLocals;
-		localContents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
-		localContents[codeAttributeOffset + 9] = (byte) max_locals;
+		this.contents[codeAttributeOffset + 8] = (byte) (max_locals >> 8);
+		this.contents[codeAttributeOffset + 9] = (byte) max_locals;
 		int code_length = codeStream.position;
-		localContents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
-		localContents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
-		localContents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
-		localContents[codeAttributeOffset + 13] = (byte) code_length;
+		this.contents[codeAttributeOffset + 10] = (byte) (code_length >> 24);
+		this.contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
+		this.contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
+		this.contents[codeAttributeOffset + 13] = (byte) code_length;
 		// write the exception table
-		int contentsLength;
-		if (localContentsOffset + 50 >= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (localContentsOffset + 50 >= this.contents.length) {
+			resizePoolContents(50);
 		}
 
 		// write the exception table
-		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
 
 		if (codeStream.generateLineNumberAttributes) {
-			if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 20 >= this.contents.length) {
+				resizePoolContents(20);
 			}			
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
@@ -1929,22 +1769,22 @@ public class ClassFile
 			    */
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
-			localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) lineNumberNameIndex;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 6;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 1;
+			this.contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) lineNumberNameIndex;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 6;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
 				problemLine = searchLineNumber(startLineIndexes, binding.sourceStart());
 			}
 			// first entry at pc = 0
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = 0;
-			localContents[localContentsOffset++] = (byte) (problemLine >> 8);
-			localContents[localContentsOffset++] = (byte) problemLine;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = (byte) (problemLine >> 8);
+			this.contents[localContentsOffset++] = (byte) problemLine;
 			// now we change the size of the line number attribute
 			attributeNumber++;
 		}
@@ -1957,44 +1797,34 @@ public class ClassFile
 			//		codeAttribute.addLocalVariableTableAttribute(this);
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-			if (localContentsOffset + 8 >= (contentsLength = localContents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 8 >= this.contents.length) {
+				resizePoolContents(8);
 			}
-			localContents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
-			localContents[localContentsOffset++] = (byte) localVariableNameIndex;
+			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int descriptorIndex;
 			if (!codeStream.methodDeclaration.isStatic()) {
 				numberOfEntries++;
-				if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-					System.arraycopy(
-						contents,
-						0,
-						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-						0,
-						contentsLength);
+				if (localContentsOffset + 10 >= this.contents.length) {
+					resizePoolContents(10);
 				}
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = (byte) (code_length >> 8);
-				localContents[localContentsOffset++] = (byte) code_length;
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+				this.contents[localContentsOffset++] = (byte) code_length;
 				int nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
-				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-				localContents[localContentsOffset++] = (byte) nameIndex;
+				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) nameIndex;
 				descriptorIndex =
 					constantPool.literalIndex(
 						codeStream.methodDeclaration.binding.declaringClass.signature());
-				localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-				localContents[localContentsOffset++] = (byte) descriptorIndex;
+				this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) descriptorIndex;
 				// the resolved position for this is always 0
-				localContents[localContentsOffset++] = 0;
-				localContents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = 0;
 			}
 			if (binding.isConstructor()) {
 				ReferenceBinding declaringClass = binding.declaringClass;
@@ -2006,29 +1836,24 @@ public class ClassFile
 						!= null) {
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 							LocalVariableBinding localVariable = syntheticArguments[i];
-							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-								System.arraycopy(
-									contents,
-									0,
-									(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-									0,
-									contentsLength);
+							if (localContentsOffset + 10 >= this.contents.length) {
+								resizePoolContents(10);
 							}
 							// now we can safely add the local entry
 							numberOfEntries++;
-							localContents[localContentsOffset++] = 0;
-							localContents[localContentsOffset++] = 0;
-							localContents[localContentsOffset++] = (byte) (code_length >> 8);
-							localContents[localContentsOffset++] = (byte) code_length;
+							this.contents[localContentsOffset++] = 0;
+							this.contents[localContentsOffset++] = 0;
+							this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+							this.contents[localContentsOffset++] = (byte) code_length;
 							int nameIndex = constantPool.literalIndex(localVariable.name);
-							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-							localContents[localContentsOffset++] = (byte) nameIndex;
+							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) nameIndex;
 							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
-							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-							localContents[localContentsOffset++] = (byte) descriptorIndex;
+							this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
-							localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
-							localContents[localContentsOffset++] = (byte) resolvedPosition;
+							this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							this.contents[localContentsOffset++] = (byte) resolvedPosition;
 						}
 					}
 				} else {
@@ -2043,65 +1868,54 @@ public class ClassFile
 				if ((parameters != null) && (arguments != null)) {
 					for (int i = 0, max = parameters.length; i < max; i++) {
 						TypeBinding argumentBinding = parameters[i];
-						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
-							System.arraycopy(
-								contents,
-								0,
-								(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-								0,
-								contentsLength);
+						if (localContentsOffset + 10 >= this.contents.length) {
+							resizePoolContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
-						localContents[localContentsOffset++] = 0;
-						localContents[localContentsOffset++] = 0;
-						localContents[localContentsOffset++] = (byte) (code_length >> 8);
-						localContents[localContentsOffset++] = (byte) code_length;
+						this.contents[localContentsOffset++] = 0;
+						this.contents[localContentsOffset++] = 0;
+						this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+						this.contents[localContentsOffset++] = (byte) code_length;
 						int nameIndex = constantPool.literalIndex(arguments[i].name);
-						localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-						localContents[localContentsOffset++] = (byte) nameIndex;
+						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) nameIndex;
 						descriptorIndex = constantPool.literalIndex(argumentBinding.signature());
-						localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
-						localContents[localContentsOffset++] = (byte) descriptorIndex;
+						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = argSize;
 						if ((argumentBinding == BaseTypes.LongBinding)
 							|| (argumentBinding == BaseTypes.DoubleBinding))
 							argSize += 2;
 						else
 							argSize++;
-						localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
-						localContents[localContentsOffset++] = (byte) resolvedPosition;
+						this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+						this.contents[localContentsOffset++] = (byte) resolvedPosition;
 					}
 				}
 			}
 			int value = numberOfEntries * 10 + 2;
 			localVariableTableOffset += 2;
-			localContents[localVariableTableOffset++] = (byte) (value >> 24);
-			localContents[localVariableTableOffset++] = (byte) (value >> 16);
-			localContents[localVariableTableOffset++] = (byte) (value >> 8);
-			localContents[localVariableTableOffset++] = (byte) value;
-			localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
-			localContents[localVariableTableOffset] = (byte) numberOfEntries;
+			this.contents[localVariableTableOffset++] = (byte) (value >> 24);
+			this.contents[localVariableTableOffset++] = (byte) (value >> 16);
+			this.contents[localVariableTableOffset++] = (byte) (value >> 8);
+			this.contents[localVariableTableOffset++] = (byte) value;
+			this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
+			this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
 		}
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
-		if (codeAttributeAttributeOffset + 2
-			>= (contentsLength = localContents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
-		localContents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
-		localContents[codeAttributeAttributeOffset] = (byte) attributeNumber;
+		this.contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
 		// update the attribute length
 		int codeAttributeLength = localContentsOffset - (codeAttributeOffset + 6);
-		localContents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
-		localContents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
-		localContents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
-		localContents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+		this.contents[codeAttributeOffset + 2] = (byte) (codeAttributeLength >> 24);
+		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
+		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
+		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
 
@@ -2140,14 +1954,8 @@ public class ClassFile
 		contents[codeAttributeOffset + 11] = (byte) (code_length >> 16);
 		contents[codeAttributeOffset + 12] = (byte) (code_length >> 8);
 		contents[codeAttributeOffset + 13] = (byte) code_length;
-		int contentsLength;
-		if ((localContentsOffset + 40) >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if ((localContentsOffset + 40) >= this.contents.length) {
+			resizePoolContents(40);
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
@@ -2190,13 +1998,8 @@ public class ClassFile
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-			if (localContentsOffset + 8 > (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (localContentsOffset + 8 > this.contents.length) {
+				resizePoolContents(8);
 			}
 			contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -2215,13 +2018,8 @@ public class ClassFile
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
-						if (localContentsOffset + 10 > (contentsLength = contents.length)) {
-							System.arraycopy(
-								contents,
-								0,
-								(contents = new byte[contentsLength + INCREMENT_SIZE]),
-								0,
-								contentsLength);
+						if (localContentsOffset + 10 > this.contents.length) {
+							resizePoolContents(10);
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
@@ -2254,13 +2052,8 @@ public class ClassFile
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
-		if (codeAttributeAttributeOffset + 2 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
+			resizePoolContents(2);
 		}
 		contents[codeAttributeAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[codeAttributeAttributeOffset] = (byte) attributeNumber;
@@ -2409,14 +2202,8 @@ public class ClassFile
 	 * - leave some space for attribute_length(4), max_stack(2), max_locals(2), code_length(4).
 	 */
 	public void generateCodeAttributeHeader() {
-		int contentsLength;
-		if (contentsOffset + 20 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (contentsOffset + 20 >= this.contents.length) {
+			resizePoolContents(20);
 		}
 		int constantValueNameIndex =
 			constantPool.literalIndex(AttributeNamesConstants.CodeName);
@@ -2451,20 +2238,13 @@ public class ClassFile
 
 		// Exception attribute
 		ReferenceBinding[] thrownsExceptions;
-		int contentsLength;
 		int attributeNumber = 0;
 		if ((thrownsExceptions = methodBinding.thrownExceptions) != NoExceptions) {
 			// The method has a throw clause. So we need to add an exception attribute
 			// check that there is enough space to write all the bytes for the exception attribute
 			int length = thrownsExceptions.length;
-			if (contentsOffset + (8 + length * 2) >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents =
-						new byte[contentsLength + Math.max(INCREMENT_SIZE, (8 + length * 2))]),
-					0,
-					contentsLength);
+			if (contentsOffset + (8 + length * 2) >= this.contents.length) {
+				resizePoolContents(8 + length * 2);
 			}
 			int exceptionNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.ExceptionsName);
@@ -2488,13 +2268,8 @@ public class ClassFile
 		if (methodBinding.isDeprecated()) {
 			// Deprecated attribute
 			// Check that there is enough space to write the deprecated attribute
-			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (contentsOffset + 6 >= this.contents.length) {
+				resizePoolContents(6);
 			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
@@ -2511,13 +2286,8 @@ public class ClassFile
 		if (this.targetJDK < ClassFileConstants.JDK1_5 && methodBinding.isSynthetic()) {
 			// Synthetic attribute
 			// Check that there is enough space to write the deprecated attribute
-			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents = new byte[contentsLength + INCREMENT_SIZE]),
-					0,
-					contentsLength);
+			if (contentsOffset + 6 >= this.contents.length) {
+				resizePoolContents(6);
 			}
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
@@ -2561,15 +2331,9 @@ public class ClassFile
 	public void generateMethodInfoHeader(MethodBinding methodBinding, int accessFlags) {
 		// check that there is enough space to write all the bytes for the method info corresponding
 		// to the @methodBinding
-		int contentsLength;
 		methodCount++; // add one more method
-		if (contentsOffset + 10 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (contentsOffset + 10 >= this.contents.length) {
+			resizePoolContents(10);
 		}
 		if (targetJDK < ClassFileConstants.JDK1_5) {
 		    // pre 1.5, synthetic was an attribute, not a modifier
@@ -2599,15 +2363,9 @@ public class ClassFile
 	public void generateMethodInfoHeaderForClinit() {
 		// check that there is enough space to write all the bytes for the method info corresponding
 		// to the @methodBinding
-		int contentsLength;
 		methodCount++; // add one more method
-		if (contentsOffset + 10 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
+		if (contentsOffset + 10 >= this.contents.length) {
+			resizePoolContents(10);
 		}
 		contents[contentsOffset++] = (byte) ((AccDefault | AccStatic) >> 8);
 		contents[contentsOffset++] = (byte) (AccDefault | AccStatic);
@@ -2732,6 +2490,19 @@ public class ClassFile
 	 */
 	public void recordNestedMemberAttribute(ReferenceBinding binding) {
 		addInnerClasses(binding);
+	}
+	
+	/**
+	 * Resize the pool contents
+	 */
+	private final void resizePoolContents(int minimalSize) {
+		final int contentsLength = this.contents.length;
+		System.arraycopy(
+			this.contents,
+			0,
+			(this.contents = new byte[contentsLength + Math.max(INCREMENT_SIZE, minimalSize)]),
+			0,
+			contentsLength);
 	}
 
 	/**

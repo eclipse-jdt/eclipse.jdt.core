@@ -28,8 +28,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public int stackMax; // Use Ints to keep from using extra bc when adding
 	public int stackDepth; // Use Ints to keep from using extra bc when adding
 	public int maxLocals;
-	public static final int MAXCODE = 100; // Maximum size of the code array
-	public static final int growFactor = 400;
+	public static final int GROW_FACTOR = 400;
 	public static final int LABELS_INCREMENT = 5;
 	public byte[] bCodeStream;
 	public int pcToSourceMapSize;
@@ -78,36 +77,34 @@ final public void aaload() {
 	if (DEBUG) System.out.println(position + "\t\taaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aaload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aaload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aaload;
 }
 final public void aastore() {
 	if (DEBUG) System.out.println(position + "\t\taastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aastore;
 }
 final public void aconst_null() {
 	if (DEBUG) System.out.println(position + "\t\taconst_null"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
-	if (stackDepth > stackMax)
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aconst_null;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aconst_null);
 	}
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aconst_null;
 }
 public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
@@ -167,50 +164,38 @@ final public void aload(int iArg) {
 		maxLocals = iArg + 1;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_aload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_aload);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_aload;
 		writeUnsignedShort(iArg);
 	} else {
 		// Don't need to use the wide bytecode
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_aload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_aload);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) (iArg);
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_aload;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void aload_0() {
 	if (DEBUG) System.out.println(position + "\t\taload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
-	if (stackDepth > stackMax)
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
+	}
 	if (maxLocals == 0) {
 		maxLocals = 1;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aload_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aload_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aload_0;
 }
 final public void aload_1() {
 	if (DEBUG) System.out.println(position + "\t\taload_1"); //$NON-NLS-1$
@@ -221,12 +206,11 @@ final public void aload_1() {
 	if (maxLocals <= 1) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aload_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aload_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aload_1;
 }
 final public void aload_2() {
 	if (DEBUG) System.out.println(position + "\t\taload_2"); //$NON-NLS-1$
@@ -237,12 +221,11 @@ final public void aload_2() {
 	if (maxLocals <= 2) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aload_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aload_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aload_2;
 }
 final public void aload_3() {
 	if (DEBUG) System.out.println(position + "\t\taload_3"); //$NON-NLS-1$
@@ -253,22 +236,20 @@ final public void aload_3() {
 	if (maxLocals <= 3) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_aload_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_aload_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_aload_3;
 }
 public final void anewarray(TypeBinding typeBinding) {
 	if (DEBUG) System.out.println(position + "\t\tanewarray: " + typeBinding); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_anewarray;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_anewarray);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_anewarray;
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void areturn() {
@@ -276,12 +257,11 @@ final public void areturn() {
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_areturn;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_areturn);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_areturn;
 }
 public void arrayAt(int typeBindingID) {
 	switch (typeBindingID) {
@@ -358,12 +338,11 @@ public void arrayAtPut(int elementTypeID, boolean valueRequired) {
 final public void arraylength() {
 	if (DEBUG) System.out.println(position + "\t\tarraylength"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_arraylength;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_arraylength);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_arraylength;
 }
 final public void astore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tastore:"+iArg); //$NON-NLS-1$
@@ -373,32 +352,20 @@ final public void astore(int iArg) {
 		maxLocals = iArg + 1;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_astore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_astore);
-		}
+		position+=2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_astore;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_astore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_astore);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position+=2;
+		bCodeStream[classFileOffset++] = OPC_astore;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void astore_0() {
@@ -408,12 +375,11 @@ final public void astore_0() {
 	if (maxLocals == 0) {
 		maxLocals = 1;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_astore_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_astore_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_astore_0;
 }
 final public void astore_1() {
 	if (DEBUG) System.out.println(position + "\t\tastore_1"); //$NON-NLS-1$
@@ -422,12 +388,11 @@ final public void astore_1() {
 	if (maxLocals <= 1) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_astore_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_astore_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_astore_1;
 }
 final public void astore_2() {
 	if (DEBUG) System.out.println(position + "\t\tastore_2"); //$NON-NLS-1$
@@ -436,12 +401,11 @@ final public void astore_2() {
 	if (maxLocals <= 2) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_astore_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_astore_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_astore_2;
 }
 final public void astore_3() {
 	if (DEBUG) System.out.println(position + "\t\tastore_3"); //$NON-NLS-1$
@@ -450,45 +414,41 @@ final public void astore_3() {
 	if (maxLocals <= 3) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_astore_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_astore_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_astore_3;
 }
 final public void athrow() {
 	if (DEBUG) System.out.println(position + "\t\tathrow"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_athrow;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_athrow);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_athrow;
 }
 final public void baload() {
 	if (DEBUG) System.out.println(position + "\t\tbaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_baload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_baload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_baload;
 }
 final public void bastore() {
 	if (DEBUG) System.out.println(position + "\t\tbastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_bastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_bastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_bastore;
 }
 final public void bipush(byte b) {
 	if (DEBUG) System.out.println(position + "\t\tbipush "+b); //$NON-NLS-1$
@@ -496,132 +456,120 @@ final public void bipush(byte b) {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_bipush;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_bipush);
+	if (classFileOffset + 1 >= bCodeStream.length) {
+		resizeByteArray();
 	}
-	writeSignedByte(b);
+	position += 2;
+	bCodeStream[classFileOffset++] = OPC_bipush;
+	bCodeStream[classFileOffset++] = b;
 }
 final public void caload() {
 	if (DEBUG) System.out.println(position + "\t\tcaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_caload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_caload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_caload;
 }
 final public void castore() {
 	if (DEBUG) System.out.println(position + "\t\tcastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_castore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_castore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_castore;
 }
 public final void checkcast(TypeBinding typeBinding) {
 	if (DEBUG) System.out.println(position + "\t\tcheckcast:"+typeBinding); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_checkcast;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_checkcast);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_checkcast;
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void d2f() {
 	if (DEBUG) System.out.println(position + "\t\td2f"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_d2f;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_d2f);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_d2f;
 }
 final public void d2i() {
 	if (DEBUG) System.out.println(position + "\t\td2i"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_d2i;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_d2i);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_d2i;
 }
 final public void d2l() {
 	if (DEBUG) System.out.println(position + "\t\td2l"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_d2l;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_d2l);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_d2l;
 }
 final public void dadd() {
 	if (DEBUG) System.out.println(position + "\t\tdadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dadd;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dadd);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dadd;
 }
 final public void daload() {
 	if (DEBUG) System.out.println(position + "\t\tdaload"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_daload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_daload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_daload;
 }
 final public void dastore() {
 	if (DEBUG) System.out.println(position + "\t\tdastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 4;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dastore;
 }
 final public void dcmpg() {
 	if (DEBUG) System.out.println(position + "\t\tdcmpg"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dcmpg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dcmpg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dcmpg;
 }
 final public void dcmpl() {
 	if (DEBUG) System.out.println(position + "\t\tdcmpl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dcmpl;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dcmpl);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dcmpl;
 }
 final public void dconst_0() {
 	if (DEBUG) System.out.println(position + "\t\tdconst_0"); //$NON-NLS-1$
@@ -629,12 +577,11 @@ final public void dconst_0() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dconst_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dconst_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dconst_0;
 }
 final public void dconst_1() {
 	if (DEBUG) System.out.println(position + "\t\tdconst_1"); //$NON-NLS-1$
@@ -642,23 +589,21 @@ final public void dconst_1() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dconst_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dconst_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dconst_1;
 }
 final public void ddiv() {
 	if (DEBUG) System.out.println(position + "\t\tddiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ddiv;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ddiv);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ddiv;
 }
 public void decrStackSize(int offset) {
 	stackDepth -= offset;
@@ -673,33 +618,21 @@ final public void dload(int iArg) {
 		maxLocals = iArg + 2; // + 2 because it is a double
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_dload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_dload);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_dload;
 		writeUnsignedShort(iArg);
 	} else {
 		// Don't need to use the wide bytecode
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_dload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_dload);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_dload;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void dload_0() {
@@ -711,12 +644,11 @@ final public void dload_0() {
 	if (maxLocals < 2) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dload_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dload_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dload_0;
 }
 final public void dload_1() {
 	if (DEBUG) System.out.println(position + "\t\tdload_1"); //$NON-NLS-1$
@@ -727,12 +659,11 @@ final public void dload_1() {
 	if (maxLocals < 3) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dload_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dload_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dload_1;
 }
 final public void dload_2() {
 	if (DEBUG) System.out.println(position + "\t\tdload_2"); //$NON-NLS-1$
@@ -743,12 +674,11 @@ final public void dload_2() {
 	if (maxLocals < 4) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dload_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dload_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dload_2;
 }
 final public void dload_3() {
 	if (DEBUG) System.out.println(position + "\t\tdload_3"); //$NON-NLS-1$
@@ -759,56 +689,51 @@ final public void dload_3() {
 	if (maxLocals < 5) {
 		maxLocals = 5;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dload_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dload_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dload_3;
 }
 final public void dmul() {
 	if (DEBUG) System.out.println(position + "\t\tdmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dmul;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dmul);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dmul;
 }
 final public void dneg() {
 	if (DEBUG) System.out.println(position + "\t\tdneg"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dneg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dneg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dneg;
 }
 final public void drem() {
 	if (DEBUG) System.out.println(position + "\t\tdrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_drem;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_drem);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_drem;
 }
 final public void dreturn() {
 	if (DEBUG) System.out.println(position + "\t\tdreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dreturn;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dreturn);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dreturn;
 }
 final public void dstore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tdstore:"+iArg); //$NON-NLS-1$
@@ -818,32 +743,20 @@ final public void dstore(int iArg) {
 		maxLocals = iArg + 2;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_dstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_dstore);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_dstore;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_dstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_dstore);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_dstore;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void dstore_0() {
@@ -853,12 +766,11 @@ final public void dstore_0() {
 	if (maxLocals < 2) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dstore_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dstore_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dstore_0;
 }
 final public void dstore_1() {
 	if (DEBUG) System.out.println(position + "\t\tdstore_1"); //$NON-NLS-1$
@@ -867,12 +779,11 @@ final public void dstore_1() {
 	if (maxLocals < 3) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dstore_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dstore_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dstore_1;
 }
 final public void dstore_2() {
 	if (DEBUG) System.out.println(position + "\t\tdstore_2"); //$NON-NLS-1$
@@ -881,12 +792,11 @@ final public void dstore_2() {
 	if (maxLocals < 4) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dstore_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dstore_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dstore_2;
 }
 final public void dstore_3() {
 	if (DEBUG) System.out.println(position + "\t\tdstore_3"); //$NON-NLS-1$
@@ -895,36 +805,34 @@ final public void dstore_3() {
 	if (maxLocals < 5) {
 		maxLocals = 5;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dstore_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dstore_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dstore_3;
 }
 final public void dsub() {
 	if (DEBUG) System.out.println(position + "\t\tdsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dsub;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dsub);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dsub;
 }
 final public void dup() {
 	if (DEBUG) System.out.println(position + "\t\tdup"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
-	if (stackDepth > stackMax)
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup);
 	}
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup;
 }
 final public void dup_x1() {
 	if (DEBUG) System.out.println(position + "\t\tdup_x1"); //$NON-NLS-1$
@@ -932,12 +840,11 @@ final public void dup_x1() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup_x1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup_x1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup_x1;
 }
 final public void dup_x2() {
 	if (DEBUG) System.out.println(position + "\t\tdup_x2"); //$NON-NLS-1$
@@ -945,12 +852,11 @@ final public void dup_x2() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup_x2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup_x2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup_x2;
 }
 final public void dup2() {
 	if (DEBUG) System.out.println(position + "\t\tdup2"); //$NON-NLS-1$
@@ -958,12 +864,11 @@ final public void dup2() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup2;
 }
 final public void dup2_x1() {
 	if (DEBUG) System.out.println(position + "\t\tdup2_x1"); //$NON-NLS-1$
@@ -971,12 +876,11 @@ final public void dup2_x1() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup2_x1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup2_x1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup2_x1;
 }
 final public void dup2_x2() {
 	if (DEBUG) System.out.println(position + "\t\tdup2_x2"); //$NON-NLS-1$
@@ -984,12 +888,11 @@ final public void dup2_x2() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_dup2_x2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_dup2_x2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_dup2_x2;
 }
 public void exitUserScope(BlockScope blockScope) {
 	// mark all the scope's locals as loosing their definite assignment
@@ -1013,22 +916,20 @@ final public void f2d() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_f2d;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_f2d);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_f2d;
 }
 final public void f2i() {
 	if (DEBUG) System.out.println(position + "\t\tf2i"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_f2i;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_f2i);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_f2i;
 }
 final public void f2l() {
 	if (DEBUG) System.out.println(position + "\t\tf2l"); //$NON-NLS-1$
@@ -1036,67 +937,61 @@ final public void f2l() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_f2l;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_f2l);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_f2l;
 }
 final public void fadd() {
 	if (DEBUG) System.out.println(position + "\t\tfadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fadd;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fadd);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fadd;
 }
 final public void faload() {
 	if (DEBUG) System.out.println(position + "\t\tfaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_faload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_faload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_faload;
 }
 final public void fastore() {
 	if (DEBUG) System.out.println(position + "\t\tfaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fastore;
 }
 final public void fcmpg() {
 	if (DEBUG) System.out.println(position + "\t\tfcmpg"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fcmpg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fcmpg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fcmpg;
 }
 final public void fcmpl() {
 	if (DEBUG) System.out.println(position + "\t\tfcmpl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fcmpl;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fcmpl);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fcmpl;
 }
 final public void fconst_0() {
 	if (DEBUG) System.out.println(position + "\t\tfconst_0"); //$NON-NLS-1$
@@ -1104,12 +999,11 @@ final public void fconst_0() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fconst_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fconst_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fconst_0;
 }
 final public void fconst_1() {
 	if (DEBUG) System.out.println(position + "\t\tfconst_1"); //$NON-NLS-1$
@@ -1117,12 +1011,11 @@ final public void fconst_1() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fconst_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fconst_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fconst_1;
 }
 final public void fconst_2() {
 	if (DEBUG) System.out.println(position + "\t\tfconst_2"); //$NON-NLS-1$
@@ -1130,23 +1023,21 @@ final public void fconst_2() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fconst_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fconst_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fconst_2;
 }
 final public void fdiv() {
 	if (DEBUG) System.out.println(position + "\t\tfdiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fdiv;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fdiv);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fdiv;
 }
 final public void fload(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tfload:"+iArg); //$NON-NLS-1$
@@ -1158,32 +1049,20 @@ final public void fload(int iArg) {
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_fload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_fload);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_fload;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_fload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_fload);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_fload;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void fload_0() {
@@ -1195,12 +1074,11 @@ final public void fload_0() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fload_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fload_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fload_0;
 }
 final public void fload_1() {
 	if (DEBUG) System.out.println(position + "\t\tfload_1"); //$NON-NLS-1$
@@ -1211,12 +1089,11 @@ final public void fload_1() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fload_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fload_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fload_1;
 }
 final public void fload_2() {
 	if (DEBUG) System.out.println(position + "\t\tfload_2"); //$NON-NLS-1$
@@ -1227,12 +1104,11 @@ final public void fload_2() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fload_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fload_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fload_2;
 }
 final public void fload_3() {
 	if (DEBUG) System.out.println(position + "\t\tfload_3"); //$NON-NLS-1$
@@ -1243,56 +1119,51 @@ final public void fload_3() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fload_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fload_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fload_3;
 }
 final public void fmul() {
 	if (DEBUG) System.out.println(position + "\t\tfmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fmul;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fmul);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fmul;
 }
 final public void fneg() {
 	if (DEBUG) System.out.println(position + "\t\tfneg"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fneg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fneg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fneg;
 }
 final public void frem() {
 	if (DEBUG) System.out.println(position + "\t\tfrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_frem;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_frem);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_frem;
 }
 final public void freturn() {
 	if (DEBUG) System.out.println(position + "\t\tfreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_freturn;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_freturn);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_freturn;
 }
 final public void fstore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tfstore:"+iArg); //$NON-NLS-1$
@@ -1302,32 +1173,20 @@ final public void fstore(int iArg) {
 		maxLocals = iArg + 1;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_fstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_fstore);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_fstore;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_fstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_fstore);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_fstore;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void fstore_0() {
@@ -1337,12 +1196,11 @@ final public void fstore_0() {
 	if (maxLocals == 0) {
 		maxLocals = 1;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fstore_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fstore_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fstore_0;
 }
 final public void fstore_1() {
 	if (DEBUG) System.out.println(position + "\t\tfstore_1"); //$NON-NLS-1$
@@ -1351,12 +1209,11 @@ final public void fstore_1() {
 	if (maxLocals <= 1) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fstore_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fstore_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fstore_1;
 }
 final public void fstore_2() {
 	if (DEBUG) System.out.println(position + "\t\tfstore_2"); //$NON-NLS-1$
@@ -1365,12 +1222,11 @@ final public void fstore_2() {
 	if (maxLocals <= 2) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fstore_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fstore_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fstore_2;
 }
 final public void fstore_3() {
 	if (DEBUG) System.out.println(position + "\t\tfstore_3"); //$NON-NLS-1$
@@ -1379,23 +1235,21 @@ final public void fstore_3() {
 	if (maxLocals <= 3) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fstore_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fstore_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fstore_3;
 }
 final public void fsub() {
 	if (DEBUG) System.out.println(position + "\t\tfsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_fsub;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_fsub);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_fsub;
 }
 /**
  * Macro for building a class descriptor object
@@ -1843,9 +1697,9 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 /**
  * The equivalent code performs a string conversion:
  *
- * @param blockScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
- * @param oper1 org.eclipse.jdt.internal.compiler.ast.Expression
- * @param oper2 org.eclipse.jdt.internal.compiler.ast.Expression
+ * @param blockScope the given blockScope
+ * @param oper1 the first expression
+ * @param oper2 the second expression
  */
 public void generateStringAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
 	int pc;
@@ -1941,7 +1795,7 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 }
 
 /**
- * @param accessBinding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
+ * @param accessBinding the access method binding to generate
  */
 public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBinding accessBinding) {
 
@@ -2096,12 +1950,11 @@ final public void getfield(FieldBinding fieldBinding) {
 		if (++stackDepth > stackMax)
 			stackMax = stackDepth;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_getfield;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_getfield);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_getfield;
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 final public void getstatic(FieldBinding fieldBinding) {
@@ -2113,24 +1966,22 @@ final public void getstatic(FieldBinding fieldBinding) {
 		stackDepth += 1;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_getstatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_getstatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_getstatic;
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 public void getTYPE(int baseTypeID) {
 	countLabels = 0;
 	if (++stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_getstatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_getstatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_getstatic;
 	switch (baseTypeID) {
 		case T_byte :
 			// getstatic: java.lang.Byte.TYPE			
@@ -2188,72 +2039,68 @@ final public void goto_(Label label) {
 		return;
 	}
 	if (DEBUG) System.out.println(position + "\t\tgoto:"+label); //$NON-NLS-1$
-	try {
-		label.inlineForwardReferencesFromLabelsTargeting(position);
-		/*
-		 Possible optimization for code such as:
-		 public Object foo() {
-			boolean b = true;
-			if (b) {
-				if (b)
-					return null;
-			} else {
-				if (b) {
-					return null;
-				}
-			}
-			return null;
-		}
-		The goto around the else block for the first if will
-		be unreachable, because the thenClause of the second if
-		returns.
-		See inlineForwardReferencesFromLabelsTargeting defined
-		on the Label class for the remaining part of this
-		optimization.
-		 if (!lbl.isBranchTarget(position)) {
-			switch(bCodeStream[classFileOffset-1]) {
-				case OPC_return :
-				case OPC_areturn:
-					return;
-			}
-		}*/
-		position++;
-		bCodeStream[classFileOffset++] = OPC_goto;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_goto);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	label.inlineForwardReferencesFromLabelsTargeting(position);
+	/*
+	 Possible optimization for code such as:
+	 public Object foo() {
+		boolean b = true;
+		if (b) {
+			if (b)
+				return null;
+		} else {
+			if (b) {
+				return null;
+			}
+		}
+		return null;
+	}
+	The goto around the else block for the first if will
+	be unreachable, because the thenClause of the second if
+	returns.
+	See inlineForwardReferencesFromLabelsTargeting defined
+	on the Label class for the remaining part of this
+	optimization.
+	 if (!lbl.isBranchTarget(position)) {
+		switch(bCodeStream[classFileOffset-1]) {
+			case OPC_return :
+			case OPC_areturn:
+				return;
+		}
+	}*/
+	position++;
+	bCodeStream[classFileOffset++] = OPC_goto;
 	label.branch();
 }
 
 final public void goto_w(Label lbl) {
 	if (DEBUG) System.out.println(position + "\t\tgotow:"+lbl); //$NON-NLS-1$
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_goto_w;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_goto_w);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_goto_w;
 	lbl.branchWide();
 }
 final public void i2b() {
 	if (DEBUG) System.out.println(position + "\t\ti2b"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2b;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2b);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2b;
 }
 final public void i2c() {
 	if (DEBUG) System.out.println(position + "\t\ti2c"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2c;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2c);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2c;
 }
 final public void i2d() {
 	if (DEBUG) System.out.println(position + "\t\ti2d"); //$NON-NLS-1$
@@ -2261,22 +2108,20 @@ final public void i2d() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2d;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2d);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2d;
 }
 final public void i2f() {
 	if (DEBUG) System.out.println(position + "\t\ti2f"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2f;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2f);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2f;
 }
 final public void i2l() {
 	if (DEBUG) System.out.println(position + "\t\ti2l"); //$NON-NLS-1$
@@ -2284,66 +2129,60 @@ final public void i2l() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2l;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2l);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2l;
 }
 final public void i2s() {
 	if (DEBUG) System.out.println(position + "\t\ti2s"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_i2s;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_i2s);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_i2s;
 }
 final public void iadd() {
 	if (DEBUG) System.out.println(position + "\t\tiadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iadd;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iadd);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iadd;
 }
 final public void iaload() {
 	if (DEBUG) System.out.println(position + "\t\tiaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iaload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iaload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iaload;
 }
 final public void iand() {
 	if (DEBUG) System.out.println(position + "\t\tiand"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iand;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iand);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iand;
 }
 final public void iastore() {
 	if (DEBUG) System.out.println(position + "\t\tiastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iastore;
 }
 final public void iconst_0() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_0"); //$NON-NLS-1$
@@ -2351,12 +2190,11 @@ final public void iconst_0() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_0;
 }
 final public void iconst_1() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_1"); //$NON-NLS-1$
@@ -2364,12 +2202,11 @@ final public void iconst_1() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_1;
 }
 final public void iconst_2() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_2"); //$NON-NLS-1$
@@ -2377,12 +2214,11 @@ final public void iconst_2() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_2;
 }
 final public void iconst_3() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_3"); //$NON-NLS-1$
@@ -2390,12 +2226,11 @@ final public void iconst_3() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_3;
 }
 final public void iconst_4() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_4"); //$NON-NLS-1$
@@ -2403,12 +2238,11 @@ final public void iconst_4() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_4;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_4);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_4;
 }
 final public void iconst_5() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_5"); //$NON-NLS-1$
@@ -2416,12 +2250,11 @@ final public void iconst_5() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_5;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_5);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_5;
 }
 final public void iconst_m1() {
 	if (DEBUG) System.out.println(position + "\t\ticonst_m1"); //$NON-NLS-1$
@@ -2429,23 +2262,21 @@ final public void iconst_m1() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iconst_m1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iconst_m1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iconst_m1;
 }
 final public void idiv() {
 	if (DEBUG) System.out.println(position + "\t\tidiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_idiv;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_idiv);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_idiv;
 }
 final public void if_acmpeq(Label lbl) {
 	if (DEBUG) System.out.println(position + "\t\tif_acmpeq:"+lbl); //$NON-NLS-1$
@@ -2454,12 +2285,11 @@ final public void if_acmpeq(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_acmpne, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_acmpeq;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_acmpeq);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_acmpeq;
 		lbl.branch();
 	}
 }
@@ -2470,12 +2300,11 @@ final public void if_acmpne(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_acmpeq, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_acmpne;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_acmpne);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_acmpne;
 		lbl.branch();
 	}
 }
@@ -2486,12 +2315,11 @@ final public void if_icmpeq(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmpne, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmpeq;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmpeq);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmpeq;
 		lbl.branch();
 	}
 }
@@ -2502,12 +2330,11 @@ final public void if_icmpge(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmplt, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmpge;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmpge);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmpge;
 		lbl.branch();
 	}
 }
@@ -2518,12 +2345,11 @@ final public void if_icmpgt(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmple, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmpgt;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmpgt);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmpgt;
 		lbl.branch();
 	}
 }
@@ -2534,12 +2360,11 @@ final public void if_icmple(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmpgt, lbl);
 	} else {	
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmple;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmple);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmple;
 		lbl.branch();
 	}
 }
@@ -2550,12 +2375,11 @@ final public void if_icmplt(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmpge, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmplt;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmplt);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmplt;
 		lbl.branch();
 	}
 }
@@ -2566,12 +2390,11 @@ final public void if_icmpne(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_if_icmpeq, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_if_icmpne;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_if_icmpne);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_if_icmpne;
 		lbl.branch();
 	}
 }
@@ -2582,12 +2405,11 @@ final public void ifeq(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifne, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifeq;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifeq);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifeq;
 		lbl.branch();
 	}
 }
@@ -2598,12 +2420,11 @@ final public void ifge(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_iflt, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifge;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifge);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifge;
 		lbl.branch();
 	}
 }
@@ -2614,12 +2435,11 @@ final public void ifgt(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifle, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifgt;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifgt);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifgt;
 		lbl.branch();
 	}
 }
@@ -2630,12 +2450,11 @@ final public void ifle(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifgt, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifle;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifle);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifle;
 		lbl.branch();
 	}
 }
@@ -2646,12 +2465,11 @@ final public void iflt(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifge, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_iflt;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_iflt);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_iflt;
 		lbl.branch();
 	}
 }
@@ -2662,12 +2480,11 @@ final public void ifne(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifeq, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifne;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifne);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifne;
 		lbl.branch();
 	}
 }
@@ -2678,12 +2495,11 @@ final public void ifnonnull(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifnull, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifnonnull;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifnonnull);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifnonnull;
 		lbl.branch();
 	}
 }
@@ -2694,12 +2510,11 @@ final public void ifnull(Label lbl) {
 	if (this.wideMode) {
 		generateWideRevertedConditionalBranch(OPC_ifnonnull, lbl);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ifnull;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ifnull);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ifnull;
 		lbl.branch();
 	}
 }
@@ -2707,29 +2522,22 @@ final public void iinc(int index, int value) {
 	if (DEBUG) System.out.println(position + "\t\tiinc:"+index+","+value); //$NON-NLS-1$ //$NON-NLS-2$
 	countLabels = 0;
 	if ((index > 255) || (value < -128 || value > 127)) { // have to widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_iinc;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_iinc);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_iinc;
 		writeUnsignedShort(index);
 		writeSignedShort(value);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_iinc;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_iinc);
+		if (classFileOffset + 2 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		writeUnsignedByte(index);
-		writeSignedByte(value);
+		position += 3;
+		bCodeStream[classFileOffset++] = OPC_iinc;
+		bCodeStream[classFileOffset++] = (byte) index;
+		bCodeStream[classFileOffset++] = (byte) value;
 	}
 }
 final public void iload(int iArg) {
@@ -2742,32 +2550,20 @@ final public void iload(int iArg) {
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_iload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_iload);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_iload;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_iload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_iload);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_iload;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void iload_0() {
@@ -2779,12 +2575,11 @@ final public void iload_0() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iload_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iload_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iload_0;
 }
 final public void iload_1() {
 	if (DEBUG) System.out.println(position + "\t\tiload_1"); //$NON-NLS-1$
@@ -2795,12 +2590,11 @@ final public void iload_1() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iload_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iload_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iload_1;
 }
 final public void iload_2() {
 	if (DEBUG) System.out.println(position + "\t\tiload_2"); //$NON-NLS-1$
@@ -2811,12 +2605,11 @@ final public void iload_2() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iload_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iload_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iload_2;
 }
 final public void iload_3() {
 	if (DEBUG) System.out.println(position + "\t\tiload_3"); //$NON-NLS-1$
@@ -2827,23 +2620,21 @@ final public void iload_3() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iload_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iload_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iload_3;
 }
 final public void imul() {
 	if (DEBUG) System.out.println(position + "\t\timul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_imul;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_imul);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_imul;
 }
 public void incrementTemp(LocalVariableBinding localBinding, int value) {
 	if (value == (short) value) {
@@ -2869,12 +2660,11 @@ public int indexOfSameLineEntrySincePC(int pc, int line) {
 final public void ineg() {
 	if (DEBUG) System.out.println(position + "\t\tineg"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ineg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ineg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ineg;
 }
 public void init(ClassFile targetClassFile) {
 	this.classFile = targetClassFile;
@@ -2918,7 +2708,7 @@ public void init(ClassFile targetClassFile) {
 	position = 0;
 }
 /**
- * @param methodBinding org.eclipse.jdt.internal.compiler.ast.MethodBinding
+ * @param methodBinding the given method binding to initialize the max locals
  */
 public void initializeMaxLocals(MethodBinding methodBinding) {
 
@@ -2964,9 +2754,9 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
  * Otherwise it returns the index where the entry for the pc has to be inserted.
  * This is based on the fact that the pcToSourceMap table is sorted according to the pc.
  *
- * @param pcToSourceMap int[]
- * @param length int
- * @param pc int
+ * @param pcToSourceMap the given pcToSourceMap array
+ * @param length the given length
+ * @param pc the given pc
  * @return int
  */
 public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
@@ -2999,24 +2789,22 @@ public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
 final public void instance_of(TypeBinding typeBinding) {
 	if (DEBUG) System.out.println(position + "\t\tinstance_of:"+typeBinding); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_instanceof;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_instanceof);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_instanceof;
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 public void invokeClassForName() {
 	// invokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokestatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokestatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokestatic;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassForName());
 }
 
@@ -3025,12 +2813,11 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassDesiredAssertionStatus());
 }
 
@@ -3038,12 +2825,11 @@ public void invokeJavaLangClassGetComponentType() {
 	// invokevirtual: java.lang.Class.getComponentType()java.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.getComponentType()java.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassGetComponentType());
 }
 
@@ -3053,47 +2839,43 @@ final public void invokeinterface(MethodBinding methodBinding) {
 	countLabels = 0;
 	int argCount = 1;
 	int id;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokeinterface;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokeinterface);
+	if (classFileOffset + 4 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position += 3;
+	bCodeStream[classFileOffset++] = OPC_invokeinterface;
 	writeUnsignedShort(constantPool.literalIndex(methodBinding));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
 		else
 			argCount += 1;
-	writeUnsignedByte(argCount);
+	bCodeStream[classFileOffset++] = (byte) argCount;
 	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
 	// the number of bytes.
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = 0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte)0);
-	}
-	if (((id = methodBinding.returnType.id) == T_double) || (id == T_long))
+	bCodeStream[classFileOffset++] = 0;
+	if (((id = methodBinding.returnType.id) == T_double) || (id == T_long)) {
 		stackDepth += (2 - argCount);
-	else
-		if (id == T_void)
+	} else {
+		if (id == T_void) {
 			stackDepth -= argCount;
-		else
+		} else {
 			stackDepth += (1 - argCount);
-	if (stackDepth > stackMax)
+		}
+	}
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
+	}
 }
 public void invokeJavaLangErrorConstructor() {
 	// invokespecial: java.lang.Error<init>(Ljava.lang.String;)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.Error<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	stackDepth -= 2;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangErrorConstructor());
 }
@@ -3101,25 +2883,23 @@ public void invokeNoClassDefFoundErrorStringConstructor() {
 	// invokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundErrorStringConstructor());
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	stackDepth -= 2;
+	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundErrorStringConstructor());
 }
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Object.getClass()Ljava.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangObjectGetClass());
 }
 
@@ -3129,12 +2909,11 @@ final public void invokespecial(MethodBinding methodBinding) {
 	countLabels = 0;
 	int argCount = 1;
 	int id;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	writeUnsignedShort(constantPool.literalIndex(methodBinding));
 	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
 		// enclosing instances
@@ -3182,12 +2961,11 @@ final public void invokestatic(MethodBinding methodBinding) {
 	countLabels = 0;
 	int argCount = 0;
 	int id;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokestatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokestatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokestatic;
 	writeUnsignedShort(constantPool.literalIndex(methodBinding));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
@@ -3217,12 +2995,11 @@ public void invokeStringBufferAppendForType(int typeID) {
 	else
 		usedTypeID = typeID;
 	// invokevirtual
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
 	if ((usedTypeID == T_long) || (usedTypeID == T_double))
 		stackDepth -= 2;
@@ -3234,12 +3011,11 @@ public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>(typeBindingID)V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorConstructor(typeBindingID));
 	stackDepth -= 2;
 }
@@ -3248,12 +3024,11 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	// invokespecial: java.lang.AssertionError.<init>()V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>()V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
 	stackDepth --;
 }
@@ -3262,12 +3037,11 @@ public void invokeStringBufferDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
 	stackDepth--;
 }
@@ -3275,12 +3049,11 @@ public void invokeStringBufferStringConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>(Ljava.lang.String;)V
 	if (DEBUG) System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokespecial;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokespecial);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
 	stackDepth -= 2;
 }
@@ -3289,48 +3062,44 @@ public void invokeStringBufferToString() {
 	// invokevirtual: StringBuffer.toString()Ljava.lang.String;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.intern()"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringIntern());
 }
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
 	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.String.valueOf(...)"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokestatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokestatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokestatic;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringValueOf(typeID));
 }
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangThrowableGetMessage());
 }
 final public void invokevirtual(MethodBinding methodBinding) {
@@ -3339,12 +3108,11 @@ final public void invokevirtual(MethodBinding methodBinding) {
 	countLabels = 0;
 	int argCount = 1;
 	int id;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	writeUnsignedShort(constantPool.literalIndex(methodBinding));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
@@ -3365,35 +3133,32 @@ final public void ior() {
 	if (DEBUG) System.out.println(position + "\t\tior"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ior;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ior);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ior;
 }
 final public void irem() {
 	if (DEBUG) System.out.println(position + "\t\tirem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_irem;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_irem);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_irem;
 }
 final public void ireturn() {
 	if (DEBUG) System.out.println(position + "\t\tireturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ireturn;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ireturn);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ireturn;
 }
 public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariableBinding local) {
 	// Dependant of UnconditionalFlowInfo.isDefinitelyAssigned(..)
@@ -3421,23 +3186,21 @@ final public void ishl() {
 	if (DEBUG) System.out.println(position + "\t\tishl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ishl;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ishl);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ishl;
 }
 final public void ishr() {
 	if (DEBUG) System.out.println(position + "\t\tishr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ishr;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ishr);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ishr;
 }
 final public void istore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tistore:"+iArg); //$NON-NLS-1$
@@ -3447,32 +3210,20 @@ final public void istore(int iArg) {
 		maxLocals = iArg + 1;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_istore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_istore);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_istore;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_istore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_istore);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_istore;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void istore_0() {
@@ -3482,12 +3233,11 @@ final public void istore_0() {
 	if (maxLocals == 0) {
 		maxLocals = 1;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_istore_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_istore_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_istore_0;
 }
 final public void istore_1() {
 	if (DEBUG) System.out.println(position + "\t\tistore_1"); //$NON-NLS-1$
@@ -3496,12 +3246,11 @@ final public void istore_1() {
 	if (maxLocals <= 1) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_istore_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_istore_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_istore_1;
 }
 final public void istore_2() {
 	if (DEBUG) System.out.println(position + "\t\tistore_2"); //$NON-NLS-1$
@@ -3510,12 +3259,11 @@ final public void istore_2() {
 	if (maxLocals <= 2) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_istore_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_istore_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_istore_2;
 }
 final public void istore_3() {
 	if (DEBUG) System.out.println(position + "\t\tistore_3"); //$NON-NLS-1$
@@ -3524,45 +3272,41 @@ final public void istore_3() {
 	if (maxLocals <= 3) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_istore_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_istore_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_istore_3;
 }
 final public void isub() {
 	if (DEBUG) System.out.println(position + "\t\tisub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_isub;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_isub);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_isub;
 }
 final public void iushr() {
 	if (DEBUG) System.out.println(position + "\t\tiushr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iushr;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iushr);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_iushr;
 }
 final public void ixor() {
 	if (DEBUG) System.out.println(position + "\t\tixor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ixor;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ixor);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ixor;
 }
 final public void jsr(Label lbl) {
 	if (this.wideMode) {
@@ -3571,110 +3315,100 @@ final public void jsr(Label lbl) {
 	}
 	if (DEBUG) System.out.println(position + "\t\tjsr"+lbl); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_jsr;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_jsr);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_jsr;
 	lbl.branch();
 }
 final public void jsr_w(Label lbl) {
 	if (DEBUG) System.out.println(position + "\t\tjsr_w"+lbl); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_jsr_w;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_jsr_w);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_jsr_w;
 	lbl.branchWide();
 }
 final public void l2d() {
 	if (DEBUG) System.out.println(position + "\t\tl2d"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_l2d;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_l2d);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_l2d;
 }
 final public void l2f() {
 	if (DEBUG) System.out.println(position + "\t\tl2f"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_l2f;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_l2f);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_l2f;
 }
 final public void l2i() {
 	if (DEBUG) System.out.println(position + "\t\tl2i"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_l2i;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_l2i);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_l2i;
 }
 final public void ladd() {
 	if (DEBUG) System.out.println(position + "\t\tladd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ladd;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ladd);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ladd;
 }
 final public void laload() {
 	if (DEBUG) System.out.println(position + "\t\tlaload"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_laload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_laload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_laload;
 }
 final public void land() {
 	if (DEBUG) System.out.println(position + "\t\tland"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_land;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_land);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_land;
 }
 final public void lastore() {
 	if (DEBUG) System.out.println(position + "\t\tlastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 4;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lastore;
 }
 final public void lcmp() {
 	if (DEBUG) System.out.println(position + "\t\tlcmp"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lcmp;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lcmp);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lcmp;
 }
 final public void lconst_0() {
 	if (DEBUG) System.out.println(position + "\t\tlconst_0"); //$NON-NLS-1$
@@ -3682,12 +3416,11 @@ final public void lconst_0() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lconst_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lconst_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lconst_0;
 }
 final public void lconst_1() {
 	if (DEBUG) System.out.println(position + "\t\tlconst_1"); //$NON-NLS-1$
@@ -3695,12 +3428,11 @@ final public void lconst_1() {
 	stackDepth += 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lconst_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lconst_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lconst_1;
 }
 final public void ldc(float constant) {
 	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
@@ -3711,22 +3443,20 @@ final public void ldc(float constant) {
 		stackMax = stackDepth;
 	if (index > 255) {
 		// Generate a ldc_w
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ldc_w;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ldc_w);
+		if (classFileOffset + 2 >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
 		// Generate a ldc
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ldc;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ldc);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		writeUnsignedByte(index);
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_ldc;
+		bCodeStream[classFileOffset++] = (byte) index;
 	}
 }
 final public void ldc(int constant) {
@@ -3738,22 +3468,20 @@ final public void ldc(int constant) {
 		stackMax = stackDepth;
 	if (index > 255) {
 		// Generate a ldc_w
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ldc_w;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ldc_w);
+		if (classFileOffset + 2 >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
 		// Generate a ldc
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ldc;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ldc);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		writeUnsignedByte(index);
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_ldc;
+		bCodeStream[classFileOffset++] = (byte) index;
 	}
 }
 final public void ldc(String constant) {
@@ -3771,22 +3499,20 @@ final public void ldc(String constant) {
 			stackMax = stackDepth;
 		if (index > 255) {
 			// Generate a ldc_w
-			try {
-				position++;
-				bCodeStream[classFileOffset++] = OPC_ldc_w;
-			} catch (IndexOutOfBoundsException e) {
-				resizeByteArray(OPC_ldc_w);
+			if (classFileOffset + 2 >= bCodeStream.length) {
+				resizeByteArray();
 			}
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ldc_w;
 			writeUnsignedShort(index);
 		} else {
 			// Generate a ldc
-			try {
-				position++;
-				bCodeStream[classFileOffset++] = OPC_ldc;
-			} catch (IndexOutOfBoundsException e) {
-				resizeByteArray(OPC_ldc);
+			if (classFileOffset + 1 >= bCodeStream.length) {
+				resizeByteArray();
 			}
-			writeUnsignedByte(index);
+			position += 2;
+			bCodeStream[classFileOffset++] = OPC_ldc;
+			bCodeStream[classFileOffset++] = (byte) index;
 		}
 	} else {
 		// the string is too big to be utf8-encoded in one pass.
@@ -3842,22 +3568,20 @@ final public void ldc(String constant) {
 			stackMax = stackDepth;
 		if (index > 255) {
 			// Generate a ldc_w
-			try {
-				position++;
-				bCodeStream[classFileOffset++] = OPC_ldc_w;
-			} catch (IndexOutOfBoundsException e) {
-				resizeByteArray(OPC_ldc_w);
+			if (classFileOffset + 2 >= bCodeStream.length) {
+				resizeByteArray();
 			}
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ldc_w;
 			writeUnsignedShort(index);
 		} else {
 			// Generate a ldc
-			try {
-				position++;
-				bCodeStream[classFileOffset++] = OPC_ldc;
-			} catch (IndexOutOfBoundsException e) {
-				resizeByteArray(OPC_ldc);
+			if (classFileOffset + 1 >= bCodeStream.length) {
+				resizeByteArray();
 			}
-			writeUnsignedByte(index);
+			position += 2;
+			bCodeStream[classFileOffset++] = OPC_ldc;
+			bCodeStream[classFileOffset++] = (byte) index;
 		}
 		// write the remaining part
 		invokeStringBufferStringConstructor();
@@ -3899,22 +3623,20 @@ final public void ldc(String constant) {
 				stackMax = stackDepth;
 			if (index > 255) {
 				// Generate a ldc_w
-				try {
-					position++;
-					bCodeStream[classFileOffset++] = OPC_ldc_w;
-				} catch (IndexOutOfBoundsException e) {
-					resizeByteArray(OPC_ldc_w);
+				if (classFileOffset + 2 >= bCodeStream.length) {
+					resizeByteArray();
 				}
+				position++;
+				bCodeStream[classFileOffset++] = OPC_ldc_w;
 				writeUnsignedShort(index);
 			} else {
 				// Generate a ldc
-				try {
-					position++;
-					bCodeStream[classFileOffset++] = OPC_ldc;
-				} catch (IndexOutOfBoundsException e) {
-					resizeByteArray(OPC_ldc);
+				if (classFileOffset + 1 >= bCodeStream.length) {
+					resizeByteArray();
 				}
-				writeUnsignedByte(index);
+				position += 2;
+				bCodeStream[classFileOffset++] = OPC_ldc;
+				bCodeStream[classFileOffset++] = (byte) index;
 			}
 			// now on the stack it should be a StringBuffer and a string.
 			invokeStringBufferAppendForType(T_String);
@@ -3931,12 +3653,11 @@ final public void ldc2_w(double constant) {
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	// Generate a ldc2_w
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ldc2_w;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ldc2_w);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ldc2_w;
 	writeUnsignedShort(index);
 }
 final public void ldc2_w(long constant) {
@@ -3947,24 +3668,22 @@ final public void ldc2_w(long constant) {
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	// Generate a ldc2_w
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ldc2_w;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ldc2_w);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ldc2_w;
 	writeUnsignedShort(index);
 }
 final public void ldiv() {
 	if (DEBUG) System.out.println(position + "\t\tldiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ldiv;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ldiv);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_ldiv;
 }
 final public void lload(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tlload:"+iArg); //$NON-NLS-1$
@@ -3976,32 +3695,20 @@ final public void lload(int iArg) {
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_lload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_lload);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_lload;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_lload;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_lload);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_lload;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void lload_0() {
@@ -4013,12 +3720,11 @@ final public void lload_0() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lload_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lload_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lload_0;
 }
 final public void lload_1() {
 	if (DEBUG) System.out.println(position + "\t\tlload_1"); //$NON-NLS-1$
@@ -4029,12 +3735,11 @@ final public void lload_1() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lload_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lload_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lload_1;
 }
 final public void lload_2() {
 	if (DEBUG) System.out.println(position + "\t\tlload_2"); //$NON-NLS-1$
@@ -4045,12 +3750,11 @@ final public void lload_2() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lload_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lload_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lload_2;
 }
 final public void lload_3() {
 	if (DEBUG) System.out.println(position + "\t\tlload_3"); //$NON-NLS-1$
@@ -4061,33 +3765,30 @@ final public void lload_3() {
 	}
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lload_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lload_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lload_3;
 }
 final public void lmul() {
 	if (DEBUG) System.out.println(position + "\t\tlmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lmul;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lmul);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lmul;
 }
 final public void lneg() {
 	if (DEBUG) System.out.println(position + "\t\tlneg"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lneg;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lneg);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lneg;
 }
 public final void load(LocalVariableBinding localBinding) {
 	countLabels = 0;
@@ -4383,19 +4084,17 @@ final public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedI
 	for (int i = 0; i < length; i++) {
 		casesLabel[i].placeInstruction();
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lookupswitch;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lookupswitch);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lookupswitch;
 	for (int i = (3 - (pos % 4)); i > 0; i--) {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = 0;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte)0);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = 0;
 	}
 	defaultLabel.branch();
 	writeSignedWord(length);
@@ -4408,57 +4107,52 @@ final public void lor() {
 	if (DEBUG) System.out.println(position + "\t\tlor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lor;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lor);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lor;
 }
 final public void lrem() {
 	if (DEBUG) System.out.println(position + "\t\tlrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lrem;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lrem);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lrem;
 }
 final public void lreturn() {
 	if (DEBUG) System.out.println(position + "\t\tlreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lreturn;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lreturn);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lreturn;
 }
 final public void lshl() {
 	if (DEBUG) System.out.println(position + "\t\tlshl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lshl;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lshl);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lshl;
 }
 final public void lshr() {
 	if (DEBUG) System.out.println(position + "\t\tlshr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lshr;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lshr);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lshr;
 }
 final public void lstore(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\tlstore:"+iArg); //$NON-NLS-1$
@@ -4468,32 +4162,20 @@ final public void lstore(int iArg) {
 		maxLocals = iArg + 2;
 	}
 	if (iArg > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_lstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_lstore);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_lstore;
 		writeUnsignedShort(iArg);
 	} else {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_lstore;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_lstore);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) iArg;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) iArg);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_lstore;
+		bCodeStream[classFileOffset++] = (byte) iArg;
 	}
 }
 final public void lstore_0() {
@@ -4503,12 +4185,11 @@ final public void lstore_0() {
 	if (maxLocals < 2) {
 		maxLocals = 2;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lstore_0;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lstore_0);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lstore_0;
 }
 final public void lstore_1() {
 	if (DEBUG) System.out.println(position + "\t\tlstore_1"); //$NON-NLS-1$
@@ -4517,12 +4198,11 @@ final public void lstore_1() {
 	if (maxLocals < 3) {
 		maxLocals = 3;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lstore_1;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lstore_1);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lstore_1;
 }
 final public void lstore_2() {
 	if (DEBUG) System.out.println(position + "\t\tlstore_2"); //$NON-NLS-1$
@@ -4531,12 +4211,11 @@ final public void lstore_2() {
 	if (maxLocals < 4) {
 		maxLocals = 4;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lstore_2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lstore_2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lstore_2;
 }
 final public void lstore_3() {
 	if (DEBUG) System.out.println(position + "\t\tlstore_3"); //$NON-NLS-1$
@@ -4545,80 +4224,73 @@ final public void lstore_3() {
 	if (maxLocals < 5) {
 		maxLocals = 5;
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lstore_3;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lstore_3);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lstore_3;
 }
 final public void lsub() {
 	if (DEBUG) System.out.println(position + "\t\tlsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lsub;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lsub);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lsub;
 }
 final public void lushr() {
 	if (DEBUG) System.out.println(position + "\t\tlushr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lushr;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lushr);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lushr;
 }
 final public void lxor() {
 	if (DEBUG) System.out.println(position + "\t\tlxor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_lxor;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_lxor);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_lxor;
 }
 final public void monitorenter() {
 	if (DEBUG) System.out.println(position + "\t\tmonitorenter"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_monitorenter;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_monitorenter);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_monitorenter;
 }
 final public void monitorexit() {
 	if (DEBUG) System.out.println(position + "\t\tmonitorexit"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_monitorexit;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_monitorexit);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_monitorexit;
 }
 final public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	if (DEBUG) System.out.println(position + "\t\tmultinewarray:"+typeBinding+","+dimensions); //$NON-NLS-1$ //$NON-NLS-2$
 	countLabels = 0;
 	stackDepth += (1 - dimensions);
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_multianewarray;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_multianewarray);
+	if (classFileOffset + 3 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position += 2;
+	bCodeStream[classFileOffset++] = OPC_multianewarray;
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
-	writeUnsignedByte(dimensions);
+	bCodeStream[classFileOffset++] = (byte) dimensions;
 }
 /**
  * We didn't call it new, because there is a conflit with the new keyword
@@ -4629,24 +4301,22 @@ final public void new_(TypeBinding typeBinding) {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void newarray(int array_Type) {
 	if (DEBUG) System.out.println(position + "\t\tnewarray:"+array_Type); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_newarray;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_newarray);
+	if (classFileOffset + 1 >= bCodeStream.length) {
+		resizeByteArray();
 	}
-	writeUnsignedByte(array_Type);
+	position += 2;
+	bCodeStream[classFileOffset++] = OPC_newarray;
+	bCodeStream[classFileOffset++] = (byte) array_Type;
 }
 public void newArray(Scope scope, ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType(scope);
@@ -4686,12 +4356,11 @@ public void newJavaLangError() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangError());
 }
 
@@ -4702,12 +4371,11 @@ public void newJavaLangAssertionError() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionError());
 }
 
@@ -4718,12 +4386,11 @@ public void newNoClassDefFoundError() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundError());
 }
 public void newStringBuffer() {
@@ -4733,12 +4400,11 @@ public void newStringBuffer() {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
 }
 public void newWrapperFor(int typeID) {
@@ -4746,12 +4412,11 @@ public void newWrapperFor(int typeID) {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_new;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_new);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
 	switch (typeID) {
 		case T_int : // new: java.lang.Integer
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Integer"); //$NON-NLS-1$
@@ -4793,34 +4458,31 @@ public void newWrapperFor(int typeID) {
 final public void nop() {
 	if (DEBUG) System.out.println(position + "\t\tnop"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_nop;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_nop);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_nop;
 }
 final public void pop() {
 	if (DEBUG) System.out.println(position + "\t\tpop"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_pop;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_pop);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_pop;
 }
 final public void pop2() {
 	if (DEBUG) System.out.println(position + "\t\tpop2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_pop2;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_pop2);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_pop2;
 }
 final public void putfield(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tputfield:"+fieldBinding); //$NON-NLS-1$
@@ -4832,12 +4494,11 @@ final public void putfield(FieldBinding fieldBinding) {
 		stackDepth -= 2;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_putfield;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_putfield);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_putfield;
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 final public void putstatic(FieldBinding fieldBinding) {
@@ -4850,12 +4511,11 @@ final public void putstatic(FieldBinding fieldBinding) {
 		stackDepth -= 1;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_putstatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_putstatic);
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_putstatic;
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 public void record(LocalVariableBinding local) {
@@ -5015,94 +4675,69 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	initializeMaxLocals(referenceMethod.binding);
 }
 /**
- * @param targetClassFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
+ * @param targetClassFile The given classfile to reset the code stream
  */
 public void resetForProblemClinit(ClassFile targetClassFile) {
 	init(targetClassFile);
 	maxLocals = 0;
 }
-protected final void resizeByteArray() {
+private final void resizeByteArray() {
 	int actualLength = bCodeStream.length;
-	int requiredSize = actualLength + growFactor;
+	int requiredSize = actualLength + GROW_FACTOR;
 	if (classFileOffset > requiredSize) {
-		requiredSize = classFileOffset + growFactor;
+		requiredSize = classFileOffset + GROW_FACTOR;
 	}
 	System.arraycopy(bCodeStream, 0, (bCodeStream = new byte[requiredSize]), 0, actualLength);
-}
-/**
- * This method is used to resize the internal byte array in 
- * case of a ArrayOutOfBoundsException when adding the value b.
- * Resize and add the new byte b inside the array.
- * @param b byte
- */
-protected final void resizeByteArray(byte b) {
-	resizeByteArray();
-	bCodeStream[classFileOffset - 1] = b;
 }
 final public void ret(int index) {
 	if (DEBUG) System.out.println(position + "\t\tret:"+index); //$NON-NLS-1$
 	countLabels = 0;
 	if (index > 255) { // Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_wide;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_wide);
+		if (classFileOffset + 3 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ret;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ret);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_wide;
+		bCodeStream[classFileOffset++] = OPC_ret;
 		writeUnsignedShort(index);
 	} else { // Don't Widen
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = OPC_ret;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(OPC_ret);
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
 		}
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = (byte) index;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte) index);
-		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_ret;
+		bCodeStream[classFileOffset++] = (byte) index;
 	}
 }
 final public void return_() {
 	if (DEBUG) System.out.println(position + "\t\treturn"); //$NON-NLS-1$
 	countLabels = 0;
 	// the stackDepth should be equal to 0 
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_return;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_return);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_return;
 }
 final public void saload() {
 	if (DEBUG) System.out.println(position + "\t\tsaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_saload;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_saload);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_saload;
 }
 final public void sastore() {
 	if (DEBUG) System.out.println(position + "\t\tsastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_sastore;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_sastore);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_sastore;
 }
 /**
  * @param operatorConstant int
@@ -5231,12 +4866,11 @@ final public void sipush(int s) {
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_sipush;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_sipush);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_sipush;
 	writeSignedShort(s);
 }
 public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
@@ -5531,12 +5165,11 @@ public final void storeObject(int localPosition) {
 final public void swap() {
 	if (DEBUG) System.out.println(position + "\t\tswap"); //$NON-NLS-1$
 	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_swap;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_swap);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_swap;
 }
 private static final void swap(int a[], int i, int j, int result[]) {
 	int T;
@@ -5556,19 +5189,17 @@ final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] k
 	defaultLabel.placeInstruction();
 	for (int i = 0; i < length; i++)
 		casesLabel[i].placeInstruction();
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_tableswitch;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_tableswitch);
+	if (classFileOffset >= bCodeStream.length) {
+		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_tableswitch;
 	for (int i = (3 - (pos % 4)); i > 0; i--) {
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = 0;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray((byte)0);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = 0;
 	}
 	defaultLabel.branch();
 	writeSignedWord(low);
@@ -5633,192 +5264,57 @@ public void updateLocalVariablesAttribute(int pos) {
 		}
 	}
 }
-final public void wide() {
-	if (DEBUG) System.out.println(position + "\t\twide"); //$NON-NLS-1$
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_wide;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_wide);
-	}
-}
-public final void writeByte(byte value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(value);
-	}
-}
-public final void writeByteAtPos(int pos, byte value) {
-	try {
-		bCodeStream[pos] = value;
-	} catch (IndexOutOfBoundsException ex) {
-		resizeByteArray();
-		bCodeStream[pos] = value;
-	}
-}
-/**
- * Write a unsigned 8 bits value into the byte array
- * @param value the signed byte
- */
-public final void writeSignedByte(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
-	}
-}
 /**
  * Write a signed 16 bits value into the byte array
  * @param value the signed short
  */
 public final void writeSignedShort(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 8);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 8));
+	// we keep the resize in here because it is used outside the code stream
+	if (classFileOffset + 1 >= bCodeStream.length) {
+		resizeByteArray();
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
-	}
+	position += 2;
+	bCodeStream[classFileOffset++] = (byte) (value >> 8);
+	bCodeStream[classFileOffset++] = (byte) value;
 }
 public final void writeSignedShort(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
-	try {
-		bCodeStream[currentOffset] = (byte) (value >> 8);
-	} catch (IndexOutOfBoundsException e) {
+	if (currentOffset + 1 >= bCodeStream.length) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) (value >> 8);
 	}
-	try {
-		bCodeStream[currentOffset + 1] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray();
-		bCodeStream[currentOffset + 1] = (byte) value;
-	}
+	bCodeStream[currentOffset] = (byte) (value >> 8);
+	bCodeStream[currentOffset + 1] = (byte) value;
 }
 public final void writeSignedWord(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF000000) >> 24);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) ((value & 0xFF000000) >> 24));
+	// we keep the resize in here because it is used outside the code stream
+	if (classFileOffset + 3 >= bCodeStream.length) {
+		resizeByteArray();
 	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF0000) >> 16);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) ((value & 0xFF0000) >> 16));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) ((value & 0xFF00) >> 8));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value & 0xFF));
-	}
+	position += 4;
+	bCodeStream[classFileOffset++] = (byte) ((value & 0xFF000000) >> 24);
+	bCodeStream[classFileOffset++] = (byte) ((value & 0xFF0000) >> 16);
+	bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
+	bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
 }
 public final void writeSignedWord(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
-	try {
-		bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
-	} catch (IndexOutOfBoundsException e) {
+	if (currentOffset + 4 >= bCodeStream.length) {
 		resizeByteArray();
-		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF000000) >> 24);
 	}
-	try {
-		bCodeStream[currentOffset++] = (byte) ((value & 0xFF0000) >> 16);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray();
-		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF0000) >> 16);
-	}
-	try {
-		bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray();
-		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF00) >> 8);
-	}
-	try {
-		bCodeStream[currentOffset++] = (byte) (value & 0xFF);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray();
-		bCodeStream[currentOffset-1] = (byte) (value & 0xFF);
-	}
-}
-/**
- * Write a unsigned 8 bits value into the byte array
- * @param value the unsigned byte
- */
-public final void writeUnsignedByte(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
-	}
+	bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
+	bCodeStream[currentOffset++] = (byte) ((value & 0xFF0000) >> 16);
+	bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
+	bCodeStream[currentOffset++] = (byte) (value & 0xFF);
 }
 /**
  * Write a unsigned 16 bits value into the byte array
  * @param value the unsigned short
  */
-public final void writeUnsignedShort(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >>> 8);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >>> 8));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
-	}
+protected final void writeUnsignedShort(int value) {
+	position += 2;
+	bCodeStream[classFileOffset++] = (byte) (value >>> 8);
+	bCodeStream[classFileOffset++] = (byte) value;
 }
-/**
- * Write a unsigned 32 bits value into the byte array
- * @param value the unsigned word
- */
-public final void writeUnsignedWord(int value) {
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >>> 24);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >>> 24));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >>> 16);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >>> 16));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >>> 8);
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >>> 8));
-	}
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
-	}
-}
-
-
 /*
  * Wide conditional branch compare, improved by swapping comparison opcode
  *   ifeq WideTarget
@@ -5829,12 +5325,11 @@ public final void writeUnsignedWord(int value) {
  */
 public void generateWideRevertedConditionalBranch(byte revertedOpcode, Label wideTarget) {
 		Label intermediate = new Label(this);
-		try {
-			position++;
-			bCodeStream[classFileOffset++] = revertedOpcode;
-		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(revertedOpcode);
+		if (classFileOffset >= bCodeStream.length) {
+			resizeByteArray();
 		}
+		position++;
+		bCodeStream[classFileOffset++] = revertedOpcode;
 		intermediate.branch();
 		this.goto_w(wideTarget);
 		intermediate.place();
