@@ -780,18 +780,24 @@ public class ClassScope extends Scope {
 		if (argTypes != null) {
 			for (int i = 0, l = argTypes.length; i < l; i++) {
 				TypeBinding argType = argTypes[i].leafComponentType();
-			    if (argType instanceof SourceTypeBinding)
-			    	// ensure if this is a source superclass that it has already been checked
-			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
+			    if (argType instanceof SourceTypeBinding) {
+			    	SourceTypeBinding argSourceType = (SourceTypeBinding) argType;
+			    	// ensure if this is a source argument type that it has already been checked
+			    	if (argSourceType.scope != null) // null if already processed
+				    	argSourceType.scope.connectTypeHierarchyWithoutMembers();
+			    }
 			}
 		}
 
 		if (reference == this.superTypeReference) // see findSuperType()
 			return detectCycle(referenceContext.binding, superType, reference);
 
-		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
-			// ensure if this is a source superclass that it has already been checked
-			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding) {
+	    	SourceTypeBinding superSourceType = (SourceTypeBinding) superType;
+	    	// ensure if this is a source superclass that it has already been checked
+	    	if (superSourceType.scope != null) // null if already processed
+		    	superSourceType.scope.connectTypeHierarchyWithoutMembers();
+		}
 		return false;
 	}
 
@@ -868,9 +874,12 @@ public class ClassScope extends Scope {
 			superType.tagBits |= HierarchyHasProblems;
 			return true;
 		}
-		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
-			// ensure if this is a source superclass that it has already been checked
-			 ((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding) {
+	    	SourceTypeBinding superSourceType = (SourceTypeBinding) superType;
+	    	// ensure if this is a source superclass that it has already been checked
+	    	if (superSourceType.scope != null) // null if already processed
+		    	superSourceType.scope.connectTypeHierarchyWithoutMembers();			
+		}
 		if ((superType.tagBits & HierarchyHasProblems) != 0)
 			sourceType.tagBits |= HierarchyHasProblems;
 		return false;
