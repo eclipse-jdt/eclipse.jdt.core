@@ -39,6 +39,7 @@ public interface ICodeFormatter {
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @return the formatted output string.
 	 * @deprecated Use CodeFormatter#format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator)
+	 * TODO: (olivier) shouldn't it use a format API which doesn't mention any kind ? Would infer if able to...
 	 */
 	String format(String string, int indentationLevel, int[] positions, String lineSeparator);
 }
