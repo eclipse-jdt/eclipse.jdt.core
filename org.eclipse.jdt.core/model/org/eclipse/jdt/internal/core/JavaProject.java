@@ -1646,12 +1646,8 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath) {
-		return hasClasspathCycle(preferredClasspath, new HashSet());
-	}
-	
-	private boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath, HashSet alreadyTraversed) {
 		HashSet cycleParticipants = new HashSet();
-		updateCycleParticipants(preferredClasspath, new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), alreadyTraversed);
+		updateCycleParticipants(preferredClasspath, new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2));
 		return !cycleParticipants.isEmpty();
 	}
 	
