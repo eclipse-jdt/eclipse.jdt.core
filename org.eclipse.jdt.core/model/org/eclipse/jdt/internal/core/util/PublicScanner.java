@@ -2477,19 +2477,20 @@ public int scanIdentifierOrKeyword() {
 						else
 							return TokenNameIdentifier;
 					else
-						if ((data[index] == 'l')
-							&& (data[++index] == 'a')
-							&& (data[++index] == 's')
-							&& (data[++index] == 's'))
-							return TokenNameclass;
-						else
-							if ((data[index] == 'o')
-								&& (data[++index] == 'n')
+						if (data[index] == 'l')
+							if ((data[++index] == 'a')
 								&& (data[++index] == 's')
-								&& (data[++index] == 't'))
-								return TokenNameERROR; //const is not used in java ???????
-					else
-						return TokenNameIdentifier;
+								&& (data[++index] == 's'))
+								return TokenNameclass;
+							else
+								return TokenNameIdentifier;
+						else if ((data[index] == 'o')
+							&& (data[++index] == 'n')
+							&& (data[++index] == 's')
+							&& (data[++index] == 't'))
+							return TokenNameERROR; //const is not used in java ???????
+						else
+							return TokenNameIdentifier;
 				case 8 :
 					if ((data[++index] == 'o')
 						&& (data[++index] == 'n')
@@ -2571,11 +2572,13 @@ public int scanIdentifierOrKeyword() {
 						} else
 							return TokenNameIdentifier;
 					else
-						if ((data[index] == 'l')
-							&& (data[++index] == 'o')
-							&& (data[++index] == 'a')
-							&& (data[++index] == 't'))
-							return TokenNamefloat;
+						if (data[index] == 'l')
+							if ((data[++index] == 'o')
+								&& (data[++index] == 'a')
+								&& (data[++index] == 't'))
+								return TokenNamefloat;
+							else
+								return TokenNameIdentifier;
 						else
 							if ((data[index] == 'a')
 								&& (data[++index] == 'l')
@@ -2840,8 +2843,11 @@ public int scanIdentifierOrKeyword() {
 					else
 						return TokenNameIdentifier;
 				case 4 :
-					if ((data[++index] == 'h') && (data[++index] == 'i') && (data[++index] == 's'))
-						return TokenNamethis;
+					if (data[++index] == 'h') 
+						if ((data[++index] == 'i') && (data[++index] == 's'))
+							return TokenNamethis;
+						else
+							return TokenNameIdentifier;
 					else
 						if ((data[index] == 'r') && (data[++index] == 'u') && (data[++index] == 'e'))
 							return TokenNametrue;
