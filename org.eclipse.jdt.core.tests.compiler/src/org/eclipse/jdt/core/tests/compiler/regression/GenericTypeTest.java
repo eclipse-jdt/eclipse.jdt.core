@@ -8233,4 +8233,61 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 					"}\n"
 			});	
 	}	
+	// 75156 - should report name clash
+	// TODO (kent) reenable once addressed
+	  public void _test310() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X extends X2 {\n" + 
+				"	void foo(List<X> lx) { }\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class X2 {\n" + 
+				"	void foo(List<Object> lo) { }\n" + 
+				"}"
+			},
+			"report name clash");	
+	}
+	// 75156 variation - should report name clash and ambiguity
+	// TODO (kent) reenable once addressed
+	public void _test311() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X extends X2 {\n" + 
+				"	void foo(List<X> lx) { }\n" + 
+				"	void bar(){\n" + 
+				"		this.foo((List)null);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class X2 {\n" + 
+				"	void foo(List<Object> lo) { }\n" + 
+				"}"
+			},
+			"should report name clash and ambiguity");	
+	}		
+	// 75156 variation - should report name clash instead of final method override
+	// TODO (kent) reenable once addressed
+	public void _test312() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X extends X2 {\n" + 
+				"	void foo(List<X> lx) { }\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class X2 {\n" + 
+				"	final void foo(List<Object> lo) { }\n" + 
+				"}"	
+			},
+			"should report name clash");	
+	}			
 }
