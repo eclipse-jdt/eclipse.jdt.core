@@ -499,13 +499,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param globalWarningsCount
 		 */
 		public void logProblemsSummary(int globalProblemsCount,
-			int globalErrorsCount, int globalWarningsCount) {
+			int globalErrorsCount, int globalWarningsCount, int globalTasksCount) {
 			if (this.isXml) {
 				// generate xml
 				parameters.clear();
 				parameters.put(NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
 				parameters.put(NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
-				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
+				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount - globalTasksCount));
+				parameters.put(NUMBER_OF_TASKS, new Integer(globalTasksCount));
 				this.printTag(PROBLEM_SUMMARY, parameters, true, true);
 			}
 			if (globalProblemsCount == 1) {
@@ -570,6 +571,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								localErrorCount++;
 							} else {
 								if (problem.getID() == IProblem.Task) {
+									currentMain.globalTasksCount++;
 									tasks++;
 								} else {
 									warnings++;
@@ -648,7 +650,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.logTiming(time, main.lineCount);
 			}
 			if (main.globalProblemsCount > 0) {
-				this.logProblemsSummary(main.globalProblemsCount, main.globalErrorsCount, main.globalWarningsCount);
+				this.logProblemsSummary(main.globalProblemsCount, main.globalErrorsCount, main.globalWarningsCount, main.globalTasksCount);
 			}
 			if (main.exportedClassFilesCounter != 0
 					&& (main.showProgress || isTimed || main.verbose)) {
@@ -907,6 +909,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String[] filenames;
 	public boolean generatePackagesStructure;
 	public int globalErrorsCount;
+	public int globalTasksCount;
 	public int globalProblemsCount;
 	public int globalWarningsCount;
 	public long lineCount;
@@ -1092,6 +1095,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.globalProblemsCount = 0;
 					this.globalErrorsCount = 0;
 					this.globalWarningsCount = 0;
+					this.globalTasksCount = 0;
 					this.lineCount = 0;
 					this.exportedClassFilesCounter = 0;
 
