@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	
