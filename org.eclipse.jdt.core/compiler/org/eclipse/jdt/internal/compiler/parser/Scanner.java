@@ -532,6 +532,11 @@ public final boolean getNextChar(char testedChar) {
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
 
+	if (this.currentPosition >= this.source.length) { // handle the obvious case upfront
+		this.unicodeAsBackSlash = false;
+		return false;
+	}
+
 	int temp = this.currentPosition;
 	try {
 		if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -604,6 +609,8 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
+	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+		return -1;
 
 	int temp = this.currentPosition;
 	try {
@@ -684,6 +691,8 @@ public final boolean getNextCharAsDigit() {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
+	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+		return false;
 
 	int temp = this.currentPosition;
 	try {
@@ -752,6 +761,8 @@ public final boolean getNextCharAsDigit(int radix) {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
+	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+		return false;
 
 	int temp = this.currentPosition;
 	try {
@@ -820,6 +831,8 @@ public boolean getNextCharAsJavaIdentifierPart() {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
+	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+		return false;
 
 	int temp = this.currentPosition;
 	try {
@@ -901,7 +914,7 @@ public int getNextToken() throws InvalidInputException {
 				boolean checkIfUnicode = false;
 				try {
 					checkIfUnicode = ((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-					&& (this.source[this.currentPosition] == 'u');
+						&& (this.source[this.currentPosition] == 'u');
 				} catch(IndexOutOfBoundsException e) {
 					if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
 						// reposition scanner in case we are interested by spaces as tokens
@@ -2235,16 +2248,10 @@ public final void pushLineSeparator() {
 		//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 		if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
 		//System.out.println("CR-" + separatorPos);
-		try {
-			this.lineEnds[++this.linePtr] = separatorPos;
-		} catch (IndexOutOfBoundsException e) {
-			//this.linePtr value is correct
-			int oldLength = this.lineEnds.length;
-			int[] old = this.lineEnds;
-			this.lineEnds = new int[oldLength + INCREMENT];
-			System.arraycopy(old, 0, this.lineEnds, 0, oldLength);
-			this.lineEnds[this.linePtr] = separatorPos;
-		}
+		int length = this.lineEnds.length;
+		if (++this.linePtr >=  length)
+			System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
+		this.lineEnds[this.linePtr] = separatorPos;
 		// look-ahead for merged cr+lf
 		try {
 			if (this.source[this.currentPosition] == '\n') {
@@ -2268,17 +2275,11 @@ public final void pushLineSeparator() {
 				int separatorPos = this.currentPosition - 1;
 				//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 				if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
-				// System.out.println("LF-" + separatorPos);							
-				try {
-					this.lineEnds[++this.linePtr] = separatorPos;
-				} catch (IndexOutOfBoundsException e) {
-					//this.linePtr value is correct
-					int oldLength = this.lineEnds.length;
-					int[] old = this.lineEnds;
-					this.lineEnds = new int[oldLength + INCREMENT];
-					System.arraycopy(old, 0, this.lineEnds, 0, oldLength);
-					this.lineEnds[this.linePtr] = separatorPos;
-				}
+				// System.out.println("LF-" + separatorPos);
+				int length = this.lineEnds.length;
+				if (++this.linePtr >=  length)
+					System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
+				this.lineEnds[this.linePtr] = separatorPos;
 			}
 			this.wasAcr = false;
 		}
@@ -2317,21 +2318,13 @@ public void recordComment(int token) {
 	}
 
 	// a new comment is recorded
-	try {
-		this.commentStops[++this.commentPtr] = stopPosition;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.commentStops.length;
-		int[] oldStack = this.commentStops;
-		this.commentStops = new int[oldStackLength + 30];
-		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
-		this.commentStops[this.commentPtr] = stopPosition;
+	int length = this.commentStops.length;
+	if (++this.commentPtr >=  length) {
+		System.arraycopy(this.commentStops, 0, this.commentStops = new int[length + 30], 0, length);
 		//grows the positions buffers too
-		int[] old = this.commentStarts;
-		this.commentStarts = new int[oldStackLength + 30];
-		System.arraycopy(old, 0, this.commentStarts, 0, oldStackLength);
+		System.arraycopy(this.commentStarts, 0, this.commentStarts = new int[length + 30], 0, length);
 	}
-
-	//the buffer is of a correct size here
+	this.commentStops[this.commentPtr] = stopPosition;
 	this.commentStarts[this.commentPtr] = this.startPosition;
 }
 
