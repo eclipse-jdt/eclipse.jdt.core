@@ -400,7 +400,7 @@ private void initializeBuilder() throws CoreException {
 
 	String filterSequence = JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
 	char[][] filters = filterSequence != null && filterSequence.length() > 0
-		? CharOperation.splitOn(',', filterSequence.toCharArray())
+		? CharOperation.splitAndTrimOn(',', filterSequence.toCharArray())
 		: null;
 	if (filters == null) {
 		this.fileFilters = null;

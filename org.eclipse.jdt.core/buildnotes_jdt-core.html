@@ -17,7 +17,7 @@ Eclipse SDK Build 200205? - ?th May 2002
 What's new in this drop</h2>
 <ul>
 <li>Changing 2.0 API for refreshing external JARs so as to pass in a collection of *elements* to restrain the scope
-of the update (see <code>IJavaModel#refreshExternalJARs(IJavaElement[],IProgressMonitor)</code>. Elements 
+of the update (see <code>IJavaModel#refreshExternalArchives(IJavaElement[],IProgressMonitor)</code>. Elements 
 can either be package fragment roots, projects or Java model.</li>
 </ul>
 
@@ -26,7 +26,13 @@ can either be package fragment roots, projects or Java model.</li>
 <Clinit> change is treated as a structural change by incremental builder
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18157">18157</a>    
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14607">14607</a>  
+Refactor: rename isn't updating references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18164">18164</a>  
+Make libraries common to multiple projects
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=16172">16172</a>  
+Namelookup slow to retrieve package fragments 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18157">18157</a>    
 Internal Error when deleting project  
  <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18259">18259</a>  
 changing classpath causes significant recompilation

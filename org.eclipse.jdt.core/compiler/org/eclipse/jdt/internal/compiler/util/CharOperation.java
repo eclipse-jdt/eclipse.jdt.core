@@ -540,6 +540,36 @@ public static final char[] replace(
 	System.arraycopy(array, inStart, result, outStart, max - inStart);
 	return result;
 }
+
+public static final char[][] splitAndTrimOn(char divider, char[] array) {
+	int length = array == null ? 0 : array.length;
+	if (length == 0)
+		return TypeConstants.NoCharChar;
+
+	int wordCount = 1;
+	for (int i = 0; i < length; i++)
+		if (array[i] == divider)
+			wordCount++;
+	char[][] split = new char[wordCount][];
+	int last = 0, currentWord = 0;
+	for (int i = 0; i < length; i++) {
+		if (array[i] == divider) {
+			int start = last, end = i - 1;
+			while (start < i && array[start] == ' ') start++;
+			while (end > start && array[end] == ' ') end--;
+			split[currentWord] = new char[end - start + 1];
+			System.arraycopy(array, start, split[currentWord++], 0, end - start + 1);
+			last = i + 1;
+		}
+	}
+	int start = last, end = length - 1;
+	while (start < length && array[start] == ' ') start++;
+	while (end > start && array[end] == ' ') end--;
+	split[currentWord] = new char[end - start + 1];
+	System.arraycopy(array, start, split[currentWord++], 0, end - start + 1);
+	return split;
+}
+
 public static final char[][] splitOn(char divider, char[] array) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0)
@@ -642,6 +672,27 @@ final static public char[] toLowerCase(char[] chars) {
 		}
 	}
 	return lowerChars == null ? chars : lowerChars;
+}
+
+/**
+ * Remove leading and trailing spaces
+ */
+final static public char[] trim(char[] chars){
+	
+	if (chars == null) return null;
+	
+	char[] result = chars;
+	int start = 0, length = chars.length, end = length - 1;
+	while (start < length && chars[start] == ' ') {
+		start++;
+	}
+	while (end > start && chars[end] == ' '){
+		end--;
+	}
+	if (start != 0 || end != length - 1){
+		return subarray(chars, start, end+1);
+	}
+	return chars;
 }
 final static public String toString(char[][] array) {
 	char[] result = concatWith(array, '.');

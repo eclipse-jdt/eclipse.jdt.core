@@ -745,8 +745,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
-	 *   Note: no trimming of the names is performed, the list should thus not contain any superfluous
-	 *              character.
 	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
 	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
 	 *       or the name of a folder which ends with '/'
