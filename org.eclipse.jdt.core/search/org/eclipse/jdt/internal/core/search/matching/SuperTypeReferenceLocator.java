@@ -22,29 +22,29 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 
 	this.pattern = pattern;
 }
-//public void match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(TypeReference node, MatchingNodeSet nodeSet) {
-	if (this.pattern.superSimpleName == null) {
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-	} else {
-		char[] typeRefSimpleName = null;
-		if (node instanceof SingleTypeReference) {
-			typeRefSimpleName = ((SingleTypeReference) node).token;
-		} else { // QualifiedTypeReference
-			char[][] tokens = ((QualifiedTypeReference) node).tokens;
-			typeRefSimpleName = tokens[tokens.length-1];
-		}				
-	
-		if (matchesName(this.pattern.superSimpleName, typeRefSimpleName))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-	}
+//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(TypeReference node, MatchingNodeSet nodeSet) {
+	if (this.pattern.superSimpleName == null)
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+
+	char[] typeRefSimpleName = null;
+	if (node instanceof SingleTypeReference) {
+		typeRefSimpleName = ((SingleTypeReference) node).token;
+	} else { // QualifiedTypeReference
+		char[][] tokens = ((QualifiedTypeReference) node).tokens;
+		typeRefSimpleName = tokens[tokens.length-1];
+	}				
+	if (matchesName(this.pattern.superSimpleName, typeRefSimpleName))
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+
+	return IMPOSSIBLE_MATCH;
 }
 
 protected int matchContainer() {

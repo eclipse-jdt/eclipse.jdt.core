@@ -24,21 +24,24 @@ public TypeDeclarationLocator(TypeDeclarationPattern pattern) {
 
 	this.pattern = pattern;
 }
-//public void match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
+//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null || matchesName(this.pattern.simpleName, node.name))
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+
+	return IMPOSSIBLE_MATCH;
 }
-//public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
 public int resolveLevel(AstNode node) {
 	if (!(node instanceof TypeDeclaration)) return IMPOSSIBLE_MATCH;
+
 	return resolveLevel(((TypeDeclaration) node).binding);
 }
 public int resolveLevel(Binding binding) {

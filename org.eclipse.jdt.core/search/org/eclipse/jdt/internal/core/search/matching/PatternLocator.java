@@ -69,33 +69,43 @@ public PatternLocator(SearchPattern pattern) {
 /**
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.
+ * Returns the match level.
  */
-public void match(AstNode node, MatchingNodeSet nodeSet) { // needed for some generic nodes
+public int match(AstNode node, MatchingNodeSet nodeSet) { // needed for some generic nodes
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
+public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(Expression node, MatchingNodeSet nodeSet) {
+public int match(Expression node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
+public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
+public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(MessageSend node, MatchingNodeSet nodeSet) {
+public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(Reference node, MatchingNodeSet nodeSet) {
+public int match(Reference node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
+public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
-public void match(TypeReference node, MatchingNodeSet nodeSet) {
+public int match(TypeReference node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
 }
 /**
  * Returns the type(s) of container for this pattern.

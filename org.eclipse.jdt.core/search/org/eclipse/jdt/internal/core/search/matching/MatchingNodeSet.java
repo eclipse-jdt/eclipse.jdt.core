@@ -100,7 +100,7 @@ public MatchingNodeSet(MatchLocator locator) {
 	this.locator = locator;
 	this.matchContainer = locator.patternLocator.matchContainer();
 }
-public void addMatch(AstNode node, int matchLevel) {
+public int addMatch(AstNode node, int matchLevel) {
 	switch (matchLevel) {
 		case PatternLocator.POSSIBLE_MATCH:
 			addPossibleMatch(node);
@@ -108,6 +108,7 @@ public void addMatch(AstNode node, int matchLevel) {
 		case PatternLocator.ACCURATE_MATCH:
 			addTrustedMatch(node);
 	}
+	return matchLevel;
 }
 public void addPossibleMatch(AstNode node) {
 	// remove existing node at same position from set

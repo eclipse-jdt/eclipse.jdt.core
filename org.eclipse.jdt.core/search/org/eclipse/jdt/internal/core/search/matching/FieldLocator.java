@@ -31,16 +31,16 @@ public FieldLocator(FieldPattern pattern) {
 	this.pattern = pattern;
 	this.isDeclarationOfAccessedFieldsPattern = this.pattern instanceof DeclarationOfAccessedFieldsPattern;
 }
-//public void match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(Expression node, MatchingNodeSet nodeSet) { // interested in Assignment
+//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Assignment
 	if (this.pattern.writeAccess) {
-		if (this.pattern.readAccess) return; // already checked the lhs in match(Reference...) before we reached here
+		if (this.pattern.readAccess) return IMPOSSIBLE_MATCH; // already checked the lhs in match(Reference...) before we reached here
 
 		if (node instanceof Assignment) {
 			Expression lhs = ((Assignment) node).lhs;
 			if (lhs instanceof Reference)
-				matchReference((Reference) lhs, nodeSet, true);
+				return matchReference((Reference) lhs, nodeSet, true);
 		}
 	} else if (this.pattern.readAccess) {
 		if (node instanceof Assignment && !(node instanceof CompoundAssignment)) {
@@ -50,9 +50,10 @@ public void match(Expression node, MatchingNodeSet nodeSet) { // interested in A
 			nodeSet.removePossibleMatch(lhs);
 			nodeSet.removeTrustedMatch(lhs);
 		}
-	}	
+	}
+	return IMPOSSIBLE_MATCH;
 }
-public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
+public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findReferences)
 		// must be a write only access with an initializer
@@ -67,18 +68,18 @@ public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 				if (matchesTypeReference(this.pattern.typeSimpleName, node.type))
 					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
-	int level = referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // use the stronger match
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(Reference node, MatchingNodeSet nodeSet) { // interested in FieldReference, NameReference & its subtypes
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(Reference node, MatchingNodeSet nodeSet) { // interested in FieldReference, NameReference & its subtypes
 	if (this.pattern.readAccess)
-		matchReference(node, nodeSet, false);
+		return matchReference(node, nodeSet, false);
+
+	return IMPOSSIBLE_MATCH;
 }
-//public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) {
@@ -113,33 +114,33 @@ protected int matchField(FieldBinding field, boolean matchName) {
 	int typeLevel = resolveLevelForType(this.pattern.typeSimpleName, this.pattern.typeQualification, field.type);
 	return declaringLevel > typeLevel ? typeLevel : declaringLevel; // return the weaker match
 }
-protected void matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
+protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
 	if (node instanceof FieldReference) {
 		if (matchesName(this.pattern.name, ((FieldReference) node).token))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else if (node instanceof NameReference) {
 		if (this.pattern.name == null) {
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		} else if (node instanceof SingleNameReference) {
 			if (matchesName(this.pattern.name, ((SingleNameReference) node).token))
-				nodeSet.addMatch(node, POSSIBLE_MATCH);
+				return nodeSet.addMatch(node, POSSIBLE_MATCH);
 		} else {
 			QualifiedNameReference qNameRef = (QualifiedNameReference) node;
 			char[][] tokens = qNameRef.tokens;
 			if (writeOnlyAccess) {
 				// in the case of the assigment of a qualified name reference, the match must be on the last token
 				if (matchesName(this.pattern.name, tokens[tokens.length-1]))
-					nodeSet.addMatch(node, POSSIBLE_MATCH);
+					return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			} else {
 				for (int i = 0, max = tokens.length; i < max; i++) {
 					if (matchesName(this.pattern.name, tokens[i])) {
-						nodeSet.addMatch(node, POSSIBLE_MATCH);
-						return;
+						return nodeSet.addMatch(node, POSSIBLE_MATCH);
 					}
 				}
 			}
 		}
 	}
+	return IMPOSSIBLE_MATCH;
 }
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {

@@ -38,43 +38,43 @@ public MethodLocator(MethodPattern pattern) {
 protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
 	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess();
 }
-//public void match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
-	if (!this.pattern.findDeclarations) return;
+//public int match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findDeclarations) return IMPOSSIBLE_MATCH;
 
-	if (!matchesName(this.pattern.selector, node.selector)) return;
+	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		AstNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
 
 		for (int i = 0; i < argsLength; i++)
-			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return;
+			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return IMPOSSIBLE_MATCH;
 	}
-	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return;
+	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return IMPOSSIBLE_MATCH;
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-public void match(MessageSend node, MatchingNodeSet nodeSet) {
-	if (!this.pattern.findReferences) return;
+public int match(MessageSend node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
-	if (!matchesName(this.pattern.selector, node.selector)) return;
+	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		AstNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-//public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) {

@@ -26,32 +26,26 @@ public PackageReferenceLocator(PackageReferencePattern pattern) {
 
 	this.pattern = pattern;
 }
-public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
-	if (!(node instanceof ImportReference)) return;
+public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
+	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 
-	int level = matchLevel((ImportReference) node);
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, matchLevel((ImportReference) node));
 }
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(Reference node, MatchingNodeSet nodeSet) { // interested in QualifiedNameReference
-	if (!(node instanceof QualifiedNameReference)) return;
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(Reference node, MatchingNodeSet nodeSet) { // interested in QualifiedNameReference
+	if (!(node instanceof QualifiedNameReference)) return IMPOSSIBLE_MATCH;
 
-	int level = matchLevelForTokens(((QualifiedNameReference) node).tokens);
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, matchLevelForTokens(((QualifiedNameReference) node).tokens));
 }
-//public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(TypeReference node, MatchingNodeSet nodeSet) { // interested in QualifiedTypeReference only
-	if (!(node instanceof QualifiedTypeReference)) return;
+//public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(TypeReference node, MatchingNodeSet nodeSet) { // interested in QualifiedTypeReference only
+	if (!(node instanceof QualifiedTypeReference)) return IMPOSSIBLE_MATCH;
 
-	int level = matchLevelForTokens(((QualifiedTypeReference) node).tokens);
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, matchLevelForTokens(((QualifiedTypeReference) node).tokens));
 }
 
 protected int matchLevel(ImportReference importRef) {

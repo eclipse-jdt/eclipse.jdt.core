@@ -23,57 +23,55 @@ public ConstructorLocator(ConstructorPattern pattern) {
 
 	this.pattern = pattern;
 }
-public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in ExplicitConstructorCall
-	if (!this.pattern.findReferences) return;
-	if (!(node instanceof ExplicitConstructorCall)) return;
+public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ExplicitConstructorCall
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	if (!(node instanceof ExplicitConstructorCall)) return IMPOSSIBLE_MATCH;
 
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = ((ExplicitConstructorCall) node).arguments;
 		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
+public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = this.pattern.findReferences ? matchLevelForReferences(node) : IMPOSSIBLE_MATCH;
 	int declarationsLevel = this.pattern.findDeclarations ? matchLevelForDeclarations(node) : IMPOSSIBLE_MATCH;
 
-	int level = referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // use the stronger match
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
-public void match(Expression node, MatchingNodeSet nodeSet) { // interested in AllocationExpression
-	if (!this.pattern.findReferences) return;
-	if (!(node instanceof AllocationExpression)) return;
+public int match(Expression node, MatchingNodeSet nodeSet) { // interested in AllocationExpression
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	if (!(node instanceof AllocationExpression)) return IMPOSSIBLE_MATCH;
 
 	// constructor name is simple type name
 	AllocationExpression allocation = (AllocationExpression) node;
 	char[][] typeName = allocation.type.getTypeName();
 	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, typeName[typeName.length-1]))
-		return;
+		return IMPOSSIBLE_MATCH;
 
 	if (this.pattern.parameterSimpleNames != null) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
-	if (!this.pattern.findReferences) return;
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 	// need to look for a generated default constructor
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-//public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) return ALL_CONTAINER; // handles both declarations + references & just references

@@ -28,41 +28,104 @@ public OrLocator(OrPattern pattern) {
 	for (int i = 0; i < length; i++)
 		this.patternLocators[i] = PatternLocator.patternLocator(patterns[i]);
 }
-public void match(AstNode node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(AstNode node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(Expression node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(Expression node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(MessageSend node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(MessageSend node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(Reference node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(Reference node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
-public void match(TypeReference node, MatchingNodeSet nodeSet) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++)
-		this.patternLocators[i].match(node, nodeSet);
+public int match(TypeReference node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
 }
 protected int matchContainer() {
 	int result = 0;

@@ -41,53 +41,50 @@ protected IJavaElement findElement(IJavaElement element, int accuracy) {
 		element = element.getParent();
 	return element;
 }
-public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
-	if (!(node instanceof ImportReference)) return;
+public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
+	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 
-	int level = matchLevel((ImportReference) node);
-	if (level >= POSSIBLE_MATCH)
-		nodeSet.addMatch(node, level);
+	return nodeSet.addMatch(node, matchLevel((ImportReference) node));
 }
-//public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(Reference node, MatchingNodeSet nodeSet) { // interested in NameReference & its subtypes
-	if (!(node instanceof NameReference)) return;
+//public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(Reference node, MatchingNodeSet nodeSet) { // interested in NameReference & its subtypes
+	if (!(node instanceof NameReference)) return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.simpleName == null) {
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-	} else if (node instanceof SingleNameReference) {
+	if (this.pattern.simpleName == null)
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+
+	if (node instanceof SingleNameReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleNameReference) node).token))
-			nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref 
+			return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref 
 	} else {
 		char[][] tokens = ((QualifiedNameReference) node).tokens;
-		for (int i = 0, max = tokens.length; i < max; i++) {
-			if (matchesName(this.pattern.simpleName, tokens[i])) {
-				nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
-				return;
-			}
-		}
+		for (int i = 0, max = tokens.length; i < max; i++)
+			if (matchesName(this.pattern.simpleName, tokens[i]))
+				return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 	}
+
+	return IMPOSSIBLE_MATCH;
 }
-//public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(TypeReference node, MatchingNodeSet nodeSet) {
+//public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(TypeReference node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null)
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleTypeReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleTypeReference) node).token))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[][] tokens = ((QualifiedTypeReference) node).tokens;
-		for (int i = 0, max = tokens.length; i < max; i++) {
-			if (matchesName(this.pattern.simpleName, tokens[i])) {
-				nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
-				return;
-			}
-		}
+		for (int i = 0, max = tokens.length; i < max; i++)
+			if (matchesName(this.pattern.simpleName, tokens[i]))
+				return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 	}
+
+	return IMPOSSIBLE_MATCH;
 }
 
 protected int matchLevel(ImportReference importRef) {
