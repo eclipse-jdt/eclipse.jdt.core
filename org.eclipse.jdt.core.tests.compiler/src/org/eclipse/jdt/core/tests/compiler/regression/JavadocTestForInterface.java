@@ -235,8 +235,8 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 5)\n"
 				+ "	* @see \"invalid\" no text allowed after the string\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
+				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Javadoc: Unexpected text\n"
 				+ "----------\n");
 	}
 
@@ -271,13 +271,13 @@ public class JavadocTestForInterface extends JavadocTest {
 			"----------\n"
 				+ "1. ERROR in IX.java (at line 4)\n"
 				+ "	* @see <a href=\"invalid\">invalid</a\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid URL link format\n"
+				+ "	                                ^^^\n"
+				+ "Javadoc: Malformed link reference\n"
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 5)\n"
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
+				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Javadoc: Unexpected text\n"
 				+ "----------\n");
 	}
 
@@ -1510,8 +1510,8 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 6)\n"
 				+ "	* @see \"invalid\" no text allowed after the string\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
+				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Javadoc: Unexpected text\n"
 				+ "----------\n");
 	}
 
@@ -1548,12 +1548,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "1. ERROR in IX.java (at line 5)\n"
 				+ "	* @see <a\n"
 				+ "	       ^^\n"
-				+ "Javadoc: Invalid URL link format\n"
+				+ "Javadoc: Malformed link reference\n"
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 6)\n"
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
+				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Javadoc: Unexpected text\n"
 				+ "----------\n");
 	}
 
