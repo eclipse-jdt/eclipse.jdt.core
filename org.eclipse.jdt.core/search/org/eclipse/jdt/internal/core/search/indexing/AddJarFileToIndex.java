@@ -36,7 +36,6 @@ class AddJarFileToIndex extends IndexRequest {
 		this.path = resource.getFullPath();
 		this.manager = manager;
 		this.projectName = projectName;
-		this.timeStamp = resource.getModificationStamp();
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
@@ -218,7 +217,5 @@ public int hashCode() {
 		this.path = path;
 		this.manager = manager;
 		this.projectName = projectName;
-		
-		this.timeStamp = new File(path.toOSString()).lastModified();
 	}
 }

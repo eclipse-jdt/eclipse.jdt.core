@@ -141,8 +141,19 @@ public void checkIndexConsistency() {
 		if (VERBOSE) JobManager.log("DONE ensuring consistency"); //$NON-NLS-1$
 	}
 }
-private String computeIndexName(String pathString) {
-	byte[] pathBytes = pathString.getBytes();
+private String computeIndexName(IPath path) {
+	
+	// find modification timestamp
+	String pathString = path.toOSString();
+	long timestamp;
+	IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+	if (resource != null) {
+		timestamp = resource.getModificationStamp();
+	} else {
+		timestamp = new File(pathString).lastModified();
+	}
+	
+	byte[] pathBytes = (pathString + timestamp).getBytes();
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
 	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
@@ -234,7 +245,7 @@ public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
 		try {
 			if (!mustCreate) return null;
 
-			String indexPath = computeIndexName(path.toOSString());
+			String indexPath = computeIndexName(path);
 			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
 			indexes.put(path, index);
 			monitors.put(index, new ReadWriteMonitor());
@@ -327,7 +338,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 	if (index != null) {
 		try {
 			// Path is already canonical
-			String indexPath = computeIndexName(path.toOSString());
+			String indexPath = computeIndexName(path);
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
 			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
 			index.empty();
@@ -465,10 +476,7 @@ public void indexLibrary(IPath path, IProject referingProject) {
 	// check if the same request is not already in the queue
 	for (int i = this.jobEnd; i >= this.jobStart; i--) {
 		IJob awaiting = this.awaitingJobs[i];
-		if (awaiting != null
-			&& request.equals(awaiting) 
-			&& (request.timeStamp == ((IndexRequest)awaiting).timeStamp)) {
-				
+		if (awaiting != null && request.equals(awaiting)) {
 			return;
 		}
 	}

@@ -25,7 +25,6 @@ public class IndexBinaryFolder extends IndexRequest {
 		this.folder = folder;
 		this.manager = manager;
 		this.project = project;
-		this.timeStamp = folder.getModificationStamp();
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(this.project.getName());

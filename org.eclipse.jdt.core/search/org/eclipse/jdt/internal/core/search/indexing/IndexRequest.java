@@ -8,8 +8,7 @@ import org.eclipse.jdt.internal.core.search.processing.IJob;
  */
 public abstract class IndexRequest implements IJob {
 	
-	/* The time the resource which is about to be indexed was last modified */
-	public long timeStamp = -1;
+
 	
 	protected boolean isCancelled = false;
 

@@ -28,7 +28,6 @@ public class IndexAllProject extends IndexRequest implements IResourceVisitor {
 	public IndexAllProject(IProject project, IndexManager manager) {
 		this.project = project;
 		this.manager = manager;
-		this.timeStamp = project.getModificationStamp();
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(project.getName());
