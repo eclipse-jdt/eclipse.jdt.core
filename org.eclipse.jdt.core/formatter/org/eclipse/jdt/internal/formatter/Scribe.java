@@ -668,11 +668,7 @@ public class Scribe {
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						} else if (count == 1) {
-							if (hasLineComment) {
-								printNewLine();
-							} else {
-								printNewLine();
-							}
+							printNewLine();
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						} else if (hasLineComment) {
@@ -709,7 +705,6 @@ public class Scribe {
 						break;
 					default :
 						// step back one token
-						printNewLine();
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 				}

@@ -1539,6 +1539,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						}
 						this.scribe.alignFragment(expressionsAlignment, 0);
 						expressions[0].traverse(this, scope);
+						this.scribe.printTrailingComment();
 						for (int i = 1; i < expressionsLength; i++) {
 							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 							if (this.preferences.insert_space_after_comma_in_array_initializer) {
@@ -1546,6 +1547,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							}
 							this.scribe.alignFragment(expressionsAlignment, i);
 							expressions[i].traverse(this, scope);
+							this.scribe.printTrailingComment();
 							if (i == expressionsLength - 1) {
 								if (isComma()) {
 									this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
