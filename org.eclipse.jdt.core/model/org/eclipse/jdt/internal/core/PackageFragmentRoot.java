@@ -54,7 +54,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  * Constructs a package fragment root which is the root of the java package
  * directory hierarchy.
  */
-protected PackageFragmentRoot(IResource resource, IJavaProject project, String name) {
+protected PackageFragmentRoot(IResource resource, JavaProject project, String name) {
 	super(PACKAGE_FRAGMENT_ROOT, project, name);
 	this.resource = resource;
 }

@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
@@ -232,18 +231,34 @@ public IType findPrimaryType() {
 	public IJavaElement getParent() {
 		return null;
 	}
-/*
- * @see IJavaElement
- */
-public IPath getPath() {
-	return null;
-}
-/*
- * @see IJavaElement
- */
-public IResource getResource() {
-	return null;
-}
+
+	/*
+	 * @see IJavaElement
+	 */
+	public IPath getPath() {
+		return null;
+	}
+
+	/*
+	 * @see ICompilationUnit#getPrimary()
+	 */
+	public ICompilationUnit getPrimary() {
+		return this;
+	}
+	
+	/*
+	 * @see ICompilationUnit#getPrimaryElement()
+	 */
+	public IJavaElement getPrimaryElement() {
+		return getPrimary();
+	}
+	
+	/*
+	 * @see IJavaElement
+	 */
+	public IResource getResource() {
+		return null;
+	}
 
 	/*
 	 * @see IJavaElement#getUnderlyingResource()
@@ -383,13 +398,6 @@ public IResource getResource() {
 	}
 
 	/*
-	 * @see ICompilationUnit#getOriginal()
-	 */
-	public ICompilationUnit getOriginal() {
-		return null;
-	}
-	
-	/*
 	 * @see IWorkingCopy#getOriginal(IJavaElement)
 	 */
 	public IJavaElement getOriginal(IJavaElement workingCopyElement) {
@@ -400,7 +408,7 @@ public IResource getResource() {
 	 * @see IWorkingCopy#getOriginalElement()
 	 */
 	public IJavaElement getOriginalElement() {
-		return new ClassFile((IPackageFragment)getParent(), getElementName());
+		return getPrimaryElement();
 	}
 
 	/**

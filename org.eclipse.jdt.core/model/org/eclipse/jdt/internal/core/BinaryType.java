@@ -37,7 +37,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	private static final String[] NO_STRINGS = new String[0];
 	
-protected BinaryType(IJavaElement parent, String name) {
+protected BinaryType(JavaElement parent, String name) {
 	super(TYPE, parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 }
@@ -194,7 +194,7 @@ public IType getDeclaringType() {
 			String enclosingClassFileName = enclosingName + SUFFIX_STRING_class;
 			return 
 				new BinaryType(
-					this.getPackageFragment().getClassFile(enclosingClassFileName),
+					(JavaElement)this.getPackageFragment().getClassFile(enclosingClassFileName),
 					enclosingName.substring(enclosingName.lastIndexOf('$')+1));
 		}
 	}
@@ -323,7 +323,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
  */
 public IType getType(String name) {
 	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + SUFFIX_STRING_class); //$NON-NLS-1$
-	return new BinaryType(classFile, name);
+	return new BinaryType((JavaElement)classFile, name);
 }
 /**
  * @see IType#getTypeQualifiedName()

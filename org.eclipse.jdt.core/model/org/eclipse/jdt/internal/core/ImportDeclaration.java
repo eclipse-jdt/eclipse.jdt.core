@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
  * Constructs an ImportDeclaration in the given import container
  * with the given name.
  */
-protected ImportDeclaration(IImportContainer parent, String name) {
+protected ImportDeclaration(ImportContainer parent, String name) {
 	super(IMPORT_DECLARATION, parent, name);
 }
 /**
@@ -59,6 +59,14 @@ protected char getHandleMementoDelimiter() {
 	// For import declarations, the handle delimiter is associated to the import container already
 	Assert.isTrue(false, "Should not be called"); //$NON-NLS-1$
 	return 0;
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	CompilationUnit cu = (CompilationUnit)fParent.getParent();
+	if (checkOwner && cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	return cu.getImport(fName);
 }
 /**
  * Returns true if the import is on-demand (ends with ".*")

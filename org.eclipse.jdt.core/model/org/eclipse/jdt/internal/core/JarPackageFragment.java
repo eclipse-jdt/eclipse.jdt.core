@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
@@ -33,7 +32,7 @@ class JarPackageFragment extends PackageFragment implements SuffixConstants {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
  */
-protected JarPackageFragment(IPackageFragmentRoot root, String name) {
+protected JarPackageFragment(PackageFragmentRoot root, String name) {
 	super(root, name);
 }
 /**

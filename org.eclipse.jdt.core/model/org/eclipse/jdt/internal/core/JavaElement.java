@@ -61,7 +61,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * This element's parent, or <code>null</code> if this
 	 * element does not have a parent.
 	 */
-	protected IJavaElement fParent;
+	protected JavaElement fParent;
 
 	/**
 	 * This element's name, or an empty <code>String</code> if this
@@ -81,7 +81,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *		Java element type constants
 	 *
 	 */
-	protected JavaElement(int type, IJavaElement parent, String name) throws IllegalArgumentException {
+	protected JavaElement(int type, JavaElement parent, String name) throws IllegalArgumentException {
 		if (type < JAVA_MODEL || type > IMPORT_DECLARATION) {
 			throw new IllegalArgumentException(Util.bind("element.invalidType")); //$NON-NLS-1$
 		}
@@ -373,7 +373,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public IJavaElement getParent() {
 		return fParent;
 	}
-	
+	/*
+	 * @see IJavaElement#getPrimaryElement()
+	 */
+	public IJavaElement getPrimaryElement() {
+		return getPrimaryElement(true);
+	}
+	/*
+	 * Returns the primary element. If checkOwner, and the cu owner is primary,
+	 * return this element.
+	 */
+	public IJavaElement getPrimaryElement(boolean checkOwner) {
+		return this;
+	}
 	/**
 	 * Returns the element that is located at the given source position
 	 * in this element.  This is a helper method for <code>ICompilationUnit#getElementAt</code>,

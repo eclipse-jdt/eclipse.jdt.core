@@ -272,21 +272,32 @@ IImportContainer getImportContainer();
  */
 IImportDeclaration[] getImports() throws JavaModelException;
 /**
- * Returns the original compilation unit (whose owner is the primary owner)
- * this working copy was created from, or this compilation unit if this is not a working copy.
+ * Returns the primary compilation unit (whose owner is the primary owner)
+ * this working copy was created from, or this compilation unit if this a primary
+ * compilation unit.
+ * <p>
+ * Note that the returned primary compilation unit can be in working copy mode.
+ * </p>
  * 
- * @return the original compilation unit this working copy was created from,
- * or this compilation unit if this is not a working copy
+ * @return the primary compilation unit this working copy was created from,
+ * or this compilation unit if it is primary
  * @since 3.0
  */
-ICompilationUnit getOriginal();
+ICompilationUnit getPrimary();
 /**
- * Returns the original element the specified working copy element was created from,
- * or <code>null</code> if this is not a working copy element.  This is a handle
- * only method, the returned element may or may not exist.
+ * Returns the original element the specified working copy element was created from.
+ * The owner of the returned element's compilation unit is the primary owner.
+ * This is a handle only method, the returned element may or may not exist.
+ * <p>
+ * Note that the returned element's compilation unit can be in working copy mode.
+ * </p>
+ * <p>
+ * Return the given element if the given element's compilation unit is not in working copy mode.
+ * </p>
+ * Returns <code>null</code> if the given element has no compilation unit ancestor.
  * 
- * @return the original element the specified working copy element was created from,
- * or <code>null</code> if this is not a working copy element
+ * @param workingCopyElement the given working copy element 
+ * @return the original element the specified working copy element was created from.
  * @since 3.0
  */
 IJavaElement getOriginal(IJavaElement workingCopyElement);

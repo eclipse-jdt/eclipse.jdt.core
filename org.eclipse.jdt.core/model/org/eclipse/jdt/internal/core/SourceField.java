@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -25,7 +26,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 /**
  * Constructs a handle to the field with the given name in the specified type. 
  */
-protected SourceField(IType parent, String name) {
+protected SourceField(JavaElement parent, String name) {
 	super(FIELD, parent, name);
 }
 /**
@@ -46,6 +47,17 @@ public Object getConstant() throws JavaModelException {
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	if (checkOwner) {
+		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
+		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	}
+	IJavaElement parent =fParent.getPrimaryElement(false);
+	return ((IType)parent).getField(fName);
 }
 /**
  * @see IField

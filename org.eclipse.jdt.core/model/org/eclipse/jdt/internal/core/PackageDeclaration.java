@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
  */
 
 /* package */ class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
-protected PackageDeclaration(ICompilationUnit parent, String name) {
+protected PackageDeclaration(CompilationUnit parent, String name) {
 	super(PACKAGE_DECLARATION, parent, name);
 }
 /**
@@ -34,6 +34,14 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEDECLARATION;
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
+	if (checkOwner && cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	return cu.getPackageDeclaration(fName);
 }
 /**
  * @private Debugging purposes

@@ -63,7 +63,7 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 	}
 	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
 		IBinaryField fieldInfo = fields[i];
-		IField field = new BinaryField(type, new String(fieldInfo.getName()));
+		IField field = new BinaryField((JavaElement)type, new String(fieldInfo.getName()));
 		newElements.put(field, fieldInfo);
 		children.add(field);
 	}
@@ -82,7 +82,7 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap n
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
 			IClassFile parentClassFile= ((IPackageFragment)this.classFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			IType innerType = new BinaryType(parentClassFile, new String(ClassFile.simpleName(binaryType.getName())));
+			IType innerType = new BinaryType((JavaElement)parentClassFile, new String(ClassFile.simpleName(binaryType.getName())));
 			children.add(innerType);
 		}
 	}
@@ -111,7 +111,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		for (int j= 0; j < pNames.length; j++) {
 			pNames[j]= new String(parameterTypes[j]);
 		}
-		IMethod method = new BinaryMethod(type, selector, pNames);
+		IMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
 		children.add(method);
 		newElements.put(method, methodInfo);
 	}

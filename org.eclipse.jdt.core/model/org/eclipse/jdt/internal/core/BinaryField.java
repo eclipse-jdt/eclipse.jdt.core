@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -25,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 /**
  * Constructs a handle to the field with the given name in the specified type. 
  */
-protected BinaryField(IType parent, String name) {
+protected BinaryField(JavaElement parent, String name) {
 	super(FIELD, parent, name);
 }
 /**

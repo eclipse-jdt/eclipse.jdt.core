@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
@@ -22,7 +21,7 @@ import org.eclipse.jdt.core.JavaModelException;
  * @see IImportContainer
  */
 public class ImportContainer extends SourceRefElement implements IImportContainer {
-protected ImportContainer(ICompilationUnit parent) {
+protected ImportContainer(CompilationUnit parent) {
 	super(IMPORT_CONTAINER, parent, ""); //$NON-NLS-1$
 }
 /**
@@ -36,6 +35,14 @@ protected char getHandleMementoDelimiter() {
  */
 public IImportDeclaration getImport(String name) {
 	return new ImportDeclaration(this, name);
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	CompilationUnit cu = (CompilationUnit)fParent;
+	if (checkOwner && cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	return cu.getImportContainer();
 }
 /**
  * @see ISourceReference

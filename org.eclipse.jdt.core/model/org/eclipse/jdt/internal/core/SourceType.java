@@ -39,7 +39,7 @@ public class SourceType extends Member implements IType {
 	 * An empty list of Strings
 	 */
 	protected static final String[] fgEmptyList= new String[] {};
-protected SourceType(IJavaElement parent, String name) {
+protected SourceType(JavaElement parent, String name) {
 	super(TYPE, parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 }
@@ -231,6 +231,21 @@ public IPackageFragment getPackageFragment() {
 	}
 	Assert.isTrue(false);  // should not happen
 	return null;
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	if (checkOwner) {
+		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
+		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	}
+	IJavaElement parent = fParent.getPrimaryElement(false);
+	if (parent instanceof IType) {
+		return ((IType)parent).getType(fName);
+	} else {
+		return ((ICompilationUnit)parent).getType(fName);
+	}
 }
 /**
  * @see IType

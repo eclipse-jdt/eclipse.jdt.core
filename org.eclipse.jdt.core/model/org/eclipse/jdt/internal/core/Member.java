@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  */
 
 /* package */ abstract class Member extends SourceRefElement implements IMember {
-protected Member(int type, IJavaElement parent, String name) {
+protected Member(int type, JavaElement parent, String name) {
 	super(type, parent, name);
 }
 protected boolean areSimilarMethods(

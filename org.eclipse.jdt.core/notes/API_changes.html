@@ -327,21 +327,39 @@ public abstract class WorkingCopyOwner {
 this is a handle-only operation and an <code>IResource</code> is also a handle. This restriction was removed and 
 <code>IJavaElement.getResource()</code> now returns a non-<code>null</code> value for a working copy.
 </li>
-<li>2003/06/19 (->M2)
+<li>2003/06/20 (->M2)
 The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
-the original element for a working copy is always an <code>ICompilationUnit</code>. So <code>getOriginal()</code> 
+the original element for a working copy is always an <code>ICompilationUnit</code>. So <code>getPrimary()</code> 
 was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. This new API replaces
 <code>getOriginalElement()</code>.
 <pre>
 /**
- * Returns the original compilation unit (whose owner is the primary owner)
- * this working copy was created from, or <code>null</code> if this is not a working copy.
+ * Returns the primary compilation unit (whose owner is the primary owner)
+ * this working copy was created from, or this compilation unit if this a primary
+ * compilation unit.
+ * Note that the returned primary compilation unit can be in working copy mode.
  * 
- * @return the original compilation unit this working copy was created from,
- * or <code>null</code> if this is not a working copy
+ * @return the primary compilation unit this working copy was created from,
+ * or this compilation unit if it is primary
  * @since 3.0
  */
-ICompilationUnit getOriginal();
+ICompilationUnit getPrimary();
+</pre>
+In the same manner, <code>IWorkingCopy.getOriginalElement(IJavaElement)</code> is replaced with
+<code>IJavaElement.getPrimaryElement()</code>.
+<pre>
+/**
+ * Returns the primary element (whose compilation unit is the primary compilation unit)
+ * this working copy element was created from, or this element if it is a descendant of a
+ * primary compilation unit or if it is not a descendant of a working copy (e.g. it is a
+ * binary member).
+ * The returned element may or may not exist.
+ * 
+ * @return the primary element this working copy element was created from, or this
+ *		element.
+ * @since 3.0
+ */
+IJavaElement getPrimaryElement();
 </pre>
 </li>
 </ul>

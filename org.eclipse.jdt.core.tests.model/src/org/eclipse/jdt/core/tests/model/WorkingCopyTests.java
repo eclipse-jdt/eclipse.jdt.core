@@ -528,7 +528,7 @@ public void testGetOriginalElementNotInWorkingCopy() throws CoreException {
 public void testGetOriginalField() throws JavaModelException {
 	IType type = this.copy.getType("A");
 	IJavaElement original = this.copy.getOriginal(type.getField("FIELD"));
-	assertTrue("Element is not a method", original instanceof IField && !((ICompilationUnit)original.getParent().getParent()).isWorkingCopy());
+	assertTrue("Element is not a field", original instanceof IField && !((ICompilationUnit)original.getParent().getParent()).isWorkingCopy());
 	assertTrue("Element should exist", original.exists());
 }
 /**

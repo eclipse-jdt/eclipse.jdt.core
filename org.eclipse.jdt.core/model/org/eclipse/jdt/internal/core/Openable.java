@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.codeassist.SelectionEngine;
  */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
 
-protected Openable(int type, IJavaElement parent, String name) {
+protected Openable(int type, JavaElement parent, String name) {
 	super(type, parent, name);
 }
 /**

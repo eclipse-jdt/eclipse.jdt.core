@@ -46,7 +46,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
  *
  * @see IPackageFragment
  */
-protected PackageFragment(IPackageFragmentRoot root, String name) {
+protected PackageFragment(PackageFragmentRoot root, String name) {
 	super(PACKAGE_FRAGMENT, root, name);
 }
 /**

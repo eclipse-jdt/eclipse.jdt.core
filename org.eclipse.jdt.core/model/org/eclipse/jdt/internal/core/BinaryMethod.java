@@ -86,7 +86,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 	protected static final String[] fgEmptyList= new String[] {};
 	protected String[] fExceptionTypes;
 	protected String fReturnType;
-protected BinaryMethod(IType parent, String name, String[] parameterTypes) {
+protected BinaryMethod(JavaElement parent, String name, String[] parameterTypes) {
 	super(METHOD, parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {

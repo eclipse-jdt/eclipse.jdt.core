@@ -179,7 +179,7 @@ public class JavaProject
 		super(JAVA_PROJECT, null, null);
 	}
 
-	public JavaProject(IProject project, IJavaElement parent) {
+	public JavaProject(IProject project, JavaElement parent) {
 		super(JAVA_PROJECT, parent, project.getName());
 		fProject = project;
 	}

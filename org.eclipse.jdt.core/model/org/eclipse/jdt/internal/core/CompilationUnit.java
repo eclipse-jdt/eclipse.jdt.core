@@ -55,7 +55,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
  * @exception IllegalArgumentException if the name of the compilation unit
  * does not end with ".java"
  */
-protected CompilationUnit(IPackageFragment parent, String name, WorkingCopyOwner owner) {
+protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
 	super(COMPILATION_UNIT, parent, name);
 	if (!Util.isJavaFileName(name)) {
 		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
@@ -605,7 +605,7 @@ protected char getHandleMementoDelimiter() {
  * @see ICompilationUnit#getImport(String)
  */
 public IImportDeclaration getImport(String name) {
-	return new ImportDeclaration(getImportContainer(), name);
+	return new ImportDeclaration((ImportContainer)getImportContainer(), name);
 }
 /**
  * @see ICompilationUnit#getImportContainer()
@@ -642,110 +642,26 @@ public char[] getMainTypeName(){
 	return name.toCharArray();
 }
 /*
- * @see ICompilationUnit#getOriginal()
- */
-public ICompilationUnit getOriginal() {
-	return new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
-}
-/*
- * @see ICompilationUnit#getOriginal(IJavaElement)
+ * @see IWorkingCopy#getOriginal(IJavaElement)
  */
 public IJavaElement getOriginal(IJavaElement workingCopyElement) {
+	// backward compatibility
 	if (!isWorkingCopy()) return null;
-	
-	//not a element contained in a compilation unit
-	int javaElementType = workingCopyElement.getElementType();
-	if (javaElementType < COMPILATION_UNIT || javaElementType == CLASS_FILE) {
+	CompilationUnit cu = (CompilationUnit)workingCopyElement.getAncestor(COMPILATION_UNIT);
+	if (cu == null || !this.owner.equals(cu.owner)) {
 		return null;
 	}
-	if (workingCopyElement instanceof BinaryMember) {
-		return null;
-	}
-	IJavaElement parent = workingCopyElement.getParent();
-	ArrayList hierarchy = new ArrayList(4);
 	
-	while (parent.getElementType() > COMPILATION_UNIT) {
-		hierarchy.add(parent);
-		parent = parent.getParent();
-	}
-	if (parent.getElementType() == COMPILATION_UNIT) {
-		hierarchy.add(((ICompilationUnit)parent).getOriginalElement());
-	}
-	
-	ICompilationUnit cu = (ICompilationUnit) getOriginalElement();
-	if (javaElementType == COMPILATION_UNIT) {
-		parent = workingCopyElement;
-	}
-	if (((ICompilationUnit) parent).isWorkingCopy() && !((ICompilationUnit) parent).getOriginalElement().equals(cu)) {
-		return null;
-	}
-	switch (javaElementType) {
-		case PACKAGE_DECLARATION :
-			return cu.getPackageDeclaration(workingCopyElement.getElementName());
-		case IMPORT_CONTAINER :
-			return cu.getImportContainer();
-		case IMPORT_DECLARATION :
-			return cu.getImport(workingCopyElement.getElementName());
-		case TYPE :
-			if (hierarchy.size() == 1) {
-				return cu.getType(workingCopyElement.getElementName());
-			} else {
-				//inner type
-				return getOriginalType(hierarchy).getType(workingCopyElement.getElementName());
-			}
-		case METHOD :
-			IType type;
-			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
-				type = cu.getType(typeName);
-			} else {
-				//inner type
-				type = getOriginalType(hierarchy);
-			}
-			return type.getMethod(workingCopyElement.getElementName(), ((IMethod) workingCopyElement).getParameterTypes());
-		case FIELD :
-			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
-				type = cu.getType(typeName);
-			} else {
-				//inner type
-				type = getOriginalType(hierarchy);
-			}
-			return type.getField(workingCopyElement.getElementName());
-		case INITIALIZER :
-			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
-				type = cu.getType(typeName);
-			} else {
-				//inner type
-				type = getOriginalType(hierarchy);
-			}
-			return type.getInitializer(((Initializer) workingCopyElement).getOccurrenceCount());
-		case COMPILATION_UNIT :
-			return cu;
-		default :
-			return null;
-	}
+	return workingCopyElement.getPrimaryElement();
 }
 /*
  * @see IWorkingCopy#getOriginalElement()
  */
 public IJavaElement getOriginalElement() {
+	// backward compatibility
 	if (!isWorkingCopy()) return null;
-	return getOriginal();
-}
-protected IType getOriginalType(ArrayList hierarchy) {
-	int size = hierarchy.size() - 1;
-	ICompilationUnit typeCU = (ICompilationUnit) hierarchy.get(size);
-	String typeName = ((IJavaElement) hierarchy.get(size - 1)).getElementName();
-	IType type = typeCU.getType(typeName);
-	size= size - 2;
-	while (size > -1) {
-		typeName = ((IJavaElement) hierarchy.get(size)).getElementName();
-		type = ((IType) type).getType(typeName);
-		size--;
-	}
-	return type;
+	
+	return getPrimaryElement();
 }
 /*
  * @see ICompilationUnit#getOwner()
@@ -791,6 +707,19 @@ public IPath getPath() {
  */
 public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
 	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
+}
+/*
+ * @see ICompilationUnit#getPrimary()
+ */
+public ICompilationUnit getPrimary() {
+	return (ICompilationUnit)getPrimaryElement(true);
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	if (checkOwner && this.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see IJavaElement#getResource()
@@ -865,7 +794,7 @@ public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaMode
 	
 	CompilationUnit workingCopy = 
 		new CompilationUnit(
-			(IPackageFragment)getParent(), 
+			(PackageFragment)getParent(), 
 			getElementName(), 
 			new DefaultWorkingCopyOwner());
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null, null);
@@ -881,7 +810,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 	
 	CompilationUnit workingCopy = 
 		new CompilationUnit(
-			(IPackageFragment)getParent(), 
+			(PackageFragment)getParent(), 
 			getElementName(), 
 			new BufferFactoryWrapper(factory));
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null, problemRequestor);
@@ -919,7 +848,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 			return workingCopy;
 		}
 	} 
-	workingCopy = new CompilationUnit((IPackageFragment)getParent(), getElementName(), workingCopyOwner);
+	workingCopy = new CompilationUnit((PackageFragment)getParent(), getElementName(), workingCopyOwner);
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, perOwnerWorkingCopies, problemRequestor);
 	runOperation(op, monitor);
 	return workingCopy;
@@ -1047,7 +976,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	// set the buffer source
 	if (buffer.getCharacters() == null) {
 		if (isWorkingCopy) {
-			ICompilationUnit original = new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
+			ICompilationUnit original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 			if (original.isOpen()) {
 				buffer.setContents(original.getSource());
 			} else {

@@ -25,7 +25,7 @@ public class BinaryMember extends Member {
 /**
  * Constructs a binary member.
  */
-protected BinaryMember(int type, IJavaElement parent, String name) {
+protected BinaryMember(int type, JavaElement parent, String name) {
 	super(type, parent, name);
 }
 /**

@@ -47,17 +47,39 @@ Eclipse SDK 3.0 Build - ?th June 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added API on <code>ICompilationUnit</code> to get the original compilation unit of a working copy 
+<li>Added API on <code>ICompilationUnit</code> to get the primary compilation unit of a working copy 
 	 (it replaces <code>IWorkingCopy.getOriginalElement()</code>):
 <pre>
 /**
- * Returns the original compilation unit (whose owner is the primary owner)
- * this working copy was created from, or this compilation unit if this is not a working copy.
+ * Returns the primary compilation unit (whose owner is the primary owner)
+ * this working copy was created from, or this compilation unit if this a primary
+ * compilation unit.
+ * <p>
+ * Note that the returned primary compilation unit can be in working copy mode.
+ * </p>
  * 
- * @return the original compilation unit this working copy was created from,
- * or this compilation unit if this is not a working copy
+ * @return the primary compilation unit this working copy was created from,
+ * or this compilation unit if it is primary
  * @since 3.0
  */
+ICompilationUnit getPrimary();
+</pre>
+</li>
+<li>Added API on <code>IJavaElement</code> to get the primary element of a working copy 
+	 element (it replaces <code>IWorkingCopy.getOriginalElement(IJavaElement)</code>):
+<pre>
+/**
+ * Returns the primary element (whose compilation unit is the primary compilation unit)
+ * this working copy element was created from, or this element if it is a descendant of a
+ * primary compilation unit or if it is not a descendant of a working copy (e.g. it is a
+ * binary member).
+ * The returned element may or may not exist.
+ * 
+ * @return the primary element this working copy element was created from, or this
+ * 			element.
+ * @since 3.0
+ */
+IJavaElement getPrimaryElement();
 </pre>
 </li>
 </ul>

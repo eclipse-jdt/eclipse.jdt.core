@@ -245,6 +245,19 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 2.0
 	 */
 	IPath getPath();
+	
+	/**
+	 * Returns the primary element (whose compilation unit is the primary compilation unit)
+	 * this working copy element was created from, or this element if it is a descendant of a
+	 * primary compilation unit or if it is not a descendant of a working copy (e.g. it is a
+	 * binary member).
+	 * The returned element may or may not exist.
+	 * 
+	 * @return the primary element this working copy element was created from, or this
+	 * 			element.
+	 * @since 3.0
+	 */
+	IJavaElement getPrimaryElement();
 
 	/**
 	 * Returns the innermost resource enclosing this element. 

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -35,7 +36,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 	 * An empty list of Strings
 	 */
 	protected static final String[] fgEmptyList= new String[] {};
-protected SourceMethod(IType parent, String name, String[] parameterTypes) {
+protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
 	super(METHOD, parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
@@ -118,6 +119,17 @@ public String[] getParameterNames() throws JavaModelException {
  */
 public String[] getParameterTypes() {
 	return fParameterTypes;
+}
+/*
+ * @see JavaElement#getPrimaryElement(boolean)
+ */
+public IJavaElement getPrimaryElement(boolean checkOwner) {
+	if (checkOwner) {
+		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
+		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	}
+	IJavaElement parent = fParent.getPrimaryElement(false);
+	return ((IType)parent).getMethod(fName, fParameterTypes);
 }
 /**
  * @see IMethod

@@ -16,7 +16,6 @@ import java.util.Stack;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -132,7 +131,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 
 	ICompilationUnit parentCU= (ICompilationUnit)parentHandle;
 	//create the import container and its info
-	IImportContainer importContainer= parentCU.getImportContainer();
+	ImportContainer importContainer= (ImportContainer)parentCU.getImportContainer();
 	if (this.importContainerInfo == null) {
 		this.importContainerInfo= new JavaElementInfo();
 		this.importContainerInfo.setIsStructureKnown(true);
@@ -180,7 +179,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		packageName= name;
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
-			handle = new PackageDeclaration((ICompilationUnit) parentHandle, new String(name));
+			handle = new PackageDeclaration((CompilationUnit) parentHandle, new String(name));
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -272,7 +271,7 @@ public void enterField(
 		IField handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new SourceField((IType) parentHandle, new String(name));
+			handle = new SourceField(parentHandle, new String(name));
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -384,7 +383,7 @@ protected void enterMethod(
 		
 		String[] parameterTypeSigs = convertTypeNamesToSigs(parameterTypes);
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new SourceMethod((IType) parentHandle, new String(name), parameterTypeSigs);
+			handle = new SourceMethod(parentHandle, new String(name), parameterTypeSigs);
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
