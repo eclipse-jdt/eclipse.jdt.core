@@ -113,28 +113,13 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
-  1GLBP65: ITPJCORE:WIN2000 - search: type refs - incorrect match
-  1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner class emulation
-  1GD07GK: ITPJUI:WIN98 - Code assist should qualify methods if needed.
-  1GL1HF8: ITPJCORE:WIN2000 - Missing implementation in the compiler compiling invalid code
-  1GL13OT: ITPJCORE:ALL - INameLookup should be removed
-  1GL1I9F: ITPJCORE:WIN2000 - Wrong source mapping for binary methods with parameters with identical simple names
-  1G4CIP0: ITPJUI:WIN - Source for binaries doesn't work for anonymous inner classes  
-  1GD79XM: ITPJCORE:WINNT - Search - search for field references - not all found
-  1GLA60W: ITPJCORE:WINNT - CodeAssist - should not propose declarations of method already locally implemented
-  1GLAEZB: ITPJCORE:WINNT - CodeAssist does not disambiguate method references
 
   PRs Closed in this Release
   ===============================================================================
-  1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
-  1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints 
-  1GEV78E: ITPJUI:WIN2000 - Code assist: private superclass methods show up, but others don't
-  1GDKKTS: ITPJUI:WINNT - CodeCompletion - import assist shows invisible types
-  1G7317O: ITPJCORE:WIN2000 - DCR - CodeAssist - code assist shows invisible members
   
 
 **********************************************************************************
-*** STABLE CONTENT (2.0 STREAM, v_203_06) ****************************************
+*** STABLE CONTENT (2.0 STREAM, v_203_08_demo_candidate) *************************
 **********************************************************************************
   
   What's new in this drop
@@ -203,6 +188,16 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GLBP65: ITPJCORE:WIN2000 - search: type refs - incorrect match
+  1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner class emulation
+  1GD07GK: ITPJUI:WIN98 - Code assist should qualify methods if needed.
+  1GL1HF8: ITPJCORE:WIN2000 - Missing implementation in the compiler compiling invalid code
+  1GL13OT: ITPJCORE:ALL - INameLookup should be removed
+  1GL1I9F: ITPJCORE:WIN2000 - Wrong source mapping for binary methods with parameters with identical simple names
+  1G4CIP0: ITPJUI:WIN - Source for binaries doesn't work for anonymous inner classes  
+  1GD79XM: ITPJCORE:WINNT - Search - search for field references - not all found
+  1GLA60W: ITPJCORE:WINNT - CodeAssist - should not propose declarations of method already locally implemented
+  1GLAEZB: ITPJCORE:WINNT - CodeAssist does not disambiguate method references
   1GL4F3J: ITPJCORE:WINNT - Completion on declaration should also provide thrown exceptions
   1GL11J6: ITPJCORE:WIN2000 - search: missing field references (nested types)
   1GL12XE: ITPJCORE:WIN2000 - search: missing field references in inner class
@@ -234,6 +229,11 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
+  1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints 
+  1GEV78E: ITPJUI:WIN2000 - Code assist: private superclass methods show up, but others don't
+  1GDKKTS: ITPJUI:WINNT - CodeCompletion - import assist shows invisible types
+  1G7317O: ITPJCORE:WIN2000 - DCR - CodeAssist - code assist shows invisible members
   1GKK930: ITPJCORE:WINNT - No code assist for Inner type
   1GIIDGX: ITPJUI:WINNT - open on type: does not work on some types
   1GKOFO6: ITPJCORE:WINNT - Internal error searching for class references
