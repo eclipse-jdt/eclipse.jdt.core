@@ -408,7 +408,7 @@ public void test018() {
 	);
 }
 /*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21187
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=12287
  */
 public void test019() {
 	this.runNegativeTest(
@@ -424,12 +424,12 @@ public void test019() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	foo[0] = \n" + 
-		"	       ^\n" + 
+		"	     ^\n" + 
 		"Syntax error, insert \"AssignmentOperator ArrayInitializer\" to complete ArrayInitializerAssignement\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	foo[0] = \n" + 
-		"	       ^\n" + 
+		"	     ^\n" + 
 		"Syntax error, insert \";\" to complete Statement\n" + 
 		"----------\n"
 	);
