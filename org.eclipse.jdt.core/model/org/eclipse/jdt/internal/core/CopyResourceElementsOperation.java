@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -563,7 +562,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			return null; //nothing to change
 		} else {
 			String typeName = cu.getElementName();
-			typeName = typeName.substring(0, typeName.length() - 5);
+			typeName = typeName.substring(0, typeName.length() - 5); // TODO (jerome) should not hardcode extension length
 			// ensure cu is consistent (noop if already consistent)
 			cu.makeConsistent(this.progressMonitor);
 			this.parser.setSource(cu);
@@ -622,32 +621,34 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 		}
 	}
-		/**
-	 * Renames the main type in <code>cu</code>.
-	 */
-	private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, ASTRewrite rewriter) throws JavaModelException {
-		if (newName != null) {
-			String oldTypeName= oldName.substring(0, oldName.length() - 5);
-			String newTypeName= newName.substring(0, newName.length() - 5);
-			AST ast = astCU.getAST();
-			// update main type name
-			IType[] types = cu.getTypes();
-			for (int i = 0, max = types.length; i < max; i++) {
-				IType currentType = types[i];
-				if (currentType.getElementName().equals(oldTypeName)) {
-					AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) ((JavaElement) currentType).findNode(astCU);
-					if (typeNode != null) {
-						// rename type
-						rewriter.replace(typeNode.getName(), ast.newSimpleName(newTypeName), null);
-						if (typeNode instanceof TypeDeclaration) {
+			/**
+		 * Renames the main type in <code>cu</code>.
+		 */
+		private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, ASTRewrite rewriter) throws JavaModelException {
+			if (newName != null) {
+				String oldTypeName= oldName.substring(0, oldName.length() - 5);
+				String newTypeName= newName.substring(0, newName.length() - 5);
+				AST ast = astCU.getAST();
+				// update main type name
+				IType[] types = cu.getTypes();
+				for (int i = 0, max = types.length; i < max; i++) {
+					IType currentType = types[i];
+					if (currentType.getElementName().equals(oldTypeName)) {
+						AbstractTypeDeclaration typeNode = (AbstractTypeDeclaration) ((JavaElement) currentType).findNode(astCU);
+						if (typeNode != null) {
+							// rename type
+							rewriter.replace(typeNode.getName(), ast.newSimpleName(newTypeName), null);
 							// rename constructors
-							MethodDeclaration[] methods = ((TypeDeclaration) typeNode).getMethods();
-							for (int j = 0, length = methods.length; j < length; j++) {
-								MethodDeclaration methodDeclaration = methods[j];
-								if (methodDeclaration.isConstructor()) {
-									SimpleName methodName = methodDeclaration.getName();
-									if (methodName.getIdentifier().equals(oldTypeName)) {
-										rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+							Iterator bodyDeclarations = typeNode.bodyDeclarations().iterator();
+							while (bodyDeclarations.hasNext()) {
+								Object bodyDeclaration = bodyDeclarations.next();
+								if (bodyDeclaration instanceof MethodDeclaration) {
+									MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+									if (methodDeclaration.isConstructor()) {
+										SimpleName methodName = methodDeclaration.getName();
+										if (methodName.getIdentifier().equals(oldTypeName)) {
+											rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+										}
 									}
 								}
 							}
@@ -656,7 +657,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 			}
 		}
-	}
 	/**
 	 * Possible failures:
 	 * <ul>

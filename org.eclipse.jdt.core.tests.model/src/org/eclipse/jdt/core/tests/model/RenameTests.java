@@ -179,6 +179,11 @@ public void setUpSuite() throws Exception {
 	);
 }
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(RenameTests.class.getName());
+		suite.addTest(new RenameTests("testRenameEnum"));
+		return suite;
+	}
 	return new Suite(RenameTests.class);
 }
 /**
@@ -379,6 +384,37 @@ public void testRenameEmptyPF() throws CoreException {
 		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}\n" + 
 		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
 	);
+}
+/*
+ * Ensures that renaming an enum also renames the constructors of this enum.
+ * (regression test for bug 83593 Rename of enum type does not update constructor / throws ClassCastException)
+ */
+public void testRenameEnum() throws CoreException {
+	try {
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile(
+			"/P15/En.java",
+			"public enum En {\n" +
+			"  ;\n" +
+			"  En() {\n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit enumCU = getCompilationUnit("/P15/En.java");
+		enumCU.rename("OtherEnum.java", false, null);
+		ICompilationUnit renamedCu = getCompilationUnit("/P15/OtherEnum.java");
+		assertSourceEquals(
+			"Unexpected source after rename",
+			"public enum OtherEnum {\n" +
+			"  ;\n" +
+			"  OtherEnum() {\n" +
+			"  }\n" +
+			"}",
+			renamedCu.getSource()
+		);
+	} finally {
+		deleteProject("P15");
+	}
 }
 /**
  * Ensures that fields can be renamed.  
