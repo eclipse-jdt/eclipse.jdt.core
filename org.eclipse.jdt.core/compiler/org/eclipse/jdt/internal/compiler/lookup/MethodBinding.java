@@ -58,7 +58,6 @@ public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declar
 }
 /* Answer true if the argument types & the receiver's parameters are equal
 */
-
 public final boolean areParametersEqual(MethodBinding method) {
 	TypeBinding[] args = method.parameters;
 	if (parameters == args)
@@ -71,6 +70,23 @@ public final boolean areParametersEqual(MethodBinding method) {
 	for (int i = 0; i < length; i++)
 		if (parameters[i] != args[i])
 			return false;
+	return true;
+}
+/* Answer true if the argument types & the receiver's parameters are equivalent
+*/
+public final boolean areParametersEquivalent(MethodBinding method) {
+	TypeBinding[] args = method.parameters;
+	if (parameters == args)
+		return true;
+
+	int length = parameters.length;
+	if (length != args.length)
+		return false;
+	
+	for (int i = 0; i < length; i++)
+		if (parameters[i] != args[i])
+			if (!parameters[i].isTypeVariable() || !args[i].isTypeVariable())
+				return false;
 	return true;
 }
 /* API

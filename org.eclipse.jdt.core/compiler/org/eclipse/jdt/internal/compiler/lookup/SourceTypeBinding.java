@@ -570,7 +570,7 @@ public MethodBinding[] getMethods(char[] selector) {
 						for (int i = 0; i < m; i++) {
 							MethodBinding method2 = methods[i];
 							if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-								if (method.areParametersEqual(method2)) {
+								if (method.areParametersEquivalent(method2)) {
 									if (methodDecl == null) {
 										methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
 										scope.problemReporter().duplicateMethodInType(this, methodDecl);
@@ -717,7 +717,7 @@ public MethodBinding[] methods() {
 				for (int i = 0; i < m; i++) {
 					MethodBinding method2 = methods[i];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						if (method.areParametersEqual(method2)) {
+						if (method.areParametersEquivalent(method2)) {
 							if (methodDecl == null) {
 								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
 								scope.problemReporter().duplicateMethodInType(this, methodDecl);
