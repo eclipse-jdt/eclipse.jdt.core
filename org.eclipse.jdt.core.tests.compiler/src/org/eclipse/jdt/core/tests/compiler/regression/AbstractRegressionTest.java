@@ -93,7 +93,9 @@ protected Map getCompilerOptions() {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
 			CompilerOptions.WARNING);
-
+		defaultOptions.put(
+			CompilerOptions.OPTION_PreserveUnusedLocal, 
+			CompilerOptions.PRESERVE);
 		return defaultOptions;
 }
 protected String[] getDefaultClassPaths() {
