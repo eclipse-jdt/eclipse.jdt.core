@@ -133,7 +133,7 @@ public class Scribe {
 						boolean canBeRemoved = true;
 						loop: for (int i = previousOffset; i < previousOffset + previousReplacementLength; i++) {
 							if (scanner.source[i] != previousReplacement.charAt(i - previousOffset)) {
-								this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement);
+								this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousReplacementLength, previousReplacement);
 								canBeRemoved = false;
 								break loop;
 							}
@@ -721,7 +721,8 @@ public class Scribe {
 		column = 1;
 		needSpace = false;
 	}
-	
+
+
 	public void printNextToken(int expectedTokenType){
 		printNextToken(expectedTokenType, false);
 	}

@@ -2650,6 +2650,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNewLine();
 				}
 			} else {
+				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
 				this.scribe.indent();
 				thenStatement.traverse(this, scope);
