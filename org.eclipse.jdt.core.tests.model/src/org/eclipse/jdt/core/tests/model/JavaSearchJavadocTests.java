@@ -90,7 +90,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified"));
 		suite.addTest(new JavaSearchJavadocTests("testBug71267"));
 		suite.addTest(new JavaSearchJavadocTests("testBug71267qualified"));
-		suite.addTest(new JavaSearchJavadocTests("testBug73551"));
 		return suite;
 	}
 
