@@ -58,7 +58,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL("converterJcl");
+		setupExternalJCL("converterJclMin");
 		setUpJavaProject("Converter"); //$NON-NLS-1$
 		
 		setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
