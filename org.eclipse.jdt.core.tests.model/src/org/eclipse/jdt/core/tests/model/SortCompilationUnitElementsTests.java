@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.util.JavaCompilationUnitSorter;
+import org.eclipse.jdt.core.util.CompilationUnitSorter;
+import org.eclipse.jdt.core.util.CompilationUnitSorter.DefaultJavaElementComparator;
 
 /**
  * 
@@ -40,24 +41,14 @@ public void setUpSuite() throws Exception {
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
 	debug(unit, "BEFORE");
-	JavaCompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new DefaultJavaElementComparator(), new NullProgressMonitor());
+	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(), new NullProgressMonitor());
 	String sortedSource = unit.getBuffer().getContents();
 	assertEquals("Different output", sortedSource, expectedResult);
-	JavaCompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new DefaultJavaElementComparator(), new NullProgressMonitor());
+	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(), new NullProgressMonitor());
 	String sortedSource2 = unit.getBuffer().getContents();
 	debug(unit, "AFTER");
 	assertEquals("Different output", sortedSource, sortedSource2);
 }
-private void sortUnit(ICompilationUnit unit) throws CoreException {
-	debug(unit, "BEFORE");
-	JavaCompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new DefaultJavaElementComparator(), new NullProgressMonitor());
-	String sortedSource = unit.getBuffer().getContents();
-	JavaCompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new DefaultJavaElementComparator(), new NullProgressMonitor());
-	String sortedSource2 = unit.getBuffer().getContents();
-	debug(unit, "AFTER");
-	assertEquals("Different output", sortedSource, sortedSource2);
-}
-
 private void debug(ICompilationUnit unit, String id) throws JavaModelException {
 	String source = unit.getBuffer().getContents();
 	if (DEBUG) {
@@ -100,7 +91,7 @@ public void test001() throws CoreException {
 			"package p;\n" +
 			"public class X {\n" +
 			"	\n" +
-			"	class D {\n" +
+			"	static class D {\n" +
 			"		String toString() {\n" +
 			"			return \"HELLO\";\n" +
 			"		}\n" +
@@ -142,7 +133,7 @@ public void test001() throws CoreException {
 			"}\n" + 
 			"// end of compilation unit\n"
 		);
-		String expectedResult = "/**\n" +			" *\n" +			" */\n" +			"package p;\n" +			"public class X {\n" +			"	\n" +			"	class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"	// start of static field declaration\n" +			"\n" +			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +			"\n" +			"	Object b1 = null, a1 = new Object() {\n" +			"		void bar() {\n" +			"		}\n" +			"		void bar2() {\n" +			"		}\n" +			"		void bar3() {\n" +			"		}\n" +			"		void bar4() {\n" +			"			System.out.println();\n" +			"		}\n" +			"	}, c1 = null; // end of multiple field declaration\n" +			"	void bar() {\n" +			"		\n" +			"\n" +			"		class E {\n" +			"			void bar2() {}\n" +			"			void bar7() {\n" +			"				System.out.println();\n" +			"			}\n" +			"			void bar9() {}\n" +			"		}\n" +			"		Object o = new E();\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"	}\n" +			"	void bar(int i) {\n" +			"	}\n" +			"	// end of class X\n" +			"}\n" +			"// end of compilation unit\n";
+		String expectedResult = "/**\n" +			" *\n" +			" */\n" +			"package p;\n" +			"public class X {\n" +			"	\n" +			"	static class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"	// start of static field declaration\n" +			"\n" +			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +			"\n" +			"	Object b1 = null, a1 = new Object() {\n" +			"		void bar() {\n" +			"		}\n" +			"		void bar2() {\n" +			"		}\n" +			"		void bar3() {\n" +			"		}\n" +			"		void bar4() {\n" +			"			System.out.println();\n" +			"		}\n" +			"	}, c1 = null; // end of multiple field declaration\n" +			"	void bar() {\n" +			"		\n" +			"\n" +			"		class E {\n" +			"			void bar2() {}\n" +			"			void bar7() {\n" +			"				System.out.println();\n" +			"			}\n" +			"			void bar9() {}\n" +			"		}\n" +			"		Object o = new E();\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"	}\n" +			"	void bar(int i) {\n" +			"	}\n" +			"	// end of class X\n" +			"}\n" +			"// end of compilation unit\n";
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/p/X.java");
