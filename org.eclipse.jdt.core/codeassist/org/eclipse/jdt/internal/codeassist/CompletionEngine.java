@@ -2366,22 +2366,37 @@ public final class CompletionEngine
 		
 		if (token.length == 0) {
 			if(expectedTypesPtr > -1) {
-				for (int i = 0; i <= expectedTypesPtr; i++) {
+				next : for (int i = 0; i <= expectedTypesPtr; i++) {
 					if(expectedTypes[i] instanceof ReferenceBinding) {
 						ReferenceBinding refBinding = (ReferenceBinding)expectedTypes[i];
 						boolean inSameUnit = unitScope.isDefinedInSameUnit(refBinding);
 						
 						// top level types of the current unit are already proposed.
 						if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+							char[] packageName = refBinding.qualifiedPackageName();
+							char[] typeName = refBinding.sourceName();
+							char[] completionName = typeName;
+							
+							if (!insideQualifiedReference && !refBinding.isMemberType()) {
+								if (mustQualifyType(packageName, typeName)) {
+									if (packageName == null || packageName.length == 0)
+										if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+											continue next; // ignore types from the default package from outside it
+									completionName = CharOperation.concat(packageName, typeName, '.');
+								}
+							}
+							
 							int relevance = computeBaseRelevance();
 							relevance += computeRelevanceForInterestingProposal();
-							relevance += R_CASE + R_EXPECTED_TYPE;
+							relevance += computeRelevanceForCaseMatching(token, typeName);
+							relevance += computeRelevanceForExpectingType(refBinding);
+							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
 								requestor.acceptClass(
-									refBinding.qualifiedPackageName(),
-									refBinding.sourceName(),
-									refBinding.sourceName(),
+									packageName,
+									typeName,
+									completionName,
 									refBinding.modifiers,
 									startPosition - offset, 
 									endPosition - offset,
@@ -2389,9 +2404,9 @@ public final class CompletionEngine
 							} else if (refBinding.isInterface()) {
 								relevance += computeRelevanceForInterface();
 								requestor.acceptInterface(
-									refBinding.qualifiedPackageName(),
-									refBinding.sourceName(),
-									refBinding.sourceName(),
+									packageName,
+									typeName,
+									completionName,
 									refBinding.modifiers,
 									startPosition - offset, 
 									endPosition - offset,
