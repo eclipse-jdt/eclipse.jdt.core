@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.JavaElement;
 
 /**
  * A search match represents the result of a search query.
@@ -158,5 +159,20 @@ public class SearchMatch {
 	 */
 	public final void setOffset(int offset) {
 		this.offset = offset;
+	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Search match"); //$NON-NLS-1$
+		buffer.append("\n  offset="); //$NON-NLS-1$
+		buffer.append(this.offset);
+		buffer.append("\n  length="); //$NON-NLS-1$
+		buffer.append(this.length);
+		buffer.append("\n  element="); //$NON-NLS-1$
+		buffer.append(((JavaElement)getElement()).toStringWithAncestors());
+		return buffer.toString();
 	}
 }
