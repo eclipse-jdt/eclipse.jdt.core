@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="export-executable" default="build" basedir="..">
 
+	<property name="version" value="2.1.3" />
 	<property name="gcc-path" value="C:/java_tools/thisiscool-gcc/gcc-4.0" />
-	<property name="binaryname" value="ejavac40" />
+	<property name="binaryname" value="ejavac${version}" />
 	<property name="dest" value="../../bingcj/" />
 	<property name="work" value="${dest}tmp/" />
+	<property name="source" value="C:/eclipse/workspaces/3.0.1/org.eclipse.jdt.core" />
 	<property name="gcj_script_name" value="export-executable.xml"/>
 
     <target name="build">
-
 		<echo message="target: ${dest}" />
-		<mkdir dir="${dest}" />
-		<delete dir="${dest}" />
+		<delete dir="${dest}" failonerror="no"/>
 		<mkdir dir="${dest}" />
 	
 		<copy todir="${work}">
-		    <fileset dir="batch/" excludes='**/*.html' />
+		    <fileset dir="${source}/batch/" excludes='**/*.html' />
 		</copy>
 		<copy todir="${work}">
-		    <fileset dir="compiler/" excludes='**/*.html' />
+		    <fileset dir="${source}/compiler/" excludes='**/*.html' />
 		</copy>
 	
 		<echo message="generate build script" />
