@@ -32,7 +32,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 25 };
+//		TESTS_NUMBERS = new int[] { 74 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -1324,17 +1324,16 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
 	public void test053() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"@interface I {\n" + 
-				"    byte value() default (byte) 0;\n" + 
+				"    byte value() default 0;\n" + 
 				"}\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"    @I((byte)2) void foo() {\n" + 
+				"    @I(2) void foo() {\n" + 
 				"    }\n" + 
 				"}\n"
 			},
@@ -1372,17 +1371,16 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
 	public void test054() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"@interface I {\n" + 
-				"    short value() default (short) 0;\n" + 
+				"    short value() default 0;\n" + 
 				"}\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"    @I((short)2) void foo() {\n" + 
+				"    @I(2) void foo() {\n" + 
 				"    }\n" + 
 				"}\n"
 			},
@@ -1760,7 +1758,6 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
 	public void test062() {
 		this.runConformTest(
 			new String[] {
@@ -1776,8 +1773,8 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    Color[] enums() default { Color.GREEN };\n" + 
 				"    Foo[] annotations() default { @Foo() };\n" + 
 				"    int[] ints() default { 0, 1, 2, 3 };\n" + 
-				"    byte[] bytes() default { (byte) 0 };\n" + 
-				"    short[] shorts() default { (short) 0 };\n" + 
+				"    byte[] bytes() default { 0 };\n" + 
+				"    short[] shorts() default { 0 };\n" + 
 				"    long[] longs() default { Long.MIN_VALUE, Long.MAX_VALUE };\n" + 
 				"    String[] strings() default { \"\" };\n" + 
 				"    boolean[] booleans() default { true, false };\n" + 
@@ -1789,8 +1786,8 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    @I(enums=Color.RED,\n" + 
 				"		annotations=@Foo(),\n" + 
 				"		ints=2,\n" + 
-				"		bytes=(byte) 1,\n" + 
-				"		shorts=(short) 5,\n" + 
+				"		bytes=1,\n" + 
+				"		shorts=5,\n" + 
 				"		longs=Long.MIN_VALUE,\n" + 
 				"		strings=\"Hi\",\n" + 
 				"		booleans=true,\n" +
@@ -1834,8 +1831,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 31]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1843,7 +1839,6 @@ public class AnnotationTest extends AbstractComparisonTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	
-	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
 	public void test063() {
 		this.runConformTest(
 			new String[] {
@@ -1859,8 +1854,8 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    Color enums() default Color.GREEN;\n" + 
 				"    Foo annotations() default @Foo();\n" + 
 				"    int ints() default 0;\n" + 
-				"    byte bytes() default (byte) 0;\n" + 
-				"    short shorts() default (short) 0;\n" + 
+				"    byte bytes() default 0;\n" + 
+				"    short shorts() default 0;\n" + 
 				"    long longs() default Long.MIN_VALUE;\n" + 
 				"    String strings() default \"\";\n" + 
 				"    boolean booleans() default true;\n" + 
@@ -1872,8 +1867,8 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    @I(enums=Color.RED,\n" + 
 				"		annotations=@Foo(),\n" + 
 				"		ints=2,\n" + 
-				"		bytes=(byte) 1,\n" + 
-				"		shorts=(short) 5,\n" + 
+				"		bytes=1,\n" + 
+				"		shorts=5,\n" + 
 				"		longs=Long.MIN_VALUE,\n" + 
 				"		strings=\"Hi\",\n" + 
 				"		booleans=true,\n" +
@@ -2195,6 +2190,204 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	   ^^^^^^^^\n" + 
 			"The attribute hashCode is undefined for the annotation type I\n" + 
 			"----------\n");
+	}
+	// check code generation of annotation default attribute (autowrapping)
+	public void test073() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"    double value() default 0.0;\n" + 
+				"    int id() default 0;\n" + 
+				"}\n" + 
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color[] enums() default Color.GREEN;\n" + 
+				"    Foo[] annotations() default @Foo();\n" + 
+				"    int[] ints() default 0;\n" + 
+				"    byte[] bytes() default 1;\n" + 
+				"    short[] shorts() default 3;\n" + 
+				"    long[] longs() default Long.MIN_VALUE;\n" + 
+				"    String[] strings() default \"\";\n" + 
+				"    boolean[] booleans() default true;\n" + 
+				"    float[] floats() default Float.MAX_VALUE;\n" + 
+				"    double[] doubles() default Double.MAX_VALUE;\n" + 
+				"    Class[] classes() default I.class;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(enums=Color.RED,\n" + 
+				"		annotations=@Foo(),\n" + 
+				"		ints=2,\n" + 
+				"		bytes=1,\n" + 
+				"		shorts=5,\n" + 
+				"		longs=Long.MIN_VALUE,\n" + 
+				"		strings=\"Hi\",\n" + 
+				"		booleans=true,\n" +
+				"		floats=0.0f,\n" +
+				"		doubles=-0.0) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
+			"abstract @interface I extends java.lang.Object implements java.lang.annotation.Annotation {\n" + 
+			"  \n" + 
+			"  // Method descriptor  #8 ()[LColor;\n" + 
+			"  abstract public Color[] enums() default {Color.GREEN};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #13 ()[LFoo;\n" + 
+			"  abstract public Foo[] annotations() default {@Foo()};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #16 ()[I\n" + 
+			"  abstract public int[] ints() default {(int) 0};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #19 ()[B\n" + 
+			"  abstract public byte[] bytes() default {(byte) 1};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #22 ()[S\n" + 
+			"  abstract public short[] shorts() default {(short) 3};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #25 ()[J\n" + 
+			"  abstract public long[] longs() default {-9223372036854775808L};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #29 ()[Ljava/lang/String;\n" + 
+			"  abstract public String[] strings() default {\"\"};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #32 ()[Z\n" + 
+			"  abstract public boolean[] booleans() default {true};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #34 ()[F\n" + 
+			"  abstract public float[] floats() default {3.4028235E38f};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #37 ()[D\n" + 
+			"  abstract public double[] doubles() default {1.7976931348623157E308};\n" + 
+			"  \n" + 
+			"  // Method descriptor  #41 ()[Ljava/lang/Class;\n" + 
+			"  abstract public Class[] classes() default {I};\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	// check code generation of annotation default attribute non array types
+	public void test074() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"    double value() default 0.0;\n" + 
+				"    int id() default 0;\n" + 
+				"}\n" + 
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color _enum() default Color.GREEN;\n" + 
+				"    Foo _annotation() default @Foo();\n" + 
+				"    int _int() default 0;\n" + 
+				"    byte _byte() default 1;\n" + 
+				"    short _short() default 3;\n" + 
+				"    long _long() default Long.MIN_VALUE;\n" + 
+				"    String _string() default \"\";\n" + 
+				"    boolean _boolean() default true;\n" + 
+				"    float _float() default Float.MAX_VALUE;\n" + 
+				"    double _double() default Double.MAX_VALUE;\n" + 
+				"    Class _class() default I.class;\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"    @I(_enum=Color.RED,\n" + 
+				"		_annotation=@Foo(),\n" + 
+				"		_int=2,\n" + 
+				"		_byte=1,\n" + 
+				"		_short=5,\n" + 
+				"		_long=Long.MIN_VALUE,\n" + 
+				"		_string=\"Hi\",\n" + 
+				"		_boolean=true,\n" +
+				"		_float=0.0f,\n" +
+				"		_double=-0.0) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
+			"abstract @interface I extends java.lang.Object implements java.lang.annotation.Annotation {\n" + 
+			"  \n" + 
+			"  // Method descriptor  #8 ()LColor;\n" + 
+			"  abstract public Color _enum() default Color.GREEN;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #13 ()LFoo;\n" + 
+			"  abstract public Foo _annotation() default @Foo();\n" + 
+			"  \n" + 
+			"  // Method descriptor  #16 ()I\n" + 
+			"  abstract public int _int() default (int) 0;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #19 ()B\n" + 
+			"  abstract public byte _byte() default (byte) 1;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #22 ()S\n" + 
+			"  abstract public short _short() default (short) 3;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #25 ()J\n" + 
+			"  abstract public long _long() default -9223372036854775808L;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #29 ()Ljava/lang/String;\n" + 
+			"  abstract public String _string() default \"\";\n" + 
+			"  \n" + 
+			"  // Method descriptor  #32 ()Z\n" + 
+			"  abstract public boolean _boolean() default true;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #34 ()F\n" + 
+			"  abstract public float _float() default 3.4028235E38f;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #37 ()D\n" + 
+			"  abstract public double _double() default 1.7976931348623157E308;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #41 ()Ljava/lang/Class;\n" + 
+			"  abstract public Class _class() default I;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}	
-	
 }
