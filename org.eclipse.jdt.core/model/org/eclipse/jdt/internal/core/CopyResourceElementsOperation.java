@@ -283,7 +283,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					try {
 						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
 						// fix bug 66898
-						if (sourceEncoding != null) destFile.setCharset(sourceEncoding);
+						if (sourceEncoding != null) destFile.setCharset(sourceEncoding, this.progressMonitor);
 						// end todo
 						encoding = destFile.getCharset();
 					}
@@ -334,7 +334,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					try {
 						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
 						// fix bug 66898
-						if (sourceEncoding != null) destFile.setCharset(sourceEncoding);
+						if (sourceEncoding != null) destFile.setCharset(sourceEncoding, this.progressMonitor);
 						// end todo
 						encoding = destFile.getCharset();
 					}
