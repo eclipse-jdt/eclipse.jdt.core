@@ -208,8 +208,8 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				break;
 			case BINARY_FOLDER :
 				IContainer outputFolder = project;
-				String folderName = in.readUTF();
-				if (folderName.length() > 1) outputFolder = root.getFolder(new Path(folderName));
+				IPath path = new Path(in.readUTF());
+				if (path.segmentCount() > 1) outputFolder = root.getFolder(path);
 				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
