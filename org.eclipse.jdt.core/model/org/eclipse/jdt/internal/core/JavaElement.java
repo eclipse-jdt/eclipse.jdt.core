@@ -93,23 +93,28 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public void close() throws JavaModelException {
 		Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 		if (info != null) {
-			if (JavaModelManager.VERBOSE && this instanceof JavaModel) {
-				System.out.println("CLOSING Java Model");  //$NON-NLS-1$
-				// done only when exiting the workbench: disable verbose
-				JavaModelManager.VERBOSE = false;		
-			}
-			if (this instanceof IParent) {
-				IJavaElement[] children = ((JavaElementInfo) info).getChildren();
-				for (int i = 0, size = children.length; i < size; ++i) {
-					JavaElement child = (JavaElement) children[i];
-					child.close();
+			boolean wasVerbose = false;
+			try {
+				if (JavaModelManager.VERBOSE) {
+					System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
+					wasVerbose = true;
+					JavaModelManager.VERBOSE = false;
 				}
-			}
-			closing(info);
-			JavaModelManager.getJavaModelManager().removeInfo(this);
-			if (JavaModelManager.VERBOSE){
-				System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-				System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+				if (this instanceof IParent) {
+					IJavaElement[] children = ((JavaElementInfo) info).getChildren();
+					for (int i = 0, size = children.length; i < size; ++i) {
+						JavaElement child = (JavaElement) children[i];
+						child.close();
+					}
+				}
+				closing(info);
+				JavaModelManager.getJavaModelManager().removeInfo(this);
+				if (wasVerbose) {
+					System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+					System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			} finally {
+				JavaModelManager.VERBOSE = wasVerbose;
 			}
 		}
 	}
@@ -117,9 +122,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * This element is being closed.  Do any necessary cleanup.
 	 */
 	protected void closing(Object info) throws JavaModelException {
-		if (JavaModelManager.VERBOSE){
-			System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
-		}
 	}
 	/**
 	 * Returns true if this handle represents the same Java element

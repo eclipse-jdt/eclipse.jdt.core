@@ -46,26 +46,36 @@ public void close() throws JavaModelException {
 	
 	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info != null) {
-		ClassFileInfo cfi = getClassFileInfo();
-		if (cfi.hasReadBinaryChildren()) {
-			try {
-				IJavaElement[] children = getChildren();
-				for (int i = 0, size = children.length; i < size; ++i) {
-					JavaElement child = (JavaElement) children[i];
-					if (child instanceof BinaryType) {
-						((IOpenable)child.getParent()).close();
-					} else {
-						child.close();
-					}
-				}
-			} catch (JavaModelException e) {
+		boolean wasVerbose = false;
+		try {
+			if (JavaModelManager.VERBOSE) {
+				System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
+				wasVerbose = true;
+				JavaModelManager.VERBOSE = false;
 			}
-		}
-		closing(info);
-		JavaModelManager.getJavaModelManager().removeInfo(this);
-		if (JavaModelManager.VERBOSE){
-			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			ClassFileInfo cfi = getClassFileInfo();
+			if (cfi.hasReadBinaryChildren()) {
+				try {
+					IJavaElement[] children = getChildren();
+					for (int i = 0, size = children.length; i < size; ++i) {
+						JavaElement child = (JavaElement) children[i];
+						if (child instanceof BinaryType) {
+							((IOpenable)child.getParent()).close();
+						} else {
+							child.close();
+						}
+					}
+				} catch (JavaModelException e) {
+				}
+			}
+			closing(info);
+			JavaModelManager.getJavaModelManager().removeInfo(this);
+			if (JavaModelManager.VERBOSE){
+				System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+				System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			}
+		} finally {
+			JavaModelManager.VERBOSE = wasVerbose;
 		}
 	}
 }
@@ -73,9 +83,6 @@ public void close() throws JavaModelException {
  * Remove my cached children from the Java Model
  */
 protected void closing(Object info) throws JavaModelException {
-	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
-	}
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 	if (JavaModelManager.VERBOSE){
