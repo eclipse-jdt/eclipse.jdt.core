@@ -341,12 +341,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 		}
 		if (match != null) {
-			// TODO (kent) tag method in verifier if it overrides a method which can cause an anonymous error
-			if (match.hasSubstitutedParameters()) return null; // cannot be picked up as an exact match
+			// cannot be picked up as an exact match if its a possible anonymous case
+			if (match.hasSubstitutedParameters() && this.arguments != null && this.arguments.length > 1) return null;
 			return match;
 		}
-
-		if (foundNothing) {
+	
+		if (foundNothing && (this.arguments == null || this.arguments.length <= 1)) {
 			if (isInterface()) {
 				 if (superInterfaces().length == 1) {
 					if (refScope != null)
