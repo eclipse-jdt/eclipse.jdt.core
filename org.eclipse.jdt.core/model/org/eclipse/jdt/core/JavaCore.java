@@ -1672,7 +1672,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions
-	 */
+	 *///TODO: should return a Map for 3.0
 	public static Hashtable getOptions() {
 		
 		Hashtable options = new Hashtable(10);
@@ -3049,7 +3049,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions
-	 */
+	 *///TODO: should use a Map for 3.0
 	public static void setOptions(Hashtable newOptions) {
 		
 		// see #initializeDefaultPluginPreferences() for changing default settings
