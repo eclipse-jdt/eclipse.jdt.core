@@ -39,8 +39,8 @@ protected State(JavaBuilder javaBuilder) {
 	this.javaProjectName = javaBuilder.currentProject.getName();
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
-	this.references = new SimpleLookupTable(13);
-	this.typeLocations = new SimpleLookupTable(13);
+	this.references = new SimpleLookupTable();
+	this.typeLocations = new SimpleLookupTable();
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildNumber = this.buildNumber;
@@ -54,14 +54,14 @@ void copyFrom(State lastState) {
 		this.buildNumber = lastState.buildNumber + 1;
 		this.lastStructuralBuildNumber = lastState.lastStructuralBuildNumber;
 	} catch (CloneNotSupportedException e) {
-		this.references = new SimpleLookupTable(31);
+		this.references = new SimpleLookupTable(lastState.references.elementSize);
 		Object[] keyTable = lastState.references.keyTable;
 		Object[] valueTable = lastState.references.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)
 			if (keyTable[i] != null)
 				this.references.put(keyTable[i], valueTable[i]);
 
-		this.typeLocations = new SimpleLookupTable(31);
+		this.typeLocations = new SimpleLookupTable(lastState.typeLocations.elementSize);
 		keyTable = lastState.typeLocations.keyTable;
 		valueTable = lastState.typeLocations.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)

@@ -22,8 +22,8 @@ ClasspathDirectory(String binaryPath) {
 	if (!binaryPath.endsWith("/")) //$NON-NLS-1$
 		this.binaryPath += "/"; //$NON-NLS-1$
 
-	this.missingPackages = new SimpleLookupTable(11);
-	this.directoryCache = new SimpleLookupTable(11);
+	this.missingPackages = new SimpleLookupTable();
+	this.directoryCache = new SimpleLookupTable();
 }
 
 void cleanup() {
@@ -91,8 +91,8 @@ boolean isPackage(char[][] compoundName, char[] packageName) {
 }
 
 void reset() {
-	this.missingPackages = new SimpleLookupTable(11);
-	this.directoryCache = new SimpleLookupTable(11);
+	this.missingPackages = new SimpleLookupTable();
+	this.directoryCache = new SimpleLookupTable();
 }
 
 public String toString() {

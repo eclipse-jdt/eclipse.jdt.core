@@ -191,7 +191,7 @@ boolean filterResource(IResource resource) {
 private SimpleLookupTable findDeltas() {
 	notifier.subTask(Util.bind("build.readingDelta", currentProject.getName())); //$NON-NLS-1$
 	IResourceDelta delta = getDelta(currentProject);
-	SimpleLookupTable deltas = new SimpleLookupTable();
+	SimpleLookupTable deltas = new SimpleLookupTable(prereqOutputFolders.elementSize + 1);
 	if (delta != null) {
 		deltas.put(currentProject, delta);
 	} else {
