@@ -795,6 +795,8 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 			positions, 
 			0, 
 			identifierLength); 
+		
+		this.identifierPtr--;
 		TypeReference reference = this.createSingleAssistTypeReference(
 										assistIdentifier(), 
 										positions[0]);

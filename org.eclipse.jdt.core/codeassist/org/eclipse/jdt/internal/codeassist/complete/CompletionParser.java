@@ -149,7 +149,7 @@ protected void attachOrphanCompletionNode(){
 					
 					int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
 					int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
-					if(kind == K_BINARY_OPERATOR && info == LESS) {
+					if(kind == K_BINARY_OPERATOR && info == LESS && this.identifierPtr > -1) {
 						if(this.genericsLengthStack[this.genericsLengthPtr] > 0) {
 							this.consumeTypeArguments();
 						}
