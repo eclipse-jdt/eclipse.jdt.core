@@ -1651,6 +1651,7 @@ class ASTConverter {
 		if (statement.action != null) {
 			doStatement.setBody(convert(statement.action));
 		}
+		retrieveSemiColonPosition(doStatement);
 		return doStatement;
 	}
 	
@@ -2034,14 +2035,23 @@ class ASTConverter {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
+		int count = 0;
 		scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
 				switch(token) {
 					case Scanner.TokenNameSEMICOLON:
-						node.setSourceRange(start, scanner.currentPosition - start);
-						return;
+						if (count == 0) {
+							node.setSourceRange(start, scanner.currentPosition - start);
+							return;
+						}
+						break;
+					case Scanner.TokenNameLBRACE://110
+						count++;
+						break;
+					case Scanner.TokenNameRBRACE://95
+						count--;
 				}
 			}
 			node.setSourceRange(start, scanner.currentPosition - start);
@@ -2615,6 +2625,7 @@ class ASTConverter {
 		scanner.resetTo(start, start + node.getLength());
 		int token;
 		int parenCounter = 0;
+		int startPosition = -1;
 		try {
 			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
 				switch(token) {
@@ -2623,10 +2634,15 @@ class ASTConverter {
 					case Scanner.TokenNameLongLiteral :
 					case Scanner.TokenNameDoubleLiteral :
 					case Scanner.TokenNameCharacterLiteral :
-						int startPosition = scanner.startPosition;
+						if (startPosition == -1) {
+							startPosition = scanner.startPosition;
+						}
 						int end = scanner.currentPosition;
 						node.setSourceRange(startPosition, end - startPosition);
 						return;
+					case Scanner.TokenNameMINUS :
+						startPosition = scanner.startPosition;
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
