@@ -73,6 +73,9 @@ public static Test suite() {
 
 	// Java element existence tests
 	suite.addTest(ExistenceTests.suite());
+	
+	// Support for "open on" feature tests
+	suite.addTest(ResolveTests.suite());
 		
 	return suite;
 }
