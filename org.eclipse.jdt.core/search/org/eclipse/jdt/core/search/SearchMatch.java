@@ -88,6 +88,8 @@ public class SearchMatch {
 
 	/**
 	 * Returns the element of this search match.
+	 * In case of a reference match, this is the inner-most enclosing element of the reference.
+	 * In case of a declaration match, this is the declaration.
 	 * 
 	 * @return the element of the search match, or <code>null</code> if none
 	 */
