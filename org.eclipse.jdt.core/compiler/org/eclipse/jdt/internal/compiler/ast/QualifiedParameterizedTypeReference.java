@@ -27,6 +27,12 @@ public class QualifiedParameterizedTypeReference extends ArrayQualifiedTypeRefer
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;
 	}
+	public TypeReference copyDims(int dim){
+		//return a type reference copy of me with some dimensions
+		//warning : the new type ref has a null binding
+		this.dimensions = dim;
+		return this;
+	}	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		int length = tokens.length;
 		for (int i = 0; i < length - 1; i++) {
