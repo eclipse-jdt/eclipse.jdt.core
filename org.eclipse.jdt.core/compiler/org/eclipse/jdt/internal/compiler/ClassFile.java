@@ -2827,7 +2827,12 @@ public class ClassFile
 					final int elementNameIndex = constantPool.literalIndex(memberValuePair.name);
 					contents[contentsOffset++] = (byte) (elementNameIndex >> 8);
 					contents[contentsOffset++] = (byte) elementNameIndex;
-					generateElementValue(memberValuePair.value, attributeOffset);
+					MethodBinding methodBinding = memberValuePair.binding;
+					if (methodBinding == null) {
+						contentsOffset = attributeOffset;
+					} else {
+						generateElementValue(memberValuePair.value, methodBinding.returnType, attributeOffset);
+					}
 				}
 			} else {
 				contents[contentsOffset++] = 0;
@@ -2844,7 +2849,12 @@ public class ClassFile
 			final int elementNameIndex = constantPool.literalIndex(VALUE);
 			contents[contentsOffset++] = (byte) (elementNameIndex >> 8);
 			contents[contentsOffset++] = (byte) elementNameIndex;
-			generateElementValue(singleMemberAnnotation.memberValue, attributeOffset);
+			MethodBinding methodBinding = singleMemberAnnotation.singlePair.binding;
+			if (methodBinding == null) {
+				contentsOffset = attributeOffset;
+			} else {
+				generateElementValue(singleMemberAnnotation.memberValue, methodBinding.returnType, attributeOffset);
+			}
 		} else {
 			// this is a marker annotation (no member value pairs)
 			contents[contentsOffset++] = 0;
@@ -2869,91 +2879,100 @@ public class ClassFile
 		// leave space for attribute_length(4), max_stack(2), max_locals(2), code_length(4)
 		contentsOffset += 12;
 	}
+
+	private void generateElementValue(
+			Expression defaultValue,
+			TypeBinding memberValuePairReturnType,
+			int attributeOffset) {
+		Constant constant = defaultValue.constant;
+		TypeBinding defaultValueBinding = defaultValue.resolvedType;
+		if (constant != null && constant != Constant.NotAConstant) {
+			if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
+				// automatic wrapping
+				if (contentsOffset + 1 >= this.contents.length) {
+					resizeContents(1);
+				}
+				contents[contentsOffset++] = (byte) '[';
+				contents[contentsOffset++] = (byte) 0;
+				contents[contentsOffset++] = (byte) 1;
+			}
+			generateElementValue(attributeOffset, defaultValue, constant);
+		} else {
+			if (defaultValueBinding != null) {
+				if (defaultValueBinding.isEnum()) {
+					if (contentsOffset + 5 >= this.contents.length) {
+						resizeContents(5);
+					}
+					contents[contentsOffset++] = (byte) 'e';
+					FieldBinding fieldBinding = null;
+					if (defaultValue instanceof QualifiedNameReference) {
+						QualifiedNameReference nameReference = (QualifiedNameReference) defaultValue;
+						fieldBinding = (FieldBinding) nameReference.binding;
+					} else if (defaultValue instanceof SingleNameReference) {
+						SingleNameReference nameReference = (SingleNameReference) defaultValue;
+						fieldBinding = (FieldBinding) nameReference.binding;
+					} else {
+						contentsOffset = attributeOffset;
+					}
+					if (fieldBinding != null) {
+						final int enumConstantTypeNameIndex = constantPool.literalIndex(fieldBinding.type.signature());
+						final int enumConstantNameIndex = constantPool.literalIndex(fieldBinding.name);
+						contents[contentsOffset++] = (byte) (enumConstantTypeNameIndex >> 8);
+						contents[contentsOffset++] = (byte) enumConstantTypeNameIndex;
+						contents[contentsOffset++] = (byte) (enumConstantNameIndex >> 8);
+						contents[contentsOffset++] = (byte) enumConstantNameIndex;
+					}
+				} else if (defaultValueBinding.isAnnotationType()) {
+					if (contentsOffset + 1 >= this.contents.length) {
+						resizeContents(1);
+					}
+					contents[contentsOffset++] = (byte) '@';
+					generateAnnotation((Annotation) defaultValue, attributeOffset);
+				} else if (defaultValueBinding.isArrayType()) {
+					// array type
+					if (contentsOffset + 1 >= this.contents.length) {
+						resizeContents(1);
+					}
+					contents[contentsOffset++] = (byte) '[';
+					if (defaultValue instanceof ArrayInitializer) {
+						ArrayInitializer arrayInitializer = (ArrayInitializer) defaultValue;
+						int arrayLength = arrayInitializer.expressions != null ? arrayInitializer.expressions.length : 0;
+						contents[contentsOffset++] = (byte) (arrayLength >> 8);
+						contents[contentsOffset++] = (byte) arrayLength;
+						for (int i = 0; i < arrayLength; i++) {
+							generateElementValue(arrayInitializer.expressions[i], attributeOffset);
+						}
+					} else {
+						contentsOffset = attributeOffset;
+					}
+				} else {
+					// class type
+					if (contentsOffset + 3 >= this.contents.length) {
+						resizeContents(3);
+					}
+					contents[contentsOffset++] = (byte) 'c';
+					if (defaultValue instanceof ClassLiteralAccess) {
+						ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) defaultValue;
+						final int classInfoIndex = constantPool.literalIndex(classLiteralAccess.targetType.signature());
+						contents[contentsOffset++] = (byte) (classInfoIndex >> 8);
+						contents[contentsOffset++] = (byte) classInfoIndex;
+					} else {
+						contentsOffset = attributeOffset;
+					}
+				}
+			} else {
+				contentsOffset = attributeOffset;
+			}
+		}
+	}
+	
 	/**
 	 * @param attributeOffset
 	 */
 	private void generateElementValue(Expression defaultValue, int attributeOffset) {
 		Constant constant = defaultValue.constant;
 		if (constant != null && constant != Constant.NotAConstant) {
-			if (contentsOffset + 3 >= this.contents.length) {
-				resizeContents(3);
-			}
-			switch (constant.typeID()) {
-				case T_boolean :
-					contents[contentsOffset++] = (byte) 'Z';
-					int booleanValueIndex =
-						constantPool.literalIndex(constant.booleanValue() ? 1 : 0);
-					contents[contentsOffset++] = (byte) (booleanValueIndex >> 8);
-					contents[contentsOffset++] = (byte) booleanValueIndex;
-					break;
-				case T_byte :
-					contents[contentsOffset++] = (byte) 'B';
-					int integerValueIndex =
-						constantPool.literalIndex(constant.intValue());
-					contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
-					contents[contentsOffset++] = (byte) integerValueIndex;
-					break;
-				case T_char :
-					contents[contentsOffset++] = (byte) 'C';
-					integerValueIndex =
-						constantPool.literalIndex(constant.intValue());
-					contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
-					contents[contentsOffset++] = (byte) integerValueIndex;
-					break;
-				case T_int :
-					contents[contentsOffset++] = (byte) 'I';
-					integerValueIndex =
-						constantPool.literalIndex(constant.intValue());
-					contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
-					contents[contentsOffset++] = (byte) integerValueIndex;
-					break;
-				case T_short :
-					contents[contentsOffset++] = (byte) 'S';
-					integerValueIndex =
-						constantPool.literalIndex(constant.intValue());
-					contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
-					contents[contentsOffset++] = (byte) integerValueIndex;
-					break;
-				case T_float :
-					contents[contentsOffset++] = (byte) 'F';
-					int floatValueIndex =
-						constantPool.literalIndex(constant.floatValue());
-					contents[contentsOffset++] = (byte) (floatValueIndex >> 8);
-					contents[contentsOffset++] = (byte) floatValueIndex;
-					break;
-				case T_double :
-					contents[contentsOffset++] = (byte) 'D';
-					int doubleValueIndex =
-						constantPool.literalIndex(constant.doubleValue());
-					contents[contentsOffset++] = (byte) (doubleValueIndex >> 8);
-					contents[contentsOffset++] = (byte) doubleValueIndex;
-					break;
-				case T_long :
-					contents[contentsOffset++] = (byte) 'J';
-					int longValueIndex =
-						constantPool.literalIndex(constant.longValue());
-					contents[contentsOffset++] = (byte) (longValueIndex >> 8);
-					contents[contentsOffset++] = (byte) longValueIndex;
-					break;
-				case T_String :
-					contents[contentsOffset++] = (byte) 's';
-					int stringValueIndex =
-						constantPool.literalIndex(
-							((StringConstant) constant).stringValue());
-					if (stringValueIndex == -1) {
-						if (!creatingProblemType) {
-							// report an error and abort: will lead to a problem type classfile creation
-							TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
-							typeDeclaration.scope.problemReporter().stringConstantIsExceedingUtf8Limit(defaultValue);
-						} else {
-							// already inside a problem type creation : no attribute
-							contentsOffset = attributeOffset;
-						}
-					} else {
-						contents[contentsOffset++] = (byte) (stringValueIndex >> 8);
-						contents[contentsOffset++] = (byte) stringValueIndex;
-					}
-			}
+			generateElementValue(attributeOffset, defaultValue, constant);
 		} else {
 			TypeBinding defaultValueBinding = defaultValue.resolvedType;
 			if (defaultValueBinding != null) {
@@ -3021,6 +3040,91 @@ public class ClassFile
 			} else {
 				contentsOffset = attributeOffset;
 			}
+		}
+	}
+
+	/**
+	 * @param attributeOffset
+	 */
+	private void generateElementValue(int attributeOffset, Expression defaultValue, Constant constant) {
+		if (contentsOffset + 3 >= this.contents.length) {
+			resizeContents(3);
+		}
+		switch (constant.typeID()) {
+			case T_boolean :
+				contents[contentsOffset++] = (byte) 'Z';
+				int booleanValueIndex =
+					constantPool.literalIndex(constant.booleanValue() ? 1 : 0);
+				contents[contentsOffset++] = (byte) (booleanValueIndex >> 8);
+				contents[contentsOffset++] = (byte) booleanValueIndex;
+				break;
+			case T_byte :
+				contents[contentsOffset++] = (byte) 'B';
+				int integerValueIndex =
+					constantPool.literalIndex(constant.intValue());
+				contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
+				contents[contentsOffset++] = (byte) integerValueIndex;
+				break;
+			case T_char :
+				contents[contentsOffset++] = (byte) 'C';
+				integerValueIndex =
+					constantPool.literalIndex(constant.intValue());
+				contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
+				contents[contentsOffset++] = (byte) integerValueIndex;
+				break;
+			case T_int :
+				contents[contentsOffset++] = (byte) 'I';
+				integerValueIndex =
+					constantPool.literalIndex(constant.intValue());
+				contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
+				contents[contentsOffset++] = (byte) integerValueIndex;
+				break;
+			case T_short :
+				contents[contentsOffset++] = (byte) 'S';
+				integerValueIndex =
+					constantPool.literalIndex(constant.intValue());
+				contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
+				contents[contentsOffset++] = (byte) integerValueIndex;
+				break;
+			case T_float :
+				contents[contentsOffset++] = (byte) 'F';
+				int floatValueIndex =
+					constantPool.literalIndex(constant.floatValue());
+				contents[contentsOffset++] = (byte) (floatValueIndex >> 8);
+				contents[contentsOffset++] = (byte) floatValueIndex;
+				break;
+			case T_double :
+				contents[contentsOffset++] = (byte) 'D';
+				int doubleValueIndex =
+					constantPool.literalIndex(constant.doubleValue());
+				contents[contentsOffset++] = (byte) (doubleValueIndex >> 8);
+				contents[contentsOffset++] = (byte) doubleValueIndex;
+				break;
+			case T_long :
+				contents[contentsOffset++] = (byte) 'J';
+				int longValueIndex =
+					constantPool.literalIndex(constant.longValue());
+				contents[contentsOffset++] = (byte) (longValueIndex >> 8);
+				contents[contentsOffset++] = (byte) longValueIndex;
+				break;
+			case T_String :
+				contents[contentsOffset++] = (byte) 's';
+				int stringValueIndex =
+					constantPool.literalIndex(
+						((StringConstant) constant).stringValue());
+				if (stringValueIndex == -1) {
+					if (!creatingProblemType) {
+						// report an error and abort: will lead to a problem type classfile creation
+						TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
+						typeDeclaration.scope.problemReporter().stringConstantIsExceedingUtf8Limit(defaultValue);
+					} else {
+						// already inside a problem type creation : no attribute
+						contentsOffset = attributeOffset;
+					}
+				} else {
+					contents[contentsOffset++] = (byte) (stringValueIndex >> 8);
+					contents[contentsOffset++] = (byte) stringValueIndex;
+				}
 		}
 	}
 

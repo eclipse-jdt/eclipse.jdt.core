@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AnnotationTest extends AbstractComparisonTest {
 	
@@ -1099,6 +1103,39 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"}\n"
 			},
 		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(val={false})\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+
 	}		
 	
 	// check invalid constant in array initializer
