@@ -2756,7 +2756,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			formatNecessaryEmptyStatement(); 
 		}
 		
-		if (this.preferences.insert_new_line_before_while_in_do_statement || this.preferences.insert_new_line_in_control_statements) {
+		if (this.preferences.insert_new_line_before_while_in_do_statement) {
 			this.scribe.printNewLine();
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNamewhile, this.preferences.insert_space_after_closing_brace_in_block);
@@ -3055,7 +3055,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				} else {
                     formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 					thenStatement.traverse(this, scope);
-					if (elseStatement != null && (this.preferences.insert_new_line_before_else_in_if_statement || this.preferences.insert_new_line_in_control_statements)) {
+					if (elseStatement != null && (this.preferences.insert_new_line_before_else_in_if_statement)) {
 						this.scribe.printNewLine();
 					}
 				}
@@ -4019,7 +4019,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		tryStatement.tryBlock.traverse(this, scope);
 		if (tryStatement.catchArguments != null) {
 			for (int i = 0, max = tryStatement.catchBlocks.length; i < max; i++) {
-				if (this.preferences.insert_new_line_before_catch_in_try_statement || this.preferences.insert_new_line_in_control_statements) {
+				if (this.preferences.insert_new_line_before_catch_in_try_statement) {
 					this.scribe.printNewLine();
 				}	
 				this.scribe.printNextToken(TerminalTokens.TokenNamecatch, this.preferences.insert_space_after_closing_brace_in_block);
@@ -4039,7 +4039,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 		if (tryStatement.finallyBlock != null) {
-			if (this.preferences.insert_new_line_before_finally_in_try_statement || this.preferences.insert_new_line_in_control_statements) {
+			if (this.preferences.insert_new_line_before_finally_in_try_statement) {
 				this.scribe.printNewLine();
 			}	
 			this.scribe.printNextToken(TerminalTokens.TokenNamefinally, this.preferences.insert_space_after_closing_brace_in_block);
