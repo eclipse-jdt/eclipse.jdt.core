@@ -639,7 +639,7 @@ public class JavaProject
 	public IPackageFragment findPackageFragment(IPath path)
 		throws JavaModelException {
 
-		return findPackageFragment0(this.canonicalizedPath(path));
+		return findPackageFragment0(JavaProject.canonicalizedPath(path));
 	}
 
 	/**
@@ -657,7 +657,7 @@ public class JavaProject
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
 
-		return findPackageFragmentRoot0(this.canonicalizedPath(path));
+		return findPackageFragmentRoot0(JavaProject.canonicalizedPath(path));
 	}
 
 	/**
@@ -1090,7 +1090,7 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(String jarPath) {
 
-		return getPackageFragmentRoot0(this.canonicalizedPath(new Path(jarPath)).toString());
+		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(jarPath)).toString());
 	}
 	
 	/**
@@ -1385,6 +1385,16 @@ public class JavaProject
 									IMarker.SEVERITY_ERROR,
 									false,
 									false);
+						}
+						// if container is exported, then its nested entries must in turn be exported  (21749)
+						if (rawEntry.isExported()){
+							containerRawEntry = new ClasspathEntry(
+								containerRawEntry.getContentKind(),
+								containerRawEntry.getEntryKind(), 
+								containerRawEntry.getPath(),
+								containerRawEntry.getSourceAttachmentPath(),
+								containerRawEntry.getSourceAttachmentRootPath(),
+								true); // duplicate container entry for tagging it as exported
 						}
 						resolvedEntries.add(containerRawEntry);
 					}
