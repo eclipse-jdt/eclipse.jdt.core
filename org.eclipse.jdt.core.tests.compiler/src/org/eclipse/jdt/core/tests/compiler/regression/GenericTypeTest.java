@@ -3008,4 +3008,39 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}		
 
 
+	// wilcard may not pass parameter bound check
+	public void test101() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends String> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
+				"		x.t.foo(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.println(p);\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T extends String> {\n" + 
+		"	^\n" + 
+		"Type mismatch: Cannot convert from ? extends AX to the bounded parameter <T extends String> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
+		"	                          ^^\n" + 
+		"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
+		"----------\n");		
+	}		
 }
