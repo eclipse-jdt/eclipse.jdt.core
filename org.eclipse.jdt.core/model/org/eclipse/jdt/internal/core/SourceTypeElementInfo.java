@@ -144,10 +144,11 @@ public ISourceImport[] getImports() {
 			if (length == 0) {
 				this.imports = NO_IMPORTS;
 			} else {
-				this.imports = new ISourceImport[length];
+				ISourceImport[] sourceImports = new ISourceImport[length];
 				for (int i = 0; i < length; i++) {
-					imports[i] = (ImportDeclarationElementInfo)((ImportDeclaration)importDeclarations[i]).getElementInfo();
+					sourceImports[i] = (ImportDeclarationElementInfo)((ImportDeclaration)importDeclarations[i]).getElementInfo();
 				}
+				this.imports = sourceImports; // only commit at the end, once completed (bug 36854)
 			}
 		} catch (JavaModelException e) {
 			this.imports = NO_IMPORTS;
