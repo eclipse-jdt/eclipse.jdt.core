@@ -71,7 +71,7 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 		ICompilationUnit unit = (ICompilationUnit) element;
 		
 		int id = marker.getAttribute(IJavaModelMarker.ID, -1);
-		String[] args = Util.getProblemArgumentsFromMarker(marker.getAttribute(IJavaModelMarker.ARGUMENTS, ""));
+		String[] args = Util.getProblemArgumentsFromMarker(marker.getAttribute(IJavaModelMarker.ARGUMENTS, "")); //$NON-NLS-1$
 		int start = marker.getAttribute(IMarker.CHAR_START, -1);
 		int end = marker.getAttribute(IMarker.CHAR_END, -1);
 		

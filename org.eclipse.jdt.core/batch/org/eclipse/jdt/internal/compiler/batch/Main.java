@@ -343,7 +343,7 @@ private void configure(String[] argv) throws InvalidInputException {
 			generatePackagesStructure = true;
 			continue;
 		}
-		if (currentArg.equals("-classpath") || currentArg.equals("-cp")) { //$NON-NLS-1$
+		if (currentArg.equals("-classpath") || currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
 			if (pathCount > 0)
 				throw new InvalidInputException(Main.bind("configure.duplicateClasspath",currentArg)); //$NON-NLS-1$
 			classpaths = new String[DEFAULT_SIZE_CLASSPATH];

@@ -453,7 +453,7 @@ private final static void buildFileForTable(String filename, char[] chars) throw
 	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
 	stream.write(bytes);
 	stream.close();
-	System.out.println(filename + " creation complete");
+	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
 public final static void buildFilesFromLPG(String dataFilename)	throws java.io.IOException {
 

@@ -22,7 +22,7 @@ public class Javadoc extends ASTNode {
 	 * The javadoc comment string, including opening and closing comment 
 	 * delimiters; defaults to an unspecified, but legal, Javadoc comment.
 	 */
-	private String comment = "/** */";
+	private String comment = "/** */";//$NON-NLS-1$
 	
 	/**
 	 * Creates a new AST node for a Javadoc comment owned by the given AST.

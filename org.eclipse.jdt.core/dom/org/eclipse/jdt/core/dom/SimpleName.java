@@ -126,14 +126,14 @@ public class SimpleName extends Name {
 			Arrays.asList(
 				new String[] {// literals
 		"true", "false", "null", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-		"abstract", "default", "if", "private", "this", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		"abstract", "default", "if", "private", "this", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"boolean", "do", "implements", "protected", "throw",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"break", "double", "import", "public", "throws",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"byte", "else", "instanceof", "return", "transient",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"case", "extends", "int", "short", "try",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"catch", "final", "interface", "static", "void",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"char", "finally", "long", "strictfp", "volatile",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
-		"class", "float", "native", "super", "while",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		"class", "float", "native", "super", "while",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
 		"const", "for", "new", "switch",//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		"continue", "goto", "package", "synchronized"}));//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}

@@ -7,7 +7,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompletionOnLocalName extends LocalDeclaration {
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray();
+	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 	public CompletionOnLocalName(Expression expr,char[] name, int sourceStart, int sourceEnd){
 		super(expr, CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd);

@@ -354,7 +354,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 		}
-		s += "\n" + tabString(tab == 0 ? 0 : tab - 1) + "}";
+		s += "\n" + tabString(tab == 0 ? 0 : tab - 1) + "}"; //$NON-NLS-1$ //$NON-NLS-2$
 		//$NON-NLS-2$ //$NON-NLS-1$
 		return s;
 	}

@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 class PackageBinding implements IPackageBinding {
 
 	private static final String[] NO_NAME_COMPONENTS = new String[0];
-	private static final String UNNAMED = "UNNAMED";
+	private static final String UNNAMED = "UNNAMED";//$NON-NLS-1$
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
 	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;

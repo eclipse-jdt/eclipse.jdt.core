@@ -6,7 +6,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class CompletionOnFieldName extends FieldDeclaration {
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray();
+	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 	public CompletionOnFieldName(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
 		super(initialization, CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd); //$NON-NLS-1$

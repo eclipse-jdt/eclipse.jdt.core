@@ -698,7 +698,7 @@ public void doneSaving(ISaveContext context){
 			info.triedRead= true;
 			try {
 				if (monitor != null)
-					monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
+					monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName())); //$NON-NLS-1$
 				state = readState2(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -846,7 +846,7 @@ public void mergeDeltas() {
 	if (fJavaModelDeltas.size() <= 1) return;
 	
 	if (DeltaProcessor.VERBOSE) {
-		System.out.println("MERGING " + fJavaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]");
+		System.out.println("MERGING " + fJavaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	Iterator deltas = fJavaModelDeltas.iterator();

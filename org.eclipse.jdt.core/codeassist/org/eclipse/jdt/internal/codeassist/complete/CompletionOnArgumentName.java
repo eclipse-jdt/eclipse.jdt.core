@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompletionOnArgumentName extends Argument {
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray();
+	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 	public CompletionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
 		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);
