@@ -45,7 +45,8 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX =  "testBug82088";
+//		SearchBasicEngine.VERBOSE = true;
+//		TESTS_PREFIX =  "testBug81556";
 //		TESTS_NAMES = new String[] { "testBug82088" };
 //		TESTS_NUMBERS = new int[] { 81084 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
@@ -148,7 +149,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	}
 	/**
 	 * Bug 41018: Method reference not found
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018">41018</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018"
 	 */
 	public void testBug41018() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -184,7 +185,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	}
 	/**
 	 * Bug 70827: [Search] wrong reference match to private method of supertype
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827">70827</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827"
 	 */
 	public void testBug70827() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -219,7 +220,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 71279: [Search] NPE in TypeReferenceLocator when moving CU with unresolved type reference
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=71279">71279</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=71279"
 	 */
 	public void testBug71279() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector() {
@@ -252,7 +253,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 72866: [search] references to endVisit(MethodInvocation) reports refs to endVisit(SuperMethodInvocation)
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=72866">72866</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=72866"
 	 */
 	public void testBug72866() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[4];
@@ -307,7 +308,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 73112: [Search] SearchEngine doesn't find all fields multiple field declarations
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=73112">73112</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=73112"
 	 */
 	public void testBug73112a() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -380,7 +381,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73336">73336</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73336"
 	 */
 	public void testBug73336() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[6];
@@ -556,7 +557,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 73696: searching only works for IJavaSearchConstants.TYPE, but not CLASS or INTERFACE
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73696">73696</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73696"
 	 */
 	public void testBug73696() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[2];
@@ -615,7 +616,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 74776: [Search] Wrong search results for almost identical method
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=74776">74776</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=74776"
 	 */
 	public void testBug74776() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[3];
@@ -662,7 +663,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 77093: [search] No references found to method with member type argument
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=77093">77093</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=77093"
 	 */
 	public void testBug77093constructor() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -752,7 +753,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	}
 	/**
 	 * Bug 78082: [1.5][search] FieldReferenceMatch in static import should not include qualifier
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=78082">78082</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=78082"
 	 */
 	public void testBug78082() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[2];
@@ -792,7 +793,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 79267: [search] Refactoring of static generic member fails partially
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=79267">79267</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79267"
 	 */
 	public void testBug79267() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -842,7 +843,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 79803: [1.5][search] Search for references to type A reports match for type variable A
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79803">79803</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79803"
 	 */
 	public void testBug79803() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -881,7 +882,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 79860: [1.5][search] Search doesn't find type reference in type parameter bound
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79860">79860</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79860"
 	 */
 	public void testBug79860() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[2];
@@ -927,7 +928,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 80223: [search] Declaration search doesn't consider visibility to determine overriding methods
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80223">80223</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80223"
 	 */
 	public void testBug80223() throws CoreException {
 		ICompilationUnit[] workingCopies = new ICompilationUnit[2];
@@ -964,7 +965,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 80890: [search] Strange search engine behaviour
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=80890">80890</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80890"
 	 */
 	public void testBug80890() throws CoreException, JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -1007,7 +1008,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 80918: [1.5][search] ClassCastException when searching for references to binary type
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80918">80918</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80918"
 	 */
 	public void testBug80918() throws CoreException {
 		IType type = getClassFile("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang", "Exception.class").getType();
@@ -1019,7 +1020,7 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 
 	/**
 	 * Bug 81084: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=81084">81084</a>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=81084"
 	 */
 	public void testBug81084a() throws CoreException, JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -1094,6 +1095,20 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH",
 			this.resultCollector);
+	}
+
+	/**
+	 * Bug 81556: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=81556"
+	 */
+	public void testBug81556() throws CoreException {
+		IType type = getCompilationUnit("JavaSearchBugs", "src", "b81556.a", "X81556.java").getType("X81556");
+		IMethod method = type.getMethod("foo", new String[0]);
+		
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b81556/a/A81556.java void b81556.a.A81556.bar(XX81556) [foo()] EXACT_MATCH"
+		);
 	}
 
 	/**

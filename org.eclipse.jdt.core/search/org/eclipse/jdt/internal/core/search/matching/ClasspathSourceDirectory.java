@@ -29,8 +29,10 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 	String encoding;
 	SimpleLookupTable directoryCache;
 	String[] missingPackageHolder = new String[1];
+	char[][] fullExclusionPatternChars;
+	char[][] fulInclusionPatternChars;
 
-ClasspathSourceDirectory(IContainer sourceFolder) {
+ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternChars, char[][] fulInclusionPatternChars) {
 	this.sourceFolder = sourceFolder;
 	IPath location = sourceFolder.getLocation();
 	this.sourceLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
@@ -42,6 +44,8 @@ ClasspathSourceDirectory(IContainer sourceFolder) {
 		// let use no encoding by default
 	}
 	this.directoryCache = new SimpleLookupTable(5);
+	this.fullExclusionPatternChars = fullExclusionPatternChars;
+	this.fulInclusionPatternChars = fulInclusionPatternChars;
 }
 
 public void cleanup() {
@@ -96,6 +100,7 @@ public boolean equals(Object o) {
 
 public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
 	
+	String sourceFolderPath = this.sourceFolder.getFullPath().toString() + IPath.SEPARATOR;
 	for (int i = 0, length = Util.JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
 		String extension = new String(Util.JAVA_LIKE_EXTENSIONS[i]);
 		String sourceFileName = sourceFileWithoutExtension + extension;
@@ -103,6 +108,8 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 	
 		String qualifiedSourceFileName = qualifiedSourceFileWithoutExtension + extension;
 		String fullSourcePath = this.sourceLocation + qualifiedSourceFileName;
+		if (org.eclipse.jdt.internal.compiler.util.Util.isExcluded((sourceFolderPath + qualifiedSourceFileName).toCharArray(), this.fulInclusionPatternChars, this.fullExclusionPatternChars, false/*not a folder path*/))
+			continue;
 		IPath path = new Path(qualifiedSourceFileName);
 		IFile file = this.sourceFolder.getFile(path);
 		String fileEncoding = this.encoding;

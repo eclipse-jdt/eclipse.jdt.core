@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.builder.ClasspathJar;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -88,7 +89,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 	int index = 0;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
-		IPackageFragmentRoot root = roots[i];
+		PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
 		IPath path = root.getPath();
 		try {
 			if (root.isArchive()) {
@@ -97,7 +98,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target);
+					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
 				} else {
 					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
 				}
