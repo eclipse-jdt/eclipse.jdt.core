@@ -209,7 +209,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 			switch (binaryDelta.getKind()) {
 				case IResourceDelta.ADDED :
 				case IResourceDelta.REMOVED :
-					IPath packagePath = location.removeFirstSegments(segmentCount);
+					IPath packagePath = location.removeFirstSegments(segmentCount).makeRelative();
 					if (JavaBuilder.DEBUG)
 						System.out.println("Add dependents of added/removed package " + packagePath); //$NON-NLS-1$
 					addDependentsOf(packagePath, false);
@@ -222,7 +222,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 			return;
 		case IResource.FILE :
 			if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(location.getFileExtension())) {
-				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative();
 				switch (binaryDelta.getKind()) {
 					case IResourceDelta.ADDED :
 					case IResourceDelta.REMOVED :
@@ -269,7 +269,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 			if (resource.getName().equalsIgnoreCase("CVS")) return; // TEMPORARY //$NON-NLS-1$
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
-					IPath addedPackagePath = location.removeFirstSegments(segmentCount);
+					IPath addedPackagePath = location.removeFirstSegments(segmentCount).makeRelative();
 					getOutputFolder(addedPackagePath); // ensure package exists in the output folder
 					// add dependents even when the package thinks it exists to be on the safe side
 					if (JavaBuilder.DEBUG)
@@ -282,7 +282,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						findSourceFiles(children[i], segmentCount);
 					return;
 				case IResourceDelta.REMOVED :
-					IPath removedPackagePath = location.removeFirstSegments(segmentCount);
+					IPath removedPackagePath = location.removeFirstSegments(segmentCount).makeRelative();
 					for (int i = 0, length = sourceFolders.length; i < length; i++) {
 						if (sourceFolders[i].findMember(removedPackagePath) != null) {
 							// only a package fragment was removed, same as removing multiple source files
@@ -306,7 +306,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 		case IResource.FILE :
 			String extension = location.getFileExtension();
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
-				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative();
 				String sourceLocation = location.toString();
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :
@@ -347,7 +347,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 				if (javaBuilder.filterResource(resource)) return;
 
 				// copy all other resource deltas to the output folder
-				IPath resourcePath = location.removeFirstSegments(segmentCount);
+				IPath resourcePath = location.removeFirstSegments(segmentCount).makeRelative();
 				IResource outputFile = outputFolder.getFile(resourcePath);
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :

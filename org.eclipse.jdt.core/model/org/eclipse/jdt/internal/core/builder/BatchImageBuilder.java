@@ -54,7 +54,7 @@ public void build() {
 
 protected void addAllSourceFiles(final ArrayList locations, final ArrayList typeNames) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
-		final int srcFolderLength = sourceFolders[i].getLocation().toString().length() + 1; // add the trailing /
+		final int srcFolderLength = sourceFolders[i].getLocation().addTrailingSeparator().toString().length();
 		sourceFolders[i].accept(
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) {

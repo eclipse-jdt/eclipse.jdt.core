@@ -229,7 +229,7 @@ protected void createErrorFor(IResource resource, String message) {
 
 protected String extractTypeNameFrom(String sourceLocation) {
 	for (int j = 0, k = sourceFolders.length; j < k; j++) {
-		String folderLocation = sourceFolders[j].getLocation().toString() + '/';
+		String folderLocation = sourceFolders[j].getLocation().addTrailingSeparator().toString();
 		if (sourceLocation.startsWith(folderLocation))
 			return sourceLocation.substring(folderLocation.length(), sourceLocation.length() - 5); // length of ".java"
 	}
