@@ -16,6 +16,7 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>JavaModel no longer hides exceptions occurring while reading the .classpath file (except when attempting to reconcile its change). </li>
 <li>Added API to trigger a Java model refresh with respect to external JARs: <code>IJavaModel#refreshExternalJARs</code>. </li>
 <pre>
 /**
@@ -44,7 +45,9 @@ Need a better mapping for the method free return opcode
 Need way to refresh JAR files
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12985">12985</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6068">6068</a>
+Walkback during plugin import
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12985">12985</a>
 Unexpected full build in incremental mode
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=11022">11022</a>
 Unexpected full build
@@ -70,7 +73,9 @@ recognized by their '/' suffix, e.g. "META-INF/" specifies filtering out all fol
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13878">13878</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3244">3244</a>
+Classpath is not saved using UTF8 (1GCV467)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13878">13878</a>
 Request to support folders for resource copy filters
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=16135">16135</a>
 Unexpected errors while reconciling

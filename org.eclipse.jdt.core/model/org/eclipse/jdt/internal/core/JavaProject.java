@@ -761,9 +761,10 @@ public class JavaProject
 				if (sharedClasspath != null) {
 					try {
 						classpath = readPaths(sharedClasspath);
-					} catch (IOException e) {
-					} catch (RuntimeException e) {
+					} catch(IOException e){
+						throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 					}
+
 					// extract out the output location
 					if (classpath != null && classpath.length > 0) {
 						IClasspathEntry entry = classpath[classpath.length - 1];
@@ -994,8 +995,8 @@ public class JavaProject
 		if (sharedClasspath != null) {
 			try {
 				classpath = readPaths(sharedClasspath);
-			} catch (IOException e) {
-			} catch (RuntimeException e) {
+			} catch(IOException e){
+				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
 			// extract out the output location
 			if (classpath != null && classpath.length > 0) {
@@ -1203,8 +1204,8 @@ public class JavaProject
 		if (sharedClasspath != null) {
 			try {
 				classpath = readPaths(sharedClasspath);
-			} catch (IOException e) {
-			} catch (RuntimeException e) {
+			} catch(IOException e){
+				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
 			// extract out the output location
 			if (classpath != null && classpath.length > 0) {
