@@ -547,7 +547,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"		Y.count(1, 2);\n" +
 				"\n" +
 				"		Z.count(1L, 1);\n" + // only choice is Z.count(long, int)
-//				"		Z.count(1, 1);\n" + // chooses Z.count(long, long) over Z.count(int,int...)
+				"		Z.count(1, 1);\n" + // chooses Z.count(long, long) over Z.count(int,int...)
 				"		Z.count(1, null);\n" + // only choice is Z.count(int,int...)
 				"		Z.count2(1, null);\n" + // better choice is Z.count(int,int[])
 				"		Z.count2(1L, null);\n" + // better choice is Z.count(long,int...)
@@ -565,7 +565,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void count2(long l, int ... values) { System.out.print('6'); }\n" +
 				"}\n",
 			},
-			"<2123466>");
+			"<21233466>");
 		this.runConformTest(
 			new String[] {
 				"X.java",
