@@ -1423,10 +1423,13 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		JavaCore.getPlugin().savePluginPreferences();
-
-		// clean up indexes on workspace full save
-		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
+		
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
+			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
+			context.needDelta();
+			
+			// clean up indexes on workspace full save
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
 			IndexManager manager = this.indexManager;
 			if (manager != null) {
 				manager.cleanUpIndexes();

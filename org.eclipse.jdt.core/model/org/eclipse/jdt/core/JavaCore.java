@@ -3655,7 +3655,15 @@ public final class JavaCore extends Plugin {
 					| IResourceChangeEvent.PRE_CLOSE);
 
 			startIndexing();
-			workspace.addSaveParticipant(this, manager);
+			
+			// process deltas since last activated
+			ISavedState savedState = workspace.addSaveParticipant(this, manager);
+			if (savedState != null) {
+				// the event type coming from the saved state is always POST_AUTO_BUILD
+				// force it to be POST_CHANGE so that the delta processor can handle it
+				manager.deltaState.eventType = IResourceChangeEvent.POST_CHANGE;
+				savedState.processResourceChangeEvents(manager.deltaState);
+			}
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;
