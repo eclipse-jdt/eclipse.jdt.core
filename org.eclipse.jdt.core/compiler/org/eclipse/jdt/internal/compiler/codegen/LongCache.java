@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.codegen;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class LongCache {
 	public long keyTable[];
@@ -17,7 +22,7 @@ public LongCache() {
  * Constructs a new, empty hashtable with the specified initial
  * capacity.
  * @param initialCapacity int
- *	the initial number of buckets
+ *  the initial number of buckets
  */
 public LongCache(int initialCapacity) {
 	elementSize = 0;
@@ -54,7 +59,7 @@ public boolean containsKey(long key) {
  * hashtable.
  * @param key <CODE>long</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
- *	defined in the hash table.
+ *  defined in the hash table.
  * @see ConstantPoolCache#put
  */
 public int get(long key) {

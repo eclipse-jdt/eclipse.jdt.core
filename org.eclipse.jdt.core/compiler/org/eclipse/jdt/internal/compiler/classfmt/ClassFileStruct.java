@@ -1,5 +1,10 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
-
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+ 
 abstract public class ClassFileStruct implements ClassFileConstants {
 	byte[] reference;
 	int structOffset;

@@ -1,5 +1,10 @@
 package org.eclipse.jdt.internal.compiler.codegen;
-
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+ 
 public interface AttributeNamesConstants {
 	final char[] SyntheticName = new char[] {'S', 'y', 'n', 't', 'h', 'e', 't', 'i', 'c'};
 	final char[] ConstantValueName = new char[] {'C', 'o', 'n', 's', 't', 'a', 'n', 't', 'V', 'a', 'l', 'u', 'e'};
