@@ -966,5 +966,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(methodDeclaration.getName(), "bar", source);
 		checkSourceRange(methodDeclaration, "abstract double bar(double x, double y);", source);		
 	}
+	
+	public void test0029() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0029", "ArrayList.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
 }
 
