@@ -447,7 +447,25 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 
 	/**
-	 * TODO: describe #isCleaningOutputLocation (exception is thrown in same case as #getRawClasspath)	 * @return boolean
+	 * Returns whether the Java builder should delete all files from the
+	 * default output folder before a full build. The default (and recommended)
+	 * behavior is to scrub the default output folder.
+	 * <p>
+	 * If an output folder is not scrubbed before full builds, there may be
+	 * obsolete class files (and copied resource files) left in it,
+	 * corresponding to deleted source files. These obsolete files may cause
+	 * several different kinds of problems: they are available when a dependent
+	 * project is compiled, and may therefore cause the dependent project to
+	 * compile incorrectly; they are available at runtime, and may cause the
+	 * program to run incorrectly; they may end up being exported to a JAR.
+	 * </p>
+	 * 
+	 *TODO: This method will be deleted soon. Becomes a new per-project option
+	 * 
+	 * @return <code>true</code> if files in the default output folder should be
+	 * deleted before full builds, and <code>false</code> otherwise
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
 	 * @since 2.1	 */
 	boolean isCleaningOutputLocation() throws JavaModelException;
 	
@@ -509,11 +527,21 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	void setOptions(Map newOptions);
 
 	/**
-	 * Sets the output location of this project to the location
-	 * described by the given absolute path.
+	 * Sets the default output location of this project to the location
+	 * described by the given workspace-relative absolute path.
 	 * <p>
-	 * TODO: should mention specific source folder output locations, and cleaning control
-	 * @param path the given absolute path
+	 * The default output location is where class files are ordinarily generated
+	 * (and resource files, copied). Each source classpath entries can also
+	 * specify an output location for the generated class files (and copied
+	 * resource files) corresponding to compilation units under that source
+	 * folder. This makes it possible to arrange that generated class files for
+	 * different source folders to end up in different output folders, and not
+	 * necessarily the default output folder. This means that the generated
+	 * class files for the project may end up scattered across several folders,
+	 * rather than all in the default output folder (which is more standard).
+	 * </p>
+	 * 
+	 * @param path the workspace-relative absolute path 
 	 * @param monitor the given progress monitor
 	 * 
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
@@ -529,7 +557,38 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		throws JavaModelException;
 		
 	/**
-	 * TODO: describe #setOutputLocation( -, isCleaning, -)	 * @param entries	 * @param monitor	 * @throws JavaModelException	 */		
+	 * Sets the default output location of this project to the location
+	 * described by the given workspace-relative absolute path, and sets
+	 * whether the output folder should be scrubbed before full builds.
+	 * <p>
+	 * The default output location is where class files are ordinarily generated
+	 * (and resource files, copied). Each source classpath entries can also
+	 * specify an output location for the generated class files (and copied
+	 * resource files) corresponding to compilation units under that source
+	 * folder. This makes it possible to arrange that generated class files for
+	 * different source folders to end up in different output folders, and not
+	 * necessarily the default output folder. This means that the generated
+	 * class files for the project may end up scattered across several folders,
+	 * rather than all in the default output folder (which is more standard).
+	 * </p>
+	 * 
+	 *TODO: Method to be deleted when isCleaning is a new per-project option
+	 * 
+	 * @param path the workspace-relative absolute path
+	 * @param isCleaning <code>true</code> if files in the default output folder
+	 * should be deleted before full builds, and <code>false</code> otherwise
+	 * @param monitor the progress monitor
+	 * @exception JavaModelException if the classpath could not be set. Reasons
+	 * include:
+	 * <ul>
+	 *  <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 *  <li> The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
+	 *  <li> The path is not an absolute path (<code>RELATIVE_PATH</code>)
+	 *  <li> The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+	 *  <li> The output location is being modified during resource change event notification (CORE_EXCEPTION)	 
+	 * </ul>
+	 * @since 2.1
+	 */
 	void setOutputLocation(IPath path, boolean isCleaning, IProgressMonitor monitor)
 		throws JavaModelException;
 	
@@ -607,7 +666,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		throws JavaModelException;
 
 	/**
-	 * TODO: describe #setRawClasspath(-,-, isCleaningOutputLocation, -)	 * @param entries	 * @param outputLocation	 * @param isCleaningOutputLocation	 * @param monitor	 * @throws JavaModelException
+	 * 
+	 *TODO: Method to be deleted when isCleaning is a new per-project option
+	 * 
+	 * @param entries	 * @param outputLocation	 * @param isCleaningOutputLocation	 * @param monitor	 * @throws JavaModelException
 	 * @since 2.1	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, boolean isCleaningOutputLocation, IProgressMonitor monitor)
 		throws JavaModelException;
