@@ -2649,7 +2649,9 @@ class ASTConverter {
 		Message[] messages = new Message[problemLength];
 		for (int i = 0; i < problemLength; i++) {
 			IProblem problem = problems[i];
-			messages[i] = new Message(problem.getMessage(), problem.getSourceStart());
+			int start = problem.getSourceStart();
+			int end = problem.getSourceEnd();
+			messages[i] = new Message(problem.getMessage(), start, end - start + 1);
 		}
 		unit.setMessages(messages);
 	}

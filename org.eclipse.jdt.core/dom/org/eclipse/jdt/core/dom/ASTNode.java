@@ -1417,7 +1417,7 @@ public abstract class ASTNode {
 	}
 
 	/**
-	 * Returns the length in character of the original source file indicating
+	 * Returns the length in characters of the original source file indicating
 	 * where the source fragment corresponding to this node ends.
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
