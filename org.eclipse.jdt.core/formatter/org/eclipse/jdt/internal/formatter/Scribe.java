@@ -188,12 +188,36 @@ public class Scribe {
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}
-	
-	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
-		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
-		return alignment; 
+
+	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, boolean adjust){
+		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
 	
+	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
+		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, false);
+	}
+
+	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, boolean adjust){
+		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
+		// adjust break indentation
+		if (adjust && this.memberAlignment != null) {
+			Alignment current = this.memberAlignment;
+			while (current.enclosing != null) {
+				current = current.enclosing;
+			}
+			switch(current.chunkKind) {
+				case Alignment.CHUNK_METHOD :
+				case Alignment.CHUNK_TYPE :
+					alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
+					break;
+				case Alignment.CHUNK_FIELD :
+					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
+					break;
+			}
+		}
+		return alignment; 
+	}
+
 	public Alignment createMemberAlignment(String name, int mode, int count, int sourceRestart) {
 		Alignment mAlignment = createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
 		mAlignment.breakIndentationLevel = this.indentationLevel;

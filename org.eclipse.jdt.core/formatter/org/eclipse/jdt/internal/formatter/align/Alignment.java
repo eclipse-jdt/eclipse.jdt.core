@@ -217,7 +217,7 @@ public class Alignment {
 //				}
 				this.needRedoColumnAlignment = false;
 				int relativeDepth = 0;
-				Alignment targetAlignment = this.scribe.currentAlignment;
+				Alignment targetAlignment = this.scribe.memberAlignment;
 				while (targetAlignment != null){
 					if (targetAlignment == this){
 						throw new AlignmentException(AlignmentException.ALIGN_TOO_SMALL, relativeDepth);
@@ -259,20 +259,6 @@ public class Alignment {
 				do {
 					if (this.fragmentBreaks[i] == NONE) {
 						this.fragmentBreaks[i] = BREAK;
-						/* Experiments
-						if (this.scribe.useTab) {
-							if ((this.breakIndentationLevel * this.scribe.tabSize) >= this.scribe.pageWidth) {
-								this.fragmentIndentations[i] = 2;
-							} else {
-								this.fragmentIndentations[i] = this.breakIndentationLevel;
-							}
-						} else {
-							if (this.breakIndentationLevel >= this.scribe.pageWidth) {
-								this.fragmentIndentations[i] = 8;
-							} else {
-								this.fragmentIndentations[i] = this.breakIndentationLevel;
-							}
-						}*/
 						this.fragmentIndentations[i] = this.breakIndentationLevel;						
 						return wasSplit = true;
 					}

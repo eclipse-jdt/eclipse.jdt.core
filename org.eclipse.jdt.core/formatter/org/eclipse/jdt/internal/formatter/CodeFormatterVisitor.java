@@ -396,7 +396,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (newLinesBeforeField > 0) {
 			this.scribe.printEmptyLines(newLinesBeforeField);
 		}
-		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
+		Alignment memberAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
 		this.scribe.printModifiers();
 		this.scribe.space();
@@ -408,7 +408,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		/*
 		 * Field name
 		 */
-		this.scribe.alignFragment(fieldAlignment, 0);
+		this.scribe.alignFragment(memberAlignment, 0);
 	
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 	
@@ -427,7 +427,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 * Field initialization
 		 */
 		if (fieldDeclaration.initialization != null) {
-			this.scribe.alignFragment(fieldAlignment, 1);
+			this.scribe.alignFragment(memberAlignment, 1);
 			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 			if (this.preferences.insert_space_after_assignment_operators) {
 				this.scribe.space();
@@ -437,8 +437,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 
-		if (fieldAlignment != null) {
-			this.scribe.alignFragment(fieldAlignment, 2);
+		if (memberAlignment != null) {
+			this.scribe.alignFragment(memberAlignment, 2);
 			this.scribe.printTrailingComment();
 		} else {
 			this.scribe.space();
@@ -1117,6 +1117,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.printTrailingComment();
 					}
 					this.scribe.printNewLine();
+					// realign to the proper value
+					if (this.scribe.memberAlignment != null) {
+						// select the last alignment
+						this.scribe.indentationLevel = this.scribe.memberAlignment.originalIndentationLevel;
+					}
 				}
 				ok = true;
 			} catch(AlignmentException e){
@@ -1480,26 +1485,28 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (expressions != null) {
 			int expressionsLength = expressions.length;
 			if (expressionsLength > 1) {
-				Alignment expressionsAlignment =this.scribe.createAlignment(
+				Alignment arrayInitializerAlignment =this.scribe.createAlignment(
 						"array_initializer",//$NON-NLS-1$
 						this.preferences.array_initializer_expressions_alignment,
+						Alignment.R_OUTERMOST,
 						expressionsLength,
-						this.scribe.scanner.currentPosition);
-				this.scribe.enterAlignment(expressionsAlignment);
+						this.scribe.scanner.currentPosition,
+						true);
+				this.scribe.enterAlignment(arrayInitializerAlignment);
 				boolean ok = false;
 				do {
 					try {
+						this.scribe.alignFragment(arrayInitializerAlignment, 0);
 						if (this.preferences.insert_space_before_first_initializer) {
 							this.scribe.space();
 						}
-						this.scribe.alignFragment(expressionsAlignment, 0);
 						expressions[0].traverse(this, scope);
 						for (int i = 1; i < expressionsLength; i++) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+							this.scribe.alignFragment(arrayInitializerAlignment, i);
 							if (this.preferences.insert_space_after_comma_in_array_initializer) {
 								this.scribe.space();
 							}
-							this.scribe.alignFragment(expressionsAlignment, i);
 							expressions[i].traverse(this, scope);
 							if (i == expressionsLength - 1) {
 								if (isComma()) {
@@ -1512,7 +1519,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.redoAlignment(e);
 					}
 				} while (!ok);
-				this.scribe.exitAlignment(expressionsAlignment, true);
+				this.scribe.exitAlignment(arrayInitializerAlignment, true);
 			} else {
 				// we don't need to use an alignment
 				if (this.preferences.insert_space_before_first_initializer) {
