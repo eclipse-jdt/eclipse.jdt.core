@@ -69,7 +69,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
  * subclassed.
  * </p>
  * 
- * @see #parseCompilationUnit
+ * @see #parseCompilationUnit(ICompilationUnit, boolean)
  * @see ASTNode
  * @since 2.0
  */
@@ -90,7 +90,7 @@ public final class AST {
 	/**
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public AST() {
 		this(JavaCore.getDefaultOptions());
@@ -113,7 +113,7 @@ public final class AST {
 	 * 
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public AST(Map options) {
 		this.scanner = new Scanner(
@@ -798,6 +798,7 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
+	 * @return CompilationUnit
 	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
 	 * @see ASTNode#getStartPosition()
@@ -906,10 +907,10 @@ public final class AST {
 	 * @return the abridged compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
 	 * exist or if its source string cannot be obtained
-	 * @see ASTNode#getFlags
+	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPosition
-	 * @see ASTNode#getLength
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
 	 * @since 3.0
 	 */
 	public static CompilationUnit parsePartialCompilationUnit(
@@ -1012,10 +1013,10 @@ public final class AST {
 	 * @return the abridged compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
 	 * exist or the source range is null or if its source string cannot be obtained
-	 * @see ASTNode#getFlags
+	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPosition
-	 * @see ASTNode#getLength
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
 	 * @since 3.0
 	 */
 	public static CompilationUnit parsePartialCompilationUnit(

@@ -69,7 +69,7 @@ public DocumentElementParser(
 	this.annotationParser.checkAnnotation = false;
 }
 
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -117,7 +117,7 @@ public void checkAnnotation() {
 		declarationSourceStart = scanner.commentStarts[0];
 	}
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -137,7 +137,7 @@ protected void consumeClassBodyDeclaration() {
 		initializer.block.sourceStart,
 		initializer.block.sourceEnd);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -151,7 +151,7 @@ protected void consumeClassDeclaration() {
 	requestor.exitClass(endStatementPosition, // '}' is the end of the body 
 	 ((TypeDeclaration) astStack[astPtr]).declarationSourceEnd);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -259,7 +259,7 @@ protected void consumeClassHeaderName() {
 	typeDecl.annotation = this.annotation;
 	this.annotation = null;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -267,7 +267,7 @@ protected void consumeCompilationUnit() {
 	// CompilationUnit ::= EnterCompilationUnit PackageDeclarationopt ImportDeclarationsopt
 	requestor.exitCompilationUnit(scanner.source.length - 1);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -281,7 +281,7 @@ protected void consumeConstructorDeclaration() {
 	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
 	requestor.exitConstructor(endStatementPosition, cd.declarationSourceEnd);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -399,7 +399,7 @@ protected void consumeDiet() {
 	 */
 	pushOnIntArrayStack(this.getJavaDocPositions());	
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -407,7 +407,7 @@ protected void consumeEnterCompilationUnit() {
 	// EnterCompilationUnit ::= $empty
 	requestor.enterCompilationUnit();
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -502,7 +502,7 @@ protected void consumeEnterVariable() {
 				extendedTypeDimension == 0 ? -1 : endPosition); 
 	}
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -523,7 +523,7 @@ protected void consumeExitVariableWithoutInitialization() {
 	lastFieldEndPosition = scanner.currentPosition - 1;
 	lastFieldBodyEndPosition = scanner.startPosition - 1;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -567,7 +567,7 @@ protected void consumeFormalParameter() {
 	pushOnAstStack(arg);
 	intArrayPtr--;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -581,7 +581,7 @@ protected void consumeInterfaceDeclaration() {
 	requestor.exitInterface(endStatementPosition, // the '}' is the end of the body
 	 ((TypeDeclaration) astStack[astPtr]).declarationSourceEnd);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -668,7 +668,7 @@ protected void consumeInterfaceHeaderName() {
 	typeDecl.annotation = this.annotation;
 	this.annotation = null;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -679,7 +679,7 @@ protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 	intArrayPtr--;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -694,7 +694,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
 	requestor.exitMethod(endStatementPosition, md.declarationSourceEnd);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -837,7 +837,7 @@ protected void consumeModifiers() {
 		declarationSourceStart >= 0 ? declarationSourceStart : modifiersSourceStart); 
 	resetModifiers();
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -869,7 +869,7 @@ protected void consumePushModifiers() {
 	}
 	resetModifiers();
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -889,7 +889,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		importReference.sourceStart,
 		false);
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -919,7 +919,7 @@ protected void consumeStaticOnly() {
 	nestedMethod[nestedType]++;
 	resetModifiers();
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -1019,7 +1019,7 @@ public void initialize() {
 	super.initialize();
 	intArrayPtr = -1;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -1215,6 +1215,8 @@ public void parseType(char[] regionSource) {
  * Returns this parser's problem reporter initialized with its reference context.
  * Also it is assumed that a problem is going to be reported, so initializes
  * the compilation result's line positions.
+ * 
+ * @return ProblemReporter
  */
 public ProblemReporter problemReporter() {
 	problemReporter.referenceContext = referenceContext;
@@ -1271,7 +1273,8 @@ public String toString() {
 	buffer.append(super.toString());
 	return buffer.toString();
 }
-/**
+/*
+ * 
  * INTERNAL USE ONLY
  */
 protected TypeReference typeReference(
