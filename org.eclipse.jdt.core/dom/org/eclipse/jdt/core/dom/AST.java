@@ -117,20 +117,6 @@ public final class AST {
 	public static final int JLS3 = 3;
 	
 	/**
-	 * @since 3.0
-	 * @deprecated Renamed {@link #JLS2}.
-	 * // TODO (jeem) - remove after I20040427
-	 */
-	public static final int LEVEL_2_0 = JLS2;
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed {@link #JLS3}.
-	 * // TODO (jeem) - remove after I20040427
-	 */
-	public static final int LEVEL_3_0 = JLS3;
-	
-	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.
 	 */
