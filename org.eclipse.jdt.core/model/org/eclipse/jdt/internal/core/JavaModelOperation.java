@@ -35,9 +35,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * Constants controlling the insertion mode of an action.
 	 * @see JavaModelOperation#postAction	 */
-	protected static final int DEFAULT = 0;
-	protected static final int REPLACE_LAST = 1;
-	protected static final int KEEP_EXISTING = 2;
+	protected static final int APPEND = 1; // insert at the end
+	protected static final int REMOVEALL_APPEND = 2; // remove all existing ones with same ID, and add new one at the end
+	protected static final int KEEP_EXISTING = 3; // do not insert if already existing with same ID
+
 	/*
 	 * A list of IPostActions.	 */
 	protected IPostAction[] actions;
@@ -480,17 +481,15 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			&& stack.get(0) == this;
 	}
 	/*
-	 * Returns the index of the last registered action with the given id.
+	 * Returns the index of the first registered action with the given id, starting from a given position.
 	 * Returns -1 if not found.	 */
-	protected int lastActionWithID(String id) {
-		int existing = -1;
-		for (int i = this.actionsPtr; i >= 0; i--) {
+	protected int firstActionWithID(String id, int start) {
+		for (int i = start; i <= this.actionsPtr; i++) {
 			if (this.actions[i].getID().equals(id)) {
-				existing = i;
-				break;
+				return i;
 			}
 		}
-		return existing;
+		return -1;
 	}
 	
 	/**
@@ -536,28 +535,29 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * - the action should be registered without looking at existing actions (DEFAULT)	 */
 	protected void postAction(IPostAction action, int insertionMode) {
 		JavaModelOperation outerMostOp = (JavaModelOperation)getCurrentOperationStack().get(0);
-		if (outerMostOp.actions == null) {
-			outerMostOp.actions = new IPostAction[1];
-			outerMostOp.actions[0] = action;
+		IPostAction[] postActions = outerMostOp.actions;
+		if (postActions == null) {
+			outerMostOp.actions = postActions = new IPostAction[1];
+			postActions[0] = action;
 			outerMostOp.actionsPtr++;
 		} else {
 			String id = action.getID();
 			switch (insertionMode) {
-				case REPLACE_LAST :
-					int existing = outerMostOp.lastActionWithID(id);
-					if (existing != -1) {
-						outerMostOp.actions[existing] = action;
-					} else {
-						outerMostOp.addAction(action);
+				case REMOVEALL_APPEND :
+					int index = -1;
+					while ((index = outerMostOp.firstActionWithID(id, index+1)) >= 0) {
+						// remove action[index]
+						System.arraycopy(postActions, index+1, postActions, index, outerMostOp.actionsPtr - index);
+						postActions[outerMostOp.actionsPtr--] = null;
 					}
+					outerMostOp.addAction(action);
 					break;
 				case KEEP_EXISTING:
-					existing = outerMostOp.lastActionWithID(id);
-					if (existing == -1) {
+					if (outerMostOp.firstActionWithID(id, 0) < 0) {
 						outerMostOp.addAction(action);
 					}
 					break;
-				case DEFAULT:
+				case APPEND:
 					outerMostOp.addAction(action);
 					break;
 			}
