@@ -133,7 +133,7 @@ boolean isMainMethod() throws JavaModelException;
  * <li>their element names are equal</li>
  * <li>they have the same number of parameters</li>
  * <li>the simple names of their parameter types are equal</li>
- * <ul>
+ * </ul>
  * This is a handle-only method.
  * 
  * @param method the given method
