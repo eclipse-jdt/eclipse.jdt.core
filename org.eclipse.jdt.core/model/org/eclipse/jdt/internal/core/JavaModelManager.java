@@ -1378,6 +1378,15 @@ public class JavaModelManager implements ISaveParticipant {
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
+		
+		// clean up indexes on workspace full save
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
+		if (context.getKind() == ISaveContext.FULL_SAVE) {
+			IndexManager manager = this.indexManager;
+			if (manager != null) {
+				manager.cleanUpIndexes();
+			}
+		}
 	
 		IProject savedProject = context.getProject();
 		if (savedProject != null) {

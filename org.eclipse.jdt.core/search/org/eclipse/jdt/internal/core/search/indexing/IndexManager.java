@@ -85,6 +85,46 @@ public void addSource(IFile resource, IPath indexPath) {
 	SearchDocument document = participant.getDocument(resource);
 	participant.scheduleDocumentIndexing(document, indexPath);
 }
+/*
+ * Removes unused indexes from disk.
+ */
+public void cleanUpIndexes() {
+	SimpleLookupTable knownPaths = new SimpleLookupTable();
+	SearchParticipant[] participants = SearchEngine.getSearchParticipants();
+	IJavaSearchScope scope = new JavaWorkspaceScope();
+	for (int i = 0, length = participants.length; i < length; i++) {
+		PatternSearchJob job = new PatternSearchJob(null, participants[i], scope, null);
+		Index[] selectedIndexes = job.getIndexes(null);
+		for (int j = 0, max = selectedIndexes.length; j < max; j++) {
+			String path = selectedIndexes[j].getIndexFile().getAbsolutePath();
+			knownPaths.put(path, path);
+		}
+	}
+
+	if (indexStates != null) {
+		Object[] keys = indexStates.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			String key = (String) keys[i];
+			if (key != null && !knownPaths.containsKey(key))
+				updateIndexState(key, null);
+		}
+	}
+
+	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
+	if (indexesDirectory.isDirectory()) {
+		File[] indexesFiles = indexesDirectory.listFiles();
+		if (indexesFiles != null) {
+			for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
+				String fileName = indexesFiles[i].getAbsolutePath();
+				if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
+					if (VERBOSE)
+						JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+					indexesFiles[i].delete();
+				}
+			}
+		}
+	}
+}
 String computeIndexName(IPath path) {
 	String name = (String) indexNames.get(path);
 	if (name == null) {
@@ -521,48 +561,6 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, final 
 			return "indexing " + searchDocument.getPath(); //$NON-NLS-1$
 		}
 	});
-}
-public void shutdown() {
-	if (VERBOSE)
-		JobManager.verbose("Shutdown"); //$NON-NLS-1$
-
-	SimpleLookupTable knownPaths = new SimpleLookupTable();
-	SearchParticipant[] participants = SearchEngine.getSearchParticipants();
-	IJavaSearchScope scope = new JavaWorkspaceScope();
-	for (int i = 0, length = participants.length; i < length; i++) {
-		PatternSearchJob job = new PatternSearchJob(null, participants[i], scope, null);
-		Index[] selectedIndexes = job.getIndexes(null);
-		for (int j = 0, max = selectedIndexes.length; j < max; j++) {
-			String path = selectedIndexes[j].getIndexFile().getAbsolutePath();
-			knownPaths.put(path, path);
-		}
-	}
-
-	if (indexStates != null) {
-		Object[] keys = indexStates.keyTable;
-		for (int i = 0, l = keys.length; i < l; i++) {
-			String key = (String) keys[i];
-			if (key != null && !knownPaths.containsKey(key))
-				updateIndexState(key, null);
-		}
-	}
-
-	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
-	if (indexesDirectory.isDirectory()) {
-		File[] indexesFiles = indexesDirectory.listFiles();
-		if (indexesFiles != null) {
-			for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
-				String fileName = indexesFiles[i].getAbsolutePath();
-				if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
-					if (VERBOSE)
-						JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
-					indexesFiles[i].delete();
-				}
-			}
-		}
-	}
-
-	super.shutdown();
 }
 
 public String toString() {

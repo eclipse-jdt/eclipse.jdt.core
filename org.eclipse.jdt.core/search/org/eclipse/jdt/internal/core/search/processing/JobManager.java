@@ -383,6 +383,9 @@ public abstract class JobManager implements Runnable {
 	 */
 	public void shutdown() {
 
+		if (VERBOSE)
+			verbose("Shutdown"); //$NON-NLS-1$
+
 		disable();
 		discardJobs(null); // will wait until current executing job has completed
 		Thread thread = this.processingThread;
