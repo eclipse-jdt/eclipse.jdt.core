@@ -694,8 +694,8 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO (kent) 72468
-	public void _testTypeDeleting() throws JavaModelException {
+	// 72468
+	public void testTypeDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -742,8 +742,8 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO (kent) 72468
-	public void _testTypeVisibility() throws JavaModelException {
+	// 72468
+	public void testTypeVisibility() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 

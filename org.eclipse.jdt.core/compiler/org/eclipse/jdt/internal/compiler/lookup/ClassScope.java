@@ -25,7 +25,9 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
 	private TypeReference superTypeReference;
-	
+
+	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
+
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(CLASS_SCOPE, parent);
 		this.referenceContext = context;
@@ -50,8 +52,15 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildFields() {
+		boolean hierarchyIsInconsistent = referenceContext.binding.isHierarchyInconsistent();
 		if (referenceContext.fields == null) {
-			referenceContext.binding.fields = NoFields;
+			if (hierarchyIsInconsistent) { // 72468
+				referenceContext.binding.fields = new FieldBinding[1];
+				referenceContext.binding.fields[0] =
+					new FieldBinding(IncompleteHierarchy, VoidBinding, AccPrivate, referenceContext.binding, null);
+			} else {
+				referenceContext.binding.fields = NoFields;
+			}
 			return;
 		}
 		// count the number of fields vs. initializers
@@ -62,6 +71,8 @@ public class ClassScope extends Scope {
 			if (fields[i].isField())
 				count++;
 
+		if (hierarchyIsInconsistent)
+			count++;
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
@@ -114,6 +125,8 @@ public class ClassScope extends Scope {
 			}
 			fieldBindings = newFieldBindings;
 		}
+		if (hierarchyIsInconsistent)
+			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, VoidBinding, AccPrivate, referenceContext.binding, null);
 
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
@@ -776,7 +789,9 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 
-	public boolean detectCycle(ReferenceBinding superType, TypeReference reference, TypeBinding[] argTypes) {
+	public boolean detectCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
+		if (!(superType instanceof ReferenceBinding)) return false;
+
 		if (argTypes != null) {
 			for (int i = 0, l = argTypes.length; i < l; i++) {
 				TypeBinding argType = argTypes[i].leafComponentType();
@@ -787,11 +802,14 @@ public class ClassScope extends Scope {
 		}
 
 		if (reference == this.superTypeReference) { // see findSuperType()
+			if (superType.isTypeVariable())
+				return false; // error case caught in resolveSuperType()
 			// abstract class X<K,V> implements java.util.Map<K,V>
 			//    static abstract class M<K,V> implements Entry<K,V>
 			if (superType.isParameterizedType())
 				superType = ((ParameterizedTypeBinding) superType).type;
-			return detectCycle(referenceContext.binding, superType, reference);
+			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
+			return detectCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
 
 		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
@@ -923,16 +941,6 @@ public class ClassScope extends Scope {
 			this.superTypeReference = typeReference;
 			ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
 			this.superTypeReference = null;
-			if (superType == null) return null;
-	
-			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
-			if (superType.isParameterizedType())
-				return superType; // already checked cycle before resolving its type variables
-
-			// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
-			// must be guaranteed that the superType knows its entire hierarchy
-			if (detectCycle(referenceContext.binding, superType, typeReference))
-				return null; // cycle error was already reported
 			return superType;
 		} catch (AbortCompilation e) {
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);

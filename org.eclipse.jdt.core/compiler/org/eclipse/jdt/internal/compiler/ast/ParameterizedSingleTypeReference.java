@@ -27,7 +27,23 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		super(name, dim, pos);
 		this.typeArguments = typeArguments;
 	}
-	
+	public void checkBounds(Scope scope) {
+		ParameterizedTypeBinding parameterizedType = null;
+		if (this.resolvedType instanceof ParameterizedTypeBinding)
+			parameterizedType = (ParameterizedTypeBinding) this.resolvedType;
+		else if (this.resolvedType.isArrayType() && this.resolvedType.leafComponentType() instanceof ParameterizedTypeBinding)
+			parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
+
+		if (parameterizedType != null) {
+			ReferenceBinding currentType = parameterizedType.type;
+			TypeVariableBinding[] typeVariables = currentType.typeVariables();
+			int argLength = this.typeArguments.length;
+			TypeBinding[] argTypes = parameterizedType.arguments;
+			for (int i = 0; i < argLength; i++)
+			    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+					scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+		}
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
@@ -94,9 +110,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				scope.problemReporter().invalidEnclosingType(this, this.resolvedType, enclosingType);
 				return null;
 			}
-			if (isTypeUseDeprecated(this.resolvedType, scope)) {
+			if (isTypeUseDeprecated(this.resolvedType, scope))
 				scope.problemReporter().deprecatedType(this.resolvedType, this);
-			}
 		}
 
 		// check generic and arity
@@ -138,22 +153,19 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return currentType;
 		}
 		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, enclosingType);
-		// check argument type compatibility
-		for (int i = 0; i < argLength; i++) {
-		    TypeBinding argType = argTypes[i];
-			if (!typeVariables[i].boundCheck(parameterizedType, argType)) {
-				scope.problemReporter().typeMismatchError(argType, typeVariables[i], currentType, this.typeArguments[i]);
-		    }
-		}
+		// check argument type compatibility now if not a class scope
+		if (!isClassScope) // otherwise will do it in Scope.connectTypeVariables()
+			for (int i = 0; i < argLength; i++)
+			    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+					scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+
 		this.resolvedType = parameterizedType;
-		if (isTypeUseDeprecated(this.resolvedType, scope)) {
+		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(scope);
-		}		
 		// array type ?
 		if (this.dimensions > 0) {
-			if (dimensions > 255) {
+			if (dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
-			}
 			this.resolvedType = scope.createArrayType(parameterizedType, dimensions);
 		}
 		return this.resolvedType;

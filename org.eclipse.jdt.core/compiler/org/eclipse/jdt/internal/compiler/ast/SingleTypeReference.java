@@ -35,7 +35,13 @@ public class SingleTypeReference extends TypeReference {
 	protected TypeBinding getTypeBinding(Scope scope) {
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		return scope.getType(token);
+
+		this.resolvedType = scope.getType(token);
+
+		if (scope.kind == Scope.CLASS_SCOPE && this.resolvedType.isValidBinding())
+			if (((ClassScope) scope).detectCycle(this.resolvedType, this, null))
+				return null;
+		return this.resolvedType;
 	}
 
 	public char [][] getTypeName() {

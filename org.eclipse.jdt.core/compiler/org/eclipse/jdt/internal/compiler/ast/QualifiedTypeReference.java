@@ -32,17 +32,49 @@ public class QualifiedTypeReference extends TypeReference {
 		//warning : the new type ref has a null binding
 		return new ArrayQualifiedTypeReference(tokens, dim, sourcePositions);
 	}
-	
-	protected TypeBinding getTypeBinding(Scope scope) {
-		
-		if (this.resolvedType != null)
-			return this.resolvedType;
+
+	protected TypeBinding findNextTypeBinding(int tokenIndex, Scope scope, PackageBinding packageBinding) {
 		try {
-			return scope.getType(this.tokens, this.tokens.length);
+		    if (this.resolvedType == null) {
+				this.resolvedType = scope.getType(this.tokens[tokenIndex], packageBinding);
+		    } else {
+			    this.resolvedType = scope.getMemberType(this.tokens[tokenIndex], (ReferenceBinding) this.resolvedType);
+				if (this.resolvedType instanceof ProblemReferenceBinding) {
+					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) this.resolvedType;
+					this.resolvedType = new ProblemReferenceBinding(
+						org.eclipse.jdt.core.compiler.CharOperation.subarray(this.tokens, 0, tokenIndex + 1),
+						problemBinding.original,
+						this.resolvedType.problemId());
+				}
+			}
+		    return this.resolvedType;
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
 			throw e;
 		}
+	}
+
+	protected TypeBinding getTypeBinding(Scope scope) {
+		
+		if (this.resolvedType != null)
+			return this.resolvedType;
+
+		Binding binding = scope.getPackage(this.tokens);
+		if (binding != null && !binding.isValidBinding())
+			return (ReferenceBinding) binding; // not found
+
+	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
+	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
+			findNextTypeBinding(i, scope, packageBinding);
+			if (!this.resolvedType.isValidBinding())
+				return this.resolvedType;
+
+			if (isClassScope)
+				if (((ClassScope) scope).detectCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
+					return null;
+		}
+		return this.resolvedType;
 	}
 	
 	public char[][] getTypeName(){

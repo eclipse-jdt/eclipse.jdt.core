@@ -3322,26 +3322,48 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"X.java",
 				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
-				"    public static void main(String [] args) {\n" + 
-				"        \n" + 
-				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
-				"        System.out.println(\"SUCCESS\");\n" + 
-				"    }\n" + 
-				"    void foo(X<Thread>.MX.MMX<X> mx) {\n" + 
-				"    }\n" + 
-				"    \n" + 
+				"    void foo(X<Thread>.MX.MMX<X> mx) {}\n" + 
 				"    class MX <MT> {\n" + 
-				"        class MMX <MMT> {\n" + 
-				"        }\n" + 
+				"        class MMX <MMT> {}\n" + 
 				"    }\n" + 
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	void foo(X<Thread>.MX.MMX<X> mx) {\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(X<Thread>.MX.MMX<X> mx) {}\n" + 
 			"	           ^^^^^^\n" + 
 			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends X.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
 			"----------\n");		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    class MX <MT extends Comparable> {\n" + 
+				"        class MMX <MMT> {}\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                               ^^^^^^^^\n" +
+			"Bound mismatch: The type Runnable is not a valid substitute for the bounded parameter <MT extends Comparable> of the type X<T>.MX<MT>\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    class MX <MT> {\n" + 
+				"        class MMX <MMT extends Comparable> {}\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                                             ^^^^^^^^\n" +
+			"Bound mismatch: The type Iterable<String> is not a valid substitute for the bounded parameter <MMT extends Comparable> of the type X<T>.MX<MT>.MMX<MMT>\n" + 
+			"----------\n");
 	}			
 	public void test113() {
 		this.runConformTest(
@@ -7387,8 +7409,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 71080 - parameter bound <T extends Enum<T>> should be allowed
-	// TODO (kent) reenable once fixed
-	public void _test271() {
+	public void test271() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7398,8 +7419,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"");
 	}	
 	// 71080 - variation
-	// TODO (kent) reenable once fixed	
-	public void _test272() {
+	public void test272() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7412,8 +7432,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"");
 	}		
 	// 71080 - variation
-	// TODO (kent) reenable once fixed
-	public void _test273() {
+	public void test273() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7569,15 +7588,73 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 62822
-	// TODO (kent) reenable once fixed
-	public void _test280() {
+	public void test280() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface X<T extends Y<S>, S extends Z> {}\n" +
-				"interface Y<T extends Z> {}\n" +
+				"interface X<T1 extends Y<T2>, T2 extends Z> {}\n" +
+				"interface Y<T3 extends Z> {}\n" +
 				"interface Z {}\n"
 			},
 			"");
+	}	
+	public void test281() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T1 extends Y<T2>, T2 extends Z> {}\n" +
+				"interface Y<T3 extends Comparable> {}\n" +
+				"interface Z {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	interface X<T1 extends Y<T2>, T2 extends Z> {}\n" + 
+			"	                         ^^\n" +
+			"Bound mismatch: The type T2 is not a valid substitute for the bounded parameter <T3 extends Comparable> of the type Y<T3>\n" + 
+			"----------\n");
+	}	
+	public void test282() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y.Member<String> {}\n" +
+				"class Y { static class Member<T> {} }\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" +
+				"public class X extends p1.Y.Member<String> {}\n" +
+				"class Y { static class Member<T> {} }\n"
+			},
+			"");
+	}	
+	public void test283() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y.Missing<String> {}\n" +
+				"class Y { static class Member<T> {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y.Missing<String> {}\n" + 
+			"	                       ^^^^^^^^^\n" + 
+			"Y.Missing cannot be resolved to a type\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" +
+				"public class X extends Y.Missing<String> {}\n" +
+				"class Y { static class Member<T> {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p1\\X.java (at line 2)\n" + 
+			"	public class X extends Y.Missing<String> {}\n" + 
+			"	                       ^^^^^^^^^\n" + 
+			"Y.Missing cannot be resolved to a type\n" + 
+			"----------\n");
 	}	
 }
