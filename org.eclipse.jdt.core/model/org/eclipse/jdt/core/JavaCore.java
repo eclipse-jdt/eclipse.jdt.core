@@ -1200,11 +1200,20 @@ public final class JavaCore extends Plugin {
 					if (!ok) {
 						JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							Util.verbose(
-								"CPContainer INIT - FAILED\n" + //$NON-NLS-1$
-								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-								"	initializer: " + initializer); //$NON-NLS-1$
+							if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+								Util.verbose(
+									"CPContainer INIT - FAILED (initializer did not initialize container)\n" + //$NON-NLS-1$
+									"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+									"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+									"	initializer: " + initializer); //$NON-NLS-1$
+								
+							} else {
+								Util.verbose(
+									"CPContainer INIT - FAILED (see exception above)\n" + //$NON-NLS-1$
+									"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+									"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+									"	initializer: " + initializer); //$NON-NLS-1$
+							}
 						}
 					}
 				}
