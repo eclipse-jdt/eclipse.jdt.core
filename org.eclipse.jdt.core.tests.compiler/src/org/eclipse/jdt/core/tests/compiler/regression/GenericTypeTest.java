@@ -14730,4 +14730,34 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
+	public void test523(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	public X() {\n" + 
+				"		M m = new M();\n" + 
+				"		List<String> ls = m.list(); // rawified even though wasn\'t using T parameter\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"	static class M<T> {\n" + 
+				"		List<String> list() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	List<String> ls = m.list(); // rawified even though wasn\'t using T parameter\n" + 
+			"	                  ^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}				
 }
