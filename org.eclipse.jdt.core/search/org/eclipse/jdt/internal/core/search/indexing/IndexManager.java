@@ -321,7 +321,9 @@ private void rebuildIndex(String indexName, IPath path) {
 	updateIndexState(indexName, REBUILDING_STATE);
 	IndexRequest request = null;
 	if (target instanceof IProject) {
-		request = new IndexAllProject((IProject) target, this);
+		IProject p = (IProject) target;
+		if (JavaProject.hasJavaNature(p))
+			request = new IndexAllProject(p, this);
 	} else if (target instanceof IFolder) {
 		IFolder folder = (IFolder) target;
 		request = new IndexBinaryFolder(folder, this, folder.getProject());
