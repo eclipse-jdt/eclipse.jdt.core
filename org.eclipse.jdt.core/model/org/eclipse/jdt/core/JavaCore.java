@@ -481,8 +481,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (target == null)
 			return null;
 
-		IClasspathEntry targetEntry;
-		
 		// inside the workspace
 		if (target instanceof IResource) {
 			IResource resolvedResource = (IResource) target;
@@ -491,32 +489,28 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					
 					case IResource.PROJECT :  
 						// internal project
-						targetEntry = JavaCore.newProjectEntry(resolvedPath);
-						targetEntry.setExported(entry.isExported());
-						return targetEntry;
+						return JavaCore.newProjectEntry(resolvedPath, entry.isExported());
 						
 					case IResource.FILE : 
 						String extension = resolvedResource.getFileExtension();
 						if ("jar".equalsIgnoreCase(extension)  //$NON-NLS-1$
 							 || "zip".equalsIgnoreCase(extension)) {  //$NON-NLS-1$
 							// internal binary archive
-							targetEntry = JavaCore.newLibraryEntry(
+							return JavaCore.newLibraryEntry(
 									resolvedPath,
 									getResolvedVariablePath(entry.getSourceAttachmentPath()),
-									getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-							targetEntry.setExported(entry.isExported());
-							return targetEntry;
+									getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+									entry.isExported());
 						}
 						break;
 						
 					case IResource.FOLDER : 
 						// internal binary folder
-						targetEntry = JavaCore.newLibraryEntry(
+						return JavaCore.newLibraryEntry(
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
-								getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-						targetEntry.setExported(entry.isExported());
-						return targetEntry;
+								getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+								entry.isExported());
 				}
 			}
 		}
@@ -528,20 +522,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				if (fileName.endsWith(".jar"  //$NON-NLS-1$
 					) || fileName.endsWith(".zip"  //$NON-NLS-1$
 					)) { // external binary archive
-					targetEntry = JavaCore.newLibraryEntry(
+					return JavaCore.newLibraryEntry(
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-					targetEntry.setExported(entry.isExported());
-					return targetEntry;
+							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.isExported());
 				}
 			} else { // external binary folder
-				targetEntry = JavaCore.newLibraryEntry(
+				return JavaCore.newLibraryEntry(
 						resolvedPath,
 						getResolvedVariablePath(entry.getSourceAttachmentPath()),
-						getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-				targetEntry.setExported(entry.isExported());
-				return targetEntry;
+						getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+						entry.isExported());
 			}
 		}
 		return null;

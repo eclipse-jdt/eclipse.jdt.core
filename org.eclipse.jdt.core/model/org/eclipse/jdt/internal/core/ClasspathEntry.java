@@ -81,20 +81,6 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	/**
 	 * Creates a class path entry of the specified kind with the given path.
-	 * @deprecated - use constructor with extra boolean argument
-	 */
-	public ClasspathEntry(
-		int contentKind,
-		int entryKind,
-		IPath path,
-		IPath sourceAttachmentPath,
-		IPath sourceAttachmentRootPath) {
-
-		this(contentKind, entryKind, path, sourceAttachmentPath, sourceAttachmentRootPath, false);
-	}
-
-	/**
-	 * Creates a class path entry of the specified kind with the given path.
 	 */
 	public ClasspathEntry(
 		int contentKind,
@@ -111,6 +97,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.isExported = isExported;
 	}
+	
 	/**
 	 * Returns true if the given object is a classpath entry
 	 * with equivalent attributes.
@@ -156,49 +143,54 @@ public class ClasspathEntry implements IClasspathEntry {
 			return false;
 		}
 	}
+
 	/**
 	 * @see IClasspathEntry
 	 */
 	public int getContentKind() {
 		return this.contentKind;
 	}
+
 	/**
 	 * @see IClasspathEntry
 	 */
 	public int getEntryKind() {
 		return this.entryKind;
 	}
+
 	/**
 	 * @see IClasspathEntry
 	 */
 	public IPath getPath() {
 		return this.path;
 	}
-	/**
-	 * @see IClasspathEntry
-	 * @deprecated
-	 */
-	public IClasspathEntry getResolvedEntry() {
 
-		return JavaCore.getResolvedClasspathEntry(this);
-	}
 	/**
 	 * @see IClasspathEntry
 	 */
 	public IPath getSourceAttachmentPath() {
 		return this.sourceAttachmentPath;
 	}
+
 	/**
 	 * @see IClasspathEntry
 	 */
 	public IPath getSourceAttachmentRootPath() {
 		return this.sourceAttachmentRootPath;
 	}
+
 	/**
 	 * Returns the hash code for this classpath entry
 	 */
 	public int hashCode() {
 		return this.path.hashCode();
+	}
+
+	/**
+	 * @see IClasspathEntry#isExported()
+	 */
+	public boolean isExported() {
+		return this.isExported;
 	}
 
 	/**
@@ -250,20 +242,4 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append(']');
 		return buffer.toString();
 	}
-	/*
-	 * @see IClasspathEntry#isExported()
-	 */
-	public boolean isExported() {
-		return this.isExported;
-	}
-
-	/*
-	 * @see IClasspathEntry#setExported(boolean)
-	 */
-	public void setExported(boolean exportFlag) {
-		if (getEntryKind() != CPE_SOURCE) {
-			this.isExported = exportFlag;
-		}
-	}
-
 }

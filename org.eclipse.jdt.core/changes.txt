@@ -109,14 +109,14 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
-  * Classpath entries (except for source folders) can be tagged as exported. When
-    exported, an entry is contributed to dependent projects along with its output
-    location.
+  * Classpath entries (except for source folders) can be tagged as exported upon
+    creation. When exported, an entry is contributed to dependent projects along 
+    with its output location.
     Added APIs:
     
-    Testing and changing status of a given entry
+    Testing status of a given entry
      + IClasspathEntry.isExported()
-     + IClasspathEntry.setExported(boolean)
+
      
     Creating entries with export flag
      + JavaCore.newProjectEntry(IPath, boolean)
@@ -128,7 +128,8 @@ STREAM: 2.0
 
   * CodeAssist inserts qualification on field/method references in case of ambiguities.
 
-  * API Changes on ICompletionRequestor
+  * CodeAssist provides parameter names on method completions. 
+    API Changes on ICompletionRequestor
   	+ Added API for answering method declaration completions:
       void acceptMethodDeclaration(
           char[] declaringTypePackageName,

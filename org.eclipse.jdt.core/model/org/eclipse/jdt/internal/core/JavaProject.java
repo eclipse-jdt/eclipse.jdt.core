@@ -1053,11 +1053,12 @@ public class JavaProject
 			if (isInitialProject || entry.isExported()){
 				
 				accumulatedEntries.add(entry);
+				
+				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == ClasspathEntry.CPE_PROJECT) {
 						IProject projRsc = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
 						if (projRsc != null && projRsc.isOpen()) {				
 							JavaProject project = (JavaProject) JavaCore.create(projRsc);
-							// recurse in project to get all its indirect exports (only consider exported entries from there on)
 							project.computeExpandedClasspath(
 								initialProject, 
 								ignoreUnresolvedVariable, 

@@ -180,10 +180,4 @@ public interface IClasspathEntry {
 	 * Unless explicitly marked as being exported, an entry is not exported.
 	 */
 	boolean isExported();
-	
-	/**
-	 * Sets whether the entry will be exported to other dependent projects.
-	 * Unless explicitly marked as being exported, an entry is not exported.
-	 */
-	void setExported(boolean exportFlag);
 }
