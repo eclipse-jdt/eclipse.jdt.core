@@ -394,7 +394,12 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			// when a project is created, it does not yet have a java nature
 			if (hasJavaNature((IProject)delta.getResource())) {
 				addToParentInfo(element);
-				fCurrentDelta.added(element);
+				if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
+					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
+					fCurrentDelta.movedTo(element, movedFromElement);
+				} else {
+					fCurrentDelta.added(element);
+				}
 				this.projectsToUpdate.add(element);
 			}
 		} else {
@@ -529,10 +534,18 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			IPath movedToPath = delta.getMovedToPath();
 			IResource res = delta.getResource();
 			IResource movedToRes;
-			if (res instanceof IFile) {
-				movedToRes = res.getWorkspace().getRoot().getFile(movedToPath);
-			} else {
-				movedToRes = res.getWorkspace().getRoot().getFolder(movedToPath);
+			switch (res.getType()) {
+				case IResource.PROJECT:
+					movedToRes = res.getWorkspace().getRoot().getProject(movedToPath.lastSegment());
+					break;
+				case IResource.FOLDER:
+					movedToRes = res.getWorkspace().getRoot().getFolder(movedToPath);
+					break;
+				case IResource.FILE:
+					movedToRes = res.getWorkspace().getRoot().getFile(movedToPath);
+					break;
+				default:
+					return;
 			}
 			// create the moved To element
 			// pass null for the project in case the element is moving to another project
