@@ -212,10 +212,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
 	 * can simply refer to some variables defining the proper locations of these external JARs.
+	 *  <p>
+	 * Note that in case the project isn't yet opened, the classpath will directly be read from the associated <tt>.classpath</tt> file.
 	 * <p>
 	 * @exception JavaModelException in one of the corresponding situation:
 	 * <ul>
-	 *    <li> this element does not exist </li>
+	 *    <li> an exception occurs while accessing the associated <tt>.classpath</tt> file </li>
 	 *    <li> an exception occurs while accessing its corresponding resource </li>
 	 * </ul>
 	 * @see IClasspathEntry
