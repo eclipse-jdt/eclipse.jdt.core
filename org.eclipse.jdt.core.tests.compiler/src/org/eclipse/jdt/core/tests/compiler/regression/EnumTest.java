@@ -712,17 +712,17 @@ public class EnumTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	case MX.BLEU : break;\n" + 
 			"	     ^^^^^^^\n" + 
-			"Cannot qualify the name of the enum constant BLEU in a case label\n" + 
+			"The enum constant X.MX.BLEU reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	case MX.BLANC : break;\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Cannot qualify the name of the enum constant BLANC in a case label\n" + 
+			"The enum constant X.MX.BLANC reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	case MX.ROUGE : break;\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Cannot qualify the name of the enum constant ROUGE in a case label\n" + 
+			"The enum constant X.MX.ROUGE reference cannot be qualified in a case label\n" + 
 			"----------\n");
 	}
 	
@@ -1737,5 +1737,33 @@ public class EnumTest extends AbstractComparisonTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}		
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82217
+	 */
+	public void test061() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	A, B, C;\n" + 
+				"	public static final X D = null;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {\n" + 
+				"	private void foo(X x) {\n" + 
+				"		switch (x) {\n" + 
+				"			case D:\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	case D:\n" + 
+			"	     ^\n" + 
+			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
+			"----------\n");
+	}			
 }

@@ -325,7 +325,7 @@ public void test007() {
 		"1. ERROR in X.java (at line 22)\n" + 
 		"	super((Object) t); // UNnecessary\n" + 
 		"	      ^^^^^^^^^^\n" + 
-		"Unnecessary cast from Thread to Object. It is already compatible with the argument type Object\n" + 
+		"Unnecessary cast from Thread to Object\n" + 
 		"----------\n",
 		null,
 		true,
@@ -414,7 +414,7 @@ public void test010() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	long l1 = ((long) 1) + 2L; // UNnecessary\n" + 
 		"	          ^^^^^^^^^^\n" + 
-		"Unnecessary cast from int to long. It is already compatible with the argument type long\n" + 
+		"Unnecessary cast from int to long\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	long l3 = 0;		l3 += (long)12; // UNnecessary\n" + 
@@ -480,7 +480,7 @@ public void test012() {
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	foo((XM1) x);	// UNnecessary\n" + 
 		"	    ^^^^^^^\n" + 
-		"Unnecessary cast from X to X.XM1. It is already compatible with the argument type X\n" + 
+		"Unnecessary cast from X to X.XM1\n" + 
 		"----------\n",
 		null,
 		true,
@@ -515,7 +515,7 @@ public void test013() {
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	d = d + a + (long)b; 	// unnecessary\n" + 
 		"	            ^^^^^^^\n" + 
-		"Unnecessary cast from int to long. It is already compatible with the argument type long\n" + 
+		"Unnecessary cast from int to long\n" + 
 		"----------\n",
 		null,
 		true,
@@ -802,7 +802,7 @@ public void test022() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (fillPattern.equals((int[])map.get(\"x\"))) { \n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from Object to int[]. It is already compatible with the argument type Object\n" + 
+		"Unnecessary cast from Object to int[]\n" + 
 		"----------\n",
 		null,
 		true,

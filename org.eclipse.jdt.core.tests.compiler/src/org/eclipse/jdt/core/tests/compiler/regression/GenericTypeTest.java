@@ -11743,7 +11743,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	list.add((T) other.get(0)); // checked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from ? extends T to T. It is already compatible with the argument type T\n" + 
+			"Unnecessary cast from ? extends T to T\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	list.add((T) other.get(0)); // unchecked cast\n" + 
@@ -11871,7 +11871,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"");
-	}
+	}		
+	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81824
 	public void test444() {
 		this.runNegativeTest(
@@ -11888,4 +11889,33 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n"
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78810
+	public void test445() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X {\n" + 
+				"    public abstract Object getProperty(final Object src, final String name);\n" + 
+				"    Zork z;\n" + 
+				"    public <T> T getTheProperty(final Object src, final String name)\n" + 
+				"    {\n" + 
+				"        final T val = (T) getProperty(src, name); // this gives erroneous cast warning\n" + 
+				"        return val;\n" + 
+				"    }\n" + 
+				"}\n"	,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Zork z;\r\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\r\n" + 
+			"	final T val = (T) getProperty(src, name); // this gives erroneous cast warning\r\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n");
+	}		
+
 }
