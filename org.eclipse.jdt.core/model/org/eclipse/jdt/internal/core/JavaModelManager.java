@@ -9,7 +9,8 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
-import java.io.*;
+
+import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
 
@@ -441,7 +442,14 @@ public class JavaModelManager implements ISaveParticipant {
 	 * have yet to be fired.
 	 */
 	ArrayList javaModelDeltas= new ArrayList();
-	/**
+	/**
+	 * Queue of reconcile deltas on working copies that have yet to be fired.
+	 * This is a table form IWorkingCopy to IJavaElementDelta
+	 */
+	HashMap reconcileDeltas = new HashMap();
+
+
+	/**
 	 * Collection of listeners for Java element deltas
 	 */
 	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
@@ -662,116 +670,124 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Fire Java Model delta, flushing them after the fact after post_change notification.
 	 * If the firing mode has been turned off, this has no effect. 
 	 */
-	public void fire(JavaElementDelta customDelta, int originalEventType) {
+	public void fire(IJavaElementDelta customDelta, int eventType) {
 
-		if (this.isFiring) {
+		if (!this.isFiring) return;
+		
+		if (DeltaProcessor.VERBOSE && (eventType == DEFAULT_CHANGE_EVENT || eventType == ElementChangedEvent.PRE_AUTO_BUILD)) {
+			System.out.println("-----------------------------------------------------------------------------------------------------------------------");//$NON-NLS-1$
+		}
 
-			int eventType;
+		IJavaElementDelta deltaToNotify;
+		if (customDelta == null){
+			deltaToNotify = this.mergeDeltas(this.javaModelDeltas);
+		} else {
+			deltaToNotify = customDelta;
+		}
 			
-			/* DEFAULT event type is used when operation doesn't know actual event type and needed to fire immediately:
-			 * e.g. non-resource modifying operation, create/destroy shared working copies
-			 *
-			 * this is mapped to a POST-change + PRE-build change for all interested listeners
-			 */
-			if (originalEventType == DEFAULT_CHANGE_EVENT){
-				eventType = ElementChangedEvent.POST_CHANGE;
-			} else {
-				eventType = originalEventType;
-			}
-			
-			JavaElementDelta deltaToNotify;
-			if (customDelta == null){
-				this.mergeDeltas();
-				if (this.javaModelDeltas.size() > 0){ 
-
-					// cannot be more than 1 after merge
-					deltaToNotify = (JavaElementDelta)this.javaModelDeltas.get(0);
-
-					// empty the queue only after having fired final volley of deltas and no custom deltas was superposed
-					if (eventType == ElementChangedEvent.POST_CHANGE){
-						// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
-						this.flush();
-					}
-				} else {
-					return;
-				}
-			} else {
-				deltaToNotify = customDelta;
-			}
-				
-			// Refresh internal scopes
+		// Refresh internal scopes
+		if (deltaToNotify != null) {
 			Iterator scopes = this.scopes.keySet().iterator();
 			while (scopes.hasNext()) {
 				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
 				scope.processDelta(deltaToNotify);
 			}
-				
-			// Notification
+		}
+			
+		// Notification
+	
+		// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
+		// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
+		IElementChangedListener[] listeners = this.elementChangedListeners;
+		int[] listenerMask = this.elementChangedListenerMasks;
+		int listenerCount = this.elementChangedListenerCount;
 
-			// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
-			// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
-			IElementChangedListener[] listeners = this.elementChangedListeners;
-			int[] listenerMask = this.elementChangedListenerMasks;
-			int listenerCount = this.elementChangedListenerCount;
+		switch (eventType) {
+			case DEFAULT_CHANGE_EVENT:
+				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				fireReconcileDelta(listeners, listenerMask, listenerCount);
+				break;
+			case ElementChangedEvent.PRE_AUTO_BUILD:
+				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				break;
+			case ElementChangedEvent.POST_CHANGE:
+				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				fireReconcileDelta(listeners, listenerMask, listenerCount);
+				break;
+		}
 
-			// in case using a DEFAULT change event, will notify also all listeners also interested in PRE-build events
-			if (originalEventType == DEFAULT_CHANGE_EVENT){
-				if (DeltaProcessor.VERBOSE){
-					System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	private void firePreAutoBuildDelta(
+		IJavaElementDelta deltaToNotify,
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+			
+		if (DeltaProcessor.VERBOSE){
+			System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			notifyListeners(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD, listeners, listenerMask, listenerCount);
+		}
+	}
+
+	private void firePostChangeDelta(
+		IJavaElementDelta deltaToNotify,
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+			
+		// post change deltas
+		if (DeltaProcessor.VERBOSE){
+			System.out.println("FIRING POST_CHANGE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
+			this.flush();
+			
+			notifyListeners(deltaToNotify, ElementChangedEvent.POST_CHANGE, listeners, listenerMask, listenerCount);
+		} 
+	}		
+	private void fireReconcileDelta(
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+
+
+		IJavaElementDelta deltaToNotify = mergeDeltas(this.reconcileDeltas.values());
+		if (DeltaProcessor.VERBOSE){
+			System.out.println("FIRING POST_RECONCILE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
+			this.reconcileDeltas = new HashMap();
+		
+			notifyListeners(deltaToNotify, ElementChangedEvent.POST_RECONCILE, listeners, listenerMask, listenerCount);
+		} 
+	}
+
+	public void notifyListeners(IJavaElementDelta deltaToNotify, int eventType, IElementChangedListener[] listeners, int[] listenerMask, int listenerCount) {
+		final ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, eventType);
+		for (int i= 0; i < listenerCount; i++) {
+			if ((listenerMask[i] & eventType) != 0){
+				final IElementChangedListener listener = listeners[i];
+				if (DeltaProcessor.VERBOSE) {
+					System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
 				}
-				final ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD);
-				for (int i= 0; i < listenerCount; i++) {
-					if ((listenerMask[i] & ElementChangedEvent.PRE_AUTO_BUILD) != 0){
-						final IElementChangedListener listener = listeners[i];
-						if (DeltaProcessor.VERBOSE) {
-							System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
-						}
-						// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-						Platform.run(new ISafeRunnable() {
-							public void handleException(Throwable exception) {
-								Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
-							}
-							public void run() throws Exception {
-								listener.elementChanged(extraEvent);
-							}
-						});
+				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+				Platform.run(new ISafeRunnable() {
+					public void handleException(Throwable exception) {
+						Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
 					}
-				}
-			}
-
-			// regular notification
-			if (DeltaProcessor.VERBOSE){
-				String type = "";//$NON-NLS-1$
-				switch (eventType) {
-					case ElementChangedEvent.POST_CHANGE:
-						type = "POST_CHANGE"; //$NON-NLS-1$
-						break;
-					case ElementChangedEvent.PRE_AUTO_BUILD:
-						type = "PRE_AUTO_BUILD"; //$NON-NLS-1$
-						break;
-					case ElementChangedEvent.POST_RECONCILE:
-						type = "POST_RECONCILE"; //$NON-NLS-1$
-						break;
-				}
-				System.out.println("FIRING " + type + " Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			}
-			final ElementChangedEvent event = new ElementChangedEvent(deltaToNotify, eventType);
-			for (int i= 0; i < listenerCount; i++) {
-				if ((listenerMask[i] & eventType) != 0){
-					// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-					final IElementChangedListener listener = listeners[i];
-					if (DeltaProcessor.VERBOSE) {
-						System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+					public void run() throws Exception {
+						listener.elementChanged(extraEvent);
 					}
-					Platform.run(new ISafeRunnable() {
-						public void handleException(Throwable exception) {
-							Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
-						}
-						public void run() throws Exception {
-							listener.elementChanged(event);
-						}
-					});
-				}
+				});
 			}
 		}
 	}
@@ -780,7 +796,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Flushes all deltas without firing them.
 	 */
 	protected void flush() {
-		this.javaModelDeltas= new ArrayList();
+		this.javaModelDeltas = new ArrayList();
 	}
 
 	/**
@@ -912,7 +928,8 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/*
-	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.	 */
+	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.
+	 */
 	public PerProjectInfo getPerProjectInfo(IProject project) {
 		return getPerProjectInfo(project, true /* create info */);
 	}
@@ -932,7 +949,8 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * Returns  the per-project info for the given project.
 	 * If the info doesn't exist, check for the project existence and create the info.
-	 * @throws JavaModelException if the project doesn't exist.	 */
+	 * @throws JavaModelException if the project doesn't exist.
+	 */
 	public PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
 		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
 		if (info == null) {
@@ -1158,19 +1176,20 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Merged all awaiting deltas.
 	 */
-	public void mergeDeltas() {
-		if (this.javaModelDeltas.size() <= 1) return;
+	public IJavaElementDelta mergeDeltas(Collection deltas) {
+		if (deltas.size() == 0) return null;
+		if (deltas.size() == 1) return (IJavaElementDelta)deltas.iterator().next();
 		
 		if (DeltaProcessor.VERBOSE) {
-			System.out.println("MERGING " + this.javaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.out.println("MERGING " + deltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		
-		Iterator deltas = this.javaModelDeltas.iterator();
+		Iterator iterator = deltas.iterator();
 		IJavaElement javaModel = this.getJavaModel();
 		JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
 		boolean insertedTree = false;
-		while (deltas.hasNext()) {
-			JavaElementDelta delta = (JavaElementDelta)deltas.next();
+		while (iterator.hasNext()) {
+			JavaElementDelta delta = (JavaElementDelta)iterator.next();
 			if (DeltaProcessor.VERBOSE) {
 				System.out.println(delta.toString());
 			}
@@ -1194,12 +1213,11 @@ public class JavaModelManager implements ISaveParticipant {
 				insertedTree = true;
 			}
 		}
-		if (insertedTree){
-			this.javaModelDeltas = new ArrayList(1);
-			this.javaModelDeltas.add(rootDelta);
+		if (insertedTree) {
+			return rootDelta;
 		}
 		else {
-			this.javaModelDeltas = new ArrayList(0);
+			return null;
 		}
 	}	
 
@@ -1302,7 +1320,7 @@ public class JavaModelManager implements ISaveParticipant {
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
 		this.javaModelDeltas.add(delta);
 	}
-
+	
 	/**
 	 * Remembers the given scope in a weak set
 	 * (so no need to remove it: it will be removed by the garbage collector)
@@ -1447,7 +1465,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * on the projects classpath settings.
 	 */
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
-		// optional behaviour
+
+		// optional behaviour
 		// possible value of index 0 is Compute
 		if (!JavaCore.COMPUTE.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_ORDER))) return; // cannot be customized at project level
 		
@@ -1456,7 +1475,8 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription description = workspace.getDescription();
 		String[] wksBuildOrder = description.getBuildOrder();
-		String[] newOrder;
+
+		String[] newOrder;
 		if (wksBuildOrder == null){
 			newOrder = javaBuildOrder;
 		} else {

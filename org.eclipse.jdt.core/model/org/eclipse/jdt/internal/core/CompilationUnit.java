@@ -578,19 +578,9 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 
 		return workingCopy;
 	} else {
-		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory, problemRequestor);
-		perFactoryWorkingCopies.put(this, workingCopy);
-
-		if (SHARED_WC_VERBOSE) {
-			System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
-		}
-
-		// report added java delta
-		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-		delta.added(workingCopy);
-		manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
-
-		return workingCopy;
+		CreateSharedWorkingCopyOperation op = new CreateSharedWorkingCopyOperation(this, perFactoryWorkingCopies, factory, problemRequestor);
+		runOperation(op, pm);
+		return op.getResultElements()[0];
 	}
 }
 /**

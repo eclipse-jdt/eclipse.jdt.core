@@ -139,16 +139,8 @@ public void destroy() {
 		
 		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(this.bufferFactory);
 		if (perFactoryWorkingCopies != null){
-			if (perFactoryWorkingCopies.remove(originalElement) != null) {
-				if (SHARED_WC_VERBOSE) {
-					System.out.println("Destroying shared working copy " + this.toStringWithAncestors());//$NON-NLS-1$
-				}
-	
-				// report removed java delta
-				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-				delta.removed(this);
-				manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
-			}
+			RemoveSharedWorkingCopyOperation op = new RemoveSharedWorkingCopyOperation(originalElement, perFactoryWorkingCopies);
+			runOperation(op, null);
 		}		
 	} catch (JavaModelException e) {
 		// do nothing
@@ -419,52 +411,8 @@ public IMarker[] reconcile() throws JavaModelException {
  * @see IWorkingCopy
  */ 
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-
-	if (this.useCount == 0) throw newNotPresentException(); //was destroyed
-	
-	if (monitor != null){
-		if (monitor.isCanceled()) return;
-		monitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
-	}
-
-	boolean wasConsistent = isConsistent();
-	JavaElementDeltaBuilder deltaBuilder = null;
-
-	try {
-		// create the delta builder (this remembers the current content of the cu)
-		if (!wasConsistent){
-			deltaBuilder = new JavaElementDeltaBuilder(this);
-			
-			// update the element infos with the content of the working copy
-			this.makeConsistent(monitor);
-			deltaBuilder.buildDeltas();
-	
-		}
-
-		if (monitor != null) monitor.worked(2);
-		
-		// force problem detection? - if structure was consistent
-		if (forceProblemDetection && wasConsistent){
-			if (monitor != null && monitor.isCanceled()) return;
-	
-			IProblemRequestor problemRequestor = this.getProblemRequestor();
-			if (problemRequestor != null && problemRequestor.isActive()){
-				problemRequestor.beginReporting();
-				CompilationUnitProblemFinder.process(this, problemRequestor, monitor);
-				problemRequestor.endReporting();
-			}
-		}
-		
-		// fire the deltas
-		if (deltaBuilder != null){
-			if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
-				JavaModelManager.getJavaModelManager().
-					fire(deltaBuilder.delta, ElementChangedEvent.POST_RECONCILE);
-			}
-		}
-	} finally {
-		if (monitor != null) monitor.done();
-	}
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
+	runOperation(op, monitor);
 }
 
 /**

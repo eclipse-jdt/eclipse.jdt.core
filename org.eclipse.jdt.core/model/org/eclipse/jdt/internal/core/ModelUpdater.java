@@ -155,9 +155,9 @@ public class ModelUpdater {
 	 */
 	public void processJavaDelta(IJavaElementDelta delta) {
 
-		if (DeltaProcessor.VERBOSE){
-			System.out.println("UPDATING Model with Delta: ["+Thread.currentThread()+":" + delta + "]:");//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-		}
+//		if (DeltaProcessor.VERBOSE){
+//			System.out.println("UPDATING Model with Delta: ["+Thread.currentThread()+":" + delta + "]:");//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+//		}
 
 		try {
 			this.traverseDelta(delta, null, null); // traverse delta
@@ -214,6 +214,10 @@ public class ModelUpdater {
 				root = (IPackageFragmentRoot) element;
 				break;
 			case IJavaElement.COMPILATION_UNIT :
+				// filter out working copies (we don't want to add/remove them to/from the package fragment
+				if (((IWorkingCopy)element).isWorkingCopy()) {
+					return;
+				}
 			case IJavaElement.CLASS_FILE :
 				processChildren = false;
 				break;

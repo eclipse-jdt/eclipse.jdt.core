@@ -26,30 +26,36 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected interface IPostAction {
 		/*
 		 * Returns the id of this action.
-		 * @see JavaModelOperation#postAction		 */
+		 * @see JavaModelOperation#postAction
+		 */
 		String getID();
 		/*
-		 * Run this action.		 */
+		 * Run this action.
+		 */
 		void run() throws JavaModelException;
 	}
 	/*
 	 * Constants controlling the insertion mode of an action.
-	 * @see JavaModelOperation#postAction	 */
+	 * @see JavaModelOperation#postAction
+	 */
 	protected static final int APPEND = 1; // insert at the end
 	protected static final int REMOVEALL_APPEND = 2; // remove all existing ones with same ID, and add new one at the end
 	protected static final int KEEP_EXISTING = 3; // do not insert if already existing with same ID
 	
 	/*
-	 * Whether tracing post actions is enabled.	 */
+	 * Whether tracing post actions is enabled.
+	 */
 	protected static boolean POST_ACTION_VERBOSE;
 
 	/*
-	 * A list of IPostActions.	 */
+	 * A list of IPostActions.
+	 */
 	protected IPostAction[] actions;
 	protected int actionsStart = 0;
 	protected int actionsEnd = -1;
 	/*
-	 * A HashMap of attributes that can be used by operations	 */
+	 * A HashMap of attributes that can be used by operations
+	 */
 	protected HashMap attributes;
 
 	public static final String HAS_MODIFIED_RESOURCE_ATTR = "hasModifiedResource"; //$NON-NLS-1$
@@ -96,7 +102,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected boolean fForce= false;
 
 	/*
-	 * A per thread stack of java model operations (PerThreadObject of ArrayList).	 */
+	 * A per thread stack of java model operations (PerThreadObject of ArrayList).
+	 */
 	protected static PerThreadObject operationStacks = new PerThreadObject();
 	protected JavaModelOperation() {
 	}
@@ -158,6 +165,19 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void addDelta(IJavaElementDelta delta) {
 		JavaModelManager.getJavaModelManager().registerJavaModelDelta(delta);
+	}
+	/*
+	 * Registers the given reconcile delta with the Java Model Manager.
+	 */
+	protected void addReconcileDelta(IWorkingCopy workingCopy, IJavaElementDelta delta) {
+		// TODO: (jerome) should merge deltas if previous reconcile delta was already registered for this working copy
+		JavaModelManager.getJavaModelManager().reconcileDeltas.put(workingCopy, delta);
+	}
+	/*
+	 * Deregister the reconcile delta for the given working copy
+	 */
+	protected void removeReconcileDelta(IWorkingCopy workingCopy) {
+		JavaModelManager.getJavaModelManager().reconcileDeltas.remove(workingCopy);		
 	}
 	/**
 	 * @see IProgressMonitor
@@ -368,7 +388,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected abstract void executeOperation() throws JavaModelException;
 	/*
 	 * Returns the attribute registered at the given key with the top level operation.
-	 * Returns null if no such attribute is found.	 */
+	 * Returns null if no such attribute is found.
+	 */
 	protected Object getAttribute(Object key) {
 		ArrayList stack = this.getCurrentOperationStack();
 		if (stack.size() == 0) return null;
@@ -390,7 +411,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 	/*
 	 * Returns the stack of operations running in the current thread.
-	 * Returns an empty stack if no operations are currently running in this thread. 	 */
+	 * Returns an empty stack if no operations are currently running in this thread. 
+	 */
 	protected ArrayList getCurrentOperationStack() {
 		ArrayList stack = (ArrayList)operationStacks.getCurrent();
 		if (stack == null) {
@@ -518,7 +540,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		return false;
 	}
 	/*
-	 * Returns whether this operation is the first operation to run in the current thread.	 */
+	 * Returns whether this operation is the first operation to run in the current thread.
+	 */
 	protected boolean isTopLevelOperation() {
 		ArrayList stack;
 		return 
@@ -527,7 +550,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 	/*
 	 * Returns the index of the first registered action with the given id, starting from a given position.
-	 * Returns -1 if not found.	 */
+	 * Returns -1 if not found.
+	 */
 	protected int firstActionWithID(String id, int start) {
 		for (int i = start; i <= this.actionsEnd; i++) {
 			if (this.actions[i].getID().equals(id)) {
@@ -562,7 +586,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 	/*
 	 * Removes the last pushed operation from the stack of running operations.
-	 * Returns the poped operation or null if the stack was empty.	 */
+	 * Returns the poped operation or null if the stack was empty.
+	 */
 	protected JavaModelOperation popOperation() {
 		ArrayList stack = getCurrentOperationStack();
 		int size = stack.size();
@@ -577,7 +602,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * The insertion mode controls whether:
 	 * - the action should discard all existing actions with the same id, and be queued at the end (REMOVEALL_APPEND),
 	 * - the action should be ignored if there is already an action with the same id (KEEP_EXISTING),
-	 * - the action should be queued at the end without looking at existing actions (APPEND)	 */
+	 * - the action should be queued at the end without looking at existing actions (APPEND)
+	 */
 	protected void postAction(IPostAction action, int insertionMode) {
 		if (POST_ACTION_VERBOSE) {
 			System.out.print("(" + Thread.currentThread() + ") [JavaModelOperation.postAction(IPostAction, int)] Posting action " + action.getID()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -635,7 +661,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		return false;
 	}	
 	/*
-	 * Pushes the given operation on the stack of operations currently running in this thread.	 */
+	 * Pushes the given operation on the stack of operations currently running in this thread.
+	 */
 	protected void pushOperation(JavaModelOperation operation) {
 		getCurrentOperationStack().add(operation);
 	}
@@ -671,11 +698,12 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				// - the operation is a top level operation
 				// - the operation did produce some delta(s)
 				// - but the operation has not modified any resource
-				if (this.isTopLevelOperation()
-						&& (manager.javaModelDeltas.size() > previousDeltaCount) 
-						&& !this.hasModifiedResource()) {
-					manager.fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
-				} // else deltas are fired while processing the resource delta
+				if (this.isTopLevelOperation()) {
+					if ((manager.javaModelDeltas.size() > previousDeltaCount || !manager.reconcileDeltas.isEmpty()) 
+							&& !this.hasModifiedResource()) {
+						manager.fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
+					} // else deltas are fired while processing the resource delta
+				}
 			} finally {
 				popOperation();
 			}
@@ -691,7 +719,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		}
 	}
 	/*
-	 * Registers the given attribute at the given key with the top level operation.	 */
+	 * Registers the given attribute at the given key with the top level operation.
+	 */
 	protected void setAttribute(Object key, Object attribute) {
 		JavaModelOperation topLevelOp = (JavaModelOperation)this.getCurrentOperationStack().get(0);
 		if (topLevelOp.attributes == null) {
