@@ -29,7 +29,7 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Attrib
  * @param offsets int[]
  * @param offset int
  */
-public MethodInfo (byte classFileBytes[], int offsets[], int offset) throws ClassFormatException {
+public MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 	super(classFileBytes, offset);
 	constantPoolOffsets = offsets;
 	accessFlags = -1;

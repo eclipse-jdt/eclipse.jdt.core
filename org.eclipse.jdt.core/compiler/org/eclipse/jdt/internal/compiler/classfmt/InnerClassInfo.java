@@ -29,8 +29,7 @@ public class InnerClassInfo extends ClassFileStruct implements IBinaryNestedType
 	private boolean readInnerClassName = false;
 	private boolean readOuterClassName = false;
 	private boolean readInnerName = false;
-public InnerClassInfo(byte classFileBytes[], int offsets[], int offset)
-	throws ClassFormatException {
+public InnerClassInfo(byte classFileBytes[], int offsets[], int offset) {
 	super(classFileBytes, offset);
 	constantPoolOffsets = offsets;
 	innerClassNameIndex = u2At(0);

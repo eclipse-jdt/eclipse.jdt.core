@@ -40,7 +40,7 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
  * @param offsets int[]
  * @param offset int
  */
-public FieldInfo (byte classFileBytes[], int offsets[], int offset) throws ClassFormatException {
+public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 	super(classFileBytes, offset);
 	constantPoolOffsets = offsets;
 	accessFlags = -1;
@@ -116,13 +116,9 @@ public char[] getTypeName() {
 }
 /**
  * Return a wrapper that contains the constant of the field.
- * Throws a java.ibm.compiler.java.classfmt.ClassFormatException in case the signature is 
- * incompatible with the constant tag.
- * 
- * @exception java.ibm.compiler.java.classfmt.ClassFormatException
  * @return java.lang.Object
  */
-public Object getWrappedConstantValue() throws ClassFormatException {
+public Object getWrappedConstantValue() {
 
 	if (this.wrappedConstantValue == null) {
 		if (hasConstant()) {

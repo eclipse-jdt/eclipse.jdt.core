@@ -1100,7 +1100,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * @see ISaveParticipant
 	 */
-	public void prepareToSave(ISaveContext context) throws CoreException {
+	public void prepareToSave(ISaveContext context) /*throws CoreException*/ {
 		// nothing to do
 	}
 	/*
@@ -1110,7 +1110,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * added to the cache. If it is the case, another thread has opened the element (or one of
 	 * its ancestors). So returns without updating the cache.
 	 */
-	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) throws JavaModelException {
+	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) {
 		while (openedElement != null) {
 			if (!newElements.containsKey(openedElement)) {
 				break;
