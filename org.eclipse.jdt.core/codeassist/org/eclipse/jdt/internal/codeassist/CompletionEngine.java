@@ -431,7 +431,7 @@ public final class CompletionEngine
 											false,
 											messageSend,
 											scope,
-											false);
+											messageSend.receiver == ThisReference.ThisImplicit);
 									}
 
 								} else {
