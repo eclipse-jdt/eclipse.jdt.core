@@ -103,14 +103,14 @@ protected void closing(Object info) throws JavaModelException {
 }
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
-		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
+		Assert.isTrue(false, "Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 	IBuffer buffer = getBuffer();
 	if (buffer == null) {
 		return;
 	}
 	if (position < -1 || position > buffer.getLength()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
+		Assert.isTrue(false, "Completion position "+position+" is not located in supplied source range (0 - "+buffer.getLength()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = null;
@@ -157,7 +157,7 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 		}
 		int end= buffer.getLength();
 		if (offset < 0 || length < 0 || offset + length > end ) {
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
+			Assert.isTrue(false, "Selected range ("+offset+ " - " + offset+length+") is not located in supplied source range (0 - "+end+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 	
 		// fix for 1FVGGKF

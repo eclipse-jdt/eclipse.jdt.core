@@ -54,7 +54,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
-		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
+		Assert.isTrue(false, "Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 	
 	JavaProject project = (JavaProject) getJavaProject();
