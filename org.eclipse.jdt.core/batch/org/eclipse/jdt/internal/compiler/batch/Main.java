@@ -1221,8 +1221,8 @@ public class Main implements ProblemSeverities {
 						lineDelta = 0;
 					}
 				}
-				if (compilationResult.hasProblems()) {
-					IProblem[] problems = compilationResult.getProblems();
+				if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
+					IProblem[] problems = compilationResult.getAllProblems();
 					int count = problems.length;
 					int localErrorCount = 0;
 					for (int i = 0; i < count; i++) {

@@ -135,7 +135,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				return; // Handle methods with invalid signature or duplicates
 			int problemsLength;
 			IProblem[] problems =
-				scope.referenceCompilationUnit().compilationResult.getProblems();
+				scope.referenceCompilationUnit().compilationResult.getAllProblems();
 			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 			classFile.addProblemConstructor(this, binding, problemsCopy);
@@ -159,7 +159,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				} catch (AbortMethod e2) {
 					int problemsLength;
 					IProblem[] problems =
-						scope.referenceCompilationUnit().compilationResult.getProblems();
+						scope.referenceCompilationUnit().compilationResult.getAllProblems();
 					IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 					classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
@@ -167,7 +167,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			} else {
 				int problemsLength;
 				IProblem[] problems =
-					scope.referenceCompilationUnit().compilationResult.getProblems();
+					scope.referenceCompilationUnit().compilationResult.getAllProblems();
 				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 				classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);

@@ -114,6 +114,59 @@ public class CompilationResult {
 		return priority;
 	}
 
+	
+	public IProblem[] getAllProblems() {
+		IProblem[] problems = this.getProblems();
+		int problemCount = problems != null ? problems.length : 0;
+		IProblem[] tasks = this.getTasks();
+		int taskCount = tasks != null ? tasks.length : 0;
+		if (taskCount == 0) {
+			return problems;
+		}
+		if (problemCount == 0) {
+			return tasks;
+		}
+
+		int totalNumberOfProblem = problemCount + taskCount;
+		IProblem[] allProblems = new IProblem[totalNumberOfProblem];
+		int allProblemIndex = 0;
+		int taskIndex = 0;
+		int problemIndex = 0;
+		while (taskIndex + problemIndex < totalNumberOfProblem) {
+			IProblem nextTask = null;
+			IProblem nextProblem = null;
+			if (taskIndex < taskCount) {
+				nextTask = tasks[taskIndex];
+			}
+			if (problemIndex < problemCount) {
+				nextProblem = problems[problemIndex];
+			}
+			// select the next problem
+			IProblem currentProblem = null;
+			if (nextProblem != null) {
+				if (nextTask != null) {
+					if (nextProblem.getSourceStart() < nextTask.getSourceStart()) {
+						currentProblem = nextProblem;
+						problemIndex++;
+					} else {
+						currentProblem = nextTask;
+						taskIndex++;
+					}
+				} else {
+					currentProblem = nextProblem;
+					problemIndex++;
+				}
+			} else {
+				if (nextTask != null) {
+					currentProblem = nextTask;
+					taskIndex++;
+				}
+			}
+			allProblems[allProblemIndex++] = currentProblem;
+		}
+		return allProblems;
+	}
+	
 	public ClassFile[] getClassFiles() {
 		Enumeration enum = compiledTypes.elements();
 		ClassFile[] classFiles = new ClassFile[compiledTypes.size()];
@@ -202,6 +255,7 @@ public class CompilationResult {
 			if (this.taskCount != this.tasks.length) {
 				System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount]), 0, this.taskCount);
 			}
+			quickSort(tasks, 0, tasks.length-1);
 		}
 		return this.tasks;
 	}

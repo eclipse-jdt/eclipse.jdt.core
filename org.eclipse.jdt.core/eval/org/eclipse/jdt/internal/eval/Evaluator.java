@@ -61,7 +61,7 @@ abstract protected void addEvaluationResultForCompilationProblem(Map resultsByID
  */
 protected EvaluationResult[] evaluationResultsForCompilationProblems(CompilationResult result, char[] cuSource) {
 	// Break down the problems and group them by ids in evaluation results
-	IProblem[] problems = result.getProblems();
+	IProblem[] problems = result.getAllProblems();
 	HashMap resultsByIDs = new HashMap(5);
 	for (int i = 0; i < problems.length; i++) {
 		addEvaluationResultForCompilationProblem(resultsByIDs, problems[i], cuSource);

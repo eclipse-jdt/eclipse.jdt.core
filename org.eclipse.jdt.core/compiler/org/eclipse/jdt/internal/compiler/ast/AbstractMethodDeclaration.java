@@ -195,7 +195,7 @@ public abstract class AbstractMethodDeclaration
 				return; // handle methods with invalid signature or duplicates
 			int problemsLength;
 			IProblem[] problems =
-				scope.referenceCompilationUnit().compilationResult.getProblems();
+				scope.referenceCompilationUnit().compilationResult.getAllProblems();
 			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 			classFile.addProblemMethod(this, binding, problemsCopy);
@@ -218,7 +218,7 @@ public abstract class AbstractMethodDeclaration
 				} catch (AbortMethod e2) {
 					int problemsLength;
 					IProblem[] problems =
-						scope.referenceCompilationUnit().compilationResult.getProblems();
+						scope.referenceCompilationUnit().compilationResult.getAllProblems();
 					IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 					classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
@@ -227,7 +227,7 @@ public abstract class AbstractMethodDeclaration
 				// produce a problem method accounting for this fatal error
 				int problemsLength;
 				IProblem[] problems =
-					scope.referenceCompilationUnit().compilationResult.getProblems();
+					scope.referenceCompilationUnit().compilationResult.getAllProblems();
 				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
 				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 				classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
