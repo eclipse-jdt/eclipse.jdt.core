@@ -444,6 +444,11 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
+		case CannotThrowNull :
+			if (options.complianceLevel >= CompilerOptions.JDK1_4){
+				return Ignore;
+			}
+			return Error;
 		default:
 			return Error;
 	}

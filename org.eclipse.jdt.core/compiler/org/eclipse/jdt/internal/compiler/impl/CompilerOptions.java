@@ -97,7 +97,7 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 	public static final int JDK1_4 = 3;
 	
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
-	public int complianceLevel = JDK1_3; // by default produce be compliant with 1.3
+	public int complianceLevel = JDK1_3; // by default be compliant with 1.3
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2

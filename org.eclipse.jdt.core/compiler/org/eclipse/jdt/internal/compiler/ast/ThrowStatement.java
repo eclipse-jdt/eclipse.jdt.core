@@ -45,9 +45,13 @@ public class ThrowStatement extends Statement {
 	}
 
 	public void resolve(BlockScope scope) {
+		
 		exceptionType = exception.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
-		if (exceptionType == NullBinding)
+		
+		if (exceptionType == NullBinding){
+			// if compliant with 1.4, this problem will be ignored (see ProblemReport.computeSeverity())
 			scope.problemReporter().cannotThrowNull(this);
+	 	}
 		exception.implicitWidening(exceptionType, exceptionType);
 	}
 
