@@ -2134,7 +2134,7 @@ public final class CompletionEngine
 				for(int j = 0 ; j < excludeNames.length ; j++){
 					if(CharOperation.equals(name, excludeNames[j], false)) {
 						name = CharOperation.concat(originalName, String.valueOf(count++).toCharArray());
-						i = 0;
+						j = 0;
 					}	
 				}
 				
