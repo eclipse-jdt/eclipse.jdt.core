@@ -545,12 +545,12 @@ public class DeltaProcessor {
 				this.popUntilPrefixOf(path);
 				
 				if (this.currentElement == null) {
-					element = rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project, DefaultWorkingCopyOwner.PRIMARY);
+					element = rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
 				} else {
 					// find the root
 					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 					if (root == null) {
-						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project, DefaultWorkingCopyOwner.PRIMARY);
+						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
 					} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
 						// create package handle
 						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
@@ -566,7 +566,7 @@ public class DeltaProcessor {
 				this.popUntilPrefixOf(path);
 				
 				if (this.currentElement == null) {
-					element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project, DefaultWorkingCopyOwner.PRIMARY);
+					element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
 				} else {
 					// find the package
 					IPackageFragment pkgFragment = null;
@@ -592,7 +592,7 @@ public class DeltaProcessor {
 							break;
 					}
 					if (pkgFragment == null) {
-						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project, DefaultWorkingCopyOwner.PRIMARY);
+						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
 					} else {
 						if (elementType == IJavaElement.COMPILATION_UNIT) {
 							// create compilation unit handle 

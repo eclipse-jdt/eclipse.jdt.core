@@ -491,17 +491,28 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
 	// if factory is null, default factory must be used
 	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
-
-	JavaModelManager manager= JavaModelManager.getJavaModelManager();
 	
-	WorkingCopyOwner workingCopyOwner = BufferFactoryWrapper.create(factory);
-	IPath path = getPath();
-	CompilationUnit workingCopy = new CompilationUnit(null/*not needed since don't create*/, path.lastSegment(), workingCopyOwner);
-	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
-		manager.getPerWorkingCopyInfo(workingCopy, path, false/*don't create*/, false/*don't record usage*/, null/*not need since don't create*/);
-	if (perWorkingCopyInfo == null) return null;
-	return perWorkingCopyInfo.getWorkingCopy();
+	return findWorkingCopy(BufferFactoryWrapper.create(factory));
 }
+
+/**
+ * @see ICompilationUnit#findWorkingCopy(WorkingCopyOwner)
+ */
+public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
+	CompilationUnit cu = new CompilationUnit((PackageFragment)this.parent, getElementName(), workingCopyOwner);
+	if (workingCopyOwner == DefaultWorkingCopyOwner.PRIMARY) {
+		return cu;
+	} else {
+		// must be a working copy
+		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = cu.getPerWorkingCopyInfo();
+		if (perWorkingCopyInfo != null) {
+			return perWorkingCopyInfo.getWorkingCopy();
+		} else {
+			return null;
+		}
+	}
+}
+
 /**
  * @see ICompilationUnit#getAllTypes()
  */

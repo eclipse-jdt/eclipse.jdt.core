@@ -16,7 +16,6 @@ import java.util.Enumeration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IOpenable;
 
@@ -24,7 +23,7 @@ import org.eclipse.jdt.core.IOpenable;
  * The buffer manager manages the set of open buffers.
  * It implements an LRU cache of buffers.
  */
-public class BufferManager implements IBufferFactory {
+public class BufferManager implements org.eclipse.jdt.core.IBufferFactory {
 
 	protected static BufferManager DEFAULT_BUFFER_MANAGER;
 	protected static boolean VERBOSE;
@@ -80,8 +79,9 @@ public synchronized static BufferManager getDefaultBufferManager() {
 }
 /**
  * Returns the default buffer factory.
+ * @deprecated
  */
-public IBufferFactory getDefaultBufferFactory() {
+public org.eclipse.jdt.core.IBufferFactory getDefaultBufferFactory() {
 	return this;
 }
 /**

@@ -216,6 +216,19 @@ IJavaElement[] findElements(IJavaElement element);
  */
 IType findPrimaryType();
 /**
+ * Finds the working copy for this compilation unit, given a <code>WorkingCopyOwner</code>. 
+ * If no working copy has been created for this compilation unit associated with this
+ * working copy owner, returns <code>null</code>.
+ * <p>
+ * Users of this method must not destroy the resulting working copy. 
+ * 
+ * @param owner the given <code>WorkingCopyOwner</code>
+ * @return the found working copy for this compilation unit, <code>null</code> if none
+ * @see WorkingCopyOwner
+ * @since 3.0
+ */
+ICompilationUnit findWorkingCopy(WorkingCopyOwner owner);
+/**
  * Returns all types declared in this compilation unit in the order
  * in which they appear in the source. 
  * This includes all top-level types and nested member types.

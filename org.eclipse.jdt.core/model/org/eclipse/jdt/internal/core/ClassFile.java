@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
@@ -367,10 +366,10 @@ public IType getType() {
 	}
 	return this.binaryType;
 }
-/**
+/*
  * @see IClassFile
  */
-public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+public ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	// get the source if possible
 	char[] contents = null;
 	SourceMapper mapper = this.getSourceMapper();
@@ -382,7 +381,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 	}
 
 	ClassFileWorkingCopy workingCopy = new ClassFileWorkingCopy();
-	IBuffer buffer = factory == null ? this.getBuffer() : factory.createBuffer(workingCopy);
+	IBuffer buffer = owner == null ? this.getBuffer() : owner.createBuffer(workingCopy);
 	workingCopy.buffer = buffer;
 	
 	// set the buffer source
@@ -390,6 +389,13 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 		buffer.setContents(contents);
 	}
 	return workingCopy;
+}
+/**
+ * @see IClassFile
+ * @deprecated
+ */
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, org.eclipse.jdt.core.IBufferFactory factory) throws JavaModelException {
+	return getWorkingCopy(BufferFactoryWrapper.create(factory), monitor);
 }
 /**
  * @see Openable
@@ -525,7 +531,7 @@ private IBuffer mapSource(SourceMapper mapper) {
 	char[] contents = mapper.findSource(getType());
 	if (contents != null) {
 		// create buffer
-		IBuffer buffer = getBufferFactory().createBuffer(this);
+		IBuffer buffer = getBufferManager().createBuffer(this);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
 		bufManager.addBuffer(buffer);

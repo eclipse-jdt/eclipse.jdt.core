@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.core.BufferManager;
  * 
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, org.eclipse.core.runtime.IProgressMonitor)
  * @see ICompilationUnit#discardWorkingCopy()
- * @see ICompilationUnit#getWorkingCopy()
+ * @see ICompilationUnit#getWorkingCopy(org.eclipse.core.runtime.IProgressMonitor)
  * @since 3.0
  */
 public abstract class WorkingCopyOwner {

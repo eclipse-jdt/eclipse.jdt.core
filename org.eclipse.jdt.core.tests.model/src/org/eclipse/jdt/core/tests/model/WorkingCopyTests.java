@@ -29,14 +29,10 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 	ICompilationUnit cu = null;
 	ICompilationUnit copy = null;
 	
-	public class BufferFactory implements IBufferFactory {
-		/*
-		 * @see IBufferFactory#createBuffer(IOpenable)
-		 */
-		public IBuffer createBuffer(IOpenable owner) {
-			return new TestBuffer(owner);
+	public class TestWorkingCopyOwner extends WorkingCopyOwner {
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			return new TestBuffer(workingCopy);
 		}
-
 	}
 	public WorkingCopyTests(String name) {
 	super(name);
@@ -177,17 +173,14 @@ public void testContents() throws CoreException {
 public void testOnClassFile() throws JavaModelException {
 	this.attachSource(this.getPackageFragmentRoot("P", this.getExternalJCLPathString()), this.getExternalJCLSourcePath().toOSString(), "src");
 	IClassFile classFile = this.getClassFile("P", this.getExternalJCLPathString(), "java.lang", "Object.class");
-	IBufferFactory factory = new BufferFactory();
-	IJavaElement customizedCopy = classFile.getWorkingCopy(null, factory);
+	WorkingCopyOwner owner = new TestWorkingCopyOwner();
+	ICompilationUnit customizedCopy = classFile.getWorkingCopy(owner, null);
 	try {
-		assertTrue("Should be an IOpenable", customizedCopy instanceof ICompilationUnit);
-		IBuffer buffer = ((ICompilationUnit)customizedCopy).getBuffer();
+		IBuffer buffer = customizedCopy.getBuffer();
 		assertTrue("Unexpected buffer", buffer instanceof TestBuffer);	
 		assertTrue("Buffer should be initialized with source", buffer.getCharacters().length > 0);
 	} finally {
-		if (customizedCopy instanceof ICompilationUnit) {
-			((ICompilationUnit)customizedCopy).discardWorkingCopy();
-		}
+		customizedCopy.discardWorkingCopy();
 	}
 }
 /**
@@ -202,8 +195,8 @@ public void testCreation() {
  * Test creating a working copy with a customized buffer.
  */
 public void testCustomizedBuffer() throws JavaModelException {
-	IBufferFactory factory = new BufferFactory();
-	ICompilationUnit customizedCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, factory, null);
+	WorkingCopyOwner owner = new TestWorkingCopyOwner();
+	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
 	try {
 		assertTrue("Should be an IOpenable", customizedCopy instanceof IOpenable);
 		assertTrue("Unexpected buffer", ((IOpenable)customizedCopy).getBuffer() instanceof TestBuffer);
@@ -215,8 +208,8 @@ public void testCustomizedBuffer() throws JavaModelException {
  * Test closing then reopening a working copy with a customized buffer.
  */
 public void testCustomizedBuffer2() throws JavaModelException {
-	IBufferFactory factory = new BufferFactory();
-	ICompilationUnit customizedCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, factory, null);
+	WorkingCopyOwner owner = new TestWorkingCopyOwner();
+	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
 	try {
 		assertTrue("Should be an IOpenable", customizedCopy instanceof IOpenable);
 		IOpenable openableCopy = (IOpenable)customizedCopy;
@@ -530,34 +523,33 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
  * Test creating a shared working copy.
  */
 public void testShared1() throws JavaModelException {
-	IJavaElement shared = this.cu.getSharedWorkingCopy(null, null, null);
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null, null);
 	try {
-		assertTrue("Should be an ICompilationUnit", shared instanceof ICompilationUnit);
-		assertTrue("Primary element should have shared working copy", this.cu.findSharedWorkingCopy(null) == shared);
+		assertTrue("Should find shared working copy", this.cu.findWorkingCopy(owner) == shared);
 	} finally {
-		if (shared instanceof ICompilationUnit) {
-			((ICompilationUnit)shared).discardWorkingCopy();
-		}
+		shared.discardWorkingCopy();
 	}
-	assertTrue("Primary element should not have shared working copy", this.cu.findSharedWorkingCopy(null) == null);
+	assertTrue("Should not find cu with same owner", this.cu.findWorkingCopy(owner) == null);
 }
 /**
  * Test several call to creating shared working copy.
  */
 public void testShared2() throws JavaModelException {
-	ICompilationUnit shared = (ICompilationUnit)this.cu.getSharedWorkingCopy(null, null, null);
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null, null);
 	try {
-		ICompilationUnit shared2 = (ICompilationUnit)this.cu.getSharedWorkingCopy(null, null, null);
+		ICompilationUnit shared2 = this.cu.getWorkingCopy(owner, null, null);
 		assertTrue("Second working copy should be identical to first one", shared2 == shared);
 	} finally {
 		shared.discardWorkingCopy();
 		try {
-			assertTrue("Primary element should still have shared working copy", this.cu.findSharedWorkingCopy(null) == shared);
+			assertTrue("Should find shared working copy", this.cu.findWorkingCopy(owner) == shared);
 		} finally {
 			shared.discardWorkingCopy();
 		}
 	}
-	assertTrue("Primary element should not have shared working copy", this.cu.findSharedWorkingCopy(null) == null);
+	assertTrue("Should not find cu with same owner", this.cu.findWorkingCopy(owner) == null);
 }
 /**
  * Tests that multiple commits are possible with the same working copy.

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IImportContainer;
@@ -405,6 +404,13 @@ public IType findPrimaryType() {
 	 * @deprecated
 	 */
 	public IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory) {
+		return null;
+	}
+	
+	/**
+	 * @see ICompilationUnit#findWorkingCopy(WorkingCopyOwner)
+	 */
+	public ICompilationUnit findWorkingCopy(WorkingCopyOwner owner) {
 		return null;
 	}
 

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
@@ -23,8 +22,9 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 	
 	/**
 	 * Note this field is temporary public so that JDT/UI can reach in and change the factory. It will disapear before 3.0.
+	 * @deprecated
 	 */
-	public IBufferFactory factory; // TODO remove before 3.0
+	public org.eclipse.jdt.core.IBufferFactory factory; // TODO remove before 3.0
 		
 	public static final DefaultWorkingCopyOwner PRIMARY =  new DefaultWorkingCopyOwner() {
 

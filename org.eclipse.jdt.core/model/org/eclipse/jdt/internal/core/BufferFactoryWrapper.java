@@ -11,23 +11,23 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
 /**
  * Wraps an IBufferFactory.
  * TODO remove when removing IBufferFactory
+ * @deprecated
  */
 public class BufferFactoryWrapper extends WorkingCopyOwner {
 
-	public IBufferFactory factory;
+	public org.eclipse.jdt.core.IBufferFactory factory;
 		
-	private BufferFactoryWrapper(IBufferFactory factory) {
+	private BufferFactoryWrapper(org.eclipse.jdt.core.IBufferFactory factory) {
 		this.factory = factory;
 	}
 	
-	public static WorkingCopyOwner create(IBufferFactory factory) {
+	public static WorkingCopyOwner create(org.eclipse.jdt.core.IBufferFactory factory) {
 		if (factory != null && factory == DefaultWorkingCopyOwner.PRIMARY.factory) {
 			return DefaultWorkingCopyOwner.PRIMARY;
 		} else {
