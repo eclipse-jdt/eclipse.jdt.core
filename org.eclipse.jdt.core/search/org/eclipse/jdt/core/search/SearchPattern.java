@@ -48,7 +48,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	/**
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
-	 * @deprecate Use {#R_FULL_MATCH} instead
 	 */
 	public static final int R_EXACT_MATCH = 0;
 
