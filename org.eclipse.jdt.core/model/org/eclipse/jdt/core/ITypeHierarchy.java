@@ -121,11 +121,13 @@ IType[] getAllSuperclasses(IType type);
 IType[] getAllSuperInterfaces(IType type);
 /**
  * Returns all resolved supertypes of the
- * given class, in bottom-up order. An empty array
+ * given type, in bottom-up order. An empty array
  * is returned if there are no resolved supertypes for the
- * given class.
- *
- * <p>NOTE: once a type hierarchy has been created, it is more efficient to
+ * given type.
+ * <p>
+ * Note that <code>java.lang.Object</code> is NOT considered to be a supertype 
+ * of any interface type.
+ * </p><p>NOTE: once a type hierarchy has been created, it is more efficient to
  * query the hierarchy for supertypes than to query a type recursively up
  * the supertype chain. Querying an element performs a dynamic resolution,
  * whereas the hierarchy returns a pre-computed result.
@@ -249,7 +251,9 @@ IType[] getSuperInterfaces(IType type);
  * in no particular order, limited to the types in this
  * type hierarchy's graph.
  * For classes, this returns its superclass and the interfaces that the class implements.
- * For interfaces, this returns the interfaces that the interface extends.
+ * For interfaces, this returns the interfaces that the interface extends. As a consequence 
+ * <code>java.lang.Object</code> is NOT considered to be a supertype of any interface 
+ * type.
  * 
  * @param type the given type
  * @return the resolved supertypes of the given type limited to the types in this
