@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /* package */ class SourceField extends Member implements IField {
 
-Object constant;
 /**
  * Constructs a handle to the field with the given name in the specified type. 
  */
@@ -44,9 +43,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
-	if (this.constant != null) {
-		return this.constant;
-	}
+	Object constant = null;	
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
 	if (info.initializationSource == null) {
 		return null;
@@ -55,25 +52,25 @@ public Object getConstant() throws JavaModelException {
 	String constantSource = new String(info.initializationSource);
 	String signature = info.getTypeSignature();
 	if (signature.equals(Signature.SIG_INT)) {
-		this.constant = new Integer(constantSource);
+		constant = new Integer(constantSource);
 	} else if (signature.equals(Signature.SIG_SHORT)) {
-		this.constant = new Short(constantSource);
+		constant = new Short(constantSource);
 	} else if (signature.equals(Signature.SIG_BYTE)) {
-		this.constant = new Byte(constantSource);
+		constant = new Byte(constantSource);
 	} else if (signature.equals(Signature.SIG_BOOLEAN)) {
-		this.constant = new Boolean(constantSource);
+		constant = new Boolean(constantSource);
 	} else if (signature.equals(Signature.SIG_CHAR)) {
-		this.constant = new Character(constantSource.charAt(0));
+		constant = new Character(constantSource.charAt(0));
 	} else if (signature.equals(Signature.SIG_DOUBLE)) {
-		this.constant = new Double(constantSource);
+		constant = new Double(constantSource);
 	} else if (signature.equals(Signature.SIG_FLOAT)) {
-		this.constant = new Float(constantSource);
+		constant = new Float(constantSource);
 	} else if (signature.equals(Signature.SIG_LONG)) { 
-		this.constant = new Long(constantSource);
+		constant = new Long(constantSource);
 	} else if (signature.equals("QString;")) {//$NON-NLS-1$
-		this.constant = constantSource;
+		constant = constantSource;
 	}
-	return this.constant;
+	return constant;
 }
 /**
  * @see IJavaElement
