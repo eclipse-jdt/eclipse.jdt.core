@@ -2946,43 +2946,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		} else {
 			pos= doVisit(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, 0);
 		}
-		// 'pos' can be before brace
 		
-		RewriteEvent bodyEvent= getEvent(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
-		if (bodyEvent != null && bodyEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
-			RewriteEvent[] children= bodyEvent.getChildren();
-			try {
-				int nextTok= getScanner().readNext(pos, true);
-				if (nextTok == ITerminalSymbols.TokenNameRPAREN) { // 
-					pos= getScanner().getCurrentEndOffset();
-					nextTok= getScanner().readNext(pos, true);
+		if (isChanged(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY)) {
+			int kind= getChangeKind(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+			if (kind == RewriteEvent.REMOVED) {
+				try {
+					// 'pos' can be before brace
+					pos= getScanner().getPreviousTokenEndOffset(ITerminalSymbols.TokenNameLBRACE, pos);
+				} catch (CoreException e) {
+					handleException(e);
 				}
-				boolean hasBraces= (nextTok == ITerminalSymbols.TokenNameLBRACE);
-				boolean isAllRemoved= hasBraces && isAllOfKind(children, RewriteEvent.REMOVED);
-				int startIndent= getIndent(node.getStartPosition()) + 1;
-				if (!hasBraces) {
-					String prefix= this.formatter.ENUM_BODY_START.getPrefix(startIndent, getLineDelimiter());
-					doTextInsert(pos, prefix, getEditGroup(children[0])); //$NON-NLS-1$
-				} else if (!isAllRemoved) {
-					pos= getScanner().getCurrentEndOffset();
-				}
-
-				pos= rewriteParagraphList(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY, pos, startIndent, 0, 0);
-				
-				if (!hasBraces) {
-					String suffix= this.formatter.ENUM_BODY_END.getPrefix(startIndent, getLineDelimiter());
-					doTextInsert(pos, suffix, getEditGroup(children[children.length - 1])); //$NON-NLS-1$
-				} else {
-					int afterClosing= getScanner().getNextEndOffset(pos, true);
-					if (isAllRemoved) {
-						doTextRemove(pos, afterClosing - pos, getEditGroup(children[children.length - 1]));
-					}
-				}
-			} catch (CoreException e) {
-				handleException(e);
+			} else {
+				pos= node.getStartPosition() + node.getLength(); // insert pos
 			}
-		} else {
-			doVisit(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
+			rewriteNode(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, pos, ASTRewriteFormatter.SPACE); //$NON-NLS-1$
 		}
 		return false;
 	}

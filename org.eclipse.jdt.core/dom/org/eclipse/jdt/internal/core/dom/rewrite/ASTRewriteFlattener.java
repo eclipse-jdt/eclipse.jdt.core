@@ -1176,13 +1176,17 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public boolean visit(EnumConstantDeclaration node) {
-		if (getChildNode(node, EnumConstantDeclaration.JAVADOC_PROPERTY) != null) {
-			getChildNode(node, EnumConstantDeclaration.JAVADOC_PROPERTY).accept(this);
+		ASTNode javadoc= getChildNode(node, EnumConstantDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
 		}
 		visitList(node, EnumConstantDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
 		getChildNode(node, EnumConstantDeclaration.NAME_PROPERTY).accept(this);
 		visitList(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, String.valueOf(','), String.valueOf('('), String.valueOf(')'));
-		visitList(node, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY, String.valueOf(' '), String.valueOf('{'), String.valueOf('}'));
+		ASTNode classDecl= getChildNode(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		if (classDecl != null) {
+			classDecl.accept(this);
+		}
 		return false;
 	}
 
@@ -1191,8 +1195,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public boolean visit(EnumDeclaration node) {
-		if (getChildNode(node, EnumDeclaration.JAVADOC_PROPERTY) != null) {
-			getChildNode(node, EnumDeclaration.JAVADOC_PROPERTY).accept(this);
+		ASTNode javadoc= getChildNode(node, EnumDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
 		}
 		visitList(node, EnumDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
 		this.result.append("enum ");//$NON-NLS-1$
