@@ -143,7 +143,7 @@ public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
 	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
 
-	MethodBinding method = (MethodBinding) binding;
+	MethodBinding method = ((MethodBinding) binding).original();
 	if (!method.isConstructor()) return IMPOSSIBLE_MATCH;
 
 	// declaring type, simple name has already been matched by matchIndexEntry()

@@ -4,4 +4,7 @@ public class Y {
 		X<Object> x = new X<Object>();
 		x.foo(this);
 	}
+	Object foo() {
+		return new X<Object>(this);
+	}
 }

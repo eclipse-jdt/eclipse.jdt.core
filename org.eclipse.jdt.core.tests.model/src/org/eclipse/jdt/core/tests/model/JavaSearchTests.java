@@ -408,14 +408,15 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference16"));
 	
 	// constructor reference
-	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
-	suite.addTest(new JavaSearchTests("testSimpleConstructorReference2"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall1"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall2"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall1"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall2"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceInFieldInitializer"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceDefaultConstructorOfMemberClass"));
+	suite.addTest(new JavaSearchTests("testConstructorReference01"));
+	suite.addTest(new JavaSearchTests("testConstructorReference02"));
+	suite.addTest(new JavaSearchTests("testConstructorReference03"));
+	suite.addTest(new JavaSearchTests("testConstructorReference04"));
+	suite.addTest(new JavaSearchTests("testConstructorReference05"));
+	suite.addTest(new JavaSearchTests("testConstructorReference06"));
+	suite.addTest(new JavaSearchTests("testConstructorReference07"));
+	suite.addTest(new JavaSearchTests("testConstructorReference08"));
+	suite.addTest(new JavaSearchTests("testConstructorReference09"));
 	
 	// field declaration
 	suite.addTest(new JavaSearchTests("testSimpleFieldDeclaration"));
@@ -586,24 +587,40 @@ public void testConstructorDeclarationInJar() throws CoreException {
 		resultCollector);
 }
 /**
- * Constructor reference in case of default constructor of member type
- * (regression test for bug 43276)
+ * Simple constructor reference test.
  */
-public void testConstructorReferenceDefaultConstructorOfMemberClass() throws CoreException {
+public void testConstructorReference01() throws CoreException { // was testSimpleConstructorReference1
+	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
+	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	search(
-		"c10.X.Inner()", 
-		CONSTRUCTOR, 
+		constructor, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/Test.java void Test.main(String[]) [new p.A(y)]",
+		resultCollector);
+}
+/**
+ * Simple constructor reference test.
+ */
+public void testConstructorReference02() throws CoreException { // was testSimpleConstructorReference2
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"p.A(X)", 
+		CONSTRUCTOR,
 		REFERENCES,
 		getJavaSearchScope(), 
 		resultCollector);
 	assertSearchResults(
-		"src/c10/X.java c10.B() [new X().super()]", 
+		"src/Test.java void Test.main(String[]) [new p.A(y)]",
 		resultCollector);
-}/**
+}
+/**
  * Constructor reference using an explicit constructor call.
  */
-public void testConstructorReferenceExplicitConstructorCall1() throws CoreException {
+public void testConstructorReference03() throws CoreException { // was testConstructorReferenceExplicitConstructorCall1
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 	IMethod method = type.getMethod("Y", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -619,7 +636,7 @@ public void testConstructorReferenceExplicitConstructorCall1() throws CoreExcept
 /**
  * Constructor reference using an explicit constructor call.
  */
-public void testConstructorReferenceExplicitConstructorCall2() throws CoreException {
+public void testConstructorReference04() throws CoreException { // was testConstructorReferenceExplicitConstructorCall2
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -637,7 +654,7 @@ public void testConstructorReferenceExplicitConstructorCall2() throws CoreExcept
  * Constructor reference using an implicit constructor call.
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
-public void testConstructorReferenceImplicitConstructorCall1() throws CoreException {
+public void testConstructorReference05() throws CoreException { // was testConstructorReferenceImplicitConstructorCall1
 	IType type = getCompilationUnit("JavaSearch", "src", "c7", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -654,7 +671,7 @@ public void testConstructorReferenceImplicitConstructorCall1() throws CoreExcept
  * Constructor reference using an implicit constructor call.
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
-public void testConstructorReferenceImplicitConstructorCall2() throws CoreException {
+public void testConstructorReference06() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	search(
 		"c8.X()", 
@@ -670,7 +687,7 @@ public void testConstructorReferenceImplicitConstructorCall2() throws CoreExcept
  * Constructor reference in a field initializer.
  * (regression test for PR 1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to member constructor)
  */
-public void testConstructorReferenceInFieldInitializer() throws CoreException {
+public void testConstructorReference07() throws CoreException { // was testConstructorReferenceInFieldInitializer
 	IType type = getCompilationUnit("JavaSearch", "src", "", "A.java").getType("A").getType("Inner");
 	IMethod method = type.getMethod("Inner", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -682,6 +699,38 @@ public void testConstructorReferenceInFieldInitializer() throws CoreException {
 	assertSearchResults(
 		"src/A.java A.field [new Inner(1)]\n" +
 		"src/A.java A.field [new Inner(2)]", 
+		resultCollector);
+}
+/**
+ * Constructor reference in case of default constructor of member type
+ * (regression test for bug 43276)
+ */
+public void testConstructorReference08() throws CoreException { // was testConstructorReferenceDefaultConstructorOfMemberClass
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"c10.X.Inner()", 
+		CONSTRUCTOR, 
+		REFERENCES,
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/c10/X.java c10.B() [new X().super()]", 
+		resultCollector);
+}
+/*
+ * Generic constructor reference
+ */
+public void testConstructorReference09() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
+	IMethod method = type.getMethod("X", new String[] {"QE;"});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		method, 
+		REFERENCES, 
+		getJavaSearchScope15(), 
+		resultCollector);
+	assertSearchResults(
+		"src/p2/Y.java Object p2.Y.foo() [new X<Object>(this)]",
 		resultCollector);
 }
 /**
@@ -2380,37 +2429,6 @@ public void testSimpleConstructorDeclaration() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertSearchResults("src/p/A.java p.A(X) [A]", resultCollector);
-}
-/**
- * Simple constructor reference test.
- */
-public void testSimpleConstructorReference1() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
-	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		constructor, 
-		REFERENCES, 
-		getJavaSearchScope(), 
-		resultCollector);
-	assertSearchResults(
-		"src/Test.java void Test.main(String[]) [new p.A(y)]",
-		resultCollector);
-}
-/**
- * Simple constructor reference test.
- */
-public void testSimpleConstructorReference2() throws CoreException {
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		"p.A(X)", 
-		CONSTRUCTOR,
-		REFERENCES,
-		getJavaSearchScope(), 
-		resultCollector);
-	assertSearchResults(
-		"src/Test.java void Test.main(String[]) [new p.A(y)]",
-		resultCollector);
 }
 /**
  * Simple declarations of sent messages test.
