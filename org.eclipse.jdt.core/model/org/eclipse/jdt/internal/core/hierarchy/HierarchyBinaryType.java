@@ -25,6 +25,7 @@ public class HierarchyBinaryType implements IBinaryType {
 	private char[] enclosingTypeName;
 	private char[] superclass;
 	private char[][] superInterfaces = NoInterface;
+	
 public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface){
 
 	this.modifiers = modifiers;
@@ -75,7 +76,7 @@ public char[] getFileName() {
  * For example, java.lang.String is java/lang/String.
  */
 public char[][] getInterfaceNames() {
-	return superInterfaces;
+	return this.superInterfaces;
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.
@@ -97,7 +98,7 @@ public IBinaryMethod[] getMethods() {
  * defined by the VM spec.
  */
 public int getModifiers() {
-	return modifiers;
+	return this.modifiers;
 }
 /**
  * Answer the resolved name of the type in the
@@ -106,7 +107,7 @@ public int getModifiers() {
  * For example, java.lang.String is java/lang/String.
  */
 public char[] getName() {
-	return name;
+	return this.name;
 }
 /**
  * Answer the resolved name of the receiver's superclass in the
@@ -116,7 +117,7 @@ public char[] getName() {
  * For example, java.lang.String is java/lang/String.
  */
 public char[] getSuperclassName() {
-	return superclass;
+	return this.superclass;
 }
 /**
  * Answer whether the receiver contains the resolved binary form
@@ -129,13 +130,13 @@ public boolean isBinaryType() {
  * isClass method comment.
  */
 public boolean isClass() {
-	return isClass;
+	return this.isClass;
 }
 /**
  * isInterface method comment.
  */
 public boolean isInterface() {
-	return !isClass;
+	return !this.isClass;
 }
 public void recordSuperType(char[] superTypeName, char[] superQualification, char superClassOrInterface){
 
