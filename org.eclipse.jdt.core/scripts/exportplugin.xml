@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from org.eclipse.jdt.core -->
-<project name="org.eclipse.jdt.core" default="export plug-in [_2.1.0]" basedir="..">
+<project name="org.eclipse.jdt.core" default="export plug-in [_2.2.0]" basedir="..">
 
 <target name="zz_init">
 	<tstamp/>
 	<property name="export-dir" value="../../plugin-export" />
+</target>
+
+<target name="export plug-in [_2.2.0]" depends="zz_init">
+	<antcall target="zz_internal_export">
+		<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.2.0"/>
+	</antcall>
 </target>
 
 <target name="export plug-in [_2.1.0]" depends="zz_init">

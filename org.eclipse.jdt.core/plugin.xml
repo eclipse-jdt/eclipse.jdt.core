@@ -7,7 +7,7 @@
 <plugin
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
-    version = "2.1.0"
+    version = "2.2.0"
     provider-name = "%providerName"
     class="org.eclipse.jdt.core.JavaCore">
 
@@ -35,27 +35,6 @@
 
 <!-- =================================================================================== -->
 <!-- Extension Point: Initializers of Classpath Variables                                -->
-<!--                                                                                     -->
-<!-- <!ELEMENT classpathVariableInitializer>                                             -->
-<!--   <!ATTLIST classpathVariableInitializer                                            -->
-<!--    variable   CDATA #REQUIRED                                                       -->
-<!--    class      CDATA #REQUIRED                                                       -->
-<!--   >                                                                                 -->
-<!-- where:                                                                              -->
-<!--    - variable - the name of the classpath variable                                  -->                                               
-<!--    - class - the class that implements this classpath variable initializer.         --> 
-<!--              The class must implement a public subclass of                          -->
-<!--              org.eclipse.jdt.core.ClasspathVariableInitializer with a public        -->
-<!--              0-argument constructor.                                                -->
-<!--                                                                                     -->
-<!-- Example of an ClasspathVariableInitializer for a classpath variable named "FOO":    -->
-<!-- <extension                                                                          -->
-<!--      point="org.eclipse.jdt.core.classpathVariableInitializer">                     -->
-<!--    <classpathVariableInitializer                                                    -->
-<!--         variable="FOO"                                                              -->
-<!--         class="com.example.CPVInitializer"/>                                        -->
-<!-- </extension>                                                                        -->
-<!--                                                                                     -->
 <!-- =================================================================================== -->
 
 <extension-point name="%classpathVariableInitializersName" 
@@ -64,29 +43,6 @@
   
 <!-- =================================================================================== -->
 <!-- Extension Point: Initializers of Classpath Containers                               -->
-<!--                                                                                     -->
-<!-- <!ELEMENT classpathContainerInitializer>                                            -->
-<!--   <!ATTLIST containerResolver                                                       -->
-<!--    id     CDATA #REQUIRED                                                           -->
-<!--    class  CDATA #REQUIRED                                                           -->
-<!--   >                                                                                 -->
-<!-- where:                                                                              -->
-<!--    - id - a unique name identifying all containers for which this initializer will  -->
-<!--              be activated.                                                          -->
-<!--    - class - the class that implements this container initializer.                  --> 
-<!--              The class must implement a public subclass of                          -->
-<!--              org.eclipse.jdt.core.ClasspathContainerResolver with a public          -->
-<!--              0-argument constructor.                                                -->
-<!--                                                                                     -->
-<!-- Example of an ClasspathContainerInitializer for a classpath container named         -->
-<!-- "JDK/1.2":                                                                          -->
-<!-- <extension                                                                          -->
-<!--      point="org.eclipse.jdt.core.classpathContainerInitializer">                    -->
-<!--    <classpathContainerInitializer                                                   -->
-<!--         id="JDK"                                                                    -->
-<!--         class="com.example.MyInitializer"/>                                         -->
-<!-- </extension>                                                                        -->
-<!--                                                                                     -->
 <!-- =================================================================================== -->
 
 <extension-point name="%classpathContainerInitializersName" 
@@ -95,24 +51,6 @@
 
 <!-- =================================================================================== -->
 <!-- Extension Point: Formatter of Source Code                                           -->
-<!--                                                                                     -->
-<!-- <!ELEMENT codeFormatter>                                                            -->
-<!--   <!ATTLIST codeFormatter                                                           -->
-<!--    class      CDATA #REQUIRED                                                       -->
-<!--   >                                                                                 -->
-<!-- where:                                                                              -->
-<!--    - class - the class that defines the code formatter implementation.              --> 
-<!--              The class must be a public implementatiom of                           -->
-<!--              org.eclipse.jdt.core.ICodeFormatter with a public                      -->
-<!--              0-argument constructor.                                                -->
-<!--                                                                                     -->
-<!-- Example of an ICodeFormatter extension:                                             -->
-<!-- <extension                                                                          -->
-<!--      point="org.eclipse.jdt.core.codeFormatter">                                    -->
-<!--    <codeFormatter                                                                   -->
-<!--         class="com.example.MyCodeFormatter"/>                                       -->
-<!-- </extension>                                                                        -->
-<!--                                                                                     -->
 <!-- =================================================================================== -->
 
 <extension-point name="%codeFormattersName" 
