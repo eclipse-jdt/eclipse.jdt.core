@@ -17,8 +17,8 @@ public class CompilationUnit implements ICompilationUnit {
 	
 public CompilationUnit(char[] contents, String fileName, String encoding) {
 	this.contents = contents;
-	if (File.separator.equals("/")) {
-		if (fileName.indexOf("\\") != -1) {
+	if (File.separator.equals("/")) { //$NON-NLS-1$
+		if (fileName.indexOf("\\") != -1) { //$NON-NLS-1$
 			fileName = fileName.replace('\\', File.separatorChar);
 		}
 	} else {

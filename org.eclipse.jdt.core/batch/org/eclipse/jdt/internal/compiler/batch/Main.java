@@ -199,7 +199,7 @@ public static String[] tokenize(String commandLine){
 	int count = 0;
 	String[] arguments = new String[10];
 	StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-	String token = "",lastToken;
+	String token = "",lastToken; //$NON-NLS-1$
 	boolean insideQuotes = false;
 	boolean startNewToken = true;
 	
@@ -272,7 +272,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	boolean didSpecifyDefaultEncoding = false;
 
 	String customEncoding = null;
-	String currentArg = "";
+	String currentArg = ""; //$NON-NLS-1$
 		
 	while (++index < argCount) {
 
@@ -283,7 +283,7 @@ private void configure(String[] argv) throws InvalidInputException {
 		currentArg = argv[index].trim();
 
 		customEncoding = null;
-		if (currentArg.endsWith("]")){ // look for encoding specification
+		if (currentArg.endsWith("]")){ //$NON-NLS-1$ // look for encoding specification
 			int encodingStart = currentArg.indexOf('[') + 1;
 			int encodingEnd = currentArg.length() - 1;
 			if (encodingStart >= 1){
@@ -996,7 +996,7 @@ private String extractDestinationPathFromSourceFile(CompilationResult result) {
 		int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
 		return new String(CharOperation.subarray(fileName, 0, lastIndex));
 	}
-	return System.getProperty("user.dir");
+	return System.getProperty("user.dir"); //$NON-NLS-1$
 }
 
 }
