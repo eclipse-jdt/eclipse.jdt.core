@@ -358,8 +358,10 @@ private static void buildFileForReadableName(
 			buffer.append('\n');
 		}
 	}
-	
-	for (int i = NT_OFFSET + 3; i < alreadyAdded.length; i++) {
+	int i = 1;
+	while(!INVALID_CHARACTER.equals(newName[i])) i++;
+	i++;
+	for (; i < alreadyAdded.length; i++) {
 		if(!alreadyAdded[i]) {
 			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
 		}
