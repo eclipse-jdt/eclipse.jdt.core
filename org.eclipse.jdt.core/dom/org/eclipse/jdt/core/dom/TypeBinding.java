@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Internal implementation of type bindings.
@@ -168,10 +169,14 @@ class TypeBinding implements ITypeBinding {
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 		if (referenceBinding.isNestedType()) {
-			return this.resolver.getTypeBinding(referenceBinding.enclosingType());
-		} else {
-			return null;
+			try {
+				return this.resolver.getTypeBinding(referenceBinding.enclosingType());
+			} catch (AbortCompilation e) {
+				// in case the enclosing type cannot be resolvable due to missing jars on the classpath
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			}
 		}
+		return null;
 	}
 
 	/*
@@ -182,7 +187,13 @@ class TypeBinding implements ITypeBinding {
 			return null;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-		ReferenceBinding superclass = referenceBinding.superclass();
+		ReferenceBinding superclass = null;
+		try {
+			superclass = referenceBinding.superclass();
+		} catch (AbortCompilation e) {
+			// in case the superclass cannot be resolvable due to missing jars on the classpath
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		}
 		if (superclass == null) {
 			return null;
 		}
@@ -197,7 +208,16 @@ class TypeBinding implements ITypeBinding {
 			return NO_TYPE_BINDINGS;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-		ReferenceBinding[] interfaces = referenceBinding.superInterfaces();
+		ReferenceBinding[] interfaces = null;
+		try {
+			interfaces = referenceBinding.superInterfaces();
+		} catch (AbortCompilation e) {
+			// in case the one of the super interfaces cannot be resolvable due to missing jars on the classpath
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		}
+		if (interfaces == null) {
+			return NO_TYPE_BINDINGS;
+		}
 		int length = interfaces.length;
 		if (length == 0) {
 			return NO_TYPE_BINDINGS;
@@ -295,18 +315,22 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaredTypes()
 	 */
 	public ITypeBinding[] getDeclaredTypes() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			ReferenceBinding[] members = referenceBinding.memberTypes();
-			int length = members.length;
-			ITypeBinding[] newMembers = new ITypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				newMembers[i] = this.resolver.getTypeBinding(members[i]);
+		try {
+			if (this.binding.isClass() || this.binding.isInterface()) {
+				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+				ReferenceBinding[] members = referenceBinding.memberTypes();
+				int length = members.length;
+				ITypeBinding[] newMembers = new ITypeBinding[length];
+				for (int i = 0; i < length; i++) {
+					newMembers[i] = this.resolver.getTypeBinding(members[i]);
+				}
+				return newMembers;
 			}
-			return newMembers;
-		} else {
-			return NO_TYPE_BINDINGS;
+		} catch (AbortCompilation e) {
+			// in case a member types cannot be resolvable due to missing jars on the classpath
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
 		}
+		return NO_TYPE_BINDINGS;
 	}
 	
 	/*
@@ -327,43 +351,51 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaredFields()
 	 */
 	public IVariableBinding[] getDeclaredFields() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			FieldBinding[] fields = referenceBinding.fields();
-			int length = fields.length;
-			IVariableBinding[] newFields = new IVariableBinding[length];
-			for (int i = 0; i < length; i++) {
-				newFields[i] = this.resolver.getVariableBinding(fields[i]);
+		try {
+			if (this.binding.isClass() || this.binding.isInterface()) {
+				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+				FieldBinding[] fields = referenceBinding.fields();
+				int length = fields.length;
+				IVariableBinding[] newFields = new IVariableBinding[length];
+				for (int i = 0; i < length; i++) {
+					newFields[i] = this.resolver.getVariableBinding(fields[i]);
+				}
+				return newFields;
 			}
-			return newFields;
-		} else {
-			return NO_VARIABLE_BINDINGS;
+		} catch (AbortCompilation e) {
+			// in case a field cannot be resolvable due to missing jars on the classpath
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
 		}
+		return NO_VARIABLE_BINDINGS;
 	}
 
 	/*
 	 * @see ITypeBinding#getDeclaredMethods()
 	 */
 	public IMethodBinding[] getDeclaredMethods() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
-			int length = methods.length;
-			int removeSyntheticsCounter = 0;
-			IMethodBinding[] newMethods = new IMethodBinding[length];
-			for (int i = 0; i < length; i++) {
-				org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = methods[i];
-				if (!shouldBeRemoved(methodBinding)) { 
-					newMethods[removeSyntheticsCounter++] = this.resolver.getMethodBinding(methodBinding);
+		try {
+			if (this.binding.isClass() || this.binding.isInterface()) {
+				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
+				int length = methods.length;
+				int removeSyntheticsCounter = 0;
+				IMethodBinding[] newMethods = new IMethodBinding[length];
+				for (int i = 0; i < length; i++) {
+					org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = methods[i];
+					if (!shouldBeRemoved(methodBinding)) { 
+						newMethods[removeSyntheticsCounter++] = this.resolver.getMethodBinding(methodBinding);
+					}
 				}
+				if (removeSyntheticsCounter != length) {
+					System.arraycopy(newMethods, 0, (newMethods = new IMethodBinding[removeSyntheticsCounter]), 0, removeSyntheticsCounter);
+				}
+				return newMethods;
 			}
-			if (removeSyntheticsCounter != length) {
-				System.arraycopy(newMethods, 0, (newMethods = new IMethodBinding[removeSyntheticsCounter]), 0, removeSyntheticsCounter);
-			}
-			return newMethods;
-		} else {
-			return NO_METHOD_BINDINGS;
+		} catch (AbortCompilation e) {
+			// in case a method cannot be resolvable due to missing jars on the classpath
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
 		}
+		return NO_METHOD_BINDINGS;
 	}
 
 	private boolean shouldBeRemoved(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
