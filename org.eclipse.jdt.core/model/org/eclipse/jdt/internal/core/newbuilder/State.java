@@ -44,13 +44,8 @@ void cleanup() {
 }
 
 void copyFrom(State lastState) {
-	try {
-		this.additionalTypeNames = (HashtableOfObject) lastState.additionalTypeNames.clone();
-		this.references = (HashtableOfObject) lastState.references.clone();
-	} catch (CloneNotSupportedException e) {
-		this.additionalTypeNames = lastState.additionalTypeNames;
-		this.references = lastState.references;
-	}
+	this.additionalTypeNames = (HashtableOfObject) lastState.additionalTypeNames.clone();
+	this.references = (HashtableOfObject) lastState.references.clone();
 }
 
 public void recordDependencies(char[] fileId, char[][][] qualifiedRefs, char[][] simpleRefs) {
