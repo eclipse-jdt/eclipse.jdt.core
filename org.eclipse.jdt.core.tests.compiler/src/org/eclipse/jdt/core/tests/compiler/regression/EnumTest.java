@@ -2482,7 +2482,7 @@ public class EnumTest extends AbstractComparableTest {
 			""
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87818
 	public void test081() {
 		this.runNegativeTest(
@@ -2500,5 +2500,34 @@ public class EnumTest extends AbstractComparableTest {
 			"	     ^\n" + 
 			"The member enum E cannot be local\n" + 
 			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88223
+	public void test082() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	class Y {\n" +
+				"		enum E {}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	enum E {}\n" + 
+			"	     ^\n" + 
+			"The member enum E must be defined inside a static member type\n" + 
+			"----------\n");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static class Y {\n" +
+				"		enum E {}\n" +
+				"	}\n" +
+				"}"
+			},
+			"");
 	}
 }

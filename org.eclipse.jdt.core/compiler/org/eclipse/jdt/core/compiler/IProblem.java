@@ -257,6 +257,8 @@ public interface IProblem {
 	int CannotDefineAnnotationInLocalType = Internal + 30;
 	/** @since 3.1 */
 	int CannotDefineEnumInLocalType = Internal + 31;
+	/** @since 3.1 */
+	int NonStaticContextForEnumMemberType = Internal + 32;
 
 	// variables
 	int UndefinedName = 50;

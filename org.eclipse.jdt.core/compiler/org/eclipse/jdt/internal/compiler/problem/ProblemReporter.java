@@ -4088,6 +4088,15 @@ public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void nonStaticContextForEnumMemberType(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.NonStaticContextForEnumMemberType,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, boolean isConstructorCall) {
 
 	int id;

@@ -361,8 +361,12 @@ public class ClassScope extends Scope {
 				modifiers |= AccStrictfp;
 			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
-			if (sourceType.isEnum())
-				modifiers |= AccStatic;
+			if (sourceType.isEnum()) {
+				if (!enclosingType.isStatic())
+					problemReporter().nonStaticContextForEnumMemberType(sourceType);
+				else
+					modifiers |= AccStatic;
+			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isAnonymousType()) {
 			    modifiers |= AccFinal;
