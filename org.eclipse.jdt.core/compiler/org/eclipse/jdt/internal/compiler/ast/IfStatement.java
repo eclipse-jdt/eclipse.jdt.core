@@ -82,6 +82,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// merge THEN & ELSE initializations
 	FlowInfo mergedInfo;
 	if ((condition.constant != NotAConstant) && (condition.constant.booleanValue() == true)) {
+		// IF (TRUE)
 		if (thenExit) {
 			mergedInfo = elseFlowInfo.markAsFakeReachable(true);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
@@ -91,6 +92,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			return thenFlowInfo;
 		}
 	} else {
+		// IF (FALSE)
 		if ((condition.constant != NotAConstant) && (condition.constant.booleanValue() == false)) {
 			if (elseFlowInfo.isDeadEnd()) {
 				mergedInfo = thenFlowInfo.markAsFakeReachable(true);
