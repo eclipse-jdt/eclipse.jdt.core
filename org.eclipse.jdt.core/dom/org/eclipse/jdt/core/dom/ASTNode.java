@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -41,7 +41,10 @@ import java.util.Map;
  * For nodes with properties that include a list of children (for example,
  * <code>Block</code> whose <code>statements</code> property is a list
  * of statements), adding or removing an element to/for the list property
- * automatically updates the parent links.
+ * automatically updates the parent links. These lists support the 
+ * <code>List.set</code> method; however, the constraint that the same
+ * node cannot appear more than once means that this method cannot be used
+ * to swap elements without first removing the node.
  * </p>
  * <p>
  * ASTs must not contain cycles. All operations that could create a cycle
