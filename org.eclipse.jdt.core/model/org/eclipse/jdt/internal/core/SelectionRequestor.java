@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -145,7 +146,7 @@ public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, Compila
 		}
 	}
 }
-public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, CompilationUnitDeclaration parsedUnit) {
+public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, CompilationUnitDeclaration parsedUnit, boolean isDeclaration, int start, int end) {
 	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
 	// fix for 1FWFT6Q
 	if (type != null) {
@@ -172,7 +173,7 @@ public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, ch
 			
 			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		} else {
-			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
+			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, isDeclaration, start, end);
 		}
 	}
 }
@@ -201,7 +202,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDec
 /**
  * Resolve the method
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
+public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, boolean isDeclaration, int start, int end) {
 	IType type= resolveType(declaringTypePackageName, declaringTypeName,
 		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	// fix for 1FWFT6Q
@@ -229,7 +230,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 			
 			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		} else {
-			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
+			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, isDeclaration, start, end);
 		}
 	}
 }
@@ -254,14 +255,21 @@ public void acceptPackage(char[] packageName) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
+protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isDeclaration, int start, int end) {
 	String name = new String(selector);
 	IMethod[] methods = null;
 	try {
 		methods = type.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (methods[i].getElementName().equals(name) && methods[i].getParameterTypes().length == parameterTypeNames.length) {
-				addElement(methods[i]);
+				if(isDeclaration) {
+					ISourceRange range = methods[i].getNameRange();
+					if(range.getOffset() <= start && range.getOffset() + range.getLength() >= end) {
+						addElement(methods[i]);
+					}
+				} else {
+					addElement(methods[i]);
+				}
 			}
 		}
 	} catch (JavaModelException e) {

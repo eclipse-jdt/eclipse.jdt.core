@@ -956,19 +956,29 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return getWorkspace().getRoot();
 	}
 	protected String displayString(String toPrint, int indent) {
-		String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(toPrint, indent);
-		char[] toDisplay = 
-			CharOperation.replace(
-				displayString.toCharArray(), 
-				getExternalJCLPath().toString().toCharArray(), 
-				("\"+ getExternalJCLPath() + \"").toCharArray());
-		toDisplay = 
-			CharOperation.replace(
-				toDisplay, 
-				getExternalJCLSourcePath().toString().toCharArray(), 
-				("\"+ getExternalJCLSourcePath() + \"").toCharArray());
-		return new String(toDisplay);
-	}
+    	char[] toDisplay = 
+    		CharOperation.replace(
+    			toPrint.toCharArray(), 
+    			getExternalJCLPathString().toCharArray(), 
+    			"getExternalJCLPathString()".toCharArray());
+    	toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(), 
+    			"getExternalJCLSourcePathString()".toCharArray());
+    	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent);
+    	toDisplay = 
+    		CharOperation.replace(
+    			displayString.toCharArray(), 
+    			"getExternalJCLPathString()".toCharArray(), 
+    			("\"+ getExternalJCLPathString() + \"").toCharArray());
+    	toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			"getExternalJCLSourcePathString()".toCharArray(), 
+    			("\"+ getExternalJCLSourcePathString() + \"").toCharArray());
+    	return new String(toDisplay);
+    }
 	public byte[] read(java.io.File file) throws java.io.IOException {
 		int fileLength;
 		byte[] fileBytes = new byte[fileLength = (int) file.length()];

@@ -1023,4 +1023,38 @@ public void testEndOfFile() throws JavaModelException {
 			elements
 	);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
+ */
+public void testDuplicateMethodDelcaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDelcaration.java");
+	
+	String str = cu.getSource();
+	int start = str.indexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo() [in ResolveDuplicateMethodDelcaration [in ResolveDuplicateMethodDelcaration.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
+ */
+public void testDuplicateMethodDelcaration2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDuplicateMethodDelcaration.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo()#2 [in ResolveDuplicateMethodDelcaration [in ResolveDuplicateMethodDelcaration.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
 }

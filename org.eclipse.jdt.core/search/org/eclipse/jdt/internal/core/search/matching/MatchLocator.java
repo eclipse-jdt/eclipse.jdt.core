@@ -357,6 +357,7 @@ protected Parser basicParser() {
 				this.options,
 				new DefaultProblemFactory());
 		this.basicParser = new Parser(problemReporter, false);
+		this.basicParser.reportOnlyOneSyntaxError = true;
 	}
 	return this.basicParser;
 }

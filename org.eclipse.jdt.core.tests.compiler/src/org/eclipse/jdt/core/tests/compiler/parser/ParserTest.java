@@ -473,4 +473,81 @@ public void test020() {
 		"----------\n"
 	);
 }
+public void test021() {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append("public class X {\n");
+	for (int i = 0; i < 1000; i++) {
+		buffer.append("\tint field_" + i + " = 0; \n");
+	}
+	for (int i = 0; i < 1000; i++) {
+		if (i == 0)
+			buffer.append("\tvoid method_" + i + "() { /* default */ } \n");
+		else
+			buffer.append("\tvoid method_" + i + "() { method_" + (i - 1) + "() \n");
+	}
+	buffer.append("}\n");
+	
+	Hashtable options = new Hashtable();
+	options.put(CompilerOptions.OPTION_MaxProblemPerUnit, "10");
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			buffer.toString()
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1003)\n" + 
+		"	void method_1() { method_0() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1003)\n" + 
+		"	void method_1() { method_0() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 1004)\n" + 
+		"	void method_2() { method_1() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 1004)\n" + 
+		"	void method_2() { method_1() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 1005)\n" + 
+		"	void method_3() { method_2() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 1005)\n" + 
+		"	void method_3() { method_2() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 1006)\n" + 
+		"	void method_4() { method_3() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 1006)\n" + 
+		"	void method_4() { method_3() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 1007)\n" + 
+		"	void method_5() { method_4() \n" + 
+		"	                           ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 2002)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
 }

@@ -80,7 +80,21 @@ public class JavadocMessageSend extends MessageSend {
 			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
-		this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+		this.binding = (this.receiver != null && this.receiver.isThis())
+			? scope.getImplicitMethod(this.selector, argumentTypes, this)
+			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this);
+		if (!this.binding.isValidBinding()) {
+			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
+			switch (this.binding.problemId()) {
+				case ProblemReasons.NonStaticReferenceInConstructorInvocation:
+				case ProblemReasons.NonStaticReferenceInStaticContext:
+				case ProblemReasons.InheritedNameHidesEnclosingName : 
+					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
+					if (closestMatch != null) {
+						this.binding = closestMatch; // ignore problem if can reach target method through it
+					}
+			}
+		}
 		if (!this.binding.isValidBinding()) {
 			if (this.binding.declaringClass == null) {
 				if (this.receiverType instanceof ReferenceBinding) {

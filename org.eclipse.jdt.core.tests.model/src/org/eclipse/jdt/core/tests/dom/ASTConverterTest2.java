@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0557"));
+		suite.addTest(new ASTConverterTest2("test0565"));
 		return suite;
 	}
 	/**
@@ -4352,6 +4352,32 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
+	/*
+	 * Ensures that asking for well known type doesn't throw a NPE if the problem requestor is not active.
+	 * (regression test for bug 64750 NPE in Java AST Creation - editing some random file)
+	 */
+	public void test0538h() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor() {
+                public boolean isActive() {
+                    return false;
+                }
+			};
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  Object field;\n" +
+				"}"
+			);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
+			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=53477
 	 */
@@ -4950,5 +4976,216 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(simpleName, "get", source);
 		checkSourceRange(expression, "(aa.bar()).get(0)", source);
 		checkSourceRange(expressionStatement, "(aa.bar()).get(0);", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65090
+	 */
+	public void test0558() {
+		String src = "\tSystem.out.println(\"Hello\");\n\tSystem.out.println(\"World\");\n";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 2, statements.size());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0559() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0559", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, expression4.getNodeType());
+		checkSourceRange(expression4, "\" \"", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0560() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0560", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, expression4.getNodeType());
+		checkSourceRange(expression4, "\" \"", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0561() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0561", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, expression4.getNodeType());
+		checkSourceRange(expression4, "\" \"", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0562() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0562", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		assertEquals("Wrong type", ASTNode.STRING_LITERAL, expression4.getNodeType());
+		checkSourceRange(expression4, "\" \"", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0563() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0563", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression4, "new String()", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0564() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0564", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression4, "new String()", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65562
+	 */
+	public void test0565() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0565", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Wrong type", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+		InfixExpression infixExpression = (InfixExpression) expression;
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		assertEquals("Wrong type", ASTNode.PARENTHESIZED_EXPRESSION, expression3.getNodeType());
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression3;
+		Expression expression4 = parenthesizedExpression.getExpression();
+		checkSourceRange(expression4, "(/**/ String /**/) new String()", source);
 	}
 }

@@ -862,18 +862,29 @@ public interface IType extends IMember {
 	
 	/**
 	 * Resolves the given type name within the context of this type (depending on the type hierarchy 
-	 * and its imports). Multiple answers might be found in case there are ambiguous matches.
-	 *
+	 * and its imports). 
+	 * <p>
+	 * Multiple answers might be found in case there are ambiguous matches.
+	 * </p>
+	 * <p>
 	 * Each matching type name is decomposed as an array of two strings, the first denoting the package
-	 * name (dot-separated) and the second being the type name.
+	 * name (dot-separated) and the second being the type name. The package name is empty if it is the
+	 * default package. The type name is the type qualified name using a '.' enclosing type separator.
+	 * </p>
+	 * <p>
 	 * Returns <code>null</code> if unable to find any matching type.
-	 *
+	 * </p>
+	 *<p>
 	 * For example, resolution of <code>"Object"</code> would typically return
-	 * <code>{{"java.lang", "Object"}}</code>.
+	 * <code>{{"java.lang", "Object"}}</code>. Another resolution that returns
+	 * <code>{{"", "X.Inner"}}</code> represents the inner type Inner defined in type X in the 
+	 * default package.
+	 * </p>
 	 * 
 	 * @param typeName the given type name
 	 * @exception JavaModelException if code resolve could not be performed. 
 	 * @return the resolved type names or <code>null</code> if unable to find any matching type
+	 * @see #getTypeQualifiedName(char)
 	 */
 	String[][] resolveType(String typeName) throws JavaModelException;
 
@@ -891,18 +902,24 @@ public interface IType extends IMember {
 	 * </p>
 	 * <p>
 	 * Each matching type name is decomposed as an array of two strings, the first denoting the package
-	 * name (dot-separated) and the second being the type name.
+	 * name (dot-separated) and the second being the type name. The package name is empty if it is the
+	 * default package. The type name is the type qualified name using a '.' enclosing type separator.
+	 * </p>
+	 * <p>
 	 * Returns <code>null</code> if unable to find any matching type.
 	 *</p>
 	 *<p>
 	 * For example, resolution of <code>"Object"</code> would typically return
-	 * <code>{{"java.lang", "Object"}}</code>.
+	 * <code>{{"java.lang", "Object"}}</code>. Another resolution that returns
+	 * <code>{{"", "X.Inner"}}</code> represents the inner type Inner defined in type X in the 
+	 * default package.
 	 * </p>
 	 * 
 	 * @param typeName the given type name
 	 * @param owner the owner of working copies that take precedence over their original compilation units
 	 * @exception JavaModelException if code resolve could not be performed. 
 	 * @return the resolved type names or <code>null</code> if unable to find any matching type
+	 * @see #getTypeQualifiedName(char)
 	 * @since 3.0
 	 */
 	String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException;

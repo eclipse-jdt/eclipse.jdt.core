@@ -33,20 +33,15 @@ public static void assertEquals(String message, String expected, String actual) 
 	final String expectedWithLineSeparators = expected == null ? null : showLineSeparators(expected);
 	final String actualWithLineSeparators = actual == null ? null : showLineSeparators(actual);
 	
-	throw new ComparisonFailure(null, expectedWithLineSeparators, actualWithLineSeparators) {
-		String fExpected = expectedWithLineSeparators; // used only for the result compare utility
-		String fActual = actualWithLineSeparators; // used only for the result compare utility
-		public String getMessage() {
-			return 
-				formatted
-					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
-					+ expectedWithLineSeparators
-					+ "\n------------ but was ------------\n" //$NON-NLS-1$
-					+ actualWithLineSeparators
-					+ "\n--------- Difference is ----------\n" //$NON-NLS-1$
-					+ super.getMessage();
-		}
-	};
+	throw new ComparisonFailure(
+	    formatted
+			+ "\n----------- Expected ------------\n" //$NON-NLS-1$
+			+ expectedWithLineSeparators
+			+ "\n------------ but was ------------\n" //$NON-NLS-1$
+			+ actualWithLineSeparators
+			+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
+	    expectedWithLineSeparators, 
+	    actualWithLineSeparators);
 }
 /*
  * Shows the line separators in the given String.

@@ -116,6 +116,15 @@ public interface ISelectionRequestor {
 	 * 
 	 *  @param isConstructor boolean
 	 * 		Answer if the method is a constructor.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected method is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -124,14 +133,18 @@ public interface ISelectionRequestor {
 	 *    Nested type names are in the qualified form "A.M".
 	 *    The default package is represented by an empty array.
 	 */
+	// parameters 'isDeclaration', 'start' and 'end' are use to distinguish duplicate methods declarations
 	void acceptMethod(
 		char[] declaringTypePackageName,
 		char[] declaringTypeName,
 		char[] selector,
 		char[][] parameterPackageNames,
 		char[][] parameterTypeNames,
-		boolean isConstructor);
-
+		boolean isConstructor,
+		boolean isDeclaration,
+		int start,
+		int end);
+	
 	/**
 	 * Code assist notification of a package selection.
 	 * @param packageName char[]

@@ -127,7 +127,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Run test cases subset
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug51660"));
+		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
+		suite.addTest(new ASTConverterJavadocTest("testBug54424"));
+		suite.addTest(new ASTConverterJavadocTest("testBug65174"));
 		return suite;
 	}
 
@@ -1988,7 +1990,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"@ejb",
 				"@ejb(bean",
 				"@ejb)bean",
-				"@ejb*bean",
+				"@ejb",
 				"@ejb+bean",
 				"@ejb,bean",
 				"@ejb",
@@ -2021,7 +2023,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"'bean test non-java id character ''' (val=39) in tag name",
 				" test non-java id character '(' (val=40) in tag name",
 				" test non-java id character ')' (val=41) in tag name",
-				" test non-java id character '*' (val=42) in tag name",
+				"*bean test non-java id character '*' (val=42) in tag name",
 				" test non-java id character '+' (val=43) in tag name",
 				" test non-java id character ',' (val=44) in tag name",
 				"-bean test non-java id character '-' (val=45) in tag name",
@@ -2060,5 +2062,29 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 		this.stopOnFailure = true;
+	}
+
+	/**
+	 * Test fix for bug 65174: [Javadoc] @@tag is wrongly parsed as @tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
+	 */
+	public void testBug65174() throws JavaModelException {
+		verifyComments("testBug65174");
+	}
+
+	/**
+	 * Test fix for bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253">65253</a>
+	 */
+	public void testBug65253() throws JavaModelException {
+		verifyComments("testBug65253");
+	}
+
+	/**
+	 * Test fix for bug 65288: [Javadoc] @@tag is wrongly parsed as @tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288">65288</a>
+	 */
+	public void testBug65288() throws JavaModelException {
+		verifyComments("testBug65288");
 	}
 }

@@ -265,17 +265,19 @@ protected void consumeExitVariableWithInitialization() {
 	// the scanner is located after the comma or the semi-colon.
 	// we want to include the comma or the semi-colon
 	super.consumeExitVariableWithInitialization();
-	if (isLocalDeclaration() || ((currentToken != TokenNameCOMMA) && (currentToken != TokenNameSEMICOLON)))
-		return;
-	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
 	super.consumeExitVariableWithoutInitialization();
-	if (isLocalDeclaration() || ((currentToken != TokenNameCOMMA) && (currentToken != TokenNameSEMICOLON)))
-		return;
-	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
+		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+	}
 }
 /*
  *
@@ -617,20 +619,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		this.addUnknownRef(ref);
 	}
 	return ref;
-}
-/*
- *
- * INTERNAL USE-ONLY
- */
-private boolean isLocalDeclaration() {
-	int nestedDepth = nestedType;
-	while (nestedDepth >= 0) {
-		if (nestedMethod[nestedDepth] != 0) {
-			return true;
-		}
-		nestedDepth--;
-	}
-	return false;
 }
 /*
  * Update the bodyStart of the corresponding parse node
@@ -1180,7 +1168,7 @@ public void parseCompilationUnit(
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		if (this.localDeclarationVisitor != null || fullParse){
 			diet = false;
@@ -1210,7 +1198,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		int initialStart = this.scanner.initialPosition;
 		int initialEnd = this.scanner.eofPosition;
@@ -1240,11 +1228,11 @@ public void parseTypeMemberDeclarations(
 		unknownRefsCounter = 0;
 	}
 	
+	CompilationResult compilationUnitResult = 
+		new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
-		CompilationResult compilationUnitResult = 
-			new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{type}, 
@@ -1280,7 +1268,7 @@ public void parseTypeMemberDeclarations(
 		// ignore this exception
 	} finally {
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		diet = old;
 	}

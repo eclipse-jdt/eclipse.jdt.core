@@ -40,7 +40,7 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 	
 	public String format(String string, int indentLevel, int[] positions, String lineSeparator) {
 		// initialize the new formatter with old options
-		Map newOptions = DefaultCodeFormatterConstants.getDefaultSettings();
+		Map newOptions = DefaultCodeFormatterConstants.getEclipse21Settings();
 
 		Object formatterNewLineOpeningBrace = this.options.get(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE);
 		if (formatterNewLineOpeningBrace != null) {
@@ -63,9 +63,15 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 		Object formatterNewLineControl = this.options.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
 		if (formatterNewLineControl != null) {
 			if (JavaCore.INSERT.equals(formatterNewLineControl)) {
-				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, JavaCore.INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT, JavaCore.INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, JavaCore.INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_FINALLY_IN_TRY_STATEMENT, JavaCore.INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT, JavaCore.INSERT);
 			} else {
-				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, JavaCore.DO_NOT_INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT, JavaCore.DO_NOT_INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, JavaCore.DO_NOT_INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_FINALLY_IN_TRY_STATEMENT, JavaCore.DO_NOT_INSERT);
+				newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT, JavaCore.DO_NOT_INSERT);
 			}
 		}
 		Object formatterClearBlankLines = this.options.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);

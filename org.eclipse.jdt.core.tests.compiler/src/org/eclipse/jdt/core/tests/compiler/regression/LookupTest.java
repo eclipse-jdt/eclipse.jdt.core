@@ -1600,7 +1600,7 @@ public void test046() {
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	foo(new XY());\n" + 
 		"	^^^\n" + 
-		"Cannot make a static reference to the non-static method foo(XY) from the type new X(){}\n" + 
+		"Cannot make a static reference to the non-static method foo(XY) from the type X\n" + 
 		"----------\n");
 }
 

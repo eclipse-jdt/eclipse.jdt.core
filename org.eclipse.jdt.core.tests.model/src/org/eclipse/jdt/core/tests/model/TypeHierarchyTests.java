@@ -269,6 +269,31 @@ public void testContains() throws JavaModelException {
 	assertTrue("I must be included", this.typeHierarchy.contains(type));
 }
 /*
+ * Ensures that a hierarchy can be created with a potential subtype in an empty primary working copy
+ * (regression test for bug 65677 Creating hierarchy failed. See log for details. 0)
+ */
+public void testEmptyWorkingCopyPotentialSubtype() throws JavaModelException {
+    ICompilationUnit workingCopy = null;
+    try {
+        workingCopy = getCompilationUnit("/TypeHierarchy/src/q4/Y.java");
+        workingCopy.becomeWorkingCopy(null, null);
+        workingCopy.getBuffer().setContents("");
+        workingCopy.makeConsistent(null);
+        
+        IType type = getCompilationUnit("/TypeHierarchy/src/q4/X.java").getType("X");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.java [in q4 [in src [in TypeHierarchy]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+			"Sub types:\n",
+			hierarchy);
+    } finally {
+        if (workingCopy != null)
+            workingCopy.discardWorkingCopy();
+    }
+}
+/*
  * Ensures that a hierarchy on a type with local and anonymous types is correct.
  */
 public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {

@@ -2496,11 +2496,11 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void javadocAmbiguousMethodReference(FieldReference fieldRef, int modifiers) {
+public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
 	int id = IProblem.JavadocAmbiguousMethodReference;
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] {new String(fieldRef.binding.readableName())};
-		handle(id, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
+		String[] arguments = new String[] {new String(fieldBinding.readableName())};
+		handle(id, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 /*
@@ -2510,10 +2510,9 @@ public void javadocAmbiguousMethodReference(FieldReference fieldRef, int modifie
  * 	- NonStaticReferenceInConstructorInvocation :
  * 	- ReceiverTypeNotVisible :
  */
-public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedType, int modifiers) {
+public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBinding, TypeBinding searchedType, int modifiers) {
 	int id = IProblem.JavadocUndefinedField;
-	FieldBinding field = fieldRef.binding;
-	switch (field.problemId()) {
+	switch (fieldBinding.problemId()) {
 		case NotFound :
 			id = IProblem.JavadocUndefinedField;
 			break;
@@ -2533,8 +2532,8 @@ public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedTyp
 	}
 
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] {new String(field.readableName())};
-		handle(id, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
+		String[] arguments = new String[] {new String(fieldBinding.readableName())};
+		handle(id, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 /*

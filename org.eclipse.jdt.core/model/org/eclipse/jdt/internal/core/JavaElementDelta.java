@@ -675,6 +675,18 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		buffer.append("PRIMARY RESOURCE"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((flags & IJavaElementDelta.F_OPENED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("OPENED"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((flags & IJavaElementDelta.F_CLOSED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CLOSED"); //$NON-NLS-1$
+		prev = true;
+	}
 	return prev;
 }
 /** 

@@ -145,9 +145,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(packName);
 				JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(packName);
 				JarPackageFragmentInfo fragInfo= new JarPackageFragmentInfo();
-				if (entries[0].size() > 0){
-					fragInfo.setEntryNames(entries[JAVA]);
-				}
 				int resLength= entries[NON_JAVA].size();
 				if (resLength == 0) {
 					packFrag.computeNonJavaResources(NO_STRINGS, fragInfo, jar.getName());
@@ -156,7 +153,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 					entries[NON_JAVA].toArray(resNames);
 					packFrag.computeNonJavaResources(resNames, fragInfo, jar.getName());
 				}
-				packFrag.computeChildren(fragInfo);
+				packFrag.computeChildren(fragInfo, entries[JAVA]);
 				newElements.put(packFrag, fragInfo);
 				vChildren.add(packFrag);
 			}

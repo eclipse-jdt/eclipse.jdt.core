@@ -285,7 +285,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 		if (canBeSeenByForCodeSnippet(field, currentType, invocationSite, this))
 			return field;
 		else
-			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
+			return new ProblemFieldBinding(field /* closest match*/, field.declaringClass, fieldName, NotVisible);
 	}
 
 	// collect all superinterfaces of receiverType until the field is found in a supertype
@@ -504,7 +504,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 	    methodBinding = compatibleMethod;
 		if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
-			return new ProblemMethodBinding(selector, methodBinding.parameters, methodBinding.declaringClass, NotVisible);
+			return new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, NotVisible);
 	}
 	return methodBinding;
 }
@@ -646,7 +646,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 		return visible[0];
 	}
 	if (visibleIndex == 0) {
-		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, compatible[0].parameters, NotVisible);
+		return new ProblemMethodBinding(compatible[0], ConstructorDeclaration.ConstantPoolName, compatible[0].parameters, NotVisible);
 	}
 	return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
 }
@@ -725,15 +725,15 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 				    methodBinding = compatibleMethod;
 				    if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {	
 						// using <classScope> instead of <this> for visibility check does grant all access to innerclass
-						fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, methodBinding.declaringClass, NotVisible);
+						fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotVisible);
 				    }
 				}
 			}
 			if (fuzzyProblem == null && !methodBinding.isStatic()) {
 				if (insideConstructorCall) {
-					insideProblem = new ProblemMethodBinding(methodBinding.selector, methodBinding.parameters, NonStaticReferenceInConstructorInvocation);
+					insideProblem = new ProblemMethodBinding(methodBinding, methodBinding.selector, methodBinding.parameters, NonStaticReferenceInConstructorInvocation);
 				} else if (insideStaticContext) {
-					insideProblem = new ProblemMethodBinding(methodBinding.selector, methodBinding.parameters, NonStaticReferenceInStaticContext);
+					insideProblem = new ProblemMethodBinding(methodBinding, methodBinding.selector, methodBinding.parameters, NonStaticReferenceInStaticContext);
 				}
 			}
 			if (receiverType == methodBinding.declaringClass || (receiverType.getMethods(selector)) != NoMethods) {
@@ -750,7 +750,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 				// if a method was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
 				// NOTE: Unlike fields, a non visible method hides a visible method
 				if (foundMethod.declaringClass != methodBinding.declaringClass) // ie. have we found the same method - do not trust field identity yet
-					return new ProblemMethodBinding(methodBinding.selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+					return new ProblemMethodBinding(methodBinding, methodBinding.selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
 			}
 		}
 

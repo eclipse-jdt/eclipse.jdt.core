@@ -984,4 +984,172 @@ public void test015() throws CoreException {
 		this.deleteFile("/P/src/X.java");
 	}
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66216
+ */
+public void test016() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y;\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66216
+ */
+public void test017() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" + 
+			"   \n" + 
+			"   private class F {\n" + 
+			"      // but this works fine\n" + 
+			"      int x, y;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void a() {\n" + 
+			"      class E {\n" + 
+			"         // this is the line that breaks the Sort Members.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      \n" + 
+			"      new Object() {\n" + 
+			"         // it breaks in an anonymous class also.\n" + 
+			"         // comment this fix the problem.\n" + 
+			"         int x, y; // my comment\n" + 
+			"      }; \n" + 
+			"      \n" + 
+			"      \n" + 
+			"      class D {\n" + 
+			"         // this appears to break also.\n" + 
+			"      }\n" + 
+			"   } \n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
 }

@@ -112,6 +112,7 @@ public class Javadoc extends ASTNode {
 			if (this.references[i] instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
 				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
+					// TODO (frederic) post 3.0 - avoid new instanciation of Compiler AST node
 					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
 					msgSend.receiver = fieldRef.receiver;
 					msgSend.receiverType = fieldRef.receiverType;
@@ -146,6 +147,7 @@ public class Javadoc extends ASTNode {
 			if (this.references[i] instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
 				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
+					// TODO (frederic) post 3.0 - avoid new instanciation of Compiler AST node
 					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
 					msgSend.receiver = fieldRef.receiver;
 					msgSend.receiverType = fieldRef.receiverType;

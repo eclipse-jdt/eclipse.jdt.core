@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -278,6 +279,43 @@ public void testCreateResourceIncludedCompilationUnit() throws CoreException {
 		pkg.getNonJavaResources());
 }
 /*
+ * Ensure that creating a file that corresponds to an included compilation unit
+ * in a folder that is not included makes it appear as a child of its package and not as a non-java resource.
+ * (regression test for bug 65234 Inclusion filter not working)
+ */
+public void testCreateResourceIncludedCompilationUnit2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/A.java"});
+	createFolder("/P/src/p1/p2/p3");
+	
+	clearDeltas();
+	createFile(
+		"/P/src/p1/p2/p3/A.java",
+		"package p1.p2.p3;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2.p3[*]: {CHILDREN}\n" + 
+		"			A.java[+]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[*]"
+	);
+	
+	IPackageFragment pkg = getPackage("/P/src/p1/p2/p3");
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"A.java [in p1.p2.p3 [in src [in P]]]",
+		pkg.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"",
+		pkg.getNonJavaResources());
+}
+/*
  * Ensure that creating a folder that corresponds to an included package 
  * makes it appear as a child of its package fragment root and not as a non-java resource.
  */
@@ -303,6 +341,37 @@ public void testCreateResourceIncludedPackage() throws CoreException {
 	assertResourcesEqual(
 		"Unexpected non-java resources",
 		"",
+		root.getNonJavaResources());
+}
+/*
+ * Ensure that creating a folder that is included in a folder that is not included
+ * makes it appear as a child of its package fragment root and not as a non-java resource.
+ * (regression test for bug 65234 Inclusion filter not working)
+ */
+public void testCreateResourceIncludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/"});
+	createFolder("/P/src/p1/p2");
+	
+	clearDeltas();
+	createFolder("/P/src/p1/p2/p3");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2.p3[+]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[*]"
+	);
+	
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"p1.p2.p3 [in src [in P]]",
+		root.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"p1",
 		root.getNonJavaResources());
 }
 /*
@@ -704,7 +773,7 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 /*
  * Ensure search finds matches in an included compilation unit.
  */
-public void testSearchWithExcludedCompilationUnit1() throws CoreException {
+public void testSearchWithIncludedCompilationUnit1() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/A.java"});
 	createFolder("/P/src/p");
 	createFile(
@@ -729,7 +798,7 @@ public void testSearchWithExcludedCompilationUnit1() throws CoreException {
 /*
  * Ensure search doesn't find matches in a compilation unit that was included but that is not any longer.
  */
-public void testSearchWithExcludedCompilationUnit2() throws CoreException {
+public void testSearchWithIncludedCompilationUnit2() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/A.java"});
 	createFolder("/P/src/p");
 	createFile(
@@ -750,6 +819,61 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
 	assertEquals(
 		"Unexpected matches found",
 		"",
+		resultCollector.toString());
+}
+/*
+ * Ensure search finds matches in an included package.
+ * (case of setting the classpath)
+ */
+public void testSearchWithIncludedPackage1() throws CoreException {
+	createFolder("/P/src/p");
+	createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	setClasspath(new String[] {"/P/src", "p/"});
+	
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	search(
+		"A", 
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS,
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"src/p/A.java p.A [A]",
+		resultCollector.toString());
+}
+/*
+ * Ensure search finds matches in an included package.
+ * (case of opening the project)
+ */
+public void testSearchWithIncludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p/"});
+	createFolder("/P/src/p");
+	createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	IProject p = this.project.getProject();
+	p.close(null);
+	p.open(null);
+	
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	search(
+		"A", 
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS,
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"src/p/A.java p.A [A]",
 		resultCollector.toString());
 }
 /*

@@ -85,7 +85,7 @@ public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclaratio
 
 protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
 	super(problemReporter, true);
-
+	this.reportOnlyOneSyntaxError = true;
 	this.patternLocator = locator.patternLocator;
 	if ((locator.matchContainer & PatternLocator.CLASS_CONTAINER) != 0) {
 		this.localDeclarationVisitor = (locator.matchContainer & PatternLocator.METHOD_CONTAINER) != 0

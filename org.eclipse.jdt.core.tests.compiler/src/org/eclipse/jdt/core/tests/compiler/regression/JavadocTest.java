@@ -32,12 +32,12 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 
 	static {
 		allTestClasses = new ArrayList(6);
+		allTestClasses.add(JavadocTestForMethod.class);
+		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestForClass.class);
 		allTestClasses.add(JavadocTestForConstructor.class);
 		allTestClasses.add(JavadocTestForField.class);
 		allTestClasses.add(JavadocTestForInterface.class);
-		allTestClasses.add(JavadocTestForMethod.class);
-		allTestClasses.add(JavadocTestMixed.class);
 		allTestClasses.add(JavadocTestOptions.class);
 		// Reset forgotten subsets tests
 		testsNames = null;

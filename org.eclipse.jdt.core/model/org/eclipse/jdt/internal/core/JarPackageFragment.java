@@ -39,11 +39,10 @@ protected JarPackageFragment(PackageFragmentRoot root, String name) {
  * Compute the children of this package fragment. Children of jar package fragments
  * can only be IClassFile (representing .class files).
  */
-protected boolean computeChildren(OpenableElementInfo info) {
-	JarPackageFragmentInfo jInfo= (JarPackageFragmentInfo)info;
-	if (jInfo.entryNames != null){
+protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames) {
+	if (entryNames != null && entryNames.size() > 0) {
 		ArrayList vChildren = new ArrayList();
-		for (Iterator iter = jInfo.entryNames.iterator(); iter.hasNext();) {
+		for (Iterator iter = entryNames.iterator(); iter.hasNext();) {
 			String child = (String) iter.next();
 			IClassFile classFile = getClassFile(child);
 			vChildren.add(classFile);
@@ -65,22 +64,26 @@ protected boolean computeChildren(OpenableElementInfo info) {
 		return;
 	}
 	int max = resNames.length;
-	Object[] res = new Object[max];
-	int index = 0;
-	for (int i = 0; i < max; i++) {
-		String resName = resNames[i];
-		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
-		if (!resName.toLowerCase().endsWith(SUFFIX_STRING_java)) {
-			if (!this.isDefaultPackage()) {
-				resName = this.getElementName().replace('.', '/') + "/" + resName;//$NON-NLS-1$
+	if (max == 0) {
+	    info.setNonJavaResources(JavaElementInfo.NO_NON_JAVA_RESOURCES);
+	} else {
+		Object[] res = new Object[max];
+		int index = 0;
+		for (int i = 0; i < max; i++) {
+			String resName = resNames[i];
+			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
+			if (!resName.toLowerCase().endsWith(SUFFIX_STRING_java)) {
+				if (!this.isDefaultPackage()) {
+					resName = this.getElementName().replace('.', '/') + "/" + resName;//$NON-NLS-1$
+				}
+				res[index++] = new JarEntryFile(resName, zipName);
 			}
-			res[index++] = new JarEntryFile(resName, zipName);
+		} 
+		if (index != max) {
+			System.arraycopy(res, 0, res = new Object[index], 0, index);
 		}
-	} 
-	if (index != max) {
-		System.arraycopy(res, 0, res = new Object[index], 0, index);
+		info.setNonJavaResources(res);
 	}
-	info.setNonJavaResources(res);
 }
 /**
  * Returns true if this fragment contains at least one java resource.

@@ -293,18 +293,20 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		scope.problemReporter().invalidMethod(this, binding);
-		// record the closest match, for clients who may still need hint about possible method match
 		MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
-		if (closestMatch != null) this.binding = closestMatch;
-		switch (binding.problemId()) {
+		switch (this.binding.problemId()) {
+			case ProblemReasons.Ambiguous :
 			case ProblemReasons.NotVisible :
 			case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 			case ProblemReasons.NonStaticReferenceInStaticContext :
 			case ProblemReasons.ReceiverTypeNotVisible :
 			case ProblemReasons.ParameterBoundMismatch :
-				if (binding != null) this.resolvedType = binding.returnType;
+				// only steal returnType in cases listed above
+				if (closestMatch != null) this.resolvedType = closestMatch.returnType;
 			default :
 		}
+		// record the closest match, for clients who may still need hint about possible method match
+		if (closestMatch != null) this.binding = closestMatch;
 		return this.resolvedType;
 	}
 	if (!binding.isStatic()) {

@@ -143,6 +143,17 @@ public String computeIndexLocation(IPath containerPath) {
 	}
 	return indexLocation;
 }
+/*
+ * Creates an empty index at the given location, for the given container path, if none exist.
+ */
+public void ensureIndexExists(String indexLocation, IPath containerPath) {
+	SimpleLookupTable states = getIndexStates();
+	Object state = states.get(indexLocation);
+	if (state == null) {
+		updateIndexState(indexLocation, REBUILDING_STATE);
+		getIndex(containerPath, indexLocation, true, true);
+	}
+}
 /**
  * Returns the index for a given project, according to the following algorithm:
  * - if index is already in memory: answers this one back
