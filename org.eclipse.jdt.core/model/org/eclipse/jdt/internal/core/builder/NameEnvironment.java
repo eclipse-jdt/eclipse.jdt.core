@@ -85,7 +85,24 @@ public static ClasspathLocation[] computeLocations(
 	ArrayList sourceFolders,
 	SimpleLookupTable binaryResources) throws JavaModelException {
 
-	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true, true);
+	/* Update incomplete classpath marker (generateMarkerOnError */
+	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true /*ignoreUnresolvedVariable*/, true /*generateMarkerOnError*/);
+	
+	/* Update cycle marker */
+	IMarker cycleMarker = ((JavaProject) javaProject).getCycleMarker();
+	if (cycleMarker != null) {
+		String circularCPOption = JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH);
+		int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
+		try {
+			int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
+			if (existingSeverity != circularCPSeverity) {
+				cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
+			}
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
+	
 	int cpCount = 0;
 	int max = classpathEntries.length;
 	ClasspathLocation[] classpathLocations = new ClasspathLocation[max];

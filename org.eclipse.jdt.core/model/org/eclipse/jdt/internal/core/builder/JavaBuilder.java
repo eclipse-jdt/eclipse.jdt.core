@@ -454,11 +454,20 @@ private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
 	if (!abortBuilds) return true;
 
+	// Abort build only if there are classpath errors
 	IMarker[] markers =
 		currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-	if (markers.length > 0) {
+	boolean buildPathHasError = false;
+	for (int i = 0, length = markers.length; i < length; i++) {
+		IMarker marker = markers[i];
+		if (((Integer)marker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR) {
+			buildPathHasError = true;
+			break;
+		}
+	}
+	if (buildPathHasError) {
 		if (DEBUG)
-			System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
+			System.out.println("Aborted build because project has cycle errors or has classpath errors"); //$NON-NLS-1$
 
 		// remove all existing class files... causes all dependent projects to do the same
 		new BatchImageBuilder(this).scrubOutputFolder();
