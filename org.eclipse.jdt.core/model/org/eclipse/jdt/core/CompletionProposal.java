@@ -1414,4 +1414,28 @@ public final class CompletionProposal extends InternalCompletionProposal {
 		this.parameterNames = parameterNames;
 		this.parameterNamesComputed = true;
 	}
+	
+	/**
+	 * Returns the accessibility of the proposal.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * 	<li><code>TYPE_REF</code> - accessibility of the type</li>
+	 * </ul>
+	 * For these kinds of completion proposals, this method returns
+	 * {@link IAccessRule#K_ACCESSIBLE} or {@link IAccessRule#K_DISCOURAGED}
+	 * or {@link IAccessRule#K_NON_ACCESSIBLE}.
+	 * By default this method return {@link IAccessRule#K_ACCESSIBLE}.
+	 * </p>
+	 * 
+	 * @see IAccessRule
+	 * 
+	 * @return the accessibility of the proposal
+	 * 
+	 * @since 3.1
+	 */
+	public int getAccessibility() {
+		return this.accessibility;
+	}
 }

@@ -814,7 +814,13 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
-	public static final String CODEASSIST_RESTRICTIONS_CHECK = PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
+	public static final String CODEASSIST_FORBIDDEN_REFERENCE_CHECK = PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK = PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
 	
 	// *************** Possible values for configurable options. ********************
 	
@@ -2268,9 +2274,15 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 *     
-	 *  CODEASSIST / Activate Access Restrictions Sensitive Completion
-	 *    When active, completion doesn't show that is access restricted.
+	 *  CODEASSIST / Activate Forbidden Reference Sensitive Completion
+	 *    When active, completion doesn't show that have forbidden reference.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.restrictionsCheck"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
+	 *  CODEASSIST / Activate Discouraged Reference Sensitive Completion
+	 *    When active, completion doesn't show that have discouraged reference.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
