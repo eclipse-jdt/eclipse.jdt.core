@@ -1568,6 +1568,72 @@ public void test045() {
 		false,
 		null);
 }
+public void test046() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X {\n" + 
+			"     private XY foo(XY t) {\n" + 
+			"        System.out.println(t);\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X() {\n" + 
+			"            void run() {\n" + 
+			"                foo(new XY());\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class XY {\n" + 
+			"    public String toString() {\n" + 
+			"        return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"}\n"
+		}, // TODO (philippe) should eliminate first problem if still used incorrectly
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	private XY foo(XY t) {\n" + 
+		"	           ^^^^^^^^^\n" + 
+		"The private method foo(XY) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	foo(new XY());\n" + 
+		"	^^^\n" + 
+		"The method foo(XY) from the type X is not static\n" + 
+		"----------\n");
+}
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X extends SuperTest\n" + 
+			"{\n" + 
+			"    public X()\n" + 
+			"    {\n" + 
+			"        super();\n" + 
+			"    }\n" + 
+			"  \n" + 
+			"    static void print(Object obj)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"Object:\" + obj.toString());\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        print(\"Hello world\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class SuperTest\n" + 
+			"{\n" + 
+			"    SuperTest(){};\n" + 
+			"    static void print(String s)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"String: \" + s);\n" + 
+			"    }\n" + 
+			"}\n"	},
+		"String: Hello world");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
