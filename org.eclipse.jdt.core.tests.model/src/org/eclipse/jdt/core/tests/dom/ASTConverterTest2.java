@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0557"));
+		suite.addTest(new ASTConverterTest2("test0558"));
 		return suite;
 	}
 	/**
@@ -4950,5 +4950,23 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(simpleName, "get", source);
 		checkSourceRange(expression, "(aa.bar()).get(0)", source);
 		checkSourceRange(expressionStatement, "(aa.bar()).get(0);", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65090
+	 */
+	public void test0558() throws JavaModelException {
+		String src = "\tSystem.out.println(\"Hello\");\n\tSystem.out.println(\"World\");\n";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 2, statements.size());
 	}
 }

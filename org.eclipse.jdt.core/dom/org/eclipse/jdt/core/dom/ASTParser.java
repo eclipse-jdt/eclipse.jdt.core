@@ -644,6 +644,9 @@ public class ASTParser {
 					if (source == null) {
 						throw new IllegalStateException();
 					}
+					if (this.sourceLength == -1) {
+						this.sourceLength = source.length;
+					}
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
@@ -796,6 +799,9 @@ public class ASTParser {
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		CompilationUnit compilationUnit = ast.newCompilationUnit();
+		if (this.sourceLength == -1) {
+			this.sourceLength = this.rawSource.length;
+		}
 		switch(this.astKind) {
 			case K_STATEMENTS :
 				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true);
