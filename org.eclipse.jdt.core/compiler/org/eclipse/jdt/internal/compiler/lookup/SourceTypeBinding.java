@@ -459,8 +459,8 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 }
 
 public int kind() {
-	if (this.typeVariables != NoTypeVariables) return GENERIC_TYPE;
-	return TYPE;
+	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
+	return Binding.TYPE;
 }	
 
 void faultInTypesForFieldsAndMethods() {

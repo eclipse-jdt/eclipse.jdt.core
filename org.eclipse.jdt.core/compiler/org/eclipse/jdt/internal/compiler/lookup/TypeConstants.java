@@ -53,12 +53,19 @@ public interface TypeConstants {
     char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
     char[] VALUES = "values".toCharArray(); //$NON-NLS-1$
     char[] VALUEOF = "valueOf".toCharArray(); //$NON-NLS-1$
-    char[] SOURCE = "SOURCE".toCharArray(); //$NON-NLS-1$
-    char[] CLASS = "CLASS".toCharArray(); //$NON-NLS-1$
-    char[] RUNTIME = "RUNTIME".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_SOURCE = "SOURCE".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_CLASS = "CLASS".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_RUNTIME = "RUNTIME".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION_PREFIX = "@".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION_SUFFIX = "()".toCharArray(); //$NON-NLS-1$
-    
+    char[] TYPE = "TYPE".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_FIELD = "FIELD".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_METHOD = "METHOD".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_PARAMETER = "PARAMETER".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_CONSTRUCTOR = "CONSTRUCTOR".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
+    char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
     
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
@@ -119,7 +126,6 @@ public interface TypeConstants {
 	ReferenceBinding[] NoSuperInterfaces = new ReferenceBinding[0];
 	ReferenceBinding[] NoMemberTypes = new ReferenceBinding[0];
 	TypeVariableBinding[] NoTypeVariables = new TypeVariableBinding[0];
-	AnnotationBinding[] NoAnnotations = new AnnotationBinding[0];	
 	
 	// Synthetics
 	char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$

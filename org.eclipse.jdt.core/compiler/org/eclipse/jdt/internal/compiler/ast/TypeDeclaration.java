@@ -924,7 +924,7 @@ public class TypeDeclaration
 			return;
 		}
 		try {
-			resolveAnnotations(this.annotations,  this.staticInitializerScope);
+			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
 			
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);

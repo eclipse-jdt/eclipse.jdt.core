@@ -65,6 +65,22 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static long Bit38L = 0x2000000000L;
 	public final static long Bit39L = 0x4000000000L;
 	public final static long Bit40L = 0x8000000000L;
+	public final static long Bit41L = 0x10000000000L;
+	public final static long Bit42L = 0x20000000000L;
+	public final static long Bit43L = 0x40000000000L;
+	public final static long Bit44L = 0x80000000000L;
+	public final static long Bit45L = 0x100000000000L;
+	public final static long Bit46L = 0x200000000000L;
+	public final static long Bit47L = 0x400000000000L;
+	public final static long Bit48L = 0x800000000000L;
+	public final static long Bit49L = 0x1000000000000L;
+	public final static long Bit50L = 0x2000000000000L;
+	public final static long Bit51L = 0x4000000000000L;
+	public final static long Bit52L = 0x8000000000000L;
+	public final static long Bit53L = 0x10000000000000L;
+	public final static long Bit54L = 0x20000000000000L;
+	public final static long Bit55L = 0x40000000000000L;
+	public final static long Bit56L = 0x80000000000000L;
 
 	public int bits = IsReachableMASK; 				// reachable by default
 
@@ -330,15 +346,18 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	}
 	
 	/**
-	 * Resolve annotations, and check duplicates
+	 * Resolve annotations, and check duplicates, answers combined tagBits 
+	 * for recognized standard annotations
 	 */
-	public void resolveAnnotations(Annotation[] annotations, BlockScope scope) {
+	public void resolveAnnotations( BlockScope scope, Annotation[] annotations, Binding recipient) {
 		if (annotations == null) 
 			return;
 		int length = annotations.length;
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			annotationTypes[i] = annotations[i].resolveType(scope);
+			Annotation annotation = annotations[i];
+			annotation.recipient = recipient;
+			annotationTypes[i] = annotation.resolveType(scope);
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {

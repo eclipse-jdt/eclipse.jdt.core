@@ -375,7 +375,7 @@ public abstract class AbstractMethodDeclaration
 			bindArguments(); 
 			bindThrownExceptions();
 			resolveJavadoc();
-			resolveAnnotations(this.annotations, scope);
+			resolveAnnotations(scope, this.annotations, this.binding);
 			resolveStatements();
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;

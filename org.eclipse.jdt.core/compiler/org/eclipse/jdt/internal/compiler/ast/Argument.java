@@ -58,6 +58,7 @@ public class Argument extends LocalDeclaration {
 		scope.addLocalVariable(
 			this.binding =
 				new LocalVariableBinding(this, typeBinding, modifierFlag, true));
+		resolveAnnotations(scope, this.annotations, this.binding);		
 		//true stand for argument instead of just local
 		this.binding.declaration = this;
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
@@ -122,7 +123,9 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().localVariableHiding(this, existingVariable, false);
 		}
 
-		binding = new LocalVariableBinding(this, exceptionType, modifiers, false); // argument decl, but local var  (where isArgument = false)
+		this.binding = new LocalVariableBinding(this, exceptionType, modifiers, false); // argument decl, but local var  (where isArgument = false)
+		resolveAnnotations(scope, this.annotations, this.binding);
+		
 		scope.addLocalVariable(binding);
 		binding.setConstant(NotAConstant);
 		return exceptionType;

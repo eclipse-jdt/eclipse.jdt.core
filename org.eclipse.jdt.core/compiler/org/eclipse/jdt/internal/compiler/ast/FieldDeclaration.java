@@ -153,7 +153,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 			this.hasBeenResolved = true;
 
-			resolveAnnotations(this.annotations, initializationScope);
+			resolveAnnotations(initializationScope, this.annotations, this.binding);
 
 			// check if field is hiding some variable - issue is that field binding already got inserted in scope
 			// thus must lookup separately in super type and outer context

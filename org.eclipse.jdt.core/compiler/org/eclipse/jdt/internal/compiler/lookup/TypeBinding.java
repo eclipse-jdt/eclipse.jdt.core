@@ -61,7 +61,7 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
  */
 
 public int kind() {
-	return TYPE;
+	return Binding.TYPE;
 }
 /* Answer true if the receiver can be instantiated
  */

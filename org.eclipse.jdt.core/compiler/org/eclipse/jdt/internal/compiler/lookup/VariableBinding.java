@@ -19,6 +19,7 @@ public abstract class VariableBinding extends Binding {
 	public char[] name;
 	private Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
+	public long tagBits;
 
 	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
 		this.name = name;

@@ -1145,7 +1145,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	
 	// 79349
 	public void test049() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.*;\n" + 
@@ -1157,11 +1157,17 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"  String value() default \"Default Message\";\n" + 
 				"}\n" + 
 				"\n" + 
+				"@MyAnn\n" +
 				"public class X {\n" + 
 				"	public @MyAnn void something() { }	\n" + 
 				"}\n"
 			},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\r\n" + 
+		"	public @MyAnn void something() { }	\r\n" + 
+		"	       ^^^^^^\n" + 
+		"The annotation @MyAnn is disallowed for this location\n" + 
+		"----------\n");
 	}
 
 	// check array handling of singleton 
@@ -2372,5 +2378,53 @@ public class AnnotationTest extends AbstractComparisonTest {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}	
+	// check detection of duplicate target element specification
+	public void test075() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"\n" + 
+				"@Target ({FIELD, FIELD})\n" + 
+				"@interface Tgt {\n" + 
+				"	E[] foo();\n" + 
+				"	int[] bar();\n" + 
+				"}\n" + 
+				"enum E {\n" + 
+				"	BLEU, BLANC, ROUGE\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Tgt( foo = { E.BLEU, E.BLEU}, bar = { 0, 0} )\n" + 
+				"public class X {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@Target ({FIELD, FIELD})\n" + 
+			"	                 ^^^^^\n" + 
+			"Duplicate element FIELD specified in annotation @Target\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	@Tgt( foo = { E.BLEU, E.BLEU}, bar = { 0, 0} )\n" + 
+			"	^^^^\n" + 
+			"The annotation @Tgt is disallowed for this location\n" + 
+			"----------\n");
+	}
+	// 77463
+	public void test076() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"private @interface TestAnnot {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	private @interface TestAnnot {\n" + 
+			"	                   ^^^^^^^^^\n" + 
+			"Illegal modifier for the annotation type TestAnnot; only public & abstract are permitted\n" + 
+			"----------\n");
 	}	
 }

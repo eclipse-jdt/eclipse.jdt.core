@@ -24,7 +24,8 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public TypeVariableBinding[] typeVariables = NoTypeVariables;
 
 	char[] signature;
-
+	public long tagBits;
+	
 protected MethodBinding() {
 	// for creating problem or synthetic method
 }
@@ -121,7 +122,7 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 */
 
 public final int kind() {
-	return METHOD;
+	return Binding.METHOD;
 }
 /* Answer true if the receiver is visible to the invocationPackage.
 */

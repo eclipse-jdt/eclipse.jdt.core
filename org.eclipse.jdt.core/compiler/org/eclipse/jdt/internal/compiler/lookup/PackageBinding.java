@@ -60,7 +60,7 @@ void addType(ReferenceBinding element) {
 */
 
 public final int kind() {
-	return PACKAGE;
+	return Binding.PACKAGE;
 }
 /*
  * slash separated name

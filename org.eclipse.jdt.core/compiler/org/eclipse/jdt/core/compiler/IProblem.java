@@ -1005,7 +1005,11 @@ public interface IProblem {
 	int AnnotationTypeDeclarationCannotHaveSuperclass = Syntax + Internal + 619;
 	/** @since 3.1 */
 	int AnnotationTypeDeclarationCannotHaveSuperinterfaces = Syntax + Internal + 620;
-
+	/** @since 3.1 */
+	int DuplicateTargetInTargetAnnotation = Internal + 621;
+	/** @since 3.1 */
+	int IncompatibleTargetForAnnotation = TypeRelated + 622;
+		
 	/**
 	 * Corrupted binaries
 	 */

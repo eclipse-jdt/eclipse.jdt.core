@@ -147,7 +147,6 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		TypeBinding variableType = type.resolveType(scope, true /* check bounds*/);
 
 		checkModifiers();
-
 		if (variableType != null) {
 			if (variableType == VoidBinding) {
 				scope.problemReporter().variableTypeCannotBeVoid(this);
@@ -174,11 +173,13 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			if ((modifiers & AccFinal)!= 0 && this.initialization == null) {
 				modifiers |= AccBlankFinal;
 			}
-			binding = new LocalVariableBinding(this, variableType, modifiers, false);
+			this.binding = new LocalVariableBinding(this, variableType, modifiers, false);
 			scope.addLocalVariable(binding);
-			binding.setConstant(NotAConstant);
+			this.binding.setConstant(NotAConstant);
 			// allow to recursivelly target the binding....
 			// the correct constant is harmed if correctly computed at the end of this method
+			
+			resolveAnnotations(scope, this.annotations, this.binding);
 		}
 
 		if (variableType == null) {

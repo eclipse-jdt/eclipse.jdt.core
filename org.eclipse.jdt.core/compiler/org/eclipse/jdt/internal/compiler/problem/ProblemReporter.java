@@ -888,6 +888,15 @@ public void duplicateAnnotationValue(TypeBinding annotationType, MemberValuePair
 		memberValuePair.sourceStart,
 		memberValuePair.sourceEnd);
 }
+public void duplicateTargetInTargetAnnotation(TypeBinding annotationType, NameReference reference) {
+	String name = 	new String(reference.fieldBinding().name);
+	this.handle(
+		IProblem.DuplicateTargetInTargetAnnotation,
+		new String[] { name, new String(annotationType.readableName())},
+		new String[] {	name, new String(annotationType.shortReadableName())},
+		reference.sourceStart,
+		reference.sourceEnd);
+}
 public void duplicateCase(CaseStatement caseStatement) {
 	this.handle(
 		IProblem.DuplicateCase,
@@ -1880,6 +1889,14 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		new String[] {shortSignature.toString()},
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
+}
+public void incompatibleTargetForAnnotation(Annotation annotation) {
+	this.handle(
+		IProblem.IncompatibleTargetForAnnotation,
+		new String[] {new String(annotation.resolvedType.readableName())},
+		new String[] {new String(annotation.resolvedType.shortReadableName())},
+		annotation.sourceStart,
+		annotation.sourceEnd);
 }
 public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
     if (location == null) {
