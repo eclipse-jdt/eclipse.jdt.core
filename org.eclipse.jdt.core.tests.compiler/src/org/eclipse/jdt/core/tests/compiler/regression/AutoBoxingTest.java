@@ -2859,4 +2859,29 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n"
         );
-    }}
+    }
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
+	public void test099() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends A {\n" + 
+				"    public void m(Object o) { System.out.println(\"SUCCESS\"); }\n" + 
+				"    public static void main(String[] args) { ((A) new X()).m(1); }\n" + 
+				"}\n" +
+				"interface I { void m(Object o); }\n" +
+				"abstract class A implements I {\n" +
+				"	public final void m(int i) {\n" +
+				"		System.out.print(\"SUCCESS + \");\n" +
+				"		m(new Integer(i));\n" +
+				"	}\n" +
+				"	public final void m(double d) {\n" +
+				"		System.out.print(\"FAILED\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"SUCCESS + SUCCESS"
+		);
+	}
+}
