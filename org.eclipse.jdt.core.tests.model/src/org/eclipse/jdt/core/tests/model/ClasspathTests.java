@@ -21,9 +21,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -154,6 +159,50 @@ public void testClasspathChangeExternalResources() throws CoreException {
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
+	}
+}
+
+/*
+ * Test classpath corruption (23977)
+ */
+public void testClasspathCorruption() throws CoreException {
+	try {
+		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[]{""}, new String[]{}, new String[]{}, "");
+		JavaProject p2 = (JavaProject)this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{}, "");
+		this.createFile("P2/foo.txt", "not a project");
+		String newCPContent = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
+			+"<classpath>	\n"
+			+"	<classpathentry kind=\"src\" path=\"\"/>	\n"
+			+"	<classpathentry kind=\"src\" path=\"/P2/foo.txt\"/>	\n"
+			+"	<classpathentry kind=\"output\" path=\"\"/>	\n"
+			+"</classpath>	\n";
+
+		IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
+		fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+/*
+		File file = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME).getLocation().toFile();
+		if (file.exists()){
+			char[] classpath = Util.getFileCharContent(file, "UTF-8");
+			System.out.println(new String(classpath));
+		}
+*/
+		p1.close();
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(p1.getProject());
+		perProjectInfo.classpath = null;
+		perProjectInfo.lastResolvedClasspath = null;
+
+		// shouldn't fail
+		p1.getExpandedClasspath(true, true);
+
+		// if could reach that far, then all is fine
+		
+	} catch(ClassCastException e){
+		assertTrue("internal ClassCastException on corrupted classpath file", false);
+	} finally {
+		// cleanup  
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 
@@ -413,6 +462,7 @@ public void testClasspathMoveNestedRoot() throws JavaModelException, CoreExcepti
 		this.deleteProject("P");
 	}
 }
+
 /**
  * Move a parent of a nested root and ensure the classpath is not updated (i.e. entry not renamed).
  */
