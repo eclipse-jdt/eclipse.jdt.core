@@ -224,10 +224,11 @@ protected void addResourceDelta(IResourceDelta child) {
  * The constructor should be used to create the root delta 
  * and then a change operation should call this method.
  */
-public void changed(IJavaElement element, int changeFlag) {
+public JavaElementDelta changed(IJavaElement element, int changeFlag) {
 	JavaElementDelta changedDelta = new JavaElementDelta(element);
 	changedDelta.changed(changeFlag);
 	insertDeltaTree(element, changedDelta);
+	return changedDelta;
 }
 /**
  * Mark this delta as a content changed delta.
