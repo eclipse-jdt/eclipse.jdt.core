@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -2259,30 +2260,30 @@ class ASTConverter {
 		scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameSEMICOLON:
+					case ITerminalSymbols.TokenNameSEMICOLON:
 						if (count == 0) {
 							node.setSourceRange(start, scanner.currentPosition - start);
 							return;
 						}
 						break;
-					case Scanner.TokenNameLBRACE :
+					case ITerminalSymbols.TokenNameLBRACE :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACE :
+					case ITerminalSymbols.TokenNameRBRACE :
 						count--;
 						break;
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						count++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						count--;
 						break;
-					case Scanner.TokenNameLBRACKET :
+					case ITerminalSymbols.TokenNameLBRACKET :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACKET :
+					case ITerminalSymbols.TokenNameRBRACKET :
 						count--;
 				}
 			}
@@ -2302,9 +2303,9 @@ class ASTConverter {
 		scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameCOLON:
+					case ITerminalSymbols.TokenNameCOLON:
 						node.setSourceRange(start, scanner.currentPosition - start);
 						return;
 				}
@@ -2318,29 +2319,29 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameSEMICOLON:
+					case ITerminalSymbols.TokenNameSEMICOLON:
 						if (count == 0) {
 							return scanner.startPosition;
 						}
 						break;
-					case Scanner.TokenNameLBRACE :
+					case ITerminalSymbols.TokenNameLBRACE :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACE :
+					case ITerminalSymbols.TokenNameRBRACE :
 						count--;
 						break;
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						count++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						count--;
 						break;
-					case Scanner.TokenNameLBRACKET :
+					case ITerminalSymbols.TokenNameLBRACKET :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACKET :
+					case ITerminalSymbols.TokenNameRBRACKET :
 						count--;
 				}
 			}
@@ -2354,29 +2355,29 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameSEMICOLON:
+					case ITerminalSymbols.TokenNameSEMICOLON:
 						if (count == 0) {
 							return scanner.currentPosition - 1;
 						}
 						break;
-					case Scanner.TokenNameLBRACE :
+					case ITerminalSymbols.TokenNameLBRACE :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACE :
+					case ITerminalSymbols.TokenNameRBRACE :
 						count--;
 						break;
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						count++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						count--;
 						break;
-					case Scanner.TokenNameLBRACKET :
+					case ITerminalSymbols.TokenNameLBRACKET :
 						count++;
 						break;
-					case Scanner.TokenNameRBRACKET :
+					case ITerminalSymbols.TokenNameRBRACKET :
 						count--;
 				}
 			}
@@ -2389,9 +2390,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameelse:
+					case ITerminalSymbols.TokenNameelse:
 						return scanner.currentPosition - 1;
 				}
 			}
@@ -2411,9 +2412,9 @@ class ASTConverter {
 		scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameRBRACE:
+					case ITerminalSymbols.TokenNameRBRACE:
 						node.setSourceRange(start, scanner.currentPosition - start);
 						return;
 				}
@@ -2435,16 +2436,16 @@ class ASTConverter {
 		int dimensions = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameRBRACKET://166 
+					case ITerminalSymbols.TokenNameRBRACKET://166 
 						dimensions++;
 						break;
-					case Scanner.TokenNameLBRACE ://90						
-					case Scanner.TokenNameCOMMA ://90
-					case Scanner.TokenNameEQUAL ://167
-					case Scanner.TokenNameSEMICOLON ://64
-					case Scanner.TokenNameRPAREN : //86
+					case ITerminalSymbols.TokenNameLBRACE ://90						
+					case ITerminalSymbols.TokenNameCOMMA ://90
+					case ITerminalSymbols.TokenNameEQUAL ://167
+					case ITerminalSymbols.TokenNameSEMICOLON ://64
+					case ITerminalSymbols.TokenNameRPAREN : //86
 						return dimensions;
 				}
 			}
@@ -2465,14 +2466,14 @@ class ASTConverter {
 		int foundPosition = -1;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameLBRACKET:
-					case Scanner.TokenNameCOMMENT_BLOCK:
-					case Scanner.TokenNameCOMMENT_JAVADOC:
-					case Scanner.TokenNameCOMMENT_LINE:
+					case ITerminalSymbols.TokenNameLBRACKET:
+					case ITerminalSymbols.TokenNameCOMMENT_BLOCK:
+					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC:
+					case ITerminalSymbols.TokenNameCOMMENT_LINE:
 						break;
-					case Scanner.TokenNameRBRACKET://166
+					case ITerminalSymbols.TokenNameRBRACKET://166
 						foundPosition = scanner.currentPosition - 1;
 						break;
 					default:
@@ -2492,9 +2493,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNamecatch://225
+					case ITerminalSymbols.TokenNamecatch://225
 						return scanner.startPosition;
 				}
 			}
@@ -2511,9 +2512,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameIdentifier:
+					case ITerminalSymbols.TokenNameIdentifier:
 						return scanner.currentPosition - 1;
 				}
 			}
@@ -2530,9 +2531,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
 						return scanner.currentPosition - 1;
 				}
 			}
@@ -2549,9 +2550,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameRPAREN:
+					case ITerminalSymbols.TokenNameRPAREN:
 						return scanner.currentPosition;
 				}
 			}
@@ -2564,9 +2565,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token, count = 0;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameRBRACKET:
+					case ITerminalSymbols.TokenNameRBRACKET:
 						count++;
 						if (count == bracketNumber) {
 							return scanner.currentPosition - 1;
@@ -2586,9 +2587,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameLBRACE://110
+					case ITerminalSymbols.TokenNameLBRACE://110
 						return scanner.startPosition;
 				}
 			}
@@ -2605,9 +2606,9 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameIdentifier://110
+					case ITerminalSymbols.TokenNameIdentifier://110
 						return scanner.getCurrentTokenEndPosition();
 				}
 			}
@@ -2625,12 +2626,12 @@ class ASTConverter {
 		int count = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameLBRACE://110
+					case ITerminalSymbols.TokenNameLBRACE://110
 						count++;
 						break;
-					case Scanner.TokenNameRBRACE://95
+					case ITerminalSymbols.TokenNameRBRACE://95
 						count--;
 						if (count == 0) {
 							return scanner.currentPosition - 1;
@@ -2652,19 +2653,19 @@ class ASTConverter {
 		try {
 			int token;
 			int braceCounter = 0;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameLBRACE :
+					case ITerminalSymbols.TokenNameLBRACE :
 						braceCounter++;
 						break;
-					case Scanner.TokenNameRBRACE :
+					case ITerminalSymbols.TokenNameRBRACE :
 						braceCounter--;
 						if (braceCounter == 0) {
 							node.setSourceRange(start, scanner.currentPosition - start);
 							return;
 						}
 						break;
-					case Scanner.TokenNameSEMICOLON :
+					case ITerminalSymbols.TokenNameSEMICOLON :
 						if (braceCounter == 0) {
 							node.setSourceRange(start, scanner.currentPosition - start);
 							return;
@@ -2684,28 +2685,28 @@ class ASTConverter {
 		int braceCounter = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameLBRACE :
+					case ITerminalSymbols.TokenNameLBRACE :
 						braceCounter++;
 						break;
-					case Scanner.TokenNameRBRACE :
+					case ITerminalSymbols.TokenNameRBRACE :
 						braceCounter--;
 						break;
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						braceCounter++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						braceCounter--;
 						break;
-					case Scanner.TokenNameLBRACKET :
+					case ITerminalSymbols.TokenNameLBRACKET :
 						braceCounter++;
 						break;
-					case Scanner.TokenNameRBRACKET :
+					case ITerminalSymbols.TokenNameRBRACKET :
 						braceCounter--;
 						break;
-					case Scanner.TokenNameCOMMA :
-					case Scanner.TokenNameSEMICOLON :
+					case ITerminalSymbols.TokenNameCOMMA :
+					case ITerminalSymbols.TokenNameSEMICOLON :
 						if (braceCounter == 0) {
 							return scanner.startPosition - 1;
 						}
@@ -3018,9 +3019,9 @@ class ASTConverter {
 		scanner.resetTo(bodyDeclaration.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength());
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameCOMMENT_JAVADOC: //1003
+					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC: //1003
 						Javadoc javadocComment = this.ast.newJavadoc();
 						int start = scanner.startPosition;
 						int length = scanner.currentPosition - start;
@@ -3079,14 +3080,14 @@ class ASTConverter {
 			while (true) {
 				token = scanner.getNextToken();
 				switch (token) {
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						dangling ++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						if (first) return false;
 						dangling --;
 						break;
-					case Scanner.TokenNameEOF :
+					case ITerminalSymbols.TokenNameEOF :
 						if (first) return false;
 						return dangling == 0;
 					default :
@@ -3110,6 +3111,7 @@ class ASTConverter {
 		int trimLeftPosition = expression.sourceStart;
 		int trimRigthPosition = expression.sourceEnd;
 		boolean first = true;
+		Scanner savedScanner = this.scanner;
 		try {
 			scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/);
 			scanner.setSource(this.compilationUnitSource);
@@ -3117,13 +3119,13 @@ class ASTConverter {
 			while (true) {
 				token = scanner.getNextToken();
 				switch (token) {
-					case Scanner.TokenNameWHITESPACE :
+					case ITerminalSymbols.TokenNameWHITESPACE :
 						if (first) {
 							trimLeftPosition = scanner.currentPosition;
 						}
 						trimRigthPosition = scanner.startPosition - 1;
 						break;
-					case Scanner.TokenNameEOF :
+					case ITerminalSymbols.TokenNameEOF :
 						expression.sourceStart = trimLeftPosition;
 						expression.sourceEnd = trimRigthPosition;
 						return;
@@ -3138,7 +3140,7 @@ class ASTConverter {
 			}
 		} catch (InvalidInputException e){
 		} finally {
-			scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/);
+			scanner = savedScanner;
 			scanner.setSource(this.compilationUnitSource);
 		}
 	}
@@ -3153,12 +3155,12 @@ class ASTConverter {
 			int token = scanner.getNextToken();
 			expression.sourceStart = scanner.currentPosition;
 			boolean stop = false;
-			while (!stop && ((token  = scanner.getNextToken()) != Scanner.TokenNameEOF)) {
+			while (!stop && ((token  = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF)) {
 				switch(token) {
-					case Scanner.TokenNameLPAREN:
+					case ITerminalSymbols.TokenNameLPAREN:
 						leftParentCount++;
 						break;
-					case Scanner.TokenNameRPAREN:
+					case ITerminalSymbols.TokenNameRPAREN:
 						rightParentCount++;
 						if (rightParentCount == leftParentCount) {
 							// we found the matching parenthesis
@@ -3177,8 +3179,8 @@ class ASTConverter {
 		int token;
 		int index = 0;
 		try {
-			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
-				if (token == Scanner.TokenNameIdentifier) {
+			while((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF)  {
+				if (token == ITerminalSymbols.TokenNameIdentifier) {
 					positions[index] = (((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1);
 					index++;
 				}
@@ -3192,8 +3194,8 @@ class ASTConverter {
 		scanner.resetTo(start, end);
 		int token;
 		try {
-			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
-				if (token == Scanner.TokenNameIdentifier) {
+			while((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF)  {
+				if (token == ITerminalSymbols.TokenNameIdentifier) {
 					int startName = scanner.startPosition;
 					int endName = scanner.currentPosition - 1;
 					name.setSourceRange(startName, endName - startName + 1);
@@ -3213,12 +3215,12 @@ class ASTConverter {
 		int token;
 		int parenCounter = 0;
 		try {
-			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
+			while((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF)  {
 				switch(token) {
-					case Scanner.TokenNameLPAREN :
+					case ITerminalSymbols.TokenNameLPAREN :
 						parenCounter++;
 						break;
-					case Scanner.TokenNameRPAREN :
+					case ITerminalSymbols.TokenNameRPAREN :
 						parenCounter--;
 						if (parenCounter == 0) {
 							int end = scanner.currentPosition - 1;
@@ -3239,20 +3241,20 @@ class ASTConverter {
 		int token;
 		int startPosition = -1;
 		try {
-			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
+			while((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF)  {
 				switch(token) {
-					case Scanner.TokenNameIntegerLiteral :
-					case Scanner.TokenNameFloatingPointLiteral :
-					case Scanner.TokenNameLongLiteral :
-					case Scanner.TokenNameDoubleLiteral :
-					case Scanner.TokenNameCharacterLiteral :
+					case ITerminalSymbols.TokenNameIntegerLiteral :
+					case ITerminalSymbols.TokenNameFloatingPointLiteral :
+					case ITerminalSymbols.TokenNameLongLiteral :
+					case ITerminalSymbols.TokenNameDoubleLiteral :
+					case ITerminalSymbols.TokenNameCharacterLiteral :
 						if (startPosition == -1) {
 							startPosition = scanner.startPosition;
 						}
 						int end = scanner.currentPosition;
 						node.setSourceRange(startPosition, end - startPosition);
 						return;
-					case Scanner.TokenNameMINUS :
+					case ITerminalSymbols.TokenNameMINUS :
 						startPosition = scanner.startPosition;
 						break;
 				}
