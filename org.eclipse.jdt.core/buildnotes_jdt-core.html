@@ -16,6 +16,8 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li> Added <code>IWorkingCopy#reconcile(boolean forceProblemDetection, IProgressMonitor monitor)</code> allowing to force
+		problem refresh even if working copy was already consistent.
     <li> Added <code>IClasspathContainer</code> new kind constant <code>K_DEFAULT_SYSTEM</code> to denote system libraries implicitely contributed
     	by a runtime. </li>
     <li> Classpath container path can have more than 2 segments. First one is still the container ID, the remaining ones are forming the hints
