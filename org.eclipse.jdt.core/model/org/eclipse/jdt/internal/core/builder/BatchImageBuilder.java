@@ -129,6 +129,7 @@ protected void cleanOutputFolders() throws CoreException {
 								}
 								return false;
 							}
+							notifier.checkCancel();
 							return true;
 						}
 					},
