@@ -62,7 +62,8 @@ public void generateCode(
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
 				arguments[i].generateCode(currentScope, codeStream, true);
-				if (binding.parameters[i].isBaseType()) {
+				TypeBinding parameterBinding = binding.parameters[i];
+				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
 					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(binding.parameters[i]);
 				}
 				codeStream.aastore();

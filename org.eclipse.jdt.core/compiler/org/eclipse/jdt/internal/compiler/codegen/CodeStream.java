@@ -1351,7 +1351,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	Label endLabel;
 	ExceptionLabel anyExceptionHandler;
 	int saveStackSize;
-	if (accessedType.isBaseType()) {
+	if (accessedType.isBaseType() && accessedType != NullBinding) {
 		this.getTYPE(accessedType.id);
 		return;
 	}
