@@ -731,7 +731,7 @@ public void testMethodDeclaration() throws JavaModelException {
  * Resolve method declaration in anonymous
  * (regression test for bug 45655 exception while editing java file)
  */
-public void testMethodDeclarationinanonymous() throws JavaModelException {
+public void testMethodDeclarationInAnonymous() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInAnonymous.java");
 	IJavaElement[] elements = codeSelect(cu, "bar()", "bar");
 	assertElementsEqual(
@@ -744,7 +744,7 @@ public void testMethodDeclarationinanonymous() throws JavaModelException {
  * Resolve method declaration in anonymous
  * (regression test for bug 45786 No selection on method declaration in field initializer)
  */
-public void testMethodDeclarationinanonymous2() throws JavaModelException {
+public void testMethodDeclarationInAnonymous2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInAnonymous2.java");
 	IJavaElement[] elements = codeSelect(cu, "foo()", "foo");
 	assertElementsEqual(
