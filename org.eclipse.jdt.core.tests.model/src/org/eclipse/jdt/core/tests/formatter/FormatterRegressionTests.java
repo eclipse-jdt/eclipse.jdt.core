@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test388"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test394"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -4476,4 +4476,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test393", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48404
+	 */
+	public void test394() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test394", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
 }

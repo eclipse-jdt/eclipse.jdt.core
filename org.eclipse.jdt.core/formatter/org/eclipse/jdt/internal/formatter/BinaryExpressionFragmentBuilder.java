@@ -117,12 +117,15 @@ class BinaryExpressionFragmentBuilder
 	public boolean visit(
 		AND_AND_Expression and_and_Expression,
 		BlockScope scope) {
-			if (buildFragments(and_and_Expression)) {
-				this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND_AND));
-				return true;
-			} else {
-				return false;
-			}
+
+		if (((and_and_Expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+			addRealFragment(and_and_Expression);
+		} else {
+			and_and_Expression.left.traverse(this, scope);
+			this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND_AND));
+			and_and_Expression.right.traverse(this, scope);
+		}
+		return false;
 	}
 
 	public boolean visit(
@@ -328,12 +331,14 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
-		if (buildFragments(or_or_Expression)) {
-			this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR_OR));
-			return true;
+		if (((or_or_Expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+			addRealFragment(or_or_Expression);
 		} else {
-			return false;
+			or_or_Expression.left.traverse(this, scope);
+			this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR_OR));
+			or_or_Expression.right.traverse(this, scope);
 		}
+		return false;		
 	}
 
 	public boolean visit(
