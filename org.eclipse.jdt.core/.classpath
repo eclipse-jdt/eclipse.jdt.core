@@ -9,14 +9,10 @@
     <classpathentry kind="src" path="jdom"/>
     <classpathentry kind="src" path="model"/>
     <classpathentry kind="src" path="search"/>
-    <classpathentry kind="lib"
-        path="/org.eclipse.core.resources/resources.jar" sourcepath="/org.eclipse.core.resources/resourcessrc.zip"/>
-    <classpathentry kind="lib"
-        path="/org.eclipse.core.runtime/runtime.jar" sourcepath="/org.eclipse.core.runtime/runtimesrc.zip"/>
-    <classpathentry kind="lib"
-        path="/org.eclipse.ant.core/antsupport.jar" sourcepath="/org.eclipse.ant.core/antsupportsrc.zip"/>
-    <classpathentry kind="lib" path="/org.eclipse.ant.core/ant.jar"/>
-    <classpathentry kind="lib" path="/org.apache.xerces/xerces.jar"/>
+    <classpathentry kind="src" path="/org.apache.xerces"/>
+    <classpathentry kind="src" path="/org.eclipse.ant.core"/>
+    <classpathentry kind="src" path="/org.eclipse.core.resources"/>
+    <classpathentry kind="src" path="/org.eclipse.core.runtime"/>
     <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
