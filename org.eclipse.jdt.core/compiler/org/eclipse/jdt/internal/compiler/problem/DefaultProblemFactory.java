@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -17,15 +18,14 @@ import java.util.ResourceBundle;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfInt;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
-	public static final int MAX_MESSAGES = 520;
-	
-	public String[] messageTemplates;
+	public HashtableOfInt messageTemplates;
 	private Locale locale;
-	private static String[] DEFAULT_LOCALE_TEMPLATES;
+	private static HashtableOfInt DEFAULT_LOCALE_TEMPLATES;
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
@@ -87,6 +87,13 @@ public IProblem createProblem(
 		endPosition, 
 		lineNumber); 
 }
+private final static int keyFromID(int id) {
+    return id + 1; // keys are offsetted by one in table, since it cannot handle 0 key
+}
+private final static int keyToID(int key) {
+    return key - 1; // keys are offsetted by one in table, since it cannot handle 0 key
+}
+
 /**
  * Answer the locale used to retrieve the error messages
  * @return java.util.Locale
@@ -97,9 +104,9 @@ public Locale getLocale() {
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
 	if ((id & IProblem.Javadoc) != 0) {
-		output.append(messageTemplates[IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask]);
+		output.append((String)messageTemplates.get(keyFromID(IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask)));
 	}
-	String message = messageTemplates[id & IProblem.IgnoreCategoriesMask]; 
+	String message = (String)messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ (id & IProblem.IgnoreCategoriesMask)
@@ -154,7 +161,7 @@ public final String localizedMessage(IProblem problem) {
  * This method initializes the MessageTemplates class variable according
  * to the current Locale.
  */
-public static String[] loadMessageTemplates(Locale loc) {
+public static HashtableOfInt loadMessageTemplates(Locale loc) {
 	ResourceBundle bundle = null;
 	String bundleName = "org.eclipse.jdt.internal.compiler.problem.messages"; //$NON-NLS-1$
 	try {
@@ -163,13 +170,18 @@ public static String[] loadMessageTemplates(Locale loc) {
 		System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + loc); //$NON-NLS-1$//$NON-NLS-2$
 		throw e;
 	}
-	String[] templates = new String[MAX_MESSAGES];
-	for (int i = 0, max = templates.length; i < max; i++) {
-		try {
-			templates[i] = bundle.getString(String.valueOf(i));
+	HashtableOfInt templates = new HashtableOfInt(700);
+	Enumeration keys = bundle.getKeys();
+	while (keys.hasMoreElements()) {
+	    String key = (String)keys.nextElement();
+	    try {
+	        int messageID = Integer.parseInt(key);
+			templates.put(keyFromID(messageID), bundle.getString(key));
+	    } catch(NumberFormatException e) {
+	        // key ill-formed
 		} catch (MissingResourceException e) {
 			// available ID
-		}
+	    }
 	}
 	return templates;
 }

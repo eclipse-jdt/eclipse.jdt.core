@@ -368,15 +368,6 @@ public void cannotUseSuperInCodeSnippet(int start, int end) {
 		start,
 		end);
 }
-public void cannotUseTypeVariable(TypeVariableBinding typeParameter, ASTNode location) {
-	String[] arguments =new String[]{ new String(typeParameter.readableName())};
-	this.handle(
-		IProblem.CannotUseTypeVariable,
-		arguments,
-		arguments,
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
 		IProblem.NonConstantExpression,
@@ -2018,6 +2009,9 @@ public void invalidSuperclass(SourceTypeBinding type, TypeReference superclassRe
 		case InheritedNameHidesEnclosingName : // 5
 			id = IProblem.SuperclassInheritedNameHidesEnclosingName;
 			break;
+		case IllegalTypeVariable : // 9
+		    id =  IProblem.SuperclassIllegalTypeVariable;
+		    break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2049,6 +2043,9 @@ public void invalidSuperinterface(SourceTypeBinding type, TypeReference superint
 		case InheritedNameHidesEnclosingName : // 5
 			id = IProblem.InterfaceInheritedNameHidesEnclosingName;
 			break;
+		case IllegalTypeVariable : // 9
+		    id = IProblem.InterfaceIllegalTypeVariable;
+		    break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...

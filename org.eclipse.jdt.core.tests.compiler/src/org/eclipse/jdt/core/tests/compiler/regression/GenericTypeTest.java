@@ -85,6 +85,7 @@ public void _test002() { // TODO reenable once generics are supported
 		"{XS::get}{X::get}SUCCESS");
 }
 
+// check cannot bind superclass to type variable
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -96,11 +97,27 @@ public void test003() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <X> extends X {\n" + 
 		"	                           ^\n" + 
-		"Cannot reference type variable X\n" + 
+		"Superclass X cannot refer to a type variable\n" + 
 		"----------\n");
 }
 		
-			
+// check cannot bind superinterface to type variable
+public void test004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <X> implements X {\n" + 
+			"}\n", 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X <X> implements X {\n" + 
+		"	                              ^\n" + 
+		"Superinterface X cannot refer to a type variable\n" + 
+		"----------\n");
+}
+
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
