@@ -113,13 +113,16 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         try {
 	        getSourcepathMethod = javacClass.getMethod("getSourcepath", null); //$NON-NLS-1$
         } catch(NoSuchMethodException e) {
+        	// if not found, then we cannot use this method (ant 1.5)
         }
         Path compileSourcePath = null;
         if (getSourcepathMethod != null) {
 	 		try {
 				compileSourcePath = (Path) getSourcepathMethod.invoke(attributes, null);
 			} catch (IllegalAccessException e) {
+				// should never happen
 			} catch (InvocationTargetException e) {
+				// should never happen
 			}
         }
         if (compileSourcePath != null) {
@@ -160,13 +163,17 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	        try {
 		        getDebugLevelMethod = javacClass.getMethod("getDebugLevel", null); //$NON-NLS-1$
 	        } catch(NoSuchMethodException e) {
+	        	// if not found, then we cannot use this method (ant 1.5)
+	        	// debug level is only available with ant 1.5.x
 	        }
      	    String debugLevel = null;
 	        if (getDebugLevelMethod != null) {
 				try {
 					debugLevel = (String) getDebugLevelMethod.invoke(attributes, null);
 				} catch (IllegalAccessException e) {
+					// should never happen
 				} catch (InvocationTargetException e) {
+					// should never happen
 				}
         	}
 			if (debugLevel != null) {
