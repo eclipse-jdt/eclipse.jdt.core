@@ -401,9 +401,10 @@ public class Tests extends TestCase {
 		suite.addTest(IncrementalTests.suite());
 		suite.addTest(JCLTests.suite());
 		suite.addTest(MultiProjectTests.suite());
+		suite.addTest(MultiSourceFolderAndOutputFolderTests.suite());
 		suite.addTest(OutputFolderTests.suite());
 		suite.addTest(PackageTests.suite());
-		suite.addTest(MultiSourceFolderAndOutputFolderTests.suite());
+		suite.addTest(StaticFinalTests.suite());
 
 		return suite;
 	}
