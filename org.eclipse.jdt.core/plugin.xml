@@ -206,7 +206,7 @@
 <!-- =================================================================================== -->
 <extension
       point="org.eclipse.core.runtime.preferences">
-   <initializer class="org.eclipse.jdt.core.JavaCorePreferenceInitializer"/>
+   <initializer class="org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer"/>
 </extension>
 
 </plugin>

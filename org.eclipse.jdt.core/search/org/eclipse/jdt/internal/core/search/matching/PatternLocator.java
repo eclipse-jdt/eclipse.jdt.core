@@ -646,7 +646,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 					case Signature.C_STAR : // unbound parameter always match
 					case Signature.C_SUPER : // needs pattern type parameter binding
 						// skip to next type argument as it will be resolved later
-						continue;
+						continue nextTypeArgument;
 					case Signature.C_EXTENDS :
 						// remove wildcard from patter type argument
 						patternTypeArgument = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
@@ -669,7 +669,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 							if (patternTypeArgHasAnyChars) return impossible;
 						case Wildcard.UNBOUND:
 							// there's no bound name to match => valid
-							continue;
+							continue nextTypeArgument;
 					}
 					// Look if bound name match pattern type argument
 					ReferenceBinding boundBinding = (ReferenceBinding) wildcardBinding.bound;
@@ -689,6 +689,10 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 							CharOperation.equals(patternTypeArgument, boundBinding.readableName(), this.isCaseSensitive)) {
 							// found name in hierarchy => match
 							continue nextTypeArgument;
+						} else if (boundBinding.isLocalType() || boundBinding.isMemberType()) {
+							// for local or member type, verify also source name (bug 81084)
+							if (CharOperation.match(patternTypeArgument, boundBinding.sourceName(), this.isCaseSensitive))
+								continue nextTypeArgument;
 						}
 						boundBinding = boundBinding.superclass();
 					}
@@ -698,7 +702,11 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 				// See if names match
 				if (CharOperation.match(patternTypeArgument, argTypeBinding.shortReadableName(), this.isCaseSensitive) ||
 					CharOperation.match(patternTypeArgument, argTypeBinding.readableName(), this.isCaseSensitive)) {
-					continue;
+					continue nextTypeArgument;
+				} else if (argTypeBinding.isLocalType() || argTypeBinding.isMemberType()) {
+					// for local or member type, verify also source name (bug 81084)
+					if (CharOperation.match(patternTypeArgument, argTypeBinding.sourceName(), this.isCaseSensitive))
+						continue nextTypeArgument;
 				}
 
 				// If pattern is not exact then match fails
@@ -722,6 +730,10 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 							CharOperation.equals(patternTypeArgument, refBinding.readableName(), this.isCaseSensitive)) {
 							// found name in hierarchy => match
 							continue nextTypeArgument;
+						} else if (refBinding.isLocalType() || refBinding.isMemberType()) {
+							// for local or member type, verify also source name (bug 81084)
+							if (CharOperation.match(patternTypeArgument, refBinding.sourceName(), this.isCaseSensitive))
+								continue nextTypeArgument;
 						}
 						refBinding = refBinding.superclass();
 					}

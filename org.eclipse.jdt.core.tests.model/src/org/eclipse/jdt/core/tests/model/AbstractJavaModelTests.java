@@ -26,6 +26,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.ParameterizedSourceType;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -1275,6 +1277,9 @@ protected void assertDeltas(String message, String expected) {
 		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, null/*don't compute problems*/);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
+		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, computeProblems);
+	}
+	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, boolean computeProblems) throws JavaModelException {
 		IProblemRequestor problemRequestor = computeProblems
 			? new IProblemRequestor() {
 				public void acceptProblem(IProblem problem) {}
@@ -1285,7 +1290,7 @@ protected void assertDeltas(String message, String expected) {
 				}
 			} 
 			: null;
-		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, problemRequestor);
+		return getWorkingCopy(path, source, owner, problemRequestor);
 	}
 	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
 		ICompilationUnit workingCopy = getCompilationUnit(path).getWorkingCopy(owner, problemRequestor, null/*no progress monitor*/);

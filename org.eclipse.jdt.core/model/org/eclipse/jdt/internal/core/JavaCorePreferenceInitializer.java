@@ -8,23 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core;
+package org.eclipse.jdt.internal.core;
 
 import java.util.*;
 
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * JavaCore eclipse preferences initializer.
  * Initially done in JavaCore.initializeDefaultPreferences which was deprecated
  * with new eclipse preferences mechanism.
- * 
- * TODO (frederic) - This class should proably not be API
  */
 public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer {
 

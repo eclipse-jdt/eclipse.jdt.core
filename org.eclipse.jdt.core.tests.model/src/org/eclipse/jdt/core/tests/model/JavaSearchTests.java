@@ -491,7 +491,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * @param unit
 	 * @param selection
 	 * @param occurences
-	 * @return
+	 * @return ParameterizedSourceType
 	 * @throws JavaModelException
 	 */
 	protected ParameterizedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
@@ -530,7 +530,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * @param unit
 	 * @param selection
 	 * @param occurences
-	 * @return
+	 * @return IJavaElement
 	 * @throws JavaModelException
 	 */
 	protected IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
@@ -1003,31 +1003,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		assertSearchResults(
 			"Starting search...\n" + 
 			getExternalJCLPathString("1.5") + " java.lang.Object\n" + 
-			"Done searching.",
-			result);
-	}
-	
-	/**
-	 * Declaration of referenced types test.
-	 * (Regression test for bug 71279: [Search] NPE in TypeReferenceLocator when moving CU with unresolved type reference
-	)
-	 */
-	public void testDeclarationOfReferencedTypes10() throws CoreException {
-		ICompilationUnit cu = getCompilationUnit("JavaSearchBugs/src/b71279/AA.java");
-		JavaSearchResultCollector result = new JavaSearchResultCollector() {
-		    public void beginReporting() {
-		        results.append("Starting search...");
-	        }
-		    public void endReporting() {
-		        results.append("\nDone searching.");
-	        }
-		};
-		searchDeclarationsOfReferencedTypes(
-			cu, 
-			result
-		);
-		assertSearchResults(
-			"Starting search...\n" + 
 			"Done searching.",
 			result);
 	}
