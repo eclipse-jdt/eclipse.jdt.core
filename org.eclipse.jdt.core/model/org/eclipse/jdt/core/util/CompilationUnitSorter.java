@@ -436,10 +436,7 @@ public class CompilationUnitSorter {
 	 * @since 2.1
 	 */
 	public static void sort(IJavaElement[] javaElements, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
-		if (comparator == null || javaElements == null) {
-			throw new IllegalArgumentException();
-		}
-		if (positions != null && positions.length != javaElements.length) {
+		if (comparator == null || javaElements == null || (positions != null && positions.length != javaElements.length)) {
 			throw new IllegalArgumentException();
 		}
 		SortElementsOperation operation = new SortElementsOperation(javaElements , positions, comparator);
