@@ -403,14 +403,16 @@ public ReferenceBinding getType(char[][] compoundName) {
 		}
 	} else {
 		PackageBinding packageBinding = getPackage0(compoundName[0]);
-		if (packageBinding == null || packageBinding == theNotFoundPackage)
+		if (packageBinding == theNotFoundPackage)
 			return null;
 
-		for (int i = 1, packageLength = compoundName.length - 1; i < packageLength; i++) {
-			if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null)
-				break;
-			if (packageBinding == theNotFoundPackage)
-				return null;
+		if (packageBinding != null) {
+			for (int i = 1, packageLength = compoundName.length - 1; i < packageLength; i++) {
+				if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null)
+					break;
+				if (packageBinding == theNotFoundPackage)
+					return null;
+			}
 		}
 
 		if (packageBinding == null)
