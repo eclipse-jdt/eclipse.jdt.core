@@ -31,7 +31,7 @@ public interface IClassFileDisassembler {
 	/**
 	 * Answers back the disassembled string of the IClassFileReader using the default
 	 * mode.
-	 * This is an output quite similar to the javap tool.
+	 * This is an output quite similar to the javap tool, using DEFAULT mode.
 	 * 
 	 * @param classFileReader The classFileReader to be disassembled
 	 * @param lineSeparator the line separator to use.
