@@ -641,9 +641,7 @@ public class ClassFile
 		IProblem[] problems) {
 
 		// always clear the strictfp/native/abstract bit for a problem method
-		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
-
-		generateMethodInfoHeader(methodBinding);
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		
@@ -726,9 +724,7 @@ public class ClassFile
 			method.abort(ProblemSeverities.AbortType);
 		}
 		// always clear the strictfp/native/abstract bit for a problem method
-		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
-
-		generateMethodInfoHeader(methodBinding);
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		
@@ -880,9 +876,7 @@ public class ClassFile
 	
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, IProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
-		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
-		
-		generateMethodInfoHeader(methodBinding);
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		
@@ -2558,6 +2552,20 @@ public class ClassFile
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
 	 */
 	public void generateMethodInfoHeader(MethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers);
+	}
+	/**
+	 * INTERNAL USE-ONLY
+	 * That method generates the header of a method info:
+	 * The header consists in:
+	 * - the access flags
+	 * - the name index of the method name inside the constant pool
+	 * - the descriptor index of the signature of the method inside the constant pool.
+	 *
+	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
+	 * @param accessFlags the access flags
+	 */
+	public void generateMethodInfoHeader(MethodBinding methodBinding, int accessFlags) {
 		// check that there is enough space to write all the bytes for the method info corresponding
 		// to the @methodBinding
 		int contentsLength;
@@ -2570,7 +2578,6 @@ public class ClassFile
 				0,
 				contentsLength);
 		}
-		int accessFlags = methodBinding.getAccessFlags();
 		if (targetJDK < ClassFileConstants.JDK1_5) {
 		    // pre 1.5, synthetic was an attribute, not a modifier
 		    accessFlags &= ~AccSynthetic;

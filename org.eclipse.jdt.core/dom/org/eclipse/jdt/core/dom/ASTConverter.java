@@ -744,36 +744,32 @@ class ASTConverter {
 
 			org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
 			
-			if (statements != null || explicitConstructorCall != null) {
-				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
-				if (start != -1 && end != -1) {
-					Block block = this.ast.newBlock();
-					block.setSourceRange(start, end - start + 1);
-					if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
-						block.statements().add(convert(explicitConstructorCall));
-					}
-					int statementsLength = statements == null ? 0 : statements.length;
-					for (int i = 0; i < statementsLength; i++) {
-						if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
-							checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-						} else {
-							block.statements().add(convert(statements[i]));
-						}
-					}
-					methodDecl.setBody(block);
+			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
+			Block block = null;
+			if (start != -1 && end != -1) {
+				/*
+				 * start or end can be equal to -1 if we have an interface's method.
+				 */
+				block = this.ast.newBlock();
+				block.setSourceRange(start, end - start + 1);
+				methodDecl.setBody(block);
+			}
+			if (block != null && (statements != null || explicitConstructorCall != null)) {
+				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
+					block.statements().add(convert(explicitConstructorCall));
 				}
-			} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
-				if (start != -1 && end != -1) {
-					/*
-					 * start or end can be equal to -1 if we have an interface's method.
-					 */
-					Block block = this.ast.newBlock();
-					block.setSourceRange(start, end - start + 1);
-					methodDecl.setBody(block);
+				int statementsLength = statements == null ? 0 : statements.length;
+				for (int i = 0; i < statementsLength; i++) {
+					if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
+					} else {
+						block.statements().add(convert(statements[i]));
+					}
 				}
+			}
+			if (block != null && (Modifier.isAbstract(methodDecl.getModifiers()) || Modifier.isNative(methodDecl.getModifiers()))) {
+				methodDecl.setFlags(ASTNode.MALFORMED);
 			}
 		} else {
 			// syntax error in this method declaration
