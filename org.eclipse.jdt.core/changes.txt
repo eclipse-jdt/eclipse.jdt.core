@@ -34,6 +34,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GJY2XN: ITPJUI:WIN2000 - rename type: error when with reference
   1GK1I2J: ITPJCORE:WIN2000 - Broken SourceEnd in ForStatement and WhileStatement
   1GK1HWY: ITPJCORE:WIN2000 - Broken sourceEnd in for Assignment and CompoundAssignment
   1GIIBC3: ITPJCORE:WINNT - search for method references - missing matches
