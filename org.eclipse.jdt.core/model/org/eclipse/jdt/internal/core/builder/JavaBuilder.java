@@ -469,9 +469,6 @@ private boolean isWorthBuilding() throws CoreException {
 		if (DEBUG)
 			System.out.println("Aborted build because project has cycle errors or has classpath errors"); //$NON-NLS-1$
 
-		// remove all existing class files... causes all dependent projects to do the same
-		new BatchImageBuilder(this).scrubOutputFolder();
-
 		removeProblemsFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
