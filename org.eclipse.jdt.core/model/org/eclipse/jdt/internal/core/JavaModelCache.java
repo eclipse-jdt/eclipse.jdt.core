@@ -29,7 +29,7 @@ public class JavaModelCache {
 	/**
 	 * Cache of open projects.
 	 */
-	protected OverflowingLRUCache projectCache;
+	protected HashMap projectCache;
 	
 	/**
 	 * Cache of open package fragment roots.
@@ -52,7 +52,7 @@ public class JavaModelCache {
 	protected Map childrenCache;
 	
 public JavaModelCache() {
-	this.projectCache = new ElementCache(CACHE_RATIO*10); // average 38300 bytes per project -> maximum size : 38300*CACHE_RATIO bytes
+	this.projectCache = new HashMap(5); // average 25552 bytes per project. NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
 	this.rootCache = new ElementCache(CACHE_RATIO*10); // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
 	this.pkgCache = new ElementCache(CACHE_RATIO*100); // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
 	this.openableCache = new ElementCache(CACHE_RATIO*100); // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
@@ -89,7 +89,7 @@ protected Object peekAtInfo(IJavaElement element) {
 		case IJavaElement.JAVA_MODEL:
 			return this.modelInfo;
 		case IJavaElement.JAVA_PROJECT:
-			return this.projectCache.peek(element);
+			return this.projectCache.get(element);
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			return this.rootCache.peek(element);
 		case IJavaElement.PACKAGE_FRAGMENT:
@@ -156,8 +156,8 @@ public String toStringFillingRation(String prefix) {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(prefix);
 	buffer.append("Project cache: "); //$NON-NLS-1$
-	buffer.append(NumberFormat.getInstance().format(this.projectCache.fillingRatio()));
-	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(this.projectCache.size());
+	buffer.append(" projects\n"); //$NON-NLS-1$
 	buffer.append(prefix);
 	buffer.append("Root cache: "); //$NON-NLS-1$
 	buffer.append(NumberFormat.getInstance().format(this.rootCache.fillingRatio()));
