@@ -21,7 +21,7 @@ public class ReadWriteMonitor {
 	 * =0 : idle
 	 * >0 : reading (number of concurrent readers)
 	 */
-	public int status = 0; // TODO (jerome) temporary made public to track concurrency problem
+	private int status = 0;
 /**
  * Concurrent reading is allowed
  * Blocking only when already writing.
@@ -84,4 +84,18 @@ public synchronized void exitWriteEnterRead() {
 	this.exitWrite();
 	this.enterRead();
 } 
+public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	if (status == 0) {
+		buffer.append("Monitor idle "); //$NON-NLS-1$
+	} else if (status < 0) {
+		buffer.append("Monitor writing "); //$NON-NLS-1$
+	} else if (status > 0) {
+		buffer.append("Monitor reading "); //$NON-NLS-1$
+	}
+	buffer.append("(status = "); //$NON-NLS-1$
+	buffer.append(this.status);
+	buffer.append(")"); //$NON-NLS-1$
+	return buffer.toString();
+}
 }
