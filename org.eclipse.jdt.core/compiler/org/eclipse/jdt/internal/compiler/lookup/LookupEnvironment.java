@@ -365,7 +365,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 			for (int i = 0, max = cachedInfo.length; i < max; i++){
 			    ParameterizedTypeBinding cachedType = cachedInfo[i];
 			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
-			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
+			    if (cachedType.enclosingType() != enclosingType) continue nextCachedType;
 				TypeBinding[] cachedArguments = cachedType.arguments;
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedType; // would be an error situation (from unresolved binaries)
@@ -403,7 +403,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 			for (int i = 0, max = cachedInfo.length; i < max; i++){
 			    RawTypeBinding cachedType = cachedInfo[i];
 			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
-			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
+			    if (cachedType.enclosingType() != enclosingType) continue nextCachedType;
 				// all enclosing type match, reuse current
 				return cachedType;
 		}
