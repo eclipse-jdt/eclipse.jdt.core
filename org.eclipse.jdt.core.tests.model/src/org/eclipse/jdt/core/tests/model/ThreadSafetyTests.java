@@ -82,7 +82,7 @@ public void testDeadlock01() throws CoreException {
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 		
-		// simulate state on startup (flush containers, and preserve their previous values)
+		// simulate state on startup (flush containers, and discard their previous values)
 		project.getJavaModel().close();
 		JavaModelManager.PreviousSessionContainers = new HashMap(5);
 		JavaModelManager.Containers = new HashMap(5);
