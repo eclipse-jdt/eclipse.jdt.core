@@ -21,23 +21,25 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.core.util.ISignatureAttribute;
 
 /**
  * Default implementation of IMethodInfo.
  */
 public class MethodInfo extends ClassFileStruct implements IMethodInfo {
+	private int accessFlags;
+	private int attributeBytes;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private ICodeAttribute codeAttribute;
+	private char[] descriptor;
+	private int descriptorIndex;
+	private IExceptionAttribute exceptionAttribute;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private int accessFlags;
 	private char[] name;
-	private char[] descriptor;
 	private int nameIndex;
-	private int descriptorIndex;
-	private int attributesCount;
-	private int attributeBytes;
-	private ICodeAttribute codeAttribute;
-	private IExceptionAttribute exceptionAttribute;
-	private IClassFileAttribute[] attributes;
+	private ISignatureAttribute signatureAttribute;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -98,6 +100,9 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.exceptionAttribute;
+			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+				this.signatureAttribute = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.signatureAttribute;
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
@@ -110,6 +115,19 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
+	}
+
+	/**
+	 * @see IMethodInfo#getAttributeCount()
+	 */
+	public int getAttributeCount() {
+		return this.attributesCount;
+	}
+	/**
+	 * @see IMethodInfo#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
 	}
 
 	/**
@@ -127,10 +145,41 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	}
 
 	/**
+	 * @see IMethodInfo#getDescriptorIndex()
+	 */
+	public int getDescriptorIndex() {
+		return this.descriptorIndex;
+	}
+
+	/**
+	 * @see IMethodInfo#getExceptionAttribute()
+	 */
+	public IExceptionAttribute getExceptionAttribute() {
+		return this.exceptionAttribute;
+	}
+
+	/**
 	 * @see IMethodInfo#getName()
 	 */
 	public char[] getName() {
 		return this.name;
+	}
+
+	/**
+	 * @see IMethodInfo#getNameIndex()
+	 */
+	public int getNameIndex() {
+		return this.nameIndex;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IMethodInfo#getSignatureAttribute()
+	 */
+	public ISignatureAttribute getSignatureAttribute() {
+		return this.signatureAttribute;
+	}
+
+	private boolean isAbstract() {
+		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
 	}
 
 	/**
@@ -153,6 +202,10 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	public boolean isDeprecated() {
 		return this.isDeprecated;
 	}
+	
+	private boolean isNative() {
+		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
+	}
 
 	/**
 	 * @see IMethodInfo#isSynthetic()
@@ -161,49 +214,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		return this.isSynthetic;
 	}
 
-	/**
-	 * @see IMethodInfo#getExceptionAttribute()
-	 */
-	public IExceptionAttribute getExceptionAttribute() {
-		return this.exceptionAttribute;
-	}
-
-	/**
-	 * @see IMethodInfo#getAttributeCount()
-	 */
-	public int getAttributeCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see IMethodInfo#getDescriptorIndex()
-	 */
-	public int getDescriptorIndex() {
-		return this.descriptorIndex;
-	}
-
-	/**
-	 * @see IMethodInfo#getNameIndex()
-	 */
-	public int getNameIndex() {
-		return this.nameIndex;
-	}
-
 	int sizeInBytes() {
 		return attributeBytes;
-	}
-	/**
-	 * @see IMethodInfo#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
-	private boolean isAbstract() {
-		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
-	}
-	
-	private boolean isNative() {
-		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
 	}
 }

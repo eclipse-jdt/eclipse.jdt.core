@@ -22,25 +22,27 @@ import org.eclipse.jdt.core.util.IExceptionTableEntry;
 import org.eclipse.jdt.core.util.ILineNumberAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableAttribute;
 import org.eclipse.jdt.core.util.IOpcodeMnemonics;
+import org.eclipse.jdt.core.util.IStackMapAttribute;
 
 /**
  * Default implementation of ICodeAttribute.
  */
 public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute {
 	private static final IExceptionTableEntry[] NO_EXCEPTION_TABLE = new IExceptionTableEntry[0];
-	private int maxLocals;
-	private int maxStack;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private byte[] bytecodes;
+	private byte[] classFileBytes;
+	private long codeLength;
+	private int codeOffset;
+	private IConstantPool constantPool;
+	private IExceptionTableEntry[] exceptionTableEntries;
+	private int exceptionTableLength;
 	private ILineNumberAttribute lineNumberAttribute;
 	private ILocalVariableAttribute localVariableAttribute;
-	private IExceptionTableEntry[] exceptionTableEntries;
-	private long codeLength;
-	private int attributesCount;
-	private int exceptionTableLength;
-	private byte[] bytecodes;
-	private IConstantPool constantPool;
-	private int codeOffset;
-	private byte[] classFileBytes;
-	private IClassFileAttribute[] attributes;
+	private int maxLocals;
+	private int maxStack;
+	private IStackMapAttribute stackMapAttribute;
 	
 	CodeAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
@@ -80,12 +82,87 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE)) {
 				this.localVariableAttribute = new LocalVariableAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.localVariableAttribute;
+			} else if (equals(attributeName, IAttributeNamesConstants.STACK_MAP)) {
+				this.stackMapAttribute = 
+					new StackMapAttribute(
+						classFileBytes,
+						constantPool,
+						offset + readOffset,
+						this.codeLength > 0xFFFF,
+						this.maxLocals > 0xFFFF,
+						this.maxStack > 0xFFFF);
+				this.attributes[attributesIndex++] = this.stackMapAttribute;
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
 		
+	}
+
+	/**
+	 * @see IClassFileAttribute#getAttributeName()
+	 */
+	public char[] getAttributeName() {
+		return IAttributeNamesConstants.CODE;
+	}
+	/**
+	 * @see ICodeAttribute#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
+	}
+
+	/**
+	 * @see ICodeAttribute#getAttributesCount()
+	 */
+	public int getAttributesCount() {
+		return this.attributesCount;
+	}
+
+	/**
+	 * @see ICodeAttribute#getBytecodes()
+	 */
+	public byte[] getBytecodes() {
+		if (this.bytecodes == null) {
+			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[(int) this.codeLength]), 0, (int) this.codeLength); 
+		}
+		return this.bytecodes;
+	}
+
+	/**
+	 * @see ICodeAttribute#getCodeLength()
+	 */
+	public long getCodeLength() {
+		return this.codeLength;
+	}
+
+	/**
+	 * @see ICodeAttribute#getExceptionTable()
+	 */
+	public IExceptionTableEntry[] getExceptionTable() {
+		return this.exceptionTableEntries;
+	}
+
+	/**
+	 * @see ICodeAttribute#getExceptionTableLength()
+	 */
+	public int getExceptionTableLength() {
+		return this.exceptionTableLength;
+	}
+
+	/**
+	 * @see ICodeAttribute#getLineNumberAttribute()
+	 */
+	public ILineNumberAttribute getLineNumberAttribute() {
+		return this.lineNumberAttribute;
+	}
+
+	/**
+	 * @see ICodeAttribute#getLocalVariableAttribute()
+	 */
+	public ILocalVariableAttribute getLocalVariableAttribute() {
+		return this.localVariableAttribute;
 	}
 	
 	/**
@@ -102,28 +179,11 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 		return this.maxStack;
 	}
 
-	/**
-	 * @see ICodeAttribute#getLineNumberAttribute()
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.ICodeAttribute#getStackMapAttribute()
 	 */
-	public ILineNumberAttribute getLineNumberAttribute() {
-		return this.lineNumberAttribute;
-	}
-
-	/**
-	 * @see ICodeAttribute#getLocalVariableAttribute()
-	 */
-	public ILocalVariableAttribute getLocalVariableAttribute() {
-		return this.localVariableAttribute;
-	}
-
-	/**
-	 * @see ICodeAttribute#getBytecodes()
-	 */
-	public byte[] getBytecodes() {
-		if (this.bytecodes == null) {
-			System.arraycopy(this.classFileBytes, this.codeOffset, (this.bytecodes = new byte[(int) this.codeLength]), 0, (int) this.codeLength); 
-		}
-		return this.bytecodes;
+	public IStackMapAttribute getStackMapAttribute() {
+		return this.stackMapAttribute;
 	}
 
 	/**
@@ -213,7 +273,8 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 					constantPoolEntry = this.constantPool.decodeEntry(index);
 					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Float
 						&& constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Integer
-						&& constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_String) {
+						&& constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_String
+						&& constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Class) {
 							throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
 					visitor._ldc(pc - this.codeOffset, index, constantPoolEntry);
@@ -1126,46 +1187,4 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			}
 		}
 	}
-
-	/**
-	 * @see ICodeAttribute#getExceptionTable()
-	 */
-	public IExceptionTableEntry[] getExceptionTable() {
-		return this.exceptionTableEntries;
-	}
-
-	/**
-	 * @see ICodeAttribute#getAttributesCount()
-	 */
-	public int getAttributesCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see ICodeAttribute#getCodeLength()
-	 */
-	public long getCodeLength() {
-		return this.codeLength;
-	}
-
-	/**
-	 * @see ICodeAttribute#getExceptionTableLength()
-	 */
-	public int getExceptionTableLength() {
-		return this.exceptionTableLength;
-	}
-
-	/**
-	 * @see IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.CODE;
-	}
-	/**
-	 * @see ICodeAttribute#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
 }

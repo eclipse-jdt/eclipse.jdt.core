@@ -27,4 +27,7 @@ public interface IAttributeNamesConstants {
 	char[] EXCEPTIONS = new char[] {'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n', 's'};
 	char[] SOURCE = new char[] {'S', 'o', 'u', 'r', 'c', 'e', 'F', 'i', 'l', 'e'};
 	char[] DEPRECATED = new char[] {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd'};
+	char[] STACK_MAP = new char[] {'S', 't', 'a', 'c', 'k', 'M', 'a', 'p'};
+	char[] SIGNATURE = new char[] {'S', 'i', 'g', 'n', 'a', 't', 'u', 'r', 'e'};
+	char[] ENCLOSING_METHOD = new char[] {'E', 'n', 'c', 'l', 'o', 's', 'i', 'n', 'g', 'M', 'e', 't', 'h', 'o', 'd'};
 }

@@ -47,6 +47,13 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	ILocalVariableAttribute getLocalVariableAttribute();
 
 	/**
+	 * Answer back the stack map attribute.
+	 * 
+	 * @return the stack map  attribute
+	 */
+	IStackMapAttribute getStackMapAttribute();
+	
+	/**
 	 * Answer back the array of exception entries, if they are present.
 	 * An empty array otherwise.
 	 * 

@@ -18,22 +18,24 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IConstantValueAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
+import org.eclipse.jdt.core.util.ISignatureAttribute;
 
 /**
  * Default implementation of IFieldInfo.
  */
 public class FieldInfo extends ClassFileStruct implements IFieldInfo {
+	private int accessFlags;
+	private int attributeBytes;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private IConstantValueAttribute constantValueAttribute;
+	private char[] descriptor;
+	private int descriptorIndex;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private int accessFlags;
 	private char[] name;
-	private char[] descriptor;
 	private int nameIndex;
-	private int descriptorIndex;
-	private int attributesCount;
-	private int attributeBytes;
-	private IConstantValueAttribute constantValueAttribute;
-	private IClassFileAttribute[] attributes;
+	private ISignatureAttribute signatureAttribute;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -80,6 +82,9 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 			} else if (equals(attributeName, IAttributeNamesConstants.CONSTANT_VALUE)) {
 				this.constantValueAttribute = new ConstantValueAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.constantValueAttribute;
+			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+				this.signatureAttribute = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.signatureAttribute;
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
@@ -93,6 +98,19 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
+	}
+	/**
+	 * @see IFieldInfo#getAttributeCount()
+	 */
+	public int getAttributeCount() {
+		return this.attributesCount;
+	}
+
+	/**
+	 * @see IFieldInfo#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
 	}
 
 	/**
@@ -110,10 +128,31 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	}
 
 	/**
+	 * @see IFieldInfo#getDescriptorIndex()
+	 */
+	public int getDescriptorIndex() {
+		return this.descriptorIndex;
+	}
+
+	/**
 	 * @see IFieldInfo#getName()
 	 */
 	public char[] getName() {
 		return this.name;
+	}
+
+	/**
+	 * @see IFieldInfo#getNameIndex()
+	 */
+	public int getNameIndex() {
+		return this.nameIndex;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IFieldInfo#getSignatureAttribute()
+	 */
+	public ISignatureAttribute getSignatureAttribute() {
+		return this.signatureAttribute;
 	}
 
 	/**
@@ -140,32 +179,4 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	int sizeInBytes() {
 		return attributeBytes;
 	}
-	/**
-	 * @see IFieldInfo#getAttributeCount()
-	 */
-	public int getAttributeCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see IFieldInfo#getDescriptorIndex()
-	 */
-	public int getDescriptorIndex() {
-		return this.descriptorIndex;
-	}
-
-	/**
-	 * @see IFieldInfo#getNameIndex()
-	 */
-	public int getNameIndex() {
-		return this.nameIndex;
-	}
-
-	/**
-	 * @see IFieldInfo#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
 }

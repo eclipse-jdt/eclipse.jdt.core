@@ -40,16 +40,18 @@ public class LocalVariableAttribute
 		int offset)
 		throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		this.localVariableTableLength = u2At(classFileBytes, 6, offset);
+		final int length = u2At(classFileBytes, 6, offset);
+		this.localVariableTableLength = length;
 		int readOffset = 8;
-		int length = this.localVariableTableLength;
 		this.localVariableTable = NO_ENTRIES;
 		if (length != 0) {
-			this.localVariableTable = new LocalVariableTableEntry[length];
-		}
-		for (int i = 0; i < length; i++) {
-			this.localVariableTable[i] = new LocalVariableTableEntry(classFileBytes, constantPool, offset + readOffset);
-			readOffset += 10;
+			this.localVariableTable = new ILocalVariableTableEntry[length];
+			for (int i = 0; i < length; i++) {
+				this.localVariableTable[i] = new LocalVariableTableEntry(classFileBytes, constantPool, offset + readOffset);
+				readOffset += 10;
+			}
+		} else {
+			this.localVariableTable = NO_ENTRIES;
 		}
 	}
 

@@ -9,14 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
-
 /**
- * This interface defines constants for use by the builder / compiler interface.
+ * This interface defines constants for use by the builder / compiler
+ * interface.
  */
 public interface IConstants {
-
 	int AccDefault = 0;
-
 	/*
 	 * Modifiers
 	 */
@@ -32,15 +30,19 @@ public interface IConstants {
 	int AccInterface = 0x0200;
 	int AccAbstract = 0x0400;
 	int AccStrictfp = 0x0800;
-
+	
+	// 1.5 new values
+	int AccSynthetic = 0x01000;
+	int AccEnum = 0x0100;
+	int AccBridge = 0x0040;
+	int AccVarArgs = 0x0080;
+	
 	/*
 	 * Other VM flags.
 	 */
 	int AccSuper = 0x0020;
-
 	/**
 	 * Extra flags for types and members.
 	 */
-	int AccSynthetic = 0x20000;
 	int AccDeprecated = 0x100000;
 }

@@ -20,38 +20,42 @@ import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
+import org.eclipse.jdt.core.util.IEnclosingMethodAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.core.util.ISignatureAttribute;
 import org.eclipse.jdt.core.util.ISourceAttribute;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
 	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];
-	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
 	private static final int[] NO_INTERFACE_INDEXES = new int[0];
 	private static final char[][] NO_INTERFACES_NAMES = CharOperation.NO_CHAR_CHAR;
+	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
+	private int accessFlags;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private char[] className;
+	private int classNameIndex;
 
 	private IConstantPool constantPool;
-	private int magicNumber;
-	private int accessFlags;
-	private char[] className;
-	private char[] superclassName;
-	private int interfacesCount;
-	private char[][] interfaceNames;
-	private int[] interfaceIndexes;
-	private int fieldsCount;
+	private IEnclosingMethodAttribute enclosingMethodAttribute;
 	private IFieldInfo[] fields;
-	private int methodsCount;
-	private IMethodInfo[] methods;
+	private int fieldsCount;
 	private IInnerClassesAttribute innerClassesAttribute;
-	private ISourceAttribute sourceFileAttribute;
-	private int classNameIndex;
+	private int[] interfaceIndexes;
+	private char[][] interfaceNames;
+	private int interfacesCount;
+	private int magicNumber;
 	private int majorVersion;
+	private IMethodInfo[] methods;
+	private int methodsCount;
 	private int minorVersion;
+	private ISignatureAttribute signatureAttribute;
+	private ISourceAttribute sourceFileAttribute;
+	private char[] superclassName;
 	private int superclassNameIndex;
-	private int attributesCount;
-	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * Constructor for ClassFileReader.
@@ -246,10 +250,16 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.innerClassesAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
-								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
-								this.attributes[attributesIndex++] = this.sourceFileAttribute;
+							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.sourceFileAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-								this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.ENCLOSING_METHOD)) {
+							this.enclosingMethodAttribute = new EnclosingMethodAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.enclosingMethodAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+							this.signatureAttribute = new SignatureAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.signatureAttribute;
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -277,12 +287,37 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
+	/**
+	 * @see IClassFileReader#getAttributeCount()
+	 */
+	public int getAttributeCount() {
+		return this.attributesCount;
+	}
 
 	/**
-	 * @see IClassFileReader#getSourceFileAttribute()
+	 * @see IClassFileReader#getAttributes()
 	 */
-	public ISourceAttribute getSourceFileAttribute() {
-		return this.sourceFileAttribute;
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
+	}
+
+	/**
+	 * @see IClassFileReader#getClassIndex()
+	 */
+	public int getClassIndex() {
+		return this.classNameIndex;
+	}
+
+	/**
+	 * @see IClassFileReader#getClassName()
+	 */
+	public char[] getClassName() {
+		return this.className;
+	}
+
+	private char[] getConstantClassNameAt(byte[] classFileBytes, int[] constantPoolOffsets, int constantPoolIndex) {
+		int utf8Offset = constantPoolOffsets[u2At(classFileBytes, constantPoolOffsets[constantPoolIndex] + 1, 0)];
+		return utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
 	}
 
 	/**
@@ -290,6 +325,12 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 */
 	public IConstantPool getConstantPool() {
 		return this.constantPool;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IClassFileReader#getEnclosingMethodAttribute()
+	 */
+	public IEnclosingMethodAttribute getEnclosingMethodAttribute() {
+		return enclosingMethodAttribute;
 	}
 
 	/**
@@ -300,10 +341,24 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
+	 * @see IClassFileReader#getFieldsCount()
+	 */
+	public int getFieldsCount() {
+		return this.fieldsCount;
+	}
+
+	/**
 	 * @see IClassFileReader#getInnerClassesAttribute()
 	 */
 	public IInnerClassesAttribute getInnerClassesAttribute() {
 		return this.innerClassesAttribute;
+	}
+
+	/**
+	 * @see IClassFileReader#getInterfaceIndexes()
+	 */
+	public int[] getInterfaceIndexes() {
+		return this.interfaceIndexes;
 	}
 
 	/**
@@ -314,6 +369,20 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
+	 * @see IClassFileReader#getMagic()
+	 */
+	public int getMagic() {
+		return this.magicNumber;
+	}
+
+	/**
+	 * @see IClassFileReader#getMajorVersion()
+	 */
+	public int getMajorVersion() {
+		return this.majorVersion;
+	}
+
+	/**
 	 * @see IClassFileReader#getMethodInfos()
 	 */
 	public IMethodInfo[] getMethodInfos() {
@@ -321,10 +390,38 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
-	 * @see IClassFileReader#getClassName()
+	 * @see IClassFileReader#getMethodsCount()
 	 */
-	public char[] getClassName() {
-		return this.className;
+	public int getMethodsCount() {
+		return this.methodsCount;
+	}
+
+	/**
+	 * @see IClassFileReader#getMinorVersion()
+	 */
+	public int getMinorVersion() {
+		return this.minorVersion;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.util.IClassFileReader#getSignatureAttribute()
+	 */
+	public ISignatureAttribute getSignatureAttribute() {
+		return this.signatureAttribute;
+	}
+
+	/**
+	 * @see IClassFileReader#getSourceFileAttribute()
+	 */
+	public ISourceAttribute getSourceFileAttribute() {
+		return this.sourceFileAttribute;
+	}
+
+	/**
+	 * @see IClassFileReader#getSuperclassIndex()
+	 */
+	public int getSuperclassIndex() {
+		return this.superclassNameIndex;
 	}
 
 	/**
@@ -346,79 +443,4 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public boolean isInterface() {
 		return (getAccessFlags() & IModifierConstants.ACC_INTERFACE) != 0;
 	}
-
-	/**
-	 * @see IClassFileReader#getMajorVersion()
-	 */
-	public int getMajorVersion() {
-		return this.majorVersion;
-	}
-
-	/**
-	 * @see IClassFileReader#getMinorVersion()
-	 */
-	public int getMinorVersion() {
-		return this.minorVersion;
-	}
-
-	private char[] getConstantClassNameAt(byte[] classFileBytes, int[] constantPoolOffsets, int constantPoolIndex) {
-		int utf8Offset = constantPoolOffsets[u2At(classFileBytes, constantPoolOffsets[constantPoolIndex] + 1, 0)];
-		return utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
-	}
-	/**
-	 * @see IClassFileReader#getAttributeCount()
-	 */
-	public int getAttributeCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getClassIndex()
-	 */
-	public int getClassIndex() {
-		return this.classNameIndex;
-	}
-
-	/**
-	 * @see IClassFileReader#getInterfaceIndexes()
-	 */
-	public int[] getInterfaceIndexes() {
-		return this.interfaceIndexes;
-	}
-
-	/**
-	 * @see IClassFileReader#getSuperclassIndex()
-	 */
-	public int getSuperclassIndex() {
-		return this.superclassNameIndex;
-	}
-
-	/**
-	 * @see IClassFileReader#getMagic()
-	 */
-	public int getMagic() {
-		return this.magicNumber;
-	}
-
-	/**
-	 * @see IClassFileReader#getFieldsCount()
-	 */
-	public int getFieldsCount() {
-		return this.fieldsCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getMethodsCount()
-	 */
-	public int getMethodsCount() {
-		return this.methodsCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
 }

@@ -30,6 +30,16 @@ public interface IFieldInfo {
 	IConstantValueAttribute getConstantValueAttribute();
 
 	/**
+	 * Answer back the signature attribute of this field info if specified, 
+	 * null otherwise.
+	 * 
+	 * @return the signature attribute of this field info if specified, 
+	 * null otherwise
+	 * @since 3.0
+	 */
+	ISignatureAttribute getSignatureAttribute();
+	
+	/**
 	 * Answer back the access flag of this field info.
 	 * 
 	 * @return the access flag of this field info

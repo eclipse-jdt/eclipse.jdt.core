@@ -42,6 +42,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	
 	private void checkSuperFlags(StringBuffer buffer, int accessFlags, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
 		if ((accessFlags & IModifierConstants.ACC_SUPER) != 0) {
 			buffer.append(Util.bind("classfileformat.superflagisset")); //$NON-NLS-1$
@@ -49,7 +50,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Util.bind("classfileformat.superflagisnotset")); //$NON-NLS-1$
 		}
 		buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
-		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 
 	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
@@ -432,8 +432,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (sourceAttribute != null) {
 			buffer.append(Util.bind("classfileformat.sourcename")); //$NON-NLS-1$
 			buffer.append(sourceAttribute.getSourceFileName());
-			writeNewLine(buffer, lineSeparator, 0);
 		}
+		writeNewLine(buffer, lineSeparator, 0);
 		char[] className = classFileReader.getClassName();
 		if (className == null) {
 			// incomplete initialization. We cannot go further.
@@ -487,10 +487,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(superinterface);
 		}
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
-		writeNewLine(buffer, lineSeparator, 1);
-		checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
+		if (mode == DETAILED) {
+			checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
+		}
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
+			ISignatureAttribute signatureAttribute = classFileReader.getSignatureAttribute();
+			if (signatureAttribute != null) {
+				disassemble(signatureAttribute, buffer, lineSeparator, 0);
+			}
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
@@ -500,7 +505,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != innerClassesAttribute
-						&& attribute != sourceAttribute) {
+						&& attribute != sourceAttribute
+						&& attribute != signatureAttribute) {
 						disassemble(attribute, buffer, lineSeparator, 0);
 					}
 				}
@@ -626,8 +632,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	private void disassemble(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
+		if (mode == DETAILED) {
+			CharOperation.replace(fieldDescriptor, '.', '/');
+			buffer
+				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
+				.append(Util.bind("classfileformat.fieldddescriptor")) //$NON-NLS-1$
+				.append(Util.bind("classfileformat.fielddescriptorindex")) //$NON-NLS-1$
+				.append(fieldInfo.getDescriptorIndex())
+				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+				.append(fieldDescriptor)
+				.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
+			writeNewLine(buffer, lineSeparator, tabNumber);
+		}
+		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
 		CharOperation.replace(fieldDescriptor, '/', '.');
 		buffer.append(Signature.toCharArray(fieldDescriptor));
 		buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -669,27 +687,22 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
-		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
-		int length = attributes.length;
-		if (length != 0) {
-			for (int i = 0; i < length; i++) {
-				IClassFileAttribute attribute = attributes[i];
-				if (attribute != constantValueAttribute) {
-					disassemble(attribute, buffer, lineSeparator, tabNumber);
+		if (mode == DETAILED) {
+			ISignatureAttribute signatureAttribute = fieldInfo.getSignatureAttribute();
+			if (signatureAttribute != null) {
+				disassemble(signatureAttribute, buffer, lineSeparator, tabNumber);
+			}
+			IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+			int length = attributes.length;
+			if (length != 0) {
+				for (int i = 0; i < length; i++) {
+					IClassFileAttribute attribute = attributes[i];
+					if (attribute != constantValueAttribute
+						&& attribute != signatureAttribute) {
+						disassemble(attribute, buffer, lineSeparator, tabNumber);
+					}
 				}
 			}
-		}
-		if (mode == ClassFileBytesDisassembler.DETAILED) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			CharOperation.replace(fieldDescriptor, '.', '/');
-			buffer
-				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.fieldddescriptor")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.fielddescriptorindex")) //$NON-NLS-1$
-				.append(fieldInfo.getDescriptorIndex())
-				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
-				.append(fieldDescriptor)
-				.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
@@ -699,9 +712,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-		writeNewLine(buffer, lineSeparator, tabNumber);
 		char[] methodDescriptor = methodInfo.getDescriptor();
-		if (mode == ClassFileBytesDisassembler.DETAILED) {
+		if (mode == DETAILED) {
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			CharOperation.replace(methodDescriptor, '.', '/');
 			buffer
 				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
@@ -744,36 +757,50 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(exceptionName);
 		}
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		IClassFileAttribute[] attributes = methodInfo.getAttributes();
-		int length = attributes.length;
-		if (length != 0) {
-			for (int i = 0; i < length; i++) {
-				IClassFileAttribute attribute = attributes[i];
-				if ((attribute != codeAttribute) && (attribute != exceptionAttribute)) {
-					disassemble(attribute, buffer, lineSeparator, tabNumber);
-					writeNewLine(buffer, lineSeparator, tabNumber);
+		if (mode == DETAILED) {
+			ISignatureAttribute signatureAttribute = methodInfo.getSignatureAttribute();
+			if (signatureAttribute != null) {
+				disassemble(signatureAttribute, buffer, lineSeparator, tabNumber);
+			}
+			IClassFileAttribute[] attributes = methodInfo.getAttributes();
+			int length = attributes.length;
+			if (length != 0) {
+				for (int i = 0; i < length; i++) {
+					IClassFileAttribute attribute = attributes[i];
+					if (attribute != codeAttribute
+						&& attribute != exceptionAttribute
+						&& attribute != signatureAttribute) {
+						disassemble(attribute, buffer, lineSeparator, tabNumber);
+						writeNewLine(buffer, lineSeparator, tabNumber);
+					}
 				}
 			}
+			if (codeAttribute != null) {
+				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
+			}
 		}
-		if (codeAttribute != null) {
-			disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
-			writeNewLine(buffer, lineSeparator, tabNumber);
-		}
+		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Util.bind("disassembler.genericattributeheader")); //$NON-NLS-1$
-		writeNewLine(buffer, lineSeparator, tabNumber + 2);
 		buffer
 			.append(Util.bind("disassembler.genericattributename")) //$NON-NLS-1$
 			.append(classFileAttribute.getAttributeName())
 			.append(Util.bind("disassembler.genericattributelength")) //$NON-NLS-1$
 			.append(classFileAttribute.getAttributeLength());
 	}
+
+	private void disassemble(ISignatureAttribute signatureAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer
+			.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
+			.append(signatureAttribute.getSignature());
+	}
 	
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer
 			.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
 			.append(Util.bind("classfileformat.maxStack")) //$NON-NLS-1$
@@ -795,11 +822,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			dumpTab(tabNumber + 1, buffer);
 			IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Util.bind("disassembler.exceptiontableheader")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumber + 2);
-			for (int i = 0; i < exceptionTableLength; i++) {
+			for (int i = 0; i < exceptionTableLength - 1; i++) {
 				IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[i];
 				buffer
 					.append(Util.bind("classfileformat.exceptiontablefrom")) //$NON-NLS-1$
@@ -818,11 +845,28 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			}
+			IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[exceptionTableLength - 1];
+			buffer
+				.append(Util.bind("classfileformat.exceptiontablefrom")) //$NON-NLS-1$
+				.append(exceptionTableEntry.getStartPC())
+				.append(Util.bind("classfileformat.exceptiontableto")) //$NON-NLS-1$
+				.append(exceptionTableEntry.getEndPC())
+				.append(Util.bind("classfileformat.exceptiontablegoto")) //$NON-NLS-1$
+				.append(exceptionTableEntry.getHandlerPC())
+				.append(Util.bind("classfileformat.exceptiontablewhen")); //$NON-NLS-1$
+			if (exceptionTableEntry.getCatchTypeIndex() == 0) {
+				buffer.append(ANY_EXCEPTION);
+			} else {
+				char[] catchType = exceptionTableEntry.getCatchType();
+				CharOperation.replace(catchType, '/', '.');
+				buffer.append(catchType);
+			}
+			writeNewLine(buffer, lineSeparator, 0);
 		}
 		ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 		int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			dumpTab(tabNumber + 1, buffer);
 			buffer.append(Util.bind("disassembler.linenumberattributeheader")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
