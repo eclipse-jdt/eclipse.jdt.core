@@ -1280,7 +1280,7 @@ public class JavaModelManager implements ISaveParticipant {
 				containerPut(project, containerPath, null);
 			} else {
 				final IClasspathEntry[] containerEntries = project.decodeClasspath(containerString, false, false);
-				if (containerEntries != null) {
+				if (containerEntries != null && containerEntries != JavaProject.INVALID_CLASSPATH) {
 					IClasspathContainer container = new IClasspathContainer() {
 						public IClasspathEntry[] getClasspathEntries() {
 							return containerEntries;

@@ -508,7 +508,6 @@ public class JavaProject
 			} catch (SAXException e) {
 				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 			} catch (ParserConfigurationException e) {
-				reader.close();
 				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 			} finally {
 				reader.close();
