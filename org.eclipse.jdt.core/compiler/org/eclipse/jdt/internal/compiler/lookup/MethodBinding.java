@@ -229,7 +229,7 @@ public final char[] constantPoolName() {
  * void bar(X<T> t)   -->   (LX<TT;>;)V
  */
 public char[] genericSignature() {
-    if ((this.modifiers & AccUseTypeVariable) == 0) return null;
+    if ((this.modifiers & AccGenericSignature) == 0) return null;
     StringBuffer sig = new StringBuffer(10);
     sig.append('(');
     for (int i = 0, length = this.parameters.length; i < length; i++) {

@@ -140,7 +140,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
  * X<T> t   -->  LX<TT;>;
  */
 public char[] genericSignature() {
-    if ((this.modifiers & AccUseTypeVariable) == 0) return null;
+    if ((this.modifiers & AccGenericSignature) == 0) return null;
     return this.type.genericTypeSignature();
 }
 

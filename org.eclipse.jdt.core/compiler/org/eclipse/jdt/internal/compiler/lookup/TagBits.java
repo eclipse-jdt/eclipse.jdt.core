@@ -46,6 +46,6 @@ public interface TagBits {
 	// test bit to identify if the type's hierarchy is inconsistent
 	final int HierarchyHasProblems = ASTNode.Bit16;
 	
-	final int UseTypeVariable = ASTNode.Bit31; // set either for type variables (direct) or parameterized types indirectly referencing type variables
+	final int HasTypeVariable = ASTNode.Bit31; // set either for type variables (direct) or parameterized types indirectly referencing type variables
 	
 }

@@ -784,6 +784,37 @@ public void test031() {
 			"    void bar() {\n" + 
 			"        new X<String>(\"INNER\") {\n" + 
 			"            void run() {\n" + 
+			"                \n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"		                String s = t = \"SUC\";\n" + 
+			"		                s = t+= \"CESS\";\n" + 
+			"				        System.out.println(t);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"SUCCESS");
+}
+
+public void test032() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<String>(\"INNER\") {\n" + 
+			"            void run() {\n" + 
 			"                String s = t = \"SUC\";\n" + 
 			"                s = t+= \"CESS\";\n" + 
 			"		        System.out.println(t);\n" + 
@@ -794,7 +825,6 @@ public void test031() {
 		},
 		"SUCCESS");
 }
-
 
 
 //public void test028() {

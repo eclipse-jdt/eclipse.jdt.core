@@ -38,9 +38,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.methods = null;		
 		this.arguments = typeArguments;
 		this.environment = environment;
+		this.modifiers = /*type.modifiers |*/ AccGenericSignature;
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
-		    if ((typeArguments[i].tagBits & UseTypeVariable) != 0) {
-		        this.tagBits |= UseTypeVariable;
+		    if ((typeArguments[i].tagBits & HasTypeVariable) != 0) {
+		        this.tagBits |= HasTypeVariable;
 		        break;
 		    }
 		}
@@ -402,7 +403,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 	    
-	    if ((originalType.tagBits & TagBits.UseTypeVariable) != 0) {
+	    if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
 		    if (originalType instanceof TypeVariableBinding) {
 		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
 		        TypeVariableBinding[] typeVariables = this.type.typeVariables();

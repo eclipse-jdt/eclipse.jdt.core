@@ -808,8 +808,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					fieldDecls[f].binding = null;
 					return null;
 				}
-				if ((fieldType.tagBits & TagBits.UseTypeVariable) != 0) {
-					field.modifiers |= AccUseTypeVariable;
+				if (fieldType instanceof ReferenceBinding && (((ReferenceBinding)fieldType).modifiers & AccGenericSignature) != 0) {
+					field.modifiers |= AccGenericSignature;
 				}				
 			} finally {
 			    initializationScope.initializedField = previousField;
@@ -839,6 +839,9 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().cannotThrowType(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
+		    if ((resolvedExceptionType.modifiers & AccGenericSignature) != 0) {
+				method.modifiers |= AccGenericSignature;
+			}
 			method.thrownExceptions[count++] = resolvedExceptionType;
 		}
 		if (count < size)
@@ -862,8 +865,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
 			} else {
-				if ((parameterType.tagBits & TagBits.UseTypeVariable) != 0) {
-					method.modifiers |= AccUseTypeVariable;
+			    if (parameterType instanceof ReferenceBinding && (((ReferenceBinding)parameterType).modifiers & AccGenericSignature) != 0) {
+					method.modifiers |= AccGenericSignature;
 				}
 				method.parameters[i] = parameterType;
 			}
@@ -886,8 +889,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				foundReturnTypeProblem = true;
 			} else {
 				method.returnType = methodType;
-				if ((methodType.tagBits & TagBits.UseTypeVariable) != 0) {
-					method.modifiers |= AccUseTypeVariable;
+				if (methodType instanceof ReferenceBinding && (((ReferenceBinding)methodType).modifiers & AccGenericSignature) != 0) {
+					method.modifiers |= AccGenericSignature;
 				}
 			}
 		}

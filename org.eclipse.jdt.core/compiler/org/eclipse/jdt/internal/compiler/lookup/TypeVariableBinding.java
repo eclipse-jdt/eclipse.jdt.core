@@ -33,7 +33,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public TypeVariableBinding(char[] sourceName, int rank) {
 		this.sourceName = sourceName;
 		this.rank = rank;
-		this.tagBits |= UseTypeVariable;
+		this.modifiers |= AccGenericSignature;
+		this.tagBits |= HasTypeVariable;
 	}
 
 	/**
