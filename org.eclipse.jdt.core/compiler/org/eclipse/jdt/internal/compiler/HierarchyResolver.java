@@ -266,7 +266,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
 			CompilerOptions options = new CompilerOptions();
-			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.getAssertMode());
+			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.assertMode);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[suppliedLength+i] = parsedUnit;

@@ -86,7 +86,7 @@ public SourceElementParser(
 		}
 	},
 	false,
-	options.getAssertMode());
+	options.assertMode);
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];

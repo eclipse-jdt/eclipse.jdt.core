@@ -122,7 +122,7 @@ public final class CompletionEngine
 			}
 		};
 		this.parser =
-			new CompletionParser(problemReporter, compilerOptions.getAssertMode());
+			new CompletionParser(problemReporter, compilerOptions.assertMode);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, compilerOptions, problemReporter, nameEnvironment);
 	}

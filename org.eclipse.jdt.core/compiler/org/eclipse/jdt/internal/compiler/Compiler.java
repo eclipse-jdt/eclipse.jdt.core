@@ -86,7 +86,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			new Parser(
 				problemReporter, 
 				this.options.parseLiteralExpressionsAsConstants, 
-				this.options.getAssertMode());
+				this.options.assertMode);
 	}
 	
 	/**

@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 
-public class ProblemReporter extends ProblemHandler implements ConfigurableProblems, ProblemIrritants, ProblemReasons{
+public class ProblemReporter extends ProblemHandler implements ProblemIrritants, ProblemReasons{
 	public ReferenceContext referenceContext;
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
@@ -307,19 +307,19 @@ public int computeSeverity(int problemId){
 
 		case UnreachableCatch :
 		case CodeCannotBeReached :
-			if ((errorThreshold & UnreachableCode) != 0){
+			if ((errorThreshold & CompilerOptions.UnreachableCode) != 0){
 				return Error;
 			}
-			if ((warningThreshold & UnreachableCode) != 0){
+			if ((warningThreshold & CompilerOptions.UnreachableCode) != 0){
 				return Warning;
 			}
 			return Ignore;
 
 		case MaskedCatch : 
-			if ((errorThreshold & MaskedCatchBlock) != 0){
+			if ((errorThreshold & CompilerOptions.MaskedCatchBlock) != 0){
 				return Error;
 			}
-			if ((warningThreshold & MaskedCatchBlock) != 0){
+			if ((warningThreshold & CompilerOptions.MaskedCatchBlock) != 0){
 				return Warning;
 			}
 			return Ignore;
@@ -342,10 +342,10 @@ public int computeSeverity(int problemId){
 		case DuplicateImport :
 		case ConflictingImport :
 		case CannotImportPackage :
-			if ((errorThreshold & ImportProblem) != 0){
+			if ((errorThreshold & CompilerOptions.ImportProblem) != 0){
 				return Error;
 			}
-			if ((warningThreshold & ImportProblem) != 0){
+			if ((warningThreshold & CompilerOptions.ImportProblem) != 0){
 				return Warning;
 			}
 			return Ignore;
@@ -360,19 +360,19 @@ public int computeSeverity(int problemId){
 			return Ignore;
 */		
 		case MethodButWithConstructorName :
-			if ((errorThreshold & MethodWithConstructorName) != 0){
+			if ((errorThreshold & CompilerOptions.MethodWithConstructorName) != 0){
 				return Error;
 			}
-			if ((warningThreshold & MethodWithConstructorName) != 0){
+			if ((warningThreshold & CompilerOptions.MethodWithConstructorName) != 0){
 				return Warning;
 			}
 			return Ignore;
 		
 		case OverridingNonVisibleMethod :
-			if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
+			if ((errorThreshold & CompilerOptions.OverriddenPackageDefaultMethod) != 0){
 				return Error;
 			}
-			if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
+			if ((warningThreshold & CompilerOptions.OverriddenPackageDefaultMethod) != 0){
 				return Warning;
 			}
 			return Ignore;
@@ -382,37 +382,37 @@ public int computeSeverity(int problemId){
 		case UsingDeprecatedMethod :
 		case UsingDeprecatedConstructor :
 		case UsingDeprecatedField :
-			if ((errorThreshold & UsingDeprecatedAPI) != 0){
+			if ((errorThreshold & CompilerOptions.UsingDeprecatedAPI) != 0){
 				return Error;
 			}
-			if ((warningThreshold & UsingDeprecatedAPI) != 0){
+			if ((warningThreshold & CompilerOptions.UsingDeprecatedAPI) != 0){
 				return Warning;
 			}
 			return Ignore;
 		
 		case LocalVariableIsNeverUsed :
-			if ((errorThreshold & UnusedLocalVariable) != 0){
+			if ((errorThreshold & CompilerOptions.UnusedLocalVariable) != 0){
 				return Error;
 			}
-			if ((warningThreshold & UnusedLocalVariable) != 0){
+			if ((warningThreshold & CompilerOptions.UnusedLocalVariable) != 0){
 				return Warning;
 			}
 			return Ignore;
 		
 		case ArgumentIsNeverUsed :
-			if ((errorThreshold & UnusedArgument) != 0){
+			if ((errorThreshold & CompilerOptions.UnusedArgument) != 0){
 				return Error;
 			}
-			if ((warningThreshold & UnusedArgument) != 0){
+			if ((warningThreshold & CompilerOptions.UnusedArgument) != 0){
 				return Warning;
 			}
 			return Ignore;
 
 		case NoImplicitStringConversionForCharArrayExpression :
-			if ((errorThreshold & TemporaryWarning) != 0){
+			if ((errorThreshold & CompilerOptions.NoImplicitStringConversion) != 0){
 				return Error;
 			}
-			if ((warningThreshold & TemporaryWarning) != 0){
+			if ((warningThreshold & CompilerOptions.NoImplicitStringConversion) != 0){
 				return Warning;
 			}
 			return Ignore;
@@ -421,26 +421,26 @@ public int computeSeverity(int problemId){
 		case NeedToEmulateFieldWriteAccess :
 		case NeedToEmulateMethodAccess :
 		case NeedToEmulateConstructorAccess :			
-			if ((errorThreshold & AccessEmulation) != 0){
+			if ((errorThreshold & CompilerOptions.AccessEmulation) != 0){
 				return Error;
 			}
-			if ((warningThreshold & AccessEmulation) != 0){
+			if ((warningThreshold & CompilerOptions.AccessEmulation) != 0){
 				return Warning;
 			}
 			return Ignore;
 		case NonExternalizedStringLiteral :
-			if ((errorThreshold & NonExternalizedString) != 0){
+			if ((errorThreshold & CompilerOptions.NonExternalizedString) != 0){
 				return Error;
 			}
-			if ((warningThreshold & NonExternalizedString) != 0){
+			if ((warningThreshold & CompilerOptions.NonExternalizedString) != 0){
 				return Warning;
 			}
 			return Ignore;
 		case UseAssertAsAnIdentifier :
-			if ((errorThreshold & AssertUsedAsAnIdentifier) != 0){
+			if ((errorThreshold & CompilerOptions.AssertUsedAsAnIdentifier) != 0){
 				return Error;
 			}
-			if ((warningThreshold & AssertUsedAsAnIdentifier) != 0){
+			if ((warningThreshold & CompilerOptions.AssertUsedAsAnIdentifier) != 0){
 				return Warning;
 			}
 			return Ignore;		

@@ -18,6 +18,7 @@ public class CompilationUnitScope extends Scope {
 
 	private ObjectVector namespaceDependencies;
 	private ObjectVector typeDependencies;
+	
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
 	this.environment = environment;

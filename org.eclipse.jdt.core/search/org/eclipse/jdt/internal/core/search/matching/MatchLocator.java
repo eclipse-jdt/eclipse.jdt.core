@@ -850,7 +850,7 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 				problemFactory);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
-		this.parser = new MatchLocatorParser(problemReporter, options.getAssertMode());
+		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
 		this.parsedUnits = new HashtableOfObject(10);
 		return this.pattern.initializeFromLookupEnvironment(this.lookupEnvironment);
 	}

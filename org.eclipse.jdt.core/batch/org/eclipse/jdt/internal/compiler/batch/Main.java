@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 import java.io.*;
 import java.util.*;
 
-public class Main implements ConfigurableProblems, ProblemSeverities {
+public class Main implements ProblemSeverities {
 
 private boolean noWarn = false;
 	

@@ -121,6 +121,7 @@ public interface ProblemIrritants { // max: 500
 	final int CannotReturnInInitializer = Internal + 162;
 	final int InitializerMustCompleteNormally = Internal + 163;
 	final int CannotThrowCheckedExceptionInInitializer = TypeRelated + 164;
+	
 	// try
 	final int MaskedCatch = TypeRelated + 165;
 	final int DuplicateDefaultCase = 166;
@@ -278,6 +279,7 @@ public interface ProblemIrritants { // max: 500
 	//constant pool
 	final int TooManyConstantsInConstantPool = Internal + 430;
 	
-	// identifiers 1.4 assert feature
+	// 1.4 features
+	// assertion warning
 	final int UseAssertAsAnIdentifier = Internal + 440;
 }

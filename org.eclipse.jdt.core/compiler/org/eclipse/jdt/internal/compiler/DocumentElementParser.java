@@ -57,7 +57,7 @@ public DocumentElementParser(
 		}
 	},
 	false,
-	options.getAssertMode());
+	options.assertMode);
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
 }

@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.compiler.impl;
-
+
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -11,8 +12,9 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-
-public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, ProblemReasons, ProblemSeverities {
+
+
+public class CompilerOptions implements ProblemIrritants, ProblemReasons, ProblemSeverities {
 	
 	/**
 	 * Option IDs
@@ -34,7 +36,12 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
-	/**
+
+	/* should surface ??? */
+	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
+	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
+
+	/**
 	 * Possible values for configurable options
 	 */
 	public static final String GENERATE = "generate";//$NON-NLS-1$
@@ -49,513 +56,476 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
 	
-	// class file output
-	// these are the bits used to buld a mask to know which debug 
-	// attributes should be included in the .class file
-	// By default only lines and source attributes are generated.
-	public static final int Source = 1; // SourceFileAttribute
-	public static final int Lines = 2; // LineNumberAttribute
-	public static final int Vars = 4; // LocalVariableTableAttribute
-
-	public int produceDebugAttributes = Lines | Source;
-
-	// default severity level for handlers
+	/**
+	 * Bit mask for configurable problems (error/warning threshold)
+	 */
+	public static final int UnreachableCode = 0x100;
+	public static final int ImportProblem = 0x400;
+	public static final int MethodWithConstructorName = 0x1000;
+	public static final int OverriddenPackageDefaultMethod = 0x2000;
+	public static final int UsingDeprecatedAPI = 0x4000;
+	public static final int MaskedCatchBlock = 0x8000;
+	public static final int UnusedLocalVariable = 0x10000;
+	public static final int UnusedArgument = 0x20000;
+	public static final int NoImplicitStringConversion = 0x40000;
+	public static final int AccessEmulation = 0x80000;
+	public static final int NonExternalizedString = 0x100000;
+	public static final int AssertUsedAsAnIdentifier = 0x200000;
+		
+	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
 	public int warningThreshold = 
 		MethodWithConstructorName | OverriddenPackageDefaultMethod |
 		UsingDeprecatedAPI | MaskedCatchBlock |
 		UnusedLocalVariable | AssertUsedAsAnIdentifier |
-		TemporaryWarning;
-
-	// target JDK 1.1, 1.2, 1.3 or 1.4
+		NoImplicitStringConversion;
+
+	
+	// Debug attributes
+	public static final int Source = 1; // SourceFileAttribute
+	public static final int Lines = 2; // LineNumberAttribute
+	public static final int Vars = 4; // LocalVariableTableAttribute
+
+	// By default only lines and source attributes are generated.
+	public int produceDebugAttributes = Lines | Source;
+
+
+	// JDK 1.1, 1.2, 1.3 or 1.4
 	public static final int JDK1_1 = 0;
 	public static final int JDK1_2 = 1;
 	public static final int JDK1_3 = 2;
 	public static final int JDK1_4 = 3;
 	
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
-
+
 	// 1.4 feature
 	public boolean assertMode = false; //1.3 behavior by default
 	
 	// print what unit is being processed
 	public boolean verbose = false;
+
 	// indicates if reference info is desired
 	public boolean produceReferenceInfo = true;
+
 	// indicates if unused/optimizable local variables need to be preserved (debugging purpose)
 	public boolean preserveAllLocalVariables = false;
+
 	// indicates whether literal expressions are inlined at parse-time or not
 	public boolean parseLiteralExpressionsAsConstants = true;
-
+
 	// exception raised for unresolved compile errors
 	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
-	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
-	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
-/** 
- * Initializing the compiler options with defaults
- */
-public CompilerOptions(){
-}
-/** 
- * Initializing the compiler options with external settings
- */
-public CompilerOptions(Map settings){
-	if (settings == null) return;
-	
-	// filter options which are related to the compiler component
-	Object[] entries = settings.entrySet().toArray();
-	for (int i = 0, max = entries.length; i < max; i++){
-		Map.Entry entry = (Map.Entry)entries[i];
-		if (!(entry.getKey() instanceof String)) continue;
-		if (!(entry.getValue() instanceof String)) continue;
-		String optionID = (String) entry.getKey();
-		String optionValue = (String) entry.getValue();
-		
-		// Local variable attribute
-		if(optionID.equals(OPTION_LocalVariableAttribute)){
-			if (optionValue.equals(GENERATE)) {
-				this.produceDebugAttributes |= Vars;
-			} else if (optionValue.equals(DO_NOT_GENERATE)){
-				this.produceDebugAttributes &= ~Vars;
-			}
-			continue;
-		}  
-		// Line number attribute	
-		if(optionID.equals(OPTION_LineNumberAttribute)) {
-			if (optionValue.equals(GENERATE)) {
-				this.produceDebugAttributes |= Lines;
-			} else if (optionValue.equals(DO_NOT_GENERATE)) {
-				this.produceDebugAttributes &= ~Lines;
-			}
-			continue;
-		} 
-		// Source file attribute	
-		if(optionID.equals(OPTION_SourceFileAttribute)) {
-			if (optionValue.equals(GENERATE)) {
-				this.produceDebugAttributes |= Source;
-			} else if (optionValue.equals(DO_NOT_GENERATE)) {
-				this.produceDebugAttributes &= ~Source;
-			}
-			continue;
-		} 
-		// Preserve unused local	
-		if(optionID.equals(OPTION_PreserveUnusedLocal)){
-			if (optionValue.equals(PRESERVE)) {
-				this.preserveAllLocalVariables = true;
-			} else if (optionValue.equals(OPTIMIZE_OUT)) {
-				this.preserveAllLocalVariables = false;
-			}
-			continue;
-		} 
-		// Report unreachable code				
-		if(optionID.equals(OPTION_ReportUnreachableCode)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= UnreachableCode;
-				this.warningThreshold &= ~UnreachableCode;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~UnreachableCode;
-				this.warningThreshold |= UnreachableCode;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~UnreachableCode;
-				this.warningThreshold &= ~UnreachableCode;
-			}
-			continue;
-		} 
-		// Report invalid import	
-		if(optionID.equals(OPTION_ReportInvalidImport)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= ImportProblem;
-				this.warningThreshold &= ~ImportProblem;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~ImportProblem;
-				this.warningThreshold |= ImportProblem;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~ImportProblem;
-				this.warningThreshold &= ~ImportProblem;
-			}
-			continue;
-		} 
-		// Define the target JDK tag for .classfiles
-		if(optionID.equals(OPTION_TargetPlatform)){
-			if (optionValue.equals(VERSION_1_1)) {
-				this.targetJDK = JDK1_1;
-			} else if (optionValue.equals(VERSION_1_2)) {
-				this.targetJDK = JDK1_2;
-			} else if (optionValue.equals(VERSION_1_3)) {
-				this.targetJDK = JDK1_3;
-			} else if (optionValue.equals(VERSION_1_4)) {
-				this.targetJDK = JDK1_4;
-			}
-			continue;
-		} 
-		// Report method with constructor name
-		if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= MethodWithConstructorName;
-				this.warningThreshold &= ~MethodWithConstructorName;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~MethodWithConstructorName;
-				this.warningThreshold |= MethodWithConstructorName;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~MethodWithConstructorName;
-				this.warningThreshold &= ~MethodWithConstructorName;
-			}
-			continue;
-		} 
-		// Report overriding package default method
-		if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= OverriddenPackageDefaultMethod;
-				this.warningThreshold &= ~OverriddenPackageDefaultMethod;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~OverriddenPackageDefaultMethod;
-				this.warningThreshold |= OverriddenPackageDefaultMethod;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~OverriddenPackageDefaultMethod;
-				this.warningThreshold &= ~OverriddenPackageDefaultMethod;
-			}
-			continue;
-		} 
-		// Report deprecation
-		if(optionID.equals(OPTION_ReportDeprecation)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= UsingDeprecatedAPI;
-				this.warningThreshold &= ~UsingDeprecatedAPI;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~UsingDeprecatedAPI;
-				this.warningThreshold |= UsingDeprecatedAPI;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~UsingDeprecatedAPI;
-				this.warningThreshold &= ~UsingDeprecatedAPI;
-			}
-			continue;
-		} 
-		// Report hidden catch block
-		if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= MaskedCatchBlock;
-				this.warningThreshold &= ~MaskedCatchBlock;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~MaskedCatchBlock;
-				this.warningThreshold |= MaskedCatchBlock;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~MaskedCatchBlock;
-				this.warningThreshold &= ~MaskedCatchBlock;
-			}
-			continue;
-		} 
-		// Report unused local variable
-		if(optionID.equals(OPTION_ReportUnusedLocal)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= UnusedLocalVariable;
-				this.warningThreshold &= ~UnusedLocalVariable;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~UnusedLocalVariable;
-				this.warningThreshold |= UnusedLocalVariable;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~UnusedLocalVariable;
-				this.warningThreshold &= ~UnusedLocalVariable;
-			}
-			continue;
-		} 
-		// Report unused parameter
-		if(optionID.equals(OPTION_ReportUnusedParameter)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= UnusedArgument;
-				this.warningThreshold &= ~UnusedArgument;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~UnusedArgument;
-				this.warningThreshold |= UnusedArgument;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~UnusedArgument;
-				this.warningThreshold &= ~UnusedArgument;
-			}
-			continue;
-		} 
-		// Report synthetic access emulation
-		if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= AccessEmulation;
-				this.warningThreshold &= ~AccessEmulation;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~AccessEmulation;
-				this.warningThreshold |= AccessEmulation;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~AccessEmulation;
-				this.warningThreshold &= ~AccessEmulation;
-			}
-			continue;
-		}
-		// Report non-externalized string literals
-		if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= NonExternalizedString;
-				this.warningThreshold &= ~NonExternalizedString;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~NonExternalizedString;
-				this.warningThreshold |= NonExternalizedString;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~NonExternalizedString;
-				this.warningThreshold &= ~NonExternalizedString;
-			}
-			continue;
-	}
-		// Report usage of 'assert' as an identifier
-		if(optionID.equals(OPTION_ReportAssertIdentifier)){
-			if (optionValue.equals(ERROR)) {
-				this.errorThreshold |= AssertUsedAsAnIdentifier;
-				this.warningThreshold &= ~AssertUsedAsAnIdentifier;
-			} else if (optionValue.equals(WARNING)) {
-				this.errorThreshold &= ~AssertUsedAsAnIdentifier;
-				this.warningThreshold |= AssertUsedAsAnIdentifier;
-			} else if (optionValue.equals(IGNORE)) {
-				this.errorThreshold &= ~AssertUsedAsAnIdentifier;
-				this.warningThreshold &= ~AssertUsedAsAnIdentifier;
-			}
-			continue;
-		}
-		// Set the source compatibility mode (assertions)
-		if(optionID.equals(OPTION_Source)){
-			if (optionValue.equals(VERSION_1_3)) {
-				this.assertMode = false;
-			} else if (optionValue.equals(VERSION_1_4)) {
-				this.assertMode = true;
-			}
-			continue;
-		}
-	}
-}
 
-public int getDebugAttributesMask() {
-	return this.produceDebugAttributes;
-}
-public int getTargetJDK() {
-	return this.targetJDK;
-}
-public boolean getAssertMode() {
-	return this.assertMode;
-}
-public int getAccessEmulationSeverity() {
-	if((warningThreshold & AccessEmulation) != 0)
-		return Warning;
-	if((errorThreshold & AccessEmulation) != 0)
-		return Error;
-	return Ignore;
-}
-public int getDeprecationUseSeverity() {
-	if((warningThreshold & UsingDeprecatedAPI) != 0)
-		return Warning;
-	if((errorThreshold & UsingDeprecatedAPI) != 0)
-		return Error;
-	return Ignore;
-}
-public int getImportProblemSeverity() {
-	if((warningThreshold & ImportProblem) != 0)
-		return Warning;
-	if((errorThreshold & ImportProblem) != 0)
-		return Error;
-	return Ignore;
-}
-public int getMaskedCatchBlockSeverity() {
-	if((warningThreshold & MaskedCatchBlock) != 0)
-		return Warning;
-	if((errorThreshold & MaskedCatchBlock) != 0)
-		return Error;
-	return Ignore;
-}
-public int getMethodWithConstructorNameSeverity() {
-	if((warningThreshold & MethodWithConstructorName) != 0)
-		return Warning;
-	if((errorThreshold & MethodWithConstructorName) != 0)
-		return Error;
-	return Ignore;
-}
-
-public int getOverriddenPackageDefaultMethodSeverity() {
-	if((warningThreshold & OverriddenPackageDefaultMethod) != 0)
-		return Warning;
-	if((errorThreshold & OverriddenPackageDefaultMethod) != 0)
-		return Error;
-	return Ignore;
-}
-public boolean isPreservingAllLocalVariables() {
-	return this.preserveAllLocalVariables ;
-}
-public boolean isPrivateConstructorAccessChangingVisibility() {
-	return isPrivateConstructorAccessChangingVisibility;
-}
-public int getUnreachableCodeHandledAsError() {
-	if((warningThreshold & UnreachableCode) != 0)
-		return Warning;
-	if((errorThreshold & UnreachableCode) != 0)
-		return Error;
-	return Ignore;
-}
-public int getUnusedArgumentSeverity() {
-	if((warningThreshold & UnusedArgument) != 0)
-		return Warning;
-	if((errorThreshold & UnusedArgument) != 0)
-		return Error;
-	return Ignore;
-}
-public int getUnusedLocalVariableSeverity() {
-	if((warningThreshold & UnusedLocalVariable) != 0)
-		return Warning;
-	if((errorThreshold & UnusedLocalVariable) != 0)
-		return Error;
-	return Ignore;
-}
-public int getNonExternalizedStringLiteralSeverity() {
-	if((warningThreshold & NonExternalizedString) != 0)
-		return Warning;
-	if((errorThreshold & NonExternalizedString) != 0)
-		return Error;
-	return Ignore;
-}
-public int getAssertIdentifierSeverity() {
-	if((warningThreshold & NonExternalizedString) != 0)
-		return Warning;
-	if((errorThreshold & NonExternalizedString) != 0)
-		return Error;
-	return Ignore;
-}
-public void privateConstructorAccessChangesVisibility(boolean flag) {
-	isPrivateConstructorAccessChangingVisibility = flag;
-}
-public void produceDebugAttributes(int mask) {
-	this.produceDebugAttributes = mask;
-}
-public void produceReferenceInfo(boolean flag) {
-	this.produceReferenceInfo = flag;
-}
-public void setVerboseMode(boolean flag) {
-	this.verbose = flag;
-}
-
-public String toString() {
-
-	StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
-	if ((produceDebugAttributes & Vars) != 0){
-		buf.append("\n-local variables debug attributes: ON"); //$NON-NLS-1$
-	} else {
-		buf.append("\n-local variables debug attributes: OFF"); //$NON-NLS-1$
+	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
+	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
+
+	/** 
+	 * Initializing the compiler options with defaults
+	 */
+	public CompilerOptions(){
 	}
-	if ((produceDebugAttributes & Lines) != 0){
-		buf.append("\n-line number debug attributes: ON"); //$NON-NLS-1$
-	} else {
-		buf.append("\n-line number debug attributes: OFF"); //$NON-NLS-1$
-	}
-	if ((produceDebugAttributes & Source) != 0){
-		buf.append("\n-source debug attributes: ON"); //$NON-NLS-1$
-	} else {
-		buf.append("\n-source debug attributes: OFF"); //$NON-NLS-1$
-	}
-	if (preserveAllLocalVariables){
-		buf.append("\n-preserve all local variables: ON"); //$NON-NLS-1$
-	} else {
-		buf.append("\n-preserve all local variables: OFF"); //$NON-NLS-1$
-	}
-	if ((errorThreshold & UnreachableCode) != 0){
-		buf.append("\n-unreachable code: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & UnreachableCode) != 0){
-			buf.append("\n-unreachable code: WARNING"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-unreachable code: IGNORE"); //$NON-NLS-1$
+
+	/** 
+	 * Initializing the compiler options with external settings
+	 */
+	public CompilerOptions(Map settings){
+
+		if (settings == null) return;
+		
+		// filter options which are related to the compiler component
+		Object[] entries = settings.entrySet().toArray();
+		for (int i = 0, max = entries.length; i < max; i++){
+			Map.Entry entry = (Map.Entry)entries[i];
+			if (!(entry.getKey() instanceof String)) continue;
+			if (!(entry.getValue() instanceof String)) continue;
+			String optionID = (String) entry.getKey();
+			String optionValue = (String) entry.getValue();
+			
+			// Local variable attribute
+			if(optionID.equals(OPTION_LocalVariableAttribute)){
+				if (optionValue.equals(GENERATE)) {
+					this.produceDebugAttributes |= Vars;
+				} else if (optionValue.equals(DO_NOT_GENERATE)){
+					this.produceDebugAttributes &= ~Vars;
+				}
+				continue;
+			}  
+			// Line number attribute	
+			if(optionID.equals(OPTION_LineNumberAttribute)) {
+				if (optionValue.equals(GENERATE)) {
+					this.produceDebugAttributes |= Lines;
+				} else if (optionValue.equals(DO_NOT_GENERATE)) {
+					this.produceDebugAttributes &= ~Lines;
+				}
+				continue;
+			} 
+			// Source file attribute	
+			if(optionID.equals(OPTION_SourceFileAttribute)) {
+				if (optionValue.equals(GENERATE)) {
+					this.produceDebugAttributes |= Source;
+				} else if (optionValue.equals(DO_NOT_GENERATE)) {
+					this.produceDebugAttributes &= ~Source;
+				}
+				continue;
+			} 
+			// Preserve unused local	
+			if(optionID.equals(OPTION_PreserveUnusedLocal)){
+				if (optionValue.equals(PRESERVE)) {
+					this.preserveAllLocalVariables = true;
+				} else if (optionValue.equals(OPTIMIZE_OUT)) {
+					this.preserveAllLocalVariables = false;
+				}
+				continue;
+			} 
+			// Report unreachable code				
+			if(optionID.equals(OPTION_ReportUnreachableCode)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= UnreachableCode;
+					this.warningThreshold &= ~UnreachableCode;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~UnreachableCode;
+					this.warningThreshold |= UnreachableCode;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~UnreachableCode;
+					this.warningThreshold &= ~UnreachableCode;
+				}
+				continue;
+			} 
+			// Report invalid import	
+			if(optionID.equals(OPTION_ReportInvalidImport)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= ImportProblem;
+					this.warningThreshold &= ~ImportProblem;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~ImportProblem;
+					this.warningThreshold |= ImportProblem;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~ImportProblem;
+					this.warningThreshold &= ~ImportProblem;
+				}
+				continue;
+			} 
+			// Define the target JDK tag for .classfiles
+			if(optionID.equals(OPTION_TargetPlatform)){
+				if (optionValue.equals(VERSION_1_1)) {
+					this.targetJDK = JDK1_1;
+				} else if (optionValue.equals(VERSION_1_2)) {
+					this.targetJDK = JDK1_2;
+				} else if (optionValue.equals(VERSION_1_3)) {
+					this.targetJDK = JDK1_3;
+				} else if (optionValue.equals(VERSION_1_4)) {
+					this.targetJDK = JDK1_4;
+				}
+				continue;
+			} 
+			// Private constructor access emulation (extra arg vs. visibility change)
+			if(optionID.equals(OPTION_PrivateConstructorAccess)){
+				if (optionValue.equals(VERSION_1_1)) {
+					this.isPrivateConstructorAccessChangingVisibility = false;
+				} else if (optionValue.equals(VERSION_1_2)) {
+					this.isPrivateConstructorAccessChangingVisibility = false;
+				} else if (optionValue.equals(VERSION_1_3)) {
+					this.isPrivateConstructorAccessChangingVisibility = true;
+				} else if (optionValue.equals(VERSION_1_4)) {
+					this.isPrivateConstructorAccessChangingVisibility = true;
+				}
+				continue;
+			} 
+			// Report method with constructor name
+			if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= MethodWithConstructorName;
+					this.warningThreshold &= ~MethodWithConstructorName;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~MethodWithConstructorName;
+					this.warningThreshold |= MethodWithConstructorName;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~MethodWithConstructorName;
+					this.warningThreshold &= ~MethodWithConstructorName;
+				}
+				continue;
+			} 
+			// Report overriding package default method
+			if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= OverriddenPackageDefaultMethod;
+					this.warningThreshold &= ~OverriddenPackageDefaultMethod;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~OverriddenPackageDefaultMethod;
+					this.warningThreshold |= OverriddenPackageDefaultMethod;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~OverriddenPackageDefaultMethod;
+					this.warningThreshold &= ~OverriddenPackageDefaultMethod;
+				}
+				continue;
+			} 
+			// Report deprecation
+			if(optionID.equals(OPTION_ReportDeprecation)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= UsingDeprecatedAPI;
+					this.warningThreshold &= ~UsingDeprecatedAPI;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~UsingDeprecatedAPI;
+					this.warningThreshold |= UsingDeprecatedAPI;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~UsingDeprecatedAPI;
+					this.warningThreshold &= ~UsingDeprecatedAPI;
+				}
+				continue;
+			} 
+			// Report hidden catch block
+			if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= MaskedCatchBlock;
+					this.warningThreshold &= ~MaskedCatchBlock;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~MaskedCatchBlock;
+					this.warningThreshold |= MaskedCatchBlock;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~MaskedCatchBlock;
+					this.warningThreshold &= ~MaskedCatchBlock;
+				}
+				continue;
+			} 
+			// Report unused local variable
+			if(optionID.equals(OPTION_ReportUnusedLocal)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= UnusedLocalVariable;
+					this.warningThreshold &= ~UnusedLocalVariable;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~UnusedLocalVariable;
+					this.warningThreshold |= UnusedLocalVariable;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~UnusedLocalVariable;
+					this.warningThreshold &= ~UnusedLocalVariable;
+				}
+				continue;
+			} 
+			// Report unused parameter
+			if(optionID.equals(OPTION_ReportUnusedParameter)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= UnusedArgument;
+					this.warningThreshold &= ~UnusedArgument;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~UnusedArgument;
+					this.warningThreshold |= UnusedArgument;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~UnusedArgument;
+					this.warningThreshold &= ~UnusedArgument;
+				}
+				continue;
+			} 
+			// Report synthetic access emulation
+			if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= AccessEmulation;
+					this.warningThreshold &= ~AccessEmulation;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~AccessEmulation;
+					this.warningThreshold |= AccessEmulation;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~AccessEmulation;
+					this.warningThreshold &= ~AccessEmulation;
+				}
+				continue;
+			}
+			// Report non-externalized string literals
+			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= NonExternalizedString;
+					this.warningThreshold &= ~NonExternalizedString;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~NonExternalizedString;
+					this.warningThreshold |= NonExternalizedString;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~NonExternalizedString;
+					this.warningThreshold &= ~NonExternalizedString;
+				}
+				continue;
+		}
+			// Report usage of 'assert' as an identifier
+			if(optionID.equals(OPTION_ReportAssertIdentifier)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= AssertUsedAsAnIdentifier;
+					this.warningThreshold &= ~AssertUsedAsAnIdentifier;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~AssertUsedAsAnIdentifier;
+					this.warningThreshold |= AssertUsedAsAnIdentifier;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~AssertUsedAsAnIdentifier;
+					this.warningThreshold &= ~AssertUsedAsAnIdentifier;
+				}
+				continue;
+			}
+			// Set the source compatibility mode (assertions)
+			if(optionID.equals(OPTION_Source)){
+				if (optionValue.equals(VERSION_1_3)) {
+					this.assertMode = false;
+				} else if (optionValue.equals(VERSION_1_4)) {
+					this.assertMode = true;
+				}
+				continue;
+			}
 		}
 	}
-	if ((errorThreshold & ImportProblem) != 0){
-		buf.append("\n-import problem: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & ImportProblem) != 0){
-			buf.append("\n-import problem: WARNING"); //$NON-NLS-1$
+	
+	public int getTargetJDK() {
+		return this.targetJDK;
+	}
+
+	public int getNonExternalizedStringLiteralSeverity() {
+		if((warningThreshold & NonExternalizedString) != 0)
+			return Warning;
+		if((errorThreshold & NonExternalizedString) != 0)
+			return Error;
+		return Ignore;
+	}
+
+	public void produceReferenceInfo(boolean flag) {
+		this.produceReferenceInfo = flag;
+	}
+
+	public void setVerboseMode(boolean flag) {
+		this.verbose = flag;
+	}
+
+	public String toString() {
+	
+
+		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
+		if ((produceDebugAttributes & Vars) != 0){
+			buf.append("\n-local variables debug attributes: ON"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-import problem: IGNORE"); //$NON-NLS-1$
+			buf.append("\n-local variables debug attributes: OFF"); //$NON-NLS-1$
 		}
-	}
-	if ((errorThreshold & MethodWithConstructorName) != 0){
-		buf.append("\n-method with constructor name: ERROR");		 //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & MethodWithConstructorName) != 0){
-			buf.append("\n-method with constructor name: WARNING"); //$NON-NLS-1$
+		if ((produceDebugAttributes & Lines) != 0){
+			buf.append("\n-line number debug attributes: ON"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-method with constructor name: IGNORE"); //$NON-NLS-1$
+			buf.append("\n-line number debug attributes: OFF"); //$NON-NLS-1$
 		}
-	}
-	if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
-		buf.append("\n-overridden package default method: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
-			buf.append("\n-overridden package default method: WARNING"); //$NON-NLS-1$
+		if ((produceDebugAttributes & Source) != 0){
+			buf.append("\n-source debug attributes: ON"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-overridden package default method: IGNORE"); //$NON-NLS-1$
+			buf.append("\n-source debug attributes: OFF"); //$NON-NLS-1$
 		}
-	}
-	if ((errorThreshold & UsingDeprecatedAPI) != 0){
-		buf.append("\n-deprecation: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & UsingDeprecatedAPI) != 0){
-			buf.append("\n-deprecation: WARNING"); //$NON-NLS-1$
+		if (preserveAllLocalVariables){
+			buf.append("\n-preserve all local variables: ON"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-deprecation: IGNORE"); //$NON-NLS-1$
+			buf.append("\n-preserve all local variables: OFF"); //$NON-NLS-1$
 		}
-	}
-	if ((errorThreshold & MaskedCatchBlock) != 0){
-		buf.append("\n-masked catch block: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & MaskedCatchBlock) != 0){
-			buf.append("\n-masked catch block: WARNING"); //$NON-NLS-1$
+		if ((errorThreshold & UnreachableCode) != 0){
+			buf.append("\n-unreachable code: ERROR"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-masked catch block: IGNORE"); //$NON-NLS-1$
+			if ((warningThreshold & UnreachableCode) != 0){
+				buf.append("\n-unreachable code: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-unreachable code: IGNORE"); //$NON-NLS-1$
+			}
 		}
-	}
-	if ((errorThreshold & UnusedLocalVariable) != 0){
-		buf.append("\n-unused local variable: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & UnusedLocalVariable) != 0){
-			buf.append("\n-unused local variable: WARNING"); //$NON-NLS-1$
+		if ((errorThreshold & ImportProblem) != 0){
+			buf.append("\n-import problem: ERROR"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-unused local variable: IGNORE"); //$NON-NLS-1$
+			if ((warningThreshold & ImportProblem) != 0){
+				buf.append("\n-import problem: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-import problem: IGNORE"); //$NON-NLS-1$
+			}
 		}
-	}
-	if ((errorThreshold & UnusedArgument) != 0){
-		buf.append("\n-unused parameter: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & UnusedArgument) != 0){
-			buf.append("\n-unused parameter: WARNING"); //$NON-NLS-1$
+		if ((errorThreshold & MethodWithConstructorName) != 0){
+			buf.append("\n-method with constructor name: ERROR");		 //$NON-NLS-1$
 		} else {
-			buf.append("\n-unused parameter: IGNORE"); //$NON-NLS-1$
+			if ((warningThreshold & MethodWithConstructorName) != 0){
+				buf.append("\n-method with constructor name: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-method with constructor name: IGNORE"); //$NON-NLS-1$
+			}
 		}
-	}
-	if ((errorThreshold & AccessEmulation) != 0){
-		buf.append("\n-synthetic access emulation: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & AccessEmulation) != 0){
-			buf.append("\n-synthetic access emulation: WARNING"); //$NON-NLS-1$
+		if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
+			buf.append("\n-overridden package default method: ERROR"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-synthetic access emulation: IGNORE"); //$NON-NLS-1$
+			if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
+				buf.append("\n-overridden package default method: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-overridden package default method: IGNORE"); //$NON-NLS-1$
+			}
 		}
-	}
-	if ((errorThreshold & NonExternalizedString) != 0){
-		buf.append("\n-non externalized string: ERROR"); //$NON-NLS-1$
-	} else {
-		if ((warningThreshold & NonExternalizedString) != 0){
-			buf.append("\n-non externalized string: WARNING"); //$NON-NLS-1$
+		if ((errorThreshold & UsingDeprecatedAPI) != 0){
+			buf.append("\n-deprecation: ERROR"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-non externalized string: IGNORE"); //$NON-NLS-1$
+			if ((warningThreshold & UsingDeprecatedAPI) != 0){
+				buf.append("\n-deprecation: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-deprecation: IGNORE"); //$NON-NLS-1$
+			}
 		}
+		if ((errorThreshold & MaskedCatchBlock) != 0){
+			buf.append("\n-masked catch block: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & MaskedCatchBlock) != 0){
+				buf.append("\n-masked catch block: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-masked catch block: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & UnusedLocalVariable) != 0){
+			buf.append("\n-unused local variable: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & UnusedLocalVariable) != 0){
+				buf.append("\n-unused local variable: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-unused local variable: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & UnusedArgument) != 0){
+			buf.append("\n-unused parameter: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & UnusedArgument) != 0){
+				buf.append("\n-unused parameter: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-unused parameter: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & AccessEmulation) != 0){
+			buf.append("\n-synthetic access emulation: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & AccessEmulation) != 0){
+				buf.append("\n-synthetic access emulation: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-synthetic access emulation: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & NonExternalizedString) != 0){
+			buf.append("\n-non externalized string: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & NonExternalizedString) != 0){
+				buf.append("\n-non externalized string: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-non externalized string: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		switch(targetJDK){
+			case JDK1_1 :
+				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
+				break;
+			case JDK1_2 :
+				buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
+				break;
+			case JDK1_3 :
+				buf.append("\n-target JDK: 1.3"); //$NON-NLS-1$
+				break;
+			case JDK1_4 :
+				buf.append("\n-target JDK: 1.4"); //$NON-NLS-1$
+				break;
+		}
+		if (isPrivateConstructorAccessChangingVisibility){
+			buf.append("\n-private constructor access emulation: extra argument"); //$NON-NLS-1$
+		} else {
+			buf.append("\n-private constructor access emulation: make default access"); //$NON-NLS-1$
+		}
+		buf.append("\n-verbose : " + (verbose ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
+		return buf.toString();
 	}
-	switch(targetJDK){
-		case JDK1_1 :
-			buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
-			break;
-		case JDK1_2 :
-			buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
-	}
-	buf.append("\n-verbose : " + (verbose ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
-	return buf.toString();
-}
 }
