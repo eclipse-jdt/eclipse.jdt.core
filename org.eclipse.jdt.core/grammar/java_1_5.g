@@ -464,12 +464,12 @@ ClassMemberDeclaration -> EnumDeclaration
 -- However, since the current (2/14/97) Java compiler accepts them 
 -- (in fact, some of the official tests contain this erroneous
 -- syntax)
+ClassMemberDeclaration ::= ';'
+/.$putCase consumeEmptyClassMemberDeclaration(); $break./
+
 GenericMethodDeclaration -> MethodDeclaration
 GenericMethodDeclaration -> ConstructorDeclaration
 /:$readableName GenericMethodDeclaration:/
-
-ClassMemberDeclaration ::= ';'
-/.$putCase consumeEmptyClassMemberDeclaration(); $break./
 
 --18.8.2 Productions from 8.3: Field Declarations
 --VariableModifier ::=
@@ -1959,21 +1959,25 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : annotation - Metadata feature jsr175
 -----------------------------------------------
-AnnotationTypeDeclaration ::= Modifiers '@' PushModifiers interface Identifier AnnotationTypeBody
-/.$putCase consumeAnnotationTypeDeclaration() ; $break ./
+AnnotationTypeDeclarationHeader ::= Modifiers '@' PushModifiers interface Identifier
+/.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeDeclaration ::= '@' PushModifiers interface Identifier AnnotationTypeBody
+AnnotationTypeDeclarationHeader ::= '@' PushModifiers interface Identifier
+/.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
+/:$readableName AnnotationTypeDeclarationHeader:/
+/:$compliance 1.5:/
+
+AnnotationTypeDeclaration ::= AnnotationTypeDeclarationHeader AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
 /:$compliance 1.5:/
 
 AnnotationTypeBody ::= '{' AnnotationTypeMemberDeclarationsopt '}'
-/.$putCase consumeAnnotationTypeBody() ; $break ./
 /:$readableName AnnotationTypeBody:/
 /:$compliance 1.5:/
 
 AnnotationTypeMemberDeclarationsopt ::= $empty
-/.$putCase consumeEmptyAnnotationTypeMemberDeclarations() ; $break ./
+/.$putCase consumeEmptyAnnotationTypeMemberDeclarationsopt() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclarationsopt -> AnnotationTypeMemberDeclarations
 /:$readableName AnnotationTypeMemberDeclarationsopt:/
@@ -2003,7 +2007,6 @@ DefaultValueopt -> DefaultValue
 /:$compliance 1.5:/
 
 DefaultValue ::= 'default' MemberValue
-/.$putCase consumeDefaultValue() ; $break ./
 /:$readableName DefaultValue:/
 /:$compliance 1.5:/
 
@@ -2021,7 +2024,7 @@ NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
 /:$compliance 1.5:/
 
 MemberValuePairsopt ::= $empty
-/.$putCase consumeEmptyMemberValuePairs() ; $break ./
+/.$putCase consumeEmptyMemberValuePairsopt() ; $break ./
 /:$compliance 1.5:/
 MemberValuePairsopt -> MemberValuePairs
 /:$readableName MemberValuePairsopt:/

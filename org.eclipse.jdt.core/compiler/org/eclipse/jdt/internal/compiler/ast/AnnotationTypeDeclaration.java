@@ -31,6 +31,33 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 		super(compilationResult);
 	}
 
+	public StringBuffer printHeader(int indent, StringBuffer output) {
+
+		printModifiers(this.modifiers, output);
+		output.append("@interface "); //$NON-NLS-1$ //$NON-NLS-2$
+		output.append(name);
+		if (typeParameters != null) {
+			output.append("<");//$NON-NLS-1$
+			for (int i = 0; i < typeParameters.length; i++) {
+				if (i > 0) output.append( ", "); //$NON-NLS-1$
+				typeParameters[i].print(0, output);
+			}
+			output.append(">");//$NON-NLS-1$
+		}
+		if (superclass != null) {
+			output.append(" extends ");  //$NON-NLS-1$
+			superclass.print(0, output);
+		}
+		if (superInterfaces != null && superInterfaces.length > 0) {
+			output.append(isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
+			for (int i = 0; i < superInterfaces.length; i++) {
+				if (i > 0) output.append( ", "); //$NON-NLS-1$
+				superInterfaces[i].print(0, output);
+			}
+		}
+		return output;
+	}
+
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
 		output.append(" {"); //$NON-NLS-1$

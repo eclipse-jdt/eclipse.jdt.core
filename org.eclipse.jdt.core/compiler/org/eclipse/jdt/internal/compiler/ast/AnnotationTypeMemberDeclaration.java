@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 	
 	public TypeReference returnType;
+	public Expression memberValue;
 
 	/**
 	 * MethodDeclaration constructor comment.
@@ -111,7 +112,6 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector)) {
 			scope.problemReporter().methodWithConstructorName(this);
 		}
-		
 		super.resolveStatements(); 
 	}
 

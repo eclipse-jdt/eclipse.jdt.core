@@ -1026,17 +1026,109 @@ protected void consumeAllocationHeader() {
 	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
 	this.restartRecovery = true; // request to restart from here on
 }
-protected void consumeAnnotationTypeBody() {
-	// TODO Auto-generated method stub
-}
 protected void consumeAnnotationTypeDeclaration() {
-	// TODO Auto-generated method stub
+	int length;
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		//there are length declarations
+		//dispatch according to the type of the declarations
+		dispatchDeclarationInto(length);
+	}
+
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	
+	// mark initializers with local type mark if needed
+	markInitializersWithLocalType(typeDecl);
+
+	//convert constructor that do not have the type's name into methods
+	typeDecl.checkConstructors(this);
+	
+	//always add <clinit> (will be remove at code gen time if empty)
+	if (this.scanner.containsAssertKeyword) {
+		typeDecl.bits |= ASTNode.AddAssertionMASK;
+	}
+	typeDecl.addClinit();
+	typeDecl.bodyEnd = this.endStatementPosition;
+	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+	}
+	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
+}
+protected void consumeAnnotationTypeDeclarationHeader() {
+	// consumeAnnotationTypeDeclarationHeader ::= Modifiers '@' PushModifiers interface Identifier
+	// consumeAnnotationTypeDeclarationHeader ::= '@' PushModifiers interface Identifier
+	AnnotationTypeDeclaration annotationTypeDeclaration = new AnnotationTypeDeclaration(this.compilationUnit.compilationResult);
+	if (this.nestedMethod[this.nestedType] == 0) {
+		if (this.nestedType != 0) {
+			annotationTypeDeclaration.bits |= ASTNode.IsMemberTypeMASK;
+		}
+	} else {
+		// Record that the block has a declaration for local types
+		annotationTypeDeclaration.bits |= ASTNode.IsLocalTypeMASK;
+		markEnclosingMemberWithLocalType();
+		blockReal();
+	}
+
+	//highlight the name of the type
+	long pos = this.identifierPositionStack[this.identifierPtr];
+	annotationTypeDeclaration.sourceEnd = (int) pos;
+	annotationTypeDeclaration.sourceStart = (int) (pos >>> 32);
+	annotationTypeDeclaration.name = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
+	//compute the declaration source too
+	// 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
+	annotationTypeDeclaration.declarationSourceStart = this.intStack[this.intPtr--]; 
+	this.intPtr--; // remove the end position of the interface token
+
+	annotationTypeDeclaration.modifiersSourceStart = this.intStack[this.intPtr--];
+	annotationTypeDeclaration.modifiers = this.intStack[this.intPtr--];
+	if (annotationTypeDeclaration.modifiersSourceStart >= 0) {
+		annotationTypeDeclaration.declarationSourceStart = annotationTypeDeclaration.modifiersSourceStart;
+	}
+	annotationTypeDeclaration.bodyStart = annotationTypeDeclaration.sourceEnd + 1;
+
+	// javadoc
+	annotationTypeDeclaration.javadoc = this.javadoc;
+	this.javadoc = null;	
+	pushOnAstStack(annotationTypeDeclaration);
 }
 protected void consumeAnnotationTypeMemberDeclaration() {
-	// TODO Auto-generated method stub
+	// AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
+	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = new AnnotationTypeMemberDeclaration(this.compilationUnit.compilationResult);
+	
+	//name
+	annotationTypeMemberDeclaration.selector = this.identifierStack[this.identifierPtr];
+	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	//type
+	annotationTypeMemberDeclaration.returnType = getTypeReference(this.intStack[this.intPtr--]);
+	//modifiers
+	annotationTypeMemberDeclaration.declarationSourceStart = this.intStack[this.intPtr--];
+	annotationTypeMemberDeclaration.modifiers = this.intStack[this.intPtr--];
+	// javadoc
+	annotationTypeMemberDeclaration.javadoc = this.javadoc;
+	this.javadoc = null;
+
+	//highlight starts at selector start
+	annotationTypeMemberDeclaration.sourceStart = (int) (selectorSource >>> 32);
+	annotationTypeMemberDeclaration.bodyStart = this.lParenPos+1;
+	
+	// cannot be done in consumeMethodHeader because we have no idea whether or not there
+	// is a body when we reduce the method header
+	annotationTypeMemberDeclaration.modifiers |= AccSemicolonBody;
+	
+	// store the this.endPosition (position just before the '}') in case there is
+	// a trailing comment behind the end of the method
+	int declarationEndPosition = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	annotationTypeMemberDeclaration.bodyEnd = declarationEndPosition;
+	annotationTypeMemberDeclaration.declarationSourceEnd = declarationEndPosition;
+	pushOnAstStack(annotationTypeMemberDeclaration);
 }
 protected void consumeAnnotationTypeMemberDeclarations() {
-	// TODO Auto-generated method stub
+	// AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
+	concatNodeLists();
 }
 protected void consumeArgumentList() {
 	// ArgumentList ::= ArgumentList ',' Expression
@@ -2189,9 +2281,6 @@ protected void consumeDefaultModifiers() {
 		this.modifiersSourceStart >= 0 ? this.modifiersSourceStart : this.scanner.startPosition); 
 	resetModifiers();
 }
-protected void consumeDefaultValue() {
-	// TODO Auto-generated method stub	
-}
 protected void consumeDiet() {
 	// Diet ::= $empty
 	checkComment();
@@ -2217,8 +2306,9 @@ protected void consumeDimWithOrWithOutExprs() {
 	// DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 	concatExpressionLists();
 }
-protected void consumeEmptyAnnotationTypeMemberDeclarations() {
-	// TODO Auto-generated method stub	
+protected void consumeEmptyAnnotationTypeMemberDeclarationsopt() {
+	// AnnotationTypeMemberDeclarationsopt ::= $empty
+	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyArgumentListopt() {
 	// ArgumentListopt ::= $empty
@@ -2255,7 +2345,8 @@ protected void consumeEmptyClassMemberDeclaration() {
 	this.scanner.commentPtr = -1;
 }
 protected void consumeEmptyDefaultValue() {
-	// TODO Auto-generated method stub	
+	// DefaultValueopt ::= $empty
+	pushOnExpressionStackLengthStack(0);
 }
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
@@ -2289,11 +2380,14 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
-protected void consumeEmptyMemberValuePairs() {
-	// TODO Auto-generated method stub	
+protected void consumeEmptyMemberValuePairsopt() {
+	// MemberValuePairsopt ::= $empty
+	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyMemberValueArrayInitializer() {
-	// TODO Auto-generated method stub	
+	// MemberValueArrayInitializer ::= '{' ',' '}'
+	// MemberValueArrayInitializer ::= '{' '}'
+	memberValueArrayInitializer(0);
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
@@ -2317,9 +2411,6 @@ protected void consumeEmptyTypeDeclaration() {
 protected void consumeEmptyTypeDeclarationsopt() {
 	// TypeDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0); 
-}
-protected void consumeEmptyWildcardBounds() {
-	// TODO Auto-generated method stub	
 }
 protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	//	 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
@@ -2712,7 +2803,7 @@ protected void consumeEnumHeader() {
 
 	this.listLength = 0; // will be updated when reading super-interfaces
 	
-	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		//TODO this code will be never run while 'enum' is an identfier in 1.3 scanner 
 		this.problemReporter().invalidUsageOfEnumsDeclarations(enumDeclaration);
@@ -3321,19 +3412,50 @@ protected void consumeLocalVariableDeclarationStatement() {
 
 }
 protected void consumeMarkerAnnotation() {
-	// TODO Auto-generated method stub
+	// MarkerAnnotation ::= '@' Name
+	MarkerAnnotation markerAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	if (length == 1) {
+		markerAnnotation = new MarkerAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+	} else {
+		char[][] tokens = new char[length][];
+		this.identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+		System.arraycopy(
+			this.identifierPositionStack, 
+			this.identifierPtr + 1, 
+			positions, 
+			0, 
+			length);
+		markerAnnotation = new MarkerAnnotation(tokens, positions);			
+	}
+	pushOnExpressionStack(markerAnnotation);
 }
 protected void consumeMemberValueArrayInitializer() {
-	// TODO Auto-generated method stub	
+	// MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
+	// MemberValueArrayInitializer ::= '{' MemberValues '}'
+	memberValueArrayInitializer(this.expressionLengthStack[this.expressionLengthPtr--]);
 }
 protected void consumeMemberValuePair() {
-	// TODO Auto-generated method stub
+	// MemberValuePair ::= SimpleName '=' MemberValue
+	char[] simpleName = this.identifierStack[this.identifierPtr];
+	long position = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	int end = (int) position;
+	int start = (int) (position >>> 32);
+	Expression value = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	MemberValuePair memberValuePair = new MemberValuePair(simpleName, start, end, value);
+	pushOnAstStack(memberValuePair);
 }
 protected void consumeMemberValuePairs() {
-	// TODO Auto-generated method stub	
+	// MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
+	concatNodeLists();
 }
 protected void consumeMemberValues() {
-	// TODO Auto-generated method stub	
+	// MemberValues ::= MemberValues ',' MemberValue
+	concatExpressionLists();
 }
 protected void consumeMethodBody() {
 	// MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
@@ -3581,7 +3703,7 @@ protected void consumeMethodHeaderThrowsClause() {
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = md.bodyStart;
-	}		
+	}
 }
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
@@ -3730,7 +3852,33 @@ protected void consumeNestedType() {
 	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeNormalAnnotation() {
-	// TODO Auto-generated method stub	
+	// NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
+	NormalAnnotation normalAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	if (length == 1) {
+		normalAnnotation = new NormalAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+	} else {
+		char[][] tokens = new char[length][];
+		this.identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+		System.arraycopy(
+			this.identifierPositionStack, 
+			this.identifierPtr + 1, 
+			positions, 
+			0, 
+			length);
+		normalAnnotation = new NormalAnnotation(tokens, positions);			
+	}
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.astStack, 
+			(this.astPtr -= length) + 1, 
+			normalAnnotation.memberValuePairs = new MemberValuePair[length], 
+			0, 
+			length); 
+	}
+	pushOnExpressionStack(normalAnnotation);
 }
 protected void consumeOneDimLoop() {
 	// OneDimLoop ::= '[' ']'
@@ -4079,7 +4227,7 @@ protected void consumeRule(int act) {
 		    consumeClassBodyDeclaration();  
 			break;
  
-    case 127 : if (DEBUG) { System.out.println("ClassMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
+    case 125 : if (DEBUG) { System.out.println("ClassMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyClassMemberDeclaration();  
 			break;
 
@@ -5385,79 +5533,75 @@ protected void consumeRule(int act) {
 		    consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ;  
 			break;
  
-    case 622 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= Modifiers AT PushModifiers"); }  //$NON-NLS-1$
+    case 622 : if (DEBUG) { System.out.println("AnnotationTypeDeclarationHeader ::= Modifiers AT..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeDeclarationHeader() ;  
+			break;
+ 
+    case 623 : if (DEBUG) { System.out.println("AnnotationTypeDeclarationHeader ::= AT PushModifiers..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeDeclarationHeader() ;  
+			break;
+ 
+    case 624 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::=..."); }  //$NON-NLS-1$
 		    consumeAnnotationTypeDeclaration() ;  
 			break;
  
-    case 623 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= AT PushModifiers interface"); }  //$NON-NLS-1$
-		    consumeAnnotationTypeDeclaration() ;  
+    case 626 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyAnnotationTypeMemberDeclarationsopt() ;  
 			break;
  
-    case 624 : if (DEBUG) { System.out.println("AnnotationTypeBody ::= LBRACE..."); }  //$NON-NLS-1$
-		    consumeAnnotationTypeBody() ;  
-			break;
- 
-    case 625 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationsopt ::="); }  //$NON-NLS-1$
-		    consumeEmptyAnnotationTypeMemberDeclarations() ;  
-			break;
- 
-    case 628 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarations ::=..."); }  //$NON-NLS-1$
+    case 629 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarations ::=..."); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberDeclarations() ;  
 			break;
  
-    case 629 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+    case 630 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberDeclaration() ;  
 			break;
  
-    case 632 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
+    case 633 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyDefaultValue() ;  
 			break;
  
-    case 634 : if (DEBUG) { System.out.println("DefaultValue ::= default MemberValue"); }  //$NON-NLS-1$
-		    consumeDefaultValue() ;  
-			break;
- 
-    case 638 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
+    case 639 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
 		    consumeNormalAnnotation() ;  
 			break;
  
-    case 639 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
-		    consumeEmptyMemberValuePairs() ;  
+    case 640 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyMemberValuePairsopt() ;  
 			break;
  
-    case 642 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
+    case 643 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
 		    consumeMemberValuePairs() ;  
 			break;
  
-    case 643 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
+    case 644 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValuePair() ;  
-			break;
- 
-    case 647 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
-		    consumeMemberValueArrayInitializer() ;  
 			break;
  
     case 648 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
 		    consumeMemberValueArrayInitializer() ;  
 			break;
  
-    case 649 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
+    case 649 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break;
+ 
+    case 650 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 650 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
+    case 651 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 652 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
+    case 653 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValues() ;  
 			break;
  
-    case 653 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
+    case 654 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
 		    consumeMarkerAnnotation() ;  
 			break;
  
-    case 654 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
+    case 655 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
 		    consumeSingleMemberAnnotation() ;  
 			break;
  
@@ -5469,7 +5613,27 @@ protected void consumeSimpleAssertStatement() {
 	pushOnAstStack(new AssertStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));	
 }
 protected void consumeSingleMemberAnnotation() {
-	// TODO Auto-generated method stub	
+	// SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
+	SingleMemberAnnotation singleMemberAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	if (length == 1) {
+		singleMemberAnnotation = new SingleMemberAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+	} else {
+		char[][] tokens = new char[length][];
+		this.identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+		System.arraycopy(
+			this.identifierPositionStack, 
+			this.identifierPtr + 1, 
+			positions, 
+			0, 
+			length);
+		singleMemberAnnotation = new SingleMemberAnnotation(tokens, positions);			
+	}
+	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	pushOnExpressionStack(singleMemberAnnotation);
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
@@ -7566,6 +7730,29 @@ protected void markInitializersWithLocalType(TypeDeclaration type) {
 			field.bits |= ASTNode.HasLocalTypeMASK;
 		}
 	}
+}
+public final void memberValueArrayInitializer(int length) {
+	//length is the size of the array Initializer
+	//expressionPtr points on the last elt of the arrayInitializer, 
+	// in other words, it has not been decremented yet.
+
+	MemberValueArrayInitializer memberValueArrayInitializer = new MemberValueArrayInitializer();
+	if (length != 0) {
+		this.expressionPtr -= length;
+		System.arraycopy(this.expressionStack, this.expressionPtr + 1, memberValueArrayInitializer.memberValues = new Expression[length], 0, length);
+	}
+	pushOnExpressionStack(memberValueArrayInitializer);
+	//positionning
+	memberValueArrayInitializer.sourceEnd = this.endStatementPosition;
+	int searchPosition = length == 0 ? this.endPosition + 1 : memberValueArrayInitializer.memberValues[0].sourceStart;
+	try {
+		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
+		while (this.scanner.source[--searchPosition] != '{');
+	} catch (IndexOutOfBoundsException ex) {
+		//should never occur (except for strange cases like whose describe above)
+		searchPosition = (length == 0 ? this.endPosition : memberValueArrayInitializer.memberValues[0].sourceStart) - 1;
+	}
+	memberValueArrayInitializer.sourceStart = searchPosition;
 }
 /*
  * Move checkpoint location (current implementation is moving it by one token)

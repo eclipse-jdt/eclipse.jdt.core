@@ -16,6 +16,16 @@ package org.eclipse.jdt.internal.compiler.ast;
 public class SingleMemberAnnotation extends Annotation {
 	public Expression memberValue;
 	
+	public SingleMemberAnnotation(char[][] tokens, long[] sourcePositions) {
+		this.tokens = tokens;
+		this.sourcePositions = sourcePositions;
+	}
+	
+	public SingleMemberAnnotation(char[] token, long sourcePosition) {
+		this.tokens = new char[][] { token };
+		this.sourcePositions = new long[] { sourcePosition };
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		super.printExpression(indent, output);
 		output.append('(');
