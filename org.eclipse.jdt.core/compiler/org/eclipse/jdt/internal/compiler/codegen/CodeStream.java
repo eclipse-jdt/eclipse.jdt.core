@@ -2889,6 +2889,7 @@ public void invokeClassForName() {
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
 	countLabels = 0;
+	stackDepth--;
 	try {
 		position++;
 		bCodeStream[classFileOffset++] = OPC_invokevirtual;
@@ -3105,7 +3106,7 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 		resizeByteArray(OPC_invokespecial);
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
-	stackDepth -= 2;
+	stackDepth --;
 }
 
 public void invokeStringBufferDefaultConstructor() {

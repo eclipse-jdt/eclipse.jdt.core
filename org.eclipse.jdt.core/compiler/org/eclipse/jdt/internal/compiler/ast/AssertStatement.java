@@ -38,11 +38,14 @@ public class AssertStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 			
+		Constant constant = assertExpression.constant;
+		if (constant != NotAConstant && constant.booleanValue() == true) {
+			return flowInfo;
+		}
+
 		preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 		FlowInfo assertInfo = flowInfo.copy();
 			
-		// add the assert support in the clinit
-	
 		if (exceptionArgument != null) {
 			assertInfo = exceptionArgument.analyseCode(
 						currentScope,
@@ -53,15 +56,17 @@ public class AssertStatement extends Statement {
 			assertInfo = assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits();
 		}
 		
+		// assertion might throw AssertionError (unchecked), which can have consequences in term of
+		// definitely assigned variables (depending on caught exception in the context)
+		// DISABLED - AssertionError is unchecked, try statements are already protected against these.
+		//flowContext.checkExceptionHandlers(currentScope.getJavaLangAssertionError(), this, assertInfo, currentScope);
+
 		// only retain potential initializations
 		flowInfo.addPotentialInitializationsFrom(assertInfo.unconditionalInits());
-		
-		Constant constant = assertExpression.constant;
-		
-		if (constant != NotAConstant && constant.booleanValue() == true) {
-			return flowInfo;
-		}
+
+		// add the assert support in the clinit
 		manageSyntheticAccessIfNecessary(currentScope);
+					
 		return flowInfo;
 	}
 
@@ -121,22 +126,21 @@ public class AssertStatement extends Statement {
 	}	
 	
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+
+		// need assertion flag: $assertionsDisabled on outer most source type
 		ClassScope outerMostClassScope = currentScope.outerMostClassScope();
 		SourceTypeBinding sourceTypeBinding = outerMostClassScope.enclosingSourceType();
 		this.assertionSyntheticFieldBinding = sourceTypeBinding.addSyntheticField(this, currentScope);
+
+		// find <clinit> and enable assertion support
 		TypeDeclaration typeDeclaration = outerMostClassScope.referenceType();
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-		Clinit clinit = null;
 		for (int i = 0, max = methods.length; i < max; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if (method.isClinit()) {
-				// this is the clinit
-				clinit = (Clinit) method;
+				((Clinit) method).addSupportForAssertion(assertionSyntheticFieldBinding);
+				break;
 			}
-		}
-		if (clinit != null) {
-			// should always be the case
-			clinit.addSupportForAssertion(assertionSyntheticFieldBinding);
 		}
 	}
 }
