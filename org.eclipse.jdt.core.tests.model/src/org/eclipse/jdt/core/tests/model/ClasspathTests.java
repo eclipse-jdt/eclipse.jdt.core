@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.tests.model.*;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 import java.io.IOException;
 
@@ -94,6 +94,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testDefaultClasspathAndOutputLocation"));
 	suite.addTest(new ClasspathTests("testNullClasspath"));
 	suite.addTest(new ClasspathTests("testEmptyClasspath"));
+	suite.addTest(new ClasspathTests("testExportContainer"));
 	suite.addTest(new ClasspathTests("testClasspathNoChanges"));
 	suite.addTest(new ClasspathTests("testClasspathCreateLibraryEntry"));
 	suite.addTest(new ClasspathTests("testClasspathCreateLocalJarLibraryEntry"));
@@ -862,6 +863,44 @@ public void testEmptyClasspath() throws CoreException {
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/**
+ * Exporting a container should make it visible to its dependent project.
+ * (regression test for bug 21749 Exported libraries and source folders)
+ */
+public void testExportContainer() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
+
+		// create container
+		JavaCore.setClasspathContainer(
+			new Path("container/default"), 
+			new IJavaProject[]{ p1 },
+			new IClasspathContainer[] {
+				new TestContainer(
+					new Path("container/default"),
+					new IClasspathEntry[] {
+						JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null)
+					}) 
+			}, 
+			null);
+
+		// set P1's classpath with this container
+		IClasspathEntry container = JavaCore.newContainerEntry(new Path("container/default"), true);
+		p1.setRawClasspath(new IClasspathEntry[] {container}, new Path("/P1"), null);
+		
+		// create dependent project P2
+		IJavaProject  p2 = this.createJavaProject("P2", new String[] {}, new String[] {}, new String[] {"/P1"}, "");
+		IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath(true);
+		
+		// ensure container is exported to P2
+		assertEquals("Unexpected number of classpath entries", 2, classpath.length);
+		assertEquals("Unexpected first entry", "/P1", classpath[0].getPath().toString());
+		assertEquals("Unexpected second entry", getExternalJCLPath(), classpath[1].getPath().toOSString());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 /**
