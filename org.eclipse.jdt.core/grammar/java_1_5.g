@@ -1051,14 +1051,14 @@ AllocationHeader ::= 'new' ClassType '(' ArgumentListopt ')'
 /:$readableName AllocationHeader:/
 
 ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
-/.$putCase consumeClassInstanceCreationExpression(); $break ./
+/.$putCase consumeClassInstanceCreationExpressionWithTypeArguments(); $break ./
 
 ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
-/.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
+ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+/.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 
 ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
@@ -1068,8 +1068,8 @@ ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' Si
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
-/.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+/.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
 ClassInstanceCreationExpressionName ::= Name '.'
