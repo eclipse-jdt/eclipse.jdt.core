@@ -131,6 +131,7 @@ boolean isMainMethod() throws JavaModelException;
  * Two methods are similar if:
  * <ul>
  * <li>their element names are equal</li>
+ * <li>they are both methods or both constructors</li>
  * <li>they have the same number of parameters</li>
  * <li>the simple names of their parameter types are equal</li>
  * </ul>

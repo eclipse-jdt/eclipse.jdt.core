@@ -239,7 +239,13 @@ public boolean isMainMethod() throws JavaModelException {
  * @see IMethod#isSimilar(IMethod)
  */
 public boolean isSimilar(IMethod method) {
-	return 
+	try {
+		if (this.isConstructor() != method.isConstructor()) {
+			return false;
+		}
+	} catch(JavaModelException e) {
+	}
+	return
 		this.areSimilarMethods(
 			this.getElementName(), this.getParameterTypes(),
 			method.getElementName(), method.getParameterTypes(),
