@@ -237,9 +237,9 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * @param stringPattern the given pattern
  * @param searchFor determines the nature of the searched elements
  *	<ul>
- * 		<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
+ * 	<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
  *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
- * 		<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
+ * 	<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
  *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
  *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
  *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
