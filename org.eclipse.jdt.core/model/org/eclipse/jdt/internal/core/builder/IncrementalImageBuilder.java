@@ -406,7 +406,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 			if (isExcluded) return;
 
 			String resourceName = resource.getName();
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(resourceName)) {
+			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
 				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 				String typeLocator = resource.getProjectRelativePath().toString();
 				switch (sourceDelta.getKind()) {

@@ -105,7 +105,7 @@ public class IndexAllProject extends IndexRequest {
 										if (isCancelled) return false;
 										switch(proxy.getType()) {
 											case IResource.FILE :
-												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
+												if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
 													if (file.getLocation() == null) return false;
 													if (exclusionPatterns != null || inclusionPatterns != null)
@@ -135,7 +135,7 @@ public class IndexAllProject extends IndexRequest {
 										if (isCancelled) return false;
 										switch(proxy.getType()) {
 											case IResource.FILE :
-												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
+												if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
 													IPath location = file.getLocation();
 													if (location == null) return false;

@@ -764,6 +764,40 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) {
 	return null;
 }
 /*
+ * Returns the source file name as defined in the given info.
+ * If not present in the info, infers it from this type.
+ */
+public String sourceFileName(IBinaryType info) {
+	char[] sourceFileName = info.sourceFileName();
+	if (sourceFileName == null) {
+		/*
+		 * We assume that this type has been compiled from a file with its name
+		 * For example, A.class comes from A.java and p.A.class comes from a file A.java
+		 * in the folder p.
+		 */
+		if (info.isMember()) {
+			IType enclosingType = getDeclaringType();
+			if (enclosingType == null) return null; // play it safe
+			while (enclosingType.getDeclaringType() != null) {
+				enclosingType = enclosingType.getDeclaringType();
+			}
+			return enclosingType.getElementName() + Util.defaultJavaExtension();
+		} else if (info.isLocal() || info.isAnonymous()){
+			String typeQualifiedName = getTypeQualifiedName();
+			int dollar = typeQualifiedName.indexOf('$');
+			if (dollar == -1) {
+				// malformed inner type: name doesn't contain a dollar
+				return getElementName() + Util.defaultJavaExtension();
+			}
+			return typeQualifiedName.substring(0, dollar) + Util.defaultJavaExtension();
+		} else {
+			return getElementName() + Util.defaultJavaExtension();
+		}
+	} else {
+		return  new String(sourceFileName);
+	}
+}
+/*
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {

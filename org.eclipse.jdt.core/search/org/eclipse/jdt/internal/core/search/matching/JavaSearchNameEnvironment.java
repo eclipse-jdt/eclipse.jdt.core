@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.ClasspathJar;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /*
  * A name environment based on the classpath of a Java project.
@@ -56,7 +57,7 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 			IPackageDeclaration[] pkgs = workingCopy.getPackageDeclarations();
 			String pkg = pkgs.length > 0 ? pkgs[0].getElementName() : ""; //$NON-NLS-1$
 			String cuName = workingCopy.getElementName();
-			String mainTypeName = cuName.substring(0, cuName.length() - SUFFIX_JAVA.length);
+			String mainTypeName = cuName.substring(0, Util.indexOfJavaLikeExtension(cuName));
 			String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
 			this.workingCopies.put(qualifiedMainTypeName, workingCopy);
 		}
@@ -120,11 +121,11 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		NameEnvironmentAnswer answer;
 		if (location instanceof ClasspathSourceDirectory) {
 			if (sourceFileName == null) {
-				qSourceFileName = qualifiedTypeName + SUFFIX_STRING_java;
+				qSourceFileName = qualifiedTypeName; // doesn't include the file extension
 				sourceFileName = qSourceFileName;
 				qPackageName =  ""; //$NON-NLS-1$
 				if (qualifiedTypeName.length() > typeName.length) {
-					int typeNameStart = qSourceFileName.length() - typeName.length - 5; // size of ".java"
+					int typeNameStart = qSourceFileName.length() - typeName.length;
 					qPackageName =  qSourceFileName.substring(0, typeNameStart - 1);
 					sourceFileName = qSourceFileName.substring(typeNameStart);
 				}
@@ -134,9 +135,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				answer = new NameEnvironmentAnswer(workingCopy);
 			} else {
 				answer = location.findClass(
-					sourceFileName,
+					sourceFileName, // doesn't include the file extension
 					qPackageName,
-					qSourceFileName);
+					qSourceFileName);  // doesn't include the file extension
 			}
 		} else {
 			if (binaryFileName == null) {

@@ -648,7 +648,7 @@ public class JavaProject
 					return !org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fullPath.lastSegment());
 				case IClasspathEntry.CPE_LIBRARY:
 					// .java files are not visible in library folders
-					return !org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(fullPath.lastSegment());
+					return !org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(fullPath.lastSegment());
 			}
 		}
 		if (innerMostOutput != null) {
@@ -945,8 +945,7 @@ public class JavaProject
 					// default to the first one
 					return pkgFragments[0];
 				}
-			} else if (
-				extension.equalsIgnoreCase(EXTENSION_java)
+			} else if (Util.isJavaLikeFileName(path.lastSegment())
 					|| extension.equalsIgnoreCase(EXTENSION_class)) {
 				IPath packagePath = path.removeLastSegments(1);
 				String packageName = packagePath.toString().replace(IPath.SEPARATOR, '.');

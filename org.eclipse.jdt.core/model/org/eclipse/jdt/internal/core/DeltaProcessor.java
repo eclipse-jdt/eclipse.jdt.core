@@ -2332,7 +2332,7 @@ public class DeltaProcessor {
 							if (resource instanceof IFile) {
 								String name = resource.getName();
 								if (isSource) {
-									if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name)) {
+									if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name)) {
 										Openable cu = (Openable)pkg.getCompilationUnit(name);
 										this.updateIndex(cu, child);
 									}

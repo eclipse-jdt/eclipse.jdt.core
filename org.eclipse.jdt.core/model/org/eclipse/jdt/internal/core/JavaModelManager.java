@@ -327,7 +327,7 @@ public class JavaModelManager implements ISaveParticipant {
 	
 		if (file.getFileExtension() != null) {
 			String name = file.getName();
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name))
+			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name))
 				return createCompilationUnitFrom(file, project);
 			if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))
 				return createClassFileFrom(file, project);
@@ -455,7 +455,7 @@ public class JavaModelManager implements ISaveParticipant {
 		IPath resourcePath = resource.getFullPath();
 		try {
 			IClasspathEntry[] entries = 
-				org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(resourcePath.lastSegment())
+				org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment())
 					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
 					: ((JavaProject)project).getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				

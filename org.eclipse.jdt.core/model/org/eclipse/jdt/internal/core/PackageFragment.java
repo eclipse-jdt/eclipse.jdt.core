@@ -60,12 +60,6 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	if (!underlyingResource.isAccessible()) throw newNotPresentException();
 
 	int kind = getKind();
-	String extType;
-	if (kind == IPackageFragmentRoot.K_SOURCE) {
-		extType = EXTENSION_java;
-	} else {
-		extType = EXTENSION_class;
-	}
 
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
@@ -78,18 +72,13 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 			IResource child = members[i];
 			if (child.getType() != IResource.FOLDER
 					&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
-				String extension = child.getProjectRelativePath().getFileExtension();
-				if (extension != null) {
-					if (extension.equalsIgnoreCase(extType)) {
-						IJavaElement childElement;
-						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
-							childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
-							vChildren.add(childElement);
-						} else if (Util.isValidClassFileName(child.getName())) {
-							childElement = getClassFile(child.getName());
-							vChildren.add(childElement);
-						}
-					}
+				IJavaElement childElement;
+				if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
+					childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
+					vChildren.add(childElement);
+				} else if (kind == IPackageFragmentRoot.K_BINARY && Util.isValidClassFileName(child.getName())) {
+					childElement = getClassFile(child.getName());
+					vChildren.add(childElement);
 				}
 			}
 		}
@@ -198,7 +187,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @exception IllegalArgumentException if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
-	if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(cuName)) {
+	if (!org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(cuName)) {
 		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
 	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);

@@ -68,7 +68,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 		document.removeAllIndexEntries(); // in case the document was already indexed
 
 		String documentPath = document.getPath();
-		if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(documentPath)) {
+		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
 			new SourceIndexer(document).indexDocument();
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
 			new BinaryIndexer(document).indexDocument();

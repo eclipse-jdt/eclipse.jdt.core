@@ -74,7 +74,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 								resource = proxy.requestResource();
 								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 							}
-							if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
+							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 								if (resource == null)
 									resource = proxy.requestResource();
 								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
@@ -200,7 +200,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 				IResource resource = null;
 				switch(proxy.getType()) {
 					case IResource.FILE :
-						if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName()) ||
+						if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName()) ||
 							org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) return false;
 
 						resource = proxy.requestResource();

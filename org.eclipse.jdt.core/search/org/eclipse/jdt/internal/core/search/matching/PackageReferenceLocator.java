@@ -38,7 +38,7 @@ public static boolean isDeclaringPackageFragment(IPackageFragment packageFragmen
 		try { 
 			switch (packageFragment.getKind()) {
 				case IPackageFragmentRoot.K_SOURCE :
-					if (!Util.isJavaFileName(fileName) || !packageFragment.getCompilationUnit(new String(fileName)).exists()) {
+					if (!org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(fileName) || !packageFragment.getCompilationUnit(new String(fileName)).exists()) {
 						return false; // unit doesn't live in selected package
 					}
 					break;

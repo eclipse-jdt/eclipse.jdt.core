@@ -492,9 +492,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				char[][] inclusionPatterns = root.fullInclusionPatternChars();
 				char[][] exclusionPatterns = root.fullExclusionPatternChars();
 				for (int i = 0; i < resources.length; i++) {
-					if (resources[i].getName().endsWith(SUFFIX_STRING_java)) {
+					String resourceName = resources[i].getName();
+					if (Util.isJavaLikeFileName(resourceName)) {
 						// we only consider potential compilation units
-						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
+						ICompilationUnit cu = newFrag.getCompilationUnit(resourceName);
 						if (Util.isExcluded(cu.getPath(), inclusionPatterns, exclusionPatterns, false/*not a folder*/)) continue;
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
 						if (domCU != null) {

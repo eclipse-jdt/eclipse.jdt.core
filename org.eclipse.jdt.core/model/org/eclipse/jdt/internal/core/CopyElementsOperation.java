@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -98,7 +99,9 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest);
 			case IJavaElement.TYPE :
 				if (isRenamingMainType(element, dest)) {
-					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + SUFFIX_STRING_java}, this.force); //$NON-NLS-1$
+					IPath path = element.getPath();
+					String extension = path.getFileExtension();
+					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + '.' + extension}, this.force); //$NON-NLS-1$
 				} else {
 					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
 				}

@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
@@ -68,6 +69,8 @@ public class Util {
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
+	
+	public static char[][] JAVA_LIKE_EXTENSIONS = {SuffixConstants.SUFFIX_java, SuffixConstants.SUFFIX_JAVA};
 
 	static {
 		relocalize();
@@ -460,6 +463,14 @@ public class Util {
 	public static String convertTypeSignature(char[] sig) {
 		return new String(sig).replace('/', '.');
 	}
+	
+	/*
+	 * Returns the default java extension (".java").
+	 * To be used when the extension is not known.
+	 */
+	public static String defaultJavaExtension() {
+		return SuffixConstants.SUFFIX_STRING_java;
+	}
 
 	/**
 	 * Apply the given edit on the given string and return the updated string.
@@ -639,6 +650,32 @@ public class Util {
 			return false;
 		}
 		return a.equals(b);
+	}
+	
+	/*
+	 * Returns whether the given file name equals to the given string ignoring the java like extension
+	 * of the file name.
+	 * Returns false if it is not a java like file name.
+	 */
+	public static boolean equalsIgnoreJavaLikeExtension(String fileName, String string) {
+		int fileNameLength = fileName.length();
+		int stringLength = string.length();
+		if (fileNameLength < stringLength) return false;
+		for (int i = 0; i < stringLength; i ++) {
+			if (fileName.charAt(i) != string.charAt(i)) {
+				return false;
+			}
+		}
+		suffixes: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+			char[] suffix = JAVA_LIKE_EXTENSIONS[i];
+			if (stringLength + suffix.length != fileNameLength) continue;
+			for (int j = stringLength; j < fileNameLength; j++) {
+				if (fileName.charAt(j) != suffix[j-stringLength]) 
+					continue suffixes;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -1032,6 +1069,26 @@ public class Util {
 			}
 		}
 		return bestMatch;
+	}
+	
+	/*
+	 * Returns the index of the Java like extension of the given file name
+	 * or -1 if it doesn't end with a known Java like extension. 
+	 */
+	public static int indexOfJavaLikeExtension(String fileName) {
+		int fileNameLength = fileName.length();
+		extensions: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+			char[] extension = JAVA_LIKE_EXTENSIONS[i];
+			int extensionLength = extension.length;
+			int extensionStart = fileNameLength - extensionLength;
+			if (extensionStart < 0) continue;
+			for (int j = 0; j < extensionLength; j++) {
+				if (fileName.charAt(extensionStart + j) != extension[j])
+					continue extensions;
+			}
+			return extensionStart;
+		}
+		return -1;
 	}
 	
 	/*
@@ -1963,5 +2020,35 @@ public class Util {
 			}
 		}
 		return utflen + 2; // the number of bytes written to the stream
+	}
+
+	/**
+	 * Returns true if the given name ends with one of the known java like extension.
+	 * (implementation is not creating extra strings)
+	 */
+	public final static boolean isJavaLikeFileName(String name) {
+		if (name == null) return false;
+		return indexOfJavaLikeExtension(name) != -1;
+	}
+
+	/**
+	 * Returns true if the given name ends with one of the known java like extension.
+	 * (implementation is not creating extra strings)
+	 */
+	public final static boolean isJavaLikeFileName(char[] fileName) {
+		if (fileName == null) return false;
+		int fileNameLength = fileName.length;
+		extensions: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+			char[] extension = JAVA_LIKE_EXTENSIONS[i];
+			int extensionLength = extension.length;
+			int extensionStart = fileNameLength - extensionLength;
+			if (extensionStart < 0) continue;
+			for (int j = 0; j < extensionLength; j++) {
+				if (fileName[extensionStart + j] != extension[j])
+					continue extensions;
+			}
+			return true;
+		}
+		return false;
 	}	
 }

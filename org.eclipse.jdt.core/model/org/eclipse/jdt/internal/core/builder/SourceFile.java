@@ -52,13 +52,16 @@ String extractTypeName() {
 	IPath fullPath = this.resource.getFullPath();
 	int resourceSegmentCount = fullPath.segmentCount();
 	int sourceFolderSegmentCount = this.sourceLocation.sourceFolder.getFullPath().segmentCount();
-	int charCount = (resourceSegmentCount - sourceFolderSegmentCount - 1) - 5; // length of ".java"
+	int charCount = (resourceSegmentCount - sourceFolderSegmentCount - 1);
+	resourceSegmentCount--; // deal with the last segment separately
 	for (int i = sourceFolderSegmentCount; i < resourceSegmentCount; i++)
 		charCount += fullPath.segment(i).length();
+	String lastSegment = fullPath.segment(resourceSegmentCount);
+	int extensionIndex = Util.indexOfJavaLikeExtension(lastSegment);
+	charCount += extensionIndex;
 
 	char[] result = new char[charCount];
 	int offset = 0;
-	resourceSegmentCount--; // deal with the last segment separately
 	for (int i = sourceFolderSegmentCount; i < resourceSegmentCount; i++) {
 		String segment = fullPath.segment(i);
 		int size = segment.length();
@@ -66,9 +69,7 @@ String extractTypeName() {
 		offset += size;
 		result[offset++] = '/';
 	}
-	String segment = fullPath.segment(resourceSegmentCount);
-	int size = segment.length() - 5; // length of ".java"
-	segment.getChars(0, size, result, offset);
+	lastSegment.getChars(0, extensionIndex, result, offset);
 	return new String(result);
 }
 

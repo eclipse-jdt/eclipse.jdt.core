@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
 import java.util.*;
@@ -253,16 +254,18 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// if an additional source file is waiting to be compiled, answer it BUT not if this is a secondary type search
 		// if we answer X.java & it no longer defines Y then the binary type looking for Y will think the class path is wrong
 		// let the recompile loop fix up dependents when the secondary type Y has been deleted from X.java
-		IPath qSourceFilePath = new Path(qualifiedTypeName + SUFFIX_STRING_java);
+		IPath qSourceFilePath = new Path(qualifiedTypeName); // doesn't have file extension
 		int qSegmentCount = qSourceFilePath.segmentCount();
 		next : for (int i = 0, l = additionalUnits.length; i < l; i++) {
 			SourceFile additionalUnit = additionalUnits[i];
 			IPath fullPath = additionalUnit.resource.getFullPath();
 			int prefixCount = additionalUnit.sourceLocation.sourceFolder.getFullPath().segmentCount();
 			if (qSegmentCount == fullPath.segmentCount() - prefixCount) {
-				for (int j = 0; j < qSegmentCount; j++)
+				for (int j = 0; j < qSegmentCount - 1; j++)
 					if (!qSourceFilePath.segment(j).equals(fullPath.segment(j + prefixCount)))
 						continue next;
+				if (!Util.equalsIgnoreJavaLikeExtension(fullPath.segment(qSegmentCount-1 + prefixCount), qSourceFilePath.segment(qSegmentCount-1)))
+					continue next;
 				return new NameEnvironmentAnswer(additionalUnit);
 			}
 		}

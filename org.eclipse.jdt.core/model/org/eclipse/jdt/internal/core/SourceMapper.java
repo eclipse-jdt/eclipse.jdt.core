@@ -70,7 +70,7 @@ public class SourceMapper
 	 */
 	private static final FilenameFilter FILENAME_FILTER = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
-			return name.endsWith(SUFFIX_STRING_JAVA) || name.endsWith(SUFFIX_STRING_java); //$NON-NLS-1$
+			return org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name);
 		}
 	};
 	/**
@@ -83,7 +83,7 @@ public class SourceMapper
 	/**
 	 * The binary type source is being mapped for
 	 */
-	protected BinaryType fType;
+	protected BinaryType binaryType;
 
 	/**
 	 * The location of the zip file containing source.
@@ -218,13 +218,13 @@ public class SourceMapper
 			char[] name,
 			boolean onDemand,
 			int modifiers) {
-		char[][] imports = (char[][]) this.importsTable.get(fType);
+		char[][] imports = (char[][]) this.importsTable.get(this.binaryType);
 		int importsCounter;
 		if (imports == null) {
 			imports = new char[5][];
 			importsCounter = 0;
 		} else {
-			importsCounter = ((Integer) this.importsCounterTable.get(fType)).intValue();
+			importsCounter = ((Integer) this.importsCounterTable.get(this.binaryType)).intValue();
 		}
 		if (imports.length == importsCounter) {
 			System.arraycopy(
@@ -241,8 +241,8 @@ public class SourceMapper
 			name[nameLength + 1] = '*';
 		}
 		imports[importsCounter++] = name;
-		this.importsTable.put(fType, imports);
-		this.importsCounterTable.put(fType, new Integer(importsCounter));
+		this.importsTable.put(this.binaryType, imports);
+		this.importsCounterTable.put(this.binaryType, new Integer(importsCounter));
 	}
 	
 	/**
@@ -387,7 +387,7 @@ public class SourceMapper
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName;
-					if (!entry.isDirectory() && Util.isJavaFileName(entryName = entry.getName())) {
+					if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
 						IPath path = new Path(entryName);
 						int segmentCount = path.segmentCount();
 						if (segmentCount > 1) {
@@ -477,7 +477,7 @@ public class SourceMapper
 					// check if one member is a .java file
 					boolean hasJavaSourceFile = false;
 					for (int j = 0; j < max; j++) {
-						if (Util.isJavaFileName(resources[i].getName())) {
+						if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resources[i].getName())) {
 							hasJavaSourceFile = true;
 							break;
 						}
@@ -560,7 +560,7 @@ public class SourceMapper
 		if (name.length == 0) {
 			this.anonymousCounter++;
 			if (this.anonymousCounter == this.anonymousClassName) {
-				this.types[typeDepth] = this.getType(fType.getElementName());
+				this.types[typeDepth] = this.getType(this.binaryType.getElementName());
 			} else {
 				this.types[typeDepth] = this.getType(new String(name));				
 			}
@@ -786,11 +786,11 @@ public class SourceMapper
 		} catch (JavaModelException e) {
 			return null;
 		}
-		String simpleSourceFileName = findSourceFileName(type, info);
+		String simpleSourceFileName = declType.sourceFileName(info);
 		if (simpleSourceFileName == null) {
 			return null;
 		}
-		return this.findSource(type, simpleSourceFileName);
+		return findSource(type, simpleSourceFileName);
 	}
 	
 	/**
@@ -841,41 +841,6 @@ public class SourceMapper
 			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return source;
-	}
-
-	/*
-	 * Finds the source file name (using the simple .java file name) for the given IBinaryType.
-	 * Returns null if not found.
-	 */
-	public String findSourceFileName(IType type, IBinaryType info) {
-		char[] sourceFileName = info.sourceFileName();
-		if (sourceFileName == null) {
-			/*
-			 * We assume that this type has been compiled from a file with its name
-			 * For example, A.class comes from A.java and p.A.class comes from a file A.java
-			 * in the folder p.
-			 */
-			if (info.isMember()) {
-				IType enclosingType = type.getDeclaringType();
-				if (enclosingType == null) return null; // play it safe
-				while (enclosingType.getDeclaringType() != null) {
-					enclosingType = enclosingType.getDeclaringType();
-				}
-				return enclosingType.getElementName() + SUFFIX_STRING_java;
-			} else if (info.isLocal() || info.isAnonymous()){
-				String typeQualifiedName = type.getTypeQualifiedName();
-				int dollar = typeQualifiedName.indexOf('$');
-				if (dollar == -1) {
-					// malformed inner type: name doesn't contain a dollar
-					return type.getElementName() + SUFFIX_STRING_java;
-				}
-				return typeQualifiedName.substring(0, dollar) + SUFFIX_STRING_java;
-			} else {
-				return type.getElementName() + SUFFIX_STRING_java;
-			}
-		} else {
-			return  new String(sourceFileName);
-		}
 	}
 
 	private char[] getSourceForRootPath(String currentRootPath, String name) {
@@ -1013,10 +978,10 @@ public class SourceMapper
 	 * as well.
 	 */
 	protected IType getType(String typeName) {
-		if (fType.getElementName().equals(typeName))
-			return fType;
+		if (this.binaryType.getElementName().equals(typeName))
+			return this.binaryType;
 		else
-			return fType.getType(typeName);
+			return this.binaryType.getType(typeName);
 	}
 	
 	/**
@@ -1099,13 +1064,13 @@ public class SourceMapper
 		char[] contents,
 		IJavaElement elementToFind) {
 			
-		fType = (BinaryType) type;
+		this.binaryType = (BinaryType) type;
 		
 		// check whether it is already mapped
 		if (this.fSourceRanges.get(type) != null) return (elementToFind != null) ? this.getNameRange(elementToFind) : null;
 		
-		this.importsTable.remove(fType);
-		this.importsCounterTable.remove(fType);
+		this.importsTable.remove(this.binaryType);
+		this.importsCounterTable.remove(this.binaryType);
 		this.searchedElement = elementToFind;
 		this.types = new IType[1];
 		this.typeDeclarationStarts = new int[1];
@@ -1125,15 +1090,16 @@ public class SourceMapper
 			boolean isAnonymousClass = false;
 			char[] fullName = null;
 			this.anonymousClassName = 0;
+			IBinaryType info = null;
 			try {
-				IBinaryType binType = (IBinaryType) fType.getElementInfo();
-				isAnonymousClass = binType.isAnonymous();
-				fullName = binType.getName();
+				info = (IBinaryType) this.binaryType.getElementInfo();
+				isAnonymousClass = info.isAnonymous();
+				fullName = info.getName();
 			} catch(JavaModelException e) {
 				// ignore
 			}
 			if (isAnonymousClass) {
-				String eltName = fType.getElementName();
+				String eltName = this.binaryType.getElementName();
 				eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
 				try {
 					this.anonymousClassName = Integer.parseInt(eltName);
@@ -1143,10 +1109,10 @@ public class SourceMapper
 			}
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse);
-			IJavaElement javaElement = this.fType.getCompilationUnit();
-			if (javaElement == null) javaElement = this.fType.getParent();
+			IJavaElement javaElement = this.binaryType.getCompilationUnit();
+			if (javaElement == null) javaElement = this.binaryType.getParent();
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, javaElement),
+				new BasicCompilationUnit(contents, null, this.binaryType.sourceFileName(info), javaElement),
 				doFullParse);
 			if (elementToFind != null) {
 				ISourceRange range = this.getNameRange(elementToFind);
@@ -1158,7 +1124,7 @@ public class SourceMapper
 			if (elementToFind != null) {
 				fSourceRanges = oldSourceRanges;
 			}
-			fType = null;
+			this.binaryType = null;
 			this.searchedElement = null;
 			this.types = null;
 			this.typeDeclarationStarts = null;
@@ -1206,7 +1172,7 @@ public class SourceMapper
 	}
 
 	/**
-	 * Return a char[][] array containing the imports of the attached source for the fType binary
+	 * Return a char[][] array containing the imports of the attached source for the binary type
 	 */
 	public char[][] getImports(BinaryType type) {
 		char[][] imports = (char[][]) this.importsTable.get(type);

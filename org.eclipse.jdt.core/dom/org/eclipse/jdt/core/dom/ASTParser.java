@@ -24,7 +24,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
@@ -624,12 +625,11 @@ public class ASTParser {
 						}
 						source = sourceString.toCharArray();
 						try {
-							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getType().getPackageFragment();
+							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getParent();
 							packageName = Util.toCharArrays(packageFragment.names);
-							StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
-							String classFileName = this.classFileSource.getElementName(); // this includes the trailing .class
-							buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
-							fileName = String.valueOf(buffer);
+							BinaryType type = (BinaryType) this.classFileSource.getType();
+							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
+							fileName = type.sourceFileName(binaryType);
 						} catch(JavaModelException e) {
 							needToResolveBindings = false;
 						}

@@ -1337,11 +1337,11 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 	ClassFile classFile = (ClassFile) binaryMember.getClassFile();
 	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.fgUnknownRange;
 	if (range.getOffset() == -1) {
-		SourceMapper mapper = classFile.getSourceMapper();
-		if (mapper != null) {
-			IType type = classFile.getType();
-			String sourceFileName = mapper.findSourceFileName(type, info);
-			if (sourceFileName != null) {
+		BinaryType type = (BinaryType) classFile.getType();
+		String sourceFileName = type.sourceFileName(info);
+		if (sourceFileName != null) {
+			SourceMapper mapper = classFile.getSourceMapper();
+			if (mapper != null) {
 				char[] contents = mapper.findSource(type, sourceFileName);
 				if (contents != null)
 					range = mapper.mapSource(type, contents, binaryMember);

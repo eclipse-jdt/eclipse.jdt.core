@@ -170,8 +170,8 @@ public class NameLookup implements SuffixConstants {
 	 * The name must be fully qualified (eg "java.lang.Object", "java.util.Hashtable$Entry")
 	 */
 	public ICompilationUnit findCompilationUnit(String qualifiedTypeName) {
-		String[] pkgName= CharOperation.NO_STRINGS;
-		String cuName= qualifiedTypeName;
+		String[] pkgName = CharOperation.NO_STRINGS;
+		String cuName = qualifiedTypeName;
 
 		int index= qualifiedTypeName.lastIndexOf('.');
 		if (index != -1) {
@@ -182,15 +182,22 @@ public class NameLookup implements SuffixConstants {
 		if (index != -1) {
 			cuName= cuName.substring(0, index);
 		}
-		cuName += SUFFIX_STRING_java;
 		IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(pkgName);
 		if (roots != null) {
 			for (int i= 0; i < roots.length; i++) {
 				PackageFragmentRoot root= (PackageFragmentRoot) roots[i];
 				if (!root.isArchive()) {
-					ICompilationUnit cu = root.getPackageFragment(pkgName).getCompilationUnit(cuName);
-					if (cu.exists()) {
-						return cu;
+					IPackageFragment pkg = root.getPackageFragment(pkgName);
+					try {
+						ICompilationUnit[] cus = pkg.getCompilationUnits();
+						for (int j = 0, length = cus.length; j < length; j++) {
+							ICompilationUnit cu = cus[j];
+							if (Util.equalsIgnoreJavaLikeExtension(cu.getElementName(), cuName))
+								return cu;
+						}
+					} catch (JavaModelException e) {
+						// pkg does not exist
+						// -> try next package
 					}
 				}
 			}
@@ -418,7 +425,7 @@ public class NameLookup implements SuffixConstants {
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				for (int i = 0, l = paths.size(); i < l; i++) {
 					String pathname = (String) paths.get(i);
-					if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(pathname)) {
+					if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(pathname)) {
 						IFile file = workspace.getRoot().getFile(new Path(pathname));
 						ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
 						return unit.getType(typeName);
@@ -475,6 +482,24 @@ public class NameLookup implements SuffixConstants {
 			return element.getElementName().toLowerCase().startsWith(searchName);
 		} else {
 			return element.getElementName().equals(searchName);
+		}
+	}
+
+	/**
+	 * Returns true if the given cu's name matches the
+	 * specified <code>searchName</code>, otherwise false.
+	 *
+	 * <p>The <code>partialMatch</code> argument indicates partial matches
+	 * should be considered.
+	 * NOTE: in partialMatch mode, the case will be ignored, and the searchName must already have
+	 *          been lowercased.
+	 */
+	protected boolean nameMatches(String searchName, ICompilationUnit cu, boolean partialMatch) {
+		if (partialMatch) {
+			// partial matches are used in completion mode, thus case insensitive mode
+			return cu.getElementName().toLowerCase().startsWith(searchName);
+		} else {
+			return Util.equalsIgnoreJavaLikeExtension(cu.getElementName(), searchName);
 		}
 	}
 
@@ -680,13 +705,13 @@ public class NameLookup implements SuffixConstants {
 
 		/**
 		 * In the following, matchName will never have the extension ".java" and 
-		 * the compilationUnits always will. So add it if we're looking for 
+		 * the compilationUnits always will. So compare ignoring extension if we're looking for 
 		 * an exact match.
 		 */
-		String unitName = partialMatch ? matchName.toLowerCase() : matchName + SUFFIX_STRING_java;
+		String unitName = partialMatch ? matchName.toLowerCase() : matchName;
 		String potentialUnitName = null;
 		if (potentialMemberType) {
-			potentialUnitName = partialMatch ? potentialMatchName.toLowerCase() : potentialMatchName + SUFFIX_STRING_java;
+			potentialUnitName = partialMatch ? potentialMatchName.toLowerCase() : potentialMatchName;
 		}
 
 		for (int i= 0; i < length; i++) {

@@ -73,7 +73,7 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 		for (int i = 0; i < max; i++) {
 			String resName = resNames[i];
 			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
-			if (!resName.toLowerCase().endsWith(SUFFIX_STRING_java)) {
+			if (!Util.isJavaLikeFileName(resName)) {
 				resName = Util.concatWith(this.names, resName, '/');
 				res[index++] = new JarEntryFile(resName, zipName);
 			}

@@ -182,7 +182,7 @@ void removePackage(IResourceDelta sourceDelta) {
 			return;
 		case IResource.FILE :
 			IPath typeLocatorPath = resource.getProjectRelativePath();
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(typeLocatorPath.lastSegment()))
+			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(typeLocatorPath.lastSegment()))
 				removeLocator(typeLocatorPath.toString());
 	}
 }

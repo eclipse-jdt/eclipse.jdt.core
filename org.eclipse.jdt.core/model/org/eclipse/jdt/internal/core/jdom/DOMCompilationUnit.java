@@ -108,7 +108,7 @@ public String getName() {
 		topLevelType= firstType;
 	}
 	if (topLevelType != null) {
-		return topLevelType.getName() + SUFFIX_STRING_java;
+		return topLevelType.getName() + Util.defaultJavaExtension();
 	} else {
 		return null;
 	}

@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.CompletionRequestorWrapper;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext
@@ -110,7 +111,7 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, SUFFIX_java);
+			return CharOperation.concat(className, Util.defaultJavaExtension().toCharArray());
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();
@@ -515,7 +516,7 @@ public void select(
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, SUFFIX_java);
+			return CharOperation.concat(className, Util.defaultJavaExtension().toCharArray());
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();

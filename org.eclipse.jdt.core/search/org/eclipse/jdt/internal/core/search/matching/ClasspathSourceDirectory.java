@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathSourceDirectory extends ClasspathLocation {
 
@@ -61,7 +62,7 @@ String[] directoryList(String qualifiedPackageName) {
 			for (int i = 0, l = members.length; i < l; i++) {
 				IResource m = members[i];
 				String name;
-				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name = m.getName()))
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name = m.getName()))
 					dirList[index++] = name;
 			}
 			if (index < dirList.length)
@@ -93,20 +94,27 @@ public boolean equals(Object o) {
 	return sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
 } 
 
-public NameEnvironmentAnswer findClass(String sourceFileName, String qualifiedPackageName, String qualifiedSourceFileName) {
-	if (!doesFileExist(sourceFileName, qualifiedPackageName)) return null; // most common case
-
-	String fullSourcePath = this.sourceLocation + qualifiedSourceFileName;
-	IPath path = new Path(qualifiedSourceFileName);
-	IFile file = this.sourceFolder.getFile(path);
-	String fileEncoding = this.encoding;
-	try {
-		fileEncoding = file.getCharset();
+public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
+	
+	for (int i = 0, length = Util.JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+		String extension = new String(Util.JAVA_LIKE_EXTENSIONS[i]);
+		String sourceFileName = sourceFileWithoutExtension + extension;
+		if (!doesFileExist(sourceFileName, qualifiedPackageName)) continue; // most common case
+	
+		String qualifiedSourceFileName = qualifiedSourceFileWithoutExtension + extension;
+		String fullSourcePath = this.sourceLocation + qualifiedSourceFileName;
+		IPath path = new Path(qualifiedSourceFileName);
+		IFile file = this.sourceFolder.getFile(path);
+		String fileEncoding = this.encoding;
+		try {
+			fileEncoding = file.getCharset();
+		}
+		catch (CoreException ce) {
+			// let use default encoding
+		}
+		return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding));
 	}
-	catch (CoreException ce) {
-		// let use default encoding
-	}
-	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding));
+	return null;
 }
 
 public IPath getProjectRelativePath() {

@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -104,12 +104,12 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-		String elementName = getElementName();
+		BinaryType type = (BinaryType) getType();
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
 				null,
-				elementName.substring(0, elementName.length()-SUFFIX_STRING_class.length()) + SUFFIX_STRING_java,
+				type.sourceFileName((IBinaryType) type.getElementInfo()),
 				getJavaProject()); // use project to retrieve corresponding .java IFile
 		codeComplete(cu, cu, offset, requestor, owner);
 	}
@@ -144,8 +144,8 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	IBuffer buffer = getBuffer();
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
-	    String topLevelTypeName = getTopLevelTypeName();
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, topLevelTypeName + SUFFIX_STRING_java);
+	    BinaryType type = (BinaryType) getType();
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, type.sourceFileName((IBinaryType) type.getElementInfo()));
 		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
@@ -487,21 +487,29 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 		if (root.isArchive()) {
 			// root is a jar file or a zip file
 			String elementName = getElementName();
-			StringBuffer sourceFileName = new StringBuffer(elementName.substring(0, elementName.lastIndexOf('.')));
-			sourceFileName.append(SuffixConstants.SUFFIX_java);
+			String sourceFileWithoutExtension = elementName.substring(0, elementName.lastIndexOf('.'));
 			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
 			ZipFile jar = null;
 			try {
 				jar = jarPackageFragmentRoot.getJar();
-				PackageFragment packageFragment = (PackageFragment) getParent();
-				ZipEntry zipEntry = jar.getEntry(Util.concatWith(packageFragment.names, sourceFileName.toString(), '/'));
-				if (zipEntry != null) {
-					// found a source file
-					this.checkAutomaticSourceMapping = true;
-					root.attachSource(root.getPath(), null, null);
-					SourceMapper sourceMapper = getSourceMapper();
-					if (sourceMapper != null) {
-						return mapSource(sourceMapper);
+				String[] pkgName = ((PackageFragment) getParent()).names;
+				for (int i = 0, length = Util.JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+					StringBuffer entryName = new StringBuffer();
+					for (int j = 0, pkgNameLength = pkgName.length; j < pkgNameLength; j++) {
+						entryName.append(pkgName[j]);
+						entryName.append('/');
+					}
+					entryName.append(sourceFileWithoutExtension);
+					entryName.append(Util.JAVA_LIKE_EXTENSIONS[i]);
+					ZipEntry zipEntry = jar.getEntry(entryName.toString());
+					if (zipEntry != null) {
+						// found a source file
+						this.checkAutomaticSourceMapping = true;
+						root.attachSource(root.getPath(), null, null);
+						SourceMapper sourceMapper = getSourceMapper();
+						if (sourceMapper != null) {
+							return mapSource(sourceMapper);
+						}
 					}
 				}
 			} catch (CoreException e) {
@@ -519,16 +527,26 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				return cu.getBuffer();
 			} else	{
 				// root is a class folder
-				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension(EXTENSION_java);
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				if (workspace == null) {
-					this.checkAutomaticSourceMapping = true; // we don't want to check again
-					return null; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
+				
+				IFolder pkgFolder = (IFolder) getParent().getResource();
+				IResource[] files = null;
+				try {
+					files = pkgFolder.members();
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
 				}
-				if (JavaModel.getTarget(
-						workspace.getRoot(),
-						sourceFilePath.makeRelative(), // ensure path is relative (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
-						true) != null) {
+				IResource sourceFile = null;
+				String classFileName = getElementName();
+				String simpleName = classFileName.substring(0, classFileName.lastIndexOf('.'));
+				for (int i = 0, length = files.length; i < length; i++) {
+					IResource resource = files[i];
+					if (resource.getType() == IResource.FILE 
+							&& Util.equalsIgnoreJavaLikeExtension(resource.getName(), simpleName)) {
+						sourceFile = resource;
+						break;
+					}
+				}
+				if (sourceFile != null) {
 							
 					// found a source file
 					 // we don't need to check again. The source will be attached.

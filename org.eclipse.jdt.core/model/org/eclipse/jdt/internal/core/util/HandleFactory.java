@@ -153,7 +153,7 @@ public class HandleFactory {
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
 			String simpleName= simpleNames[length];
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(simpleName)) {
+			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
 			} else {

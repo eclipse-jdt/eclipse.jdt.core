@@ -58,7 +58,7 @@ class AddFolderToIndex extends IndexRequest {
 					new IResourceProxyVisitor() {
 						public boolean visit(IResourceProxy proxy) /* throws CoreException */{
 							if (proxy.getType() == IResource.FILE) {
-								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName()))
+								if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName()))
 									indexManager.addSource((IFile) proxy.requestResource(), container);
 								return false;
 							}
@@ -73,7 +73,7 @@ class AddFolderToIndex extends IndexRequest {
 						public boolean visit(IResourceProxy proxy) /* throws CoreException */{
 							switch(proxy.getType()) {
 								case IResource.FILE :
-									if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
+									if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 										IResource resource = proxy.requestResource();
 										if (!Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
 											indexManager.addSource((IFile)resource, container);
