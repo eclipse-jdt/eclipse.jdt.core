@@ -22,6 +22,11 @@
 
   <!-- This target defines the tests that need to be run. -->
   <target name="suite">
+	 <condition property="onWin32">
+		<and>
+			<os family="windows" />
+    	</and>
+     </condition>  
     <!-- Parser tests -->
     <property name="jdt-parser-folder" 
               value="${eclipse-home}/jdt_parser_folder"/>
@@ -44,6 +49,10 @@
                 value="org.eclipse.jdt.core.tests.compiler.regression.TestAll"/>
     </ant>
 
+	<antcall target="evaluation_tests"/>
+  </target>
+
+ <target name="evaluation_tests" if="onWin32">
     <!-- Evaluation tests -->
     <property name="jdt-eval-folder" 
               value="${eclipse-home}/jdt_eval_folder"/>
@@ -54,9 +63,7 @@
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.eval.TestAll"/>
     </ant>
-
-  </target>
-
+ </target>
   <!-- This target holds code to cleanup the testing environment after -->
   <!-- after all of the tests have been run. You can use this target to -->
   <!-- delete temporary files that have been created. -->
