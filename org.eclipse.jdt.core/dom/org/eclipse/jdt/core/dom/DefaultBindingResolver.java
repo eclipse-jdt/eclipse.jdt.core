@@ -528,7 +528,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	private BlockScope retrieveEnclosingScope(ASTNode node) {
 		ASTNode currentNode = node;
-		while(!(currentNode instanceof MethodDeclaration) && !(currentNode instanceof Initializer)) {
+		while(!(currentNode instanceof MethodDeclaration) && !(currentNode instanceof Initializer) && !(currentNode instanceof FieldDeclaration)) {
 			currentNode = currentNode.getParent();
 		}
 		if (currentNode instanceof Initializer) {
@@ -538,6 +538,17 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.newAstToOldAst.get(currentNode);
 			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
+			}
+		} else if (currentNode instanceof FieldDeclaration) {
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
+			while(!(currentNode instanceof TypeDeclaration)) {
+				currentNode = currentNode.getParent();
+			}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.newAstToOldAst.get(currentNode);
+			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 				return typeDecl.staticInitializerScope;
 			} else {
 				return typeDecl.initializerScope;
@@ -574,8 +585,8 @@ class DefaultBindingResolver extends BindingResolver {
 				int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
 				if (indexInQualifiedName < indexOfFirstFieldBinding) {
 					// a extra lookup is required`
-					Scope scope = retrieveEnclosingScope(parent);
-					Binding binding = scope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
+					Scope internalScope = retrieveEnclosingScope(parent);
+					Binding binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
 					if (binding != null && binding.isValidBinding()) {
 						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 							return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
