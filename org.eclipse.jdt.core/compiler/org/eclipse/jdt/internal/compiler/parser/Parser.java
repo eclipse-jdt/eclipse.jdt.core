@@ -953,6 +953,7 @@ public void checkAnnotation() {
 					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
 				checkAndSetModifiers(AccDeprecated);
 			}
+			this.annotation = this.annotationParser.annotation;	// null if check annotation is not activated 
 		}
 	}
 }
@@ -1412,6 +1413,13 @@ protected void consumeClassBodyDeclarations() {
 protected void consumeClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
 	nestedType-- ;
+
+	// Flag invalid orphan javadoc comments
+	checkAnnotation();
+	if (this.annotation != null) {
+		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
+		this.annotation = null;
+	}
 }
 protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
@@ -1459,6 +1467,7 @@ protected void consumeClassDeclaration() {
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
 	}
+
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeClassHeader() {
@@ -1551,6 +1560,9 @@ protected void consumeClassHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;
 	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -1747,6 +1759,9 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// annotation
+	cd.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSource >>> 32);
@@ -1824,6 +1839,13 @@ protected void consumeEmptyCatchesopt() {
 protected void consumeEmptyClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
+
+	// Flag invalid orphan javadoc comments
+	checkAnnotation();
+	if (this.annotation != null) {
+		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
+		this.annotation = null;
+	}
 }
 protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
@@ -1858,6 +1880,13 @@ protected void consumeEmptyInterfaceMemberDeclaration() {
 protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
+
+	// Flag invalid orphan javadoc comments
+	checkAnnotation();
+	if (this.annotation != null) {
+		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
+		this.annotation = null;
+	}
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
@@ -2141,6 +2170,12 @@ protected void consumeFieldDeclaration() {
 		fieldDeclaration.declarationSourceEnd = endStatementPosition; 
 		fieldDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
 	}
+	
+	// Store annotation only on first declaration as it is the same for all ones
+	FieldDeclaration firstDeclaration = (FieldDeclaration) astStack[astPtr];
+	firstDeclaration.annotation = this.annotation;
+	this.annotation = null;
+
 	updateSourceDeclarationParts(variableDeclaratorsCounter);
 	int endPos = flushAnnotationsDefinedPriorTo(endStatementPosition);
 	if (endPos != endStatementPosition) {
@@ -2365,6 +2400,9 @@ protected void consumeInterfaceHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;		
 	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 protected void consumeInterfaceMemberDeclarations() {
 	// InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
@@ -2373,6 +2411,13 @@ protected void consumeInterfaceMemberDeclarations() {
 protected void consumeInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= NestedType InterfaceMemberDeclarations
 	nestedType--;
+
+	// Flag invalid orphan javadoc comments
+	checkAnnotation();
+	if (this.annotation != null) {
+		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
+		this.annotation = null;
+	}
 }
 protected void consumeInterfaceType() {
 	// InterfaceType ::= ClassOrInterfaceType
@@ -2549,6 +2594,9 @@ protected void consumeMethodHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// annotation
+	md.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSource >>> 32);
@@ -2683,6 +2731,9 @@ protected void consumeMethodPushModifiersHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// annotation
+	md.annotation = this.annotation;
+	this.annotation = null;
 
 	//type
 	md.returnType = getTypeReference(intStack[intPtr--]);
@@ -4794,7 +4845,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			scanner.foundTaskPositions[i][0], 
 			scanner.foundTaskPositions[i][1]);
 	}
-	return compilationUnit;
+		return compilationUnit;
 }
 /*
  * Flush annotations defined prior to a given positions.
@@ -5939,9 +5990,13 @@ public CompilationUnitDeclaration parse(
 		initialize();
 		goForCompilationUnit();
 
-		/* scanner initialization */
+		/* scanners initialization */
 		scanner.setSource(sourceUnit.getContents());
 		if (end != -1) scanner.resetTo(start, end);
+		if (this.annotationParser.checkAnnotation) {
+			this.annotationParser.scanner.setSource(sourceUnit.getContents());
+			if (end != -1) this.annotationParser.scanner.resetTo(start, end);
+		}
 		/* unit creation */
 		referenceContext = 
 			compilationUnit = 

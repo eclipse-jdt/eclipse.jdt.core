@@ -96,6 +96,9 @@ public Locale getLocale() {
 }
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
+	if ((id & IProblem.Annotation) != 0) {
+		output.append(messageTemplates[IProblem.AnnotationMessagePrefix & IProblem.IgnoreCategoriesMask]);
+	}
 	String message = messageTemplates[id & IProblem.IgnoreCategoriesMask]; 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$

@@ -1006,65 +1006,6 @@ public class BlockScope extends Scope {
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
 
-	/* API
-     *	
-	 *	Answer the method binding that corresponds to selector, argumentTypes.
-	 *	Start the lookup at the receiverType.
-	 *	InvocationSite implements 
-	 *		isSuperAccess(); this is used to determine if the discovered method is visible.
-	 *
-	 *	Only methods defined by the receiverType or its supertypes are answered;
-	 *	use getImplicitMethod() to discover methods of enclosing types.
-	 *
-	 *	If no visible method is discovered, an error binding is answered.
-	 */
-	public MethodBinding getMethod(
-		TypeBinding receiverType,
-		char[] selector,
-		TypeBinding[] argumentTypes,
-		InvocationSite invocationSite) {
-
-		if (receiverType.isArrayType())
-			return findMethodForArray(
-				(ArrayBinding) receiverType,
-				selector,
-				argumentTypes,
-				invocationSite);
-		if (receiverType.isBaseType())
-			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-
-		ReferenceBinding currentType = (ReferenceBinding) receiverType;
-		if (!currentType.canBeSeenBy(this))
-			return new ProblemMethodBinding(selector, argumentTypes, ReceiverTypeNotVisible);
-
-		// retrieve an exact visible match (if possible)
-		MethodBinding methodBinding =
-			findExactMethod(currentType, selector, argumentTypes, invocationSite);
-		if (methodBinding != null)
-			return methodBinding;
-
-		// answers closest approximation, may not check argumentTypes or visibility
-		methodBinding =
-			findMethod(currentType, selector, argumentTypes, invocationSite);
-		if (methodBinding == null)
-			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-		if (methodBinding.isValidBinding()) {
-			if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
-				return new ProblemMethodBinding(
-					methodBinding,
-					selector,
-					argumentTypes,
-					NotFound);
-			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
-				return new ProblemMethodBinding(
-					methodBinding,
-					selector,
-					methodBinding.parameters,
-					NotVisible);
-		}
-		return methodBinding;
-	}
-
 	public int maxShiftedOffset() {
 		int max = -1;
 		if (this.shiftScopes != null){

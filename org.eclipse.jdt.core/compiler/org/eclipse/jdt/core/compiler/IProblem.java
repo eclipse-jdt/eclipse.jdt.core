@@ -47,6 +47,7 @@
  *								   UnusedConstructorDeclaredThrownException
  *								   InvalidCatchBlockSequence
  *								   UnqualifiedFieldAccess
+ *								   Annotation
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -174,7 +175,8 @@ public interface IProblem {
 	int ConstructorRelated = 0x08000000;
 	int ImportRelated = 0x10000000;
 	int Internal = 0x20000000;
-	int Syntax =  0x40000000;
+	int Syntax = 0x40000000;
+	int Annotation = 0x80000000;
 	
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
@@ -662,14 +664,45 @@ public interface IProblem {
 	/** @since 3.0 */
 	int UndocumentedEmptyBlock = Internal + 460;
 		
-	// annotation
+	/*
+	 * annotation
+	 */
 	/** @since 3.0 */
-	int InconsistentAnnotationParam = Internal + 470;
+	int AnnotationUnexpectedTag = Annotation + Internal + 470;
 	/** @since 3.0 */
-	int InconsistentAnnotationReturn = Internal + 471;
+	int AnnotationMissingParamTag = Annotation + Internal + 471;
 	/** @since 3.0 */
-	int InconsistentAnnotationThrow = Internal + 472;
+	int AnnotationMissingParamName = Annotation + Internal + 472;
 	/** @since 3.0 */
-	int UnboundAnnotationReference = Internal + 473;
-	
+	int AnnotationDuplicateParamName = Annotation + Internal + 473;
+	/** @since 3.0 */
+	int AnnotationInvalidParamName = Annotation + Internal + 474;
+	/** @since 3.0 */
+	int AnnotationMissingReturnTag = Annotation + Internal + 475;
+	/** @since 3.0 */
+	int AnnotationDuplicateReturnTag = Annotation + Internal + 476;
+	/** @since 3.0 */
+	int AnnotationMissingThrowsTag = Annotation + Internal + 477;
+	/** @since 3.0 */
+	int AnnotationMissingThrowsClassName = Annotation + Internal + 478;
+	/** @since 3.0 */
+	int AnnotationInvalidThrowsClass = Annotation + Internal + 479;
+	/** @since 3.0 */
+	int AnnotationDuplicateThrowsClassName = Annotation + Internal + 480;
+	/** @since 3.0 */
+	int AnnotationInvalidThrowsClassName = Annotation + Internal + 481;
+	/** @since 3.0 */
+	int AnnotationMissingSeeReference = Annotation + Internal + 482;
+	/** @since 3.0 */
+	int AnnotationInvalidSeeReference = Annotation + Internal + 483;
+	/** @since 3.0 */
+	int AnnotationInvalidSeeHref = Annotation + Internal + 484;
+	/** @since 3.0 */
+	int AnnotationInvalidSeeArgs = Annotation + Internal + 485;
+	/** @since 3.0 */
+	int AnnotationTypeMissing = Annotation + Internal + 486;
+	/** @since 3.0 */
+	int AnnotationTypeMemberMissing = Annotation + Internal + 487;
+	/** @since 3.0 */
+	int AnnotationMessagePrefix = Internal + 489;
 }

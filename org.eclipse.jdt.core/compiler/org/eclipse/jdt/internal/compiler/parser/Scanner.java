@@ -396,6 +396,13 @@ public final char[] getRawTokenSource() {
 	return tokenSource;	
 }
 	
+public final char[] getRawTokenSourceEnd() {
+	int length = this.eofPosition - this.currentPosition;
+	char[] sourceEnd = new char[length];
+	System.arraycopy(source, this.currentPosition, sourceEnd, 0, length);
+	return sourceEnd;	
+}
+	
 public int getCurrentTokenStartPosition(){
 	return this.startPosition;
 }

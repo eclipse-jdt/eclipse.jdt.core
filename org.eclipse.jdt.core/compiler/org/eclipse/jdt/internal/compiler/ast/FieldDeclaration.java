@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class FieldDeclaration extends AbstractVariableDeclaration {
 	public FieldBinding binding;
 	boolean hasBeenResolved = false;
+	public Annotation annotation;
 
 	//allows to retrieve both the "type" part of the declaration (part1)
 	//and also the part that decribe the name and the init and optionally
@@ -216,6 +217,17 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					initializationScope.fieldDeclarationIndex = previous;
 					if (this.binding.constant == null)
 						this.binding.constant = Constant.NotAConstant;
+				}
+			}
+			
+			// Resolve annotation if one is present
+			if (this.annotation != null) {
+				if (classScope != null) {
+					this.annotation.resolve(classScope);
+				}
+			} else {
+				if ((this.modifiers & AccPublic) != 0) {
+					initializationScope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd, true);
 				}
 			}
 		}

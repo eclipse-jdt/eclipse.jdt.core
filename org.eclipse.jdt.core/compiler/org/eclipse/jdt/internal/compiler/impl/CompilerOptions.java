@@ -60,6 +60,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportFinallyBlockNotCompletingNormally = "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedDeclaredThrownException = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
@@ -125,8 +126,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long InvalidAnnotation = 0x800000000L;
 	public static final long FinallyBlockNotCompleting = 0x1000000000L;
 	public static final long UnusedDeclaredThrownException = 0x2000000000L;
-	public static final long AnnotationProblem = 0x4000000000L;
-	public static final long UnqualifiedFieldAccess = 0x8000000000L;
+	public static final long UnqualifiedFieldAccess = 0x4000000000L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 
@@ -196,7 +196,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public boolean reportSpecialParameterHidingField = false;
 	
 	// check javadoc annotations
-	public boolean checkAnnotation = false; 
+	public boolean reportMissingAnnotation = false; 
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -246,6 +246,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_ReportInvalidAnnotation, getSeverityString(InvalidAnnotation));
+		optionsMap.put(OPTION_ReportMissingAnnotation, reportMissingAnnotation ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportFinallyBlockNotCompletingNormally, getSeverityString(FinallyBlockNotCompleting));
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
@@ -404,6 +405,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				}
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingAnnotation)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportMissingAnnotation = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportMissingAnnotation = false;
+			}
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnreachableCode)) != null) updateSeverity(UnreachableCode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidImport)) != null) updateSeverity(ImportProblem, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -468,6 +476,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
 		buf.append("\n\t- invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
+		buf.append("\n\t- report missing annotation: ").append(reportMissingAnnotation ? "ENABLED" : "DISABLED"); //$NON-NLS-1$
 		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
 		buf.append("\n\t- unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
 		buf.append("\n\t- JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$

@@ -147,6 +147,9 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// annotation
+	cd.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
@@ -214,6 +217,9 @@ protected void consumeMethodHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// annotation
+	md.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);

@@ -14,13 +14,22 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*; 
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-/**
+/** 
  * A visitor interface for interating through the parse tree.
  */
 public interface IAbstractSyntaxTreeVisitor {
 	void acceptProblem(IProblem problem);
 	void endVisit(AllocationExpression allocationExpression, BlockScope scope);
 	void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope);
+	void endVisit(AnnotationArgument argument, BlockScope scope);
+	void endVisit(AnnotationArgumentExpression expression, BlockScope scope);
+	void endVisit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope);
+	void endVisit(AnnotationArraySingleTypeReference typeRef, BlockScope scope);
+	void endVisit(AnnotationFieldReference fieldRef, BlockScope scope);
+	void endVisit(AnnotationMessageSend messageSend, BlockScope scope);
+	void endVisit(AnnotationQualifiedTypeReference typeRef, BlockScope scope);
+	void endVisit(AnnotationReturnStatement statement, BlockScope scope);
+	void endVisit(AnnotationSingleTypeReference typeRef, BlockScope scope);
 	void endVisit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope);
 	void endVisit(Argument argument, BlockScope scope);
 	void endVisit(ArrayAllocationExpression arrayAllocationExpression, BlockScope scope);
@@ -95,6 +104,15 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(WhileStatement whileStatement, BlockScope scope);
 	boolean visit(AllocationExpression allocationExpression, BlockScope scope);
 	boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope);
+	boolean visit(AnnotationArgument argument, BlockScope scope);
+	boolean visit(AnnotationArgumentExpression expression, BlockScope scope);
+	boolean visit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope);
+	boolean visit(AnnotationArraySingleTypeReference typeRef, BlockScope scope);
+	boolean visit(AnnotationFieldReference fieldRef, BlockScope scope);
+	boolean visit(AnnotationMessageSend messageSend, BlockScope scope);
+	boolean visit(AnnotationQualifiedTypeReference typeRef, BlockScope scope);
+	boolean visit(AnnotationReturnStatement statement, BlockScope scope);
+	boolean visit(AnnotationSingleTypeReference typeRef, BlockScope scope);
 	boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope);
 	boolean visit(Argument argument, BlockScope scope);
 	boolean visit(ArrayAllocationExpression arrayAllocationExpression, BlockScope scope);

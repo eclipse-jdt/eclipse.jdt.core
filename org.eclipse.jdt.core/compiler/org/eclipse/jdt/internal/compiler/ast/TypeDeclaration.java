@@ -45,6 +45,7 @@ public class TypeDeclaration
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
 	private MethodDeclaration[] missingAbstractMethods;
+	public Annotation annotation;
 
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -848,6 +849,15 @@ public class TypeDeclaration
 					methods[i].resolve(scope);
 				}
 			}
+			// Resolve annotation
+			if (this.annotation != null) {
+				this.annotation.resolve(this.scope);
+			} else {
+				if ((this.modifiers & AccPublic) != 0) {
+					this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd, false);
+				}
+			}
+			
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

@@ -303,25 +303,8 @@ public void testClasspathForceReload() throws CoreException {
 					p1.close();
 					assertEquals("output location should not have been refreshed", "/P1", p1.getOutputLocation().toString());
 					
-					p1.forceClasspathReload(null);
-					assertEquals("output location should have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
-
-					// New way to force reload since PR 40658
-					createFolder("P1/new_bin"); 
-					newCPContent = 
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
-						+"<classpath>	\n"
-						+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
-						+"	<classpathentry kind=\"output\" path=\"new_bin\"/>	\n"
-						+"</classpath>	\n";
-
-					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
-					
-					p1.close();
-					assertEquals("output location should not have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
-					
 					p1.setRawClasspath(p1.readRawClasspath(), p1.readOutputLocation(), null);
-					assertEquals("output location should have been refreshed", "/P1/new_bin", p1.getOutputLocation().toString());
+					assertEquals("output location should have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
 				}
 			}, null);	
 	} finally {

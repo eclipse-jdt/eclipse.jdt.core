@@ -388,6 +388,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		return output;
 	}
 	
+	public void resolveMissingAnnotation() {
+		if (!isDefaultConstructor && (this.modifiers & AccPublic) != 0) {
+			this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceStart+this.selector.length-1, true);
+		}
+	}
+
 	/*
 	 * Type checking for constructor, just another method, except for special check
 	 * for recursive constructor invocations.

@@ -254,6 +254,9 @@ protected void consumeClassHeaderName() {
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 /**
  *
@@ -368,6 +371,9 @@ protected void consumeConstructorHeaderName() {
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiersSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// annotation
+	cd.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
@@ -657,6 +663,9 @@ protected void consumeInterfaceHeaderName() {
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 /**
  *
@@ -810,6 +819,9 @@ protected void consumeMethodHeaderName() {
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiersSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// annotation
+	md.annotation = this.annotation;
+	this.annotation = null;
 
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);

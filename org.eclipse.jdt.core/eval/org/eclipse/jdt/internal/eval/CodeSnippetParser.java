@@ -132,6 +132,9 @@ protected void consumeClassHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;
 	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 protected void consumeEmptyStatement() {
 	super.consumeEmptyStatement();
@@ -209,6 +212,9 @@ protected void consumeInterfaceHeaderName() {
 		currentElement = currentElement.add(typeDecl, 0);
 		lastIgnoredToken = -1;		
 	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
 }
 protected void consumeLocalVariableDeclarationStatement() {
 	super.consumeLocalVariableDeclarationStatement();

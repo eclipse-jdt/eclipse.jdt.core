@@ -89,20 +89,37 @@ public abstract char [][] getTypeName() ;
 public boolean isTypeReference() {
 	return true;
 }
-public TypeBinding resolveType(BlockScope scope) {
+public TypeBinding resolveType(BlockScope blockScope) {
 	// handle the error here
 	constant = NotAConstant;
 	if (this.resolvedType != null) { // is a shared type reference which was already resolved
 		if (!this.resolvedType.isValidBinding())
 			return null; // already reported error
 	} else {
-		this.resolvedType = getTypeBinding(scope);
+		this.resolvedType = getTypeBinding(blockScope);
 		if (!this.resolvedType.isValidBinding()) {
-			scope.problemReporter().invalidType(this, this.resolvedType);
+			blockScope.problemReporter().invalidType(this, this.resolvedType);
 			return null;
 		}
-		if (isTypeUseDeprecated(this.resolvedType, scope))
-			scope.problemReporter().deprecatedType(this.resolvedType, this);
+		if (isTypeUseDeprecated(this.resolvedType, blockScope))
+			blockScope.problemReporter().deprecatedType(this.resolvedType, this);
+	}
+	return this.resolvedType;
+}
+public TypeBinding resolveType(ClassScope classScope) {
+	// handle the error here
+	constant = NotAConstant;
+	if (this.resolvedType != null) { // is a shared type reference which was already resolved
+		if (!this.resolvedType.isValidBinding())
+			return null; // already reported error
+	} else {
+		this.resolvedType = getTypeBinding(classScope);
+		if (!this.resolvedType.isValidBinding()) {
+			classScope.problemReporter().invalidType(this, this.resolvedType);
+			return null;
+		}
+		if (isTypeUseDeprecated(this.resolvedType, classScope))
+			classScope.problemReporter().deprecatedType(this.resolvedType, this);
 	}
 	return this.resolvedType;
 }

@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
@@ -121,6 +118,134 @@ public void alreadyDefinedLabel(char[] labelName, AstNode location) {
 		arguments,
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void annotationInvalidParamName(Argument param, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(param.name)};
+	this.handle(
+		duplicated?IProblem.AnnotationDuplicateParamName:IProblem.AnnotationInvalidParamName,
+		arguments,
+		arguments,
+		param.sourceStart,
+		param.sourceEnd);
+}
+public void annotationInvalidParam(Argument param) {
+	String[] arguments = new String[] {String.valueOf(param.name)};
+	this.handle(
+		IProblem.AnnotationMissingParamTag,
+		arguments,
+		arguments,
+		param.sourceStart,
+		param.sourceEnd);
+}
+public void annotationInvalidSeeReference(int sourceStart, int sourceEnd) {
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationInvalidSeeReference,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationInvalidSeeHref,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationInvalidSeeArgs,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationInvalidThrowsClass(int sourceStart, int sourceEnd) {
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationInvalidThrowsClass,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationInvalidThrowsClassName(TypeReference typeReference, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
+	this.handle(
+		duplicated?IProblem.AnnotationDuplicateThrowsClassName:IProblem.AnnotationInvalidThrowsClassName,
+		arguments,
+		arguments,
+		typeReference.sourceStart,
+		typeReference.sourceEnd);
+}
+public void annotationMissingForPublic(int sourceStart, int sourceEnd, boolean typeMember){
+	String[] arguments = new String[0];
+	if (this.options.reportMissingAnnotation) {
+		this.handle(
+			typeMember?IProblem.AnnotationTypeMemberMissing:IProblem.AnnotationTypeMissing,
+			arguments,
+			arguments,
+			sourceStart,
+			sourceEnd);
+	}
+}
+public void annotationMissingParamName(int sourceStart, int sourceEnd){
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationMissingParamName,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
+	String[] arguments = new String[0];
+	this.handle(
+		missing?IProblem.AnnotationMissingReturnTag:IProblem.AnnotationDuplicateReturnTag,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationMissingSeeReference(int sourceStart, int sourceEnd){
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationMissingSeeReference,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationMissingThrowsClassName(int sourceStart, int sourceEnd){
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationMissingThrowsClassName,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void annotationMissingThrowsTag(TypeReference typeRef){
+	String[] arguments = new String[] {String.valueOf(typeRef.resolvedType.sourceName())};
+	this.handle(
+		IProblem.AnnotationMissingThrowsTag,
+		arguments,
+		arguments,
+		typeRef.sourceStart,
+		typeRef.sourceEnd);
+}
+public void annotationUnexpectedTag(int sourceStart, int sourceEnd) {
+	String[] arguments = new String[0];
+	this.handle(
+		IProblem.AnnotationUnexpectedTag,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
 }
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
@@ -542,14 +667,12 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
-			
-		// all problems detected inside annotations are associated with a generic severity			
-//		if (referenceContext.isProcessingAnnotation()) {
-//			return this.options.getSeverity(CompilerOptions.AnnotationProblem);
-//		}
-			
-		// by default, all other problems are errors.
+
+		// by default, if not annotation, then problems are errors.
 		default:
+			if ((problemId & IProblem.Annotation) == IProblem.Annotation) {
+				return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
+			}
 			return Error;
 	}
 }
@@ -625,33 +748,51 @@ public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 		literal.sourceEnd);
 }
 public void deprecatedField(FieldBinding field, AstNode location) {
+	int id = IProblem.UsingDeprecatedField;
+	if ((location.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
-		IProblem.UsingDeprecatedField,
+		id,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		location.sourceStart,
 		location.sourceEnd);
 }
 public void deprecatedMethod(MethodBinding method, AstNode location) {
-	if (method.isConstructor())
+	if (method.isConstructor()) {
+		int id = IProblem.UsingDeprecatedConstructor;
+		if ((location.bits & AstNode.InsideAnnotation) != 0) {
+			id |= IProblem.Annotation;
+		}
 		this.handle(
-			IProblem.UsingDeprecatedConstructor,
+			id,
 			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method)},
 			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsShortString(method)},
 			location.sourceStart,
 			location.sourceEnd);
-	else
+	}
+	else {
+		int id = IProblem.UsingDeprecatedMethod;
+		if ((location.bits & AstNode.InsideAnnotation) != 0) {
+			id |= IProblem.Annotation;
+		}
 		this.handle(
-			IProblem.UsingDeprecatedMethod,
+			id,
 			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
 			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsShortString(method)},
 			location.sourceStart,
 			location.sourceEnd);
+	}
 }
 public void deprecatedType(TypeBinding type, AstNode location) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
+	int id = IProblem.UsingDeprecatedType;
+	if ((location.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
-		IProblem.UsingDeprecatedType,
+		id,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,
@@ -806,8 +947,12 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 		shortBuffer.append(new String(params[i].shortReadableName()));
 	}
 
+	int id = recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType;
+	if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
-		recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType,
+		id,
 		new String[] {new String(recType.readableName()), new String(messageSend.selector), buffer.toString()},
 		new String[] {new String(recType.shortReadableName()), new String(messageSend.selector), shortBuffer.toString()},
 		messageSend.sourceStart,
@@ -1662,7 +1807,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
-				IProblem.NotVisibleType,
+				IProblem.NotVisibleType, // cannot occur in annotations
 				new String[] {new String(searchedType.leafComponentType().readableName())},
 				new String[] {new String(searchedType.leafComponentType().shortReadableName())},
 				fieldRef.receiver.sourceStart,
@@ -1676,6 +1821,9 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 	}
 
 	String[] arguments = new String[] {new String(field.readableName())};
+	if ((fieldRef.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
 		id,
 		arguments,
@@ -1684,25 +1832,25 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		fieldRef.sourceEnd);
 }
 public void invalidField(NameReference nameRef, FieldBinding field) {
-	int flag = IProblem.UndefinedField;
+	int id = IProblem.UndefinedField;
 	switch (field.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedField;
+			id = IProblem.UndefinedField;
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleField;
+			id = IProblem.NotVisibleField;
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousField;
+			id = IProblem.AmbiguousField;
 			break;
 		case NonStaticReferenceInStaticContext :
-			flag = IProblem.NonStaticFieldFromStaticInvocation;
+			id = IProblem.NonStaticFieldFromStaticInvocation;
 			break;
 		case NonStaticReferenceInConstructorInvocation :
-			flag = IProblem.InstanceFieldDuringConstructorInvocation;
+			id = IProblem.InstanceFieldDuringConstructorInvocation;
 			break;
 		case InheritedNameHidesEnclosingName :
-			flag = IProblem.InheritedFieldHidesEnclosingName;
+			id = IProblem.InheritedFieldHidesEnclosingName;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -1719,7 +1867,7 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 	}
 	String[] arguments = new String[] {new String(field.readableName())};
 	this.handle(
-		flag,
+		id,
 		arguments,
 		arguments,
 		nameRef.sourceStart,
@@ -1750,29 +1898,29 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 		return;
 	}
 
-	int flag = IProblem.UndefinedField;
+	int id = IProblem.UndefinedField;
 	switch (field.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedField;
+			id = IProblem.UndefinedField;
 /* also need to check that the searchedType is the receiver type
 			if (searchedType.isHierarchyInconsistent())
 				severity = SecondaryError;
 */
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleField;
+			id = IProblem.NotVisibleField;
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousField;
+			id = IProblem.AmbiguousField;
 			break;
 		case NonStaticReferenceInStaticContext :
-			flag = IProblem.NonStaticFieldFromStaticInvocation;
+			id = IProblem.NonStaticFieldFromStaticInvocation;
 			break;
 		case NonStaticReferenceInConstructorInvocation :
-			flag = IProblem.InstanceFieldDuringConstructorInvocation;
+			id = IProblem.InstanceFieldDuringConstructorInvocation;
 			break;
 		case InheritedNameHidesEnclosingName :
-			flag = IProblem.InheritedFieldHidesEnclosingName;
+			id = IProblem.InheritedFieldHidesEnclosingName;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -1789,7 +1937,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 	}
 	String[] arguments = new String[] {CharOperation.toString(CharOperation.subarray(nameRef.tokens, 0, index + 1))};
 	this.handle(
-		flag, 
+		id, 
 		arguments,
 		arguments,
 		nameRef.sourceStart, 
@@ -1805,29 +1953,29 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	//	InstanceMethodDuringConstructorInvocation
 	// StaticMethodRequested
 
-	int flag = IProblem.UndefinedMethod; //default...
+	int id = IProblem.UndefinedMethod; //default...
 	switch (method.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedMethod;
+			id = IProblem.UndefinedMethod;
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleMethod;
+			id = IProblem.NotVisibleMethod;
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousMethod;
+			id = IProblem.AmbiguousMethod;
 			break;
 		case InheritedNameHidesEnclosingName :
-			flag = IProblem.InheritedMethodHidesEnclosingName;
+			id = IProblem.InheritedMethodHidesEnclosingName;
 			break;
 		case NonStaticReferenceInConstructorInvocation :
-			flag = IProblem.InstanceMethodDuringConstructorInvocation;
+			id = IProblem.InstanceMethodDuringConstructorInvocation;
 			break;
 		case NonStaticReferenceInStaticContext :
-			flag = IProblem.StaticMethodRequested;
+			id = IProblem.StaticMethodRequested;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
-				IProblem.NotVisibleType,
+				IProblem.NotVisibleType,	// cannot occur in annotations
 				new String[] {new String(method.declaringClass.leafComponentType().readableName())},
 				new String[] {new String(method.declaringClass.leafComponentType().shortReadableName())},
 				messageSend.receiver.sourceStart,
@@ -1840,7 +1988,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			break;
 	}
 
-	if (flag == IProblem.UndefinedMethod) {
+	if (id == IProblem.UndefinedMethod) {
 		ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
 		if (problemMethod.closestMatch != null) {
 				String closestParameterTypeNames = parametersAsString(problemMethod.closestMatch);
@@ -1851,8 +1999,12 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					closestParameterTypeShortNames = closestParameterTypeNames;
 					parameterTypeShortNames = parameterTypeNames;
 				}
+				id = IProblem.ParameterMismatch;
+				if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
+					id |= IProblem.Annotation;
+				}
 				this.handle(
-					IProblem.ParameterMismatch,
+					id,
 					new String[] {
 						new String(problemMethod.closestMatch.declaringClass.readableName()),
 						new String(problemMethod.closestMatch.selector),
@@ -1871,8 +2023,11 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		}
 	}
 
+	if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
-		flag,
+		id,
 		new String[] {
 			new String(method.declaringClass.readableName()),
 			new String(method.selector), parametersAsString(method)},
@@ -2009,22 +2164,22 @@ public void invalidSuperinterface(SourceTypeBinding type, TypeReference superint
 			superinterfaceRef.sourceEnd);
 }
 public void invalidType(AstNode location, TypeBinding type) {
-	int flag = IProblem.UndefinedType; // default
+	int id = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedType;
+			id = IProblem.UndefinedType;
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleType;
+			id = IProblem.NotVisibleType;
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousType;
+			id = IProblem.AmbiguousType;
 			break;
 		case InternalNameProvided :
-			flag = IProblem.InternalTypeNameProvided;
+			id = IProblem.InternalTypeNameProvided;
 			break;
 		case InheritedNameHidesEnclosingName :
-			flag = IProblem.InheritedTypeHidesEnclosingName;
+			id = IProblem.InheritedTypeHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
@@ -2032,8 +2187,11 @@ public void invalidType(AstNode location, TypeBinding type) {
 			break;
 	}
 
+	if ((location.bits & AstNode.InsideAnnotation) != 0) {
+		id |= IProblem.Annotation;
+	}
 	this.handle(
-		flag,
+		id,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,
@@ -3591,4 +3749,5 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBindi
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
+
 }

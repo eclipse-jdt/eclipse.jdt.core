@@ -376,15 +376,17 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments) {
 	// determine if we can reuse the vm
 	if (this.vm != null && this.vm.isRunning() && this.classpathCache != null) {
-		boolean sameClasspaths = true;
-		for (int i = 0; i < classpaths.length; i++) {
-			if (!this.classpathCache[i].equals(classpaths[i])) {
-				sameClasspaths = false;
-				break;
+		if (classpaths.length == classpathCache.length) {
+			boolean sameClasspaths = true;
+			for (int i = 0; i < classpaths.length; i++) {
+				if (!this.classpathCache[i].equals(classpaths[i])) {
+					sameClasspaths = false;
+					break;
+				}
 			}
-		}
-		if (sameClasspaths) {
-			return;
+			if (sameClasspaths) {
+				return;
+			}
 		}
 	}
 

@@ -36,6 +36,33 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationArgument argument, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationArgumentExpression expression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationFieldReference fieldRef, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationMessageSend messageSend, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationQualifiedTypeReference typeRef, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationReturnStatement statement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(Argument argument, BlockScope scope) {
 		// do nothing by default
 	}
@@ -300,6 +327,33 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
 		BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationArgument argument, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationArgumentExpression expression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationFieldReference fieldRef, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationMessageSend messageSend, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationQualifiedTypeReference typeRef, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationReturnStatement statement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Argument argument, BlockScope scope) {

@@ -45,6 +45,8 @@
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
  *                                 COMPILER_PB_UNNECESSARY_CAST
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_INVALID_ANNOTATION
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -316,6 +318,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNQUALIFIED_FIELD_ACCESS = PLUGIN_ID + ".compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1592,6 +1600,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
 	 *    In order to improve code readability, it should be qualified, e.g. 'x' should rather be written 'this.x'.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Reporting Invalid Javadoc Annotation
+	 *    When enabled, the compiler will issue an error or a warning when a javadoc annotation is inconsistent or
+	 *    contains invalid references.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *

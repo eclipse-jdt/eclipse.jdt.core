@@ -28,7 +28,7 @@ public TestAll(String testName) {
 }
 public static Test suite() {
 	ArrayList standardTests = new ArrayList();
-	standardTests.add(AnnotationTest.class);
+	standardTests.addAll(AnnotationTest.allTestClasses);
 	standardTests.add(ArrayTest.class);
 	standardTests.add(AssignmentTest.class);
 	standardTests.add(BatchCompilerTest.class);

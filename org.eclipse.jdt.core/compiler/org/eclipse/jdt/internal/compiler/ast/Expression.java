@@ -448,6 +448,11 @@ public abstract class Expression extends Statement {
 		return null;
 	}
 
+	public TypeBinding resolveType(ClassScope classScope) {
+		// by default... subclasses should implement a better TB if required.
+		return null;
+	}
+
 	public TypeBinding resolveTypeExpecting(
 		BlockScope scope,
 		TypeBinding expectedType) {
