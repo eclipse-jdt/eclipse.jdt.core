@@ -375,7 +375,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		/* initialize progress monitor */
 		IProgressMonitor progressMonitor = resultCollector.getProgressMonitor();
 		if (progressMonitor != null) {
-			progressMonitor.beginTask(Util.bind("engine.searching"), 105); // 5 for getting paths, 100 for locating matches //$NON-NLS-1$
+			progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
 		}
 
 		/* index search */
@@ -394,15 +394,16 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 				pathCollector, 
 				indexManager),
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			progressMonitor);
-
-		if (progressMonitor != null) {
-			progressMonitor.worked(5);
-		}
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 5));
 			
 		/* eliminating false matches and locating them */
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-		matchLocator.locateMatches(pathCollector.getPaths(), workspace, this.workingCopies);
+		matchLocator.locateMatches(
+			pathCollector.getPaths(), 
+			workspace,
+			this.workingCopies,
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 95)
+		);
 		
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
@@ -514,7 +515,7 @@ public void searchAllTypeNames(
 		indexManager.performConcurrentJob(
 			new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
 			waitingPolicy,
-			progressMonitor);	
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
 	} finally {
 		if (progressMonitor != null) {
 			progressMonitor.done();
@@ -570,7 +571,8 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement));
+			this.getWorkingCopies(enclosingElement),
+			resultCollector.getProgressMonitor());
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -624,7 +626,8 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement));
+			this.getWorkingCopies(enclosingElement),
+			resultCollector.getProgressMonitor());
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -681,7 +684,8 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.getWorkingCopies(enclosingElement));
+			this.getWorkingCopies(enclosingElement),
+			resultCollector.getProgressMonitor());
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}

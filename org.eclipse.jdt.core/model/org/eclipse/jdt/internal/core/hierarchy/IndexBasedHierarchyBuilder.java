@@ -545,6 +545,7 @@ public static void searchAllPossibleSubTypes(
 				indexManager);
 	
 	/* iterate all queued names */
+	int ticks = 50;
 	awaitings.add(type.getElementName().toCharArray());
 	while (awaitings.start <= awaitings.end){
 		if (progressMonitor != null && progressMonitor.isCanceled()) return;
@@ -557,9 +558,13 @@ public static void searchAllPossibleSubTypes(
 		}			
 		/* search all index references to a given supertype */
 		pattern.superSimpleName = currentTypeName;
-		indexManager.performConcurrentJob(job, waitingPolicy, progressMonitor);
+		indexManager.performConcurrentJob(
+			job, 
+			waitingPolicy, 
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, ticks));
 		/* in case, we search all subtypes, no need to search further */
 		if (currentTypeName == null) break;
+		ticks = ticks / 2;
 	}
 	/* close all cached index inputs */
 	job.closeAll();

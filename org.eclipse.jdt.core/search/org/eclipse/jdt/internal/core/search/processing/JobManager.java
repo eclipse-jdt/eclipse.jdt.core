@@ -149,8 +149,11 @@ public abstract class JobManager implements Runnable {
 
 		if (VERBOSE)
 			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): START - " + searchJob); //$NON-NLS-1$//$NON-NLS-2$
-		boolean status = IJob.FAILED;
 		int concurrentJobWork = 100;
+		if (progress != null) {
+			progress.beginTask("", concurrentJobWork); //$NON-NLS-1$
+		}
+		boolean status = IJob.FAILED;
 		if (awaitingJobsCount() > 0) {
 			switch (waitingPolicy) {
 
@@ -183,9 +186,9 @@ public abstract class JobManager implements Runnable {
 					IProgressMonitor subProgress = null;
 					int totalWork = this.awaitingJobsCount();
 					if (progress != null && totalWork > 0) {
-						subProgress = new SubProgressMonitor(progress, 50);
+						subProgress = new SubProgressMonitor(progress, concurrentJobWork / 2);
 						subProgress.beginTask("", totalWork); //$NON-NLS-1$
-						concurrentJobWork = 50;
+						concurrentJobWork = concurrentJobWork / 2;
 					}
 					while ((awaitingWork = awaitingJobsCount()) > 0) {
 						if (subProgress != null && subProgress.isCanceled())
@@ -214,6 +217,9 @@ public abstract class JobManager implements Runnable {
 			}
 		}
 		status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
+		if (progress != null) {
+			progress.done();
+		}
 		if (VERBOSE)
 			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): END - " + searchJob); //$NON-NLS-1$//$NON-NLS-2$
 		return status;

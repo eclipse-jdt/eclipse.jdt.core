@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -395,7 +396,7 @@ private String[] getPathsOfDeclaringType() {
 				searchRequestor, 
 				indexManager),
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			progressMonitor);
+			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
 		return pathCollector.getPaths();
 
 	}

@@ -390,7 +390,11 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 	/**
 	 * Locate the matches in the given files and report them using the search requestor. 
 	 */
-	public void locateMatches(String[] filePaths, IWorkspace workspace, IWorkingCopy[] workingCopies)
+	public void locateMatches(
+		String[] filePaths, 
+		IWorkspace workspace,
+		IWorkingCopy[] workingCopies, 
+		IProgressMonitor progressMonitor)
 		throws JavaModelException {
 			
 		// initialize handle factory (used as a cache of handles so as to optimize space)
@@ -422,21 +426,21 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			System.arraycopy(newPaths, 0, filePaths, filePathsLength, wcLength);
 		}
 		
+		int length = filePaths.length;
+		if (progressMonitor != null) {
+			progressMonitor.beginTask("", length * 3); // 1 for file path, 1 for binding creation, 1 for resolution //$NON-NLS-1$
+		}
+
 		// sort file paths projects
 		Util.sort(filePaths); 
 		
 		// initialize pattern for polymorphic search (ie. method reference pattern)
 		this.matchingOpenables = new MatchingOpenableSet();
-		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
+		this.pattern.initializePolymorphicSearch(this, progressMonitor);
 		
 		JavaProject previousJavaProject = null;
-		int length = filePaths.length;
-		double increment = 100.0 / length;
-		double totalWork = 0;
-		int lastProgress = 0;
 		for (int i = 0; i < length; i++) {
-			IProgressMonitor monitor = this.collector.getProgressMonitor();
-			if (monitor != null && monitor.isCanceled()) {
+			if (progressMonitor != null && progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			String pathString = filePaths[i];
@@ -471,7 +475,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 					// locate matches in previous project
 					if (previousJavaProject != null) {
 						try {
-							this.locateMatches(previousJavaProject);
+							this.locateMatches(previousJavaProject, progressMonitor);
 						} catch (JavaModelException e) {
 							if (e.getException() instanceof CoreException) {
 								throw e;
@@ -494,18 +498,15 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			// add matching openable
 			this.addMatchingOpenable(resource, openable);
 
-			if (monitor != null) {
-				totalWork = totalWork + increment;
-				int worked = (int) totalWork - lastProgress;
-				monitor.worked(worked);
-				lastProgress = (int) totalWork;
+			if (progressMonitor != null) {
+				progressMonitor.worked(1);
 			}
 		}
-
+		
 		// last project
 		if (previousJavaProject != null) {
 			try {
-				this.locateMatches(previousJavaProject);
+				this.locateMatches(previousJavaProject, progressMonitor);
 			} catch (JavaModelException e) {
 				if (e.getException() instanceof CoreException) {
 					throw e;
@@ -515,6 +516,10 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			}
 			this.matchingOpenables = new MatchingOpenableSet();
 		} 
+		
+		if (progressMonitor != null) {
+			progressMonitor.done();
+		}
 
 	}
 
@@ -1138,12 +1143,15 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 	/**
 	 * Locate the matches amongst the matching openables.
 	 */
-	private void locateMatches(JavaProject javaProject) throws JavaModelException {
+	private void locateMatches(JavaProject javaProject, IProgressMonitor progressMonitor) throws JavaModelException {
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
 	
 		// binding creation
 		for (int i = 0, length = openables.length; i < length; i++) { 
 			openables[i].buildTypeBindings();
+			if (progressMonitor != null) {
+				progressMonitor.worked(1);
+			}
 		}
 
 		// binding resolution
@@ -1158,8 +1166,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 
 		// matching openable resolution
 		for (int i = 0, length = openables.length; i < length; i++) { 
-			IProgressMonitor monitor = this.collector.getProgressMonitor();
-			if (monitor != null && monitor.isCanceled()) {
+			if (progressMonitor != null && progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			
@@ -1185,6 +1192,9 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 					// core exception thrown by client's code: let it through
 					throw new JavaModelException(e);
 				}
+			}
+			if (progressMonitor != null) {
+				progressMonitor.worked(1);
 			}
 		}
 		this.currentMatchingOpenable = null;
