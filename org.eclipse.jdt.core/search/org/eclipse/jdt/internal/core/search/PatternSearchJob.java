@@ -121,6 +121,11 @@ public class PatternSearchJob implements IJob {
 		if (progressMonitor != null && progressMonitor.isCanceled())
 			throw new OperationCanceledException();
 
+//		IIndex inMemIndex = indexManager.peekAtIndex(new Path(((Index)index).toString.substring("Index for ".length()).replace('\\','/')));
+//		if (inMemIndex != index) {
+//			System.out.println("SANITY CHECK: search job using obsolete index: ["+index+ "] instead of: ["+inMemIndex+"]");
+//		}
+		
 		if (index == null)
 			return COMPLETE;
 		ReadWriteMonitor monitor = indexManager.getMonitorFor(index);

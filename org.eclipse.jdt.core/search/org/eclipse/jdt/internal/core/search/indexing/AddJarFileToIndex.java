@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -92,7 +91,6 @@ class AddJarFileToIndex extends IndexRequest {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the
 				// local file system
 				Path zipFilePath = null;
-				File file = null;
 
 				monitor.enterWrite(); // ask permission to write
 				if (resource != null) {
@@ -100,21 +98,15 @@ class AddJarFileToIndex extends IndexRequest {
 					if (location == null) return false;
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location); //$NON-NLS-1$	//$NON-NLS-2$
-					file = location.toFile();
-					zip = new ZipFile(file);
+					zip = new ZipFile(location.toFile());
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.indexPath); //$NON-NLS-1$	//$NON-NLS-2$
-					file = this.indexPath.toFile();
-					zip = new ZipFile(file);
+					zip = new ZipFile(this.indexPath.toFile());
 					zipFilePath = (Path) this.indexPath;
 					// path is already canonical since coming from a library classpath entry
-				}
-				if (!file.exists()) {
-					manager.removeIndex(this.indexPath);
-					return false;
 				}
 
 				if (JobManager.VERBOSE)
@@ -164,8 +156,8 @@ class AddJarFileToIndex extends IndexRequest {
 				/*
 				 * Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				 */
-				if (index != null) // index already existed: recreate it so that we forget about previous entries
-					index = manager.recreateIndex(this.indexPath);
+				// index already existed: recreate it so that we forget about previous entries
+				index = manager.recreateIndex(this.indexPath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)

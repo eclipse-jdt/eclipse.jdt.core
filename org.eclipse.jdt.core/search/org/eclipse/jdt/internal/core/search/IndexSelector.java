@@ -34,7 +34,7 @@ public class IndexSelector {
 	IJavaSearchScope searchScope;
 	IJavaElement focus;
 	IndexManager indexManager;
-	IIndex[] indexes;
+	IPath[] indexKeys; // cache of the keys for looking index up
 	boolean isPolymorphicSearch;
 public IndexSelector(
 	IJavaSearchScope searchScope,
@@ -123,14 +123,11 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 	}
 }
 /*
- *  Compute index list, which may trigger some index recreation work.
- *  Only cache available indexes if all of them were ready (if not, next call will recompute from scratch)
+ *  Compute the list of paths which are keying index files.
  */
-private IIndex[] computeIndexes() {
+private void initializeIndexKeys() {
 	
-	boolean areAllIndexesReady = true;
-	
-	ArrayList indexesInScope = new ArrayList();
+	ArrayList requiredIndexKeys = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 	IJavaElement projectOrJarFocus = this.focus == null ? null : getProjectOrJar(this.focus);
@@ -145,25 +142,26 @@ private IIndex[] computeIndexes() {
 				continue;
 		}
 		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, this.isPolymorphicSearch, path)) {
-			IIndex index = this.indexManager.getIndex(path, true /*reuse index file*/, false /*do not create if none*/);
-			if (index == null) areAllIndexesReady = false;
-			if (index != null && indexesInScope.indexOf(index) == -1) {
-				indexesInScope.add(index);
+			if (requiredIndexKeys.indexOf(path) == -1) {
+				requiredIndexKeys.add(path);
 			}
 		}
 	}
-	IIndex[] availableIndexes = new IIndex[indexesInScope.size()];
-	indexesInScope.toArray(availableIndexes);
-
-	// only cache available indexes if all of them were ready (if not, next call will recompute)
-	if (areAllIndexesReady) this.indexes = availableIndexes;
-	return availableIndexes;
+	this.indexKeys = new IPath[requiredIndexKeys.size()];
+	requiredIndexKeys.toArray(this.indexKeys);
 }
 public IIndex[] getIndexes() {
-	if (this.indexes == null) {
-		return this.computeIndexes(); // if some indexes aren't ready, the index list won't be cached into 'indexes' slot
+	if (this.indexKeys == null) {
+		this.initializeIndexKeys(); 
 	}
-	return this.indexes;
+	// acquire the in-memory indexes on the fly
+	int length = this.indexKeys.length;
+	IIndex[] indexes = new IIndex[length];
+	for (int i = 0; i < length; i++){
+		// may trigger some index recreation work
+		indexes[i] = indexManager.getIndex(indexKeys[i], true /*reuse index file*/, false /*do not create if none*/);
+	}
+	return indexes;
 }
 /**
  * Returns the java project that corresponds to the given path.
