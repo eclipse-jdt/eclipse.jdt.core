@@ -116,6 +116,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GKEG73: ITPJCORE:WIN2000 - search (136): missing field declaration
   1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results
   1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
   1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown  

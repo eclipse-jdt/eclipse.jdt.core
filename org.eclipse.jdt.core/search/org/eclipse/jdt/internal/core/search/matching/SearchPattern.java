@@ -827,7 +827,9 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
  */
 protected char[] toArrayName(char[] simpleName, int dimensions) {
 	if (dimensions == 0) return simpleName;
-	char[] result = new char[simpleName.length + dimensions * 2];
+	int length = simpleName.length;
+	char[] result = new char[length + dimensions * 2];
+	System.arraycopy(simpleName, 0, result, 0, length);
 	for (int i = 0; i < dimensions; i++) {
 		result[simpleName.length + i*2] = '[';
 		result[simpleName.length + i*2 + 1] = ']';
