@@ -386,7 +386,7 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			environment = new CancelableNameEnvironment(((JavaProject)javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
-			CompilationUnitResolver compilationUnitVisitor =
+			CompilationUnitResolver resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
@@ -396,30 +396,18 @@ class CompilationUnitResolver extends Compiler {
 
 			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 
-			if (nodeSearcher != null) {
-				unit = 
-					compilationUnitVisitor.resolve(
-						new BasicCompilationUnit(
-							source,
-							packageName,
-							unitName,
-							encoding),
-						nodeSearcher,
-						true, // method verification
-						true, // analyze code
-						true); // generate code					
-			} else {
-				unit = 
-					compilationUnitVisitor.resolve(
-						new BasicCompilationUnit(
-							source,
-							packageName,
-							unitName,
-							encoding),
-						true, // method verification
-						true, // analyze code
-						true); // generate code					
-			}
+			unit = 
+				resolver.resolve(
+					null, // no existing compilation unit declaration
+					new BasicCompilationUnit(
+						source,
+						packageName,
+						unitName,
+						encoding),
+					nodeSearcher,
+					true, // method verification
+					true, // analyze code
+					true); // generate code					
 			return unit;
 		} finally {
 			if (environment != null) {
@@ -475,110 +463,16 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilationUnit,
+	private CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit,
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			NodeSearcher nodeSearcher,
 			boolean verifyMethods,
 			boolean analyzeCode,
 			boolean generateCode) {
 
-		CompilationUnitDeclaration unit = null;
 		try {
 
-			this.parseThreshold = 0; // will request a diet parse
-			beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilationUnit});
-			// process all units (some more could be injected in the loop by the lookup environment)
-			unit = this.unitsToProcess[0];
-
-			int searchPosition = nodeSearcher.position;
-			if (searchPosition >= 0 && searchPosition <= compilationUnit.getContents().length) {
-				unit.traverse(nodeSearcher, unit.scope);
-				
-				org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
-				
-	 			if (node != null) {
-					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
-	  				if (node instanceof AbstractMethodDeclaration) {
-						((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
-	 				} else if (enclosingTypeDeclaration != null) {
-						if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-		 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
-	 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
-							((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
-						} 				
-	 				}
-	 			}
-			}
-			if (unit.scope != null) {
-				// fault in fields & methods
-				unit.scope.faultInTypes();
-				if (unit.scope != null && verifyMethods) {
-					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
- 					// verify inherited methods
-					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
-				}
-				// type checking
-				unit.resolve();		
-
-				// flow analysis
-				if (analyzeCode) unit.analyseCode();
-		
-				// code generation
-				if (generateCode) unit.generateCode();
-			}
-			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
-			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
-			return unit;
-		} catch (AbortCompilation e) {
-			this.handleInternalException(e, unit);
-			return null;
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} finally {
-			// No reset is performed there anymore since,
-			// within the CodeAssist (or related tools),
-			// the compiler may be called *after* a call
-			// to this resolve(...) method. And such a call
-			// needs to have a compiler with a non-empty
-			// environment.
-			// this.reset();
-		}
-	}
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
-			boolean verifyMethods,
-			boolean analyzeCode,
-			boolean generateCode) {
-				
-		return resolve(
-			null,
-			sourceUnit,
-			verifyMethods,
-			analyzeCode,
-			generateCode);
-	}
-
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			CompilationUnitDeclaration unit, 
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
-			boolean verifyMethods,
-			boolean analyzeCode,
-			boolean generateCode) {
-				
-		try {
 			if (unit == null) {
 				// build and record parsed units
 				this.parseThreshold = 0; // will request a full parse
@@ -592,7 +486,31 @@ class CompilationUnitResolver extends Compiler {
 				// binding resolution
 				this.lookupEnvironment.completeTypeBindings();
 			}
-			this.parser.getMethodBodies(unit);
+
+			this.parser.getMethodBodies(unit); // no-op if method bodies have already been parsed
+			
+			if (nodeSearcher != null) {
+				int searchPosition = nodeSearcher.position;
+				if (searchPosition >= 0 && searchPosition <= sourceUnit.getContents().length) {
+					unit.traverse(nodeSearcher, unit.scope);
+					
+					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
+					
+		 			if (node != null) {
+						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+		  				if (node instanceof AbstractMethodDeclaration) {
+							((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
+		 				} else if (enclosingTypeDeclaration != null) {
+							if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+			 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
+		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
+								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
+							} 				
+		 				}
+		 			}
+				}
+			}
+			
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
@@ -631,5 +549,41 @@ class CompilationUnitResolver extends Compiler {
 			// environment.
 			// this.reset();
 		}
+	}
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
+		return resolve(
+			null, /* no existing compilation unit declaration*/
+			sourceUnit,
+			null/*no node searcher*/, 
+			verifyMethods,
+			analyzeCode,
+			generateCode);
+	}
+
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit, 
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+		
+		return resolve(
+			unit, 
+			sourceUnit, 
+			null/*no node searcher*/, 
+			verifyMethods, 
+			analyzeCode, 
+			generateCode);
 	}
 }
