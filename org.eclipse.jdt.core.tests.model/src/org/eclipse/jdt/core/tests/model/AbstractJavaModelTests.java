@@ -423,6 +423,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no exclusion pattern*/
 			);
 	}
+	protected SearchPattern createPattern(IJavaElement element, int limitTo) {
+		return SearchPattern.createPattern(element, limitTo);
+	}
+	protected SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
+		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
+			? SearchPattern.R_PATTERN_MATCH
+			: SearchPattern.R_EXACT_MATCH;
+		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
+	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, boolean[] exportedProject, String projectOutput) throws CoreException {
 		return
 			this.createJavaProject(
@@ -979,6 +988,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 	}
+	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
+			? SearchPattern.R_PATTERN_MATCH
+			: SearchPattern.R_EXACT_MATCH;
+		SearchPattern pattern = SearchPattern.createPattern(
+			patternString, 
+			searchFor,
+			limitTo, 
+			matchMode,
+			true);
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			scope,
+			requestor,
+			null);
+	}
 	/**
 	 * Sets the class path of the Java project.
 	 */
@@ -1158,4 +1184,5 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} catch (CoreException e) {
 		}
 	}
+
 }

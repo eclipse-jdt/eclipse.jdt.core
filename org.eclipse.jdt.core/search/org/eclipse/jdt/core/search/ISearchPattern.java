@@ -14,9 +14,9 @@ package org.eclipse.jdt.core.search;
  * A search pattern defines how search results are found. Use <code>SearchEngine.createSearchPattern</code>
  * to create a search pattern.
  *
- * @see SearchEngine#createSearchPattern(IJavaElement, int)
+ * @see SearchEngine#createSearchPattern(org.eclipse.jdt.core.IJavaElement, int)
  * @see SearchEngine#createSearchPattern(String, int, int, boolean)
- * TODO (jerome) deprecate this interface - should use SearchPattern instead
+ * @deprecated use SearchPattern instead
  */
 public interface ISearchPattern {
 	// used as a marker interface: contains no methods

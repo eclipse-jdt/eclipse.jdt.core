@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
  * TODO (jerome) spec
  * @since 3.0
  */
-public abstract class SearchPattern extends InternalSearchPattern implements ISearchPattern, IIndexConstants, IJavaSearchConstants {
+public abstract class SearchPattern extends InternalSearchPattern implements IIndexConstants, IJavaSearchConstants {
 
 	/**
 	 * Rules for pattern matching: (exact, prefix, pattern) [ | case sensitive]
@@ -67,6 +67,33 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		this.matchMode = matchRule - (this.isCaseSensitive ? R_CASE_SENSITIVE : 0);
 	}
 
+	/**
+	 * Returns a search pattern that combines the given two patterns into a "and" pattern.
+	 * The search result will match both the left pattern and the right pattern.
+	 *
+	 * @param leftPattern the left pattern
+	 * @param rightPattern the right pattern
+	 * @return a "and" pattern
+	 */
+	public static SearchPattern createAndPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
+		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
+			SearchPattern current = leftPattern;
+			public SearchPattern currentPattern() {
+				return current;
+			}
+			protected boolean hasNextQuery() {
+				if (current == leftPattern) {
+					current = rightPattern;
+					return true;
+				}
+				return false; 
+			}
+			protected void resetQuery() {
+				current = leftPattern;
+			}
+		};
+	}
+	
 	/**
 	 * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
 	 * e.g. java.lang.Object()
@@ -616,6 +643,17 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 					matchRule);
 		}
 		return null;
+	}
+	/**
+	 * Returns a search pattern that combines the given two patterns into a "or" pattern.
+	 * The search result will match either the left pattern or the right pattern.
+	 *
+	 * @param leftPattern the left pattern
+	 * @param rightPattern the right pattern
+	 * @return a "or" pattern
+	 */
+	public static SearchPattern createOrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
+		return new OrPattern(leftPattern, rightPattern);
 	}
 	private static SearchPattern createPackagePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;

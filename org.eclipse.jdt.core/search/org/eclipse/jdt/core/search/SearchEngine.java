@@ -48,11 +48,23 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class SearchEngine {
 
+	/**
+	 * @deprecated marking deprecated as it uses deprecated ISearchPattern
+	 */
+	static class SearchPatternAdapter implements ISearchPattern {
+		SearchPattern pattern;
+		SearchPatternAdapter(SearchPattern pattern) {
+			this.pattern = pattern;
+		}
+	}
 	class ResultCollectorAdapter extends SearchRequestor {
 		IJavaSearchResultCollector resultCollector;
 		ResultCollectorAdapter(IJavaSearchResultCollector resultCollector) {
 			this.resultCollector = resultCollector;
 		}
+		/**
+		 * @see org.eclipse.jdt.core.search.SearchRequestor#acceptSearchMatch(org.eclipse.jdt.core.search.SearchMatch)
+		 */
 		public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
 			this.resultCollector.accept(
 				match.getResource(),
@@ -63,15 +75,27 @@ public class SearchEngine {
 			);
 			return true;
 		}
+		/**
+		 * @see org.eclipse.jdt.core.search.SearchRequestor#beginReporting()
+		 */
 		public void beginReporting() {
 			this.resultCollector.aboutToStart();
 		}
+		/**
+		 * @see org.eclipse.jdt.core.search.SearchRequestor#endReporting()
+		 */
 		public void endReporting() {
 			this.resultCollector.done();
 		}
+		/**
+		 * @see org.eclipse.jdt.core.search.SearchRequestor#enterParticipant(org.eclipse.jdt.core.search.SearchParticipant)
+		 */
 		public void enterParticipant(SearchParticipant participant) {
 			// Nothing to do since only one Java search participant
 		}
+		/**
+		 * @see org.eclipse.jdt.core.search.SearchRequestor#exitParticipant(org.eclipse.jdt.core.search.SearchParticipant)
+		 */
 		public void exitParticipant(SearchParticipant participant) {
 			// Nothing to do since only one Java search participant
 		}
@@ -306,33 +330,6 @@ public class SearchEngine {
 		}
 		return scope;
 	}
-	/**
-	 * Returns a search pattern that combines the given two patterns into a "and" pattern.
-	 * The search result will match both the left pattern and the right pattern.
-	 *
-	 * @param leftPattern the left pattern
-	 * @param rightPattern the right pattern
-	 * @return a "and" pattern
-     * @since 3.0
-	 */
-	public static SearchPattern createAndSearchPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
-		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
-			SearchPattern current = leftPattern;
-			public SearchPattern currentPattern() {
-				return current;
-			}
-			protected boolean hasNextQuery() {
-				if (current == leftPattern) {
-					current = rightPattern;
-					return true;
-				}
-				return false; 
-			}
-			protected void resetQuery() {
-				current = leftPattern;
-			}
-		};
-	}
 	
 	/**
 	 * Returns a search pattern that combines the given two patterns into a "or" pattern.
@@ -341,9 +338,13 @@ public class SearchEngine {
 	 * @param leftPattern the left pattern
 	 * @param rightPattern the right pattern
 	 * @return a "or" pattern
+	 * @deprecated use SearchPattern.createOrPattern(SearchPattern, SearchPattern) instead
 	 */
 	public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, ISearchPattern rightPattern) {
-		return new OrPattern((SearchPattern)leftPattern, (SearchPattern)rightPattern);
+		SearchPattern left = ((SearchPatternAdapter) leftPattern).pattern;
+		SearchPattern right = ((SearchPatternAdapter) rightPattern).pattern;
+		SearchPattern pattern = SearchPattern.createOrPattern(left, right);
+		return new SearchPatternAdapter(pattern);
 	}
 	
 	/**
@@ -387,12 +388,13 @@ public class SearchEngine {
 	 *
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
+	 * @deprecated use SearchPattern.createPattern(String, int, int, int, boolean) instead
 	 */
 	public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
 		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
-		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
+		return  new SearchPatternAdapter(SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive));
 	}
 	
 	/**
@@ -414,10 +416,10 @@ public class SearchEngine {
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
+	 * @deprecated use SearchPattern.createPattern(IJavaElement, int) instead
 	 */
 	public static ISearchPattern createSearchPattern(IJavaElement element, int limitTo) {
-	
-		return SearchPattern.createPattern(element, limitTo);
+		return new SearchPatternAdapter(SearchPattern.createPattern(element, limitTo));
 	}
 	
 	/**
@@ -430,13 +432,13 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns default Java search participant
-	 * TODO add spec
+	 * Returns a new default Java search participant
+	 * 
+	 * @return a new default Java search participant
 	 * @since 3.0
 	 */
 	public static SearchParticipant getDefaultSearchParticipant() {
-		
-		return new JavaSearchParticipant(null);
+		return new JavaSearchParticipant();
 	}
 
 	private Parser getParser() {
@@ -608,9 +610,26 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
 	 */
 	public void search(IWorkspace workspace, String patternString, int searchFor, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-		search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);
+		try {
+			int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
+				? SearchPattern.R_PATTERN_MATCH
+				: SearchPattern.R_EXACT_MATCH;
+			search(
+				SearchPattern.createPattern(patternString, searchFor, limitTo, matchMode, true), 
+				new SearchParticipant[] {getDefaultSearchParticipant()}, 
+				scope, 
+				new ResultCollectorAdapter(resultCollector), 
+				resultCollector.getProgressMonitor());
+		} catch (CoreException e) {
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException) e;
+			} else {
+				throw new JavaModelException(e);
+			}
+		}
 	}
 
 	/**
@@ -655,12 +674,13 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
 	 */
 	public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		try {
 			search(
-				(SearchPattern)searchPattern, 
-				new SearchParticipant[] {new JavaSearchParticipant(getWorkingCopies())}, 
+				((SearchPatternAdapter)searchPattern).pattern, 
+				new SearchParticipant[] {getDefaultSearchParticipant()}, 
 				scope, 
 				new ResultCollectorAdapter(resultCollector), 
 				resultCollector.getProgressMonitor());
@@ -678,19 +698,19 @@ public class SearchEngine {
 	 * methods (from a String pattern or a Java element) and encapsulate the description of what is
 	 * being searched (for example, search method declarations in a case sensitive way).
 	 *
-	 * @param workspace the workspace
-	 * @param searchPattern the pattern to be searched for
-	 * @param scope the search result has to be limited to the given scope
-	 * @param resultCollector a callback object to which each match is reported
-	 * @exception JavaModelException if the search failed. Reasons include:
+	 *@param pattern the pattern to search
+	 *@param participants the particpants in the search
+	 *@param scope the search scope
+	 *@param requestor the requestor to report the matches to
+	 *@param monitor the progress monitor used to report progress
+	 *@exception CoreException if the search failed. Reasons include:
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
 	 *@since 3.0
-	 *TODO add spec
 	 */
 	public void search(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
-		pattern.findMatches(participants, scope, requestor, monitor);
+		pattern.findMatches(participants, getWorkingCopies(), scope, requestor, monitor);
 	}
 
 	/**
@@ -802,7 +822,7 @@ public class SearchEngine {
 			indexManager.performConcurrentJob(
 				new PatternSearchJob(
 					pattern, 
-					new JavaSearchParticipant(getWorkingCopies()), // Java search only
+					getDefaultSearchParticipant(), // Java search only
 					scope, 
 					searchRequestor),
 				waitingPolicy,
@@ -909,27 +929,36 @@ public class SearchEngine {
 	private void searchDeclarations(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector, SearchPattern pattern) throws JavaModelException {
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 		IResource resource = this.getResource(enclosingElement);
-		if (resource instanceof IFile) {
-			if (VERBOSE) {
-				System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
-			}
-			try {
-				SearchParticipant participant = new JavaSearchParticipant(getWorkingCopies(enclosingElement));
+		try {
+			if (resource instanceof IFile) {
+				if (VERBOSE) {
+					System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+				}
+				SearchParticipant participant = getDefaultSearchParticipant();
+				SearchDocument[] documents = pattern.addWorkingCopies(
+					new SearchDocument[] {new JavaSearchDocument(enclosingElement.getPath().toString(), participant)},
+					getWorkingCopies(enclosingElement),
+					participant);
 				participant.locateMatches(
-					new SearchDocument[] {new JavaSearchDocument(enclosingElement.getPath().toString(), participant)}, 
+					documents, 
 					pattern, 
 					scope, 
 					new ResultCollectorAdapter(resultCollector), 
 					resultCollector.getProgressMonitor());
-			} catch (CoreException e) {
-				if (e instanceof JavaModelException) {
-					throw (JavaModelException) e;
-				} else {
-					throw new JavaModelException(e);
-				}
+			} else {
+				search(
+					pattern, 
+					new SearchParticipant[] {getDefaultSearchParticipant()}, 
+					scope, 
+					new ResultCollectorAdapter(resultCollector), 
+					resultCollector.getProgressMonitor());
 			}
-		} else {
-			search(workspace, pattern, scope, resultCollector);
+		} catch (CoreException e) {
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException) e;
+			} else {
+				throw new JavaModelException(e);
+			}
 		}
 	}
 

@@ -192,8 +192,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocTypeStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
+		search( 
 				"JavadocSearched",
 				TYPE,
 				DECLARATIONS, 
@@ -248,11 +247,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"javadocSearchedVar",
+		search(
+				"javadocSearchedVar", 
 				FIELD,
-				DECLARATIONS, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);
@@ -267,10 +265,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					field,
-					DECLARATIONS, 
+			search(
+					field, 
+					DECLARATIONS,
 					getJavaSearchScope(), 
 					result
 					);
@@ -291,10 +288,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				DECLARATIONS, 
+		search(
+				method, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);
@@ -307,10 +303,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				DECLARATIONS, 
+		search(
+				method, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);
@@ -321,11 +316,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocMethodStringDeclaration() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"javadocSearchedMethod",
+		search(
+				"javadocSearchedMethod", 
 				METHOD,
-				DECLARATIONS, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);
@@ -341,10 +335,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("javadocSearchedMethod", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					DECLARATIONS, 
+			search(
+					method, 
+					DECLARATIONS,
 					getJavaSearchScope(), 
 					result
 					);
@@ -362,10 +355,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					DECLARATIONS, 
+			search(
+					method, 
+					DECLARATIONS,
 					getJavaSearchScope(), 
 					result
 					);
@@ -385,10 +377,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				type,
-				REFERENCES, 
+		search(
+				type, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -409,11 +400,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocTypeStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"JavadocSearched",
+		search(
+				"JavadocSearched", 
 				TYPE,
-				REFERENCES, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -437,10 +427,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					type,
-					REFERENCES, 
+			search(
+					type, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -466,11 +455,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					"JavadocSearched",
+			search(
+					"JavadocSearched", 
 					TYPE,
-					REFERENCES, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -501,10 +489,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IField field = type.getField("javadocSearchedVar");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				field,
-				REFERENCES, 
+		search(
+				field, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -516,11 +503,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"javadocSearchedVar",
+		search(
+				"javadocSearchedVar", 
 				FIELD,
-				REFERENCES, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -537,10 +523,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					field,
-					REFERENCES, 
+			search(
+					field, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -557,11 +542,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					"javadocSearchedVar",
+			search(
+					"javadocSearchedVar", 
 					FIELD,
-					REFERENCES, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -584,10 +568,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("javadocSearchedMethod", null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+		search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -601,10 +584,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+		search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -615,11 +597,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocMethodStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"javadocSearchedMethod",
+		search(
+				"javadocSearchedMethod", 
 				METHOD,
-				REFERENCES, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -637,10 +618,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("javadocSearchedMethod", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					REFERENCES, 
+			search(
+					method, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -659,10 +639,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					REFERENCES, 
+			search(
+					method, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -678,11 +657,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					"javadocSearchedMethod",
+			search(
+					"javadocSearchedMethod", 
 					METHOD,
-					REFERENCES, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -706,10 +684,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("JavadocSearched", null);
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+		search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -722,10 +699,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+		search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -736,11 +712,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocConstructorStringReference() throws CoreException {
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				"JavadocSearched",
+		search(
+				"JavadocSearched", 
 				CONSTRUCTOR,
-				REFERENCES, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 				);
@@ -757,10 +732,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("JavadocSearched", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					REFERENCES, 
+			search(
+					method, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -778,10 +752,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					method,
-					REFERENCES, 
+			search(
+					method, 
+					REFERENCES,
 					getJavaSearchScope(), 
 					result
 					);
@@ -797,11 +770,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				"JavadocSearched",
+			search(
+				"JavadocSearched", 
 				CONSTRUCTOR,
-				REFERENCES, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -827,10 +799,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("Y", new String[] { "I" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+			search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -853,10 +824,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				type,
-				REFERENCES, 
+			search(
+				type, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -891,10 +861,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IField field = type.getField("x");
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				field,
-				REFERENCES, 
+			search(
+				field, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -915,10 +884,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("foo", new String[] { "I" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+			search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -939,10 +907,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("Bug47968", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-				getWorkspace(), 
-				method,
-				REFERENCES, 
+			search(
+				method, 
+				REFERENCES,
 				getJavaSearchScope(), 
 				result
 			);
@@ -968,13 +935,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j4", "TT47209.java").getType("TT47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "TF47209.java").getType("TF47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "TC47209.java").getType("TC47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "TT47209.java").getType("TM47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			assertSearchResults(
 				"src/j4/TT47209.java j4.TT47209 [TT47209] EXACT_MATCH\n" + 
 					"src/j4/TF47209.java j4.TF47209.f47209 [TF47209] EXACT_MATCH\n" + 
@@ -991,13 +958,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j4", "FT47209.java").getType("FT47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "FF47209.java").getType("FF47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "FC47209.java").getType("FC47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "FT47209.java").getType("FM47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			assertSearchResults(
 				"src/j4/FT47209.java j4.FT47209 [FT47209] EXACT_MATCH\n" + 
 					"src/j4/FF47209.java j4.FF47209.f47209 [FF47209] EXACT_MATCH\n" + 
@@ -1014,13 +981,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j4", "MT47209.java").getType("MT47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "MF47209.java").getType("MF47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "MC47209.java").getType("MC47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "MT47209.java").getType("MM47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			assertSearchResults(
 				"src/j4/MT47209.java j4.MT47209 [MT47209] EXACT_MATCH\n" + 
 					"src/j4/MF47209.java j4.MF47209.f47209 [MF47209] EXACT_MATCH\n" + 
@@ -1037,13 +1004,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j4", "CT47209.java").getType("CT47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "CF47209.java").getType("CF47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "CC47209.java").getType("CC47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			type = getCompilationUnit("JavaSearch", "src", "j4", "CT47209.java").getType("CM47209");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			assertSearchResults(
 				"src/j4/CT47209.java j4.CT47209 [CT47209] EXACT_MATCH\n" + 
 					"src/j4/CF47209.java j4.CF47209.f47209 [CF47209] EXACT_MATCH\n" + 
@@ -1066,7 +1033,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
-			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			search(type,  REFERENCES, getJavaSearchScope(),  result);
 			assertSearchResults("", result);
 //		} finally {
 //			resetProjectOptions();
@@ -1079,7 +1046,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
 			IField field = type.getField("field");
-			new SearchEngine().search(getWorkspace(), field, REFERENCES, getJavaSearchScope(), result);
+			search(field, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [field] EXACT_MATCH", result);
 //		} finally {
 //			resetProjectOptions();
@@ -1092,7 +1059,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
 			IMethod method = type.getMethod("bar", new String[0]);
-			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
+			search(method, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [bar] EXACT_MATCH", result);
 //		} finally {
 //			resetProjectOptions();
@@ -1105,7 +1072,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
 			IMethod method = type.getMethod("Bug49994", new String[] { "QString;" });
-			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
+			search(method, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [Bug49994] EXACT_MATCH", result);
 //		} finally {
 //			resetProjectOptions();

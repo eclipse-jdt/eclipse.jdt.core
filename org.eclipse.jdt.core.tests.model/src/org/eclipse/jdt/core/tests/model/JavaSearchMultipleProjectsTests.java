@@ -712,10 +712,9 @@ public void testTypeDeclarationInJar() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
-			"Object",
-			TYPE, 
+		search(
+			"Object", 
+			TYPE,
 			DECLARATIONS, 
 			scope, 
 			resultCollector);
@@ -727,10 +726,9 @@ public void testTypeDeclarationInJar() throws CoreException {
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
 		resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
-			"Object",
-			TYPE, 
+		search(
+			"Object", 
+			TYPE,
 			DECLARATIONS, 
 			scope, 
 			resultCollector);

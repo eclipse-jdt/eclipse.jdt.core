@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -108,13 +109,19 @@ public void testAddNewType() throws CoreException {
 		SearchEngine.createJavaSearchScope(
 			new IJavaElement[] {this.workingCopy.getParent()});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
-		getWorkspace(), 
+	SearchPattern pattern = SearchPattern.createPattern(
 		"NewType",
 		TYPE,
 		DECLARATIONS, 
+		SearchPattern.R_EXACT_MATCH,
+		true
+	);
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
+		pattern, 
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 		scope, 
-		resultCollector);
+		resultCollector,
+		null);
 	assertSearchResults(
 		"src/wc/X.java wc.NewType [NewType]", 
 		resultCollector);
@@ -307,13 +314,20 @@ public void testMoveType() throws CoreException {
 		// type X should not be visible in old package
 		IJavaSearchScope scope1 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy1.getParent()});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		searchEngine.search(
-			getWorkspace(), 
+		
+		SearchPattern pattern = SearchPattern.createPattern(
 			"X",
 			TYPE,
 			DECLARATIONS, 
+			SearchPattern.R_EXACT_MATCH,
+			true
+		);
+		searchEngine.search(
+			pattern, 
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope1, 
-			resultCollector);
+			resultCollector,
+			null);
 		assertEquals(
 			"", 
 			resultCollector.toString());
@@ -322,12 +336,11 @@ public void testMoveType() throws CoreException {
 		IJavaSearchScope scope2 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy2.getParent()});
 		resultCollector = new JavaSearchResultCollector();
 		searchEngine.search(
-			getWorkspace(), 
-			"X",
-			TYPE,
-			DECLARATIONS, 
+			pattern, 
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope2, 
-			resultCollector);
+			resultCollector,
+			null);
 		assertSearchResults(
 			"src/wc2/Y.java wc2.X [X]", 
 			resultCollector);
@@ -350,13 +363,19 @@ public void testRemoveType() throws CoreException {
 	
 	// type X should not be visible when working copy hides it
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
-		getWorkspace(), 
+	SearchPattern pattern = SearchPattern.createPattern(
 		"X",
 		TYPE,
 		DECLARATIONS, 
+		SearchPattern.R_EXACT_MATCH,
+		true
+	);
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
+		pattern, 
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 		scope, 
-		resultCollector);
+		resultCollector,
+		null);
 	assertSearchResults(
 		"", 
 		resultCollector);
@@ -364,12 +383,11 @@ public void testRemoveType() throws CoreException {
 	// ensure the type is still present in the compilation unit
 	resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
-		getWorkspace(), 
-		"X",
-		TYPE,
-		DECLARATIONS, 
+		pattern, 
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 		scope, 
-		resultCollector);
+		resultCollector,
+		null);
 	assertSearchResults(
 		"src/wc/X.java wc.X [X]", 
 		resultCollector);
