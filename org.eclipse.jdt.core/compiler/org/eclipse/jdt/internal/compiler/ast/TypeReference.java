@@ -97,6 +97,7 @@ public boolean isTypeReference() {
 	return true;
 }
 public TypeBinding resolveSuperType(ClassScope scope) {
+	// assumes the implementation of resolveType(ClassScope) will call back to detect cycles
 	if (resolveType(scope) == null) return null;
 
 	if (this.resolvedType.isTypeVariable()) {
