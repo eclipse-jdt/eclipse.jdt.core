@@ -27,6 +27,33 @@
 	</td>
   </tr>
 </table>
+<hr><h1>New API on <code>org.eclipse.jdt.core.dom.AST</code></h1>
+	(in progress) Last edit: 2003/07/18
+<h2>Problem description</h2>
+	Creating an DOM/AST for a compilation unit costs a lot when the user wants only a subpart
+	of the compilation unit to be populated. For example, only the statements of one method are
+	useful and there is no need to create the statements of the other methods.
+	<p>
+	See also <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40474 ">bug 40474</a>.
+	</p>
+<h2>Problem resolution</h2>
+	Two new APIs have been added on <code>org.eclipse.jdt.core.dom.AST</code>.<br>
+	<ul>
+	<li><pre><code>public static org.eclipse.jdt.core.dom.CompilationUnit parsePartialCompilationUnit(
+		org.eclipse.jdt.core.ICompilationUnit unit,
+		int position,
+		boolean resolveBindings)</code>
+		</pre>
+	</li>
+	<li><pre><code>public static org.eclipse.jdt.core.dom.CompilationUnit parsePartialCompilationUnit(
+		org.eclipse.jdt.core.ICompilationUnit unit,
+		int position,
+		boolean resolveBindings,
+		org.eclipse.jdt.core.WorkingCopyOwner owner)</code>
+		</pre>
+	</ul>
+<h2>Converting to the new API</h2>
+	None.
 
 <hr><h1>IWorkingCopy is removed</h1>
 	(in progress) Last edit: 2003/07/03

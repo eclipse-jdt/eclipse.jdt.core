@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0477"));
+		suite.addTest(new ASTConverterTest2("test0488"));
 		return suite;
 	}
 	/**
@@ -2042,6 +2042,482 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, arguments.size());
 		IMethodBinding binding = constructorInvocation.resolveConstructorBinding();
 		assertNotNull("No binding", binding);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0478() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0478", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 2, types.length);
+		IType type = types[1];
+		IMethod[] methods = type.getMethods();
+		assertNotNull(methods);
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "test", methodDeclaration.getName().getIdentifier());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertNotNull(methodBinding);
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 2, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(1);
+		assertNotNull(node2);
+		assertTrue("Not an expression statement", node2.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		assertTrue("Not a simple name", expression2.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
+		SimpleName simpleName = (SimpleName) expression2;
+		IBinding binding  = simpleName.resolveBinding();
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertTrue("wrong type", binding.getKind() == IBinding.VARIABLE); //$NON-NLS-1$
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong name", "a", variableBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		SimpleName simpleName2 = methodInvocation.getName();
+		assertEquals("Wrong name", "clone", simpleName2.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
+		IBinding binding2 = simpleName2.resolveBinding();
+		assertNotNull("no binding2", binding2); //$NON-NLS-1$
+		assertTrue("Wrong type", binding2.getKind() == IBinding.METHOD); //$NON-NLS-1$
+		IMethodBinding methodBinding2 = (IMethodBinding) binding2;
+		assertEquals("Wrong name", "clone", methodBinding2.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0479() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0479", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 2, types.length);
+		IType type = types[1];
+		IMethod[] methods = type.getMethods();
+		assertNotNull(methods);
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "test", methodDeclaration.getName().getIdentifier());
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 2, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(1);
+		assertNotNull(node2);
+		assertTrue("Not an expression statement", node2.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node2;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not a method invocation", expression.getNodeType() == ASTNode.METHOD_INVOCATION); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		assertTrue("Not a simple name", expression2.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
+		SimpleName simpleName = (SimpleName) expression2;
+		IBinding binding  = simpleName.resolveBinding();
+		assertNull("No binding", binding); //$NON-NLS-1$
+		SimpleName simpleName2 = methodInvocation.getName();
+		assertEquals("Wrong name", "clone", simpleName2.getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0480() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0480", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertNotNull(methods);
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "test", methodDeclaration.getName().getIdentifier());
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 1, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(0);
+		assertNotNull(node2);
+		assertTrue("Not an variable declaration statement", node2.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0481() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0481", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertNotNull(methods);
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "test", methodDeclaration.getName().getIdentifier());
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 1, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(0);
+		assertNotNull(node2);
+		assertTrue("Not an variable declaration statement", node2.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node2;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue("Not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		ITypeBinding typeBinding = classInstanceCreation.resolveTypeBinding();
+		assertNotNull(typeBinding);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0482() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0482", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IType[] memberTypes = type.getTypes();
+		assertNotNull(memberTypes);
+		assertEquals("wrong size", 1, memberTypes.length);
+		IType memberType = memberTypes[0];
+		IMethod[] methods = memberType.getMethods();
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "test", methodDeclaration.getName().getIdentifier());
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 1, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(0);
+		assertNotNull(node2);
+		assertTrue("Not an variable declaration statement", node2.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node2;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue("Not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		ITypeBinding typeBinding = classInstanceCreation.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		assertTrue(typeBinding.isAnonymous());
+		assertEquals("Wrong name", "", typeBinding.getName());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0483() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0483", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertEquals("wrong size", 1, methods.length);
+		IMethod method = methods[0];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertEquals("wrong name", "A", methodDeclaration.getName().getIdentifier());
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		IBinding binding = methodDeclaration.getName().resolveBinding();
+		assertNotNull(binding);
+		assertEquals("Wrong type", IBinding.METHOD, binding.getKind());
+		List statements = ((MethodDeclaration) node).getBody().statements();
+		assertEquals("wrong size", 1, statements.size());
+		ASTNode node2 = (ASTNode) statements.get(0);
+		assertNotNull(node2);
+		assertTrue("Not an variable declaration statement", node2.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node2;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue("Not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		ITypeBinding typeBinding = classInstanceCreation.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		assertTrue(typeBinding.isAnonymous());
+		assertEquals("Wrong name", "", typeBinding.getName());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0484() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0482", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IType[] memberTypes = type.getTypes();
+		assertNotNull(memberTypes);
+		assertEquals("wrong size", 1, memberTypes.length);
+		IType memberType = memberTypes[0];
+		ISourceRange sourceRange = memberType.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertEquals("wrong name", "B", typeDeclaration.getName().getIdentifier());
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue("Not a method declaration", bodyDeclaration.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0485() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0482", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IType[] memberTypes = type.getTypes();
+		assertNotNull(memberTypes);
+		assertEquals("wrong size", 1, memberTypes.length);
+		IType memberType = memberTypes[0];
+		ISourceRange sourceRange = memberType.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertEquals("wrong name", "B", typeDeclaration.getName().getIdentifier());
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue("Not a method declaration", bodyDeclaration.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0486() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0486", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertEquals("wrong size", 2, methods.length);
+		IMethod method = methods[1];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 2);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 2, statements.size());
+
+		node = getASTNode((CompilationUnit) result, 0, 1);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0487() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0487", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IMethod[] methods = type.getMethods();
+		assertEquals("wrong size", 3, methods.length);
+		IMethod method = methods[1];
+		ISourceRange sourceRange = method.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 5);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 2, statements.size());
+
+		node = getASTNode((CompilationUnit) result, 0, 4);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Wrong name", "field", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+
+		node = getASTNode((CompilationUnit) result, 0, 1);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Wrong name", "i", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+
+		node = getASTNode((CompilationUnit) result, 0, 2);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		Initializer initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.NONE, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 3);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.STATIC, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 6);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+	}	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 */
+	public void test0488() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0488", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IInitializer[] initializers = type.getInitializers();
+		assertEquals("wrong size", 2, initializers.length);
+		IInitializer init = initializers[1];
+		ISourceRange sourceRange = init.getSourceRange(); 
+		ASTNode result = runConversion(sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 5);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+
+		node = getASTNode((CompilationUnit) result, 0, 4);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Wrong name", "field", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+
+		node = getASTNode((CompilationUnit) result, 0, 1);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Wrong name", "i", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+
+		node = getASTNode((CompilationUnit) result, 0, 2);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		Initializer initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.NONE, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 3);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.STATIC, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 6);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
 	}	
 }
 

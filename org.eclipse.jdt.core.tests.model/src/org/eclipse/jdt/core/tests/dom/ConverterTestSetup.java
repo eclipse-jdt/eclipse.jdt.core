@@ -116,6 +116,10 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		return AST.parseCompilationUnit(unit, resolveBindings);
 	}
 
+	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
+		return AST.parsePartialCompilationUnit(unit, position, resolveBindings);
+	}
+
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
 		return AST.parseCompilationUnit(source, unitName, project);
 	}
