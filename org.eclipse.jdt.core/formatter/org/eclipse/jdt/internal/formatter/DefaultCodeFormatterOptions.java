@@ -605,6 +605,11 @@ public class DefaultCodeFormatterOptions {
 
 	public DefaultCodeFormatterOptions(Map settings) {
 		this();
+		if (settings == null) return;
+		set(settings);
+	}
+	
+	public void set(Map settings) {
 		final Object allocationExpressionArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT);
 		if (allocationExpressionArgumentsAlignmentOption != null) {
 			this.allocation_expression_arguments_alignment = Integer.parseInt((String) allocationExpressionArgumentsAlignmentOption);
