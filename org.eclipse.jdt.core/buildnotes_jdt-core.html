@@ -40,6 +40,30 @@ Eclipse SDK 2.2 Build - ?th April 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new compiler settings to control the diagnosis of variable hiding other ones.
+<pre>
+* COMPILER / Reporting Local Variable Declaration Hiding another Variable
+*    When enabled, the compiler will issue an error or a warning whenever a local variable
+*    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.localVariableHiding"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+*
+* COMPILER / Reporting Field Declaration Hiding another Variable
+*    When enabled, the compiler will issue an error or a warning whenever a field
+*    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.fieldHiding"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+*
+* COMPILER / Reporting Constructor Parameter Hiding another Field
+*    When enabled, the compiler will issue an error or a warning whenever a constructor parameter
+*    declaration is hiding some field (either locally, inherited or defined in enclosing type).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
