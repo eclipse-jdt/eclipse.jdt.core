@@ -173,7 +173,7 @@ public boolean exists() {
 }
 	
 public boolean exists0() {
-	return super.exists();
+	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), getPath(), true) != null;
 }
 	
 /**
