@@ -259,21 +259,24 @@ public void testGetParameterTypes() {
 /**
  * @see Signature
  */
-public void testGetTypeParameters() {
+public void testGetTypeParameters1() {
 	String sig = "<X:TF;Y::Ljava.lang.Cloneable;>";
-	assertEquals("Signature#getTypeParameters 1", 2,
-			Signature.getTypeParameters(sig).length);
-	assertEquals("Signature#getTypeParameters 2", "X:TF;",
-			Signature.getTypeParameters(sig)[0]);
-	assertEquals("Signature#getTypeParameters 3", "Y::Ljava.lang.Cloneable;",
-			Signature.getTypeParameters(sig)[1]);
-	sig = "<X:TF;Y::Ljava.lang.Cloneable;>()V";
-	assertEquals("Signature#getTypeParameters 4", 2,
-			Signature.getTypeParameters(sig).length);
-	assertEquals("Signature#getTypeParameters 5", "X:TF;",
-			Signature.getTypeParameters(sig)[0]);
-	assertEquals("Signature#getTypeParameters 6", "Y::Ljava.lang.Cloneable;",
-			Signature.getTypeParameters(sig)[1]);	
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"X:TF;\n" + 
+			"Y::Ljava.lang.Cloneable;\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ */
+public void testGetTypeParameters2() {
+	String sig = "<X:TF;Y::Ljava.lang.Cloneable;>()V";
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"X:TF;\n" + 
+			"Y::Ljava.lang.Cloneable;\n",
+			Signature.getTypeParameters(sig));
 }
 
 /**
