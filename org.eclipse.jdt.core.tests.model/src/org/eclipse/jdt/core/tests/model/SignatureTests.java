@@ -355,10 +355,16 @@ public void testGetTypeParameterBounds() {
  * @see Signature
  */
 public void testGetSimpleName() {
-	assertEquals("Signature#getSimpleName is not correct1", "Object",
+	assertEquals("Signature#getSimpleName is not correct 1", "Object",
 			Signature.getSimpleName("java.lang.Object"));
-	assertEquals("Signature#getSimpleName is not correct2", "",
+	assertEquals("Signature#getSimpleName is not correct 2", "",
 			Signature.getSimpleName(""));
+	assertEquals("Signature#getSimpleName is not correct 3", 
+			"MapEntry<K<T>[],V2[]>",
+			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>"));
+	assertEquals("Signature#getSimpleName is not correct 4", 
+			"MapEntry<K<T>[],? extends V2>",
+			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	
 }
 /**
  * @see Signature
@@ -476,7 +482,10 @@ public void testToString1() {
 		"Signature#toString is not correct 21", 
 		"a<V>.b<W>.c<X>",
 		Signature.toString("La<TV;>.b<QW;>.c<LX;>;"));
-	
+	assertEquals(
+		"Signature#toString is not correct 22", 
+		"java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>",
+		Signature.toString("Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;"));
 }
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)

@@ -1636,6 +1636,27 @@ public static String getSimpleName(String name) {
 private static void appendSimpleName(char[] name, int start, int end, StringBuffer buffer) {
 	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
+	if (name[start] == '?') { // wildcard
+		buffer.append("? "); //$NON-NLS-1$
+		int index = consumeWhitespace(name, start+1, end+1);
+		switch (name[index]) {
+			case 'e' :
+				int checkPos = checkName(EXTENDS, name, index, end);
+			    if (checkPos > 0) {
+			        buffer.append(EXTENDS).append(' ');
+			        index = consumeWhitespace(name, checkPos, end+1);
+				}
+				break;
+			case 's' :
+				checkPos = checkName(SUPER, name, index, end+1);
+			    if (checkPos > 0) {
+			        buffer.append(SUPER).append(' ');
+			        index = consumeWhitespace(name, checkPos, end+1);
+				}
+				break;
+		}
+		start = index; // leading segment got processed
+	}
 	lastDotLookup: for (int i = end; i >= start; i--) {
 		switch (name[i]) {
 			case '.':
@@ -1689,6 +1710,7 @@ private static void appendArgumentSimpleNames(char[] name, int start, int end, S
 					if (argumentCount > 0) buffer.append(',');
 					appendSimpleName(name, argumentStart, i-1, buffer);
 					argumentCount++;
+					argumentStart = i+1;					
 				}
 				break;
 		}
