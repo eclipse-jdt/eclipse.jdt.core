@@ -404,17 +404,21 @@ public FieldBinding[] fields() {
  */
 public char[] genericTypeSignature() {
     if (this.genericReferenceTypeSignature == null) {
-	    StringBuffer sig = new StringBuffer(10);
-	    char[] typeSig = this.signature();
-	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
-	    	sig.append(typeSig[i]);
+        if (this.typeVariables == NoTypeVariables) {
+	        this.genericReferenceTypeSignature = this.signature();
+        } else {
+		    char[] typeSig = this.signature();
+		    StringBuffer sig = new StringBuffer(10);
+		    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
+		    	sig.append(typeSig[i]);
+		    }
+		    sig.append('<');
+		    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+		        sig.append(this.typeVariables[i].genericTypeSignature());
+		    }
+		    sig.append(">;"); //$NON-NLS-1$
+			this.genericReferenceTypeSignature = sig.toString().toCharArray();
 	    }
-	    sig.append('<');
-	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
-	        sig.append(this.typeVariables[i].genericTypeSignature());
-	    }
-	    sig.append(">;"); //$NON-NLS-1$
-		this.genericReferenceTypeSignature = sig.toString().toCharArray();
     }
     return this.genericReferenceTypeSignature;
 }
