@@ -1048,7 +1048,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isUpperbound()
 	 */
 	public boolean isUpperbound() {
-		return this.binding.isWildcard() && ((WildcardBinding) this.binding).kind == Wildcard.SUPER;
+		return this.binding.isWildcard() && ((WildcardBinding) this.binding).kind == Wildcard.EXTENDS;
 	}
 
 	/* (non-Javadoc)
