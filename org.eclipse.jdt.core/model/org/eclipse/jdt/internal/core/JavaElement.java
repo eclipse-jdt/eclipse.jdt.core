@@ -402,15 +402,17 @@ public IJavaElement getParent() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public Object getRawInfo() throws JavaModelException {
-	Object info = fgJavaModelManager.getInfo(this);
-	if (info == null) {
-		openHierarchy();
-		info= fgJavaModelManager.getInfo(this);
+	synchronized(fgJavaModelManager){
+		Object info = fgJavaModelManager.getInfo(this);
 		if (info == null) {
-			throw newNotPresentException();
-		}
+			openHierarchy();
+			info= fgJavaModelManager.getInfo(this);
+			if (info == null) {
+				throw newNotPresentException();
+			}
+		} 
+		return info;
 	}
-	return info;
 }
 /**
  * Returns the element that is located at the given source position

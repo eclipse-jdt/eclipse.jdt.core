@@ -364,7 +364,10 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	private ClassFileReader classFileReader(IType type) {
 		IClassFile classFile = type.getClassFile(); 
 		if (((IOpenable)classFile).isOpen()) {
-			return (ClassFileReader)JavaModelManager.getJavaModelManager().getInfo(type);
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			synchronized(manager){
+				return (ClassFileReader)manager.getInfo(type);
+			}
 		} else {
 			IPackageFragment pkg = type.getPackageFragment();
 			IPackageFragmentRoot root = (IPackageFragmentRoot)pkg.getParent();

@@ -327,7 +327,9 @@ public boolean isConsistent() throws JavaModelException {
  * @see IOpenable
  */
 public boolean isOpen() {
-	return fgJavaModelManager.getInfo(this) != null;
+	synchronized(fgJavaModelManager){
+		return fgJavaModelManager.getInfo(this) != null;
+	}
 }
 /**
  * Returns true if this represents a source element.
@@ -372,8 +374,7 @@ protected void openParent(IProgressMonitor pm) throws JavaModelException {
 
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent != null) {
-		OpenableElementInfo openableParentInfo = (OpenableElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
-		if (openableParentInfo == null) {
+		if (!openableParent.isOpen()){
 			openableParent.openWhenClosed(pm);
 		}
 	}

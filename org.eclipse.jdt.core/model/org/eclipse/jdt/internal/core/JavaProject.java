@@ -819,7 +819,7 @@ public class JavaProject
 	/**
 	 * Returns the XML String encoding of the class path.
 	 */
-	protected String getClasspathAsXMLString(
+	protected String getClasspathAsXML(
 		IClasspathEntry[] classpath,
 		IPath outputLocation)
 		throws JavaModelException {
@@ -844,19 +844,21 @@ public class JavaProject
 		}
 
 		// produce a String output
-		StringWriter writer = new StringWriter();
 		try {
+			ByteArrayOutputStream s= new ByteArrayOutputStream();
 			OutputFormat format = new OutputFormat();
 			format.setIndenting(true);
+			format.setLineSeparator(System.getProperty("line.separator"));  //$NON-NLS-1$
+			
 			Serializer serializer =
 				SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(
-					writer,
+					new OutputStreamWriter(s, "UTF8"), //$NON-NLS-1$
 					format);
 			serializer.asDOMSerializer().serialize(doc);
+			return s.toString("UTF8"); //$NON-NLS-1$
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
-		return writer.toString();
 	}
 
 	/**
@@ -1842,7 +1844,7 @@ public class JavaProject
 		try {
 			setSharedProperty(
 				classpathProp,
-				getClasspathAsXMLString(newClasspath, newOutputLocation));
+				getClasspathAsXML(newClasspath, newOutputLocation));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
@@ -2038,12 +2040,12 @@ public class JavaProject
 
 		String propertyName = computeSharedPropertyFileName(key);
 		IFile rscFile = getProject().getFile(propertyName);
-		InputStream input = new ByteArrayInputStream(value.getBytes());
+		InputStream inputStream = new ByteArrayInputStream(value.getBytes());
 		// update the resource content
 		if (rscFile.exists()) {
-			rscFile.setContents(input, true, false, null);
+			rscFile.setContents(inputStream, true, false, null);
 		} else {
-			rscFile.create(input, true, null);
+			rscFile.create(inputStream, true, null);
 		}
 	}
 

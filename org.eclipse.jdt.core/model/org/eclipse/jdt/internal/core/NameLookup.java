@@ -74,18 +74,6 @@ public class NameLookup {
 	protected Map fPackageFragments;
 
 	/**
-	 * Singleton <code>SingleTypeRequestor</code>.
-	 * @see findType(String, IPackageFragment, boolean, int)
-	 */
-	protected SingleTypeRequestor fgSingleTypeRequestor= new SingleTypeRequestor();
-
-	/**
-	 * Singleton <code>JavaElementRequestor</code>.
-	 * @see findType(String, boolean, int)
-	 */
-	protected JavaElementRequestor fgJavaElementRequestor= new JavaElementRequestor();
-
-	/**
 	 * The <code>IWorkspace</code> that this NameLookup
 	 * is configure within.
 	 */
@@ -95,8 +83,9 @@ public class NameLookup {
 	 * A map from compilation unit handles to units to look inside (compilation
 	 * units or working copies).
 	 * Allows working copies to take precedence over compilation units.
+	 * The cache is a 2-level cache, first keyed by thread.
 	 */
-	protected HashMap unitsToLookInside = null;
+	protected HashMap unitsToLookInside = new HashMap();
 
 	public NameLookup(IJavaProject project) throws JavaModelException {
 		configureFromProject(project);
@@ -368,9 +357,10 @@ public class NameLookup {
 		if (packageName == null) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		}
-		seekPackageFragments(packageName, false, fgJavaElementRequestor);
-		IPackageFragment[] packages= fgJavaElementRequestor.getPackageFragments();
-		fgJavaElementRequestor.reset();
+		JavaElementRequestor elementRequestor = new JavaElementRequestor();
+		seekPackageFragments(packageName, false, elementRequestor);
+		IPackageFragment[] packages= elementRequestor.getPackageFragments();
+
 		for (int i= 0, length= packages.length; i < length; i++) {
 			IType type= findType(typeName, packages[i], partialMatch, acceptFlags);
 			if (type != null)
@@ -444,10 +434,12 @@ public class NameLookup {
 			return null;
 		}
 		// Return first found (ignore duplicates).
-		seekTypes(name, pkg, partialMatch, acceptFlags, fgSingleTypeRequestor);
-		IType type= fgSingleTypeRequestor.getType();
-		fgSingleTypeRequestor.reset();
+//synchronized(JavaModelManager.getJavaModelManager()){	
+		SingleTypeRequestor typeRequestor = new SingleTypeRequestor();
+		seekTypes(name, pkg, partialMatch, acceptFlags, typeRequestor);
+		IType type= typeRequestor.getType();
 		return type;
+//}
 	}
 
 	/**
@@ -662,8 +654,9 @@ public class NameLookup {
 			
 			// unit to look inside
 			ICompilationUnit unitToLookInside = null;
-			if (this.unitsToLookInside != null) {
-				unitToLookInside = (ICompilationUnit)this.unitsToLookInside.get(compilationUnit);
+			Map workingCopies = (Map)this.unitsToLookInside.get(Thread.currentThread());
+			if (workingCopies != null) {
+				unitToLookInside = (ICompilationUnit)workingCopies.get(compilationUnit);
 				if (unitToLookInside != null) {
 					compilationUnit = unitToLookInside;
 				}
@@ -696,7 +689,7 @@ public class NameLookup {
 				for (int j= 0; j < typeLength; j++) {
 					if (requestor.isCanceled())
 						return;
-					IType type= types[j];
+					IType type= types[j]; 
 					if (nameMatches(potentialMatchName, type, partialMatch)) {
 						seekQualifiedMemberTypes(name.substring(index + 1, name.length()), type, partialMatch, requestor, acceptFlags);
 					}
@@ -712,17 +705,22 @@ public class NameLookup {
  * <code>null</code> means that no special compilation units should be used.
  */
 public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
+	
+	Thread currentThread = Thread.currentThread();
 	if (unitsToLookInside == null) {
-		this.unitsToLookInside = null;
+		this.unitsToLookInside.put(currentThread, null);
 	} else {
-		this.unitsToLookInside = new HashMap();
+		Map workingCopies = (Map)this.unitsToLookInside.get(currentThread);
+		if (workingCopies == null){
+			this.unitsToLookInside.put(currentThread, workingCopies = new HashMap());
+		}
 		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
 			IWorkingCopy unitToLookInside = unitsToLookInside[i];
 			ICompilationUnit original = (ICompilationUnit)unitToLookInside.getOriginalElement();
 			if (original != null) {
-				this.unitsToLookInside.put(original, unitToLookInside);
+				workingCopies.put(original, unitToLookInside);
 			} else {
-				this.unitsToLookInside.put(unitToLookInside, unitToLookInside);
+				workingCopies.put(unitToLookInside, unitToLookInside);
 			}
 		}
 	}
