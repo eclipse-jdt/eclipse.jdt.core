@@ -36,4 +36,8 @@ public interface IJob {
 	 * Execute the current job, answer whether it was successful.
 	 */
 	public boolean execute(IProgressMonitor progress);
+	/**
+	 * Answer whether the job is ready to run.
+	 */
+	public boolean isReadyToRun();
 }

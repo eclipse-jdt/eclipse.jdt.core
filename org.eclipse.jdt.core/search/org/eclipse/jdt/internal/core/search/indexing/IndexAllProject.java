@@ -32,11 +32,10 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class IndexAllProject extends IndexRequest {
 	IProject project;
-	IndexManager manager;
 
 	public IndexAllProject(IProject project, IndexManager manager) {
+		super(project.getFullPath(), manager);
 		this.project = project;
-		this.manager = manager;
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(this.project.getName());
@@ -56,8 +55,7 @@ public class IndexAllProject extends IndexRequest {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!project.isAccessible()) return true; // nothing to do
 
-		IPath projectPath = this.project.getFullPath();
-		IIndex index = this.manager.getIndex(projectPath, true, /*reuse index file*/ true /*create if none*/);
+		IIndex index = this.manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -138,30 +136,30 @@ public class IndexAllProject extends IndexRequest {
 					if (value != OK) {
 						shouldSave = true;
 						if (value == DELETED)
-							this.manager.remove(name, projectPath);
+							this.manager.remove(name, this.indexPath);
 						else
-							this.manager.addSource((IFile) value, projectPath);
+							this.manager.addSource((IFile) value, this.indexPath);
 					}
 				}
 			}
 
 			// request to save index when all cus have been indexed
 			if (shouldSave)
-				this.manager.request(new SaveIndex(projectPath, manager));
+				this.manager.request(new SaveIndex(this.indexPath, this.manager));
 
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(projectPath);
+			this.manager.removeIndex(this.indexPath);
 			return false;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(projectPath);
+			this.manager.removeIndex(this.indexPath);
 			return false;
 		} finally {
 			monitor.exitRead(); // free read lock
@@ -170,6 +168,9 @@ public class IndexAllProject extends IndexRequest {
 	}
 	public int hashCode() {
 		return this.project.hashCode();
+	}
+	protected Integer updatedIndexState() {
+		return IndexManager.REBUILDING_STATE;
 	}
 	public String toString() {
 		return "indexing project " + this.project.getFullPath(); //$NON-NLS-1$

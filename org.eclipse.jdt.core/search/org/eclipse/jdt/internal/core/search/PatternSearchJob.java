@@ -49,7 +49,6 @@ public class PatternSearchJob implements IJob {
 			requestor,
 			indexManager);
 	}
-
 	public PatternSearchJob(
 		SearchPattern pattern,
 		IJavaSearchScope scope,
@@ -65,14 +64,11 @@ public class PatternSearchJob implements IJob {
 		this.requestor = requestor;
 		this.indexManager = indexManager;
 	}
-
 	public boolean belongsTo(String jobFamily) {
 		return true;
 	}
-
-	/**
-	 * execute method comment.
-	 */
+	public void cancel() {
+	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
 		if (progressMonitor != null && progressMonitor.isCanceled())
@@ -109,10 +105,11 @@ public class PatternSearchJob implements IJob {
 			}
 		}
 	}
-
-	/**
-	 * execute method comment.
-	 */
+	public boolean isReadyToRun() {
+		IndexSelector selector = new IndexSelector(this.scope, this.focus, this.indexManager);
+		selector.getIndexes(); // do not want to cache these indexes since some may be null & need to be rebuilt
+		return true;
+	}
 	public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 
 		if (progressMonitor != null && progressMonitor.isCanceled())
@@ -131,9 +128,7 @@ public class PatternSearchJob implements IJob {
 				try {
 					monitor.exitRead(); // free read lock
 					monitor.enterWrite(); // ask permission to write
-					if (IndexManager.VERBOSE)
-						JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
-					index.save();
+					this.indexManager.saveIndex(index);
 				} catch (IOException e) {
 					return FAILED;
 				} finally {
@@ -155,14 +150,7 @@ public class PatternSearchJob implements IJob {
 			monitor.exitRead(); // finished reading
 		}
 	}
-
 	public String toString() {
 		return "searching " + pattern.toString(); //$NON-NLS-1$
 	}
-	/*
-	 * @see IJob#cancel()
-	 */
-	public void cancel() {
-	}
-
 }

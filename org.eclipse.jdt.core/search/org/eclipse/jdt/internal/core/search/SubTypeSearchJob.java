@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
@@ -65,9 +64,7 @@ public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 			try {
 				monitor.exitRead(); // free read lock
 				monitor.enterWrite(); // ask permission to write
-				if (IndexManager.VERBOSE) 
-					JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
-				index.save();
+				this.indexManager.saveIndex(index);
 			} catch(IOException e){
 				return FAILED;
 			} finally {

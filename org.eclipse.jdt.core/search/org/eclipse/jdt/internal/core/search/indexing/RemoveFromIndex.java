@@ -19,16 +19,10 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class RemoveFromIndex extends IndexRequest {
 	String resourceName;
-	IPath indexPath;
-	IndexManager manager;
 
 	public RemoveFromIndex(String resourceName, IPath indexPath, IndexManager manager) {
+		super(indexPath, manager);
 		this.resourceName = resourceName;
-		this.indexPath = indexPath;
-		this.manager = manager;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexPath.segment(0));
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 

@@ -20,16 +20,10 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 abstract class AddFileToIndex extends IndexRequest {
 	IFile resource;
-	IPath indexPath;
-	IndexManager manager;
 
 	public AddFileToIndex(IFile resource, IPath indexPath, IndexManager manager) {
+		super(indexPath, manager);
 		this.resource = resource;
-		this.indexPath = indexPath;
-		this.manager = manager;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexPath.segment(0));
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 

@@ -30,22 +30,19 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 class AddJarFileToIndex extends IndexRequest {
 	IFile resource;
 	String projectName;
-	IPath indexPath;
-	IndexManager manager;
 
 	public AddJarFileToIndex(IFile resource, IndexManager manager, String projectName) {
+		super(resource.getFullPath(), manager);
 		this.resource = resource;
 		this.projectName = projectName;
-		this.indexPath = resource.getFullPath();
-		this.manager = manager;
 	}
 	public AddJarFileToIndex(IPath indexPath, IndexManager manager, String projectName) {
 		// external JAR scenario - no resource
+		super(indexPath, manager);
 		this.projectName = projectName;
-		this.indexPath = indexPath;
-		this.manager = manager;
 	}
 	public boolean belongsTo(String jobFamily) {
+		// used to remove pending jobs because the project was deleted... not to delete index files
 		// can be found either by project name or JAR path name
 		return jobFamily.equals(projectName) || this.indexPath.toString().equals(jobFamily);
 	}
@@ -70,7 +67,8 @@ class AddJarFileToIndex extends IndexRequest {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		try {
-			// if index already cached, then do not perform any check
+			// if index is already cached, then do not perform any check
+			// MUST reset the IndexManager if a jar file is changed
 			IIndex index = (IIndex) manager.getIndex(this.indexPath, false, /*do not reuse index file*/ false /*do not create if none*/);
 			if (index != null) {
 				if (JobManager.VERBOSE)
@@ -164,6 +162,7 @@ class AddJarFileToIndex extends IndexRequest {
 					index = manager.recreateIndex(this.indexPath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
+// KJ : what should happen if an index job is cancelled?
 						if (JobManager.VERBOSE)
 							JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
@@ -179,7 +178,7 @@ class AddJarFileToIndex extends IndexRequest {
 							new BinaryIndexer(true));
 					}
 				}
-				index.save();
+				this.manager.saveIndex(index);
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> done indexing of " //$NON-NLS-1$
 						+ zip.getName() + " (" //$NON-NLS-1$
@@ -201,6 +200,9 @@ class AddJarFileToIndex extends IndexRequest {
 			return false;
 		}
 		return true;
+	}
+	protected Integer updatedIndexState() {
+		return IndexManager.REBUILDING_STATE;
 	}
 	public String toString() {
 		return "indexing " + this.indexPath.toString(); //$NON-NLS-1$

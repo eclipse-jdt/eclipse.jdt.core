@@ -20,16 +20,10 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class RemoveFolderFromIndex extends IndexRequest {
 	String folderPath;
-	IPath indexPath;
-	IndexManager manager;
 
 	public RemoveFolderFromIndex(String folderPath, IPath indexPath, IndexManager manager) {
+		super(indexPath, manager);
 		this.folderPath = folderPath;
-		this.indexPath = indexPath;
-		this.manager = manager;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexPath.segment(0));
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 

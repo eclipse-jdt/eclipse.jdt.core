@@ -12,18 +12,29 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public abstract class IndexRequest implements IJob {
 	protected boolean isCancelled = false;
+	protected IPath indexPath;
+	protected IndexManager manager;
 
-	/*
-	 * @see IJob#cancel()
-	 */
+	public IndexRequest(IPath indexPath, IndexManager manager) {
+		this.indexPath = indexPath;
+		this.manager = manager;
+	}
+	public boolean belongsTo(String jobFamily) {
+		return jobFamily.equals(this.indexPath.segment(0));
+	}
 	public void cancel() {
 		this.isCancelled = true;
+	}
+	public boolean isReadyToRun() {
+		// tag the index as inconsistent
+		this.manager.aboutToUpdateIndex(indexPath, updatedIndexState());
+		return true;
 	}
 	protected void saveIfNecessary(IIndex index, ReadWriteMonitor monitor) throws IOException {
 		/* if index has changed, commit these before querying */
@@ -31,12 +42,13 @@ public abstract class IndexRequest implements IJob {
 			try {
 				monitor.exitRead(); // free read lock
 				monitor.enterWrite(); // ask permission to write
-				if (IndexManager.VERBOSE)
-					JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
-				index.save();
+				this.manager.saveIndex(index);
 			} finally {
 				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
 			}
 		}
+	}
+	protected Integer updatedIndexState() {
+		return IndexManager.UPDATING_STATE;
 	}
 }

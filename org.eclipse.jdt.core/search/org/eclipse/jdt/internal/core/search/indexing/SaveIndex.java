@@ -21,15 +21,8 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  * Save the index of a project.
  */
 public class SaveIndex extends IndexRequest {
-	IPath indexPath;
-	IndexManager manager;
-
 	public SaveIndex(IPath indexPath, IndexManager manager) {
-		this.indexPath = indexPath;
-		this.manager = manager;
-	}
-	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexPath.segment(0));
+		super(indexPath, manager);
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 		
@@ -44,7 +37,7 @@ public class SaveIndex extends IndexRequest {
 
 			try {
 				monitor.enterWrite(); // ask permission to write
-				index.save();
+				this.manager.saveIndex(index);
 			} finally {
 				monitor.exitWrite(); // free write lock
 			}

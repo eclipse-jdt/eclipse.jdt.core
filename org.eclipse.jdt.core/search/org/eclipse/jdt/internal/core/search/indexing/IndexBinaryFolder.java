@@ -29,16 +29,15 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
-	IndexManager manager;
 	IProject project;
 
 	public IndexBinaryFolder(IFolder folder, IndexManager manager, IProject project) {
+		super(folder.getFullPath(), manager);
 		this.folder = folder;
-		this.manager = manager;
 		this.project = project;
 	}
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.project.getName());
+		return this.project != null && jobFamily.equals(this.project.getName());
 	}
 	public boolean equals(Object o) {
 		if (o instanceof IndexBinaryFolder)
@@ -55,8 +54,7 @@ public class IndexBinaryFolder extends IndexRequest {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!this.folder.isAccessible()) return true; // nothing to do
 
-		IPath folderPath = this.folder.getFullPath();
-		IIndex index = this.manager.getIndex(folderPath, true, /*reuse index file*/ true /*create if none*/);
+		IIndex index = this.manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -122,30 +120,30 @@ public class IndexBinaryFolder extends IndexRequest {
 					if (value != OK) {
 						shouldSave = true;
 						if (value == DELETED)
-							this.manager.remove(name, folderPath);
+							this.manager.remove(name, this.indexPath);
 						else
-							this.manager.addBinary((IFile) value, folderPath);
+							this.manager.addBinary((IFile) value, this.indexPath);
 					}
 				}
 			}
 
 			// request to save index when all class files have been indexed
 			if (shouldSave)
-				this.manager.request(new SaveIndex(folderPath, manager));
+				this.manager.request(new SaveIndex(this.indexPath, this.manager));
 
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(folderPath);
+			this.manager.removeIndex(this.indexPath);
 			return false;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
-			this.manager.removeIndex(folderPath);
+			this.manager.removeIndex(this.indexPath);
 			return false;
 		} finally {
 			monitor.exitRead(); // free read lock
@@ -154,6 +152,9 @@ public class IndexBinaryFolder extends IndexRequest {
 	}
 	public int hashCode() {
 		return this.folder.hashCode();
+	}
+	protected Integer updatedIndexState() {
+		return IndexManager.REBUILDING_STATE;
 	}
 	public String toString() {
 		return "indexing binary folder " + this.folder.getFullPath(); //$NON-NLS-1$

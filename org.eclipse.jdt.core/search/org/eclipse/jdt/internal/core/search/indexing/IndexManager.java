@@ -10,7 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +20,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.CRC32;
 
-import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -29,12 +30,12 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.DeltaProcessor;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -46,6 +47,7 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class IndexManager extends JobManager implements IIndexConstants {
 	/* number of file contents in memory */
@@ -53,8 +55,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	
 	public IWorkspace workspace;
 
+	public SimpleLookupTable indexNames = new SimpleLookupTable();
+
 	/* indexes */
-	Map indexes = new HashMap(5);
+	private Map indexes = new HashMap(5);
 
 	/* read write monitors */
 	private Map monitors = new HashMap(5);
@@ -63,33 +67,32 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	private boolean needToSave = false;
 	private static final CRC32 checksumCalculator = new CRC32();
 	private IPath javaPluginLocation = null;
-	
-	/* projects to check consistency for */
-	IProject[] projectsToCheck = null;
 
-/**
- * Before processing all jobs, need to ensure that the indexes are up to date.
- */
-public void activateProcessing() {
-	try {
-		Thread.sleep(10000); // wait 10 seconds so as not to interfere with plugin startup
-	} catch (InterruptedException ie) {
-	}	
-	checkIndexConsistency();
-	super.activateProcessing();
-}
-/**
- * Trigger addition of a resource to an index
- * Note: the actual operation is performed in background
- */
-public void addSource(IFile resource, IPath indexedContainer){
-	if (JavaCore.getPlugin() == null) return;	
-	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, indexedContainer, this);
-	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
-		// reduces the chance that the file is open later on, preventing it from being deleted
-		if (!job.initializeContents()) return;
+	private File savedIndexNamesFile =
+		new File(getJavaPluginWorkingLocation().append("savedIndexNames.txt").toOSString()); //$NON-NLS-1$
+
+	/* can only replace a current state if its less than the new one */
+	private SimpleLookupTable indexStates = null;
+	public static Integer SAVED_STATE = new Integer(0);
+	public static Integer UPDATING_STATE = new Integer(1);
+	public static Integer UNKNOWN_STATE = new Integer(2);
+	public static Integer REBUILDING_STATE = new Integer(3);
+
+public synchronized void aboutToUpdateIndex(IPath path, Integer newIndexState) {
+	// newIndexState is either UPDATING_STATE or REBUILDING_STATE
+	// must tag the index as inconsistent, in case we exit before the update job is started
+	String indexName = computeIndexName(path);
+	Object state = getIndexStates().get(indexName);
+	Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
+
+	int compare = newIndexState.compareTo(currentIndexState);
+	if (compare > 0) {
+		// so UPDATING_STATE replaces SAVED_STATE and REBUILDING_STATE replaces everything
+		updateIndexState(indexName, newIndexState);
+	} else if (compare < 0 && this.indexes.get(path) == null) {
+		// if already cached index then there is nothing more to do
+		rebuildIndex(indexName, path);
 	}
-	request(job);
 }
 /**
  * Trigger addition of a resource to an index
@@ -105,86 +108,32 @@ public void addBinary(IFile resource, IPath indexedContainer){
 	request(job);
 }
 /**
- * Index the content of the given source folder.
+ * Trigger addition of a resource to an index
+ * Note: the actual operation is performed in background
  */
-public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final char[][] exclusionPattern) {
-	IProject project = javaProject.getProject();
-	final IPath container = project.getFullPath();
-	IContainer folder;
-	if (container.equals(sourceFolder)) {
-		folder = project;
-	} else {
-		folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(sourceFolder);
+public void addSource(IFile resource, IPath indexedContainer){
+	if (JavaCore.getPlugin() == null) return;	
+	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, indexedContainer, this);
+	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
+		// reduces the chance that the file is open later on, preventing it from being deleted
+		if (!job.initializeContents()) return;
 	}
-	try {
-		folder.accept(new IResourceVisitor() {
-			/*
-			 * @see IResourceVisitor#visit(IResource)
-			 */
-			public boolean visit(IResource resource) throws CoreException {
-				if (resource instanceof IFile) {
-					if (org.eclipse.jdt.internal.core.Util.isJavaFileName(resource.getName()) 
-							&& !org.eclipse.jdt.internal.core.Util.isExcluded(resource, exclusionPattern)) {
-						addSource((IFile)resource, container);
-					}
-					return false;
-				} else {
-					return true;
-				}
-			}
-		});
-	} catch (CoreException e) {
-		// Folder does not exist.
-		// It will be indexed only when DeltaProcessor detects its addition
+	request(job);
+}
+String computeIndexName(IPath path) {
+	String name = (String) indexNames.get(path);
+	if (name == null) {
+		String pathString = path.toOSString();
+		checksumCalculator.reset();
+		checksumCalculator.update(pathString.getBytes());
+		String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
+		if (VERBOSE)
+			JobManager.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+		name = getJavaPluginWorkingLocation().append(fileName).toOSString();
+		indexNames.put(path, name);
 	}
+	return name;
 }
-/**
- * Ensures that indexes are up to date with workbench content. Typically
- * it is invoked in background when activate the job processing.
- */
-public void checkIndexConsistency() {
-
-	if (VERBOSE) JobManager.verbose("STARTING ensuring consistency"); //$NON-NLS-1$
-
-	boolean wasEnabled = isEnabled();	
-	try {
-		disable();
-
-		IWorkspace workspace =  ResourcesPlugin.getWorkspace();
-		if (workspace == null) return; // NB: workspace can be null if it has shut down (see http://dev.eclipse.org/bugs/show_bug.cgi?id=16175)
-		if (this.projectsToCheck != null){
-			IProject[] projects = this.projectsToCheck;
-			this.projectsToCheck = null;
-			for (int i = 0, max = projects.length; i < max; i++){
-				IProject project = projects[i];
-				// not only java project, given at startup nature may not have been set yet
-				if (project.isOpen()) { 
-					indexAll(project);
-				}
-			}
-		}
-	} finally {
-		if (wasEnabled) enable();
-		if (VERBOSE) JobManager.verbose("DONE ensuring consistency"); //$NON-NLS-1$
-	}
-}
-private String computeIndexName(IPath path) {
-	
-	String pathString = path.toOSString();
-	byte[] pathBytes = pathString.getBytes();
-	checksumCalculator.reset();
-	checksumCalculator.update(pathBytes);
-	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
-	if (VERBOSE) JobManager.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
-	IPath indexPath = getJavaPluginWorkingLocation();
-	String indexDirectory = indexPath.toOSString();
-	if (indexDirectory.endsWith(File.separator)) {
-		return indexDirectory + fileName;
-	} else {
-		return indexDirectory + File.separator + fileName;
-	} 
-}
-
 /**
  * Returns the index for a given project, according to the following algorithm:
  * - if index is already in memory: answers this one back
@@ -198,26 +147,35 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 	IIndex index = (IIndex) indexes.get(path);
 	if (index == null) {
 		try {
-			String indexPath = null;
-			
+			String indexName = computeIndexName(path);
+			Object state = getIndexStates().get(indexName);
+			Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
+			if (currentIndexState == UNKNOWN_STATE) {
+				// should only be reachable for query jobs
+				// IF you put an index in the cache, then AddJarFileToIndex fails because it thinks there is nothing to do
+				rebuildIndex(indexName, path);
+				return null;
+			}
+
 			// index isn't cached, consider reusing an existing index file
-			if (reuseExistingFile){
-				indexPath = computeIndexName(path);
-				File indexFile = new File(indexPath);
-				if (indexFile.exists()){ // check before creating index so as to avoid creating a new empty index if file is missing
-					index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
-					if (index != null){
+			if (reuseExistingFile) {
+				File indexFile = new File(indexName);
+				if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
+					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					if (index != null) {
 						indexes.put(path, index);
 						monitors.put(index, new ReadWriteMonitor());
 						return index;
 					}
+				} else if (currentIndexState == SAVED_STATE) {
+					rebuildIndex(indexName, path);
+					return null;
 				}
 			} 
 			// index wasn't found on disk, consider creating an empty new one
-			if (createIfMissing){
-				if (indexPath == null) indexPath = computeIndexName(path);
-				index = new Index(indexPath, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
-				if (index != null){
+			if (createIfMissing) {
+				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				if (index != null) {
 					indexes.put(path, index);
 					monitors.put(index, new ReadWriteMonitor());
 					return index;
@@ -231,11 +189,22 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
-private IPath getJavaPluginWorkingLocation() {
-	if (javaPluginLocation == null) {
-		javaPluginLocation = JavaCore.getPlugin().getStateLocation();
+private SimpleLookupTable getIndexStates() {
+	if (indexStates != null) return indexStates;
+
+	this.indexStates = new SimpleLookupTable();
+	char[] savedIndexNames = readIndexState();
+	if (savedIndexNames.length > 0) {
+		char[][] names = CharOperation.splitOn('\n', savedIndexNames);
+		for (int i = 0, l = names.length; i < l; i++)
+			this.indexStates.put(new String(names[i]), SAVED_STATE);
 	}
-	return javaPluginLocation;
+	return this.indexStates;
+}
+private IPath getJavaPluginWorkingLocation() {
+	if (this.javaPluginLocation != null) return this.javaPluginLocation;
+
+	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
 }
 /**
  * Index access is controlled through a read-write monitor so as
@@ -243,8 +212,7 @@ private IPath getJavaPluginWorkingLocation() {
  * (only concurrent reading is allowed).
  */
 public ReadWriteMonitor getMonitorFor(IIndex index){
-	
-	return (ReadWriteMonitor)monitors.get(index);
+	return (ReadWriteMonitor) monitors.get(index);
 }
 /**
  * Trigger addition of the entire content of a project
@@ -264,22 +232,77 @@ public void indexAll(IProject project) {
 		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
 				this.indexLibrary(entry.getPath(), project);
-			}
 		}
 	} catch(JavaModelException e){ // cannot retrieve classpath info
 	}	
 	this.request(new IndexAllProject(project, this));
 }
+/**
+ * Trigger addition of a library to an index
+ * Note: the actual operation is performed in background
+ */
+public void indexLibrary(IPath path, IProject referingProject) {
+	if (JavaCore.getPlugin() == null) return;
 
+	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	IndexRequest request = null;
+	if (target instanceof IFile) {
+		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
+	} else if (target instanceof java.io.File) {
+		// remember the timestamp of this library
+		long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
+		request = new AddJarFileToIndex(path, this, referingProject.getName());
+	} else if (target instanceof IFolder) {
+		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
+	} else {
+		return;
+	}
 
+	// check if the same request is not already in the queue
+	for (int i = this.jobEnd; i >= this.jobStart; i--) {
+		IJob job = this.awaitingJobs[i];
+		if (job != null && request.equals(job)) return;
+	}
+	this.request(request);
+}
+/**
+ * Index the content of the given source folder.
+ */
+public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final char[][] exclusionPattern) {
+	IProject project = javaProject.getProject();
+	final IPath container = project.getFullPath();
+	IContainer folder = container.equals(sourceFolder)
+		? (IContainer) project
+		 : (IContainer) ResourcesPlugin.getWorkspace().getRoot().getFolder(sourceFolder);
+	try {
+		folder.accept(new IResourceVisitor() {
+			/*
+			 * @see IResourceVisitor#visit(IResource)
+			 */
+			public boolean visit(IResource resource) throws CoreException {
+				if (resource instanceof IFile) {
+					if (org.eclipse.jdt.internal.core.Util.isJavaFileName(resource.getName()) 
+							&& !org.eclipse.jdt.internal.core.Util.isExcluded(resource, exclusionPattern)) {
+						addSource((IFile)resource, container);
+					}
+					return false;
+				}
+				return true;
+			}
+		});
+	} catch (CoreException e) {
+		// Folder does not exist.
+		// It will be indexed only when DeltaProcessor detects its addition
+	}
+}
 /**
  * Advance to the next available job, once the current one has been completed.
  * Note: clients awaiting until the job count is zero are still waiting at this point.
  */
 protected synchronized void moveToNextJob() {
-
 	// remember that one job was executed, and we will need to save indexes at some point
 	needToSave = true;
 	super.moveToNextJob();
@@ -296,30 +319,49 @@ protected void notifyIdle(long idlingTime){
 public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
+private void rebuildIndex(String indexName, IPath path) {
+	updateIndexState(indexName, REBUILDING_STATE);
 
+	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	IndexRequest request = null;
+	if (target instanceof IProject) {
+		request = new IndexAllProject((IProject) target, this);
+	} else if (target instanceof IFolder) {
+		IFolder folder = (IFolder) target;
+		request = new IndexBinaryFolder(folder, this, folder.getProject());
+	} else if (target instanceof IFile) {
+		request = new AddJarFileToIndex((IFile) target, this, ""); //$NON-NLS-1$
+	} else if (target instanceof java.io.File) {
+		// remember the timestamp of this library
+		long timestamp = DeltaProcessor.getTimeStamp((java.io.File) target);
+		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
+		request = new AddJarFileToIndex(path, this, ""); //$NON-NLS-1$
+	}
+	if (request != null)
+		request(request);
+}
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
  * Returns the new empty index or null if it didn't exist before.
  * Warning: Does not check whether index is consistent (not being used)
  */
 public synchronized IIndex recreateIndex(IPath path) {
-	IIndex index = (IIndex) indexes.get(path);
-	if (index != null) {
-		try {
-			// Path is already canonical
-			String indexPath = computeIndexName(path);
-			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
-			index.empty();
-			indexes.put(path, index);
-			monitors.put(index, monitor);
-		} catch (IOException e) {
-			// The file could not be created. Possible reason: the project has been deleted.
-			return null;
-		}
+	// only called to over write an existing cached index...
+	try {
+		IIndex index = (IIndex) this.indexes.get(path);
+		ReadWriteMonitor monitor = (ReadWriteMonitor) this.monitors.remove(index);
+
+		// Path is already canonical
+		String indexPath = computeIndexName(path);
+		index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+		index.empty();
+		indexes.put(path, index);
+		monitors.put(index, monitor);
+		return index;
+	} catch (IOException e) {
+		// The file could not be created. Possible reason: the project has been deleted.
+		return null;
 	}
-	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
-	return index;
 }
 /**
  * Trigger removal of a resource to an index
@@ -333,32 +375,34 @@ public void remove(String resourceName, IPath indexedContainer){
  * This is a no-op if the index did not exist.
  */
 public synchronized void removeIndex(IPath path) {
-	IIndex index = (IIndex)this.indexes.get(path);
-	if (index == null) return;
-	index.getIndexFile().delete();
+	String indexName = computeIndexName(path);
+	File indexFile = new File(indexName);
+	if (indexFile.exists())
+		indexFile.delete();
+	Object o = this.indexes.get(path);
+	if (o instanceof IIndex)
+		this.monitors.remove(o);
 	this.indexes.remove(path);
-	this.monitors.remove(index);
+	updateIndexState(indexName, null);
 }
 /**
  * Removes all indexes whose paths start with (or are equal to) the given path. 
  */
 public synchronized void removeIndexFamily(IPath path) {
+	// only finds cached index files... shutdown removes all non-cached index files
 	ArrayList toRemove = null;
 	Iterator iterator = this.indexes.keySet().iterator();
 	while (iterator.hasNext()) {
-		IPath indexPath = (IPath)iterator.next();
+		IPath indexPath = (IPath) iterator.next();
 		if (path.isPrefixOf(indexPath)) {
-			if (toRemove == null) {
+			if (toRemove == null)
 				toRemove = new ArrayList();
-			}
 			toRemove.add(indexPath);
 		}
 	}
-	if (toRemove != null) {
-		for (int i = 0, length = toRemove.size(); i < length; i++) {
-			this.removeIndex((IPath)toRemove.get(i));
-		}
-	}
+	if (toRemove != null)
+		for (int i = 0, length = toRemove.size(); i < length; i++)
+			this.removeIndex((IPath) toRemove.get(i));
 }
 /**
  * Remove the content of the given source folder from the index.
@@ -366,69 +410,52 @@ public synchronized void removeIndexFamily(IPath path) {
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder) {
 	this.request(new RemoveFolderFromIndex(sourceFolder.toString(), javaProject.getProject().getFullPath(), this));
 }
-
 /**
  * Flush current state
  */
-public void reset(){
-
-	final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-	if (workspace != null){
-		// force to resolve classpaths for projects to check, so as to avoid running CP variable initializers in the background thread
-		try {
-			JavaCore.run(
-				new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						IndexManager.this.projectsToCheck = workspace.getRoot().getProjects();
-						for (int i = 0, max = IndexManager.this.projectsToCheck == null ? 0 : IndexManager.this.projectsToCheck.length; i < max; i++){
-							IJavaProject project = JavaCore.create(IndexManager.this.projectsToCheck[i]);
-							try {
-								// force to resolve CP variables before calling indexer - 19303 (indirectly through consistency check)
-								project.getResolvedClasspath(true);
-							} catch (JavaModelException e) {
-							}
-						} 
-					}
-				},
-				null);
-		} catch (CoreException e) {
-		}
-	}
+public void reset() {
 	super.reset();
-	if (indexes != null){
-		indexes = new HashMap(5);
-		monitors = new HashMap(5);
+	if (this.indexes != null) {
+		this.indexes = new HashMap(5);
+		this.monitors = new HashMap(5);
+		this.indexStates = null;
 	}
-	javaPluginLocation = null;
+	this.indexNames = new SimpleLookupTable();
+	this.javaPluginLocation = null;
+}
+public void saveIndex(IIndex index) throws IOException {
+	// must have permission to write from the write monitor
+	if (index.hasChanged()) {
+		if (VERBOSE)
+			JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
+		index.save();
+	}
+	updateIndexState(index.getIndexFile().getPath(), SAVED_STATE);
 }
 /**
  * Commit all index memory changes to disk
  */
-public void saveIndexes(){
-
-	ArrayList indexList = new ArrayList();
-	synchronized(this){
-		for (Iterator iter = indexes.values().iterator(); iter.hasNext();){
-			indexList.add(iter.next());
+public void saveIndexes() {
+	// only save cached indexes... the rest were not modified
+	ArrayList toSave = new ArrayList();
+	synchronized(this) {
+		for (Iterator iter = this.indexes.values().iterator(); iter.hasNext();) {
+			Object o = iter.next();
+			if (o instanceof IIndex)
+				toSave.add(o);
 		}
 	}
 
-	for (Iterator iter = indexList.iterator(); iter.hasNext();){
-		IIndex index = (IIndex)iter.next();
-		if (index == null) continue; // index got deleted since acquired
+	for (int i = 0, length = toSave.size(); i < length; i++) {
+		IIndex index = (IIndex) toSave.get(i);
 		ReadWriteMonitor monitor = getMonitorFor(index);
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
 			monitor.enterWrite();
-			if (IndexManager.VERBOSE){
-				if (index.hasChanged()){ 
-					JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
-				}
-			}
 			try {
-				index.save();
+				saveIndex(index);
 			} catch(IOException e){
-				if (IndexManager.VERBOSE) {
+				if (VERBOSE) {
 					JobManager.verbose("-> got the following exception while merging:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}
@@ -440,65 +467,72 @@ public void saveIndexes(){
 	}
 	needToSave = false;
 }
-
 public void shutdown() {
-	
-	HashMap keepingIndexesPaths = new HashMap();
 	IndexSelector indexSelector = new IndexSelector(new JavaWorkspaceScope(), null, this);
 	IIndex[] selectedIndexes = indexSelector.getIndexes();
+	SimpleLookupTable knownPaths = new SimpleLookupTable();
 	for (int i = 0, max = selectedIndexes.length; i < max; i++) {
 		String path = selectedIndexes[i].getIndexFile().getAbsolutePath();
-		keepingIndexesPaths.put(path, path);
+		knownPaths.put(path, path);
 	}
-	File indexesDirectory = new File(this.getJavaPluginWorkingLocation().toOSString());
+
+	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
 	if (indexesDirectory.isDirectory()) {
 		File[] indexesFiles = indexesDirectory.listFiles();
 		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
 			String fileName = indexesFiles[i].getAbsolutePath();
-			if (fileName.toLowerCase().endsWith(".index") && keepingIndexesPaths.get(fileName) == null) { //$NON-NLS-1$
-				if (VERBOSE) {
+			if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
+				if (VERBOSE)
 					JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
-				}
 				indexesFiles[i].delete();
 			}
 		}
 		
 	}
+
 	super.shutdown();		
 }
-
-/**
- * Trigger addition of a library to an index
- * Note: the actual operation is performed in background
- */
-public void indexLibrary(IPath path, IProject referingProject) {
-	if (JavaCore.getPlugin() == null) return;
-
-	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
-	
-	IndexRequest request = null;
-	if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
-	} else if (target instanceof java.io.File) {
-		// remember the timestamp of this library
-		long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
-		request = new AddJarFileToIndex(path, this, referingProject.getName());
-	} else if (target instanceof IFolder) {
-		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
-	} else {
-		return;
+private char[] readIndexState() {
+	try {
+		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(savedIndexNamesFile, null);
+	} catch (IOException ignored) {
+		if (VERBOSE)
+			JobManager.verbose("Failed to read saved index file names"); //$NON-NLS-1$
+		return new char[0];
 	}
-	
-	// check if the same request is not already in the queue
-	for (int i = this.jobEnd; i >= this.jobStart; i--) {
-		IJob awaiting = this.awaitingJobs[i];
-		if (awaiting != null && request.equals(awaiting)) {
-			return;
+}
+private void updateIndexState(String indexName, Integer indexState) {
+	getIndexStates(); // ensure the states are initialized
+	if (indexState != null) {
+		if (indexState.equals(indexStates.get(indexName))) return; // not changed
+		indexStates.put(indexName, indexState);
+	} else {
+		indexStates.removeKey(indexName);
+	}
+
+	BufferedWriter writer = null;
+	try {
+		writer = new BufferedWriter(new FileWriter(savedIndexNamesFile));
+		Object[] indexNames = indexStates.keyTable;
+		Object[] states = indexStates.valueTable;
+		for (int i = 0, l = states.length; i < l; i++) {
+			if (states[i] == SAVED_STATE) {
+				writer.write((String) indexNames[i]);
+				if (i > 0)
+					writer.write('\n');
+			}
+		}
+	} catch (IOException ignored) {
+		if (VERBOSE)
+			JobManager.verbose("Failed to write saved index file names"); //$NON-NLS-1$
+	} finally {
+		if (writer != null) {
+			try {
+				writer.close();
+			} catch (IOException e) {}
 		}
 	}
-
-	this.request(request);
+	if (VERBOSE)
+		JobManager.verbose("Saved indexes are now : " + new String(readIndexState())); //$NON-NLS-1$
 }
 }
-

@@ -171,10 +171,15 @@ public abstract class JobManager implements Runnable {
 
 		if (VERBOSE)
 			JobManager.verbose("STARTING concurrent job - " + searchJob); //$NON-NLS-1$
-		int concurrentJobWork = 100;
-		if (progress != null) {
-			progress.beginTask("", concurrentJobWork); //$NON-NLS-1$
+		if (!searchJob.isReadyToRun()) {
+			if (VERBOSE)
+				JobManager.verbose("ABORTED concurrent job - " + searchJob); //$NON-NLS-1$
+			return IJob.FAILED;
 		}
+
+		int concurrentJobWork = 100;
+		if (progress != null)
+			progress.beginTask("", concurrentJobWork); //$NON-NLS-1$
 		boolean status = IJob.FAILED;
 		if (awaitingJobsCount() > 0) {
 			switch (waitingPolicy) {
@@ -270,6 +275,11 @@ public abstract class JobManager implements Runnable {
 	public abstract String processName();
 	
 	public synchronized void request(IJob job) {
+		if (!job.isReadyToRun()) {
+			if (VERBOSE)
+				JobManager.verbose("ABORTED requested job - " + job); //$NON-NLS-1$
+			return;
+		}
 
 		// append the job to the list of ones to process later on
 		int size = awaitingJobs.length;
