@@ -2354,6 +2354,11 @@ public final class JavaCore extends Plugin {
 		preferences.setDefault(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
 		preferences.setDefault(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
 
+		// TODO (philippe) remove once UI offers pref page with 1.5 support
+		preferences.setDefault(COMPILER_COMPLIANCE, VERSION_1_5);
+		preferences.setDefault(COMPILER_SOURCE, VERSION_1_5);
+		preferences.setDefault(COMPILER_CODEGEN_TARGET_PLATFORM, VERSION_1_5);
+		
 		// Builder settings
 		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
 		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
