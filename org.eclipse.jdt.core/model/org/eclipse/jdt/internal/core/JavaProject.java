@@ -872,6 +872,23 @@ public class JavaProject
 				// compute the pkg fragment roots
 				updatePackageFragmentRoots();				
 	
+				// remember the timestamps of external libraries the first time they are looked up
+				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
+				for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+					IClasspathEntry entry = resolvedClasspath[i];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+						IPath path = entry.getPath();
+						Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+						if (target instanceof java.io.File) {
+							Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
+							if (externalTimeStamps.get(path) == null) {
+								long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+								externalTimeStamps.put(path, new Long(timestamp));							
+							}
+						}
+					}
+				}			
+
 				// only valid if reaches here				
 				validInfo = true;
 			}
@@ -1348,19 +1365,6 @@ public class JavaProject
 						false);	//	file format error
 				}
 
-			// remember the timestamps of external libraries
-			for (int i = 0, length = resolvedPath.length; i < length; i++) {
-				IClasspathEntry entry = resolvedPath[i];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					IPath path = entry.getPath();
-					Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
-					if (target instanceof java.io.File) {
-						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-						JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));							
-					}
-				}
-			}							
-		
 			perProjectInfo.lastResolvedClasspath = resolvedPath;
 		}
 		return resolvedPath;
@@ -2089,9 +2093,7 @@ public class JavaProject
 		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 	
 		synchronized (info) {
-			if (rawEntries == null) {
-				rawEntries = defaultClasspath();
-			} else {
+			if (rawEntries != null) {
 				info.classpath = rawEntries;
 			}
 			

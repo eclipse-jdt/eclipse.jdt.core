@@ -14,6 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Util;
 
 import java.util.*;
@@ -31,6 +32,9 @@ public void build() {
 
 	try {
 		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
+		
+		JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(JavaCore.create(javaBuilder.currentProject));
+		
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
 		cleanOutputFolders();
 		notifier.updateProgressDelta(0.1f);

@@ -438,6 +438,10 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 			"/P1/src1/X.java",
 			"public class X {\n" +			"}"
 		);
+		
+		// force opening of project to avoid external jar delta
+		p1.open(null);
+		
 		this.startDeltas();
 		
 		// full build
