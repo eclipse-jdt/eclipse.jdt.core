@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -41,6 +43,19 @@ public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
 	this.enclosingElement = enclosingElement;
 	this.needsResolve = true;
 	this.knownTypes = new HashSet();
+}
+/**
+ * @see SearchPattern#matchReportImportRef(ImportReference, Binding, IJavaElement, int, MatchLocator)
+ */
+protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	// need accurate match to be able to open on type ref
+	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
+	
+	while (binding instanceof ReferenceBinding) {
+		ReferenceBinding typeBinding = (ReferenceBinding)binding;
+		this.reportDeclaration(typeBinding, 1, locator);
+		binding = typeBinding.enclosingType();
+	}
 }
 
 /**

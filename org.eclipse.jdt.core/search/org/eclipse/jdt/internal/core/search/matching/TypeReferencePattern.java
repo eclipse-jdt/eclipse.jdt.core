@@ -401,11 +401,11 @@ private int matchLevel(ImportReference importRef, boolean resolve) {
 		return IMPOSSIBLE_MATCH;
 	} else {
 		if (this.simpleName == null) {
-			return ACCURATE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			for (int i = 0; i < importLength; i++){
 				if (this.matchesName(this.simpleName, tokens[i])){
-					return ACCURATE_MATCH;
+					return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				}
 			}
 			return IMPOSSIBLE_MATCH;
