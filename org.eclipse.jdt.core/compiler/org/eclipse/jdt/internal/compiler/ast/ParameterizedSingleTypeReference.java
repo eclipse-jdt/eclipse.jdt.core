@@ -34,11 +34,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
 			ReferenceBinding currentType = parameterizedType.type;
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
-			int argLength = this.typeArguments.length;
 			TypeBinding[] argTypes = parameterizedType.arguments;
-			for (int i = 0; i < argLength; i++)
-			    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
-					scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+			if (argTypes != null && typeVariables != null) { // may be null in error cases
+				for (int i = 0, argLength = typeVariables.length; i < argLength; i++)
+					if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+			}
 		}
 	}
 	/**
