@@ -85,9 +85,27 @@ public class OR_OR_Expression extends BinaryExpression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-
+		Constant cst = right.constant;
+		if (cst != NotAConstant) {
+			// <expr> || true --> true
+			if (cst.booleanValue() == true) {
+				this.left.generateCode(currentScope, codeStream, false);
+				if (valueRequired) codeStream.iconst_1();
+			} else {
+				// <expr>|| false --> <expr>
+				this.left.generateCode(currentScope, codeStream, valueRequired);
+			}
+			if (mergedInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
+			}			
+			codeStream.generateImplicitConversion(implicitConversion);
+			codeStream.updateLastRecordedEndPC(codeStream.position);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
+		}
+		
 		Label trueLabel = new Label(codeStream), endLabel;
-		Constant cst = left.optimizedBooleanConstant();
+		cst = left.optimizedBooleanConstant();
 		boolean leftIsConst = cst != NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
 
@@ -177,7 +195,7 @@ public class OR_OR_Expression extends BinaryExpression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		
+	
 		cst = left.optimizedBooleanConstant();
 		boolean leftIsConst = cst != NotAConstant;
 		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
