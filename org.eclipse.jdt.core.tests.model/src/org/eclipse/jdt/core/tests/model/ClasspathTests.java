@@ -818,9 +818,9 @@ public void testClasspathValidation11() throws CoreException {
 }
 /**
  * Should not allow a nested source folder in an output folder.
- */ 
+ * */ 
 public void testClasspathValidation12() throws CoreException {
-/*	try {
+	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin1");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
 	
@@ -841,13 +841,12 @@ public void testClasspathValidation12() throws CoreException {
 	} finally {
 		this.deleteProject("P");
 	}
-	*/
 }
 /**
  * Should not allow a nested output folder in a source folder on the classpath.
  */ 
 public void testClasspathValidation13() throws CoreException {
-/*	try {
+	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin1");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
 	
@@ -867,7 +866,7 @@ public void testClasspathValidation13() throws CoreException {
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
-	}*/
+	}
 }
 /**
  * Setting the classpath with two entries specifying the same path

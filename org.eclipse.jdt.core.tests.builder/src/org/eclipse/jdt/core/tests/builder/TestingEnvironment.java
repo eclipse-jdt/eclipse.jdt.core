@@ -125,7 +125,7 @@ public class TestingEnvironment {
 	}
 
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) {
-		return addPackageFragmentRoot(projectPath, sourceFolderName, null, ""); //$NON-NLS-1$
+		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null); //$NON-NLS-1$
 	}
 
 	/** Adds a package fragment root to the workspace.  If

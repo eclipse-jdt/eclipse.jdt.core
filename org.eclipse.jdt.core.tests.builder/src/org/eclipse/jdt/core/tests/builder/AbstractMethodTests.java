@@ -40,8 +40,8 @@ public class AbstractMethodTests extends Tests {
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
 		
-		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
 		env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
+		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
 		
 		env.addClass(root1, "p1", "IX", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n" + //$NON-NLS-1$
