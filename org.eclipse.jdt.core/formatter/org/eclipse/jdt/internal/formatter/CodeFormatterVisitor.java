@@ -952,11 +952,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		String array_initializer_brace_position = this.preferences.array_initializer_brace_position;
 		formatOpeningBrace(array_initializer_brace_position, insertSpaceBeforeOpeningBrace);
 		
-		if (this.preferences.insert_new_line_after_opening_brace_in_array_initializer) {
-			this.scribe.printNewLine();
-		}
 		final Expression[] expressions = arrayInitializer.expressions;
 		if (expressions != null) {
+			if (this.preferences.insert_new_line_after_opening_brace_in_array_initializer) {
+				this.scribe.printNewLine();
+			}
 			int expressionsLength = expressions.length;
 			if (expressionsLength > 1) {
 				Alignment arrayInitializerAlignment =this.scribe.createAlignment(
@@ -1025,9 +1025,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					}
 				}
 			}
-		}
-		if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
-			this.scribe.printNewLine();
+			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
+				this.scribe.printNewLine();
+			}
+		} else if (this.preferences.insert_space_between_empty_array_initializer) {
+			this.scribe.space();
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
 		if (array_initializer_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
