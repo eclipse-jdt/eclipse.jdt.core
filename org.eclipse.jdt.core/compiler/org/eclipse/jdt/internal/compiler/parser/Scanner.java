@@ -917,14 +917,15 @@ public int getNextToken() throws InvalidInputException {
 						throw e; // rethrow
 					}
 					if (checkNonExternalizedStringLiterals){ // check for presence of	/*nonNLS*/
-						int lookAhead = 0;
-						for (; lookAhead < 10; lookAhead++){
-							if (currentPosition + lookAhead == source.length)
+						int lookAhead = currentPosition < source.length && source[currentPosition] == ' ' ? currentPosition+1 : currentPosition;
+						int n = 0;
+						for (; n < NonNLS_TAG.length; n++, lookAhead++){
+							if (lookAhead == source.length)
 								break;
-							if (source[currentPosition + lookAhead] != NonNLS_TAG[lookAhead])
+							if (source[lookAhead] != NonNLS_TAG[n])
 								break;
 						}
-						this.wasNonExternalizedStringLiteral = lookAhead != 10;
+						this.wasNonExternalizedStringLiteral = (n != NonNLS_TAG.length);
 					}
 					return TokenNameStringLiteral;
 				case '/' :
