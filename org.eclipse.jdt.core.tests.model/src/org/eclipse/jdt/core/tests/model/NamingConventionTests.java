@@ -265,6 +265,19 @@ public void testSuggestFieldName010() throws CoreException {
 		"preOneNamessuf", //$NON-NLS-1$
 		toString(suggestions));
 }
+public void testSuggestFieldName011() throws CoreException {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"a.b.c".toCharArray(), //$NON-NLS-1$
+		"Factory".toCharArray(), //$NON-NLS-1$
+		1,
+		0,
+		CharOperation.NO_CHAR_CHAR); //$NON-NLS-1$
+	
+	assertEquals(
+		"factories", //$NON-NLS-1$
+		toString(suggestions));
+}
 public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
