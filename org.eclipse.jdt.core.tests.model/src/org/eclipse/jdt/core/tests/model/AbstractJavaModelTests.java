@@ -92,7 +92,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		Method[] methods = evaluationTestClass.getDeclaredMethods();
 		for (int m = 0, max = methods.length; m < max; m++) {
 			try {
-				if (methods[m].getModifiers() == 1 /* public */ &&
+				if (Flags.isPublic(methods[m].getModifiers()) &&
 					methods[m].getName().startsWith("test")) {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
