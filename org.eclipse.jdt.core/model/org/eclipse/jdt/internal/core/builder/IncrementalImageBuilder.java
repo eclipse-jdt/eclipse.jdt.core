@@ -32,8 +32,8 @@ public class IncrementalImageBuilder extends AbstractImageBuilder {
 
 protected ArrayList sourceFiles;
 protected ArrayList previousSourceFiles;
-protected ArrayList qualifiedStrings;
-protected ArrayList simpleStrings;
+protected StringSet qualifiedStrings;
+protected StringSet simpleStrings;
 protected SimpleLookupTable secondaryTypesToRemove;
 protected boolean hasStructuralChanges;
 protected int compileLoop;
@@ -47,8 +47,8 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 
 	this.sourceFiles = new ArrayList(33);
 	this.previousSourceFiles = null;
-	this.qualifiedStrings = new ArrayList(33);
-	this.simpleStrings = new ArrayList(33);
+	this.qualifiedStrings = new StringSet(3);
+	this.simpleStrings = new StringSet(3);
 	this.hasStructuralChanges = false;
 	this.compileLoop = 0;
 }
@@ -130,16 +130,16 @@ public boolean build(SimpleLookupTable deltas) {
 }
 
 protected void addAffectedSourceFiles() {
-	if (qualifiedStrings.isEmpty() && simpleStrings.isEmpty()) return;
+	if (qualifiedStrings.elementSize == 0 && simpleStrings.elementSize == 0) return;
 
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedStrings);
 	// if a well known qualified name was found then we can skip over these
-	if (qualifiedNames.length < qualifiedStrings.size())
+	if (qualifiedNames.length < qualifiedStrings.elementSize)
 		qualifiedNames = null;
 	char[][] simpleNames = ReferenceCollection.internSimpleNames(simpleStrings);
 	// if a well known name was found then we can skip over these
-	if (simpleNames.length < simpleStrings.size())
+	if (simpleNames.length < simpleStrings.elementSize)
 		simpleNames = null;
 
 	Object[] keyTable = newState.references.keyTable;
@@ -182,18 +182,14 @@ protected void addDependentsOf(IPath path, boolean isStructuralChange) {
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
 	String packageName = path.removeLastSegments(1).toString();
-	if (!qualifiedStrings.contains(packageName))
-		qualifiedStrings.add(packageName);
+	qualifiedStrings.add(packageName);
 	String typeName = path.lastSegment();
 	int memberIndex = typeName.indexOf('$');
 	if (memberIndex > 0)
 		typeName = typeName.substring(0, memberIndex);
-	if (!simpleStrings.contains(typeName)) {
-		if (JavaBuilder.DEBUG)
-			System.out.println("  will look for dependents of " //$NON-NLS-1$
-				+ typeName + " in " + packageName); //$NON-NLS-1$
-		simpleStrings.add(typeName);
-	}
+	if (simpleStrings.add(typeName) && JavaBuilder.DEBUG)
+		System.out.println("  will look for dependents of " //$NON-NLS-1$
+			+ typeName + " in " + packageName); //$NON-NLS-1$
 }
 
 protected void cleanUp() {
