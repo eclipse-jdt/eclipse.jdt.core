@@ -59,6 +59,54 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 /**
+ * Tests that an anonymous type can be persisted and restored using its memento.
+ */
+public void testAnonymousTypeMemento1() throws JavaModelException {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	
+	IType anonymous = type.getInitializer(1).getType("", 1);
+	assertMemento(
+		"=P/src<p{X.java[X|1[",
+		anonymous);
+
+	anonymous = type.getInitializer(1).getType("", 2);
+	assertMemento(
+		"=P/src<p{X.java[X|1[!2",
+		anonymous);
+}
+/**
+ * Tests that an anonymous type can be persisted and restored using its memento.
+ */
+public void testAnonymousTypeMemento2() throws JavaModelException {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	
+	IType anonymous = type.getField("f").getType("", 1);
+	assertMemento(
+		"=P/src<p{X.java[X^f[",
+		anonymous);
+		
+	anonymous = type.getField("f").getType("", 3);
+	assertMemento(
+		"=P/src<p{X.java[X^f[!3",
+		anonymous);
+}
+/**
+ * Tests that an anonymous type can be persisted and restored using its memento.
+ */
+public void testAnonymousTypeMemento3() throws JavaModelException {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	
+	IType anonymous = type.getMethod("foo", new String[]{}).getType("", 1);
+	assertMemento(
+		"=P/src<p{X.java[X~foo[",
+		anonymous);
+		
+	anonymous = type.getMethod("foo", new String[]{}).getType("", 4);
+	assertMemento(
+		"=P/src<p{X.java[X~foo[!4",
+		anonymous);
+}
+/**
  * Tests that a binary field can be persisted and restored using its memento.
  */
 public void testBinaryFieldMemento() throws JavaModelException {
@@ -148,6 +196,44 @@ public void testCompilationUnitMemento() throws JavaModelException {
 		cu);
 }
 /**
+ * Tests that a binary field in an external jar can be persisted and restored using its memento.
+ */
+public void testExternalJarBinaryFieldMemento() throws JavaModelException {	
+	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
+	IField field = type.getField("field");
+	assertMemento(
+		"=P/" + getExternalJCLPath() + "<p(X.class[X^field",
+		field);
+}
+/**
+ * Tests that a inner binary type and field in an external jar can be persisted and restored using its memento.
+ */
+public void testExternalJarBinaryInnerTypeMemento() throws JavaModelException {
+	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X$Inner.class").getType();
+	assertMemento(
+		"=P/" + getExternalJCLPath() + "<p(X$Inner.class[Inner",
+		type);
+}
+/**
+ * Tests that a binary method in an external jar can be persisted and restored using its memento.
+ */
+public void testExternalJarBinaryMethodMemento() throws JavaModelException {	
+	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
+	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
+	assertMemento(
+		"=P/" + getExternalJCLPath() + "<p(X.class[X~foo~[Ljava.lang.String;",
+		method);
+}
+/**
+ * Tests that a binary type in an external jar can be persisted and restored using its memento.
+ */
+public void testExternalJarBinaryTypeMemento() throws JavaModelException {	
+	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
+	assertMemento(
+		"=P/" + getExternalJCLPath() + "<p(X.class[X",
+		type);	
+}
+/**
  * Tests that an import declaration can be persisted and restored using its memento.
  */
 public void testImportContainerMemento() throws JavaModelException {
@@ -225,42 +311,36 @@ public void testInternalJarBinaryTypeMemento() throws JavaModelException {
 		type);	
 }
 /**
- * Tests that a binary field in an external jar can be persisted and restored using its memento.
+ * Tests that a local type can be persisted and restored using its memento.
  */
-public void testExternalJarBinaryFieldMemento() throws JavaModelException {	
-	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
-	IField field = type.getField("field");
+public void testLocalTypeMemento1() throws JavaModelException {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	
+	IType anonymous = type.getInitializer(1).getType("Y", 1);
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X^field",
-		field);
+		"=P/src<p{X.java[X|1[Y",
+		anonymous);
+
+	anonymous = type.getInitializer(1).getType("Y", 2);
+	assertMemento(
+		"=P/src<p{X.java[X|1[Y!2",
+		anonymous);
 }
 /**
- * Tests that a inner binary type and field in an external jar can be persisted and restored using its memento.
+ * Tests that a local type can be persisted and restored using its memento.
  */
-public void testExternalJarBinaryInnerTypeMemento() throws JavaModelException {
-	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X$Inner.class").getType();
+public void testLocalTypeMemento2() throws JavaModelException {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	
+	IType anonymous = type.getMethod("foo", new String[]{}).getType("Y", 1);
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X$Inner.class[Inner",
-		type);
-}
-/**
- * Tests that a binary method in an external jar can be persisted and restored using its memento.
- */
-public void testExternalJarBinaryMethodMemento() throws JavaModelException {	
-	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
-	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
+		"=P/src<p{X.java[X~foo[Y",
+		anonymous);
+		
+	anonymous = type.getMethod("foo", new String[]{}).getType("Y", 3);
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X~foo~[Ljava.lang.String;",
-		method);
-}
-/**
- * Tests that a binary type in an external jar can be persisted and restored using its memento.
- */
-public void testExternalJarBinaryTypeMemento() throws JavaModelException {	
-	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
-	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X",
-		type);	
+		"=P/src<p{X.java[X~foo[Y!3",
+		anonymous);
 }
 /**
  * Tests that a package declaration can be persisted and restored using its memento.

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -286,6 +287,20 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
  */
 public int getElementType() {
 	return CLASS_FILE;
+}
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, owner);
+		case JEM_TYPE:
+			String typeName = memento.nextToken();
+			JavaElement type = new BinaryType(this, typeName);
+			return type.getHandleFromMemento(memento, owner);
+	}
+	return null;
 }
 /**
  * @see JavaElement#getHandleMemento()

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.StringTokenizer;
+
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
@@ -33,6 +36,24 @@ public boolean equals(Object o) {
  */
 public int getElementType() {
 	return IMPORT_CONTAINER;
+}
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+		case JEM_IMPORTDECLARATION:
+			if (memento.hasMoreTokens()) {
+				String importName = memento.nextToken();
+				JavaElement importDecl = (JavaElement)getImport(importName);
+				return importDecl.getHandleFromMemento(memento, workingCopyOwner);
+			} else {
+				return this;
+			}
+	}
+	return null;
 }
 /**
  * @see JavaElement#getHandleMemento()
@@ -94,7 +115,7 @@ protected void toString(int tab, StringBuffer buffer) {
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
-	buffer.append("[import container]"); //$NON-NLS-1$
+	buffer.append("<import container>"); //$NON-NLS-1$
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	}

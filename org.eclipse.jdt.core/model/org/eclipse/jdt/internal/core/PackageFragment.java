@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -231,6 +232,24 @@ public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) throws Jav
  */
 public int getElementType() {
 	return PACKAGE_FRAGMENT;
+}
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, owner);
+		case JEM_CLASSFILE:
+			String classFileName = memento.nextToken();
+			JavaElement classFile = (JavaElement)getClassFile(classFileName);
+			return classFile.getHandleFromMemento(memento, owner);
+		case JEM_COMPILATIONUNIT:
+			String cuName = memento.nextToken();
+			JavaElement cu = (JavaElement)getCompilationUnit(cuName, owner);
+			return cu.getHandleFromMemento(memento, owner);
+	}
+	return null;
 }
 /**
  * @see JavaElement#getHandleMementoDelimiter()

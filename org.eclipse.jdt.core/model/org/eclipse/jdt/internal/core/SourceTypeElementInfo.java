@@ -63,14 +63,14 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 * Backpointer to my type handle - useful for translation
 	 * from info to handle.
 	 */
-	protected IType fHandle= null;
+	protected IType handle = null;
 
 /**
  * Returns the ISourceType that is the enclosing type for this
  * type, or <code>null</code> if this type is a top level type.
  */
 public ISourceType getEnclosingType() {
-	IJavaElement parent= fHandle.getParent();
+	IJavaElement parent= this.handle.getParent();
 	if (parent != null && parent.getElementType() == IJavaElement.TYPE) {
 		try {
 			return (ISourceType)((JavaElement)parent).getElementInfo();
@@ -114,7 +114,7 @@ public char[] getFileName() {
  * Returns the handle for this type info
  */
 public IType getHandle() {
-	return this.fHandle;
+	return this.handle;
 }
 /**
  * @see ISourceType
@@ -122,7 +122,7 @@ public IType getHandle() {
 public ISourceImport[] getImports() {
 	if (this.imports == null) {
 		try {
-			IImportDeclaration[] importDeclarations = this.fHandle.getCompilationUnit().getImports();
+			IImportDeclaration[] importDeclarations = this.handle.getCompilationUnit().getImports();
 			int length = importDeclarations.length;
 			if (length == 0) {
 				this.imports = NO_IMPORTS;
@@ -143,6 +143,9 @@ public ISourceImport[] getImports() {
  * @see ISourceType
  */
 public char[][] getInterfaceNames() {
+	if (this.handle.getElementName().length() == 0) { // if anonymous type
+		return null;
+	}
 	return this.superInterfaceNames;
 }
 /**
@@ -201,7 +204,13 @@ public char[] getPackageName() {
  * @see ISourceType
  */
 public char[] getSuperclassName() {
-	return superclassName;
+	if (this.handle.getElementName().length() == 0) { // if anonymous type
+		char[][] interfaceNames = this.superInterfaceNames;	
+		if (interfaceNames != null && interfaceNames.length > 0) {
+			return interfaceNames[0];
+		}
+	} 
+	return this.superclassName;
 }
 /**
  * @see ISourceType
@@ -225,7 +234,7 @@ public boolean isInterface() {
  * Sets the handle for this type info
  */
 protected void setHandle(IType handle) {
-	this.fHandle= handle;
+	this.handle = handle;
 }
 /**
  * Sets the name of the package this type is declared in.
@@ -252,6 +261,6 @@ protected void setSuperInterfaceNames(char[][] superInterfaceNames) {
 	this.superInterfaceNames = superInterfaceNames;
 }
 public String toString() {
-	return "Info for " + fHandle.toString(); //$NON-NLS-1$
+	return "Info for " + this.handle.toString(); //$NON-NLS-1$
 }
 }

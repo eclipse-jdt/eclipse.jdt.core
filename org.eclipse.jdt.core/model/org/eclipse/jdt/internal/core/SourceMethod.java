@@ -96,6 +96,10 @@ public String getHandleMemento() {
 		buff.append(getHandleMementoDelimiter());
 		buff.append(fParameterTypes[i]);
 	}
+	if (this.occurrenceCount > 1) {
+		buff.append(JEM_COUNT);
+		buff.append(this.occurrenceCount);
+	}
 	return buff.toString();
 }
 /**

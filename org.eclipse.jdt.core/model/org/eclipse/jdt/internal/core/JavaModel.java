@@ -27,14 +27,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -166,185 +161,19 @@ public static void flushExternalFileCache() {
 	existingExternalFiles = new HashSet();
 }
 
-/**
- * Returns the <code>IJavaElement</code> represented by the <code>String</code>
- * memento.
- * @see getHandleMemento()
+/*
+ * @see JavaElement
  */
-protected IJavaElement getHandleFromMementoForBinaryMembers(String memento, IPackageFragmentRoot root, int rootEnd, int end) throws JavaModelException {
-
-	//deal with class file and binary members
-	IPackageFragment frag = null;
-	if (rootEnd == end - 1) {
-		//default package
-		frag= root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-	} else {
-		frag= root.getPackageFragment(memento.substring(rootEnd + 1, end));
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, owner);
+		case JEM_JAVAPROJECT:
+			String projectName = memento.nextToken();
+			JavaElement project = (JavaElement)getJavaProject(projectName);
+			return project.getHandleFromMemento(memento, owner);
 	}
-	int oldEnd = end;
-	end = memento.indexOf(JavaElement.JEM_TYPE, oldEnd);
-	if (end == -1) {
-		//we ended with a class file 
-		return frag.getClassFile(memento.substring(oldEnd + 1));
-	}
-	IClassFile cf = frag.getClassFile(memento.substring(oldEnd + 1, end));
-	oldEnd = end;
-	end = memento.indexOf(JavaElement.JEM_TYPE, oldEnd);
-	oldEnd = end;
-	end = memento.indexOf(JavaElement.JEM_FIELD, end);
-	if (end != -1) {
-		//binary field
-		IType type = cf.getType();
-		return type.getField(memento.substring(end + 1));
-	}
-	end = memento.indexOf(JavaElement.JEM_METHOD, oldEnd);
-	if (end != -1) {
-		//binary method
-		oldEnd = end;
-		IType type = cf.getType();
-		String methodName;
-		end = memento.lastIndexOf(JavaElement.JEM_METHOD);
-		String[] parameterTypes = null;
-		if (end == oldEnd) {
-			methodName = memento.substring(end + 1);
-			//no parameter types
-			parameterTypes = new String[] {};
-		} else {
-			String parameters = memento.substring(oldEnd + 1);
-			StringTokenizer tokenizer = new StringTokenizer(parameters, new String(new char[] {JavaElement.JEM_METHOD}));
-			parameterTypes = new String[tokenizer.countTokens() - 1];
-			methodName= tokenizer.nextToken();
-			int i = 0;
-			while (tokenizer.hasMoreTokens()) {
-				parameterTypes[i] = tokenizer.nextToken();
-				i++;
-			}
-		}
-		return type.getMethod(methodName, parameterTypes);
-	}
-
-	//binary type
-	return cf.getType();
-}
-/**
- * Returns the <code>IPackageFragmentRoot</code> represented by the <code>String</code>
- * memento.
- * @see getHandleMemento()
- */
-protected IPackageFragmentRoot getHandleFromMementoForRoot(String memento, JavaProject project, int projectEnd, int rootEnd) {
-	String rootName = null;
-	if (rootEnd == projectEnd - 1) {
-		//default root
-		rootName = IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
-	} else {
-		rootName = memento.substring(projectEnd + 1, rootEnd);
-	}
-	return project.getPackageFragmentRoot(new Path(rootName));
-}
-/**
- * Returns the <code>IJavaElement</code> represented by the <code>String</code>
- * memento.
- * @see getHandleMemento()
- */
-protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPackageFragmentRoot root, int rootEnd, int end, WorkingCopyOwner owner) throws JavaModelException {
-
-	//deal with compilation units and source members
-	IPackageFragment frag = null;
-	if (rootEnd == end - 1) {
-		//default package
-		frag= root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-	} else {
-		frag= root.getPackageFragment(memento.substring(rootEnd + 1, end));
-	}
-	int oldEnd = end;
-	end = memento.indexOf(JavaElement.JEM_PACKAGEDECLARATION, end);
-	if (end != -1) {
-		//package declaration
-		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end), owner);
-		return cu.getPackageDeclaration(memento.substring(end + 1));
-	}
-	end = memento.indexOf(JavaElement.JEM_IMPORTDECLARATION, oldEnd);
-	if (end != -1) {
-		ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, end), owner);
-		if (memento.length() == end + 1) {
-			// import container
-			return cu.getImportContainer();
-		} else {
-			//import declaration with container
-			return cu.getImport(memento.substring(end + 1));
-		}
-	}
-	int typeStart = memento.indexOf(JavaElement.JEM_TYPE, oldEnd);
-	if (typeStart == -1) {
-		//we ended with a compilation unit
-		return frag.getCompilationUnit(memento.substring(oldEnd + 1), owner);
-	}
-
-	//source members
-	ICompilationUnit cu = frag.getCompilationUnit(memento.substring(oldEnd + 1, typeStart), owner);
-	end = memento.indexOf(JavaElement.JEM_FIELD, oldEnd);
-	if (end != -1) {
-		//source field
-		IType type = getHandleFromMementoForSourceType(memento, cu, typeStart, end);
-		return type.getField(memento.substring(end + 1));
-	}
-	end = memento.indexOf(JavaElement.JEM_METHOD, oldEnd);
-	if (end != -1) {
-		//source method
-		IType type = getHandleFromMementoForSourceType(memento, cu, typeStart, end);
-		oldEnd = end;
-		String methodName;
-		end = memento.lastIndexOf(JavaElement.JEM_METHOD);
-		String[] parameterTypes = null;
-		if (end == oldEnd) {
-			methodName = memento.substring(end + 1);
-			//no parameter types
-			parameterTypes = new String[] {};
-		} else {
-			String parameters = memento.substring(oldEnd + 1);
-			StringTokenizer mTokenizer = new StringTokenizer(parameters, new String(new char[] {JavaElement.JEM_METHOD}));
-			parameterTypes = new String[mTokenizer.countTokens() - 1];
-			methodName = mTokenizer.nextToken();
-			int i = 0;
-			while (mTokenizer.hasMoreTokens()) {
-				parameterTypes[i] = mTokenizer.nextToken();
-				i++;
-			}
-		}
-		return type.getMethod(methodName, parameterTypes);
-	}
-	
-	end = memento.indexOf(JavaElement.JEM_INITIALIZER, oldEnd);
-	if (end != -1 ) {
-		//initializer
-		IType type = getHandleFromMementoForSourceType(memento, cu, typeStart, end);
-		return type.getInitializer(Integer.parseInt(memento.substring(end + 1)));
-	}
-	//source type
-	return getHandleFromMementoForSourceType(memento, cu, typeStart, memento.length());
-}
-/**
- * Returns the <code>IJavaElement</code> represented by the <code>String</code>
- * memento.
- * @see getHandleMemento()
- */
-protected IType getHandleFromMementoForSourceType(String memento, ICompilationUnit cu, int typeStart, int typeEnd) throws JavaModelException {
-	int end = memento.lastIndexOf(JavaElement.JEM_TYPE);
-	IType type = null;
-	if (end == typeStart) {
-		String typeName = memento.substring(typeStart + 1, typeEnd);
-		type = cu.getType(typeName);
-		
-	} else {
-		String typeNames = memento.substring(typeStart + 1, typeEnd);
-		StringTokenizer tokenizer = new StringTokenizer(typeNames, new String(new char[] {JavaElement.JEM_TYPE}));
-		type = cu.getType(tokenizer.nextToken());
-		while (tokenizer.hasMoreTokens()) {
-			//deal with inner types
-			type= type.getType(tokenizer.nextToken());
-		}
-	}
-	return type;
+	return null;
 }
 /**
  * @see JavaElement#getHandleMemento()

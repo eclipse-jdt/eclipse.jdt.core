@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -149,6 +151,37 @@ public IType getDeclaringType() {
 public int getFlags() throws JavaModelException {
 	MemberElementInfo info = (MemberElementInfo) getElementInfo();
 	return info.getModifiers();
+}
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+		case JEM_TYPE:
+			String typeName;
+			if (memento.hasMoreTokens()) {
+				typeName = memento.nextToken();
+				char firstChar = typeName.charAt(0);
+				if (firstChar == JEM_FIELD || firstChar == JEM_INITIALIZER || firstChar == JEM_METHOD || firstChar == JEM_TYPE || firstChar == JEM_COUNT) {
+					token = typeName;
+					typeName = ""; //$NON-NLS-1$
+				} else {
+					token = null;
+				}
+			} else {
+				typeName = ""; //$NON-NLS-1$
+				token = null;
+			}
+			JavaElement type = (JavaElement)getType(typeName, 1);
+			if (token == null) {
+				return type.getHandleFromMemento(memento, workingCopyOwner);
+			} else {
+				return type.getHandleFromMemento(token, memento, workingCopyOwner);
+			}
+	}
+	return null;
 }
 /**
  * @see JavaElement#getHandleMemento()

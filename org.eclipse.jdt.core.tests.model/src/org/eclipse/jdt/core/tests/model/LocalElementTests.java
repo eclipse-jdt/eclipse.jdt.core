@@ -178,6 +178,33 @@ public class LocalElementTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * IType.getSuperclassName() test
+	 */
+	public void testGetSuperclassName() throws CoreException {
+		try {
+			createFile(
+				"/P/X.java",
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    run(new X() {\n" +
+				"    });\n" +
+				"  }\n" +
+				"  void run(X x) {\n" +
+				"  }\n" +
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			IType type = cu.getType("X").getMethod("foo", new String[0]).getType("", 1);
+			assertEquals(
+				"Unexpected superclass name",
+				"X",
+				type.getSuperclassName());
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+
+	/*
 	 * IMember.getType(...) test
 	 */
 	public void testGetType() {
@@ -198,7 +225,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 			"Z [in foo [in X [in X.java [in <default> [in <project root> [in P]]]]]]",
 			types);
 	}
-
+	
 	/*
 	 * Local type test.
 	 */

@@ -1256,6 +1256,35 @@ public class JavaProject
 		return expandedPath;
 	}
 
+	/*
+	 * @see JavaElement
+	 */
+	public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+		switch (token.charAt(0)) {
+			case JEM_COUNT:
+				return getHandleUpdatingCountFromMemento(memento, owner);
+			case JEM_PACKAGEFRAGMENTROOT:
+				String rootPath = IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
+				token = null;
+				while (memento.hasMoreTokens()) {
+					token = memento.nextToken();
+					char firstChar = token.charAt(0);
+					if (firstChar != JEM_PACKAGEFRAGMENT && firstChar != JEM_COUNT) {
+						rootPath += token;
+					} else {
+						break;
+					}
+				}
+				JavaElement root = (JavaElement)getPackageFragmentRoot(new Path(rootPath));
+				if (token != null && token.charAt(0) == JEM_PACKAGEFRAGMENT) {
+					return root.getHandleFromMemento(token, memento, owner);
+				} else {
+					return root.getHandleFromMemento(memento, owner);
+				}
+		}
+		return null;
+	}
+
 	/**
 	 * Returns the <code>char</code> that marks the start of this handles
 	 * contribution to a memento.

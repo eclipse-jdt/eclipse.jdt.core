@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -95,6 +97,16 @@ public ICompilationUnit getCompilationUnit() {
 public IResource getCorrespondingResource() throws JavaModelException {
 	if (!exists()) throw newNotPresentException();
 	return null;
+}
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+	}
+	return this;
 }
 /**
  * Return the first instance of IOpenable in the hierarchy of this

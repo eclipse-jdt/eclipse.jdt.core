@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,17 +29,18 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
  */
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 
-	public static final char JEM_JAVAPROJECT= '=';
-	public static final char JEM_PACKAGEFRAGMENTROOT= IPath.SEPARATOR;
-	public static final char JEM_PACKAGEFRAGMENT= '<';
-	public static final char JEM_FIELD= '^';
-	public static final char JEM_METHOD= '~';
-	public static final char JEM_INITIALIZER= '|';
-	public static final char JEM_COMPILATIONUNIT= '{';
-	public static final char JEM_CLASSFILE= '(';
-	public static final char JEM_TYPE= '[';
-	public static final char JEM_PACKAGEDECLARATION= '%';
-	public static final char JEM_IMPORTDECLARATION= '#';
+	public static final char JEM_JAVAPROJECT = '=';
+	public static final char JEM_PACKAGEFRAGMENTROOT = IPath.SEPARATOR;
+	public static final char JEM_PACKAGEFRAGMENT = '<';
+	public static final char JEM_FIELD = '^';
+	public static final char JEM_METHOD = '~';
+	public static final char JEM_INITIALIZER = '|';
+	public static final char JEM_COMPILATIONUNIT = '{';
+	public static final char JEM_CLASSFILE = '(';
+	public static final char JEM_TYPE = '[';
+	public static final char JEM_PACKAGEDECLARATION = '%';
+	public static final char JEM_IMPORTDECLARATION = '#';
+	public static final char JEM_COUNT = '!';
 
 	/**
 	 * A count to uniquely identify this element in the case
@@ -281,6 +283,31 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public String getElementName() {
 		return fName;
 	}
+	/*
+	 * Creates a Java element handle from the given memento.
+	 * The given token is the current delimiter indicating the type of the next token(s).
+	 * The given working copy owner is used only for compilation unit handles.
+	 */
+	public abstract IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner);
+	/*
+	 * Creates a Java element handle from the given memento.
+	 * The given working copy owner is used only for compilation unit handles.
+	 */
+	public IJavaElement getHandleFromMemento(StringTokenizer memento, WorkingCopyOwner owner) {
+		if (!memento.hasMoreTokens()) return this;
+		String token = memento.nextToken();
+		return getHandleFromMemento(token, memento, owner);
+	}
+	/*
+	 * Update the occurence count of the receiver and creates a Java element handle from the given memento.
+	 * The given working copy owner is used only for compilation unit handles.
+	 */
+	public IJavaElement getHandleUpdatingCountFromMemento(StringTokenizer memento, WorkingCopyOwner owner) {
+		this.occurrenceCount = Integer.parseInt(memento.nextToken());
+		if (!memento.hasMoreTokens()) return this;
+		String token = memento.nextToken();
+		return getHandleFromMemento(token, memento, owner);
+	}
 	/**
 	 * @see IJavaElement
 	 */
@@ -294,6 +321,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 		buff.append(getHandleMementoDelimiter());
 		buff.append(getElementName());
+		if (this.occurrenceCount > 1) {
+			buff.append(JEM_COUNT);
+			buff.append(this.occurrenceCount);
+		}
 		return buff.toString();
 	}
 	/**

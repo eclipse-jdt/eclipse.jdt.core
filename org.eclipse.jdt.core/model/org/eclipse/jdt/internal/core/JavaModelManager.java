@@ -730,57 +730,6 @@ public class JavaModelManager implements ISaveParticipant {
 		return this.elementsOutOfSynchWithBuffers;
 	}
 
-	/**
-	 * Returns the <code>IJavaElement</code> represented by the 
-	 * <code>String</code> memento.
-	 */
-	public IJavaElement getHandleFromMemento(String memento, WorkingCopyOwner owner) throws JavaModelException {
-		if (memento == null) {
-			return null;
-		}
-		if (memento.equals("")){ // workspace memento //$NON-NLS-1$
-			return this.javaModel;
-		}
-		int modelEnd= memento.indexOf(JavaElement.JEM_JAVAPROJECT);
-		if (modelEnd == -1) {
-			return null;
-		}
-		boolean returnProject= false;
-		int projectEnd= memento.indexOf(JavaElement.JEM_PACKAGEFRAGMENTROOT, modelEnd);
-		if (projectEnd == -1) {
-			projectEnd= memento.length();
-			returnProject= true;
-		}
-		String projectName= memento.substring(modelEnd + 1, projectEnd);
-		JavaProject proj= (JavaProject) this.javaModel.getJavaProject(projectName);
-		if (returnProject) {
-			return proj;
-		}
-		int rootEnd= memento.indexOf(JavaElement.JEM_PACKAGEFRAGMENT, projectEnd + 1);
-		if (rootEnd == -1) {
-			return this.javaModel.getHandleFromMementoForRoot(memento, proj, projectEnd, memento.length());
-		}
-		IPackageFragmentRoot root = this.javaModel.getHandleFromMementoForRoot(memento, proj, projectEnd, rootEnd);
-		if (root == null)
-			return null;
-
-		int unitEnd= memento.indexOf(JavaElement.JEM_COMPILATIONUNIT, rootEnd);
-		if (unitEnd == -1) {
-			unitEnd = memento.indexOf(JavaElement.JEM_CLASSFILE, rootEnd);
-			if (unitEnd == -1) {
-				if (rootEnd + 1 == memento.length()) {
-					return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-				} else {
-					return root.getPackageFragment(memento.substring(rootEnd + 1));
-				}
-			}
-			//deal with class file and binary members
-			return this.javaModel.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, unitEnd);
-		}
-
-		//deal with compilation units and source members
-		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, unitEnd, owner);
-	}
 	public IndexManager getIndexManager() {
 		return this.indexManager;
 	}

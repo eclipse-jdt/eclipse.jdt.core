@@ -501,12 +501,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							selectDeclaration(parsedUnit);
-							parseMethod(parsedUnit, selectionSourceStart);
+							AstNode method = parseMethod(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
 							parsedUnit.resolve();
+							if (method != null) {
+								selectLocalDeclaration(method);
+							}
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
 								if(DEBUG) {
@@ -603,25 +606,46 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
 				}
 				noProposal = false;
-				requestor.acceptMethod(
-					methodBinding.declaringClass.qualifiedPackageName(),
-					methodBinding.declaringClass.qualifiedSourceName(),
-					methodBinding.isConstructor()
-						? methodBinding.declaringClass.sourceName()
-						: methodBinding.selector,
-					parameterPackageNames,
-					parameterTypeNames,
-					methodBinding.isConstructor());
+				ReferenceBinding declaringClass = methodBinding.declaringClass;
+				if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalMethod(
+						(SourceTypeBinding)declaringClass,
+						methodBinding.isConstructor()
+							? declaringClass.sourceName()
+							: methodBinding.selector,
+						parameterPackageNames,
+						parameterTypeNames,
+						methodBinding.isConstructor(),
+						parsedUnit);
+				} else {
+					requestor.acceptMethod(
+						declaringClass.qualifiedPackageName(),
+						declaringClass.qualifiedSourceName(),
+						methodBinding.isConstructor()
+							? declaringClass.sourceName()
+							: methodBinding.selector,
+						parameterPackageNames,
+						parameterTypeNames,
+						methodBinding.isConstructor());
+				}
 				acceptedAnswer = true;
 			} else
 				if (binding instanceof FieldBinding) {
 					FieldBinding fieldBinding = (FieldBinding) binding;
-					if (fieldBinding.declaringClass != null) { // arraylength
+					ReferenceBinding declaringClass = fieldBinding.declaringClass;
+					if (declaringClass != null) { // arraylength
 						noProposal = false;
-						requestor.acceptField(
-							fieldBinding.declaringClass.qualifiedPackageName(),
-							fieldBinding.declaringClass.qualifiedSourceName(),
-							fieldBinding.name);
+						if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+							((SelectionRequestor)this.requestor).acceptLocalField(
+								(SourceTypeBinding)declaringClass,
+								fieldBinding.name,
+								parsedUnit);
+						} else {
+							requestor.acceptField(
+								declaringClass.qualifiedPackageName(),
+								declaringClass.qualifiedSourceName(),
+								fieldBinding.name);
+						}
 						acceptedAnswer = true;
 					}
 				} else
@@ -642,6 +666,73 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								if(binding instanceof BaseTypeBinding) {
 									acceptedAnswer = true;
 								}
+	}
+	
+	/*
+	 * Checks if a local declaration got selected in this method/initializer.
+	 */
+	private void selectLocalDeclaration(AstNode method) {
+		// the selected identifier is not identical to the parser one (equals but not identical),
+		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
+		final char[] assistIdentifier = this.getParser().assistIdentifier();
+		if (assistIdentifier == null) return;
+		
+		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+			public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
+				if (constructorDeclaration.selector == assistIdentifier){
+					if (constructorDeclaration.binding != null) {
+						throw new SelectionNodeFound(constructorDeclaration.binding);
+					} else {
+						if (constructorDeclaration.scope != null) {
+							throw new SelectionNodeFound(new MethodBinding(constructorDeclaration.modifiers, constructorDeclaration.selector, null, null, null, constructorDeclaration.scope.referenceType().binding));
+						}
+					}
+				}
+				return true;
+			}
+			public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+				if (fieldDeclaration.name == assistIdentifier){
+					throw new SelectionNodeFound(fieldDeclaration.binding);
+				}
+				return true;
+			}
+			public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
+				if (localTypeDeclaration.name == assistIdentifier) {
+					throw new SelectionNodeFound(localTypeDeclaration.binding);
+				}
+				return true;
+			}
+			public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
+				if (memberTypeDeclaration.name == assistIdentifier) {
+					throw new SelectionNodeFound(memberTypeDeclaration.binding);
+				}
+				return true;
+			}
+			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+				if (methodDeclaration.selector == assistIdentifier){
+					if (methodDeclaration.binding != null) {
+						throw new SelectionNodeFound(methodDeclaration.binding);
+					} else {
+						if (methodDeclaration.scope != null) {
+							throw new SelectionNodeFound(new MethodBinding(methodDeclaration.modifiers, methodDeclaration.selector, null, null, null, methodDeclaration.scope.referenceType().binding));
+						}
+					}
+				}
+				return true;
+			}
+			public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
+				if (typeDeclaration.name == assistIdentifier) {
+					throw new SelectionNodeFound(typeDeclaration.binding);
+				}
+				return true;
+			}
+		}
+		
+		if (method instanceof AbstractMethodDeclaration) {
+			((AbstractMethodDeclaration)method).traverse(new Visitor(), (ClassScope)null);
+		} else {
+			((Initializer)method).traverse(new Visitor(), (MethodScope)null);
+		}
 	}
 
 	/**
@@ -804,7 +895,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						throw new SelectionNodeFound(new MethodBinding(method.modifiers, method.selector, null, null, null, method.scope.referenceType().binding));
 					}
 				}
-		}
+			}
 		}
 	}
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
@@ -438,6 +439,37 @@ public int getElementType() {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEFRAGMENTROOT;
 }
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, owner);
+		case JEM_PACKAGEFRAGMENT:
+			String pkgName;
+			if (memento.hasMoreTokens()) {
+				pkgName = memento.nextToken();
+				char firstChar = pkgName.charAt(0);
+				if (firstChar == JEM_CLASSFILE || firstChar == JEM_COMPILATIONUNIT || firstChar == JEM_COUNT) {
+					token = pkgName;
+					pkgName = IPackageFragment.DEFAULT_PACKAGE_NAME;
+				} else {
+					token = null;
+				}
+			} else {
+				pkgName = IPackageFragment.DEFAULT_PACKAGE_NAME;
+				token = null;
+			}
+			JavaElement pkg = (JavaElement)getPackageFragment(pkgName);
+			if (token == null) {
+				return pkg.getHandleFromMemento(memento, owner);
+			} else {
+				return pkg.getHandleFromMemento(token, memento, owner);
+			}
+	}
+	return null;
+}
 /**
  * @see JavaElement#getHandleMemento()
  */
@@ -458,6 +490,10 @@ public String getHandleMemento(){
 	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 	buff.append(getHandleMementoDelimiter());
 	buff.append(path.toString()); 
+	if (this.occurrenceCount > 1) {
+		buff.append(JEM_COUNT);
+		buff.append(this.occurrenceCount);
+	}
 	return buff.toString();
 }
 /**

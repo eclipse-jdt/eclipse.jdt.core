@@ -386,6 +386,7 @@ public interface IType extends IMember {
 	 * For interfaces, the superclass name is always <code>"java.lang.Object"</code>.
 	 * For source types, the name as declared is returned, for binary types,
 	 * the resolved, qualified name is returned.
+	 * For anonymous types, the superclass name is the name appearing after the 'new' keyword'.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
@@ -401,6 +402,7 @@ public interface IType extends IMember {
 	 * An empty collection is returned if this type does not implement or
 	 * extend any interfaces. For source types, simple names are returned,
 	 * for binary types, qualified names are returned.
+	 * For anonymous types, an empty collection is always returned.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.

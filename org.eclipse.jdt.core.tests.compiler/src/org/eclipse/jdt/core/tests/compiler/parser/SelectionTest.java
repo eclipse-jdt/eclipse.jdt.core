@@ -1491,6 +1491,8 @@ public void test34() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  public int foo() {\n" + 
+		"    Object[] array;\n" + 
+		"    return array.length;\n" + 
 		"  }\n" + 
 		"}\n";
 		

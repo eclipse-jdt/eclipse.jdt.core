@@ -826,11 +826,22 @@ public final class JavaCore extends Plugin {
 		if (handleIdentifier == null) {
 			return null;
 		}
-		try {
-			return JavaModelManager.getJavaModelManager().getHandleFromMemento(handleIdentifier, owner);
-		} catch (JavaModelException e) {
-			return null;
-		}
+		String delimiters = new String(new char[] {
+			JavaElement.JEM_COUNT,
+			JavaElement.JEM_JAVAPROJECT,
+			JavaElement.JEM_PACKAGEFRAGMENTROOT,
+			JavaElement.JEM_PACKAGEFRAGMENT,
+			JavaElement.JEM_FIELD,
+			JavaElement.JEM_METHOD,
+			JavaElement.JEM_INITIALIZER,
+			JavaElement.JEM_COMPILATIONUNIT,
+			JavaElement.JEM_CLASSFILE,
+			JavaElement.JEM_TYPE,
+			JavaElement.JEM_PACKAGEDECLARATION,
+			JavaElement.JEM_IMPORTDECLARATION});
+		StringTokenizer memento = new StringTokenizer(handleIdentifier, delimiters, true);
+		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+		return model.getHandleFromMemento(memento, owner);
 	}
 	
 	/**

@@ -65,7 +65,7 @@ public void testDeleteAllImports() throws CoreException {
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"				[import container][-]: {}"
+			"				<import container>[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -402,7 +402,7 @@ public void testDeleteImportDeclaration() throws CoreException {
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"				[import container][*]: {CHILDREN | FINE GRAINED}\n" + 
+			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import q.Y[-]: {}"
 		);
 	} finally {
@@ -518,7 +518,7 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"				[import container][*]: {CHILDREN | FINE GRAINED}\n" + 
+			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import java.util.Vector[-]: {}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					main[-]: {}\n" + 

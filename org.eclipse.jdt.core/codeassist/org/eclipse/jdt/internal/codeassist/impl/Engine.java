@@ -126,7 +126,7 @@ public abstract class Engine implements ITypeRequestor {
 		return true;
 	}
 
-	protected void parseMethod(CompilationUnitDeclaration unit, int position) {
+	protected AstNode parseMethod(CompilationUnitDeclaration unit, int position) {
 		int length = unit.types.length;
 		for (int i = 0; i < length; i++) {
 			TypeDeclaration type = unit.types[i];
@@ -134,13 +134,13 @@ public abstract class Engine implements ITypeRequestor {
 				&& type.declarationSourceEnd >= position) {
 				getParser().scanner.setSource(
 					unit.compilationResult.compilationUnit.getContents());
-				parseMethod(type, unit, position);
-				return;
+				return parseMethod(type, unit, position);
 			}
 		}
+		return null;
 	}
 
-	private void parseMethod(
+	private AstNode parseMethod(
 		TypeDeclaration type,
 		CompilationUnitDeclaration unit,
 		int position) {
@@ -153,8 +153,7 @@ public abstract class Engine implements ITypeRequestor {
 				if (memberType.bodyStart > position)
 					continue;
 				if (memberType.declarationSourceEnd >= position) {
-					parseMethod(memberType, unit, position);
-					return;
+					return parseMethod(memberType, unit, position);
 				}
 			}
 		}
@@ -168,7 +167,7 @@ public abstract class Engine implements ITypeRequestor {
 					continue;
 				if (method.declarationSourceEnd >= position) {
 					getParser().parseBlockStatements(method, unit);
-					return;
+					return method;
 				}
 			}
 		}
@@ -184,10 +183,11 @@ public abstract class Engine implements ITypeRequestor {
 					continue;
 				if (initializer.declarationSourceEnd >= position) {
 					getParser().parseBlockStatements(initializer, type, unit);
-					return;
+					return initializer;
 				}
 			}
 		}
+		return null;
 	}
 
 	protected void reset() {

@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.codeassist.impl;
  *
  */
 
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -81,7 +82,7 @@ public AssistParser(ProblemReporter problemReporter) {
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){
-	return method.declarationSourceEnd;
+	return method.bodyEnd;
 }
 public int bodyEnd(Initializer initializer){
 	return initializer.declarationSourceEnd;
@@ -819,13 +820,53 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 	} catch (AbortCompilation ex) {
 		lastAct = ERROR_ACTION;
 	}
+	
+	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+		return;
+	}
+
+	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+	cd.explicitDeclarations = realBlockStack[realBlockPtr--];
+	int length;
+	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+		astPtr -= length;
+		if (astStack[astPtr + 1] instanceof ExplicitConstructorCall)
+			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
+			{
+			System.arraycopy(
+				astStack, 
+				astPtr + 2, 
+				cd.statements = new Statement[length - 1], 
+				0, 
+				length - 1); 
+			cd.constructorCall = (ExplicitConstructorCall) astStack[astPtr + 1];
+		} else { //need to add explicitly the super();
+			System.arraycopy(
+				astStack, 
+				astPtr + 1, 
+				cd.statements = new Statement[length], 
+				0, 
+				length); 
+			cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		}
+	} else {
+		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
+			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}		
+	}
+
+	if (cd.constructorCall.sourceEnd == 0) {
+		cd.constructorCall.sourceEnd = cd.sourceEnd;
+		cd.constructorCall.sourceStart = cd.sourceStart;
+	}
 }
 /**
  * Parse the block statements inside the given initializer and try to complete at the
  * cursor location.
  */
 public void parseBlockStatements(
-	Initializer ini,
+	Initializer initializer,
 	TypeDeclaration type, 
 	CompilationUnitDeclaration unit) {
 
@@ -837,7 +878,7 @@ public void parseBlockStatements(
 	referenceContext = type;
 	compilationUnit = unit;
 
-	scanner.resetTo(ini.sourceStart, bodyEnd(ini)); // just after the beginning {
+	scanner.resetTo(initializer.sourceStart, bodyEnd(initializer)); // just after the beginning {
 	consumeNestedMethod();
 	try {
 		parse();
@@ -846,6 +887,27 @@ public void parseBlockStatements(
 	} finally {
 		nestedMethod[nestedType]--;
 	}
+	
+	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+		return;
+	}
+	
+	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+	initializer.block.explicitDeclarations = realBlockStack[realBlockPtr--];
+	int length;
+	if ((length = astLengthStack[astLengthPtr--]) > 0) {
+		System.arraycopy(astStack, (astPtr -= length) + 1, initializer.block.statements = new Statement[length], 0, length); 
+	} else {
+		// check whether this block at least contains some comment in it
+		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
+			initializer.block.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
+	}
+	
+	// mark initializer with local type if one was found during parsing
+	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
+		initializer.bits |= AstNode.HasLocalTypeMASK;
+	}	
 }
 /**
  * Parse the block statements inside the given method declaration and try to complete at the
@@ -881,6 +943,27 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 	} finally {
 		nestedMethod[nestedType]--;		
 	}
+	
+	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+		return;
+	}
+
+	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+	md.explicitDeclarations = realBlockStack[realBlockPtr--];
+	int length;
+	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+		System.arraycopy(
+			astStack, 
+			(astPtr -= length) + 1, 
+			md.statements = new Statement[length], 
+			0, 
+			length); 
+	} else {
+		if (!containsComment(md.bodyStart, md.bodyEnd)) {
+			md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
+	}
+
 }
 protected void popElement(int kind){
 	if(elementPtr < 0 || elementKindStack[elementPtr] != kind) return;

@@ -581,6 +581,27 @@ public int getElementType() {
 public char[] getFileName(){
 	return getElementName().toCharArray();
 }
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+		case JEM_IMPORTDECLARATION:
+			JavaElement container = (JavaElement)getImportContainer();
+			return container.getHandleFromMemento(token, memento, workingCopyOwner);
+		case JEM_PACKAGEDECLARATION:
+			String pkgName = memento.nextToken();
+			JavaElement pkgDecl = (JavaElement)getPackageDeclaration(pkgName);
+			return pkgDecl.getHandleFromMemento(memento, workingCopyOwner);
+		case JEM_TYPE:
+			String typeName = memento.nextToken();
+			JavaElement type = (JavaElement)getType(typeName);
+			return type.getHandleFromMemento(memento, workingCopyOwner);
+	}
+	return null;
+}
 /**
  * @see JavaElement#getHandleMementoDelimiter()
  */

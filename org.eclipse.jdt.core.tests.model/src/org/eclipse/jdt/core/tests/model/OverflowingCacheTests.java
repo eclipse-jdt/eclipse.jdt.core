@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.*;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -220,6 +221,10 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			return 0;
 		}
 
+		public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+			return null;
+		}
+		
 		protected char getHandleMementoDelimiter() {
 			return 0;
 		}

@@ -48,6 +48,8 @@ public class SelectionRequestor implements ISelectionRequestor {
 	 */
 	protected IJavaElement[] elements = JavaElement.NO_ELEMENTS;
 	protected int elementIndex = -1;
+	
+	protected HandleFactory handleFactory = new HandleFactory();
 
 /**
  * Creates a selection requestor that uses that given
@@ -128,8 +130,53 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
 	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification);
 }
+public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, CompilationUnitDeclaration parsedUnit) {
+	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
+	if (type != null) {
+		IField field= type.getField(new String(name));
+		if (field.exists()) {
+			addElement(field);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept field("); //$NON-NLS-1$
+				System.out.print(field.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		}
+	}
+}
+public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, CompilationUnitDeclaration parsedUnit) {
+	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
+	// fix for 1FWFT6Q
+	if (type != null) {
+		if (type.isBinary()) {
+			
+			// need to add a paramater for constructor in binary type
+			IType declaringDeclaringType = type.getDeclaringType();
+			
+			boolean isStatic = false;
+			try {
+				isStatic = Flags.isStatic(type.getFlags());
+			} catch (JavaModelException e) {
+				// isStatic == false
+			}
+			
+			if(declaringDeclaringType != null && isConstructor	&& !isStatic) {
+				int length = parameterPackageNames.length;
+				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
+				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+				
+				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
+				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+			}
+			
+			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
+		} else {
+			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
+		}
+	}
+}
 public void acceptLocalType(SourceTypeBinding typeBinding, CompilationUnitDeclaration parsedUnit) {
-	IJavaElement type = new HandleFactory().createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
+	IJavaElement type = this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
 	if (type != null) {
 		addElement(type);
 		if(SelectionEngine.DEBUG){

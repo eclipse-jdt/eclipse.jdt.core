@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -215,7 +216,72 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	}
 	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
-
+/*
+ * @see JavaElement
+ */
+public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+	switch (token.charAt(0)) {
+		case JEM_COUNT:
+			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+		case JEM_FIELD:
+			String fieldName = memento.nextToken();
+			JavaElement field = (JavaElement)getField(fieldName);
+			return field.getHandleFromMemento(memento, workingCopyOwner);
+		case JEM_INITIALIZER:
+			String count = memento.nextToken();
+			JavaElement initializer = (JavaElement)getInitializer(Integer.parseInt(count));
+			return initializer.getHandleFromMemento(memento, workingCopyOwner);
+		case JEM_METHOD:
+			String selector = memento.nextToken();
+			ArrayList params = new ArrayList();
+			nextParam: while (memento.hasMoreTokens()) {
+				token = memento.nextToken();
+				switch (token.charAt(0)) {
+					case JEM_TYPE:
+						break nextParam;
+					case JEM_METHOD:
+						String param = memento.nextToken();
+						StringBuffer buffer = new StringBuffer();
+						while (Signature.C_ARRAY == param.charAt(0)) {
+							buffer.append(Signature.C_ARRAY);
+							param = memento.nextToken();
+						}
+						params.add(buffer.toString() + param);
+						break;
+				}
+			}
+			String[] parameters = new String[params.size()];
+			params.toArray(parameters);
+			JavaElement method = (JavaElement)getMethod(selector, parameters);
+			if (token != null && token.charAt(0) == JEM_TYPE) {
+				return method.getHandleFromMemento(token, memento, workingCopyOwner);
+			} else {
+				return method;
+			}
+		case JEM_TYPE:
+			String typeName;
+			if (memento.hasMoreTokens()) {
+				typeName = memento.nextToken();
+				char firstChar = typeName.charAt(0);
+				if (firstChar == JEM_FIELD || firstChar == JEM_INITIALIZER || firstChar == JEM_METHOD || firstChar == JEM_TYPE || firstChar == JEM_COUNT) {
+					token = typeName;
+					typeName = ""; //$NON-NLS-1$
+				} else {
+					token = null;
+				}
+			} else {
+				typeName = ""; //$NON-NLS-1$
+				token = null;
+			}
+			JavaElement type = (JavaElement)getType(typeName);
+			if (token == null) {
+				return type.getHandleFromMemento(memento, workingCopyOwner);
+			} else {
+				return type.getHandleFromMemento(token, memento, workingCopyOwner);
+			}
+	}
+	return null;
+}
 /**
  * @see IType
  */
@@ -354,7 +420,7 @@ public IType[] getTypes() throws JavaModelException {
  * @see IType#isAnonymous()
  */
 public boolean isAnonymous() throws JavaModelException {
-	return false; // cannot create source handle onto anonymous types
+	return fName.length() == 0;
 }
 /**
  * @see IType
@@ -373,7 +439,7 @@ public boolean isInterface() throws JavaModelException {
  * @see IType#isLocal()
  */
 public boolean isLocal() throws JavaModelException {
-	return false; // cannot create source handle onto local types
+	return fParent instanceof IMethod || fParent instanceof IInitializer;
 }
 /**
  * @see IType#isMember()

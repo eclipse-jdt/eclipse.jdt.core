@@ -60,6 +60,10 @@ public int getFlags() throws JavaModelException {
 public String getHandleMemento(){
 	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 	buff.append(getElementName());
+	if (this.occurrenceCount > 1) {
+		buff.append(JEM_COUNT);
+		buff.append(this.occurrenceCount);
+	}
 	return buff.toString();
 }
 /**

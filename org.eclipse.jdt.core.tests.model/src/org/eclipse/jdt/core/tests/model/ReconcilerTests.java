@@ -181,7 +181,7 @@ public void testAddImports() throws JavaModelException {
 	this.workingCopy.reconcile();
 	assertDeltas(
 		"Unexpected delta", 
-		"[import container][*]: {CHILDREN | FINE GRAINED}\n" +
+		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	import java.lang.reflect.*[+]: {}\n" +
 		"	import java.util.Vector[+]: {}"
 	);
@@ -417,7 +417,7 @@ public void testGrowImports() throws JavaModelException {
 	this.workingCopy.reconcile();
 	assertDeltas(
 		"Unexpected delta", 
-		"[import container][+]: {}"
+		"<import container>[+]: {}"
 	);
 		
 	// append to import name
@@ -430,7 +430,7 @@ public void testGrowImports() throws JavaModelException {
 	this.workingCopy.reconcile();
 	assertDeltas(
 		"Unexpected delta", 
-		"[import container][*]: {CHILDREN | FINE GRAINED}\n" +
+		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	import p2[+]: {}\n" +
 		"	import p[-]: {}"
 	);
