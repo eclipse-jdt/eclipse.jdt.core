@@ -1001,6 +1001,9 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 	super.consumeArrayCreationExpressionWithoutInitializer();
 	popElement(K_ARRAY_CREATION);
 }
+protected void consumeArrayCreationHeader() {
+	// nothing to do
+}
 protected void consumeAssignment() {
 	popElement(K_ASSISGNMENT_OPERATOR);
 	super.consumeAssignment();
@@ -1158,6 +1161,10 @@ protected void consumeDefaultLabel() {
 		popElement(K_SWITCH_LABEL);
 	}
 	pushOnElementStack(K_SWITCH_LABEL, DEFAULT);
+}
+protected void consumeDimWithOrWithOutExpr() {
+	// DimWithOrWithOutExpr ::= '[' ']'
+	pushOnExpressionStack(null);
 }
 protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR_QUALIFIER);

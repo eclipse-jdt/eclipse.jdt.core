@@ -5830,4 +5830,67 @@ public void test104() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+public void test105() {
+	String s = 
+		"public class X {\n" +
+		"	static int foo(int[] a, int[] b) {\n" +
+		"		return 0;\n" +
+		"	}\n" +
+		"	static int B =\n" +
+		"		foo(\n" +
+		"			new int[]{0,0},\n" +
+		"			new int[]{0,0}\n" +
+		"		);\n" +
+		"	#\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" +
+		"  static int B;\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  static int foo(int[] a, int[] b) {\n" +
+		"  }\n" +
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" +
+		"  static int B;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  static int foo(int[] a, int[] b) {\n" +
+		"    return 0;\n" +
+		"  }\n" +
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" +
+		"  static int B;\n" +
+		"  {\n" +
+		"  }\n" +
+		"  {\n" +
+		"  }\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  <clinit>() {\n" +
+		"  }\n" +
+		"  static int foo(int[] a, int[] b) {\n" +
+		"  }\n" +
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
 }
