@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.util.CompilationUnitSorter;
 public class SortCompilationUnitElementsTests extends ModifyingResourceTests {
 
 private static final boolean DEBUG = true;
-private static final boolean Bug88224 = true;
 
 public SortCompilationUnitElementsTests(String name) {
 	super(name);
@@ -94,7 +93,7 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 }
 
 public static Test suite() {
-	if (false) {
+	if (true) {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
@@ -1619,7 +1618,6 @@ public void test023() throws CoreException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=81329
 public void test024() throws CoreException {
-	if (Bug88224) return;
 	try {
 		this.createFile(
 			"/P/src/X.java",

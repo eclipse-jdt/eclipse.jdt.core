@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 149 };
+//		TESTS_NUMBERS = new int[] { 145 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4525,5 +4525,46 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		NormalAnnotation annotation4 = (NormalAnnotation) expression5;
 		checkSourceRange(annotation4, "@Jpf.ValidateMinLength(chars=\"12\")", contents);
 		checkSourceRange(memberValuePair3, "validateMinLength=@Jpf.ValidateMinLength(chars=\"12\")", contents);
+   }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88252
+    public void test0150() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" +
+    		"	void foo() {\n" +
+    		"		class Local {\n" +
+    		"			static enum E {\n" +
+    		"				C, B;\n" +
+    		"			}\n" +
+    		"		}\n" +
+    		"	}\n" +
+    		"	void bar() {\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+		final String expectedErrors = "Illegal modifier for the local enum E; only abstract is permitted";
+    	assertProblemsSize(compilationUnit, 1, expectedErrors);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+   		assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
+		AbstractTypeDeclaration typeDeclaration = typeDeclarationStatement.getDeclaration();
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+   		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, bodyDeclaration.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) bodyDeclaration;
+		List enumConstants = enumDeclaration.enumConstants();
+		assertEquals("Wrong size", 2, enumConstants.size());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		checkSourceRange(enumConstantDeclaration, "C", contents);
+		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
+		checkSourceRange(enumConstantDeclaration, "B", contents);
    }
 }

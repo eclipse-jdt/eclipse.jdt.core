@@ -1159,6 +1159,7 @@ protected void consumeArgumentList() {
 protected void consumeArguments() {
 	// Arguments ::= '(' ArgumentListopt ')' 
 	// nothing to do, the expression stack is already updated
+	pushOnIntStack(rParenPos);
 }
 protected void consumeArrayAccess(boolean unspecifiedReference) {
 	// ArrayAccess ::= Name '[' Expression ']' ==> true
@@ -2368,6 +2369,8 @@ protected void consumeEmptyArgumentListopt() {
 }
 protected void consumeEmptyArguments() {
 	// Argumentsopt ::= $empty
+	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
+	pushOnIntStack(fieldDeclaration.sourceEnd);
 	pushOnExpressionStackLengthStack(0);
 }
 protected void consumeEmptyArrayInitializer() {
@@ -2812,15 +2815,10 @@ protected void consumeEnumConstantHeader() {
 }
 protected void consumeEnumConstantNoClassBody() {
 	// set declarationEnd and declarationSourceEnd
+	int endOfEnumConstant = intStack[intPtr--];
 	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
-	int declarationEnd = fieldDeclaration.sourceEnd;
-	if (declarationEnd > rParenPos) {
-		fieldDeclaration.declarationEnd = declarationEnd;
-		fieldDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(declarationEnd);
-	} else {
-		fieldDeclaration.declarationEnd = rParenPos;
-		fieldDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(rParenPos);
-	}
+	fieldDeclaration.declarationEnd = endOfEnumConstant;
+	fieldDeclaration.declarationSourceEnd = endOfEnumConstant;
 }
 protected void consumeEnumConstants() {
 	concatNodeLists();
@@ -2834,6 +2832,7 @@ protected void consumeEnumConstantWithClassBody() {
    final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
    fieldDeclaration.declarationEnd = this.endStatementPosition;
    fieldDeclaration.declarationSourceEnd = anonymousType.declarationSourceEnd;
+   intPtr --; // remove end position of the arguments
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
