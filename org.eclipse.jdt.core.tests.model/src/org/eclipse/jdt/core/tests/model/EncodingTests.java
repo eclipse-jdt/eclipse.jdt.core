@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import junit.framework.Test;
@@ -51,7 +53,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "testBug66898", "testBug66898b" };
+//		testsNames = new String[] { "testBug70598" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -87,6 +89,29 @@ public class EncodingTests extends ModifyingResourceTests {
 		this.utf8File.setCharset(null, null);
 		if (this.utf8Source != null) ((IOpenable) this.utf8Source).close();
 		this.encodingJavaProject.close();
+	}
+
+	void compareContents(ICompilationUnit cu, String encoding) throws JavaModelException {
+		// Compare source strings
+		String source = cu.getSource();
+		String systemSourceRenamed = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
+		IFile file = (IFile) cu.getUnderlyingResource();
+		String renamedContents = new String (Util.getResourceContentsAsCharArray(file));
+		renamedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(renamedContents);
+		assertEquals("Encoded UTF-8 source should have been decoded the same way!", renamedContents, systemSourceRenamed);
+		// Compare bytes array
+		byte[] renamedSourceBytes = null;
+		try {
+			renamedSourceBytes = source.getBytes(encoding);
+		}
+		catch (UnsupportedEncodingException uue) {
+		}
+		assertNotNull("Unsupported encoding: "+encoding, renamedSourceBytes);
+		byte[] renamedEncodedBytes = Util.getResourceContentsAsByteArray(file);
+		assertEquals("Wrong size of encoded string", renamedEncodedBytes.length, renamedSourceBytes.length);
+		for (int i = 0, max = renamedSourceBytes.length; i < max; i++) {
+			assertTrue("Wrong size of encoded character at " + i, renamedSourceBytes[i] == renamedEncodedBytes[i]);
+		}
 	}
 
 	/**
@@ -681,26 +706,26 @@ public class EncodingTests extends ModifyingResourceTests {
 		cu.delete(true, null);
 		deleteFolder("/Encoding/src/tmp");
 	}	
-	void compareContents(ICompilationUnit cu, String encoding) throws JavaModelException {
-		// Compare source strings
-		String source = cu.getSource();
-		String systemSourceRenamed = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
-		IFile file = (IFile) cu.getUnderlyingResource();
-		String renamedContents = new String (Util.getResourceContentsAsCharArray(file));
-		renamedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(renamedContents);
-		assertEquals("Encoded UTF-8 source should have been decoded the same way!", renamedContents, systemSourceRenamed);
-		// Compare bytes array
-		byte[] renamedSourceBytes = null;
-		try {
-			renamedSourceBytes = source.getBytes(encoding);
-		}
-		catch (UnsupportedEncodingException uue) {
-		}
-		assertNotNull("Unsupported encoding: "+encoding, renamedSourceBytes);
-		byte[] renamedEncodedBytes = Util.getResourceContentsAsByteArray(file);
-		assertEquals("Wrong size of encoded string", renamedEncodedBytes.length, renamedSourceBytes.length);
-		for (int i = 0, max = renamedSourceBytes.length; i < max; i++) {
-			assertTrue("Wrong size of encoded character at " + i, renamedSourceBytes[i] == renamedEncodedBytes[i]);
-		}
-	}
+
+	/**
+	 * Test case for bug 70598: [Encoding] ArrayIndexOutOfBoundsException while testing BOM on *.txt files
+	 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=70598)
+	 */
+	public void testBug70598() throws JavaModelException, CoreException, IOException {
+
+		// Create empty file
+		IFile emptyFile = createFile("/Encoding/src/testUTF8BOM/Empty.java", new byte[0]);
+
+		// Test read empty content using io file
+		File file = new File(this.encodingProject.getLocation().toString(), emptyFile.getProjectRelativePath().toString());
+		char[] fileContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, "UTF-8");
+		assertEquals("We should not get any character!", "", new String(fileContents));
+
+		// Test read empty content using io file
+		char[] ifileContents =Util.getResourceContentsAsCharArray(emptyFile, "UTF-8");
+		assertEquals("We should not get any character!", "", new String(ifileContents));
+		
+		// Delete empty file
+		deleteFile(file);
+	}	
 }

@@ -328,7 +328,7 @@ public class Util implements SuffixConstants {
 
 			// Do not keep first character for UTF-8 BOM encoding
 			int start = 0;
-			if ("UTF-8".equals(encoding)) { //$NON-NLS-1$
+			if (contentsLength > 0 && "UTF-8".equals(encoding)) { //$NON-NLS-1$
 				if (contents[0] == 0xFEFF) { // if BOM char then skip
 					contentsLength--;
 					start = 1;
@@ -355,7 +355,7 @@ public class Util implements SuffixConstants {
 			}
 			// Do not keep first character for UTF-8 BOM encoding
 			int start = 0;
-			if ("UTF-8".equals(encoding)) { //$NON-NLS-1$
+			if (length > 0 && "UTF-8".equals(encoding)) { //$NON-NLS-1$
 				if (contents[0] == 0xFEFF) { // if BOM char then skip
 					len--;
 					start = 1;
