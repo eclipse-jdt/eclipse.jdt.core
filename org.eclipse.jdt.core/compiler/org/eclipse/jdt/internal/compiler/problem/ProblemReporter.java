@@ -862,6 +862,15 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 			location.sourceEnd);
 	}
 }
+public void methodMustOverride(AbstractMethodDeclaration method) {
+	MethodBinding binding = method.binding;
+	this.handle(
+		IProblem.MethodMustOverride,
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
+		method.sourceStart,
+		method.sourceEnd);
+}
 public void deprecatedType(TypeBinding type, ASTNode location) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	this.handle(
@@ -1890,9 +1899,9 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void incompatibleTargetForAnnotation(Annotation annotation) {
+public void disallowedTargetForAnnotation(Annotation annotation) {
 	this.handle(
-		IProblem.IncompatibleTargetForAnnotation,
+		IProblem.DisallowedTargetForAnnotation,
 		new String[] {new String(annotation.resolvedType.readableName())},
 		new String[] {new String(annotation.resolvedType.shortReadableName())},
 		annotation.sourceStart,

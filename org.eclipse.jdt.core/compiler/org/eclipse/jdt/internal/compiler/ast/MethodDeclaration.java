@@ -132,6 +132,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			scope.problemReporter().methodWithConstructorName(this);
 		}
 		
+		// check @Override annotation
+		if (this.binding != null 
+				&& (this.binding.tagBits & TagBits.AnnotationOverride) != 0
+				&& (this.binding.modifiers & AccOverriding) == 0) {
+			scope.problemReporter().methodMustOverride(this);
+		}
+				
 		// by grammatical construction, interface methods are always abstract
 		switch (scope.referenceType().kind()) {
 			case IGenericType.ENUM_DECL :

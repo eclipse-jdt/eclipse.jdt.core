@@ -283,7 +283,7 @@ public abstract class Annotation extends Expression {
 							break checkTargetCompatibility;
 						break;
 				}			
-				scope.problemReporter().incompatibleTargetForAnnotation(this);
+				scope.problemReporter().disallowedTargetForAnnotation(this);
 			}
 		}
 		return this.resolvedType;

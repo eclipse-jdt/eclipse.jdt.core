@@ -2427,4 +2427,41 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"Illegal modifier for the annotation type TestAnnot; only public & abstract are permitted\n" + 
 			"----------\n");
 	}	
+	// check @Override annotation - strictly for superclasses (overrides) and not interfaces (implements)
+	public void test077() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Further {\n" + 
+				"	void bar() {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Other extends Further {\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Baz {\n" + 
+				"	void baz();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Other implements Baz {\n" + 
+				"	@Override\n" + 
+				"	void foo() {}\n" + 
+				"	@Override\n" + 
+				"	void bar() {}\n" + 
+				"	@Override\n" + 
+				"	public void baz() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	void foo() {}\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type X must override a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	public void baz() {}\n" + 
+			"	            ^^^^^\n" + 
+			"The method baz() of type X must override a superclass method\n" + 
+			"----------\n");
+	}		
 }

@@ -1008,7 +1008,9 @@ public interface IProblem {
 	/** @since 3.1 */
 	int DuplicateTargetInTargetAnnotation = Internal + 621;
 	/** @since 3.1 */
-	int IncompatibleTargetForAnnotation = TypeRelated + 622;
+	int DisallowedTargetForAnnotation = TypeRelated + 622;
+	/** @since 3.1 */
+	int MethodMustOverride = TypeRelated + 623;
 		
 	/**
 	 * Corrupted binaries
