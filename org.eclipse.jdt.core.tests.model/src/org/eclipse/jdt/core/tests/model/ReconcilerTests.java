@@ -381,9 +381,8 @@ public void testChangeMethodTypeParameters() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	foo()[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"		<T>[+]: {}"
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {CONTENT}"
 	);
 }
 /**
@@ -405,8 +404,7 @@ public void testChangeTypeTypeParameters() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	<T>[+]: {}"
+		"X[*]: {CONTENT}"
 	);
 }
 /**

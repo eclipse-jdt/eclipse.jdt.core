@@ -18,7 +18,9 @@ package org.eclipse.jdt.core;
  * Type parameters are obtained using {@link IType#getTypeParameter(String)} and
  * {@link IMethod#getTypeParameter(String)}.
  * </p><p>
- * Note that type parameters are children of their declaring type or method.
+ * Note that type parameters are not children of their declaring type or method. To get a list
+ * of the type parameters use {@link IType#getTypeParameters()} for a type and use
+ * {@link IMethod#getTypeParameters()} for a method.
  * </p>
  *
  * @since 3.1

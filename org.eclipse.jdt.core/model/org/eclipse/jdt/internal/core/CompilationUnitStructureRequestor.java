@@ -449,7 +449,21 @@ public void enterTypeParameter(int declarationStart, char[] name, int nameSource
 	info.nameStart = nameSourceStart;
 	info.nameEnd = nameSourceEnd;
 	info.bounds = typeParameterBounds;
-	parentInfo.addChild(handle);
+	if (parentInfo instanceof SourceTypeElementInfo) {
+		SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) parentInfo;
+		ITypeParameter[] typeParameters = elementInfo.typeParameters;
+		int length = typeParameters.length;
+		System.arraycopy(typeParameters, 0, typeParameters = new ITypeParameter[length+1], 0, length);
+		typeParameters[length] = handle;
+		elementInfo.typeParameters = typeParameters;
+	} else {
+		SourceMethodElementInfo elementInfo = (SourceMethodElementInfo) parentInfo;
+		ITypeParameter[] typeParameters = elementInfo.typeParameters;
+		int length = typeParameters.length;
+		System.arraycopy(typeParameters, 0, typeParameters = new ITypeParameter[length+1], 0, length);
+		typeParameters[length] = handle;
+		elementInfo.typeParameters = typeParameters;
+	}
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);

@@ -18,32 +18,13 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
-	public static boolean ENABLED = false;
+	static final ITypeParameter[] NO_TYPE_PARAMETERS = new ITypeParameter[0];
 	
 	protected String name;
 	
 	public TypeParameter(JavaElement parent, String name) {
 		super(parent);
 		this.name = name;
-	}
-	
-	/*
-	 * Returns the elements that are not type parameters in the given list.
-	 * TODO (jerome) remove once type parameters are enabled
-	 */
-	static IJavaElement[] nonTypeParameters(IJavaElement[] elements) {
-		int length = elements.length;
-		int count = 0;
-		for (int i = 0; i < length; i++)
-			if (elements[i].getElementType() != IJavaElement.TYPE_PARAMETER)
-				count++;
-		if (count == length) return elements;
-		IJavaElement[] filteredElements = new IJavaElement[count];
-		int index = 0;
-		for (int i = 0; i < length; i++) 
-			if (elements[i].getElementType() != IJavaElement.TYPE_PARAMETER)
-				filteredElements[index++] = elements[i];
-		return filteredElements;
 	}
 
 	public String[] getBounds() throws JavaModelException {

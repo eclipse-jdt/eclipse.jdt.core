@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
@@ -67,6 +67,11 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 * from info to handle.
 	 */
 	protected IType handle = null;
+	
+	/*
+	 * The type parameters of this source type. Empty if none.
+	 */
+	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 
 /**
  * Returns the ISourceType that is the enclosing type for this
@@ -240,35 +245,26 @@ public char[] getSuperclassName() {
 	return this.superclassName;
 }
 public char[][][] getTypeParameterBounds() {
-	ArrayList typeParameterBounds = new ArrayList();
-	for (int i = 0, length = this.children.length; i < length; i++) {
-		IJavaElement child = this.children[i];
-		if (child instanceof TypeParameter) {
-			try {
-				TypeParameterElementInfo info = (TypeParameterElementInfo) ((JavaElement)child).getElementInfo();
-				typeParameterBounds.add(info.bounds);
-			} catch (JavaModelException e) {
-				// child does not exist: ignore
-			}
+	int length = this.typeParameters.length;
+	char[][][] typeParameterBounds = new char[length][][];
+	for (int i = 0; i < length; i++) {
+		try {
+			TypeParameterElementInfo info = (TypeParameterElementInfo) ((JavaElement)this.typeParameters[i]).getElementInfo();
+			typeParameterBounds[i] = info.bounds;
+		} catch (JavaModelException e) {
+			// type parameter does not exist: ignore
 		}
 	}
-	int size = typeParameterBounds.size();
-	char[][][] result = new char[size][][];
-	typeParameterBounds.toArray(result);
-	return result;
+	return typeParameterBounds;
 }
 public char[][] getTypeParameterNames() {
-	ArrayList typeParameterNames = new ArrayList();
-	for (int i = 0, length = this.children.length; i < length; i++) {
-		IJavaElement child = this.children[i];
-		if (child instanceof TypeParameter) {
-			typeParameterNames.add(child.getElementName().toCharArray());
-		}
+	int length = this.typeParameters.length;
+	if (length == 0) return CharOperation.NO_CHAR_CHAR;
+	char[][] typeParameterNames = new char[length][];
+	for (int i = 0; i < length; i++) {
+		typeParameterNames[i] = this.typeParameters[i].getElementName().toCharArray();
 	}
-	int size = typeParameterNames.size();
-	char[][] result = new char[size][];
-	typeParameterNames.toArray(result);
-	return result;
+	return typeParameterNames;
 }
 /**
  * @see ISourceType

@@ -231,8 +231,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public IJavaElement[] getChildren() throws JavaModelException {
 		Object elementInfo = getElementInfo();
 		if (elementInfo instanceof JavaElementInfo) {
-			if (!TypeParameter.ENABLED)
-				return TypeParameter.nonTypeParameters(((JavaElementInfo)elementInfo).getChildren());
 			return ((JavaElementInfo)elementInfo).getChildren();
 		} else {
 			return NO_ELEMENTS;

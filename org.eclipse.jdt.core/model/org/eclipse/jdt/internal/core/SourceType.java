@@ -42,6 +42,14 @@ protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1, Util.bind("sourcetype.invalidName", name)); //$NON-NLS-1$
 }
+protected void closing(Object info) throws JavaModelException {
+	super.closing(info);
+	SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) info;
+	ITypeParameter[] typeParameters = elementInfo.typeParameters;
+	for (int i = 0, length = typeParameters.length; i < length; i++) {
+		((TypeParameter) typeParameters[i]).close();
+	}
+}
 /**
  * @see IType
  */
@@ -395,11 +403,8 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {
-	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
-	int size =typeParameters.size();
-	ITypeParameter[] result = new ITypeParameter[size];
-	typeParameters.toArray(result);
-	return result;
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return info.typeParameters;
 }
 
 /**
@@ -407,11 +412,11 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	ArrayList typeParameters = getChildrenOfType(TYPE_PARAMETER);
-	int length = typeParameters.size();
+	ITypeParameter[] typeParameters = getTypeParameters();
+	int length = typeParameters.length;
 	String[] typeParameterSignatures = new String[length];
 	for (int i = 0; i < length; i++) {
-		TypeParameter typeParameter = (TypeParameter) typeParameters.get(i);
+		TypeParameter typeParameter = (TypeParameter) typeParameters[i];
 		TypeParameterElementInfo info = (TypeParameterElementInfo) typeParameter.getElementInfo();
 		char[][] bounds = info.bounds;
 		if (bounds == null) {

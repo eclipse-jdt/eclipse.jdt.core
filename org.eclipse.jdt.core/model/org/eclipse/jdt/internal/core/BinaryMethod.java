@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
@@ -232,11 +230,15 @@ public ITypeParameter getTypeParameter(String typeParameterName) {
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {
-	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
-	int size =typeParameters.size();
-	ITypeParameter[] result = new ITypeParameter[size];
-	typeParameters.toArray(result);
-	return result;
+	String[] typeParameterSignatures = getTypeParameterSignatures();
+	int length = typeParameterSignatures.length;
+	if (length == 0) return TypeParameter.NO_TYPE_PARAMETERS;
+	ITypeParameter[] typeParameters = new ITypeParameter[length];
+	for (int i = 0; i < typeParameterSignatures.length; i++) {
+		String typeParameterName = Signature.getTypeVariable(typeParameterSignatures[i]);
+		typeParameters[i] = new TypeParameter(this, typeParameterName);
+	}
+	return typeParameters;
 }
 
 /**

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
@@ -42,6 +40,14 @@ protected SourceMethod(JavaElement parent, String name, String[] parameterTypes)
 		fParameterTypes= CharOperation.NO_STRINGS;
 	} else {
 		fParameterTypes= parameterTypes;
+	}
+}
+protected void closing(Object info) throws JavaModelException {
+	super.closing(info);
+	SourceMethodElementInfo elementInfo = (SourceMethodElementInfo) info;
+	ITypeParameter[] typeParameters = elementInfo.typeParameters;
+	for (int i = 0, length = typeParameters.length; i < length; i++) {
+		((TypeParameter) typeParameters[i]).close();
 	}
 }
 public boolean equals(Object o) {
@@ -135,11 +141,8 @@ public ITypeParameter getTypeParameter(String typeParameterName) {
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {
-	ArrayList typeParameters = getChildrenOfType(IJavaElement.TYPE_PARAMETER);
-	int size =typeParameters.size();
-	ITypeParameter[] result = new ITypeParameter[size];
-	typeParameters.toArray(result);
-	return result;
+	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
+	return info.typeParameters;
 }
 
 /**
@@ -147,11 +150,11 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	ArrayList typeParameters = getChildrenOfType(TYPE_PARAMETER);
-	int length = typeParameters.size();
+	ITypeParameter[] typeParameters = getTypeParameters();
+	int length = typeParameters.length;
 	String[] typeParameterSignatures = new String[length];
 	for (int i = 0; i < length; i++) {
-		TypeParameter typeParameter = (TypeParameter) typeParameters.get(i);
+		TypeParameter typeParameter = (TypeParameter) typeParameters[i];
 		TypeParameterElementInfo info = (TypeParameterElementInfo) typeParameter.getElementInfo();
 		char[][] bounds = info.bounds;
 		if (bounds == null) {
