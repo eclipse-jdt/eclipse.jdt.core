@@ -113,25 +113,13 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
-  3430      usability: parameter hints (1GKYXK5)  
-  3431      Unreachable code in JCore (1GL2V6K)  
-  3175      JCK1.3a - ICLS - Comparing current instance against enclosing instance inside of anonymous class. (1GLDSBS)  
-  1GLBOJZ:  ITPJCORE:WIN2000 - UnaryExpression doesn't store expression type in bit mask
-  1GDS7IP:  ITPJCORE:WIN2000 - VerifyError related to a local index computation
-  1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an unexpected exception
-  1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open  
-  1GL4QKI: ITPJCORE:ALL - VerifyError when running app
   
   PRs Closed in this Release
   ===============================================================================
-  3223      Search from editor's context menu doesn't work (1GAJCD8)    
-  3433		search: missing field occurrecnces (1GKZ8J6)  
-  3176      JCK1.3a - STMT - Single declaration in try block (1GLDSH9)  
-  1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types
-  
+  3177      64kb method should be a configurable problem (1FJHGVF)  
 
 **********************************************************************************
-*** STABLE CONTENT (2.0 STREAM, v_203_08_demo_candidate) *************************
+*** STABLE CONTENT (2.0 STREAM, v_204) *******************************************
 **********************************************************************************
   
   What's new in this drop
@@ -200,6 +188,14 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  3430      usability: parameter hints (1GKYXK5)  
+  3431      Unreachable code in JCore (1GL2V6K)  
+  3175      JCK1.3a - ICLS - Comparing current instance against enclosing instance inside of anonymous class. (1GLDSBS)  
+  1GLBOJZ:  ITPJCORE:WIN2000 - UnaryExpression doesn't store expression type in bit mask
+  1GDS7IP:  ITPJCORE:WIN2000 - VerifyError related to a local index computation
+  1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an unexpected exception
+  1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open  
+  1GL4QKI: ITPJCORE:ALL - VerifyError when running app
   1GLBP65: ITPJCORE:WIN2000 - search: type refs - incorrect match
   1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner class emulation
   1GD07GK: ITPJUI:WIN98 - Code assist should qualify methods if needed.
@@ -241,6 +237,10 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3223      Search from editor's context menu doesn't work (1GAJCD8)    
+  3433		search: missing field occurrecnces (1GKZ8J6)  
+  3176      JCK1.3a - STMT - Single declaration in try block (1GLDSH9)  
+  1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types
   1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
   1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints 
   1GEV78E: ITPJUI:WIN2000 - Code assist: private superclass methods show up, but others don't
