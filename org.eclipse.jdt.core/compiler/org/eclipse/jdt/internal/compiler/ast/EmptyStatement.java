@@ -23,7 +23,7 @@ public class EmptyStatement extends Statement {
 	}
 	
 	public String toString(int tab) {
-		return tabString(tab) + ";";
+		return tabString(tab) + ";"; //$NON-NLS-1$ 
 	}
 }
 

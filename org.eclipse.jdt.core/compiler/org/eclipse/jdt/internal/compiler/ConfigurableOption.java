@@ -48,34 +48,34 @@ public ConfigurableOption(
 	ResourceBundle resource = null;
 	try {
 		String location = componentName.substring(0, componentName.lastIndexOf('.'));
-		resource = ResourceBundle.getBundle(location + ".Options"/*nonNLS*/, loc); 
+		resource = ResourceBundle.getBundle(location + ".Options", loc); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
-		name = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
-		description = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
+		description = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 		possibleValues = new String[0];
 		id = -1;
 	}
 	if (resource == null) return;
 	try {
-		id = Integer.parseInt(resource.getString(optionName + ".number"/*nonNLS*/)); 
+		id = Integer.parseInt(resource.getString(optionName + ".number")); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
 		id = -1;
 	} catch (NumberFormatException e) {
 		id = -1;
 	}
 	try {
-		category = resource.getString(optionName + ".category"/*nonNLS*/); 
+		category = resource.getString(optionName + ".category"); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		category = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	try {
-		name = resource.getString(optionName + ".name"/*nonNLS*/); 
+		name = resource.getString(optionName + ".name"); //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		name = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	try {
-		StringTokenizer tokenizer = new StringTokenizer(resource.getString(optionName + ".possibleValues"/*nonNLS*/), "|"/*nonNLS*/);
+		StringTokenizer tokenizer = new StringTokenizer(resource.getString(optionName + ".possibleValues"), "|"); //$NON-NLS-1$ //$NON-NLS-2$
 		int numberOfValues = Integer.parseInt(tokenizer.nextToken());
 		if(numberOfValues == -1){
 			possibleValues = NoDiscreteValue;
@@ -95,9 +95,9 @@ public ConfigurableOption(
 		possibleValues = new String[0];
 	}
 	try {
-		description = resource.getString(optionName + ".description"/*nonNLS*/); 
+		description = resource.getString(optionName + ".description");  //$NON-NLS-1$
 	} catch (MissingResourceException e) {
-		description = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		description = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 /**
@@ -186,31 +186,31 @@ public void setValueIndex(int newIndex) {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Configurable option for "/*nonNLS*/);
-	buffer.append(this.componentName).append("\n"/*nonNLS*/);
-	buffer.append("- category:			"/*nonNLS*/).append(this.category).append("\n"/*nonNLS*/);
-	buffer.append("- name:				"/*nonNLS*/).append(this.name).append("\n"/*nonNLS*/);
+	buffer.append("Configurable option for "); //$NON-NLS-1$ 
+	buffer.append(this.componentName).append("\n"); //$NON-NLS-1$ 
+	buffer.append("- category:			").append(this.category).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append("- name:				").append(this.name).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	/* display current value */
-	buffer.append("- current value:	"/*nonNLS*/);
+	buffer.append("- current value:	"); //$NON-NLS-1$ 
 	if (possibleValues == NoDiscreteValue){
 		buffer.append(this.currentValueIndex);
 	} else {
 		buffer.append(this.possibleValues[this.currentValueIndex]);
 	}
-	buffer.append("\n"/*nonNLS*/);
+	buffer.append("\n"); //$NON-NLS-1$ 
 	
 	/* display possible values */
 	if (possibleValues != NoDiscreteValue){
-		buffer.append("- possible values:	["/*nonNLS*/);
+		buffer.append("- possible values:	["); //$NON-NLS-1$ 
 		for (int i = 0, max = possibleValues.length; i < max; i++) {
 			if (i != 0)
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", "); //$NON-NLS-1$ 
 			buffer.append(possibleValues[i]);
 		}
-		buffer.append("]\n"/*nonNLS*/);
-		buffer.append("- curr. val. index:	"/*nonNLS*/).append(currentValueIndex).append("\n"/*nonNLS*/);
+		buffer.append("]\n"); //$NON-NLS-1$ 
+		buffer.append("- curr. val. index:	").append(currentValueIndex).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	buffer.append("- description:		"/*nonNLS*/).append(description).append("\n"/*nonNLS*/);
+	buffer.append("- description:		").append(description).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 	/**

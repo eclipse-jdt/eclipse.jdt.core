@@ -436,7 +436,7 @@ public class Main implements ProblemSeverities {
 				generatePackagesStructure = true;
 				continue;
 			}
-			if (currentArg.equals("-classpath")
+			if (currentArg.equals("-classpath") //$NON-NLS-1$
 				|| currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
 				if (pathCount > 0)
 					throw new InvalidInputException(
@@ -460,7 +460,7 @@ public class Main implements ProblemSeverities {
 				timer = true;
 				continue;
 			}
-			if (currentArg.equals("-version")
+			if (currentArg.equals("-version") //$NON-NLS-1$
 				|| currentArg.equals("-v")) { //$NON-NLS-1$ //$NON-NLS-2$
 				versionIDRequired = true;
 				continue;
@@ -545,7 +545,7 @@ public class Main implements ProblemSeverities {
 								CompilerOptions.GENERATE);
 						} else {
 							throw new InvalidInputException(
-								Main.bind("configure.invalidDebugOption", debugOption));
+								Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 							//$NON-NLS-1$
 						}
 					}
@@ -1001,7 +1001,7 @@ public class Main implements ProblemSeverities {
 		HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 
 		String defaultEncoding = (String) options.get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(defaultEncoding))
+		if ("".equals(defaultEncoding)) //$NON-NLS-1$
 			defaultEncoding = null; //$NON-NLS-1$
 
 		for (int i = 0; i < fileCount; i++) {
@@ -1042,7 +1042,7 @@ public class Main implements ProblemSeverities {
 	protected FileSystem getLibraryAccess() {
 
 		String defaultEncoding = (String) options.get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(defaultEncoding))
+		if ("".equals(defaultEncoding)) //$NON-NLS-1$
 			defaultEncoding = null; //$NON-NLS-1$	
 		return new FileSystem(classpaths, filenames, defaultEncoding);
 	}

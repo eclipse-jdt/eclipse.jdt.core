@@ -43,7 +43,7 @@ String[] directoryList(String qualifiedPackageName) {
 		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))) {}
 		if (index > last) {
 			if (last == -1) {
-				if (!doesFileExist(qualifiedPackageName, ""))
+				if (!doesFileExist(qualifiedPackageName, "")) //$NON-NLS-1$ 
 					break notFound;
 			} else {
 				String packageName = qualifiedPackageName.substring(last + 1);
