@@ -126,7 +126,10 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		notifier.done();
 		cleanup();
 	}
-	return getRequiredProjects();
+	IProject[] requiredProjects = getRequiredProjects();
+	if (DEBUG)
+		System.out.println("Build complete..."); //$NON-NLS-1$
+	return requiredProjects;
 }
 
 private void buildAll() {
