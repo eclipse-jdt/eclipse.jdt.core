@@ -34,7 +34,7 @@ protected void setClasspath(String[] sourceFoldersAndExclusionPatterns) throws J
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	this.project = this.createJavaProject("P", new String[] {"src"}, "bin");
+	this.project = createJavaProject("P", new String[] {"src"}, "bin");
 	startDeltas();
 }
 
@@ -49,7 +49,7 @@ public static Test suite() {
 
 protected void tearDown() throws Exception {
 	stopDeltas();
-	this.deleteProject("P");
+	deleteProject("P");
 	super.tearDown();
 }
 /*
@@ -57,8 +57,8 @@ protected void tearDown() throws Exception {
  * makes it disappear from the children of its package and it is added to the non-java resources.
  */
 public void testAddExclusionOnCompilationUnit() throws CoreException {
-	this.createFolder("/P/src/p");
-	this.createFile(
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -66,7 +66,7 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 	);
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
+	setClasspath(new String[] {"/P/src", "**/A.java"});
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -93,8 +93,8 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
  */
 public void testAddExclusionOnFolderUnderProject() throws CoreException {
 	try {
-		IJavaProject javaProject = this.createJavaProject("P1", new String[] {""}, "");
-		this.createFolder("/P1/doc");
+		IJavaProject javaProject = createJavaProject("P1", new String[] {""}, "");
+		createFolder("/P1/doc");
 
 		clearDeltas();
 		javaProject.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}, false/*no inclusion*/, true/*exclusion*/), null);
@@ -119,7 +119,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 			"doc",
 			javaProject.getNonJavaResources());
 	} finally {
-		this.deleteProject("P1");
+		deleteProject("P1");
 	}
 }
 /*
@@ -128,10 +128,10 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
  * and it is added to the non-java resources.
  */
 public void testAddExclusionOnPackage() throws CoreException {
-	this.createFolder("/P/src/p");
+	createFolder("/P/src/p");
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", "p/"});
+	setClasspath(new String[] {"/P/src", "p/"});
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -156,8 +156,8 @@ public void testAddExclusionOnPackage() throws CoreException {
  * makes it disappear from the children of its package and it is added to the non-java resources.
  */
 public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
-	this.createFolder("/P/src/p");
-	this.createFile(
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -170,7 +170,7 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
 		workingCopy.becomeWorkingCopy(null, null);
 		
 		clearDeltas();
-		this.setClasspath(new String[] {"/P/src", "**/A.java"});
+		setClasspath(new String[] {"/P/src", "**/A.java"});
 		
 		assertDeltas(
 			"Unexpected deltas",
@@ -200,13 +200,13 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
  * (regression test for bug 29621 Wrong Delta When Adding to Filtered Folder)
  */
 public void testAddToExcludedFolder() throws CoreException {
-	this.createFolder("/P/src/icons");
+	createFolder("/P/src/icons");
 	
 	// exclude folder and its contents
-	this.setClasspath(new String[] {"/P/src", "icons/"});
+	setClasspath(new String[] {"/P/src", "icons/"});
 	
 	clearDeltas();
-	this.createFile("/P/src/icons/my.txt", "");
+	createFile("/P/src/icons/my.txt", "");
 	assertDeltas(
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
@@ -215,7 +215,7 @@ public void testAddToExcludedFolder() throws CoreException {
 	);
 	
 	clearDeltas();
-	this.deleteFile("/P/src/icons/my.txt");
+	deleteFile("/P/src/icons/my.txt");
 	assertDeltas(
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
@@ -228,8 +228,8 @@ public void testAddToExcludedFolder() throws CoreException {
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
 public void testCreateExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
 	IPackageFragment pkg = getPackage("/P/src/p");
 
 	clearDeltas();
@@ -264,7 +264,7 @@ public void testCreateExcludedCompilationUnit() throws CoreException {
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p/"});
+	setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	
 	clearDeltas();
@@ -293,7 +293,7 @@ public void testCreateExcludedPackage() throws CoreException {
  * (regression test for 67789 Java element delta from refresh contains excluded package)
  */
 public void testCreateExcludedAndIncludedPackages() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p1/p2/"});
+	setClasspath(new String[] {"/P/src", "p1/p2/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	
 	clearDeltas();
@@ -322,11 +322,11 @@ public void testCreateExcludedAndIncludedPackages() throws CoreException {
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
 public void testCreateResourceExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
 	
 	clearDeltas();
-	this.createFile(
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -357,10 +357,10 @@ public void testCreateResourceExcludedCompilationUnit() throws CoreException {
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateResourceExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p/"});
+	setClasspath(new String[] {"/P/src", "p/"});
 	
 	clearDeltas();
-	this.createFolder("/P/src/p");
+	createFolder("/P/src/p");
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -384,9 +384,9 @@ public void testCreateResourceExcludedPackage() throws CoreException {
  * Ensures that a cu that is not excluded is on the classpath of the project.
  */
 public void testIsOnClasspath1() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", ""});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile(
+	setClasspath(new String[] {"/P/src", ""});
+	createFolder("/P/src/p");
+	IFile file = createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -401,9 +401,9 @@ public void testIsOnClasspath1() throws CoreException {
  * Ensures that a cu that is excluded is not on the classpath of the project.
  */
 public void testIsOnClasspath2() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile(
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
+	IFile file = createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -418,18 +418,18 @@ public void testIsOnClasspath2() throws CoreException {
  * Ensures that a non-java resource that is not excluded is on the classpath of the project.
  */
 public void testIsOnClasspath3() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", ""});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile("/P/src/p/readme.txt", "");
+	setClasspath(new String[] {"/P/src", ""});
+	createFolder("/P/src/p");
+	IFile file = createFile("/P/src/p/readme.txt", "");
 	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
 }
 /*
  * Ensures that a non-java resource that is excluded is not on the classpath of the project.
  */
 public void testIsOnClasspath4() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p/**"});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile("/P/src/p/readme.txt", "");
+	setClasspath(new String[] {"/P/src", "p/**"});
+	createFolder("/P/src/p");
+	IFile file = createFile("/P/src/p/readme.txt", "");
 	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
 }
 /*
@@ -438,8 +438,8 @@ public void testIsOnClasspath4() throws CoreException {
  * 
  */
 public void testNestedSourceFolder1() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
 	IPackageFragmentRoot root1 = getPackageFragmentRoot("/P/src1");
 	assertResourcesEqual(
 		"Unexpected non-java resources for /P/src1",
@@ -451,11 +451,11 @@ public void testNestedSourceFolder1() throws CoreException {
  * a delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder2() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
 	
-	this.clearDeltas();
-	this.createFile(
+	clearDeltas();
+	createFile(
 		"/P/src1/src2/A.java",
 		"public class A {\n" +
 		"}"
@@ -474,11 +474,11 @@ public void testNestedSourceFolder2() throws CoreException {
  * a resource delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder3() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
 	
-	this.clearDeltas();
-	this.createFile("/P/src1/src2/readme.txt", "");
+	clearDeltas();
+	createFile("/P/src1/src2/readme.txt", "");
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -492,11 +492,11 @@ public void testNestedSourceFolder3() throws CoreException {
  * a delta on the nested source folder and not on the outer one.
  */
 public void testNestedSourceFolder4() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
 	
-	this.clearDeltas();
-	this.createFolder("/P/src1/src2/p");
+	clearDeltas();
+	createFolder("/P/src1/src2/p");
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -510,11 +510,11 @@ public void testNestedSourceFolder4() throws CoreException {
  * a delta on the outer source folder and not on the nested one.
  */
 public void testNestedSourceFolder5() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
 	
-	this.clearDeltas();
-	this.createFolder("/P/src1/p");
+	clearDeltas();
+	createFolder("/P/src1/p");
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -528,12 +528,12 @@ public void testNestedSourceFolder5() throws CoreException {
  * source folder reports a move delta.
  */
 public void testNestedSourceFolder6() throws CoreException {
-	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
-	this.createFolder("/P/src1/src2");
-	this.createFolder("/P/src1/p");
+	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	createFolder("/P/src1/src2");
+	createFolder("/P/src1/p");
 	
-	this.clearDeltas();
-	this.moveFolder("/P/src1/p", "/P/src1/src2/p");
+	clearDeltas();
+	moveFolder("/P/src1/p", "/P/src1/src2/p");
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -549,9 +549,9 @@ public void testNestedSourceFolder6() throws CoreException {
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
 public void testRenameExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile(
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
+	IFile file = createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -587,7 +587,7 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
  * and it is removed from the non-java resources.
  */
 public void testRenameExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p/"});
+	setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
 	
@@ -618,9 +618,9 @@ public void testRenameExcludedPackage() throws CoreException {
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
 public void testRenameResourceExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
-	IFile file = this.createFile(
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
+	IFile file = createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -654,9 +654,9 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
  * Ensure search doesn't find matches in an excluded compilation unit.
  */
 public void testSearchWithExcludedCompilationUnit1() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "**/A.java"});
-	this.createFolder("/P/src/p");
-	this.createFile(
+	setClasspath(new String[] {"/P/src", "**/A.java"});
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -679,16 +679,16 @@ public void testSearchWithExcludedCompilationUnit1() throws CoreException {
  * Ensure search find matches in a compilation unit that was excluded but that is not any longer.
  */
 public void testSearchWithExcludedCompilationUnit2() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
-	this.createFolder("/P/src/p");
-	this.createFile(
+	setClasspath(new String[] {"/P/src", "A.java"});
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
 		"}"
 	);
 	
-	this.setClasspath(new String[] {"/P/src", ""});
+	setClasspath(new String[] {"/P/src", ""});
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 	search(
 		"A", 
@@ -707,7 +707,7 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
  * (regression test for 67789 Java element delta from refresh contains excluded package)
  */
 public void testRemoveExcludedAndIncludedPackages() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p1/p2/"});
+	setClasspath(new String[] {"/P/src", "p1/p2/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	createFolder("/P/src/p1/p2");
 	
@@ -739,8 +739,8 @@ public void testRemoveExcludedAndIncludedPackages() throws CoreException {
  * and it is removed from the non-java resources.
  */
 public void testRenameResourceExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p/"});
-	IFolder folder = this.createFolder("/P/src/p");
+	setClasspath(new String[] {"/P/src", "p/"});
+	IFolder folder = createFolder("/P/src/p");
 	
 	clearDeltas();
 	folder.move(new Path("/P/src/q"), false, null);
@@ -793,7 +793,7 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 			resultCollector);
 		assertEquals("", resultCollector.toString());
 	} finally {
-		this.deleteProject("P2");
+		deleteProject("P2");
 	}
 }
 /*
@@ -801,9 +801,9 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
 public void testRemoveExclusionOnCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
-	this.createFolder("/P/src/p");
-	this.createFile(
+	setClasspath(new String[] {"/P/src", "A.java"});
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/A.java",
 		"package p;\n" +
 		"public class A {\n" +
@@ -811,7 +811,7 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 	);
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", ""});
+	setClasspath(new String[] {"/P/src", ""});
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -837,11 +837,11 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
  * and it is removed from the non-java resources.
  */
 public void testRemoveExclusionOnPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p"});
-	this.createFolder("/P/src/p");
+	setClasspath(new String[] {"/P/src", "p"});
+	createFolder("/P/src/p");
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", ""});
+	setClasspath(new String[] {"/P/src", ""});
 	
 	assertDeltas(
 		"Unexpected deltas",
