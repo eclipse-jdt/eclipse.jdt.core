@@ -1361,6 +1361,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue("foo".equals(x.getIdentifier())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_NAME);
 		assertTrue(x.isDeclaration() == false);
+		assertTrue(x.structuralPropertiesForType() == SimpleName.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1471,6 +1472,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == false);
 		assertTrue(x.getNodeType() == ASTNode.QUALIFIED_NAME);
+		assertTrue(x.structuralPropertiesForType() == QualifiedName.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1525,6 +1527,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.NULL_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == NullLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1539,6 +1542,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.booleanValue() == true);
 		assertTrue(x.getNodeType() == ASTNode.BOOLEAN_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == BooleanLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -1564,6 +1568,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue("\"\"".equals(x.getEscapedValue())); //$NON-NLS-1$
 		assertTrue("".equals(x.getLiteralValue())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.STRING_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == StringLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -1661,6 +1666,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getEscapedValue().startsWith("\'")); //$NON-NLS-1$
 		assertTrue(x.getEscapedValue().endsWith("\'")); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.CHARACTER_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == CharacterLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1738,6 +1744,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue("1234".equals(x.getToken())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.NUMBER_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == NumberLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1794,6 +1801,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isQualifiedType());
 		assertTrue(!x.isWildcardType());
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_TYPE);
+		assertTrue(x.structuralPropertiesForType() == SimpleType.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -1829,6 +1837,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isQualifiedType());
 		assertTrue(!x.isWildcardType());
 		assertTrue(x.getNodeType() == ASTNode.PRIMITIVE_TYPE);
+		assertTrue(x.structuralPropertiesForType() == PrimitiveType.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -1905,6 +1914,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isQualifiedType());
 		assertTrue(!x.isWildcardType());
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_TYPE);
+		assertTrue(x.structuralPropertiesForType() == ArrayType.propertyDescriptors(ast.apiLevel()));
 
 		assertTrue(x.getDimensions() == 1);
 		assertTrue(x.getElementType() == x2);
@@ -1967,6 +1977,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isWildcardType());
 		assertTrue(x.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
 		assertTrue(x.typeArguments().size() == 0);
+		assertTrue(x.structuralPropertiesForType() == ParameterizedType.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2038,6 +2049,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isParameterizedType());
 		assertTrue(x.isQualifiedType());
 		assertTrue(!x.isWildcardType());
+		assertTrue(x.structuralPropertiesForType() == QualifiedType.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2110,6 +2122,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isParameterizedType());
 		assertTrue(!x.isQualifiedType());
 		assertTrue(x.isWildcardType());
+		assertTrue(x.structuralPropertiesForType() == WildcardType.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2181,6 +2194,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.PACKAGE_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == PackageDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2227,6 +2241,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.IMPORT_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == ImportDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2273,6 +2288,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.imports().size() == 0);
 		assertTrue(x.types().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.COMPILATION_UNIT);
+		assertTrue(x.structuralPropertiesForType() == CompilationUnit.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2406,6 +2422,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == TypeDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -2623,6 +2640,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.superInterfaceTypes().size() == 0);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.ENUM_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == EnumDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -2742,6 +2760,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.modifiers().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.ENUM_CONSTANT_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == EnumConstantDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 			
@@ -2836,6 +2855,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_PARAMETER);
 		assertTrue(x.typeBounds().size() == 0);
+		assertTrue(x.structuralPropertiesForType() == TypeParameter.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2885,6 +2905,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.SINGLE_VARIABLE_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == SingleVariableDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -3047,6 +3068,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			VariableDeclarationFragment.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -3140,6 +3163,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.thrownExceptions().size() == 0);
 		assertTrue(x.getBody() == null);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			MethodDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -3347,6 +3372,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody().getParent() == x);
 		assertTrue(x.getBody().statements().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.INITIALIZER);
+		assertTrue(x.structuralPropertiesForType() == 
+			Initializer.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3417,6 +3444,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.isDocComment());
 		assertTrue(x.tags().isEmpty());
 		assertTrue(x.getAlternateRoot() == null);
+		assertTrue(x.structuralPropertiesForType() == 
+			Javadoc.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3510,6 +3539,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isLineComment());
 		assertTrue(!x.isDocComment());
 		assertTrue(x.getAlternateRoot() == null);
+		assertTrue(x.structuralPropertiesForType() == 
+			BlockComment.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -3528,6 +3559,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.isLineComment());
 		assertTrue(!x.isDocComment());
 		assertTrue(x.getAlternateRoot() == null);
+		assertTrue(x.structuralPropertiesForType() == 
+			LineComment.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -3544,6 +3577,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getNodeType() == ASTNode.TAG_ELEMENT);
 		assertTrue(x.getTagName() == null);
 		assertTrue(x.fragments().isEmpty());
+		assertTrue(x.structuralPropertiesForType() == 
+			TagElement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3650,6 +3685,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.TEXT_ELEMENT);
 		assertTrue(x.getText().length() == 0);
+		assertTrue(x.structuralPropertiesForType() == 
+			TextElement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3694,6 +3731,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getNodeType() == ASTNode.MEMBER_REF);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.structuralPropertiesForType() == 
+			MemberRef.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3743,6 +3782,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.parameters().isEmpty());
+		assertTrue(x.structuralPropertiesForType() == 
+			MethodRef.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3803,6 +3844,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getNodeType() == ASTNode.METHOD_REF_PARAMETER);
 		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getName() == null);
+		assertTrue(x.structuralPropertiesForType() == 
+			MethodRefParameter.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3849,6 +3892,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.statements().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.BLOCK);
+		assertTrue(x.structuralPropertiesForType() == 
+			Block.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -3888,6 +3933,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.arguments().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_INVOCATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			MethodInvocation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -3950,6 +3997,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExpression() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			ExpressionStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4009,6 +4058,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			VariableDeclarationStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4141,6 +4192,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			TypeDeclarationStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -4236,6 +4289,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			VariableDeclarationExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4361,6 +4416,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.fragments().get(0) == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.FIELD_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			FieldDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4437,6 +4494,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getLeftHandSide().getParent() == x);
 		assertTrue(x.getRightHandSide().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.ASSIGNMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			Assignment.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4571,6 +4630,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getLabel() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.BREAK_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			BreakStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -4606,6 +4667,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getLabel() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.CONTINUE_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			ContinueStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4645,6 +4708,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(((Block) x.getThenStatement()).statements().isEmpty());
 		assertTrue(x.getElseStatement() == null);
 		assertTrue(x.getNodeType() == ASTNode.IF_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			IfStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4753,6 +4818,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody() instanceof Block);
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.WHILE_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			WhileStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4834,6 +4901,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody() instanceof Block);
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.DO_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			DoStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -4915,6 +4984,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getFinally() == null);
 		assertTrue(x.catchClauses().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.TRY_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			TryStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -5010,6 +5081,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody().statements().isEmpty());
 		assertTrue(x.getException().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CATCH_CLAUSE);
+		assertTrue(x.structuralPropertiesForType() == 
+			CatchClause.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5092,6 +5165,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			EmptyStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -5355,6 +5430,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.getNodeType() == ASTNode.RETURN_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			ReturnStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5406,6 +5483,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.THROW_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			ThrowStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5458,6 +5537,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getMessage() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.ASSERT_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			AssertStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5542,6 +5623,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			SwitchStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5616,6 +5699,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(!x.isDefault());	
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_CASE);
+		assertTrue(x.structuralPropertiesForType() == 
+			SwitchCase.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5668,6 +5753,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody().statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.SYNCHRONIZED_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			SynchronizedStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5747,6 +5834,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getBody().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.LABELED_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			LabeledStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -5964,6 +6053,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.FOR_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			ForStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6112,6 +6203,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(((Block) x.getBody()).statements().isEmpty());
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT);
+		assertTrue(x.structuralPropertiesForType() == 
+			EnhancedForStatement.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6176,6 +6269,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ConstructorInvocation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6217,6 +6312,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			SuperConstructorInvocation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6289,6 +6386,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getNodeType() == ASTNode.THIS_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ThisExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6321,6 +6420,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.FIELD_ACCESS);
+		assertTrue(x.structuralPropertiesForType() == 
+			FieldAccess.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6377,6 +6478,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.getNodeType() == ASTNode.SUPER_FIELD_ACCESS);
+		assertTrue(x.structuralPropertiesForType() == 
+			SuperFieldAccess.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6426,6 +6529,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			SuperMethodInvocation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6494,6 +6599,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_LITERAL);
+		assertTrue(x.structuralPropertiesForType() == 
+			TypeLiteral.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6525,6 +6632,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getType().getParent() == x);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CAST_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			CastExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -6581,6 +6690,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getOperand().getParent() == x);
 		assertTrue(x.getOperator() != null);
 		assertTrue(x.getNodeType() == ASTNode.PREFIX_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			PrefixExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6667,6 +6778,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getOperand().getParent() == x);
 		assertTrue(x.getOperator() != null);
 		assertTrue(x.getNodeType() == ASTNode.POSTFIX_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			PostfixExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6747,6 +6860,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getRightOperand().getParent() == x);
 		assertTrue(x.extendedOperands().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			InfixExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -6905,6 +7020,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getLeftOperand().getParent() == x);
 		assertTrue(x.getRightOperand().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.INSTANCEOF_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			InstanceofExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 						
@@ -6970,6 +7087,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getThenExpression().getParent() == x);
 		assertTrue(x.getElseExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.CONDITIONAL_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ConditionalExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7059,6 +7178,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getArray().getParent() == x);
 		assertTrue(x.getIndex().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_ACCESS);
+		assertTrue(x.structuralPropertiesForType() == 
+			ArrayAccess.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7122,6 +7243,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.expressions().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_INITIALIZER);
+		assertTrue(x.structuralPropertiesForType() == 
+			ArrayInitializer.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7163,6 +7286,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getAnonymousClassDeclaration() == null);
 		assertTrue(x.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ClassInstanceCreation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7289,6 +7414,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.bodyDeclarations().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.ANONYMOUS_CLASS_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			AnonymousClassDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7336,6 +7463,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.dimensions().isEmpty());
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_CREATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ArrayCreation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7413,6 +7542,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		assertTrue(x.structuralPropertiesForType() == 
+			ParenthesizedExpression.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -7465,6 +7596,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.ANNOTATION_TYPE_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			AnnotationTypeDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -7560,6 +7693,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.getDefault() == null);
 		assertTrue(x.getNodeType() == ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			AnnotationTypeMemberDeclaration.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
@@ -7653,6 +7788,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.isNormalAnnotation());
 		assertTrue(!x.isSingleMemberAnnotation());
 		assertTrue(x.getNodeType() == ASTNode.NORMAL_ANNOTATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			NormalAnnotation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7710,6 +7847,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isNormalAnnotation());
 		assertTrue(!x.isSingleMemberAnnotation());
 		assertTrue(x.getNodeType() == ASTNode.MARKER_ANNOTATION);
+		assertTrue(x.structuralPropertiesForType() == 
+			MarkerAnnotation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
@@ -7796,6 +7935,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == false);
 		assertTrue(x.getNodeType() == ASTNode.MEMBER_VALUE_PAIR);
+		assertTrue(x.structuralPropertiesForType() == 
+			MemberValuePair.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -7937,6 +8078,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getKeyword() == Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 		assertTrue(x.getNodeType() == ASTNode.MODIFIER);
+		assertTrue(x.structuralPropertiesForType() == 
+			Modifier.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		

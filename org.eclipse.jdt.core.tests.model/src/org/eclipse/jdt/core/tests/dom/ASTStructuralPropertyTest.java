@@ -249,4 +249,55 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 		});
 	}
+	
+	public void testCreateInstance() {
+		for (int nodeType = 0; nodeType < 100; nodeType++) {
+			Class nodeClass = null;
+			try {
+				nodeClass = ASTNode.nodeClassForType(nodeType);
+			} catch (RuntimeException e) {
+				// oops - guess that's not valid
+			}
+			if (nodeClass != null) {
+				try {
+					ASTNode node = ast.createInstance(nodeClass);
+					if (ast.apiLevel() == AST.LEVEL_2_0) {
+						assertTrue((nodeType >= 1) && (nodeType <= 69));
+					} else {
+						assertTrue((nodeType >= 1) && (nodeType <= 83));
+					}
+					assertTrue(node.getNodeType() == nodeType);
+					//ASTNode node2 = ast.createInstance(nodeType);
+					//assertTrue(node2.getNodeType() == nodeType);
+				} catch (RuntimeException e) {
+					if (ast.apiLevel() == AST.LEVEL_2_0) {
+						assertTrue((nodeType < 1) || (nodeType > 69));
+					} else {
+						assertTrue((nodeType < 1) || (nodeType > 83));
+					}
+				}
+			}
+		}
+	}
+	
+	public void testNodeClassForType() {
+		Set classes = new HashSet(100);
+		// make sure node types are contiguous starting at 0
+		int hi = 0;
+		for (int nodeType = 1; nodeType < 100; nodeType++) {
+			try {
+				Class nodeClass = ASTNode.nodeClassForType(nodeType);
+				assertTrue(ASTNode.class.isAssignableFrom(nodeClass));
+				classes.add(nodeClass);
+				if (nodeType > 1) {
+					assertTrue(hi == nodeType - 1);
+				}
+				hi = nodeType;
+			} catch (RuntimeException e) {
+				// oops - guess that's not valid
+			}
+		}
+		assertTrue(hi == 83); // last known one
+		assertTrue(classes.size() == hi); // all classes are distinct
+	}
 }

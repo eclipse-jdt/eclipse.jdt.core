@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
@@ -214,5 +215,25 @@ public class SampleASTs {
 		return cu;
 	}
 	
+	/**
+	 * Returns a flat list of sample nodes of each type.
+	 * The sample includes one of each kind, including
+	 * BlockComment and LineComment.
+	 */
+	public static List oneOfEachList(AST target) {
+		List result = new ArrayList(100);
+		for (int nodeType = 0; nodeType < 100; nodeType++) {
+			Class nodeClass = null;
+			try {
+				nodeClass = ASTNode.nodeClassForType(nodeType);
+			} catch (RuntimeException e) {
+				// oops - guess that's not valid
+			}
+			if (nodeClass != null) {
+				result.add(target.createInstance(nodeClass));
+			}
+		}
+		return result;
+	}
 
 }
