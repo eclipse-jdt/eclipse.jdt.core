@@ -14,7 +14,7 @@ package org.eclipse.jdt.core;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.util.Util;
+
 
 /**
  * Provides methods for encoding and decoding type and method signature strings.
@@ -1899,7 +1899,8 @@ private static void appendArgumentSimpleNames(char[] name, int start, int end, S
  * <code>
  * getSimpleNames({'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'}) -> {{'j', 'a', 'v', 'a'}, {'l', 'a', 'n', 'g'}, {'O', 'b', 'j', 'e', 'c', 't'}}
  * getSimpleNames({'O', 'b', 'j', 'e', 'c', 't'}) -> {{'O', 'b', 'j', 'e', 'c', 't'}}
- * getSimpleNames("") -> {}
+ * getSimpleNames({}) -> {}
+ * getSimpleNames({'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '>'}) -> {{'j', 'a', 'v', 'a'}, {'l', 'a', 'n', 'g'}, {'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g'}}
  * </code>
  * </pre>
  *
@@ -1909,7 +1910,37 @@ private static void appendArgumentSimpleNames(char[] name, int start, int end, S
  * @since 2.0
  */
 public static char[][] getSimpleNames(char[] name) {
-	return CharOperation.splitOn(C_DOT, name);
+	int length = name == null ? 0 : name.length;
+	if (length == 0)
+		return CharOperation.NO_CHAR_CHAR;
+	
+	int wordCount = 1;
+	countingWords: for (int i = 0; i < length; i++)
+		switch(name[i]) {
+			case C_DOT:
+				wordCount++;
+				break;
+			case C_GENERIC_START:
+				break countingWords;
+		}
+	char[][] split = new char[wordCount][];
+	int last = 0, currentWord = 0;
+	for (int i = 0; i < length; i++) {
+		if (name[i] == C_GENERIC_START) break;
+		if (name[i] == C_DOT) {
+			split[currentWord] = new char[i - last];
+			System.arraycopy(
+				name,
+				last,
+				split[currentWord++],
+				0,
+				i - last);
+			last = i + 1;
+		}
+	}
+	split[currentWord] = new char[length - last];
+	System.arraycopy(name, last, split[currentWord], 0, length - last);
+	return split;
 }
 /**
  * Returns all segments of the given dot-separated qualified name.
@@ -1922,6 +1953,7 @@ public static char[][] getSimpleNames(char[] name) {
  * getSimpleNames("java.lang.Object") -> {"java", "lang", "Object"}
  * getSimpleNames("Object") -> {"Object"}
  * getSimpleNames("") -> {}
+ * getSimpleNames("java.util.List<java.lang.String>") -> {"java", "lang", "List<java.lang.String"}
  * </code>
  * </pre>
  *
@@ -1930,7 +1962,7 @@ public static char[][] getSimpleNames(char[] name) {
  * @exception NullPointerException if name is null
  */
 public static String[] getSimpleNames(String name) {
-	return Util.splitOn(C_DOT, name, 0, name.length());
+	return CharOperation.toStrings(getSimpleNames(name.toCharArray()));
 }
 /**
  * Converts the given method signature to a readable form. The method signature is expected to

@@ -421,13 +421,33 @@ public void testGetSimpleName() {
 /**
  * @see Signature
  */
-public void testGetSimpleNames() {
-	String[] simpleNames = Signature.getSimpleNames("java.lang.Object");
-	assertTrue("Signature#getSimpleNames is not correct1", simpleNames.length == 3 && simpleNames[2].equals("Object"));
-	simpleNames = Signature.getSimpleNames("");
-	assertTrue("Signature#getSimpleNames is not correct2", simpleNames.length == 0);
-	simpleNames = Signature.getSimpleNames("Object");
-	assertTrue(" Signature #getSimpleNames is not correct3 ", simpleNames.length == 1 && simpleNames[0].equals("Object"));
+public void testGetSimpleNames1() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"java\n" + 
+		"lang\n" + 
+		"Object\n",
+		Signature.getSimpleNames("java.lang.Object"));
+}
+public void testGetSimpleNames2() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"",
+		Signature.getSimpleNames(""));
+}
+public void testGetSimpleNames3() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"Object\n",
+		Signature.getSimpleNames("Object"));
+}
+public void testGetSimpleNames4() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"java\n" + 
+		"util\n" + 
+		"List<java.lang.String>\n",
+		Signature.getSimpleNames("java.util.List<java.lang.String>"));
 }
 /**
  * @see Signature
