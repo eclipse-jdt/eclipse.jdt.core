@@ -40,7 +40,7 @@ public boolean canBeInstantiated() {
 /**
  *  Answer the receiver's constant pool name.
  *  NOTE: This method should only be used during/after code gen.
- *  e.g. java/lang/Object 
+ *  e.g. 'java/lang/Object' 
  */
 public abstract char[] constantPoolName();
 
