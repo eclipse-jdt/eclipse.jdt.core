@@ -266,7 +266,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 			// perform refresh
 			fCurrentDelta = new JavaElementDelta(model);
 			boolean hasDelta = false;
-
+	
 			IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
 			IWorkspaceRoot wksRoot = ResourcesPlugin.getWorkspace().getRoot();
 			for (int i = 0, length = projects.length; i < length; i++) {
@@ -287,7 +287,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 							
 							// compute shared status
 							Object targetLibrary = JavaModel.getTarget(wksRoot, entryPath, true);
-
+	
 							if (targetLibrary == null){ // missing JAR
 								if (this.externalTimeStamps.containsKey(entryPath)){
 									this.externalTimeStamps.remove(entryPath);
@@ -295,22 +295,22 @@ public class DeltaProcessor implements IResourceChangeListener {
 									// the jar was physically removed: remove the index
 									indexManager.removeIndex(entryPath);
 								}
-
+	
 							} else if (targetLibrary instanceof File){ // external JAR
-
+	
 								File externalFile = (File)targetLibrary;
 								
 								// check timestamp to figure if JAR has changed in some way
 								Long oldTimestamp =(Long) this.externalTimeStamps.get(entryPath);
 								long newTimeStamp = getTimeStamp(externalFile);
 								if (oldTimestamp != null){
-
+	
 									if (newTimeStamp == 0){ // file doesn't exist
 										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 										this.externalTimeStamps.remove(entryPath);
 										// remove the index
 										indexManager.removeIndex(entryPath);
-
+	
 									} else if (oldTimestamp.longValue() != newTimeStamp){
 										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_CHANGED);
 										this.externalTimeStamps.put(entryPath, new Long(newTimeStamp));
@@ -368,6 +368,16 @@ public class DeltaProcessor implements IResourceChangeListener {
 			}
 			if (hasDelta){
 				this.manager.fire(fCurrentDelta, JavaModelManager.DEFAULT_CHANGE_EVENT);			
+				
+				// force classpath marker refresh of affected projects
+				JavaModel.flushExternalFileCache();
+				IJavaElementDelta[] projectDeltas = fCurrentDelta.getAffectedChildren();
+				for (int i = 0, length = projectDeltas.length; i < length; i++) {
+					IJavaElementDelta delta = projectDeltas[i];
+					((JavaProject)delta.getElement()).getResolvedClasspath(
+						true, // ignoreUnresolvedEntry
+						true); // generateMarkerOnError
+				}		
 			}
 		} finally {
 			fCurrentDelta = null;

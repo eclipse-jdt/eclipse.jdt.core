@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -549,9 +550,24 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		// resolve new path (asking for marker creation if problems)
 		if (this.newResolvedPath == null) {
-			this.newResolvedPath = 
-				this.newResolvedPath = project.getResolvedClasspath(true, this.canChangeResource);
+			this.newResolvedPath = project.getResolvedClasspath(true, this.canChangeResource);
 		}
+		
+		// remember the timestamps of external libraries
+		if (this.newResolvedPath != null) {					
+			for (int i = 0, length = this.newResolvedPath.length; i < length; i++) {
+				IClasspathEntry entry = this.newResolvedPath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+					if (target instanceof java.io.File) {
+						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+						JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));							
+					}
+				}
+			}							
+		}
+		
 		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
 				this.oldResolvedPath,

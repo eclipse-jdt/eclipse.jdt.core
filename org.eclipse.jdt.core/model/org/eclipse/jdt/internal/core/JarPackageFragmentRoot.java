@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -90,12 +89,6 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	ZipFile jar= null;
 	try {
 		jar= getJar();
-
-		if (isExternal()){
-			// remember the timestamp of this library
-			long timestamp = DeltaProcessor.getTimeStamp(new File(getPath().toOSString()));
-			JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(getPath(), new Long(timestamp));			
-		}
 
 		HashMap packageFragToTypes= new HashMap();
 
