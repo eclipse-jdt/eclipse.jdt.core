@@ -201,7 +201,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 			addDelta(delta);	
 		}
 		worked(1);
-		this.hasModifiedResource = project.saveClasspath(false);
+		// .classpath file may already have been updated in #updateClasspath
+		this.hasModifiedResource |= project.saveClasspath(false);
 		worked(1);
 	}
 	

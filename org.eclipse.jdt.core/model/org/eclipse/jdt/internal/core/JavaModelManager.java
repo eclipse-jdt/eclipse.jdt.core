@@ -1123,6 +1123,8 @@ public void rollback(ISaveContext context){
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
+		
+		int previousDeltaCount = fJavaModelDeltas.size();
 		try {
 			if (operation.isReadOnly()) {
 				operation.run(monitor);
@@ -1143,8 +1145,11 @@ public void rollback(ISaveContext context){
 				throw new JavaModelException(ce);
 			}
 		} finally {
-			// fire only if the operation has not modified any resource
-			if (!operation.hasModifiedResource()) {
+			// fire only iff:
+			// - the operation did produce some delta(s)
+			// - but the operation has not modified any resource
+			if ((fJavaModelDeltas.size() > previousDeltaCount) 
+					&& !operation.hasModifiedResource()) {
 				fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
 			} // else deltas are fired while processing the resource delta
 		}
