@@ -149,19 +149,18 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 			this.hasBeenResolved = true;
 
-			if (isTypeUseDeprecated(this.binding.type, initializationScope))
-				initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
-
 			this.type.resolvedType = this.binding.type; // update binding for type reference
 
 			// the resolution of the initialization hasn't been done
-			if (this.initialization == null) {
-				this.binding.constant = Constant.NotAConstant;
-			} else {
-				int previous = initializationScope.fieldDeclarationIndex;
-				try {
-					initializationScope.fieldDeclarationIndex = this.binding.id;
+			int previous = initializationScope.fieldDeclarationIndex;
+			try {
+				initializationScope.fieldDeclarationIndex = this.binding.id;
+				if (isTypeUseDeprecated(this.binding.type, initializationScope))
+					initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
 
+				if (this.initialization == null) {
+					this.binding.constant = Constant.NotAConstant;
+				} else {
 					// break dead-lock cycles by forcing constant to NotAConstant
 					this.binding.constant = Constant.NotAConstant;
 					
@@ -195,11 +194,11 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					} else {
 						this.binding.constant = NotAConstant;
 					}
-				} finally {
-					initializationScope.fieldDeclarationIndex = previous;
-					if (this.binding.constant == null)
-						this.binding.constant = Constant.NotAConstant;
 				}
+			} finally {
+				initializationScope.fieldDeclarationIndex = previous;
+				if (this.binding.constant == null)
+					this.binding.constant = Constant.NotAConstant;
 			}
 		}
 	}
