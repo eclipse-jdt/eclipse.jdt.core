@@ -847,7 +847,7 @@ public void test0041() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Local2 {key=Ltest0041/Test$1$Local1<Ltest0041/Test$1$Local3<Ljava/lang/Object;>;>.Local2<Ltest0041/Test$1$Local3<Ljava/lang/Object;>;>;} [in Local1 [in foo() [in Test [in [Working copy] Test.java [in test0041 [in src2 [in Resolve]]]]]]]",
+		"Local2 {key=Ltest0041/Test$63<Ltest0041/Test$115<Ljava/lang/Object;>;>.Local2<Ltest0041/Test$115<Ljava/lang/Object;>;>;} [in Local1 [in foo() [in Test [in [Working copy] Test.java [in test0041 [in src2 [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -1076,7 +1076,7 @@ public void test0051() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"var {key=Ltest0051/Test$1$Inner<Ljava/lang/Object;>;.var} [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0051 [in src2 [in Resolve]]]]]]]",
+		"var {key=Ltest0051/Test$61<Ljava/lang/Object;>;.var} [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0051 [in src2 [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -1102,7 +1102,7 @@ public void test0052() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"var {key=Ltest0052/Test$1$Inner<Ljava/lang/Object;>;.var} [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0052 [in src2 [in Resolve]]]]]]]",
+		"var {key=Ltest0052/Test$61<Ljava/lang/Object;>;.var} [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0052 [in src2 [in Resolve]]]]]]]",
 		elements
 	);
 }

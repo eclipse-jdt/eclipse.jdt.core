@@ -129,6 +129,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    char[] typeSig = enclosingType().computeUniqueKey();
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName());
+		} else if(this.type.isLocalType()){
+			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.type;
+			ReferenceBinding enclosing = localTypeBinding.enclosingType();
+			ReferenceBinding temp;
+			while ((temp = enclosing.enclosingType()) != null)
+				enclosing = temp;
+			char[] typeSig = enclosing.signature();
+		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			sig.append('$');
+			sig.append(localTypeBinding.sourceStart);
 		} else {
 		    char[] typeSig = this.type.signature();
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
