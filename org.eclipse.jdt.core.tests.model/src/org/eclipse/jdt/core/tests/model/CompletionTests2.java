@@ -131,7 +131,7 @@ public void testBug29832() throws Exception {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:ZZZ    completion:pz.ZZZ    relevance:18",
+			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 			requestor.getResults());
 		
 		
@@ -193,7 +193,7 @@ public void testBug29832() throws Exception {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:ZZZ    completion:pz.ZZZ    relevance:18",
+			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 			requestor.getResults());
 	} finally {
 		this.deleteProject("P1");
