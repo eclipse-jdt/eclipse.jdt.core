@@ -306,6 +306,16 @@ protected void consumeFormalParameter() {
 		listLength++;
 	} 	
 }
+protected void consumeInstanceOfExpression(int op) {
+	if (indexOfAssistIdentifier() < 0) {
+		super.consumeInstanceOfExpression(op);
+	} else {
+		getTypeReference(intStack[intPtr--]);
+		this.isOrphanCompletionNode = true;
+		this.restartRecovery = true;
+		this.lastIgnoredToken = -1;
+	}
+}
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
 
