@@ -1,3 +1,7 @@
+package test0029;
+
+import java.util.Iterator;
+
 interface Predicate<T> {
 	boolean is(T t);
 }
@@ -14,5 +18,11 @@ class X<T> implements List<T>, Iterable<T> {
 				result.add(t);
 		}
 		return result;
+	}
+	
+	public Iterator<T> iterator() {
+		return null;
+	}
+	void add(T t) {
 	}
 }

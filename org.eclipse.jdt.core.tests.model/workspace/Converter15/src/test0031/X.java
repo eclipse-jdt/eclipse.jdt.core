@@ -1,3 +1,5 @@
+package test0031;
+
 public class X {
     public static class A {
         public class A1 {
@@ -14,7 +16,7 @@ public class X {
 }
 class F {
     public int goo(int param0) {
-        class C extends E.A {
+        class C extends X.A {
             A1 b;
             public int foo() {
                 return 3;		

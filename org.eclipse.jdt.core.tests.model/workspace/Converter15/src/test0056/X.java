@@ -1,3 +1,5 @@
+package test0056;
+
 public enum X {
 	   
    BLEU(){ 

@@ -211,7 +211,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		super.setUpSuite();
 
 		// ensure variables are set
-		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
+		if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) { //$NON-NLS-1$
 			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

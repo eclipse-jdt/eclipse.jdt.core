@@ -11,14 +11,17 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -32,16 +35,24 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super(name);
 	}
 
-	protected String getConverterJCLPath() {
-		return getExternalPath() + File.separator + "converterJclMin.jar"; //$NON-NLS-1$
+	protected IPath getConverterJCLPath() {
+		return getConverterJCLPath(""); //$NON-NLS-1$
 	}
 
-	protected String getConverterJCLSourcePath() {
-		return getExternalPath() + File.separator + "converterJclMinsrc.zip"; //$NON-NLS-1$
+	protected IPath getConverterJCLPath(String compliance) {
+		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + ".jar"); //$NON-NLS-1$
 	}
 
-	protected String getConverterJCLRootSourcePath() {
-		return ""; //$NON-NLS-1$
+	protected IPath getConverterJCLSourcePath() {
+		return getConverterJCLSourcePath(""); //$NON-NLS-1$
+	}
+
+	protected IPath getConverterJCLSourcePath(String compliance) {
+		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + "src.zip"); //$NON-NLS-1$
+	}
+
+	protected IPath getConverterJCLRootSourcePath() {
+		return new Path(""); //$NON-NLS-1$
 	}
 
 	/**
@@ -63,6 +74,26 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super.tearDown();
 	}	
 
+	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
+		if ("1.5".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL15_LIB") == null) {
+				setupExternalJCL("converterJclMin1.5");
+				JavaCore.setClasspathVariables(
+					new String[] {"CONVERTER_JCL15_LIB", "CONVERTER_JCL15_SRC", "CONVERTER_JCL15_SRCROOT"},
+					new IPath[] {getConverterJCLPath(compliance), getConverterJCLSourcePath(compliance), getConverterJCLRootSourcePath()},
+					null);
+			} 
+		} else {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
+				setupExternalJCL("converterJclMin");
+				JavaCore.setClasspathVariables(
+					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
+					new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
+					null);
+			} 
+		}	
+	}
+	
 	/**
 	 * Create project and set the jar placeholder.
 	 */
@@ -70,15 +101,6 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super.setUpSuite();
 
 		if (!PROJECT_SETUP) {
-			// ensure variables are set
-			if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
-				setupExternalJCL("converterJclMin");
-				JavaCore.setClasspathVariables(
-					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					new Path[] {new Path(getConverterJCLPath()), new Path(getConverterJCLSourcePath()), new Path(getConverterJCLRootSourcePath())},
-					null);
-			}		
-	
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 			PROJECT_SETUP = true;
