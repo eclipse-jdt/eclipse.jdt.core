@@ -1072,6 +1072,8 @@ public interface IProblem {
 	int MethodVarargsArgumentNeedCast = MethodRelated + 801;
 	/** @since 3.1 */
 	int ConstructorVarargsArgumentNeedCast = ConstructorRelated + 802;
+	/** @since 3.1 */
+	int VarargsConflict = MethodRelated + 803;
 	
 	/**
 	 * Javadoc Generic

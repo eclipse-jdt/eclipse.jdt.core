@@ -667,27 +667,29 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
-	// TODO (kent) must warn when overridiing varargs method with non varargs one
-	public void _test011() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83379
+	public void test011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"	public void count(int ... values) {}\n" +
-				"}\n" +
-				"class Y extends X {\n" +
-				"	public void count(int[] values) {}\n" +
-				"}\n",
+				"public class X { void count(int ... values) {} }\n" +
+				"class Y extends X { void count(int[] values) {} }\n" +
+				"class Z extends Y { void count(int... values) {} }\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	public void count(int[] values) {}\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[]) is overriding a varargs method from X\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	class Y extends X { void count(int[] values) {} }\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Varargs methods should only override other varargs methods unlike count(int[]) and count(int...) from type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	class Z extends Y { void count(int... values) {} }\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Varargs methods should only override other varargs methods unlike count(int...) and count(int[]) from type Y\n" + 
 			"----------\n");
 	}
 
-	// 77084
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77084
 	public void test012() {
 		this.runConformTest(
 			new String[] {
@@ -822,7 +824,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590
 	public void test018() {
 		this.runConformTest(
@@ -838,8 +840,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"2 [Ljava.lang.String;");
-	}	
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
 	public void test019() {
 		this.runConformTest(
@@ -860,8 +862,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"java.lang.String");
-	}		
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
 	public void test020() {
 		this.runConformTest(
@@ -882,8 +884,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"[Ljava.lang.String;");
-	}	
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81911
 	public void test021() {
 		this.runConformTest(
@@ -901,7 +903,7 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"");
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83032
 	public void test022() {
 		this.runConformTest(
@@ -932,7 +934,7 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
 	public void test023() {
 		this.runConformTest(

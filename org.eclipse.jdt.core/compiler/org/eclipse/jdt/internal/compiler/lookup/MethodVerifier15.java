@@ -94,6 +94,9 @@ boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
 		|| (one.declaringClass == two.declaringClass && !one.declaringClass.isParameterizedType());
 }
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] otherInheritedMethods) {
+	if (currentMethod.isVarargs() != inheritedMethod.isVarargs())
+		problemReporter(currentMethod).varargsConflict(currentMethod, inheritedMethod);
+
 	MethodBinding originalInherited = inheritedMethod.original();
 
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod

@@ -689,6 +689,8 @@ public int computeSeverity(int problemId){
 		case IProblem.UnboxingConversion :
 			return this.options.getSeverity(CompilerOptions.Autoboxing);
 
+		case IProblem.VarargsConflict :
+			return Warning;
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -5382,6 +5384,24 @@ public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentTy
 			location.sourceStart(),
 			location.sourceEnd());
 	}
+}
+public void varargsConflict(MethodBinding method, MethodBinding inheritedMethod) {
+	this.handle(
+		IProblem.VarargsConflict,
+		new String[] { 
+		        new String(method.selector),
+		        typesAsString(method.isVarargs(), method.parameters, false),
+		        new String(inheritedMethod.declaringClass.readableName()),
+		        typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, false)
+		},
+		new String[] { 
+		        new String(method.selector),
+		        typesAsString(method.isVarargs(), method.parameters, true),
+		        new String(inheritedMethod.declaringClass.shortReadableName()),
+		        typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, true)
+		},
+		method.sourceStart(),
+		method.sourceEnd());
 }
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
