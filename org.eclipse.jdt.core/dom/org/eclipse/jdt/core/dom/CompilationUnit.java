@@ -56,7 +56,7 @@ public class CompilationUnit extends ASTNode {
 	 * <code>p</code>. Except for the last line, the positions are that
 	 * of the last character of the line delimiter. 
 	 * For example, the source string <code>A\nB\nC</code> has
-	 * line end table {1, 3, 4}.
+	 * line end table {1, 3} (if \n is one character).
 	 */
 	private int[] lineEndTable = new int[0];
 
@@ -258,9 +258,9 @@ public class CompilationUnit extends ASTNode {
 		}
 		// assert position > lineEndTable[low+1]  && low == 0
 		int hi = length - 1;
-		if (position > lineEndTable[length - 1]) {
+		if (position > lineEndTable[hi]) {
 			// position beyond the end of last line
-			return 1;
+			return length;
 		}
 		// assert lineEndTable[low]  < position <= lineEndTable[hi]
 		// && low == 0 && hi == length - 1 && low < hi
