@@ -97,7 +97,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			boolean needReturnTypeInference = false;
 			for (int i = 0; i < varLength; i++) {
 				TypeBinding[] variableSubstitutes = (TypeBinding[]) collectedSubstitutes.get(typeVariables[i]);
-				TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
+				TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
+				//TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
 				if (mostSpecificSubstitute == null)
 					return null; // incompatible
 				if (mostSpecificSubstitute == VoidBinding) {
@@ -149,7 +150,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         returnType.collectSubstitutes(expectedType, substitutes);
 		for (int i = 0; i < length; i++) {
 			TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(originalVariables[i]);
-			TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
+			TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
+			//TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
 			if (mostSpecificSubstitute == null) {
 			    return; // TODO (philippe) should report no way to infer type
 			}

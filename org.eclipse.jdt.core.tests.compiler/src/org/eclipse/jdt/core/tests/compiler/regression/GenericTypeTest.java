@@ -7358,5 +7358,43 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			null,
 			false, // do not flush output
 			null);		
+	}
+	// 70969 - lub(List<String>, List<Object>) --> List<? extends Object>
+	public void test270() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public void test(boolean param) {\n" + 
+				"        ArrayList<?> ls = (param) \n" + 
+				"        		? new ArrayList<String>()\n" + 
+				"        		: new ArrayList<Object>();\n" + 
+				"        		\n" + 
+				"        X x = param ? new XY() : new XZ();\n" + 
+				"        XY y = (XY) new XZ();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class XY extends X {}\n" + 
+				"class XZ extends X {}\n"
+			},
+
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	XY y = (XY) new XZ();\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"Cannot cast from XZ to XY\n" + 
+			"----------\n");
+	}
+	// 71080 - parameter bound <E extends Enum<E>> should be allowed
+	public void test271() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E extends Enum<E>> {\n" + 
+				"}\n" 
+			},
+			"");
 	}		
 }

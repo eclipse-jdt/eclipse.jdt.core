@@ -392,7 +392,8 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		// 1.5 addition: allow most common type 
 		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
-			TypeBinding commonType = scope.mostSpecificCommonType(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
+			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
+//			TypeBinding commonType = scope.mostSpecificCommonType(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {
 				return this.resolvedType = commonType;
 			}

@@ -250,6 +250,9 @@ public abstract char[] sourceName();
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
 	// subclasses must override if they wrap another type binding
 }
+public TypeVariableBinding[] typeVariables() {
+	return NoTypeVariables;
+}
 /**
  * Match a well-known type id to its binding
  */

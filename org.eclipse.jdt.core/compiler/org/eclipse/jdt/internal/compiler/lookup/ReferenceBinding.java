@@ -683,10 +683,6 @@ public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
 
-public TypeVariableBinding[] typeVariables() {
-	return NoTypeVariables;
-}
-
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }
