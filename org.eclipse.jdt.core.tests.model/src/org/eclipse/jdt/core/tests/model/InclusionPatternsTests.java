@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -818,6 +819,61 @@ public void testSearchWithIncludedCompilationUnit2() throws CoreException {
 	assertEquals(
 		"Unexpected matches found",
 		"",
+		resultCollector.toString());
+}
+/*
+ * Ensure search finds matches in an included package.
+ * (case of setting the classpath)
+ */
+public void testSearchWithIncludedPackage1() throws CoreException {
+	createFolder("/P/src/p");
+	createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	setClasspath(new String[] {"/P/src", "p/"});
+	
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	search(
+		"A", 
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS,
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"src/p/A.java p.A [A]",
+		resultCollector.toString());
+}
+/*
+ * Ensure search finds matches in an included package.
+ * (case of opening the project)
+ */
+public void testSearchWithIncludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p/"});
+	createFolder("/P/src/p");
+	createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	IProject p = this.project.getProject();
+	p.close(null);
+	p.open(null);
+	
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	search(
+		"A", 
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS,
+		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
+		resultCollector);
+	assertEquals(
+		"Unexpected matches found",
+		"src/p/A.java p.A [A]",
 		resultCollector.toString());
 }
 /*
