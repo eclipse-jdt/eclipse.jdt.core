@@ -1069,4 +1069,28 @@ public interface IProblem {
 	int MethodVarargsArgumentNeedCast = MethodRelated + 801;
 	/** @since 3.1 */
 	int ConstructorVarargsArgumentNeedCast = ConstructorRelated + 802;
+	
+	/**
+	 * Javadoc Generic
+	 */
+	/** @since 3.1 */
+	int JavadocGenericMethodTypeArgumentMismatch = Javadoc + Internal + 850;
+	/** @since 3.1 */
+	int JavadocNonGenericMethod = Javadoc + Internal + 851;
+	/** @since 3.1 */
+	int JavadocIncorrectArityForParameterizedMethod = Javadoc + Internal + 852;
+	/** @since 3.1 */
+	int JavadocParameterizedMethodArgumentTypeMismatch = Javadoc + Internal + 853;
+	/** @since 3.1 */
+	int JavadocTypeArgumentsForRawGenericMethod = Javadoc + Internal + 854;
+	/** @since 3.1 */
+	int JavadocGenericConstructorTypeArgumentMismatch = Javadoc + Internal + 855;
+	/** @since 3.1 */
+	int JavadocNonGenericConstructor = Javadoc + Internal + 856;
+	/** @since 3.1 */
+	int JavadocIncorrectArityForParameterizedConstructor = Javadoc + Internal + 857;
+	/** @since 3.1 */
+	int JavadocParameterizedConstructorArgumentTypeMismatch = Javadoc + Internal + 858;
+	/** @since 3.1 */
+	int JavadocTypeArgumentsForRawGenericConstructor = Javadoc + Internal + 859;
 }

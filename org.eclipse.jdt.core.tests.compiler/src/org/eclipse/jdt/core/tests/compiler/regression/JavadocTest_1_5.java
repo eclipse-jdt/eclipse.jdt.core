@@ -34,9 +34,9 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] {
-//			"testBug70892negative1", "testBug70892negative2"
-//		};
+		TESTS_NAMES = new String[] {
+			"testBug82514"
+		};
 //		TESTS_NUMBERS = new int[] { 21 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
@@ -1177,6 +1177,44 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter E\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 82514: [1.5][javadoc] Problem with generics in javadoc
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82514"
+	 */
+	public void testBug82514() {
+		this.runNegativeTest(
+			new String[] {
+				"src/X.java",
+				"class ComparableUtils {\n" + 
+				"   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
+				"    {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"\n" + 
+				"    public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
+				"        throws ClassCastException\n" + 
+				"    {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"   public final class X {  \n" + 
+				"    /** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
+				"     *  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
+				"     */\n" + 
+				"    public void testCompareTo() {\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in src\\X.java (at line 16)\n" + 
+			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
+			"	                          ^^^^^^^^^\n" + 
+			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object) since the type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
+			"----------\n"
 		);
 	}
 }
