@@ -1299,6 +1299,7 @@ public class DeltaProcessor {
 			// use local exception to quickly escape from delta traversal
 			class FoundRelevantDeltaException extends RuntimeException {
 				// only the class name is used (to differenciate from other RuntimeExceptions)
+			    private static final long serialVersionUID = 7137113252936111022L; // backward compatible
 			}
 			try {
 				rootDelta.accept(new IResourceDeltaVisitor() {

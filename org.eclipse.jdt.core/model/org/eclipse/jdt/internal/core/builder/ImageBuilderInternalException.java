@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 public class ImageBuilderInternalException extends RuntimeException {
 
 protected CoreException coreException;
+private static final long serialVersionUID = 28252254530437336L; // backward compatible
 
 public ImageBuilderInternalException(CoreException e) {
 	this.coreException = e;

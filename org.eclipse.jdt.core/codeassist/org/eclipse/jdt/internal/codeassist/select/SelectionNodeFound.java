@@ -15,6 +15,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class SelectionNodeFound extends RuntimeException {
 	public Binding binding;
 	public boolean isDeclaration;
+	private static final long serialVersionUID = -7335444736618092295L; // backward compatible
+	
 public SelectionNodeFound() {
 	this(null); // we found a problem in the selection node
 }

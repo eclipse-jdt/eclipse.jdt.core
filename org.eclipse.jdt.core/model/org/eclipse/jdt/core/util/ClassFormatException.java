@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.util;
  * @since 2.0
  */
 public class ClassFormatException extends Exception {
+    
 	public static final int ERROR_MALFORMED_UTF8 = 1;
 	public static final int ERROR_TRUNCATED_INPUT = 2;
 	public static final int INVALID_CONSTANT_POOL_ENTRY = 3;
@@ -33,6 +34,8 @@ public class ClassFormatException extends Exception {
 	 * @since 3.0
 	 */
 	public static final int INVALID_MAGIC_NUMBER = 8;
+
+	private static final long serialVersionUID = 6582900558320612988L; // backward compatible
 
 	/**
 	 * Constructor for ClassFormatException.

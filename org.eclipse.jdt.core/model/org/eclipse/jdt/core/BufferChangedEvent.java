@@ -60,6 +60,8 @@ public class BufferChangedEvent extends EventObject {
 	 */
 	private String text;
 
+	private static final long serialVersionUID = 655379473891745999L; // backward compatible
+	
 /**
  * Creates a new buffer changed event indicating that the given buffer has changed.
  * 

@@ -32,7 +32,10 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
  * @see IJavaModelStatusConstants
  */
 public class JavaModelException extends CoreException {
+    
 	CoreException nestedCoreException;
+	private static final long serialVersionUID = -760398656505871287L; // backward compatible
+	
 /**
  * Creates a Java model exception that wrappers the given <code>Throwable</code>.
  * The exception contains a Java-specific status object with severity

@@ -40,6 +40,8 @@ public class ClassFormatException extends Exception {
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
 
+	private static final long serialVersionUID = 6667458511042774540L; // backward compatible
+
 	private int errorCode;
 	private int bufferPosition;
 	private RuntimeException nestedException;

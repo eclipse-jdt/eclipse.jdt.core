@@ -138,6 +138,7 @@ public static class WorkingCopyDocument extends JavaSearchDocument {
 	
 public class WrappedCoreException extends RuntimeException {
 	public CoreException coreException;
+	private static final long serialVersionUID = 8354329870126121212L; // backward compatible
 	public WrappedCoreException(CoreException coreException) {
 		this.coreException = coreException;
 	}

@@ -31,6 +31,8 @@ public class AbortCompilation extends RuntimeException {
 	public boolean isSilent;
 	public RuntimeException silentException;
 
+	private static final long serialVersionUID = -2047226595083244852L; // backward compatible
+	
 	public AbortCompilation() {
 		// empty
 	}
