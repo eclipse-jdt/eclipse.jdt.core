@@ -2799,6 +2799,15 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			project.setOptions(originalOptions);
 		}
 	}
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46012
+	 */
+	public void test0501() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0501", "JavaEditor.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertNotNull(result);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+	}	
 }
 
