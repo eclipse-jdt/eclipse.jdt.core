@@ -2973,6 +2973,12 @@ class ASTConverter {
 						expression.sourceStart = trimLeftPosition;
 						expression.sourceEnd = trimRigthPosition;
 						return;
+					default :
+						/*
+						 * if we find something else than a whitespace, then we reset the trimRigthPosition
+						 * to the expression source end.
+						 */
+						trimRigthPosition = expression.sourceEnd;
 				}
 				first = false;
 			}
