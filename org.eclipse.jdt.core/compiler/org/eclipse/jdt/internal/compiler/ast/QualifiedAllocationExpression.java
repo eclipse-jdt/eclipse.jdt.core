@@ -205,7 +205,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					enclosingInstanceType,
 					enclosingInstance);
 				hasError = true;
-			} else if ((this.resolvedType = receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
+			} else if ((receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
 							scope,
 							(ReferenceBinding) enclosingInstanceType)) == null) {
 				hasError = true;
@@ -231,7 +231,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if (!receiverType.canBeInstantiated()) {
 				scope.problemReporter().cannotInstantiate(type, receiverType);
-				return receiverType;
+				return this.resolvedType = receiverType;
 			}
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope)) {
@@ -250,7 +250,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					this.binding.declaringClass = allocationType;
 				}
 				scope.problemReporter().invalidConstructor(this, this.binding);
-				return receiverType;
+				return this.resolvedType = receiverType;
 			}
 
 			// The enclosing instance must be compatible with the innermost enclosing type
@@ -262,7 +262,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.enclosingInstance,
 				enclosingInstanceType,
 				expectedType);
-			return receiverType;
+			return this.resolvedType = receiverType;
 		}
 
 		//--------------there is an anonymous type declaration-----------------
@@ -305,7 +305,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		// limit of fault-tolerance
 		if (hasError) {
-			return receiverType;
+			return this.resolvedType = receiverType;
 		}
 
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
@@ -344,7 +344,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		scope.addAnonymousType(anonymousType, (ReferenceBinding) receiverType);
 		anonymousType.resolve(scope);
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
-		return anonymousType.binding; // 1.2 change
+		return this.resolvedType = anonymousType.binding; // 1.2 change
 	}
 	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
