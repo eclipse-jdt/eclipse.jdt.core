@@ -1972,10 +1972,8 @@ public class JavaProject
 	public void setOptions(Map newOptions) {
 
 		Preferences preferences;
-		if (newOptions == null){
-			setPreferences(preferences = new Preferences());
-		} else {
-			preferences = getPreferences();
+		setPreferences(preferences = new Preferences()); // always reset (26255)
+		if (newOptions != null){
 			Iterator keys = newOptions.keySet().iterator();
 			while (keys.hasNext()){
 				String key = (String)keys.next();
