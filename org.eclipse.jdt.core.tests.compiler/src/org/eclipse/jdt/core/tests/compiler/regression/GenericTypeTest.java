@@ -5836,7 +5836,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"class X<R,T extends Comparable<T>>{\n" + 
+				"public class X<R,T extends Comparable<T>>{\n" + 
 				"	T test;\n" + 
 				"	public Comparable<? extends T> getThis(){\n" + 
 				"		return test;\n" + 
@@ -5848,4 +5848,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// 68133 - verify error
+	public void _test214() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        ArrayList<Object> l;\n" + 
+				"        switch (args.length) {\n" + 
+				"        case 1:\n" + 
+				"            l = new ArrayList<Object>();\n" + 
+				"            System.out.println(l);\n" + 
+				"            break;\n" + 
+				"        default:\n" + 
+				"            return;\n" + 
+				"        }\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }
