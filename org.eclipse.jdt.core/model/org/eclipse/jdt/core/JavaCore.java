@@ -2673,13 +2673,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see IClasspathContainer
 	 * @since 2.0
 	 */
-	public static void setClasspathContainer(IPath containerPath, final IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
+	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 	
 		if (monitor != null && monitor.isCanceled()) return;
 	
 		final int projectLength = affectedProjects.length;
+		final IJavaProject[] modifiedProjects;
+		System.arraycopy(affectedProjects, 0, modifiedProjects = new IJavaProject[projectLength], 0, projectLength);
 		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
 			
 		// filter out unmodified project containers
@@ -2690,7 +2692,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 			IJavaProject affectedProject = affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
-			
+			if (newContainer == null) newContainer = JavaModelManager.ContainerInitializationInProgress; // 30920 - prevent infinite loop
 			boolean found = false;
 			if (JavaProject.hasJavaNature(affectedProject.getProject())){
 				IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
@@ -2703,7 +2705,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 			}
 			if (!found){
-				affectedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
+				modifiedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
 				JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
 				continue;
 			}
@@ -2724,7 +2726,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 			}
 			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: could improve to only compare entries
-				affectedProjects[i] = null; // filter out this project - container did not change
+				modifiedProjects[i] = null; // filter out this project - container did not change
 				continue;
 			}
 			remaining++; 
@@ -2742,7 +2744,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 						if (monitor != null && monitor.isCanceled()) return;
 		
-						JavaProject affectedProject = (JavaProject)affectedProjects[i];
+						JavaProject affectedProject = (JavaProject)modifiedProjects[i];
 						if (affectedProject == null) continue; // was filtered out
 						
 						// force a refresh of the affected project (will compute deltas)
@@ -2767,6 +2769,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				throw (JavaModelException)e;
 			} else {
 				throw new JavaModelException(e);
+			}
+		} finally {
+			for (int i = 0; i < projectLength; i++) {
+				if (respectiveContainers[i] == null) {
+					JavaModelManager.containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
+				}
 			}
 		}
 					
