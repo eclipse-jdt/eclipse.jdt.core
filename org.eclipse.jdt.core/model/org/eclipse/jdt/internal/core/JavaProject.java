@@ -689,6 +689,7 @@ public class JavaProject
 			);
 		} catch (CoreException e) {
 			// could not create marker: cannot do much
+			// TODO (jerome) print stack trace in VERBOSE mode only
 			e.printStackTrace();
 		}
 	}
@@ -1124,6 +1125,7 @@ public class JavaProject
 			}
 		} catch (CoreException e) {
 			// could not flush markers: not much we can do
+			// TODO (jerome) print stack trace in VERBOSE mode only
 			e.printStackTrace();
 		}
 	}
