@@ -113,13 +113,16 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
-
+  * OpenOnSelection can now locate selected declarations which have a corresponding
+    Java element (i.e. no local declaration is found).
+  
   PRs Fixed in this Release
   ================================================================================
   1GKEG73: ITPJCORE:WIN2000 - search (136): missing field declaration
   1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results
   1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
   1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown  
+  1GKM4M9: ITPJCORE:WINNT - DCR: code select should work on declarations
 
   PRs Closed in this Release
   ===============================================================================

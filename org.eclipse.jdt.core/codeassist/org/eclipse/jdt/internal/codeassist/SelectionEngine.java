@@ -89,15 +89,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptClass(char[] packageName, char[] className, int modifiers) {
-		if (CharOperation.equals(className, selectedIdentifier)) {
 
+		if (CharOperation.equals(className, selectedIdentifier)) {
 			if (qualifiedSelection != null
 				&& !CharOperation.equals(
 					qualifiedSelection,
 					CharOperation.concat(packageName, className, '.'))) {
 				return;
 			}
-
 			requestor.acceptClass(
 				packageName,
 				className,
@@ -118,15 +117,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		char[] packageName,
 		char[] interfaceName,
 		int modifiers) {
-		if (CharOperation.equals(interfaceName, selectedIdentifier)) {
 
+		if (CharOperation.equals(interfaceName, selectedIdentifier)) {
 			if (qualifiedSelection != null
 				&& !CharOperation.equals(
 					qualifiedSelection,
 					CharOperation.concat(packageName, interfaceName, '.'))) {
 				return;
 			}
-
 			requestor.acceptInterface(
 				packageName,
 				interfaceName,
@@ -221,9 +219,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private boolean mustQualifyType(
 		char[][] packageName,
 		char[] readableTypeName) {
+
 		// If there are no types defined into the current CU yet.
-		if (unitScope == null)
-			return true;
+		if (unitScope == null) return true;
 		if (CharOperation.equals(unitScope.fPackage.compoundName, packageName))
 			return false;
 
@@ -297,6 +295,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						try {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
+							selectDeclaration(parsedUnit);
 							parseMethod(parsedUnit, selectionSourceStart);
 							parsedUnit.resolve();
 						} catch (SelectionNodeFound e) {
@@ -489,6 +488,45 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 		} finally {
 			reset();
+		}
+	}
+
+	// Check if a declaration got selected in this unit
+	private void selectDeclaration(CompilationUnitDeclaration compilationUnit){
+
+		// the selected identifier is not identical to the parser one (equals but not identical),
+		// for traversing the parse tree, the parser assist identifier is necessary for identitiy checks
+		char[] assistIdentifier = this.getParser().assistIdentifier();
+		if (assistIdentifier == null) return;
+		
+		// iterate over the types
+		TypeDeclaration[] types = compilationUnit.types;
+		for (int i = 0, length = types == null ? 0 : types.length; i < length; i++){
+			selectDeclaration(types[i], assistIdentifier);
+		}
+	}
+
+	// Check if a declaration got selected in this type
+	private void selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier){
+
+		if (typeDeclaration.name == assistIdentifier){
+			throw new SelectionNodeFound(typeDeclaration.binding);
+		}
+		TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
+		for (int i = 0, length = memberTypes == null ? 0 : memberTypes.length; i < length; i++){
+			selectDeclaration(memberTypes[i], assistIdentifier);
+		}
+		FieldDeclaration[] fields = typeDeclaration.fields;
+		for (int i = 0, length = fields == null ? 0 : fields.length; i < length; i++){
+			if (fields[i].name == assistIdentifier){
+				throw new SelectionNodeFound(fields[i].binding);
+			}
+		}
+		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
+			if (methods[i].selector == assistIdentifier){
+				throw new SelectionNodeFound(methods[i].binding);
+			}
 		}
 	}
 }
