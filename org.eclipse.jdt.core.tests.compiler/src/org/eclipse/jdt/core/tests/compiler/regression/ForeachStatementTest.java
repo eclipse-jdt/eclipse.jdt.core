@@ -194,6 +194,45 @@ public void test007() {
 		},
 		"SUCCESS");
 }
+public void test008() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(Iterable col) {\n" + 
+			"		for (X x : col) {\n" + 
+			"			System.out.println(x);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	for (X x : col) {\n" + 
+		"	           ^^^\n" + 
+		"Type mismatch: cannot convert from element type Object to X\n" + 
+		"----------\n");
+}
+// TODO (kent) disabled until binary support is added for generics
+public void _test009() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(Iterable<String> col) {\n" + 
+			"		for (X x : col) {\n" + 
+			"			System.out.println(x);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	for (X x : col) {\n" + 
+		"	           ^^^\n" + 
+		"Type mismatch: cannot convert from element type String to X\n" + 
+		"----------\n");
+}
 // TODO (olivier) add tests to challenge break/continue support in foreach			
 // TODO (olivier) add tests to challenge empty statement action or empty block action - bytecode optimizations ?
 

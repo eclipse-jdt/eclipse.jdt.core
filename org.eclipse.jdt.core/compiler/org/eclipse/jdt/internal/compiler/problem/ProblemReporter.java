@@ -2665,7 +2665,7 @@ public void notCompatibleTypesError(InstanceOfExpression expression, TypeBinding
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void notCompatibleTypesErrorForIteratorFor(Expression expression, TypeBinding leftType, TypeBinding rightType) {
+public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
 	String leftShortName = new String(leftType.shortReadableName());
@@ -2675,7 +2675,7 @@ public void notCompatibleTypesErrorForIteratorFor(Expression expression, TypeBin
 		rightShortName = rightName;
 	}
 	this.handle(
-		IProblem.IncompatibleTypesInIteratorFor,
+		IProblem.IncompatibleTypesInForeach,
 		new String[] {leftName, rightName },
 		new String[] {leftShortName, rightShortName },
 		expression.sourceStart,

@@ -227,8 +227,7 @@ public interface IProblem {
 	int InternalTypeNameProvided = TypeRelated + 6;
 	/** @since 2.1 */
 	int UnusedPrivateType = Internal + TypeRelated + 7;
-	
-	int IncompatibleTypesInIteratorFor = TypeRelated + 14;
+
 	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
 	int TypeMismatch = TypeRelated + 17;
@@ -263,8 +262,6 @@ public interface IProblem {
 	int DuplicateFinalLocalInitialization = Internal + 57;
 	/** @since 2.1 */
 	int NonBlankFinalLocalAssignment = Internal + 58;
-	/** @since 3.0 */
-	int InvalidTypeForCollection = Internal + 59;
 	
 	int FinalOuterLocalAssignment = Internal + 60;
 	int LocalVariableIsNeverUsed = Internal + 61;
@@ -831,5 +828,12 @@ public interface IProblem {
 	int DuplicateMethodErasure = TypeRelated + 527;
 	/** @since 3.0 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
-	
+
+	/**
+	 * Foreach
+	 */
+	/** @since 3.0 */	
+	int IncompatibleTypesInForeach = TypeRelated + 550;	
+	/** @since 3.0 */
+	int InvalidTypeForCollection = Internal + 551;
 }

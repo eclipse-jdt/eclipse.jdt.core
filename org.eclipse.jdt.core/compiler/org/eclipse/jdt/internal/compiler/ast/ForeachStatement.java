@@ -20,12 +20,13 @@ import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ForeachStatement extends Statement {
     
-	public LocalDeclaration itemVariable;
-	public int itemVariableImplicitWidening = -1; 
+	public LocalDeclaration elementVariable;
+	public int elementVariableImplicitWidening = -1; 
 	public Expression collection;
 	public Statement action;
 	
@@ -57,13 +58,13 @@ public class ForeachStatement extends Statement {
 	int mergedInitStateIndex = -1;
 	
 	public ForeachStatement(
-		LocalDeclaration localDeclaration,
+		LocalDeclaration elementVariable,
 		Expression collection,
 		Statement action,
 		int start,
 		int end) {
 
-		this.itemVariable = localDeclaration;
+		this.elementVariable = elementVariable;
 		this.collection = collection;
 		this.sourceStart = start;
 		this.sourceEnd = end;
@@ -89,16 +90,16 @@ public class ForeachStatement extends Statement {
 		breakLabel = new Label();
 		continueLabel = new Label();
 
-		// process the item variable and collection
-		flowInfo = this.itemVariable.analyseCode(scope, flowContext, flowInfo);
+		// process the element variable and collection
+		flowInfo = this.elementVariable.analyseCode(scope, flowContext, flowInfo);
 		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
 
 		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 		
-		// item variable will be assigned when iterating
-		flowInfo.markAsDefinitelyAssigned(this.itemVariable.binding);
-		// TODO (philippe) item variable is always used ? if action is empty, do we still use it ?
-		this.itemVariable.binding.useFlag = LocalVariableBinding.USED;
+		// element variable will be assigned when iterating
+		flowInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
+		// TODO (philippe) element variable is always used ? if action is empty, do we still use it ?
+		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 
 		// process the action
 		LoopingFlowContext loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
@@ -142,6 +143,7 @@ public class ForeachStatement extends Statement {
 		}
 		int pc = codeStream.position;
 		// TODO should optimize cases where nothing is to be done (action is empty statement)
+		// TODO should optimize cases where no continuation is needed for(....) break;
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
@@ -172,7 +174,7 @@ public class ForeachStatement extends Statement {
 		if (!(action == null || action.isEmptyBlock())) {
 			int jumpPC = codeStream.position;
 			codeStream.goto_(conditionLabel);
-			codeStream.recordPositionsFrom(jumpPC, this.itemVariable.sourceStart);
+			codeStream.recordPositionsFrom(jumpPC, this.elementVariable.sourceStart);
 		}
 		// generate the loop action
 		actionLabel.place();
@@ -183,10 +185,10 @@ public class ForeachStatement extends Statement {
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.arrayAt(this.arrayElementTypeID);
-					if (this.itemVariableImplicitWidening != -1) {
-						codeStream.generateImplicitConversion(this.itemVariableImplicitWidening);
+					if (this.elementVariableImplicitWidening != -1) {
+						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
 					}
-					codeStream.store(this.itemVariable.binding, false);
+					codeStream.store(this.elementVariable.binding, false);
 					break;
 				case RAW_ITERABLE :
 					// TODO to be completed
@@ -242,7 +244,7 @@ public class ForeachStatement extends Statement {
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 
 		printIndent(tab, output).append("for ("); //$NON-NLS-1$
-		this.itemVariable.print(0, output); 
+		this.elementVariable.print(0, output); 
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
@@ -262,50 +264,66 @@ public class ForeachStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 		// use the scope that will hold the init declarations
 		scope = new BlockScope(upperScope);
-		this.itemVariable.resolve(scope); // collection expression can see itemVariable
-		TypeBinding elementType = this.itemVariable.type.resolvedType;
+		this.elementVariable.resolve(scope); // collection expression can see itemVariable
+		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection.resolveType(scope);
-
-		// TODO (olivier) need to handle java.lang.Iterable and java.lang.Iterable<E>
-		if (collectionType.isArrayType()) {
-			this.kind = ARRAY;
-			TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
-			if (!collectionElementType.isCompatibleWith(elementType)) {
-				scope.problemReporter().notCompatibleTypesErrorForIteratorFor(collection, collectionElementType, elementType);
+		boolean hasError = elementType == null || collectionType == null;
+		
+		if (!hasError) {
+			if (collectionType.isArrayType()) { // for(E e : E[])
+				this.kind = ARRAY;
+				TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
+				if (!collectionElementType.isCompatibleWith(elementType)) {
+					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+				}
+				// in case we need to do a conversion
+				this.arrayElementTypeID = collectionElementType.id;
+				if (elementType.isBaseType()) {
+					this.elementVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
+				}
+			} else if (collectionType.id == T_JavaLangIterable) { // for(Object o : Iterable)
+				this.kind = RAW_ITERABLE;
+					TypeBinding collectionElementType = scope.getJavaLangObject(); 
+					if (!collectionElementType.isCompatibleWith(elementType)) {
+						scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+					}
+					// no conversion needed as only for reference types
+			} else if (collectionType.isParameterizedType()) {
+			    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)collectionType;
+			    if (parameterizedType.type.id == T_JavaLangIterable) { // for(E e : Iterable<E>)
+					if (parameterizedType.arguments.length == 1) { // per construction can only be one
+						this.kind = GENERIC_ITERABLE;
+						TypeBinding collectionElementType = parameterizedType.arguments[0]; 
+						if (!collectionElementType.isCompatibleWith(elementType)) {
+							scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+						}
+						// no conversion needed as only for reference types
+					}
+			    }
 			}
-			// in case we need to do a conversion
-			this.arrayElementTypeID = collectionElementType.id;
-			if (elementType.isBaseType()) {
-				this.itemVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
+	
+			if (this.kind == -1) {
+				scope.problemReporter().invalidTypeForCollection(collection);
+			} else {
+				// indexVariable is an int only if collection is an array
+				this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
+				scope.addLocalVariable(this.indexVariable);
+				this.indexVariable.constant = NotAConstant; // not inlinable
+	
+				this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
+				scope.addLocalVariable(this.maxVariable);
+				this.maxVariable.constant = NotAConstant; // not inlinable
 			}
-		}
-/*		if (collectionType == scope.getJavaLangIterable()) {
-			this.kind = RAW_ITERABLE;
-		}
-		if (collectionType.isGenericIterable()) {
-			this.kind = GENERIC_ITERABLE;
-		}
-*/
-		if (this.kind == -1) {
-			scope.problemReporter().invalidTypeForCollection(collection);
-		} else {
-			// indexVariable is an int only if collection is an array
-			this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
-			scope.addLocalVariable(this.indexVariable);
-			this.indexVariable.constant = NotAConstant; // not inlinable
-
-			this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
-			scope.addLocalVariable(this.maxVariable);
-			this.maxVariable.constant = NotAConstant; // not inlinable
 		}
 		if (action != null) {
 			action.resolve(scope);
 		}
-
-		// add secret variables used for the code generation
-		this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
-		scope.addLocalVariable(this.collectionVariable);
-		this.collectionVariable.constant = NotAConstant; // not inlinable
+		if (!hasError) {
+			// add secret variables used for the code generation
+			this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
+			scope.addLocalVariable(this.collectionVariable);
+			this.collectionVariable.constant = NotAConstant; // not inlinable
+		}
 	}
 	
 	public void traverse(
@@ -313,7 +331,7 @@ public class ForeachStatement extends Statement {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			this.itemVariable.traverse(visitor, scope);
+			this.elementVariable.traverse(visitor, scope);
 			this.collection.traverse(visitor, scope);
 			if (action != null) {
 				action.traverse(visitor, scope);

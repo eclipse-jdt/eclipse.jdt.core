@@ -294,6 +294,10 @@ public void computeId() {
 		id = T_JavaLangAssertionError;
 		return;
 	}
+	if (CharOperation.equals(JAVA_LANG_ITERABLE, compoundName)) {
+		id = T_JavaLangIterable;
+		return;
+	}	    
 }
 /* Answer the receiver's constant pool name.
 *

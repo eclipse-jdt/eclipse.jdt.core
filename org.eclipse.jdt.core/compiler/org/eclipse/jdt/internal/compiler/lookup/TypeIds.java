@@ -60,6 +60,9 @@ public interface TypeIds {
 
 	// 1.4 feature
 	final int T_JavaLangAssertionError = 35;
+	// 1.5 feature
+	final int T_JavaLangIterable = 36; // TODO (olivier) need constant pool support
+	
 	final int NoId = Integer.MAX_VALUE;
 
 	// implicit conversions: <compileType> to <runtimeType>  (note: booleans are integers at runtime)
