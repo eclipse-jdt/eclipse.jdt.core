@@ -410,7 +410,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
-					new Boolean(false),
+					new Boolean(true),
 				});
 		}
 	}
