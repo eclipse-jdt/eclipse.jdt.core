@@ -254,6 +254,8 @@ public static String displayString(String inputString){
  * @return the displayed string
 */
 public static String displayString(String inputString, int indent) {
+	if (inputString == null)
+		return "null";
 	int length = inputString.length();
 	StringBuffer buffer = new StringBuffer(length);
 	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
