@@ -51,8 +51,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
 		try {
 			Class c = Class.forName(compilerClass);
-			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, Boolean.TYPE});
-			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new Boolean(true)});
+			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, PrintWriter.class, Boolean.TYPE});
+			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new PrintWriter(System.err), new Boolean(true)});
 			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			return ((Boolean) result).booleanValue();
@@ -200,10 +200,10 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 */		
 			if (deprecation) {
 				cmd.createArgument().setValue(
-					"-warn:allDeprecation,noEffectAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+					"-warn:allDeprecation,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			} else {
 				cmd.createArgument().setValue(
-					"-warn:noEffectAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+					"-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			}
         }
 
