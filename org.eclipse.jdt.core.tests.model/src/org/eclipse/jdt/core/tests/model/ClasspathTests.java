@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -81,7 +82,11 @@ protected void assertMarkers(String message, String expectedMarkers, IJavaProjec
 			buffer.append("\n");
 		}
 	}
-	assertEquals(message, expectedMarkers, buffer.toString());
+	String actual = buffer.toString();
+	if (!expectedMarkers.equals(actual)) {
+	 	System.out.println(Util.displayString(actual, 2));
+	}
+	assertEquals(message, expectedMarkers, actual);
 }
 protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreException {
 	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
@@ -1548,6 +1553,30 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(10);
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
+}
+/**
+ * Ensures that a duplicate entry created by editing the .classpath is detected.
+ * (regression test for bug 24498 Duplicate entries on classpath cause CP marker to no longer refresh)
+ */
+public void testDuplicateEntries() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		assertMarkers(
+			"Unexpected markers",
+			"Invalid classpath in P/.classpath file: Name collision.",
+			project);
+	} finally {
+		this.deleteProject("P");
+	}
 }
 
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {

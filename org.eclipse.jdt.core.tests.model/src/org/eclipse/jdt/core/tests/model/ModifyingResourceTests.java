@@ -132,6 +132,12 @@ protected void deleteFile(String filePath) throws CoreException {
 protected void deleteFolder(String folderPath) throws CoreException {
 	this.getFolder(folderPath).delete(true, null);
 }
+protected IFile editFile(String path, String content) throws CoreException {
+	IFile file = this.getFile(path);
+	InputStream input = new ByteArrayInputStream(content.getBytes());
+	file.setContents(input, IFile.FORCE, null);
+	return file;
+}
 /* 
  * Expands (i.e. open) the given element and returns a toString() representation
  * of the tree.
