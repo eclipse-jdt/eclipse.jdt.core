@@ -227,11 +227,6 @@ public interface IMethodBinding extends IBinding {
 	 * to either {@link #isGenericMethod()}, {@link #isParameterizedMethod()},
 	 * or {@link #isRawMethod()}.
 	 * <p>
-	 * Note: the erasure link is not a general back-link between the members
-	 * of a generic type instance and the corresponding members of the
-	 * generic type. 
-	 * </p>
-	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.
 	 * </p>
