@@ -122,24 +122,27 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * LY<TT;>;
 	 */
 	public char[] genericTypeSignature() {
-	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
-	    StringBuffer sig = new StringBuffer(10);
-		if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
-		    char[] typeSig = this.enclosingType().genericTypeSignature();
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
-		    sig.append('.').append(this.sourceName());
-		} else {
-		    char[] typeSig = this.type.genericTypeSignature();
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
-		}	   	    
-		if (this.arguments != null) {
-		    sig.append('<');
-		    for (int i = 0, length = this.arguments.length; i < length; i++) {
-		        sig.append(this.arguments[i].genericTypeSignature());
-		    }
-		    sig.append(">;"); //$NON-NLS-1$
-		}
-		return this.genericTypeSignature = sig.toString().toCharArray();
+	    if (this.genericTypeSignature == null) {
+		    StringBuffer sig = new StringBuffer(10);
+			if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
+			    char[] typeSig = this.enclosingType().genericTypeSignature();
+			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			    sig.append('.').append(this.sourceName());
+			} else {
+			    char[] typeSig = this.type.genericTypeSignature();
+			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			}	   	    
+			if (this.arguments != null) {
+			    sig.append('<');
+			    for (int i = 0, length = this.arguments.length; i < length; i++) {
+			        sig.append(this.arguments[i].genericTypeSignature());
+			    }
+			    sig.append('>'); //$NON-NLS-1$
+			}
+			sig.append(';');
+			this.genericTypeSignature = sig.toString().toCharArray();
+	    }
+		return this.genericTypeSignature;	    
 	}	
 
 	/**

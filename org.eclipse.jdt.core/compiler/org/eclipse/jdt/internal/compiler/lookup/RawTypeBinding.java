@@ -26,7 +26,8 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
      */
 	public RawTypeBinding(ReferenceBinding type, ReferenceBinding enclosingType, LookupEnvironment environment){
 		super(type, null, enclosingType, environment);
-		this.modifiers ^= AccGenericSignature;
+		if ((enclosingType.modifiers & AccGenericSignature) == 0)
+			this.modifiers ^= AccGenericSignature; // only need signature if enclosing needs one
 	}    
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
@@ -41,9 +42,18 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 * LY<TT;>;
 	 */
 	public char[] genericTypeSignature() {
+
 	    if (this.genericTypeSignature == null) {
-	        this.genericTypeSignature = this.type.genericTypeSignature(); // erasure
-	    }     
+		    StringBuffer sig = new StringBuffer(10);
+			if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
+			    char[] typeSig = this.enclosingType().genericTypeSignature();
+			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			    sig.append('.').append(this.sourceName()).append(';');
+				this.genericTypeSignature = sig.toString().toCharArray();
+			} else {
+			     this.genericTypeSignature = this.type.genericTypeSignature(); // erasure
+			}
+	    }
 	   return this.genericTypeSignature;
 	}		
 	
