@@ -50,6 +50,10 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 		if (this.typeParameters != null) {
 			scope.problemReporter().annotationMembersCannotHaveTypeParameters(this);
 		}
+		if (this.extendedDimensions != 0) {
+			scope.problemReporter().illegalExtendedDimensions(this);		
+		}		
+		if (this.binding == null) return;
 		TypeBinding returnTypeBinding = this.binding.returnType;
 		if (returnTypeBinding != null) {
 				
@@ -88,10 +92,6 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				pair.resolveTypeExpecting(scope, returnTypeBinding);
 			}
 		}
-		
-		if (this.extendedDimensions != 0) {
-			scope.problemReporter().illegalExtendedDimensions(this);		
-		}		
 	}
 
 	public void traverse(
