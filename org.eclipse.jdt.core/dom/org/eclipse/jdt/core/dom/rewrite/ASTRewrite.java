@@ -184,7 +184,7 @@ public class ASTRewrite {
 	private void validateASTNotModified(ASTNode root) throws IllegalArgumentException {
 		GenericVisitor isModifiedVisitor= new GenericVisitor() {
 			protected boolean visitNode(ASTNode node) {
-				if ((node.getFlags() & ASTNode.ORIGINAL) != 0) {
+				if ((node.getFlags() & ASTNode.ORIGINAL) == 0) {
 					throw new IllegalArgumentException("The AST that is rewritten must not be modified."); //$NON-NLS-1$
 				}
 				return true;
