@@ -72,7 +72,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			JavaElementDeltaBuilder deltaBuilder = null;
 			
 			PackageFragmentRoot root = (PackageFragmentRoot)workingCopy.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			if (root.isOnClasspath() && resource.isAccessible()) {
+			if (isPrimary || (root.isOnClasspath() && resource.isAccessible())) {
 				
 				// force opening so that the delta builder can get the old info
 				if (!isPrimary && !primary.isOpen()) {

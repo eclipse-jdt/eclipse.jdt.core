@@ -276,12 +276,13 @@ public void testReconcileAndCommit2() throws CoreException {
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(true, null);
 		copy.commit(true, null);
-		
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
 			"Unexpected contents", 
 			newContents, 
 			new String(Util.getResourceContentsAsCharArray(originalFile)));
+
+		assertTrue("buffer should not have been saved successfully", workingCopyBuffer.hasUnsavedChanges());
 	} catch(JavaModelException e) {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
@@ -290,4 +291,43 @@ public void testReconcileAndCommit2() throws CoreException {
 		this.deleteProject("SimpleProject");
 	}
 }
+// 43879 - variation on 41583 (using primary working copy)
+public void testReconcileAndCommit3() throws CoreException {
+	ICompilationUnit primary = null;
+	try {
+		this.createProject("SimpleProject");
+		this.createFolder("/SimpleProject/src/native.1");
+		String source = 
+			"class X {}";
+		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
+		primary = JavaCore.createCompilationUnitFrom(file);
+		primary.becomeWorkingCopy(null, null);
+		
+		IBuffer workingCopyBuffer = primary.getBuffer();
+		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
+		String newContents = 
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}";
+			
+		workingCopyBuffer.setContents(newContents);
+		primary.reconcile(true, null);
+		primary.commit(true, null);
+		IFile originalFile = (IFile)primary.getResource();
+		assertSourceEquals(
+			"Unexpected contents", 
+			newContents, 
+			new String(Util.getResourceContentsAsCharArray(originalFile)));
+
+		assertTrue("buffer should have been saved successfully", !workingCopyBuffer.hasUnsavedChanges());
+	} catch(JavaModelException e) {
+		e.printStackTrace();		
+		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
+	} finally {
+		if (primary != null) primary.destroy();
+		this.deleteProject("SimpleProject");
+	}
 }
+}
+

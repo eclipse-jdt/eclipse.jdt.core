@@ -335,10 +335,14 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 				: stringContents.getBytes(encoding);
 			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
-			this.file.setContents(
-				stream, 
-				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-				null);
+			if (this.file.exists()) {
+				this.file.setContents(
+					stream, 
+					force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+					null);
+			} else {
+				this.file.create(stream, force, null);
+			}	
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
