@@ -174,7 +174,8 @@ Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
 -- error recovery
 -- Modifiersopt is used to properly consume a header and exit the rule reduction at the end of the parse() method
-Goal ::= '>>>' Header Modifiersopt
+Goal ::= '>>>' Header1 Modifiersopt
+Goal ::= '!' Header2 Modifiersopt
 Goal ::= '*' BlockStatements
 Goal ::= '*' CatchHeader
 -- JDOM
@@ -322,13 +323,19 @@ Header -> ImportDeclaration
 Header -> PackageDeclaration
 Header -> ClassHeader
 Header -> InterfaceHeader
+Header -> EnumHeader
 Header -> StaticInitializer
 Header -> MethodHeader
-Header -> ConstructorHeader
 Header -> FieldDeclaration
 Header -> AllocationHeader
 Header -> ArrayCreationHeader
 /:$readableName Header:/
+
+Header1 -> Header
+Header1 -> ConstructorHeader
+
+Header2 -> Header
+Header2 -> EnumConstantHeader
 
 CatchHeader ::= 'catch' '(' FormalParameter ')' '{'
 /.$putCase consumeCatchHeader(); $break ./
@@ -1542,13 +1549,17 @@ Catchesopt -> Catches
 -----------------------------------------------
 -- 1.5 features : enum type
 -----------------------------------------------
-EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
+EnumDeclaration ::= EnumHeader EnumBody
 /. $putCase consumeEnumDeclaration(); $break ./
 /:$readableName EnumDeclaration:/
 
-EnumHeader ::= Modifiersopt 'enum' Identifier
+EnumHeader ::= EnumHeaderName ClassHeaderImplementsopt
 /. $putCase consumeEnumHeader(); $break ./
 /:$readableName EnumHeader:/
+
+EnumHeaderName ::= Modifiersopt 'enum' Identifier
+/. $putCase consumeEnumHeaderName(); $break ./
+/:$readableName EnumHeaderName:/
 /:$compliance 1.5:/
 
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
