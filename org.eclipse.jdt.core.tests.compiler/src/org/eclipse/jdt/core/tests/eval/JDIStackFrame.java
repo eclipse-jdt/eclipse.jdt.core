@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.jdt.core.tests.eval.EvaluationTest.Requestor;
 import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
