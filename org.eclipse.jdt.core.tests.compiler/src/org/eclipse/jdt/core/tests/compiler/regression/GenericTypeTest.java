@@ -19,7 +19,6 @@ import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
