@@ -24,11 +24,11 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
-
+//TODO: (olivier) should explain somewhere why DOM-ASTs are used, with IJavaElement positions
 /**
  * @since 2.1
  */
-public class JavaCompilationUnitSorter {
+public class JavaCompilationUnitSorter { //TODO: (olivier) should rename it into CompilationUnitSorter
 
 	public static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 
@@ -44,7 +44,7 @@ public class JavaCompilationUnitSorter {
 	 */
 	public static int getCategory(BodyDeclaration node, Hashtable options) {
 		switch(node.getNodeType()) {
-			case ASTNode.METHOD_DECLARATION :
+			case ASTNode.METHOD_DECLARATION : // TODO: (olivier) should handle NumberFormatExceptions locally 
 				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 				if (methodDeclaration.isConstructor()) {
 					return Integer.parseInt((String)options.get(JavaCore.SORTING_CONSTRUCTOR_ORDER));
@@ -83,6 +83,8 @@ public class JavaCompilationUnitSorter {
 	 * 
 	 * @since 2.1
 	 */
+	// TODO: (olivier) should also take #positionsToMap array (like code formatter) 
+	// TODO: (olivier) should also keep 1-unit API to avoid client forced to create a singleton array
 	public static void sort(ICompilationUnit[] compilationUnits, Comparator comparator, IProgressMonitor monitor) throws CoreException {
 		if (comparator == null || compilationUnits == null) {
 			return;
