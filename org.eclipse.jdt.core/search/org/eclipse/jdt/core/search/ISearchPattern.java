@@ -18,4 +18,5 @@ package org.eclipse.jdt.core.search;
  * @see SearchEngine#createSearchPattern(String, int, int, boolean)
  */
 public interface ISearchPattern {
+	// used as a marker interface: contains no methods
 }
