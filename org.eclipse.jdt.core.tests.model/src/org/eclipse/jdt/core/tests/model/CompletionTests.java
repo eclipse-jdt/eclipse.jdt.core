@@ -177,7 +177,7 @@ public void testCompletionCaseInsensitive() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:field    completion:field    relevance:"+(R_DEFAULT),
+		"element:field    completion:field    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 /**
@@ -194,10 +194,10 @@ public void testCompletionCaseInsensitivePackage() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have package completions",
-		"element:jarpack1    completion:jarpack1    relevance:"+(R_DEFAULT)+"\n" +
-		"element:jarpack2    completion:jarpack2    relevance:"+(R_DEFAULT)+"\n" +
-		"element:java    completion:java    relevance:"+(R_DEFAULT)+"\n" +
-		"element:java.lang    completion:java.lang    relevance:"+(R_DEFAULT),
+		"element:jarpack1    completion:jarpack1    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:jarpack2    completion:jarpack2    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:java    completion:java    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:java.lang    completion:java.lang    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -210,8 +210,8 @@ public void testCompletionEndOfCompilationUnit() throws JavaModelException {
 	cu.codeComplete(cu.getSourceRange().getOffset() + cu.getSourceRange().getLength(), requestor);
 	assertEquals(
 		"should have two methods of 'foo'", 
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
 }
 
@@ -229,9 +229,9 @@ public void testCompletionFindClass() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one class",
-		"element:A    completion:A    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_CASE),
+		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
 }
 
@@ -249,7 +249,7 @@ public void testCompletionFindClass2() throws JavaModelException {
 
 	assertEquals(
 		"should have one classe", 
-		"element:PX    completion:pack1.PX    relevance:"+(R_DEFAULT + R_CASE),
+		"element:PX    completion:pack1.PX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -268,7 +268,7 @@ public void testCompletionFindClassDefaultPackage() throws JavaModelException {
 
 	assertEquals(
 		"should have one class", 
-		"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_CASE),
+		"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
 }
 
@@ -285,8 +285,8 @@ public void testCompletionFindConstructor() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have two constructor (a constructor and an anonymous type)", 
-		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT)+"\n" +
-		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT),
+		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -304,7 +304,7 @@ public void testCompletionFindExceptions1() throws JavaModelException {
 	
 	assertEquals(
 		"should have one class", 
-		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_CASE + R_EXCEPTION),
+		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 		requestor.getResults());
 }
 
@@ -322,7 +322,7 @@ public void testCompletionFindExceptions2() throws JavaModelException {
 
 	assertEquals(
 		"should have one class",
-		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_CASE + R_EXCEPTION),
+		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 		requestor.getResults());
 }
 
@@ -340,8 +340,8 @@ public void testCompletionFindField1() throws JavaModelException {
 	
 	assertEquals(
 		"should have one field: 'var' and one variable: 'var'", 
-		"element:var    completion:this.var    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:var    completion:this.var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n"+
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());	
 }
 
@@ -359,7 +359,7 @@ public void testCompletionFindField2() throws JavaModelException {
 	
 	assertEquals(
 		"should have 1 field of starting with 'va'",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -373,7 +373,7 @@ public void testCompletionFindField3() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -391,10 +391,10 @@ public void testCompletionFindImport1() throws JavaModelException {
 
 	assertEquals(
 		"should have three imports \"pack1\" & \"pack1\" & \"pack1.pack3\" & \"pack2\"", 
-		"element:pack    completion:pack.*;    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:pack1    completion:pack1.*;    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:pack2    completion:pack2.*;    relevance:"+(R_DEFAULT + R_CASE),
+		"element:pack    completion:pack.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:pack1    completion:pack1.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:pack2    completion:pack2.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -409,8 +409,8 @@ public void testCompletionFindImport2() throws JavaModelException {
 
 	assertEquals(
 		"should have six completions",
-		"element:PX    completion:pack1.PX;    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT),
+		"element:PX    completion:pack1.PX;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -427,7 +427,7 @@ public void testCompletionFindLocalVariable() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one local variable of 'var'", 
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());	
 }
 
@@ -444,8 +444,8 @@ public void testCompletionFindMethod1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have two methods of 'foobar'", 
-		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());		
 }
 
@@ -465,8 +465,8 @@ public void testCompletionFindMethod2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
 }
 
@@ -484,7 +484,7 @@ public void testCompletionFindMethodInThis() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one method of 'foobar'", 
-		"element:foobar    completion:foobar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foobar    completion:foobar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());		
 }
 
@@ -502,7 +502,7 @@ public void testCompletionFindMethodWhenInProcess() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have a method of 'foobar'", 
-		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foobar    completion:foobar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 	cu.close();
 }
@@ -517,8 +517,8 @@ public void testCompletionFindSuperInterface() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 		
 	assertEquals(
-		"element:SuperClass    completion:SuperClass    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:SuperInterface    completion:SuperInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:SuperClass    completion:SuperClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:SuperInterface    completion:SuperInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -535,7 +535,7 @@ public void testCompletionFindThisDotField() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one result of 'bar'", 
-		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -565,7 +565,7 @@ public void testCompletionOnClassFile() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one class", 
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -597,8 +597,8 @@ public void testCompletionRepeatedType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have two types",
-		"element:CompletionRepeatedOtherType    completion:CompletionRepeatedOtherType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionRepeatedType    completion:CompletionRepeatedType    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CompletionRepeatedOtherType    completion:CompletionRepeatedOtherType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionRepeatedType    completion:CompletionRepeatedType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
 }
 
@@ -622,8 +622,8 @@ public void testCompletionVisibilityCheckEnabled() throws JavaModelException {
 	JavaCore.setOptions(options);
 	assertEquals(
 		"should have two methods", 
-		"element:protectedFoo    completion:protectedFoo()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:publicFoo    completion:publicFoo()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:protectedFoo    completion:protectedFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:publicFoo    completion:publicFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -647,9 +647,9 @@ public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
 	JavaCore.setOptions(options);
 	assertEquals(
 		"should have three methods", 
-		"element:privateFoo    completion:privateFoo()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:protectedFoo    completion:protectedFoo()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:publicFoo    completion:publicFoo()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:privateFoo    completion:privateFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:protectedFoo    completion:protectedFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:publicFoo    completion:publicFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -665,8 +665,8 @@ public void testCompletionAmbiguousFieldName() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:xBar    completion:this.xBar    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:this.xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -682,8 +682,8 @@ public void testCompletionAmbiguousFieldName2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:xBar    completion:CompletionAmbiguousFieldName2.this.xBar    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:CompletionAmbiguousFieldName2.this.xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -699,8 +699,8 @@ public void testCompletionAmbiguousFieldName3() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:xBar    completion:ClassFoo.this.xBar    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:ClassFoo.this.xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -717,7 +717,7 @@ public void testCompletionAmbiguousFieldName4() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -734,8 +734,8 @@ public void testCompletionPrefixFieldName1() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:xBar    completion:CompletionPrefixFieldName1.this.xBar    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:CompletionPrefixFieldName1.this.xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -752,7 +752,7 @@ public void testCompletionPrefixFieldName2() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:xBar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -769,8 +769,8 @@ public void testCompletionPrefixMethodName1() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:xBar    completion:CompletionPrefixMethodName1.this.xBar()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:xBar    completion:xBar()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:CompletionPrefixMethodName1.this.xBar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:xBar    completion:xBar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -787,7 +787,7 @@ public void testCompletionPrefixMethodName2() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:xBar    completion:xBar()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:xBar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -803,8 +803,8 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:xBar    completion:    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:xBar    completion:CompletionPrefixMethodName3.this.xBar(1,    relevance:"+(R_DEFAULT + R_CASE),
+		"element:xBar    completion:    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:xBar    completion:CompletionPrefixMethodName3.this.xBar(1,    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -818,7 +818,7 @@ public void testCompletionFindMemberType1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:B1.Inner1    completion:Inner1    relevance:"+(R_DEFAULT + R_CASE),
+		"element:B1.Inner1    completion:Inner1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -832,7 +832,7 @@ public void testCompletionFindMemberType2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:B2.Inner2    completion:Inner2    relevance:"+(R_DEFAULT + R_CASE),
+		"element:B2.Inner2    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -848,8 +848,8 @@ public void testCompletionMethodDeclaration() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -865,8 +865,8 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -885,7 +885,7 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -902,8 +902,8 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n"+
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n"+
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -919,13 +919,13 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CompletionMethodDeclaration5    completion:CompletionMethodDeclaration5    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:hashCode    completion:public int hashCode()    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:toString    completion:public String toString()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CompletionMethodDeclaration5    completion:CompletionMethodDeclaration5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:hashCode    completion:public int hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:toString    completion:public String toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -941,7 +941,7 @@ public void testCompletionMethodDeclaration6() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT),
+		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -957,8 +957,8 @@ public void testCompletionMethodDeclaration7() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n"+
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -974,8 +974,8 @@ public void testCompletionMethodDeclaration8() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n"+
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -991,8 +991,8 @@ public void testCompletionMethodDeclaration9() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n"+
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1008,8 +1008,8 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n"+
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1024,10 +1024,10 @@ public void testCompletionFieldName() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions",
-		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:name    completion:name    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_CASE),
+		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:name    completion:name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1043,10 +1043,10 @@ public void testCompletionLocalName() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:name    completion:name    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_CASE),
+		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:name    completion:name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1062,10 +1062,10 @@ public void testCompletionArgumentName() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:name    completion:name    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_CASE),
+		"element:classWithComplexName    completion:classWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:complexName2    completion:complexName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:name    completion:name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1081,7 +1081,7 @@ public void testCompletionCatchArgumentName() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:exception    completion:exception    relevance:10",
+		"element:exception    completion:exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1097,8 +1097,8 @@ public void testCompletionAmbiguousType() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_CASE),
+		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1114,8 +1114,8 @@ public void testCompletionAmbiguousType2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:ABC    completion:ABC    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_CASE),
+		"element:ABC    completion:ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1131,8 +1131,8 @@ public void testCompletionWithBinaryFolder() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions",
-		"element:MyClass    completion:MyClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:mypackage    completion:mypackage    relevance:"+(R_DEFAULT),
+		"element:MyClass    completion:MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:mypackage    completion:mypackage    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -1148,7 +1148,7 @@ public void testCompletionVariableNameOfArray1() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion",
-		"element:objects    completion:objects    relevance:10",
+		"element:objects    completion:objects    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1164,7 +1164,7 @@ public void testCompletionVariableNameOfArray2() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion",
-		"element:classes    completion:classes    relevance:10",
+		"element:classes    completion:classes    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1180,7 +1180,7 @@ public void testCompletionVariableNameOfArray3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion",
-		"element:objects    completion:objects    relevance:10",
+		"element:objects    completion:objects    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1228,11 +1228,11 @@ public void testCompletionSameSuperClass() throws JavaModelException {
 
 	assertEquals(
 		"should have five completions",
-		"element:bar    completion:CompletionSameSuperClass.this.bar    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:bar    completion:CompletionSameSuperClass.this.bar()    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_CASE)+"\n"+
-		"element:bar    completion:this.bar    relevance:"+(R_DEFAULT + R_CASE),
+		"element:bar    completion:CompletionSameSuperClass.this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:bar    completion:CompletionSameSuperClass.this.bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:bar    completion:bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:bar    completion:this.bar    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1246,7 +1246,7 @@ public void testCompletionSuperType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass.Inner    completion:Inner    relevance:"+(R_DEFAULT + R_CASE + R_CLASS),
+		"element:CompletionSuperClass.Inner    completion:Inner    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
 		requestor.getResults());
 }
 
@@ -1260,18 +1260,18 @@ public void testCompletionSuperType2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1285,18 +1285,18 @@ public void testCompletionSuperType3() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -1310,8 +1310,8 @@ public void testCompletionSuperType4() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_CASE + R_CLASS)+"\n" +
-		"element:CompletionSuperClass2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CompletionSuperClass2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS)+"\n" +
+		"element:CompletionSuperClass2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1325,8 +1325,8 @@ public void testCompletionSuperType5() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperInterface2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperInterface2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:CompletionSuperInterface2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperInterface2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -1340,18 +1340,18 @@ public void testCompletionSuperType6() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE)+"\n" +
-		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:CompletionSuperClass    completion:CompletionSuperClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperClass2    completion:CompletionSuperClass2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE)+"\n" +
+		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -1365,8 +1365,8 @@ public void testCompletionSuperType7() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperClass2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperClass2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:CompletionSuperClass2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperClass2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -1380,8 +1380,8 @@ public void testCompletionSuperType8() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionSuperInterface2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:CompletionSuperInterface2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_CASE + R_INTERFACE),
+		"element:CompletionSuperInterface2.InnerClass    completion:InnerClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionSuperInterface2.InnerInterface    completion:InnerInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE),
 		requestor.getResults());
 }
 
@@ -1395,7 +1395,7 @@ public void testCompletionMethodThrowsClause() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_CASE + R_EXCEPTION),
+		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 		requestor.getResults());
 }
 
@@ -1409,7 +1409,7 @@ public void testCompletionMethodThrowsClause2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Exception    completion:java.lang.Exception    relevance:"+(R_DEFAULT + R_CASE + R_EXCEPTION),
+		"element:Exception    completion:java.lang.Exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 		requestor.getResults());
 }
 
@@ -1423,7 +1423,7 @@ public void testCompletionThrowStatement() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_CASE + R_EXCEPTION),
+		"element:Exception    completion:Exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 		requestor.getResults());
 }
 
@@ -1437,7 +1437,7 @@ public void testCompletionUnresolvedReturnType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1451,7 +1451,7 @@ public void testCompletionUnresolvedParameterType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1465,7 +1465,7 @@ public void testCompletionUnresolvedFieldType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -1492,26 +1492,26 @@ public void testCompletionReturnStatementIsParent1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1525,15 +1525,15 @@ public void testCompletionReturnStatementIsParent2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT),
+		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -1547,26 +1547,26 @@ public void testCompletionCastIsParent1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1580,15 +1580,15 @@ public void testCompletionCastIsParent2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT)+"\n" +
-		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT),
+		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 
@@ -1602,11 +1602,11 @@ public void testCompletionMessageSendIsParent1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1620,11 +1620,11 @@ public void testCompletionMessageSendIsParent2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1638,11 +1638,11 @@ public void testCompletionMessageSendIsParent3() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1656,11 +1656,11 @@ public void testCompletionMessageSendIsParent4() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1674,11 +1674,11 @@ public void testCompletionMessageSendIsParent5() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1692,11 +1692,11 @@ public void testCompletionMessageSendIsParent6() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1710,11 +1710,11 @@ public void testCompletionAllocationExpressionIsParent1() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1728,11 +1728,11 @@ public void testCompletionAllocationExpressionIsParent2() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1746,11 +1746,11 @@ public void testCompletionAllocationExpressionIsParent3() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1764,11 +1764,11 @@ public void testCompletionAllocationExpressionIsParent4() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1782,11 +1782,11 @@ public void testCompletionAllocationExpressionIsParent5() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1800,11 +1800,11 @@ public void testCompletionAllocationExpressionIsParent6() throws JavaModelExcept
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1818,11 +1818,11 @@ public void testCompletionFieldInitializer1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1836,11 +1836,11 @@ public void testCompletionFieldInitializer2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1854,7 +1854,7 @@ public void testCompletionFieldInitializer3() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1868,7 +1868,7 @@ public void testCompletionFieldInitializer4() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 public void testCompletionVariableInitializerInInitializer1() throws JavaModelException {
@@ -1881,11 +1881,11 @@ public void testCompletionVariableInitializerInInitializer1() throws JavaModelEx
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1899,11 +1899,11 @@ public void testCompletionVariableInitializerInInitializer2() throws JavaModelEx
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1917,7 +1917,7 @@ public void testCompletionVariableInitializerInInitializer3() throws JavaModelEx
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1931,7 +1931,7 @@ public void testCompletionVariableInitializerInInitializer4() throws JavaModelEx
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 public void testCompletionVariableInitializerInMethod1() throws JavaModelException {
@@ -1944,11 +1944,11 @@ public void testCompletionVariableInitializerInMethod1() throws JavaModelExcepti
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1962,11 +1962,11 @@ public void testCompletionVariableInitializerInMethod2() throws JavaModelExcepti
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -1980,7 +1980,7 @@ public void testCompletionVariableInitializerInMethod3() throws JavaModelExcepti
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -1994,7 +1994,7 @@ public void testCompletionVariableInitializerInMethod4() throws JavaModelExcepti
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 public void testCompletionAssignmentInMethod1() throws JavaModelException {
@@ -2007,11 +2007,11 @@ public void testCompletionAssignmentInMethod1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -2025,11 +2025,11 @@ public void testCompletionAssignmentInMethod2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -2043,7 +2043,7 @@ public void testCompletionAssignmentInMethod3() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 
@@ -2057,7 +2057,7 @@ public void testCompletionAssignmentInMethod4() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 /*
@@ -2073,7 +2073,7 @@ public void testCompletionObjectsMethodWithInterfaceReceiver() throws JavaModelE
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2089,7 +2089,7 @@ public void testCompletionConstructorForAnonymousType() throws JavaModelExceptio
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:TypeWithConstructor    completion:)    relevance:"+(R_DEFAULT),
+		"element:TypeWithConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
 /*
@@ -2105,8 +2105,8 @@ public void testCompletionEmptyTypeName1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:A    completion:A    relevance:" +(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:CompletionEmptyTypeName1    completion:CompletionEmptyTypeName1    relevance:"+(R_DEFAULT + R_CASE),
+		"element:A    completion:A    relevance:" +(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:CompletionEmptyTypeName1    completion:CompletionEmptyTypeName1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2122,14 +2122,14 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:A    completion:A    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
-		"element:CompletionEmptyTypeName2    completion:CompletionEmptyTypeName2    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:CompletionEmptyTypeName2    completion:CompletionEmptyTypeName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:a    completion:a    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2145,9 +2145,9 @@ public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:foo1    completion:public void foo1()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:foo2    completion:public void foo2()    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n" +
-		"element:foo3    completion:public void foo3()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foo1    completion:public void foo1()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:foo2    completion:public void foo2()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n" +
+		"element:foo3    completion:public void foo3()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2163,8 +2163,8 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n" +
+		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2180,7 +2180,7 @@ public void testCompletionReturnInInitializer() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2196,7 +2196,7 @@ public void testCompletionVariableName1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_CASE),
+		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2212,9 +2212,9 @@ public void testCompletionVariableName2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT + R_CASE),
+		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2230,7 +2230,7 @@ public void testCompletionExpectedTypeIsNotValid() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionExpectedTypeIsNotValid    completion:CompletionExpectedTypeIsNotValid    relevance:"+(R_DEFAULT + R_CASE),
+		"element:CompletionExpectedTypeIsNotValid    completion:CompletionExpectedTypeIsNotValid    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2246,8 +2246,8 @@ public void testCompletionMemberType() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:CompletionMemberType    completion:CompletionMemberType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:Y    completion:Y    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		"element:CompletionMemberType    completion:CompletionMemberType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:Y    completion:Y    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());
 }
 /*
@@ -2263,8 +2263,8 @@ public void testCompletionVoidMethod() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:foo1    completion:foo1()    relevance:"+(R_DEFAULT + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
-		"element:foo3    completion:foo3()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:foo1    completion:foo1()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:foo3    completion:foo3()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 }

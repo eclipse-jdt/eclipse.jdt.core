@@ -57,6 +57,8 @@ public final class CompletionEngine
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
+	int uninterestingBindingsPtr = -1;
+	Binding[] uninterestingBindings = new Binding[1];
 	
 	boolean assistNodeIsClass;
 	boolean assistNodeIsException;
@@ -192,7 +194,8 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 		
-		int relevance = R_DEFAULT;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, SEMICOLON);
 			relevance += computeRelevanceForCaseMatching(token, fullyQualifiedName);
@@ -242,7 +245,8 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 
-		int relevance = R_DEFAULT;
+		int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(token, fullyQualifiedName);
@@ -284,7 +288,8 @@ public final class CompletionEngine
 
 		this.knownPkgs.put(packageName, this);
 		
-		int relevance = R_DEFAULT;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(token, packageName);
 
 		requestor.acceptPackage(
@@ -314,7 +319,8 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 
-		int relevance = R_DEFAULT;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(token, fullyQualifiedName);
@@ -345,6 +351,7 @@ public final class CompletionEngine
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
 		
+		computeUninterestingBindings(astNodeParent, scope);
 		if(astNodeParent != null) {
 			computeExpectedTypes(astNodeParent, scope);
 		}
@@ -890,7 +897,8 @@ public final class CompletionEngine
 				|| source.length <= endPosition
 				|| source[endPosition] != ')')
 				completion = new char[] { ')' };
-			
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 			requestor.acceptAnonymousType(
 				currentType.qualifiedPackageName(),
 				currentType.qualifiedSourceName(),
@@ -901,7 +909,7 @@ public final class CompletionEngine
 				IConstants.AccPublic,
 				endPosition - offset,
 				endPosition - offset,
-				R_DEFAULT);
+				relevance);
 		} else {
 			findConstructors(
 				currentType,
@@ -920,7 +928,8 @@ public final class CompletionEngine
 		if (token.length <= classField.length
 			&& CharOperation.prefixEquals(token, classField, false /* ignore case */
 		)) {
-			int relevance = R_DEFAULT;
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(token, classField);
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
 				
@@ -987,6 +996,8 @@ public final class CompletionEngine
 						completion = new char[] { ')' };
 					
 					if(forAnonymousType){
+						int relevance = computeBaseRelevance();
+						relevance += computeRelevanceForInterestingProposal();
 						requestor.acceptAnonymousType(
 							currentType.qualifiedPackageName(),
 							currentType.qualifiedSourceName(),
@@ -997,8 +1008,10 @@ public final class CompletionEngine
 							constructor.modifiers,
 							endPosition - offset,
 							endPosition - offset,
-							R_DEFAULT);
+							relevance);
 					} else {
+						int relevance = computeBaseRelevance();
+						relevance += computeRelevanceForInterestingProposal();
 						requestor.acceptMethod(
 							currentType.qualifiedPackageName(),
 							currentType.qualifiedSourceName(),
@@ -1012,7 +1025,7 @@ public final class CompletionEngine
 							constructor.modifiers,
 							endPosition - offset,
 							endPosition - offset,
-							R_DEFAULT);
+							relevance);
 					}
 				}
 			}
@@ -1096,7 +1109,8 @@ public final class CompletionEngine
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
-			int relevance = R_DEFAULT;
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
 
@@ -1234,7 +1248,8 @@ public final class CompletionEngine
 				&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
 			)) {
 				
-				int relevance = R_DEFAULT;
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token,lengthField);
 				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
 				
@@ -1311,7 +1326,8 @@ public final class CompletionEngine
 				if (length <= choices[i].length
 					&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
 				)){
-					int relevance = R_DEFAULT;
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
 					
 					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset,relevance);
@@ -1370,7 +1386,8 @@ public final class CompletionEngine
 
 			typesFound.add(memberType);
 
-			int relevance = R_DEFAULT;
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(typeName, memberType.sourceName);
 			relevance += computeRelevanceForExpectingType(memberType);
 
@@ -1769,7 +1786,8 @@ public final class CompletionEngine
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
-			int relevance = R_DEFAULT;
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
 
@@ -1795,7 +1813,7 @@ public final class CompletionEngine
 		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 			return  R_CASE;
 		} else {
-			return R_DEFAULT;
+			return 0;
 		}
 	}
 	private int computeRelevanceForClass(){
@@ -1808,7 +1826,7 @@ public final class CompletionEngine
 		if(assistNodeIsInterface) {
 			return R_INTERFACE;
 		}
-		return R_DEFAULT;
+		return 0;
 	}
 	private int computeRelevanceForException(char[] proposalName){
 		
@@ -1817,7 +1835,7 @@ public final class CompletionEngine
 			CharOperation.match(ERROR_PATTERN, proposalName, false))) { 
 			return R_EXCEPTION;
 		}
-		return R_DEFAULT;
+		return 0;
 	}
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(expectedTypes != null && proposalType != null) {
@@ -1836,7 +1854,7 @@ public final class CompletionEngine
 				}
 			}
 		} 
-		return R_DEFAULT;
+		return 0;
 	}
 	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
 		if(expectedTypes != null) {
@@ -1847,9 +1865,28 @@ public final class CompletionEngine
 				}
 			}
 		} 
-		return R_DEFAULT;
+		return 0;
 	}
-
+	private int computeRelevanceForInterestingProposal(){
+		return computeRelevanceForInterestingProposal(null);
+	}
+	private int computeRelevanceForInterestingProposal(Binding binding){
+		if(uninterestingBindings != null) {
+			for (int i = 0; i <= uninterestingBindingsPtr; i++) {
+				if(uninterestingBindings[i] == binding) {
+					return 0;
+				}
+			}
+		}
+		return R_INTERESTING;
+	}
+	private void computeUninterestingBindings(AstNode parent, Scope scope){
+		if(parent instanceof LocalDeclaration) {
+			addUninterestingBindings(((LocalDeclaration)parent).binding);
+		} else if (parent instanceof FieldDeclaration) {
+			addUninterestingBindings(((FieldDeclaration)parent).binding);
+		} 
+	}
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
 	private void findLocalMethodDeclarations(
 		char[] methodName,
@@ -1984,7 +2021,8 @@ public final class CompletionEngine
 				}
 			}
 
-			int relevance = R_DEFAULT;
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 
@@ -2220,7 +2258,8 @@ public final class CompletionEngine
 									))
 									continue next;
 
-								int relevance = R_DEFAULT;
+								int relevance = computeBaseRelevance();
+								relevance += computeRelevanceForInterestingProposal();
 								relevance += computeRelevanceForCaseMatching(typeName, localType.sourceName);
 								relevance += computeRelevanceForExpectingType(localType);
 								relevance += computeRelevanceForClass();
@@ -2280,7 +2319,8 @@ public final class CompletionEngine
 				
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false))	continue;
 
-				int relevance = R_DEFAULT;
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 
@@ -2317,7 +2357,9 @@ public final class CompletionEngine
 						
 						// top level types of the current unit are already proposed.
 						if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
-							int relevance = R_DEFAULT + R_CASE + R_EXPECTED_TYPE;
+							int relevance = computeBaseRelevance();
+							relevance += computeRelevanceForInterestingProposal();
+							relevance += R_CASE + R_EXPECTED_TYPE;
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
 								requestor.acceptClass(
@@ -2429,7 +2471,8 @@ public final class CompletionEngine
 						}
 						localsFound.add(local);
 
-						int relevance = R_DEFAULT;
+						int relevance = computeBaseRelevance();
+						relevance += computeRelevanceForInterestingProposal(local);
 						relevance += computeRelevanceForCaseMatching(token, local.name);
 						relevance += computeRelevanceForExpectingType(local.type);
 						
@@ -2527,7 +2570,8 @@ public final class CompletionEngine
 						break;
 				}
 				if(name != null) {
-					int relevance = R_DEFAULT;
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(token, name);
 					
 					// accept result
@@ -2582,7 +2626,8 @@ public final class CompletionEngine
 					}	
 				}
 				
-				int relevance = R_DEFAULT;
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token, name);
 				
 				// accept result
@@ -2655,6 +2700,9 @@ public final class CompletionEngine
 		}
 		
 		return name;
+	}
+	private int computeBaseRelevance(){
+		return R_DEFAULT;
 	}
 	private void computeExpectedTypes(AstNode parent, Scope scope){
 		
@@ -2886,6 +2934,18 @@ public final class CompletionEngine
 			this.expectedTypes = new TypeBinding[oldLength * 2];
 			System.arraycopy(oldTypes, 0, this.expectedTypes, 0, oldLength);
 			this.expectedTypes[this.expectedTypesPtr] = type;
+		}
+	}
+	private void addUninterestingBindings(Binding binding){
+		if(binding == null) return;
+		try {
+			this.uninterestingBindings[++this.uninterestingBindingsPtr] = binding;
+		} catch (IndexOutOfBoundsException e) {
+			int oldLength = this.uninterestingBindings.length;
+			Binding oldBindings[] = this.uninterestingBindings;
+			this.uninterestingBindings = new Binding[oldLength * 2];
+			System.arraycopy(oldBindings, 0, this.uninterestingBindings, 0, oldLength);
+			this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
 		}
 	}
 	private char[][] computeNames(char[] sourceName, boolean forArray){

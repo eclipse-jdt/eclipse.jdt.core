@@ -45,10 +45,19 @@ source folder. In particular, mixed modes are supported (binary archive associat
 and reciprocally). For more details, see <code>IPackageFragmentRoot.attachSource(IPath, IPath, 
 IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>.
 </li>
+<li><b>Code completion enhancement:</b> Relevance of a proposal is lesser if the proposal is in a variable initializer and the proposal is the variable.
+   <br>In the following example <code>var2</code> is less relevant than <code>var1</code>.<pre>
+   public class X {
+      int var1;
+      int var2 = var;cursor&gt;
+   }</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26142">26142</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26588">26588</a>
+Code Assist - variable must be less relevant in initialization
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26142">26142</a>
 JACKS: Must reject invalid character after class definition
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26141">26141</a>
 JACKS: Should report unterminated comment
