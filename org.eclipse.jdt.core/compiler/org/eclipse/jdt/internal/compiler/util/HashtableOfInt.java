@@ -19,7 +19,7 @@ public final class HashtableOfInt {
 	public int[] keyTable;
 	public Object[] valueTable;
 
-	int elementSize; // number of elements in the table
+	public int elementSize; // number of elements in the table
 	int threshold;
 public HashtableOfInt() {
 	this(13);

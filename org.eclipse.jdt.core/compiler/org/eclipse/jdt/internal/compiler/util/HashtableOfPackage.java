@@ -18,7 +18,7 @@ public final class HashtableOfPackage {
 	public char[] keyTable[];
 	public PackageBinding valueTable[];
 
-	int elementSize; // number of elements in the table
+	public int elementSize; // number of elements in the table
 	int threshold;
 public HashtableOfPackage() {
 	this(3); // usually not very large
