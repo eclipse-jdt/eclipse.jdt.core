@@ -15979,4 +15979,87 @@ public void test500(){
 			""
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550
+	public void _test562() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"interface Inter<A, B> {}\n" + 
+				"public class X<T, U, V extends X<T, U, V>> extends ArrayList<V> implements Inter<T, U> {\n" + 
+				"	public final void foo(U u) {\n" + 
+				"		X.bar(this, u);\n" + 
+				"	}\n" + 
+				"	public static final <P, Q> void bar(Collection<? extends Inter<P, Q>> c, Q q) {}\n" + 
+				"}\n",
+			},
+			"");	
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550 - variation	
+	public void test563() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"interface Inter<A, B> {}\n" + 
+				"public class X<T, U, V extends X<T, U, V>> extends ArrayList<V> implements Inter<T, U> {\n" + 
+				"	public final void foo(U u) {\n" + 
+				"		X.bar(this, u);\n" + 
+				"	}\n" + 
+				"	public static final <P, Q, R> void bar(Collection<R> c, Q q) {}\n" + 
+				"}\n",
+			},
+			"");	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550 - variation	
+	public void test564() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"interface Inter<A, B> {}\n" + 
+				"public class X<T, U, V extends X<T, U, V>> extends ArrayList<V> implements Inter<T, U> {\n" + 
+				"	public final void foo(U u) {\n" + 
+				"		X.bar(this, u);\n" + 
+				"	}\n" + 
+				"	public static final <P, Q> void bar(Collection<? extends Inter<P, Q>> c, Q q) {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public class X<T, U, V extends X<T, U, V>> extends ArrayList<V> implements Inter<T, U> {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	X.bar(this, u);\n" + 
+			"	  ^^^\n" + 
+			"The method bar(Collection<? extends Inter<P,Q>>, Q) in the type X is not applicable for the arguments (X<T,U,V>, U)\n" + 
+			"----------\n");	
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87995	- check no warning
+	public void test565() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"interface IFoo<T> {\n" + 
+				"    public T get(Class<T> clazz);\n" + 
+				"   Zork z;\n" +
+				"}\n" + 
+				"\n" + 
+				"class Bar implements IFoo<Integer> {\n" + 
+				"    public Integer get(Class<Integer> arg0) {\n" + 
+				"        return new Integer(3);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
+	}	
 }
