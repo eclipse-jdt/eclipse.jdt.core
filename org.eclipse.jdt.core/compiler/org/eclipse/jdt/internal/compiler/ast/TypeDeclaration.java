@@ -885,9 +885,11 @@ public class TypeDeclaration
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
-			
-			boolean needSerialVersion = sourceType.isClass() && !sourceType.isAbstract() 
-								&& sourceType.implementsInterface(scope.getJavaIoSerializable(), true);
+			boolean needSerialVersion = 
+							this.scope.environment().options.getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
+							&& sourceType.isClass() 
+							&& !sourceType.isAbstract() 
+							&& sourceType.findSuperTypeErasingTo(T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
 			
 			if (this.typeParameters != null && scope.getJavaLangThrowable().isSuperclassOf(sourceType)) {
 				this.scope.problemReporter().genericTypeCannotExtendThrowable(this);
