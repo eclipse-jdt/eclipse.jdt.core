@@ -366,7 +366,7 @@ private void format() {
 						&& ! (previousCompilableToken == TokenNameRPAREN
 							&& token == TokenNameSEMICOLON)) {
 					newLine(1);
-					currentLineIndentationLevel += indentationLevel;
+					currentLineIndentationLevel = indentationLevel;
 					pendingNewLines = 0;
 					pendingSpace = false;
 				} else {
