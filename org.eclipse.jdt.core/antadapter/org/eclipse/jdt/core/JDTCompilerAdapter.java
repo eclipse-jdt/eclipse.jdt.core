@@ -200,10 +200,10 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 */		
 			if (deprecation) {
 				cmd.createArgument().setValue(
-					"-warn:allDeprecation,noOpAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+					"-warn:allDeprecation,noEffectAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			} else {
 				cmd.createArgument().setValue(
-					"-warn:noOpAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+					"-warn:noEffectAssign,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			}
         }
 
