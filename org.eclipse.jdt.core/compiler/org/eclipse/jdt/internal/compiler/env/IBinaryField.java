@@ -19,6 +19,10 @@ public interface IBinaryField extends IGenericField {
  */
 Constant getConstant();
 /**
+ * Answer the name of the field.
+ */
+char[] getName();
+/**
  * Answer the resolved name of the receiver's type in the
  * class file format as specified in section 4.3.2 of the Java 2 VM spec.
  *

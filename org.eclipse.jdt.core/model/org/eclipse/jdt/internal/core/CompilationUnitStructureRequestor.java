@@ -244,7 +244,6 @@ public void enterField(FieldInfo fieldInfo) {
 	resolveDuplicates(handle);
 	
 	SourceFieldElementInfo info = new SourceFieldElementInfo();
-	info.fieldName = fieldInfo.name;
 	info.setNameSourceStart(fieldInfo.nameSourceStart);
 	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
 	info.setSourceRangeStart(fieldInfo.declarationStart);

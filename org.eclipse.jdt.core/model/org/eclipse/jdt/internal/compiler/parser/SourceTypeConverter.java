@@ -215,7 +215,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int start = fieldInfo.getNameSourceStart();
 		int end = fieldInfo.getNameSourceEnd();
 
-		field.name = fieldInfo.getName();
+		field.name = fieldHandle.getElementName().toCharArray();
 		field.sourceStart = start;
 		field.sourceEnd = end;
 		field.declarationSourceStart = fieldInfo.getDeclarationSourceStart();

@@ -19,9 +19,5 @@ public interface IGenericField {
 // We have added AccDeprecated & AccSynthetic.
 
 int getModifiers();
-/**
- * Answer the name of the field.
- */
 
-char[] getName();
 }
