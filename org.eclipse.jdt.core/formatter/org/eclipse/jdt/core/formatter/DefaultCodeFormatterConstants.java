@@ -2979,6 +2979,5 @@ public class DefaultCodeFormatterConstants {
 	 * @deprecated Will be removed.
 	 * @since 3.0
 	 */
-//	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
-	
+	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
 }

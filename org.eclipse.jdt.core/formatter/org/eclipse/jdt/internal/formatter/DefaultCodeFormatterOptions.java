@@ -203,7 +203,6 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_then_statement_on_same_line;
 	public int number_of_empty_lines_to_preserve;
 	public boolean put_empty_statement_on_new_line;
-	public boolean remove_unnecessary_semicolon;
 	public int tab_size;
 	public final char filling_space = ' ';
 	public int page_width;
@@ -390,7 +389,6 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE, this.keep_then_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, this.remove_unnecessary_semicolon ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
@@ -1254,10 +1252,6 @@ public class DefaultCodeFormatterOptions {
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
 		}
-		final Object removeUnnecessarySemicolonOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON);
-		if (removeUnnecessarySemicolonOption != null) {
-			this.remove_unnecessary_semicolon = DefaultCodeFormatterConstants.TRUE.equals(removeUnnecessarySemicolonOption);
-		}
 		final Object tabSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
 		if (tabSizeOption != null) {
 			try {
@@ -1447,7 +1441,6 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 0;
 		this.put_empty_statement_on_new_line = false;
-		this.remove_unnecessary_semicolon = false;
 		this.tab_size = 4;
 		this.page_width = 80;
 		this.use_tab = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
@@ -1616,7 +1609,6 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;
-		this.remove_unnecessary_semicolon = false;
 		this.tab_size = 4;
 		this.page_width = 80;
 		this.use_tab = false;
