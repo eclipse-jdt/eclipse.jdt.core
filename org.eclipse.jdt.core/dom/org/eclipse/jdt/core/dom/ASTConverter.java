@@ -316,7 +316,7 @@ class ASTConverter {
 					break;
 				case 3 :
 					enumConstantsIndex++;
-					enumDeclaration.bodyDeclarations().add(convert(nextEnumConstant));
+					enumDeclaration.enumConstants().add(convert(nextEnumConstant));
 			}
 		}
 		convert(enumDeclaration2.javadoc, enumDeclaration);
