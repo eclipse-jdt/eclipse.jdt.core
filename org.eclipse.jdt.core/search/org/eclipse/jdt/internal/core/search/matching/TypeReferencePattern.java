@@ -412,7 +412,14 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			lastIndex -= otherBindingsCount + 1;
 			break;
 		case BindingIds.TYPE : //=============only type ==============
-			typeBinding = (TypeBinding)binding;
+			if (binding instanceof ProblemBinding) {
+				ProblemBinding pbBinding = (ProblemBinding) binding;
+				typeBinding = pbBinding.searchType; // second chance with recorded type so far
+				char[] partialQualifiedName = pbBinding.name;
+				lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+			} else {
+				typeBinding = (TypeBinding)binding;
+			}
 			break;
 		case BindingIds.VARIABLE : //============unbound cases===========
 		case BindingIds.TYPE | BindingIds.VARIABLE :						

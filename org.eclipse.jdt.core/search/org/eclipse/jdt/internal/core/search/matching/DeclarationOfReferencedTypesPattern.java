@@ -81,7 +81,15 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				maxType -= otherBindingsCount + 1;
 				break;
 			case BindingIds.TYPE : //=============only type ==============
-				typeBinding = (TypeBinding)binding;
+				if (binding instanceof ProblemBinding) {
+					ProblemBinding pbBinding = (ProblemBinding) binding;
+					typeBinding = pbBinding.searchType; // second chance with recorded type so far
+					char[] partialQualifiedName = pbBinding.name;
+					maxType = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+					if (typeBinding == null || maxType < 0) return;
+				} else {
+					typeBinding = (TypeBinding)binding;
+				}
 				break;
 			case BindingIds.VARIABLE : //============unbound cases===========
 			case BindingIds.TYPE | BindingIds.VARIABLE :						

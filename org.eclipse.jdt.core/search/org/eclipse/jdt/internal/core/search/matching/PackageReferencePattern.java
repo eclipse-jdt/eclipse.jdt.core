@@ -153,7 +153,15 @@ protected int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 		case BindingIds.LOCAL : // reading a local variable
 			return IMPOSSIBLE_MATCH; // no package match in it
 		case BindingIds.TYPE : //=============only type ==============
-			typeBinding = (TypeBinding)binding;
+			if (binding instanceof ProblemBinding) {
+				ProblemBinding pbBinding = (ProblemBinding) binding;
+				typeBinding = pbBinding.searchType; // second chance with recorded type so far
+				char[] partialQualifiedName = pbBinding.name;
+				lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+				if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
+			} else {
+				typeBinding = (TypeBinding)binding;
+			}
 			break;
 		/*
 		 * Handling of unbound qualified name references. The match may reside in the resolved fragment,
@@ -223,7 +231,12 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				typeBinding = qNameRef.actualReceiverType;
 				break;
 			case BindingIds.TYPE : //=============only type ==============
-				typeBinding = (TypeBinding)binding;
+				if (binding instanceof ProblemBinding) {
+					ProblemBinding pbBinding = (ProblemBinding) binding;
+					typeBinding = pbBinding.searchType; // second chance with recorded type so far
+				} else {
+					typeBinding = (TypeBinding)binding;
+				}
 				break;
 			case BindingIds.VARIABLE : //============unbound cases===========
 			case BindingIds.TYPE | BindingIds.VARIABLE :						

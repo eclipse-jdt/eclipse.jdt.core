@@ -250,6 +250,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testAccurateTypeReference"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInHierarchy"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithRecovery"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceWithProblem"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2726,6 +2727,25 @@ public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreExc
 		"src/p/X.java p.X.foo(int, String, X) -> void [X]\n" +
 		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [X]",
+		resultCollector.toString());
+}
+/**
+ * Type reference with problem test.
+ * (Regression test for bug 36479 Rename operation during refactoring fails)
+ */
+public void testTypeReferenceWithProblem() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "e6", "A.java").getType("A");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showAccuracy = true;
+	new SearchEngine().search(
+		getWorkspace(), 
+		"B36479",
+		TYPE, 
+		REFERENCES, 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
+		resultCollector);
+	assertEquals(
+		"src/e6/A.java e6.A.foo() -> Object [B36479] POTENTIAL_MATCH",
 		resultCollector.toString());
 }
 /**
