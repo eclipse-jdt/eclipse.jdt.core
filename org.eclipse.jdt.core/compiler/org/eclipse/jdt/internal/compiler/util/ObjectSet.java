@@ -131,19 +131,7 @@ public final class ObjectSet implements Cloneable {
 			if (currentElement.equals(element)){
 				this.elementTable[index] = null;
 				this.elementSize--;
-				
-				// local rehash - find the last matching element with same hashcode
-				// and move it in place of the current one if any
-				int next = index, lastMatching = -1;
-				while (this.elementTable[next = ((next + 1) % length)] != null && (next != index)) {
-					if (this.elementTable[next].hashCode() == hash){
-						lastMatching = next;
-					}
-				}
-				if (lastMatching >= 0){
-					this.elementTable[index] = this.elementTable[lastMatching];
-					this.elementTable[lastMatching] = null;
-				}
+				this.rehash();
 				return true;
 			}
 			index = (index + 1) % length;
@@ -197,7 +185,7 @@ public final class ObjectSet implements Cloneable {
 			if (object == null){
 				s+= "-\n";//$NON-NLS-1$
 			} else {
-				s+= object.toString()+ "\t#"+object.hashCode() +"\n";//$NON-NLS-1$//$NON-NLS-2$
+				s+= object.toString()+ "\t#"+object.hashCode() +"(%" + (object.hashCode() % elementTable.length)+"\n";//$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
 		return s + "]";//$NON-NLS-1$
