@@ -148,7 +148,7 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	 if (this.matchSet.removePossibleMatch(typeRef) != null)
 		this.matchSet.addPossibleMatch(result);
 	 else if (this.matchSet.removeTrustedMatch(typeRef) != null)
-		this.matchSet.addTrustedMatch(result);
+		this.matchSet.addTrustedMatch(result, true);
 	return result;
 }
 protected TypeReference getTypeReference(int dim) {

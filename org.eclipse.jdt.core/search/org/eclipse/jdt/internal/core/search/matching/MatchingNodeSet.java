@@ -102,11 +102,14 @@ public MatchingNodeSet(MatchLocator locator) {
 }
 public int addMatch(AstNode node, int matchLevel) {
 	switch (matchLevel) {
+		case PatternLocator.INACCURATE_MATCH:
+			addTrustedMatch(node, false);
+			break;
 		case PatternLocator.POSSIBLE_MATCH:
 			addPossibleMatch(node);
 			break;
 		case PatternLocator.ACCURATE_MATCH:
-			addTrustedMatch(node);
+			addTrustedMatch(node, true);
 	}
 	return matchLevel;
 }
@@ -123,7 +126,7 @@ public void addPossibleMatch(AstNode node) {
 	this.possibleMatchingNodesSet.add(node);
 	this.possibleMatchingNodesKeys.put(key, node);
 }
-public void addTrustedMatch(AstNode node) {
+public void addTrustedMatch(AstNode node, boolean isExact) {
 	// remove existing node at same position from set
 	// (case of recovery that created the same node several time
 	// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=29366)
@@ -133,7 +136,7 @@ public void addTrustedMatch(AstNode node) {
 		this.matchingNodes.removeKey(existing);
 	
 	// map node to its accuracy level
-	this.matchingNodes.put(node, EXACT_MATCH);
+	this.matchingNodes.put(node, isExact ? EXACT_MATCH : POTENTIAL_MATCH);
 	this.matchingNodesKeys.put(key, node);
 }
 private boolean hasPossibleNodes(int start, int end) {
@@ -272,11 +275,7 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 					: unit.scope.getTypeOrPackage(importRef.tokens);
 				this.locator.patternLocator.matchLevelAndReportImportRef(importRef, binding, this.locator);
 			} else {
-				int level = this.locator.patternLocator.resolveLevel(node);
-				if (level == PatternLocator.ACCURATE_MATCH)
-					this.matchingNodes.put(node, EXACT_MATCH);
-				else if (level == PatternLocator.INACCURATE_MATCH)
-					this.matchingNodes.put(node, POTENTIAL_MATCH);
+				addMatch(node, this.locator.patternLocator.resolveLevel(node));
 			}
 		}
 		this.possibleMatchingNodesSet = new SimpleSet();
