@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -51,6 +52,8 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor {
+		
+	public static boolean VERBOSE = false;
 
 	/**
 	 * Specifies the location of the package fragment roots within
@@ -155,8 +158,20 @@ public class SourceMapper
 	 */
 	String encoding;
 	Map options;
+	
+	/**
+	 * Use to handle root paths inference
+	 */
+	private boolean areRootPathsComputed;
+	private FilenameFilter filenameFilter;
 		
 	public SourceMapper() {
+		this.areRootPathsComputed = false;
+		this.filenameFilter = new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".java"); //$NON-NLS-1$
+			}
+		};
 	}
 	
 	/**
@@ -164,6 +179,12 @@ public class SourceMapper
 	 * at the given location in the specified package fragment root.
 	 */
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
+		this.areRootPathsComputed = false;
+		this.filenameFilter = new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".java"); //$NON-NLS-1$
+			}
+		};
 		this.options = options;
 		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
 		if (rootPath != null) {
@@ -270,108 +291,187 @@ public class SourceMapper
 		return typeSigs;
 	}
 	
-	private void computeRootPath(File directory, String fullName, String[] rootPathHolder, int[] index) {
-		File[] files = directory.listFiles();
-		for (int i = 0; i < files.length; i++) {
-			File file = files[i];
-			if (file.isDirectory()) {
-				computeRootPath(file, fullName, rootPathHolder, index);
-			} else if (Util.isJavaFileName(file.getName())) {
-				IPath fullPath = new Path(file.getPath());
-				IPath javaFilePath = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-				String javaFilePathString = javaFilePath.toString();
-				if (javaFilePathString.endsWith(fullName)) {
-					index[0] = Math.min(index[0], javaFilePathString.indexOf(fullName));
-					rootPathHolder[0] = javaFilePathString;
+	private void computeAllRootPaths(IType type) {
+		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
+		this.rootPaths = new HashSet();
+		long time = 0;
+		if (VERBOSE) {
+			System.out.println("compute all root paths for " + root.getElementName());
+			time = System.currentTimeMillis();
+		}
+		final HashSet firstLevelPackageNames = new HashSet();
+		boolean containsADefaultPackage = false;
+
+		if (root.isArchive()) {
+			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ZipFile zip = null;
+			try {
+				zip = manager.getZipFile(jarPackageFragmentRoot.getPath());
+				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
+					ZipEntry entry = (ZipEntry) entries.nextElement();
+					String entryName = entry.getName();
+					if (!entry.isDirectory()) {
+						int index = entryName.indexOf('/');
+						if (index != -1) {
+							String firstLevelPackageName = entryName.substring(0, index);
+							if (JavaConventions.validatePackageName(firstLevelPackageName).isOK()) {
+								firstLevelPackageNames.add(firstLevelPackageName);
+							}
+						} else if (Util.isClassFileName(entryName)) {
+							containsADefaultPackage = true;
+						}						
+					}
+				}
+			} catch (CoreException e) {
+			} finally {
+				manager.closeZipFile(zip); // handle null case
+			}
+		} else {
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), root.getPath(), true);
+			if (target instanceof IFolder) {
+				IResource resource = root.getResource();
+				if (resource.getType() == IResource.FOLDER) {
+					try {
+						IResource[] members = ((IFolder) resource).members();
+						for (int i = 0, max = members.length; i < max; i++) {
+							IResource member = members[i];
+							if (member.getType() == IResource.FOLDER) {
+								firstLevelPackageNames.add(member.getName());
+							} else if (Util.isClassFileName(member.getName())) {
+								containsADefaultPackage = true;
+							}
+						}
+					} catch (CoreException e) {
+					}
+				}
+			} else if (target instanceof File) {
+				File file = (File)target;
+				if (file.isDirectory()) {
+					File[] files = file.listFiles();
+					for (int i = 0, max = files.length; i < max; i++) {
+						File currentFile = files[i];
+						if (currentFile.isDirectory()) {
+							firstLevelPackageNames.add(currentFile.getName());
+						} else if (Util.isClassFileName(currentFile.getName())) {
+							containsADefaultPackage = true;
+						}
+					}
 				}
 			}
 		}
-	}	
-	/*
-	 * Computes the root path by scanning the first .java file in this source archive or folder.
-	 * Returns null if could not compute the root path.
-	 */
-	private String computeRootPath(final String fullName) {
+
 		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
 				zip = manager.getZipFile(this.sourcePath);
-				int index = Integer.MAX_VALUE;
-				String foundEntry = null;
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
-					String name;
-					if (!entry.isDirectory() && Util.isJavaFileName(name = entry.getName())) {
-						if (name.endsWith(fullName)) {
-							index = Math.min(index, name.indexOf(fullName));
-							foundEntry = name;
+					if (!entry.isDirectory()) {
+						IPath path = new Path(entry.getName());
+						int segmentCount = path.segmentCount();
+						if (segmentCount > 1) {
+							loop: for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
+								if (firstLevelPackageNames.contains(path.segment(i))) {
+									this.rootPaths.add(path.uptoSegment(i).toString());
+									break loop;
+								}
+								if (i == max - 1 && containsADefaultPackage) {
+									this.rootPaths.add(path.uptoSegment(max).toString());
+								}
+							}
+						} else if (containsADefaultPackage) {
+							this.rootPaths.add(""); //$NON-NLS-1$
 						}
 					}
 				}
-				if (foundEntry != null) {
-					return foundEntry.substring(0, index);
-				}
-				return null;
 			} catch (CoreException e) {
-				return null;
 			} finally {
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
 			if (target instanceof IFolder) {
-				IFolder folder = (IFolder)target;
-				final String[] rootPathHolder = new String[1];
-				final int[] index = new int[] { Integer.MAX_VALUE };
-				try {
-					folder.accept(
-						new IResourceProxyVisitor() {
-							public boolean visit(IResourceProxy proxy) throws CoreException {
-								if (proxy.getType() == IResource.FILE) {
-									if (Util.isJavaFileName(proxy.getName())) { 
-										IResource resource = proxy.requestResource();
-										IPath resourceFullPath = resource.getFullPath();
-										int sourcePathSegmentCount = sourcePath.segmentCount();
-										IPath javaFilePath = resourceFullPath.removeFirstSegments(sourcePathSegmentCount);
-										String javaFilePathString = javaFilePath.toString();
-										if (javaFilePathString.endsWith(fullName)) {
-											index[0] = Math.min(index[0], javaFilePathString.indexOf(javaFilePathString));
-											rootPathHolder[0] = javaFilePathString;
-										}
-									}
-									return false;
-								}
-								return true;
-							}
-						},
-						IResource.NONE
-					);
-				} catch (CoreException e) {
-				}
-				if (rootPathHolder[0] != null) {
-					if (index[0] == 0) {
-						return ""; //$NON-NLS-1$
-					}
-					return rootPathHolder[0].substring(0, index[0]);
-				}
+				computeRootPath((IFolder)target, firstLevelPackageNames, containsADefaultPackage);
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
-					final String[] rootPathHolder = new String[1];
-					final int[] index = new int[] { Integer.MAX_VALUE };
-					computeRootPath(file, fullName, rootPathHolder, index);
-					if (rootPathHolder[0] != null) {
-						if (index[0] == 0) {
-							return ""; //$NON-NLS-1$
-						}
-						return rootPathHolder[0].substring(0, index[0]);
-					}
+					computeRootPath(file, firstLevelPackageNames, containsADefaultPackage);
 				}
 			}
 		}
-		return null;
+		if (VERBOSE) {
+			System.out.println("Found " + this.rootPaths.size() + " root paths");			
+			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms");
+		}
+		this.areRootPathsComputed = true;
 	}
+	
+	private void computeRootPath(File directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
+		File[] files = directory.listFiles();
+		boolean hasSubDirectories = false;
+		loop: for (int i = 0, max = files.length; i < max; i++) {
+			File file = files[i];
+			if (file.isDirectory()) {
+				hasSubDirectories = true;
+				if (firstLevelPackageNames.contains(file.getName())) {
+					IPath fullPath = new Path(file.getParentFile().getPath());
+					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+					this.rootPaths.add(rootPathEntry.toString());
+					break loop;
+				} else {
+					computeRootPath(file, firstLevelPackageNames, hasDefaultPackage);
+				}
+			} else if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
+				File parentDir = file.getParentFile();
+				if (parentDir.list(this.filenameFilter).length != 0) {
+					IPath fullPath = new Path(parentDir.getPath());
+					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+					this.rootPaths.add(rootPathEntry.toString());
+				}
+			}
+		}
+	}	
+
+	private void computeRootPath(IFolder directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
+		try {
+			IResource[] resources = directory.members();
+			boolean hasSubDirectories = false;
+			loop: for (int i = 0, max = resources.length; i < max; i++) {
+				IResource resource = resources[i];
+				if (resource.getType() == IResource.FOLDER) {
+					hasSubDirectories = true;
+					if (firstLevelPackageNames.contains(resource.getName())) {
+						IPath fullPath = resource.getParent().getFullPath();
+						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+						this.rootPaths.add(rootPathEntry.toString());
+						break loop;
+					} else {
+						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage);
+					}
+				}
+				if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
+					IContainer container = resource.getParent();
+					// check if one member is a .java file
+					IResource[] members = container.members();
+					boolean hasJavaSourceFile = false;
+					for (int j = 0, max2 = members.length; j < max2; j++) {
+						if (Util.isJavaFileName(members[i].getName())) {
+							hasJavaSourceFile = true;
+							break;
+						}
+					}
+					if (hasJavaSourceFile) {
+						IPath fullPath = container.getFullPath();
+						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+						this.rootPaths.add(rootPathEntry.toString());
+					}
+				}
+			}
+		} catch (CoreException e) {
+		}
+	}	
 
 	/**
 	 * @see ISourceElementRequestor
@@ -663,7 +763,12 @@ public class SourceMapper
 	 * code cannot be found.
 	 */
 	public char[] findSource(IType type, IBinaryType info) {
+		long time = 0;
+		if (VERBOSE) {
+			time = System.currentTimeMillis();
+		}
 		char[] sourceFileName = info.sourceFileName();
+		IPackageFragment pkgFrag = type.getPackageFragment();
 		String name = null;
 		if (sourceFileName == null) {
 			/*
@@ -688,9 +793,8 @@ public class SourceMapper
 			}
 		} else {
 			name = new String(sourceFileName);
-			IPackageFragment pkgFrag = type.getPackageFragment();
 			if (!pkgFrag.isDefaultPackage()) {
-				String pkg = type.getPackageFragment().getElementName().replace('.', '/');
+				String pkg = pkgFrag.getElementName().replace('.', '/');
 				name = pkg + '/' + name;
 			}
 		}
@@ -699,6 +803,11 @@ public class SourceMapper
 		}
 	
 		char[] source = null;
+		
+		if (!areRootPathsComputed) {
+			computeAllRootPaths(type);
+		}
+		
 		if (this.rootPath != null) {
 			source = getSourceForRootPath(this.rootPath, name);
 		}
@@ -721,18 +830,9 @@ public class SourceMapper
 					}
 				}
 			}
-			if (source == null) {
-				// Try to recompute it and add the new root path to the rootPaths collection
-				String newRootPath = computeRootPath(name);
-				if (newRootPath != null) {
-					if (this.rootPaths == null) {
-						this.rootPaths = new HashSet();
-					}
-					this.rootPaths.add(newRootPath);
-					this.rootPath = newRootPath;
-					source = getSourceForRootPath(newRootPath, name);
-				}
-			}
+		}
+		if (VERBOSE) {
+			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName());
 		}
 		return source;
 	}
@@ -928,7 +1028,7 @@ public class SourceMapper
 	 * If a non-null java element is passed, finds the name range for the 
 	 * given java element without storing it.
 	 */
-	public ISourceRange mapSource(
+	public synchronized ISourceRange mapSource(
 		IType type,
 		char[] contents,
 		IJavaElement searchedElement) {
