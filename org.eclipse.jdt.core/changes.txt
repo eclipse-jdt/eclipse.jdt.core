@@ -108,7 +108,8 @@ STREAM: 2.0
 
   What's new in this drop
   ================================================================================
-
+  * Project references are maintained by the JavaCore, in parallel with build path.
+  
   PRs Fixed in this Release
   ================================================================================
   4923      IJavaProject.getPackageFragmentRoots returns roots from other projects
@@ -127,6 +128,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
+  5426      CodeAssist returns empty completion
   1690		Local variables not always displayed when in scope (1GJ8PX4)
   4368      Wrong match in Java Search  
   3238      CodeAssist - no completion if cursor at string beginning (1GI3BYO)
