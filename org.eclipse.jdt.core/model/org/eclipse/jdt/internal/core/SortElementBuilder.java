@@ -350,6 +350,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	public class SortFieldDeclaration extends SortElement {
+		int previousSourceEnd;
 
 		SortFieldDeclaration(int sourceStart, int modifiers, char[] type, char[] name, int nameSourceStart) {
 			super(sourceStart, modifiers);
@@ -515,11 +516,13 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			this.innerFields[this.fieldCounter++] = fieldDeclaration;
 			this.type = fieldDeclaration.type;
 			this.sourceStart = fieldDeclaration.sourceStart;
+			fieldDeclaration.sourceEnd = fieldDeclaration.previousSourceEnd;
 		}
 		
 		void addField(SortFieldDeclaration fieldDeclaration) {
 			System.arraycopy(this.innerFields, 0, this.innerFields = new SortFieldDeclaration[this.fieldCounter + 1], 0, this.fieldCounter);
 			this.innerFields[this.fieldCounter++] = fieldDeclaration;
+			fieldDeclaration.sourceEnd = fieldDeclaration.previousSourceEnd;
 		}
 		
 		void display(StringBuffer buffer, int tab) {
@@ -799,7 +802,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			int length = this.children_count;
 			int start = this.sourceStart;
 			if (length != 0) {
-				int end = this.firstChildBeforeSorting.sourceStart;
+				int end = this.firstChildBeforeSorting.sourceStart - 1;
 				mapNextPosition(this, start, end);
 				for (int i = 0; i < length; i++) {
 					children[i].mapPositions();
@@ -1133,15 +1136,26 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		int normalizedDeclarationSourceEnd = this.normalizeSourceEnd(declarationSourceEnd);
 		if (this.currentElement.id == SortJavaElement.FIELD) {
-			((SortFieldDeclaration) this.currentElement).declarationSourceEnd = normalizedDeclarationSourceEnd;
+			SortFieldDeclaration fieldDeclaration = (SortFieldDeclaration) this.currentElement;
+			fieldDeclaration.declarationSourceEnd = normalizedDeclarationSourceEnd;
 		}
 		pop(declarationEnd);
 		if (this.currentElement.children != null) {
 			SortElement element = this.currentElement.children[this.currentElement.children_count - 1];
-			if (element.id == SortJavaElement.MULTIPLE_FIELD) {
-				SortMultipleFieldDeclaration multipleFielDeclaration = (SortMultipleFieldDeclaration) element;
-				multipleFielDeclaration.innerFields[multipleFielDeclaration.fieldCounter - 1].declarationSourceEnd = normalizedDeclarationSourceEnd;
-				multipleFielDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
+			switch(element.id) {
+				case SortJavaElement.MULTIPLE_FIELD :
+					SortMultipleFieldDeclaration multipleFielDeclaration = (SortMultipleFieldDeclaration) element;
+					multipleFielDeclaration.innerFields[multipleFielDeclaration.fieldCounter - 1].declarationSourceEnd = normalizedDeclarationSourceEnd;
+					multipleFielDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
+					break;
+				case SortJavaElement.FIELD :
+					SortFieldDeclaration fieldDeclaration = (SortFieldDeclaration) element;
+					/*
+					 * we will revert to the previous source end in case this field is
+					 * part of a multiple field declaration
+					 */
+					fieldDeclaration.previousSourceEnd = fieldDeclaration.sourceEnd;
+					fieldDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
 			}
 		}
 	}
