@@ -3154,19 +3154,6 @@ public class AnnotationTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"@interface ValuesAnnotation {\n" + 
-				"	byte byteValue();\n" + 
-				"	char charValue();\n" + 
-				"	boolean booleanValue();\n" + 
-				"	int intValue();\n" + 
-				"	short shortValue();\n" + 
-				"	long longValue();\n" + 
-				"	float floatValue();\n" + 
-				"	double doubleValue();\n" + 
-				"	String stringValue();\n" + 
-				"	ValuesEnum enumValue();\n" + 
-				"	ValueAttrAnnotation annotationValue();\n" + 
-				"	Class classValue();\n" + 
-				"	\n" + 
 				"	byte[] byteArrayValue();\n" + 
 				"	char[] charArrayValue();\n" + 
 				"	boolean[] booleanArrayValue();\n" + 
@@ -3179,6 +3166,18 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"	ValuesEnum[] enumArrayValue();\n" + 
 				"	ValueAttrAnnotation[] annotationArrayValue();\n" + 
 				"	Class[] classArrayValue();\n" + 
+				"	byte byteValue();\n" + 
+				"	char charValue();\n" + 
+				"	boolean booleanValue();\n" + 
+				"	int intValue();\n" + 
+				"	short shortValue();\n" + 
+				"	long longValue();\n" + 
+				"	float floatValue();\n" + 
+				"	double doubleValue();\n" + 
+				"	String stringValue();\n" + 
+				"	ValuesEnum enumValue();\n" + 
+				"	ValueAttrAnnotation annotationValue();\n" + 
+				"	Class classValue();\n" + 
 				"}\n" + 
 				"enum ValuesEnum {\n" + 
 				"	ONE, TWO;\n" + 

@@ -178,51 +178,56 @@ public abstract class Annotation extends Expression {
 		ReferenceBinding annotationType = (ReferenceBinding) this.resolvedType;
 		MethodBinding[] methods = annotationType.methods();
 		// clone valuePairs to keep track of unused ones
-		MemberValuePair[] valuePairs = memberValuePairs();
+		MemberValuePair[] originalValuePairs = memberValuePairs();
 		MemberValuePair valueAttribute = null; // remember the first 'value' pair
-		MemberValuePair[] usedValuePairs;
-		int pairsLength = valuePairs.length;
-		System.arraycopy(valuePairs, 0, usedValuePairs = new MemberValuePair[pairsLength], 0, pairsLength);
+		MemberValuePair[] pairs;
+		int pairsLength = originalValuePairs.length;
+		System.arraycopy(originalValuePairs, 0, pairs = new MemberValuePair[pairsLength], 0, pairsLength);
 		
 		nextMember: for (int i = 0, requiredLength = methods.length; i < requiredLength; i++) {
 			MethodBinding method = methods[i];
 			char[] selector = method.selector;
 			boolean foundValue = false;
 			nextPair: for (int j = 0; j < pairsLength; j++) {
-				MemberValuePair valuePair = usedValuePairs[j];
-				if (valuePair == null) continue nextPair;
-				char[] memberName = valuePair.name;
-				if (CharOperation.equals(memberName, selector)) {
-					if (valueAttribute == null && CharOperation.equals(memberName, TypeConstants.VALUE)) {
-						valueAttribute = valuePair;
+				MemberValuePair pair = pairs[j];
+				if (pair == null) continue nextPair;
+				char[] name = pair.name;
+				if (CharOperation.equals(name, selector)) {
+					if (valueAttribute == null && CharOperation.equals(name, TypeConstants.VALUE)) {
+						valueAttribute = pair;
 					}
-					valuePair.binding = method;
-					usedValuePairs[j] = null; // consumed
+					pair.binding = method;
+					pair.resolveTypeExpecting(scope, method.returnType);
+					pairs[j] = null; // consumed
 					foundValue = true;
+					
+					// check duplicates
 					boolean foundDuplicate = false;
 					for (int k = j+1; k < pairsLength; k++) {
-						if (CharOperation.equals(usedValuePairs[k].name, selector)) {
+						MemberValuePair otherPair = pairs[k];
+						if (otherPair == null) continue;
+						if (CharOperation.equals(otherPair.name, selector)) {
 							foundDuplicate = true;
-							scope.problemReporter().duplicateAnnotationValue(annotationType, usedValuePairs[k]);
-							usedValuePairs[k].binding = method;
-							usedValuePairs[k] = null;
+							scope.problemReporter().duplicateAnnotationValue(annotationType, otherPair);
+							otherPair.binding = method;
+							otherPair.resolveTypeExpecting(scope, method.returnType);
+							pairs[k] = null;
 						}
 					}
 					if (foundDuplicate) {
-						scope.problemReporter().duplicateAnnotationValue(annotationType, valuePair);
+						scope.problemReporter().duplicateAnnotationValue(annotationType, pair);
 						continue nextMember;
 					}
-					valuePair.resolveTypeExpecting(scope, method.returnType);
 				}
 			}
 			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
-				scope.problemReporter().missingValueForAnnotationMember(this, method.selector);
+				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
-			if (usedValuePairs[i] != null) {
-				scope.problemReporter().undefinedAnnotationValue(annotationType, usedValuePairs[i]);
+			if (pairs[i] != null) {
+				scope.problemReporter().undefinedAnnotationValue(annotationType, pairs[i]);
 			}
 		}
 		// recognize standard annotations ?
