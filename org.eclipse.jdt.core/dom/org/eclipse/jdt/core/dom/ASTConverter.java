@@ -737,7 +737,7 @@ class ASTConverter {
 	}	
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
-		if (checkForParenthesis(expression)) {
+		if ((expression.bits & AstNode.ParenthesizedMASK) != 0) {
 			return convertToParenthesizedExpression(expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.CastExpression) {
@@ -848,6 +848,10 @@ class ASTConverter {
 		parenthesizedExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		adjustSourcePositionsForParent(expression);
 		removeExtraBlanks(expression);
+		// decrement the number of parenthesis
+		int numberOfParenthesis = (expression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		expression.bits &= ~AstNode.ParenthesizedMASK;
+		expression.bits |= (numberOfParenthesis - 1) << AstNode.ParenthesizedSHIFT;
 		parenthesizedExpression.setExpression(convert(expression));
 		return parenthesizedExpression;
 	}
@@ -1446,15 +1450,15 @@ class ASTConverter {
 				infixExpression.setOperator(InfixExpression.Operator.LESS);
 		};
 		
-		if (expression.left instanceof BinaryExpression && !checkForParenthesis(expression.left)) {
+		if (expression.left instanceof BinaryExpression && ((expression.left.bits & AstNode.ParenthesizedMASK) == 0)) {
 			// create an extended string literal equivalent => use the extended operands list
 			infixExpression.extendedOperands().add(convert(expression.right));
 			org.eclipse.jdt.internal.compiler.ast.Expression leftOperand = expression.left;
 			org.eclipse.jdt.internal.compiler.ast.Expression rightOperand = null;
 			do {
 				rightOperand = ((BinaryExpression) leftOperand).right;
-				if ((((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID && !checkForParenthesis(leftOperand))
-				 || ((rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID) && !checkForParenthesis(rightOperand))) {
+				if ((((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID && ((leftOperand.bits & AstNode.ParenthesizedMASK) == 0))
+				 || ((rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID) && ((rightOperand.bits & AstNode.ParenthesizedMASK) == 0))) {
 				 	List extendedOperands = infixExpression.extendedOperands();
 				 	InfixExpression temp = this.ast.newInfixExpression();
 					if (this.resolveBindings) {
@@ -1495,7 +1499,7 @@ class ASTConverter {
 				}
 				infixExpression.extendedOperands().add(0, convert(rightOperand));
 				leftOperand = ((BinaryExpression) leftOperand).left;
-			} while (leftOperand instanceof BinaryExpression && !(checkForParenthesis(leftOperand)));
+			} while (leftOperand instanceof BinaryExpression && ((leftOperand.bits & AstNode.ParenthesizedMASK) == 0));
 			Expression leftExpression = convert(leftOperand);
 			infixExpression.setLeftOperand(leftExpression);
 			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
