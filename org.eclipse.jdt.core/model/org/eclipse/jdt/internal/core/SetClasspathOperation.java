@@ -302,7 +302,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				if (flags != 0) {
 					addClasspathDeltas(
 						project.getPackageFragmentRoots(oldResolvedPath[i]),
-						flags | IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, // TEMPORARY: Need to signal a F_REMOVED_FROM_CLASSPATH so that UI updates correctly
+						flags,
 						delta);
 					hasDelta = true;
 				}
