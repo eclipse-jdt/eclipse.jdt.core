@@ -146,8 +146,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
-		CompilationUnit original = new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
-		underlyingResource = original.getResource();
+		underlyingResource = getResource();
 	}
 	unitInfo.fTimestamp = ((IFile)underlyingResource).getModificationStamp();
 	
@@ -646,7 +645,6 @@ public char[] getMainTypeName(){
  * @see ICompilationUnit#getOriginal()
  */
 public ICompilationUnit getOriginal() {
-	if (!isWorkingCopy()) return null;
 	return new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
 /*
@@ -733,6 +731,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
  * @see IWorkingCopy#getOriginalElement()
  */
 public IJavaElement getOriginalElement() {
+	if (!isWorkingCopy()) return null;
 	return getOriginal();
 }
 protected IType getOriginalType(ArrayList hierarchy) {
