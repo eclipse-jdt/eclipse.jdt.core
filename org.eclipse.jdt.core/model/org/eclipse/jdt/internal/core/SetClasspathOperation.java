@@ -408,18 +408,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		try {		
 			if (!this.canChangeResource) return;
 
-			checkIdentical : {
-				int oldLength = oldRequired.length;
-				if (oldLength == newRequired.length){
-					for (int i = 0; i < oldLength; i++){
-						if (!oldRequired[i].equals(newRequired[i])){
-							break checkIdentical;
-						}
-					}
-					return;
-				}
-			}
-			
 			JavaProject jproject = ((JavaProject) getElementsToProcess()[0]);
 			IProject project = jproject.getProject();
 			IProjectDescription description = project.getDescription();
@@ -442,10 +430,24 @@ public class SetClasspathOperation extends JavaModelOperation {
 				newReferences.add(projectName);
 			}
 
-			IProject[] requiredProjectArray = new IProject[newReferences.size()];
+			Iterator iter;
+			int newSize = newReferences.size();
+			
+			checkIdentity: {
+				if (oldReferences.size() == newSize){
+					iter = newReferences.iterator();
+					while (iter.hasNext()){
+						if (!oldReferences.contains(iter.next())){
+							break checkIdentity;
+						}
+					}
+					return;
+				}
+			}
+			IProject[] requiredProjectArray = new IProject[newSize];
 			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
-			Iterator iter = newReferences.iterator();
 			int index = 0;
+			iter = newReferences.iterator();
 			while (iter.hasNext()){
 				String newName = (String)iter.next();
 				requiredProjectArray[index++] = wksRoot.getProject(newName);
