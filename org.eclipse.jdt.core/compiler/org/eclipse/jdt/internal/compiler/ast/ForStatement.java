@@ -66,9 +66,8 @@ public class ForStatement extends Statement {
 
 		// process the initializations
 		if (initializations != null) {
-			int count = initializations.length, i = 0;
-			while (i < count) {
-				flowInfo = initializations[i++].analyseCode(scope, flowContext, flowInfo);
+			for (int i = 0, count = initializations.length; i < count; i++) {
+				flowInfo = initializations[i].analyseCode(scope, flowContext, flowInfo);
 			}
 		}
 		preCondInitStateIndex =
@@ -145,9 +144,9 @@ public class ForStatement extends Statement {
 		if ((continueLabel != null) && (increments != null)) {
 			LoopingFlowContext loopContext =
 				new LoopingFlowContext(flowContext, this, null, null, scope);
-			int i = 0, count = increments.length;
-			while (i < count)
-				actionInfo = increments[i++].analyseCode(scope, loopContext, actionInfo);
+			for (int i = 0, count = increments.length; i < count; i++) {
+				actionInfo = increments[i].analyseCode(scope, loopContext, actionInfo);
+			}
 			loopContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
 		}
 
