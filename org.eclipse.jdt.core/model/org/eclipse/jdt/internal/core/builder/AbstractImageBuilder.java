@@ -147,6 +147,10 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(String[] filenames, String[] initialTypeNames) {
+
+	String encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+	
 	int toDo = filenames.length;
 	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
 		// do them all now
@@ -155,7 +159,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename); //$NON-NLS-1$
-			toCompile[i] = new SourceFile(filename, initialTypeNames[i]);
+			toCompile[i] = new SourceFile(filename, initialTypeNames[i], encoding);
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -175,7 +179,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
 					String initialTypeName = initialTypeNames[i];
 					initialNamesInLoop[index] = initialTypeName;
-					toCompile[index++] = new SourceFile(filename, initialTypeName);
+					toCompile[index++] = new SourceFile(filename, initialTypeName, encoding);
 				}
 				i++;
 			}

@@ -21,8 +21,10 @@ public class SourceFile implements ICompilationUnit {
 public char[] fileName;
 public char[] mainTypeName;
 public char[][] packageName;
+String encoding;
 
-public SourceFile(String fileName, String initialTypeName) {
+public SourceFile(String fileName, String initialTypeName, String encoding) {
+	
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
@@ -30,14 +32,17 @@ public SourceFile(String fileName, String initialTypeName) {
 	int lastIndex = CharOperation.lastIndexOf('/', typeName);
 	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
+	this.encoding = encoding;
 }
 
-public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
+public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
+	
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
 	this.mainTypeName = mainTypeName;
 	this.packageName = packageName;
+	this.encoding = encoding;
 }
 
 public char[] getContents() {
@@ -45,7 +50,15 @@ public char[] getContents() {
 	BufferedReader reader = null;
 	try {
 		File file = new File(new String(fileName));
-		reader = new BufferedReader(new FileReader(file));
+		InputStreamReader streamReader;
+		
+		// use encoding if any
+		if (this.encoding == null){
+			streamReader = new InputStreamReader(new FileInputStream(file));
+		} else {
+			streamReader = new InputStreamReader(new FileInputStream(file), this.encoding);
+		}
+		reader = new BufferedReader(streamReader);
 		int length = (int) file.length();
 		char[] contents = new char[length];
 		int len = 0;
