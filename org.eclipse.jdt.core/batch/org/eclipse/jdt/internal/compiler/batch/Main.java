@@ -49,6 +49,61 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Main implements ProblemSeverities, SuffixConstants {
 
+	public static class Logger {
+		
+		PrintWriter out;
+		PrintWriter err;
+		PrintWriter log;
+		
+		public Logger(PrintWriter out, PrintWriter err) {
+			this.out = out;
+			this.err = err;
+		}
+		
+		public void setLog(PrintWriter log) {
+			this.log = log;
+		}
+		
+		public void close() {
+			if (log != null) {
+				this.log.close();
+			}
+		}
+		
+		public void flush() {
+			this.out.flush();
+			this.err.flush();
+			if (this.log != null) {
+				this.log.flush();
+			}
+		}
+		
+		public void printErr(String s) {
+			this.err.print(s);
+			if (this.log != null) {
+				this.log.print(s);
+			}
+		}
+		
+		public void printlnErr(String s) {
+			this.err.println(s);
+			if (this.log != null) {
+				this.log.println(s);
+			}
+		}
+		
+		public void printlnOut(String s) {
+			this.out.println(s);
+		}
+		
+		public void printlnOut() {
+			this.out.println();
+		}
+		
+		public void printOut(char c) {
+			this.out.print(c);
+		}
+	}
 	static {
 		relocalize();
 	}
@@ -63,7 +118,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String[] classpaths;
 	public String destinationPath;
 	public String[] encodings;
-	public PrintWriter err;	
+	public Logger logger;	
 	public int exportedClassFilesCounter;
 	public String[] filenames;
 	public boolean generatePackagesStructure;
@@ -78,8 +133,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public Map options; 
 	public CompilerOptions compilerOptions; // read-only
 
-	public PrintWriter out;
-
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
 	public boolean produceRefInfo = false;
@@ -93,8 +146,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 
-		this.out = outWriter;
-		this.err = errWriter;
+		this.logger = new Logger(outWriter, errWriter);
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		this.options = new CompilerOptions().getMap();
 	}
@@ -300,7 +352,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 //					System.out.println(new CompilerOptions(this.options));
 //				}
 				if (this.showProgress)
-					this.out.println(Main.bind("progress.compiling")); //$NON-NLS-1$
+					this.logger.printlnOut(Main.bind("progress.compiling")); //$NON-NLS-1$
 				for (int i = 0; i < this.repetitions; i++) {
 					this.globalProblemsCount = 0;
 					this.globalErrorsCount = 0;
@@ -309,8 +361,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.exportedClassFilesCounter = 0;
 
 					if (this.repetitions > 1) {
-						this.out.flush();
-						this.out.println(
+						this.logger.flush();
+						this.logger.printlnOut(
 							Main.bind(
 								"compile.repetition", //$NON-NLS-1$
 								String.valueOf(i + 1),
@@ -320,41 +372,31 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					performCompilation();
 				}
 				if (this.showProgress)
-					this.out.println();
+					this.logger.printlnOut();
 			}
 			if (this.systemExitWhenFinished) {
-				this.out.flush();
-				this.err.flush();
+				this.logger.flush();
 				System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 			}
 		} catch (InvalidInputException e) {
-			this.err.println(e.getMessage());
+			this.logger.printlnErr(e.getMessage());
 			if (this.systemExitWhenFinished) {
-    			this.out.flush();
-				this.err.flush();
-				if (this.log != null) {
-					this.err.close();
-				}			
+    			this.logger.flush();
+    			this.logger.close();
 				System.exit(-1);
 			}
 			return false;
 		} catch (RuntimeException e) { // internal compiler failure
 			if (this.systemExitWhenFinished) {
-				this.out.flush();
-				this.err.flush();
-				if (this.log != null) {
-					this.err.close();
-				}
+				this.logger.flush();
+				this.logger.close();
 				System.exit(-1);
 			}
 			return false;
 			//e.printStackTrace();
 		} finally {
-			this.out.flush();
-			this.err.flush();
-			if (this.log != null) {
-				this.err.close();
-			}
+			this.logger.flush();
+			this.logger.close();
 		}
 		if (this.globalErrorsCount == 0)
 			return true;
@@ -1169,7 +1211,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
-				this.err.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+				this.logger.printlnErr(Main.bind("configure.noClasspath")); //$NON-NLS-1$
 				classProp = System.getProperty("user.dir"); //$NON-NLS-1$
 			}
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
@@ -1187,7 +1229,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 */
 			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-				this.err.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				this.logger.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				this.proceed = false;
 				return;
 			 }
@@ -1225,7 +1267,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		if (this.log != null) {
 			try {
-				this.err = new PrintWriter(new FileOutputStream(this.log, false));
+				this.logger.setLog(new PrintWriter(new FileOutputStream(this.log, false)));
 			} catch (IOException e) {
 				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
 			}
@@ -1264,7 +1306,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		for (int i = 0, max = this.classpaths.length; i < max; i++) {
 			File file = new File(this.classpaths[i]);
 			if (!file.exists()) { // signal missing classpath entry file
-				this.err.println(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
+				this.logger.printlnErr(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
 			}
 		}
 		if (this.destinationPath == null) {
@@ -1391,7 +1433,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.lineDelta += unitLineCount;
 					if (Main.this.showProgress
 						&& this.lineDelta > 2000) { // in -log mode, dump a dot every 2000 lines compiled
-						Main.this.out.print('.');
+						Main.this.logger.printOut('.');
 						this.lineDelta = 0;
 					}
 				}
@@ -1404,8 +1446,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						if (problems[i] != null) {
 							Main.this.globalProblemsCount++;
 							if (localErrorCount == 0)
-								Main.this.err.println("----------"); //$NON-NLS-1$
-							Main.this.err.print(
+								Main.this.logger.printlnErr("----------"); //$NON-NLS-1$
+							Main.this.logger.printErr(
 								Main.this.globalProblemsCount
 									+ ". "  //$NON-NLS-1$
 									+ (problems[i].isError()
@@ -1416,18 +1458,18 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							} else {
 								Main.this.globalWarningsCount++;
 							}
-							Main.this.err.print(" "); //$NON-NLS-1$
-							Main.this.err.print(
+							Main.this.logger.printErr(" "); //$NON-NLS-1$
+							Main.this.logger.printErr(
 								Main.bind("requestor.in", new String(problems[i].getOriginatingFileName()))); //$NON-NLS-1$
 							try {
-								Main.this.err.println(
+								Main.this.logger.printlnErr(
 									((DefaultProblem) problems[i]).errorReportSource(unitSource));
-								Main.this.err.println(problems[i].getMessage());
+								Main.this.logger.printlnErr(problems[i].getMessage());
 							} catch (Exception e) {
-								Main.this.err.println(
+								Main.this.logger.printlnErr(
 									Main.bind("requestor.notRetrieveErrorMessage", problems[i].toString())); //$NON-NLS-1$
 							}
-							Main.this.err.println("----------"); //$NON-NLS-1$
+							Main.this.logger.printlnErr("----------"); //$NON-NLS-1$
 							if (problems[i].isError())
 								localErrorCount++;
 						}
@@ -1435,8 +1477,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					// exit?
 					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
 						Main.this.printStats();
-						Main.this.err.flush();
-						Main.this.out.flush();
+						Main.this.logger.flush();
 						System.exit(-1);
 					}
 				}
@@ -1565,7 +1606,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					} catch (IOException e) {
 						String fileName = this.destinationPath + new String(relativeName);
 						e.printStackTrace();
-						this.err.println(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
+						this.logger.printlnErr(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
 					}
 					this.exportedClassFilesCounter++;
 				}
@@ -1593,7 +1634,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					} catch (IOException e) {
 						String fileName = this.destinationPath + new String(relativeName);
 						e.printStackTrace();
-						this.err.println(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+						this.logger.printlnErr(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
 					}
 					this.exportedClassFilesCounter++;
 				}
@@ -1633,7 +1674,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 			long time = System.currentTimeMillis() - this.startTime;
 			if (this.lineCount != 0) {
-				this.out.println(
+				this.logger.printlnOut(
 					Main.bind(
 						"compile.instantTime", 	//$NON-NLS-1$
 						new String[] {
@@ -1641,44 +1682,44 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							String.valueOf(time),
 							String.valueOf(((int)(this.lineCount * 10000.0 / time)) / 10.0)}));
 			} else {
-				this.out.println(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+				this.logger.printlnOut(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
 			}
 		}
 		if (this.globalProblemsCount > 0) {
 			if (this.globalProblemsCount == 1) {
-				this.err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+				this.logger.printErr(Main.bind("compile.oneProblem")); //$NON-NLS-1$
 			} else {
-				this.err.print(
+				this.logger.printErr(
 					Main.bind("compile.severalProblems", String.valueOf(this.globalProblemsCount))); 	//$NON-NLS-1$
 			}
-			this.err.print(" ("); //$NON-NLS-1$
+			this.logger.printErr(" ("); //$NON-NLS-1$
 			if (this.globalErrorsCount > 0) {
 				if (this.globalErrorsCount == 1) {
-					this.err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
+					this.logger.printErr(Main.bind("compile.oneError")); //$NON-NLS-1$
 				} else {
-					this.err.print(
+					this.logger.printErr(
 						Main.bind("compile.severalErrors", String.valueOf(this.globalErrorsCount))); 	//$NON-NLS-1$
 				}
 			}
 			if (this.globalWarningsCount > 0) {
 				if (this.globalErrorsCount > 0) {
-					this.err.print(", "); //$NON-NLS-1$
+					this.logger.printErr(", "); //$NON-NLS-1$
 				}
 				if (this.globalWarningsCount == 1) {
-					this.err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
+					this.logger.printErr(Main.bind("compile.oneWarning")); //$NON-NLS-1$
 				} else {
-					this.err.print(
+					this.logger.printErr(
 						Main.bind("compile.severalWarnings", String.valueOf(this.globalWarningsCount))); 	//$NON-NLS-1$
 				}
 			}
-			this.err.println(")"); //$NON-NLS-1$
+			this.logger.printlnErr(")"); //$NON-NLS-1$
 		}
 		if (this.exportedClassFilesCounter != 0
 			&& (this.showProgress || this.timing || this.verbose)) {
 			if (this.exportedClassFilesCounter == 1) {
-				this.out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+				this.logger.printlnOut(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
 			} else {
-				this.out.println(
+				this.logger.printlnOut(
 					Main.bind(
 						"compile.severalClassFilesGenerated", //$NON-NLS-1$
 						String.valueOf(this.exportedClassFilesCounter)));
@@ -1686,13 +1727,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 	}
 	public void printUsage() {
-		this.out.println(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
-		this.out.flush();
-		this.err.flush();
+		this.logger.printlnOut(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
+		this.logger.flush();
 	}
 	public void printVersion() {
-		this.out.println(Main.bind("misc.version"));  //$NON-NLS-1$
-		this.out.flush();
-		this.err.flush();
+		this.logger.printlnOut(Main.bind("misc.version"));  //$NON-NLS-1$
+		this.logger.flush();
 	}
 }
