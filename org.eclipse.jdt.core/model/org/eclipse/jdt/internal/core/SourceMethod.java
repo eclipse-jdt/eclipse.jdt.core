@@ -174,6 +174,16 @@ public String getSignature() throws JavaModelException {
 	return info.getSignature();
 }
 /**
+ * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()
+ */
+public int hashCode() {
+   int hash = super.hashCode();
+	for (int i = 0, length = fParameterTypes.length; i < length; i++) {
+	    hash = Util.combineHashCodes(fParameterTypes[i].hashCode(), hash);
+	}
+	return hash;
+}
+/**
  * @see IMethod
  */
 public boolean isConstructor() throws JavaModelException {

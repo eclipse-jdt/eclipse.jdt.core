@@ -244,6 +244,16 @@ public String getSignature() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return new String(info.getMethodDescriptor());
 }
+/**
+ * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()
+ */
+public int hashCode() {
+   int hash = super.hashCode();
+	for (int i = 0, length = parameterTypes.length; i < length; i++) {
+	    hash = Util.combineHashCodes(parameterTypes[i].hashCode(), hash);
+	}
+	return hash;
+}
 /*
  * @see IMethod
  */
