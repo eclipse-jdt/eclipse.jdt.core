@@ -21,6 +21,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	public int lastAct ; //handle for multiple parsing goals
 	protected ReferenceContext referenceContext;
 	public int currentToken;
+	private int synchronizedBlockSourceStart;
 
 	//error recovery management
 	protected final static boolean ENABLE_RECOVERY = true;
@@ -2645,6 +2646,7 @@ protected void consumeOneDimLoop() {
 }
 protected void consumeOnlySynchronized() {
 	// OnlySynchronized ::= 'synchronized'
+	pushOnIntStack(this.synchronizedBlockSourceStart);
 	resetModifiers();
 }
 protected void consumeOpenBlock() {
@@ -4251,7 +4253,7 @@ protected void consumeToken(int type) {
 			checkAndSetModifiers(AccStatic);
 			break;
 		case TokenNamesynchronized :
-			pushOnIntStack(scanner.startPosition);			
+			this.synchronizedBlockSourceStart = scanner.startPosition;	
 			checkAndSetModifiers(AccSynchronized);
 			break;
 			//==============================

@@ -13,4 +13,5 @@ getDeclaredModifiers
 
 Look at MessageSend.
 
+See PR 7386
 
