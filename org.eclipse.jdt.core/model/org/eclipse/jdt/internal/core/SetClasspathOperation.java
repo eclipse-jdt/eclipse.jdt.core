@@ -124,7 +124,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		return -1;
 	}
 	/**
-	 * Computes whether a cycle check is needed and update the needCycleCheck field.
+	 * Computes whether a cycle check is needed and updates the needCycleCheck field.
 	 */
 	protected void computeCycleCheck(
 		IClasspathEntry[] oldResolvedPath,
