@@ -335,7 +335,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 	try {
 		String encoding = null;
 		try {
-			this.file.getCharset();
+			encoding = this.file.getCharset();
 		}
 		catch (CoreException ce) {
 			// use no encoding
