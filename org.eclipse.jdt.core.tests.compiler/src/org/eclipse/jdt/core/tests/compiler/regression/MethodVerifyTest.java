@@ -898,12 +898,11 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 		);
 	}
 
-	// TODO (philippe) Problem with ParameterizedGenericMethodBinding.computeCompatibleMethod()
-	public void _test016() { // 73971
+	public void test016() { // 73971
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"class X {\n" + 
+				"public class X {\n" + 
 				"	static <E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
 				"	static <E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
 				"	public static void main(String[] args) {\n" + 

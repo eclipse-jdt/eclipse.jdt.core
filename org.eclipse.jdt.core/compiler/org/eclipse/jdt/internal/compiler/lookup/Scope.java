@@ -243,6 +243,9 @@ public abstract class Scope
 			}
 		}
 
+//		if (method.areParametersCompatibleWith(arguments)) {
+//			return method;
+//		}
 		argumentCompatibility: {
 			int lastIndex = argLength;
 			if (isVarArgs) {
@@ -1038,6 +1041,8 @@ public abstract class Scope
 		if (compilationUnitScope().environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			for (int i = 0; i < candidatesCount; i++) {
 				MethodBinding current = candidates[i];
+				if (current instanceof ParameterizedGenericMethodBinding)
+					current = ((ParameterizedGenericMethodBinding) current).originalMethod;
 				if (current instanceof ParameterizedMethodBinding)
 					for (int j = i + 1; j < candidatesCount; j++)
 						if (current.declaringClass == candidates[j].declaringClass && current.areParametersEqual(candidates[j]))
@@ -2881,40 +2886,35 @@ public abstract class Scope
 		return problemMethod;
 	}
 
-	// Internal use only
-	/* All methods in visible are acceptable matches for the method in question...
-	* Since 1.4, the inherited ambiguous case has been removed from mostSpecificClassMethodBinding
-	*/
-	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-		boolean varargsStatus = visible[0].isVarargs();
-		for (int i = 1; i < visibleSize; i++) {
-			if (visible[i].isVarargs() != varargsStatus) {
-				// visible is a mix of fixed & variable arity methods, so double check the varargs methods, but consider their vararg argument as a fixed array
-				MethodBinding[] temp = new MethodBinding[visibleSize];
-				int newSize = 0;
-				for (int j = 0; j < visibleSize; j++)
-					if (!visible[j].isVarargs() || computeCompatibleMethod(visible[j], argumentTypes, invocationSite, false) != null)
-						temp[newSize++] = visible[j];
-				visible = temp;
-				visibleSize = newSize;
-				break;
+		protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+			boolean varargsStatus = visible[0].isVarargs();
+			for (int i = 1; i < visibleSize; i++) {
+				if (visible[i].isVarargs() != varargsStatus) {
+					// visible is a mix of fixed & variable arity methods, so double check the varargs methods, but consider their vararg argument as a fixed array
+					MethodBinding[] temp = new MethodBinding[visibleSize];
+					int newSize = 0;
+					for (int j = 0; j < visibleSize; j++)
+						if (!visible[j].isVarargs() || computeCompatibleMethod(visible[j], argumentTypes, invocationSite, false) != null)
+							temp[newSize++] = visible[j];
+					visible = temp;
+					visibleSize = newSize;
+					break;
+				}
 			}
-		}
-
-		MethodBinding method = null;
-		nextVisible : for (int i = 0; i < visibleSize; i++) {
-			method = visible[i];
-			for (int j = 0; j < visibleSize; j++) {
-				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite, false);
-				if (compatibleMethod == null)
-					continue nextVisible;
+	
+			MethodBinding method = null;
+			nextVisible : for (int i = 0; i < visibleSize; i++) {
+				method = visible[i];
+				for (int j = 0; j < visibleSize; j++) {
+					if (i == j) continue;
+					if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters))
+						continue nextVisible;
+				}
+				compilationUnitScope().recordTypeReferences(method.thrownExceptions);
+				return method;
 			}
-			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-			return method;
-		}
-		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
-	}	
+			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
+		}	
 
 	public final ClassScope outerMostClassScope() {
 		ClassScope lastClassScope = null;

@@ -11183,4 +11183,87 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"Bound mismatch: The generic method foo() of type X is not applicable for the arguments () since the type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" + 
 		"----------\n");
 	}	
+	
+	public void test424() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	<T extends A> T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"	}\n" + 
+				"	void bar() {\n" + 
+				"		B b = foo(new B());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n" + 
+				"\n",
+			},
+		"");
+	}		
+	
+	// check tiebreak eliminates related generic methods which are less specific
+	public void test425() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static <E extends A> void m(E e) { System.out.println(\"A:\"+e.getClass()); }\n" + 
+				"    static <F extends B> void m(F f) throws Exception { System.out.println(\"B:\"+f.getClass()); }\n" + 
+				"    static <G extends C> void m(G g) throws IOException { System.out.println(\"C:\"+g.getClass()); }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        m(new A());\n" + 
+				"        m(new B());\n" + 
+				"        m(new C());\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n" + 
+				"class C extends A {}\n" + 
+				"\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	m(new B());\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	m(new C());\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n");
+	}			
+	
+	// check inferred return types are truly based on arguments, and not on parameter erasures
+	public void test426() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <E extends A> E m(E e) { System.out.print(\"[A:\"+e.getClass()+\"]\"); return e; }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        A a = m(new A());\n" + 
+				"        B b = m(new B());\n" + 
+				"        C c = m(new C());\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n" + 
+				"class C extends A {}\n",
+			},
+			"[A:class A][A:class B][A:class C]");
+	}				
 }

@@ -73,6 +73,34 @@ public final boolean areParametersEqual(MethodBinding method) {
 			return false;
 	return true;
 }
+public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
+	int paramLength = this.parameters.length;
+	int argLength = arguments.length;
+	int lastIndex = argLength;
+	if (isVarargs()) {
+		lastIndex = paramLength - 1;
+		if (paramLength == argLength) { // accept both X and X[] but not X[][]
+			TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
+			TypeBinding lastArgument = arguments[lastIndex];
+			if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
+				return false;
+			}
+		} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
+			TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
+			for (int i = lastIndex; i < argLength; i++)
+				if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
+					return false;
+		} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
+			return false;
+		}
+		// now compare standard arguments from 0 to lastIndex
+	}
+	for (int i = 0; i < lastIndex; i++)
+		if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
+			return false;
+	return true;
+}
+
 /* Answer true if the argument types & the receiver's parameters have the same erasure
 */
 public final boolean areParameterErasuresEqual(MethodBinding method) {
@@ -662,6 +690,13 @@ public String toString() {
 		s += "NULL THROWN EXCEPTIONS"; //$NON-NLS-1$
 	}
 	return s;
+}
+/**
+ * Returns the method to use during tiebreak (usually the method itself).
+ * For generic method invocations, tiebreak needs to use generic method with erasure substitutes.
+ */
+public MethodBinding tiebreakMethod() {
+	return this;
 }
 public TypeVariableBinding[] typeVariables() {
 	return this.typeVariables;

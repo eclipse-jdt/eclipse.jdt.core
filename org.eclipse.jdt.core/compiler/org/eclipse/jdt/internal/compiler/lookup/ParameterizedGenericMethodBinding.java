@@ -28,6 +28,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     public boolean inferredReturnType;
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     public boolean isRaw; // set to true for method behaving as raw for substitution purpose
+    public MethodBinding tiebreakMethod;
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
@@ -341,4 +342,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    }
 	    return originalType;
 	}
+	/**
+	 * Returns the method to use during tiebreak (usually the method itself).
+	 * For generic method invocations, tiebreak needs to use generic method with erasure substitutes.
+	 */
+	public MethodBinding tiebreakMethod() {
+		if (this.tiebreakMethod == null) {
+			this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+		} 
+		return this.tiebreakMethod;
+	}	
 }
