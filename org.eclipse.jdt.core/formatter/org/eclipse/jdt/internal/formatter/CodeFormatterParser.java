@@ -35,7 +35,6 @@ public class CodeFormatterParser extends Parser {
 		goForExpression();
 		nestedMethod[nestedType]++;
 	
-		// TODO check if it works fine
 		referenceContext = unit;
 		compilationUnit = unit;
 	
