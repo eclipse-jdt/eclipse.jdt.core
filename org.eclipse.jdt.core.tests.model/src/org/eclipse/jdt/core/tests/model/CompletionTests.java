@@ -120,6 +120,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance1"));
 	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance2"));
 	suite.addTest(new CompletionTests("testCompletionReturnInInitializer"));
+	suite.addTest(new CompletionTests("testCompletionVariableName1"));
+	suite.addTest(new CompletionTests("testCompletionVariableName2"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -2183,6 +2185,40 @@ public void testCompletionReturnInInitializer() throws JavaModelException {
 
 	assertEquals(
 		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25811
+*/
+public void testCompletionVariableName1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableName1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "TEST_FOO_MyClass ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25811
+*/
+public void testCompletionVariableName2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableName2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Test_Bar_MyClass ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }

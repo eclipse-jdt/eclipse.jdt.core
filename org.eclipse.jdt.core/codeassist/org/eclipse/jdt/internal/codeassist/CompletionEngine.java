@@ -2882,9 +2882,11 @@ public final class CompletionEngine
 		char[][] names = new char[5][];
 		int nameCount = 0;
 		boolean previousIsUpperCase = false;
+		boolean previousIsLetter = true;
 		for(int i = sourceName.length - 1 ; i >= 0 ; i--){
 			boolean isUpperCase = Character.isUpperCase(sourceName[i]);
-			if(isUpperCase && !previousIsUpperCase){
+			boolean isLetter = Character.isLetter(sourceName[i]);
+			if(isUpperCase && !previousIsUpperCase && previousIsLetter){
 				char[] name = CharOperation.subarray(sourceName,i,sourceName.length);
 				if(name.length > 1){
 					if(nameCount == names.length) {
@@ -2907,6 +2909,7 @@ public final class CompletionEngine
 				}
 			}
 			previousIsUpperCase = isUpperCase;
+			previousIsLetter = isLetter;
 		}
 		if(nameCount == 0){
 			char[] name = CharOperation.toLowerCase(sourceName);
