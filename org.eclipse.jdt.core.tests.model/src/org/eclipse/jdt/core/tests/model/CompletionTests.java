@@ -49,12 +49,12 @@ protected static void assertResults(String expected, String actual) {
 public static Test suite() {
 	TestSuite suite = new Suite(CompletionTests.class.getName());
 	
-	if(true) {
+	if(false) {
 		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
 	} else {
 		// basic test
 		suite.addTest(new CompletionTests("testCompletionBasicPackage1"));
-		suite.addTest(new CompletionTests("testCompletionBasicPackage1"));
+		suite.addTest(new CompletionTests("testCompletionBasicType1"));
 		suite.addTest(new CompletionTests("testCompletionBasicField1"));
 		suite.addTest(new CompletionTests("testCompletionBasicMethod1"));
 		suite.addTest(new CompletionTests("testCompletionBasicLocalVariable1"));
