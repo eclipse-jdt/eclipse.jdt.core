@@ -772,7 +772,7 @@ public int getNextToken() throws InvalidInputException {
 						}
 					}
 					isWhiteSpace = 
-						(currentCharacter == ' ') || Character.isWhitespace(currentCharacter); 
+						(currentCharacter == ' ') || isWhitespace(currentCharacter); 
 				}
 				if (isWhiteSpace) {
 					hasWhiteSpaces = true;
@@ -1318,7 +1318,7 @@ public final void jumpOverMethodBody() {
 					if (recordLineSeparator
 						&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
 						pushLineSeparator();
-					isWhiteSpace = Character.isWhitespace(currentCharacter);
+					isWhiteSpace = isWhitespace(currentCharacter);
 				}
 			} while (isWhiteSpace);
 
@@ -1597,7 +1597,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 		if (recordLineSeparator
 			&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
 			pushLineSeparator();
-		if (Character.isWhitespace(currentCharacter))
+		if (isWhitespace(currentCharacter))
 			return true;
 
 		//buffer the new char which is not a white space
@@ -1618,6 +1618,37 @@ public final int[] getLineEnds() {
 
 public char[] getSource(){
 	return this.source;
+}
+
+public static boolean isWhitespace(char c) {
+	if (Character.isWhitespace(c)) {
+		switch(c) {
+			case 11 :
+			case 12288 :
+			case 28 :
+			case 29 :
+			case 30 :
+			case 31 :
+			case 5760 :
+			case 8192 :
+			case 8193 :
+			case 8194 :
+			case 8195 :
+			case 8196 :
+			case 8197 :
+			case 8198 :
+			case 8200 :
+			case 8201 :
+			case 8202 :
+			case 8203 :
+			case 8232 :
+			case 8233 :
+				return false;
+			default :
+				return true;
+		}
+	}
+	return false;
 }
 final char[] optimizedCurrentTokenSource1() {
 	//return always the same char[] build only once

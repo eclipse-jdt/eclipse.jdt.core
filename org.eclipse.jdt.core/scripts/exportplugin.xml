@@ -14,6 +14,13 @@
 	</antcall>
 </target>
 
+<target name="export plug-in [_2.1.0] (directory structure)" depends="zz_init">
+	<antcall target="zz_internal_export_structure">
+		<param name="bin_dest" value="${export-dir}/eclipse/plugins/org.eclipse.jdt.core_2.1.0"/>
+		<param name="src_dest" value="${export-dir}/eclipse/plugins/org.eclipse.jdt.source_2.1.0/src/org.eclipse.jdt.core_2.1.0"/>
+	</antcall>
+</target>
+
 <target name="export plug-in [_2.0.1]" depends="zz_init">
 	<antcall target="zz_internal_export">
 		<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.1"/>
@@ -72,6 +79,54 @@
 
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${dest}/jdtcoresrc.zip">
+	    <zipfileset dir="antadapter" />
+	    <zipfileset dir="batch" />
+	    <zipfileset dir="codeassist" />
+	    <zipfileset dir="compiler" />
+	    <zipfileset dir="dom" />
+	    <zipfileset dir="eval" />
+	    <zipfileset dir="formatter" />
+	    <zipfileset dir="model" />
+	    <zipfileset dir="search" />
+	</zip>		
+</target>
+
+<target name="zz_internal_export_structure">
+
+	<tstamp/>
+
+	<echo message="TARGET: ${export-dir}" />
+	<mkdir dir="${export-dir}" />
+	<delete dir="${bin_dest}" />
+	<delete dir="${src_dest}" />
+	<mkdir dir="${bin_dest}" />
+	<mkdir dir="${src_dest}" />
+
+	<echo message="UPDATE jdtcore.jar" />
+	<jar 
+		jarfile="${bin_dest}/jdtcore.jar"
+		basedir="bin" 
+		excludes="**/JDTCompilerAdapter.class"/>
+		
+	<echo message="UPDATE jdtCompilerAdapter.jar" />
+	<jar 
+		jarfile="${bin_dest}/jdtCompilerAdapter.jar"
+		basedir="bin" 
+		includes="**/JDTCompilerAdapter.class"/>
+
+	<echo message="UPDATE plugin.xml" />
+	<copy file="plugin.xml" todir="${bin_dest}" />
+	<echo message="UPDATE plugin.properties" />
+	<copy file="plugin.properties" todir="${bin_dest}" />
+
+	<echo message="UPDATE .options" />
+	<copy file=".options" todir="${bin_dest}" />
+
+	<echo message="UPDATE about.html" />
+	<copy file="about.html" todir="${bin_dest}" />
+
+	<echo message="UPDATE jdtcoresrc.zip" />
+	<zip zipfile="${src_dest}/jdtcoresrc.zip">
 	    <zipfileset dir="antadapter" />
 	    <zipfileset dir="batch" />
 	    <zipfileset dir="codeassist" />

@@ -173,7 +173,7 @@ public int getNextToken() throws InvalidInputException {
 						&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
 						pushLineSeparator();
 					isWhiteSpace = 
-						(currentCharacter == ' ') || Character.isWhitespace(currentCharacter); 
+						(currentCharacter == ' ') || isWhitespace(currentCharacter); 
 				}
 				/* completion requesting strictly inside blanks */
 				if ((whiteStart != currentPosition)

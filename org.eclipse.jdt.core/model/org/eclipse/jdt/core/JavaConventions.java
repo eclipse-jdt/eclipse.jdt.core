@@ -358,7 +358,7 @@ public final class JavaConventions {
 		if (name.charAt(0) == fgDot || name.charAt(length-1) == fgDot) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"), null); //$NON-NLS-1$
 		}
-		if (Character.isWhitespace(name.charAt(0)) || Character.isWhitespace(name.charAt(name.length() - 1))) {
+		if (Scanner.isWhitespace(name.charAt(0)) || Scanner.isWhitespace(name.charAt(name.length() - 1))) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"), null); //$NON-NLS-1$
 		}
 		int dot = 0;

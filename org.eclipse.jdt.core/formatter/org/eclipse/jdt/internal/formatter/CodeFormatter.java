@@ -2477,7 +2477,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 				indexToMap = positionsToMap.length; // no more mapping
 				return;
 			}
-			if (Character.isWhitespace(source[posToMap])) {
+			if (Scanner.isWhitespace(source[posToMap])) {
 				mappedPositions[indexToMap] = startPosition + globalDelta + lineDelta;
 			} else {
 				if (posToMap == sourceLength - 1) {
