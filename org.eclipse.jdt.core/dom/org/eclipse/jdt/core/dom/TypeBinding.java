@@ -858,7 +858,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isParameterizedType()
 	 */
 	public boolean isParameterizedType() {
-		return this.binding.isParameterizedType();
+		return this.binding.isParameterizedType() && ((ParameterizedTypeBinding) this.binding).arguments != null;
 	}
 	
 	/*
