@@ -66,10 +66,12 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		public void acceptBinding(String bindingKey, IBinding binding) {
 			this.bindings.put(bindingKey, binding);
 		}
-		public IBinding[] getBindings() {
+		public IBinding[] getBindings(String[] bindingKeys) {
 			int length = this.bindings.size();
 			IBinding[] result = new IBinding[length];
-			this.bindings.values().toArray(result);
+			for (int i = 0; i < length; i++) {
+				result[i] = (IBinding) this.bindings.get(bindingKeys[i]);
+			}
 			return result;
 		}
 	}
@@ -265,7 +267,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	protected IBinding[] resolveBindings(String[] bindingKeys, IJavaProject project, WorkingCopyOwner owner) {
 		BindingRequestor requestor = new BindingRequestor();
 		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
-		return requestor.getBindings();
+		return requestor.getBindings(bindingKeys);
 	}
 	
 }

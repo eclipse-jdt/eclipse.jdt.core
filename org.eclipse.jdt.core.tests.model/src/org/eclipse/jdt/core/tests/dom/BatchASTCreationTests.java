@@ -928,12 +928,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			);
 			BindingRequestor requestor = new BindingRequestor();
-			resolveASTs(
-				new ICompilationUnit[] {workingCopy}, 
+			String[] bindingKeys = 
 				new String[] {
 					"LX;",
 					"LX;.field"
-				},
+				};
+			resolveASTs(
+				new ICompilationUnit[] {workingCopy}, 
+				bindingKeys,
 				requestor,
 				getJavaProject("P"),
 				workingCopy.getOwner()
@@ -941,7 +943,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			assertBindingsEqual(
 				"LX;\n" + 
 				"LX;.field",
-				requestor.getBindings());
+				requestor.getBindings(bindingKeys));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
