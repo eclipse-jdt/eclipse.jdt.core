@@ -146,7 +146,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
-
 		this(outWriter, errWriter, systemExitWhenFinished, null);
 	}
 	
