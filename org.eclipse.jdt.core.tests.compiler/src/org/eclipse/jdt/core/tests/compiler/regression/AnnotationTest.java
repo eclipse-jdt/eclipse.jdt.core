@@ -2824,4 +2824,33 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"");
 	}
+	// @Inherited can only be used on annotation types
+	public void test093() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Inherited;\n" + 
+				"\n" + 
+				"@Deprecated\n" + 
+				"@Inherited\n" + 
+				"class A {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class B extends A {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class C extends B {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	C c;\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	@Inherited\r\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The annotation @Inherited is disallowed for this location\n" + 
+		"----------\n");
+	}	
 }
