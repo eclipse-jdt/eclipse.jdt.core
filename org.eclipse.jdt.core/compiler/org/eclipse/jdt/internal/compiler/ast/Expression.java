@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -418,15 +417,12 @@ public abstract class Expression extends Statement {
 				MethodBinding[] expressionTypeMethods =
 					getAllInheritedMethods((ReferenceBinding) expressionType);
 				int exprMethodsLength = expressionTypeMethods.length;
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
+				MethodVerifier verifier = env.methodVerifier();
 				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
-					for (int j = 0; j < exprMethodsLength; j++) {
-						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
-								&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
-								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+					for (int j = 0; j < exprMethodsLength; j++)
+						if (verifier.doReturnTypesCollide(castTypeMethods[i], expressionTypeMethods[j]))
 							return false;
-
-						}
-					}
 				}
 			}
 		}
