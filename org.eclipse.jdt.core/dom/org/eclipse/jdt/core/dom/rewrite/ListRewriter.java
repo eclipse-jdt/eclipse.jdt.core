@@ -25,7 +25,11 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 /**
- * TODO - missing spec
+ * For describing manipulations to a child list property of an AST node.
+ * <p>
+ * This class is not intended to be subclassed.
+ * </p>
+ * @see NewASTRewrite#getListRewrite(ASTNode, ChildListPropertyDescriptor)
  * @since 3.0
  */
 public final class ListRewriter {
@@ -50,116 +54,186 @@ public final class ListRewriter {
 	}
 	
 	/**
-	 * Marks the given node as removed. The node must be contained in the list.
-	 * @param nodeToRemove The node to be marked as removed.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException Thrown when the node to remove is not a member
-	 * of the original list.
+	 * Removes the given node from its parent's list property in the rewriter.
+	 * The node must be contained in the list.
+	 * The AST itself is not actually modified in any way; rather, the rewriter
+	 * just records a note that this node has been removed from this list.
+	 * 
+	 * @param node the node being removed
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not
+	 * part of this rewriter's AST, or if the described modification is invalid
+	 * (not a member of this node's original list)
 	 */
-	public void remove(ASTNode nodeToRemove, TextEditGroup editGroup) {
-		RewriteEvent event= getEvent().removeEntry(nodeToRemove);
+	public void remove(ASTNode node, TextEditGroup editGroup) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
+		RewriteEvent event= getEvent().removeEntry(node);
 		if (editGroup != null) {
 			getRewriteStore().setEventEditGroup(event, editGroup);
 		}
 	}
 
 	/**
-	 * Marks the given node as replaced. The node must be contained in the list.
-	 * @param nodeToReplace The node to be marked as replaced
-	 *	@param replacingNode The replacing node. The replacing node must be a new node. Use placeholder
-	 *	nodes to replace with a copied or moved node.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException Thrown when the node to replace is not a member
-	 * of the original list or when the replacing node is not a new node.
+	 * Replaces the given node from its parent's list property in the rewriter.
+	 * The node must be contained in the list.
+	 * The replacement node must either be brand new (not part of the original AST)
+	 * or a placeholder node (for example, one created by
+	 * {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node has been replaced in this list.
+	 * 
+	 * @param node the node being replaced
+	 * @param replacement the replacement node, or <code>null</code> if no
+	 * replacement
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not part
+	 * of this rewriter's AST, or if the replacement node is not a new node (or
+     * placeholder), or if the described modification is otherwise invalid
+     * (not a member of this node's original list)
 	 */
-	public void replace(ASTNode nodeToReplace, ASTNode replacingNode, TextEditGroup editGroup) {
-		RewriteEvent event= getEvent().replaceEntry(nodeToReplace, replacingNode);
+	public void replace(ASTNode node, ASTNode replacement, TextEditGroup editGroup) {
+		if (node == null) { 
+			throw new IllegalArgumentException();
+		}
+		RewriteEvent event= getEvent().replaceEntry(node, replacement);
 		if (editGroup != null) {
 			getRewriteStore().setEventEditGroup(event, editGroup);
 		}
 	}
 
 	/**
-	 * Marks the node as inserted in the list after a given existing node. The existing node must be in the list, either as an original or as a new
-	 * node already marked as inserted.
-	 * @param nodeToInsert The node to insert. The inserted node must be a new node. Use placeholder
-	 *	nodes to insert a copied or moved node.
-	 *	@param nodeBefore The node to be before the node to insert.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException Thrown when the existing node is not a member
-	 * of the list (original or new) or when the inserted node is not a new node.
+	 * Inserts the given node into the list after the given element. 
+	 * The existing node must be in the list, either as an original or as a new
+	 * node that has been inserted.
+	 * The inserted node must either be brand new (not part of the original AST)
+	 * or a placeholder node (for example, one created by
+	 * {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node has been inserted into the list.
+	 * 
+	 * @param node the node to insert
+	 * @param element the element after which the given node is to be inserted
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node or element is null, 
+	 * or if the node is not part of this rewriter's AST, or if the inserted node
+	 * is not a new node (or placeholder), or if <code>element</code> is not a member
+	 * of the list (original or new), or if the described modification is
+	 * otherwise invalid
 	 */
-	public void insertAfter(ASTNode nodeToInsert, ASTNode nodeBefore, TextEditGroup editGroup) {
-		int index= getEvent().getIndex(nodeBefore, ListRewriteEvent.BOTH);
+	public void insertAfter(ASTNode node, ASTNode element, TextEditGroup editGroup) {
+		if (node == null || element == null) { 
+			throw new IllegalArgumentException();
+		}
+		int index= getEvent().getIndex(element, ListRewriteEvent.BOTH);
 		if (index == -1) {
 			throw new IllegalArgumentException("Node does not exist"); //$NON-NLS-1$
 		}
-		insertAt(nodeToInsert, index + 1, editGroup);
+		insertAt(node, index + 1, editGroup);
 	}
 	
 	/**
-	 * Marks the node as inserted in the list before a given existing node. The existing node must be in the list, either as an original or as a new
-	 * node already marked as inserted.
-	 * @param nodeToInsert The node to insert. The inserted node must be a new node. Use placeholder
-	 *	nodes to insert a copied or moved node.
-	 *	@param nodeAfter The node to be after the node to insert.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException Thrown when the existing node is not a member
-	 * of the list or when the inserted node is not a new node.
+	 * Inserts the given node into the list before the given element. 
+	 * The existing node must be in the list, either as an original or as a new
+	 * node that has been inserted.
+	 * The inserted node must either be brand new (not part of the original AST)
+	 * or a placeholder node (for example, one created by
+	 * {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node has been inserted into the list.
+	 * 
+	 * @param node the node to insert
+	 * @param element the element before which the given node is to be inserted
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node or element is null, 
+	 * or if the node is not part of this rewriter's AST, or if the inserted node
+	 * is not a new node (or placeholder), or if <code>element</code> is not a member
+	 * of the list (original or new), or if the described modification is
+	 * otherwise invalid
 	 */
-	public void insertBefore(ASTNode nodeToInsert, ASTNode nodeAfter, TextEditGroup editGroup) {
-		int index= getEvent().getIndex(nodeAfter, ListRewriteEvent.BOTH);
+	public void insertBefore(ASTNode node, ASTNode element, TextEditGroup editGroup) {
+		if (node == null || element == null) { 
+			throw new IllegalArgumentException();
+		}
+		int index= getEvent().getIndex(element, ListRewriteEvent.BOTH);
 		if (index == -1) {
 			throw new IllegalArgumentException("Node does not exist"); //$NON-NLS-1$
 		}
-		insertAt(nodeToInsert, index, editGroup);
+		insertAt(node, index, editGroup);
 	}
 	
 	/**
-	 * Marks the node as inserted in the list as first element.
-	 * @param nodeToInsert The node to insert. The inserted node must be a new node. Use placeholder
-	 *	nodes to insert a copied or moved node.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException When the inserted node is not a new node.
+	 * Inserts the given node into the list at the start of the list.
+	 * Equivalent to <code>insertAt(node, 0, editGroup)</code>. 
+	 * 
+	 * @param node the node to insert
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not part
+	 * of this rewriter's AST, or if the inserted node is not a new node (or
+     * placeholder), or if the described modification is otherwise invalid
+     * (not a member of this node's original list)
+     * @see #insertAt(ASTNode, int, TextEditGroup)
 	 */
-	public void insertFirst(ASTNode nodeToInsert, TextEditGroup editGroup) {
-		insertAt(nodeToInsert, 0, editGroup);
+	public void insertFirst(ASTNode node, TextEditGroup editGroup) {
+		insertAt(node, 0, editGroup);
 	}
 	
 	/**
-	 * Marks the node as inserted in the list as last element.
-	 * @param nodeToInsert The node to insert. The inserted node must be a new node. Use placeholder
-	 *	nodes to insert a copied or moved node.
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException When the inserted node is not a new node.
+	 * Inserts the given node into the list at the end of the list.
+	 * Equivalent to <code>insertAt(node, -1, editGroup)</code>. 
+	 * 
+	 * @param node the node to insert
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not part
+	 * of this rewriter's AST, or if the inserted node is not a new node (or
+     * placeholder), or if the described modification is otherwise invalid
+     * (not a member of this node's original list)
+     * @see #insertAt(ASTNode, int, TextEditGroup)
 	 */
-	public void insertLast(ASTNode nodeToInsert, TextEditGroup editGroup) {
-		insertAt(nodeToInsert, -1, editGroup);
+	public void insertLast(ASTNode node, TextEditGroup editGroup) {
+		insertAt(node, -1, editGroup);
 	}
 
 	/**
-	 * Marks the node as inserted in the list at a given index. The index correspods to a combined list of original and new
-	 * nodes: Nodes remarked as removed are still in this list. 
-	 * @param nodeToInsert The node to insert. The inserted node must be a new node. Use placeholder
-	 *	nodes to insert a copied or moved node.
-	 * @param index The insertion index corresponding to a 'combined list' of original and inserted nodes. <code>-1</code>
-	 * as index signals to insert as last element.  
-	 * @param editGroup Collects the generated text edits. <code>null</code> can be passed
-	 * to not collect any edits.
-	 * @throws IllegalArgumentException Thrown when the inserted node is not a new node.
-	 * @throws IndexOutOfBoundsException Throws when the index is negative and not -1, or if it is larger
-	 * than the size of the combined list.
+	 * Inserts the given node into the list at the given index. 
+	 * The index corresponds to a combined list of original and new nodes;
+	 * removed or replaced nodes are still in the combined list.
+	 * The inserted node must either be brand new (not part of the original AST)
+	 * or a placeholder node (for example, one created by
+	 * {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node has been inserted into the list.
+	 * 
+	 * @param node the node to insert
+	 * @param index insertion index in the combined list of original and
+	 * inserted nodes; <code>-1</code> indicates insertion as the last element
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not part
+	 * of this rewriter's AST, or if the inserted node is not a new node (or
+     * placeholder), or if the described modification is otherwise invalid
+     * (not a member of this node's original list)
+	 * @throws IndexOutOfBoundsException if the index is negative and not -1, 
+	 * or if it is larger than the size of the combined list
 	 */
-	public void insertAt(ASTNode nodeToInsert, int index, TextEditGroup editGroup) {
-		RewriteEvent event= getEvent().insert(nodeToInsert, index);
-		if (isInsertBoundToPreviousByDefault(nodeToInsert)) {
-			getRewriteStore().setInsertBoundToPrevious(nodeToInsert);
+	public void insertAt(ASTNode node, int index, TextEditGroup editGroup) {
+		if (node == null) { 
+			throw new IllegalArgumentException();
+		}
+		RewriteEvent event= getEvent().insert(node, index);
+		if (isInsertBoundToPreviousByDefault(node)) {
+			getRewriteStore().setInsertBoundToPrevious(node);
 		}
 		if (editGroup != null) {
 			getRewriteStore().setEventEditGroup(event, editGroup);
@@ -174,7 +248,10 @@ public final class ListRewriter {
 	}
 	
 	/**
-	 * @return Returns a list of all orginal nodes. The returned list is not modifiable.
+	 * Returns the original nodes in the list property managed by this
+	 * rewriter. The returned list is unmodifiable.
+	 * 
+	 * @return a list of all original nodes in the list
 	 */
 	public List getOriginalList() {
 		List list= (List) getEvent().getOriginalValue();
@@ -182,14 +259,15 @@ public final class ListRewriter {
 	}
 	
 	/**
-	 * @return Returns a list nodes nodes after the rewrite. The returned list is not modifiable.
+	 * Returns the nodes in the revised list property managed by this
+	 * rewriter. The returned list is unmodifiable.
+	 * 
+	 * @return a list of all nodes in the list taking into account 
+	 * all the described changes
 	 */
 	public List getRewrittenList() {
 		List list= (List) getEvent().getNewValue();
 		return Collections.unmodifiableList(list);
 	}
-	
 
-	
-	
 }

@@ -11,9 +11,13 @@
 package org.eclipse.jdt.core.dom.rewrite;
 
 /**
- * A tracked node positions is retrurned when a rewrite change is requested
- * to be tracked.
+ * A tracked node position is returned when a rewrite change is
+ * requested to be tracked.
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
  * 
+ * @see NewASTRewrite#markAsTracked(ASTNode)
  * @since 3.0
  */
 public interface ITrackedNodePosition {

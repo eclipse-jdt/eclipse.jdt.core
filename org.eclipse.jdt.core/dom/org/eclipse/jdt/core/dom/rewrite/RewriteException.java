@@ -11,27 +11,32 @@
 package org.eclipse.jdt.core.dom.rewrite;
 
 /**
- * An exception representing a failure in the DOM AST rewriting
+ * A checked exception representing a failure in the DOM AST
+ * rewriting.
+ * <p>
+ * This class is not intended to be subclassed.
+ * </p>
+ * TODO - eliminate RewriteException if possible
  *
  * @since 3.0
  */
 public class RewriteException extends Exception {
 	/**
-     * Create a RewriteException with no message. 
+     * Creates a new exception with no message. 
      */
     public RewriteException() {
     	super();
     }
     
 	/**
-     * Create a RewriteException with a throwable.
+     * Create a new exception with a throwable.
      */
     public RewriteException(Throwable throwable) {
     	super(throwable);
     }
 
     /**
-     * Create a RewriteException with a message. 
+     * Create a new exception with a message.
      */
     public RewriteException(String msg) {
     	super(msg);

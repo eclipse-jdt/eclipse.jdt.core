@@ -34,13 +34,49 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 /**
- * 
  * TODO - Work in progress. missing spec
+ * <p>
+ * <pre>
+ * Document doc = new Document("import java.util.List;\nclass X {}\n");
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
+ * parser.setSource(doc.get().toCharArray());
+ * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+ * cu.recordModifications();
+ * AST ast = cu.getAST();
+ * ImportDeclaration id = ast.newImportDeclaration();
+ * id.setName(ast.newName(new String[] {"java", "util", "Set"});
+ * NewASTRewrite rewriter = new NewASTRewrite(ast);
+ * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
+ * ITrackedNodePosition tdLocation = rewriter.track(td);
+ * ListRewriter lrw = rewriter.getListRewrite(cu,
+ *                       CompilationUnit.IMPORTS_PROPERTY);
+ * lrw.insertLast(id, null);
+ * TextEdit edits = rewriter.rewrite(document, null);
+ * UndoEdit undo = edits.apply(document);
+ * assert "import java.util.List;\nimport java.util.Set;\nclass X {}"
+ *   .equals(doc.get().toCharArray());
+ * // tdLocation.getStartPosition() and tdLocation.getLength()
+ * // are new source range for "class X {}" in doc.get()
+ * </pre>
+ * </p>
+ * <p>
+ * This class is not intended to be subclassed.
+ * </p>
  * @since 3.0
+ * TODO (david) - name should be "ASTRewrite" (or "ASTRewriter") since that name is available
+ * TODO (david) - class should be declared as final to prevent clients from subclassing
  */
 public class NewASTRewrite {
 	
-	/** Constant used to create place holder nodes */
+   /* TODO (david) - For creating placeholders it should be sufficient to have
+     * clients supply a concrete ASTNode node type to createStringPlaceholder.
+     * If they want to insert a name, they are free to specify either
+     * ASTNode.SIMPLE_NAME or ASTNode.QUALIFIED_NAME;
+     * either would do equally well. As long as the rewriter can tell that it's a 
+     * placeholder, it should be able to deal with it when the time comes.
+     * This would allow you to delete all these API constants.
+     */			
+	/** Constant used to create place holder nodes*/
 	public static final int UNKNOWN= NodeInfoStore.UNKNOWN;
 	public static final int BLOCK= NodeInfoStore.BLOCK;
 	public static final int EXPRESSION= NodeInfoStore.EXPRESSION;
@@ -56,14 +92,26 @@ public class NewASTRewrite {
 	public static final int INITIALIZER= NodeInfoStore.INITIALIZER;
 	public static final int PACKAGE_DECLARATION= NodeInfoStore.PACKAGE_DECLARATION;
 	public static final int IMPORT_DECLARATION= NodeInfoStore.IMPORT_DECLARATION;
-		
 
 	/** root node for the rewrite: Only nodes under this root are accepted */
 	private AST fAST;
 
+	/* TODO (david) - API fields should not be declared protected; even when clients
+	 * can subclass, it is better to provide protected methods that control access to
+	 * the field 
+	 */
 	protected final RewriteEventStore fEventStore;
 	protected final NodeInfoStore fNodeStore;
 	
+	/* TODO (david) - You get more flexibility to evolve an API class
+	 * by declaring a public static factory method as API and keeping
+	 * the constructor private or package-private.
+	 */
+	/**
+	 * Creates a new AST rewrite for the given AST.
+	 * 
+	 * @param ast the AST being rewritten
+	 */
 	public NewASTRewrite(AST ast) {
 		fAST= ast;
 		fEventStore= new RewriteEventStore();
@@ -71,12 +119,19 @@ public class NewASTRewrite {
 	}
 	
 	/**
-	 * @return Returns the AST the rewrite was set up on.
+	 * Returns the AST the rewrite was set up on.
+	 * 
+	 * @return the AST the rewrite was set up on
+	 * TODO (david) - method should be final
 	 */
 	public AST getAST() {
 		return fAST;
 	}
 			
+	/* TODO (david) - protected methods on API classes are considered API.
+	 * These 2 methods returns internal classes, so they should not be API.
+	 * Methods should package-private or private.
+	 */
 	protected RewriteEventStore getRewriteEventStore() {
 		return fEventStore;
 	}
@@ -147,13 +202,26 @@ public class NewASTRewrite {
 
 	}
 		
-		
+	
+	/* TODO (david) - This method would be better called simply "remove"
+     * the way it is on ListRewriter.
+     */
 	/**
-	 * Marks an existing node as removed.
-	 * @param node The node to be marked as removed.
-	 * @param editGroup Description of the change.
+	 * Removes the given node from its parent in this rewriter. The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node should not be there.
+	 * 
+	 * @param node the node being removed
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the nodeis not
+	 * part of this rewriter's AST, or if the described modification is invalid
+	 * (such as removing a required node)
 	 */
 	public final void markAsRemoved(ASTNode node, TextEditGroup editGroup) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
 		StructuralPropertyDescriptor property= node.getLocationInParent();
 		if (property.isChildListProperty()) {
 			getListRewrite(node.getParent(), (ChildListPropertyDescriptor) property).remove(node, editGroup);
@@ -162,65 +230,122 @@ public class NewASTRewrite {
 		}
 	}
 	
+	/* TODO (david) - This method would be better called simply "replace"
+     * the way it is on ListRewriter.
+     */
 	/**
-	 * Marks an existing node as replaced by a new node. The replacing node must be new or
-	 * a placeholder.
-	 * @param node The node to be marked as replaced.
-	 * @param replacingNode The node replacing the node.
-	 * @param editGroup Description of the change. 
+	 * Replaces the given node in this rewriter. The replacement node
+	 * must either be brand new (not part of the original AST) or a placeholder
+	 * node (for example, one created by {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+     * is not actually modified in any way; rather, the rewriter just records
+     * a note that this node has been replaced.
+	 * 
+	 * @param node the node being replaced
+	 * @param replacement the replacement node, or <code>null</code> if no
+	 * replacement
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node is null, or if the node is not part
+	 * of this rewriter's AST, or if the replacement node is not a new node (or
+     * placeholder), or if the described modification is otherwise invalid
 	 */		
-	public final void markAsReplaced(ASTNode node, ASTNode replacingNode, TextEditGroup editGroup) {
+	public final void markAsReplaced(ASTNode node, ASTNode replacement, TextEditGroup editGroup) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
 		StructuralPropertyDescriptor property= node.getLocationInParent();
 		if (property.isChildListProperty()) {
-			getListRewrite(node.getParent(), (ChildListPropertyDescriptor) property).replace(node, replacingNode, editGroup);
+			getListRewrite(node.getParent(), (ChildListPropertyDescriptor) property).replace(node, replacement, editGroup);
 		} else {
-			set(node.getParent(), property, replacingNode, editGroup);
+			set(node.getParent(), property, replacement, editGroup);
 		}
 	}
 
 	/**
-	 * Describes a change of a property  The replacing node must be new or a placeholder or can be
-	 * <code>null</code> to remove the property.
-	 * @param parent The node's parent node.
-	 * @param childProperty The node's child property in the parent. 
-	 * @param replacingNode The node that replaces the original node or <code>null</code>
-	 * @param editGroup Collects the generated text edits or <code>null</code> if
-	 * no edits should be collected.
-	 * @throws IllegalArgumentException An <code>IllegalArgumentException</code> is either the parent node is
-	 * not inside the rewriters parent, the property is not a node property or the described modification is not
-	 * valid (e.g. when removing a required node).
+	 * Sets the given property of the given node. If the given property is a child
+     * property, the value must be a replacement node that is either be brand new
+     * (not part of the original AST) or a placeholder node (for example, one
+     * created by {@link #createTargetNode(ASTNode, boolean)}
+	 * or {@link #createStringPlaceholder(String, int)}); or it must be
+	 * </code>null</code>, indicating that the child should be deleted.
+	 * If the given property is a simple property, the value must be the new
+	 * value (primitive types must be boxed) or </code>null</code>.
+     * The AST itself is not actually modified in any way; rather, the rewriter
+     * just records a note that this node has been changed in the specified way.
+	 * 
+	 * @param node the node
+	 * @param property the node's property; either a simple property or a child property
+	 * @param value the replacement child or new value, or <code>null</code> if none
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits, or <code>null</code> if ungrouped
+	 * @throws IllegalArgumentException if the node or property is null, or if the node
+	 * is not part of this rewriter's AST, or if the property is not a node property,
+	 * or if the described modification is invalid
 	 */
-	public final void set(ASTNode parent, StructuralPropertyDescriptor childProperty, Object replacingNode, TextEditGroup editGroup) {
-		validateIsInsideAST(parent);
-		NodeRewriteEvent nodeEvent= fEventStore.getNodeEvent(parent, childProperty, true);
-		if (replacingNode == null) {
-			validatePropertyType(childProperty, replacingNode);
+	public final void set(ASTNode node, StructuralPropertyDescriptor property, Object value, TextEditGroup editGroup) {
+		if (node == null || property == null) {
+			throw new IllegalArgumentException();
 		}
-		nodeEvent.setNewValue(replacingNode);
+		validateIsInsideAST(node);
+		NodeRewriteEvent nodeEvent= fEventStore.getNodeEvent(node, property, true);
+		if (value == null) {
+			validatePropertyType(property, value);
+		}
+		nodeEvent.setNewValue(value);
 		if (editGroup != null) {
 			fEventStore.setEventEditGroup(nodeEvent, editGroup);
 		}
 	}
 
-	/**
-	 * Gets a rewriter to modify the given list.
-	 * @param parent The parent node.
-	 * @param childProperty The child property
-	 * @return
+	/* TODO (david) - Methods called getXXX are generally considered accessors 
+	 * and are not expected to be creating new instances each time they are called.
+	 * A better name for this would be createListRewrite(...).
 	 */
-	public ListRewriter getListRewrite(ASTNode parent, ChildListPropertyDescriptor childProperty) {
-		validateIsInsideAST(parent);
-		validateIsListProperty(childProperty);
+	/**
+	 * Creates and returns a new rewriter for describing modifications to the
+	 * given list property of the given node.
+	 * 
+	 * @param node the node
+	 * @param property the node's property; the child list property
+	 * @return a new list rewriter object
+	 * @throws IllegalArgumentException if the node or property is null, or if the node
+	 * is not part of this rewriter's AST, or if the property is not a node property,
+	 * or if the described modification is invalid
+	 */
+	public ListRewriter getListRewrite(ASTNode node, ChildListPropertyDescriptor property) {
+		if (node == null || property == null) {
+			throw new IllegalArgumentException();
+		}
+		validateIsInsideAST(node);
+		validateIsListProperty(property);
 		
-		return new ListRewriter(this, parent, childProperty);
+		return new ListRewriter(this, node, property);
 	}
 		
+	/* TODO (david) - A better name for this method might be track(ASTNode).
+	 */
+	/* TODO (david) - It seems unnecesssary to prevent a client from tracking
+	 * a node more than once. There is no ambiguity in such a situation, and the
+	 * implementation is free to return either a new or existing ITrackedNodePosition.
+	 */
 	/**
-	 * Marks a node as tracked. The edits added to the group editGroup can be used to get the
-	 * position of the node after the rewrite operation.
-	 * @param node The node to track
+	 * Returns an object that tracks the source range of the given node
+	 * across the rewrite to its AST. Upon return, the result object reflects
+	 * the given node's current source range in the AST. After
+	 * <code>rewrite</code> is called, the result object is updated to
+	 * reflect the given node's source range in the rewritten AST.
+	 * 
+	 * @param node the node to track
+	 * @return an object that tracks the source range of <code>node</code>
+	 * @throws IllegalArgumentException if the node is null, or if the node
+	 * is not part of this rewriter's AST, or if the node is already being
+	 * tracked
 	 */
 	public final ITrackedNodePosition markAsTracked(ASTNode node) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
 		if (fEventStore.getTrackedNodeData(node) != null) {
 			throw new IllegalArgumentException("Node is already marked as tracked"); //$NON-NLS-1$
 		}
@@ -229,6 +354,9 @@ public class NewASTRewrite {
 		return new TrackedNodePosition(editGroup, node);
 	}	
 			
+	/* TODO (david) - protected methods on API classes are considered API.
+	 * These 2 methods should probably be package-private or private.
+	 */
 	protected final void validateIsInsideAST(ASTNode node) {
 		if (node.getStartPosition() == -1) {
 			throw new IllegalArgumentException("Node is not an existing node"); //$NON-NLS-1$
@@ -264,6 +392,14 @@ public class NewASTRewrite {
 //		}
 	}
 	
+	/* TODO (david) - Methods called getXXX are generally considered accessors 
+	 * and are not expected to be creating new instances each time they are called.
+	 * A better name for this would be createPlaceholder(ASTNode).
+	 */
+	/* TODO (david) - Given that clients would come in thru the API methods
+	 * createCopyTarget and createMOveTarget, there does not appear to be any reason
+	 * why this method is part of the API. Should be package-private or private.
+	 */
 	/**
 	 * Returns the node type that should be used to create a place holder for the given node
 	 * <code>existingNode</code>.
@@ -274,20 +410,38 @@ public class NewASTRewrite {
 	public static int getPlaceholderType(ASTNode existingNode) {
 		return NodeInfoStore.getPlaceholderType(existingNode);
 	}
-			
+
+    /* TODO (david) - For creating placeholders it should be sufficient to have
+     * clients supply a concrete ASTNode node type. If they want to insert a name,
+     * they are free to specify either ASTNode.SIMPLE_NAME or ASTNode.QUALIFIED_NAME;
+     * either would do equally well. As long as the rewriter can tell that its a 
+     * placeholder, it should be able to deal with it when the time comes.
+     * This allows you to delete the API constants declared on this class.
+     */			
 	/**
-	 * Creates a target node for a source string to be inserted without being formatted. A target node can
-	 * be inserted or used to replace at the target position.
-	 * @param code String that will be inserted. The string must not have extra indent.
-	 * @param nodeType the type of the place holder. Valid values are <code>METHOD_DECLARATION</code>,
+	 * Creates and returns a placeholder node for a source string that is to be inserted into
+	 * the output document at the position corresponding to the placeholder.
+	 * The string will be inserted without being reformatted beyond correcting
+	 * the indentation level. The placeholder node can either be inserted as new or
+	 * used to replace an existing node.
+	 * 
+	 * @param code the string to be inserted; lines should should not have extra indentation
+	 * @param nodeType the type of the placeholder; 
+	 * valid values are <code>METHOD_DECLARATION</code>,
 	 * <code>FIELD_DECLARATION</code>, <code>INITIALIZER</code>,
 	 * <code>TYPE_DECLARATION</code>, <code>BLOCK</code>, <code>STATEMENT</code>,
 	 *  <code>SINGLEVAR_DECLARATION</code>,<code> VAR_DECLARATION_FRAGMENT</code>,
 	 * <code>TYPE</code>, <code>EXPRESSION</code>, <code>NAME</code>
-	 * <code>PACKAGE_DECLARATION</code>, <code>IMPORT_DECLARATION</code> and <code>JAVADOC</code>.
-	 * @return Returns the place holder node
+	 * <code>PACKAGE_DECLARATION</code>, <code>IMPORT_DECLARATION</code>
+	 * and <code>JAVADOC</code>
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException if the code is null, or if the node
+	 * type is invalid
 	 */
 	public final ASTNode createStringPlaceholder(String code, int nodeType) {
+		if (code == null) {
+			throw new IllegalArgumentException();
+		}
 		ASTNode placeholder= fNodeStore.newPlaceholderNode(nodeType);
 		if (placeholder == null) {
 			throw new IllegalArgumentException("String placeholder is not supported for type" + nodeType); //$NON-NLS-1$
@@ -297,6 +451,10 @@ public class NewASTRewrite {
 		return placeholder;
 	}
 	
+	/* TODO (david) - Given that clients would come in thru the API methods
+	 * createCopyTarget and createMoveTarget, there does not appear to be any reason
+	 * why this method is part of the API. Should be package-private or private.
+	 */
 	public ASTNode createTargetNode(ASTNode node, boolean isMove) {
 		validateIsInsideAST(node);
 		CopySourceInfo info= fEventStore.markAsCopySource(node.getParent(), node.getLocationInParent(), node, isMove);
@@ -311,31 +469,56 @@ public class NewASTRewrite {
 	}
 
 	/**
-	 * Creates a target node for a node to be copied. A target node can be inserted or used
-	 * to replace at the target position.
-	 * @param node The node to create a copy placeholder for.
-	 * @return The placeholder to be used at the copy destination.
+	 * Creates and returns a placeholder node for a true copy of the given node.
+	 * The placeholder node can either be inserted as new or used to replace an
+	 * existing node. When the document is rewritten, a copy of the source code 
+	 * for the given node is inserted into the output document at the position
+	 * corresponding to the placeholder (indentation is adjusted).
+	 * 
+	 * @param node the node to create a copy placeholder for
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException if the node is null, or if the node
+	 * is not part of this rewriter's AST
 	 */
 	public final ASTNode createCopyTarget(ASTNode node) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
 		return createTargetNode(node, false);
 	}
 	
 	/**
-	 * Creates a target node for a node to be moved. A target node can be inserted or used
-	 * to replace at the target position. The source node has to be marked as removed or replaced.
-	 * @param node The node to create a move placeholder for.
-	 * @return The placeholder to be used at the move destination.
+	 * Creates and returns a placeholder node for the new locations of the given node.
+	 * After obtaining a placeholder, the node should then to be removed or replaced.
+	 * The placeholder node can either be inserted as new or used to replace an
+	 * existing node. When the document is rewritten, the source code for the given
+	 * node is inserted into the output document at the position corresponding to the
+	 * placeholder (indentation is adjusted). 
+	 * 
+	 * @param node the node to create a move placeholder for
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException if the node is null, or if the node
+	 * is not part of this rewriter's AST
 	 */
 	public final ASTNode createMoveTarget(ASTNode node) {
+		if (node == null) {
+			throw new IllegalArgumentException();
+		}
 		return createTargetNode(node, true);
 	}	
-			
+	
+	/**
+	 * Returns a string suitable for debugging purposes (only).
+	 * 
+	 * @return a debug string
+	 */
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
 		buf.append("Events:\n"); //$NON-NLS-1$
-		buf.append(fEventStore.toString());
+		// be extra careful of uninitialized or mangled instances
+		if (fEventStore != null) {
+			buf.append(fEventStore.toString());
+		}
 		return buf.toString();
 	}
-	
-
 }
