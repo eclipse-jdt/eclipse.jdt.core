@@ -87,7 +87,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 private void buildAll() throws CoreException {
 	if (DEBUG)
-		System.out.println("FULL build of: " + currentProject.getName()); //$NON-NLS-1$
+		System.out.println("\nFULL build of: " + currentProject.getName()); //$NON-NLS-1$
 
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	setLastState(null); // free last state since we do not need it
@@ -98,7 +98,7 @@ private void buildAll() throws CoreException {
 
 private void buildDeltas(LookupTable deltas) throws CoreException {
 	if (DEBUG)
-		System.out.println("INCREMENTAL build of: " + currentProject.getName()); //$NON-NLS-1$
+		System.out.println("\nINCREMENTAL build of: " + currentProject.getName()); //$NON-NLS-1$
 
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
