@@ -2079,6 +2079,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
+		
+		
+		final String NEW_CODE_FORMATTER_ACTIVATION = PLUGIN_ID + ".newformatter.activation";
+		preferences.setDefault(NEW_CODE_FORMATTER_ACTIVATION, DISABLED); //$NON-NLS-1$
+		optionNames.add(NEW_CODE_FORMATTER_ACTIVATION);
 	}
 	
 	/**
