@@ -223,8 +223,8 @@ public class SwitchStatement extends Statement {
 	 * Within this list, <code>SwitchCase</code> nodes mark the start of 
 	 * the switch groups.
 	 * 
-	 * @return the live list of switch group nodes
-	 *    (element type: <code>SwitchGroups</code>)
+	 * @return the live list of statement nodes
+	 *    (element type: <code>Statement</code>)
 	 */ 
 	public List statements() {
 		return this.statements;
