@@ -145,7 +145,12 @@ public class EqualExpression extends BinaryExpression {
 				// comparison is TRUE 
 				codeStream.iconst_1();
 				if ((bits & ValueForReturnMASK) != 0){
-					codeStream.ireturn();
+					if ((this.implicitConversion & BOXING) != 0) {
+						codeStream.generateImplicitConversion(this.implicitConversion);
+						codeStream.areturn();
+					} else {
+						codeStream.ireturn();
+					}
 					// comparison is FALSE
 					falseLabel.place();
 					codeStream.iconst_0();

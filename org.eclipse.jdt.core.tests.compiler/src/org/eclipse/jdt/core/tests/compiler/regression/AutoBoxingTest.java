@@ -1874,7 +1874,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"SUCCESS");
-	}	
+	}
 	
 	public void test071() { // assert
 		this.runConformTest(
@@ -1940,4 +1940,172 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			// a is ambiguous, both method a(int,int) in X and method a(java.lang.Object,java.lang.Object) in X match
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432
+	public void test074() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" Object e() {\n" +
+				"  return \"\".compareTo(\"\") > 0;\n" +
+				" }\n" +
+				" public static void main(String[] args) {\n" +
+				"  System.out.print(new X().e());\n" +
+				" }\n" +
+				"}",
+			},
+			"false");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	public void test075() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" Object e() {\n" +
+				"  return \"\".compareTo(\"\") > 0;\n" +
+				" }\n" +
+				" public static void main(String[] args) {\n" +
+				"  System.out.print(new X().e());\n" +
+				" }\n" +
+				" Zork z;\n" +
+				"}",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	return \"\".compareTo(\"\") > 0;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	public void test077() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" Object e() {\n" +
+				" int i = 12; \n" +
+				"  boolean b = false;\n" +
+				"  switch(i) {\n" +
+				"    case 0: return i > 0;\n" +
+				"    case 1: return i >= 0;\n" +
+				"    case 2: return i < 0;\n" +
+				"    case 3: return i <= 0;\n" +
+				"    case 4: return i == 0;\n" +
+				"    case 5: return i != 0;\n" +
+				"    case 6: return i & 0;\n" +
+				"    case 7: return i ^ 0;\n" +
+				"    case 8: return i | 0;\n" +
+				"    case 9: return b && b;\n" +
+				"    default: return b || b;\n" +
+				"  }\n" +
+				" }\n" +
+				" public static void main(String[] args) {\n" +
+				"  System.out.print(new X().e());\n" +
+				" }\n" +
+				"}",
+			},
+			"false");
+	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	public void test076() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" Object e() {\n" +
+				" int i = 12; \n" +
+				"  boolean b = false;\n" +
+				"  switch(i) {\n" +
+				"    case 0: return i > 0;\n" +
+				"    case 1: return i >= 0;\n" +
+				"    case 2: return i < 0;\n" +
+				"    case 3: return i <= 0;\n" +
+				"    case 4: return i == 0;\n" +
+				"    case 5: return i != 0;\n" +
+				"    case 6: return i & 0;\n" +
+				"    case 7: return i ^ 0;\n" +
+				"    case 8: return i | 0;\n" +
+				"    case 9: return b && b;\n" +
+				"    default: return b || b;\n" +
+				"  }\n" +
+				" }\n" +
+				" public static void main(String[] args) {\n" +
+				"  System.out.print(new X().e());\n" +
+				" }\n" +
+				" Zork z;\n" +
+				"}",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	case 0: return i > 0;\n" + 
+			"	               ^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	case 1: return i >= 0;\n" + 
+			"	               ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	case 2: return i < 0;\n" + 
+			"	               ^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	case 3: return i <= 0;\n" + 
+			"	               ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
+			"	case 4: return i == 0;\n" + 
+			"	               ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 11)\n" + 
+			"	case 5: return i != 0;\n" + 
+			"	               ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
+			"	case 6: return i & 0;\n" + 
+			"	               ^^^^^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 13)\n" + 
+			"	case 7: return i ^ 0;\n" + 
+			"	               ^^^^^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 14)\n" + 
+			"	case 8: return i | 0;\n" + 
+			"	               ^^^^^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 15)\n" + 
+			"	case 9: return b && b;\n" + 
+			"	               ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 16)\n" + 
+			"	default: return b || b;\n" + 
+			"	                ^^^^^^\n" + 
+			"The expression of type boolean is boxed into Boolean\n" + 
+			"----------\n" + 
+			"12. ERROR in X.java (at line 22)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
 }

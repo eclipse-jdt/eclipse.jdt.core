@@ -538,7 +538,7 @@ public abstract class Expression extends Statement {
 				if (boxedType == runtimeTimeType) // Object o = 12;
 					boxedType = compileTimeType; 
 				this.implicitConversion = BOXING | (boxedType.id << 4) + compileTimeType.id;
-				scope.problemReporter().autoboxing(this, compileTimeType, runtimeTimeType);
+				scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
 				return;
 			}
 		}
