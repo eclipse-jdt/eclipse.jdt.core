@@ -88,7 +88,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	JEROME(33),\n" + 
 					"	OLIVIER(35),\n" + 
 					"	KENT(40),\n" + 
-					"	FREDERIC;\n" + 
+					"	FREDERIC(54);\n" +  // TODO (frederic) check value
 					"\n" + 
 					"   enum Role { M, D }\n" + 
 					"\n" + 
@@ -106,7 +106,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	}\n" + 
 					"}\n"
 			},
-			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:0:SNZ:D"
+			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:54:SNZ:D"
 		);
 	}
 	// check assignment to enum constant is disallowed
