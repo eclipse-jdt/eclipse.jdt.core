@@ -184,7 +184,12 @@ protected void consumeEnterAnonymousClassBody() {
 		super.consumeEnterAnonymousClassBody();
 		return;
 	}
+	
+	// trick to avoid creating a selection on type reference
+	char [] oldIdent = this.assistIdentifier();
+	this.setAssistIdentifier(null);		
 	TypeReference typeReference = getTypeReference(0);
+	this.setAssistIdentifier(oldIdent);		
 
 	QualifiedAllocationExpression alloc;
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
@@ -205,11 +210,8 @@ protected void consumeEnterAnonymousClassBody() {
 			0, 
 			argumentLength); 
 	}
-	// trick to avoid creating a selection on type reference
-	char [] oldIdent = this.assistIdentifier();
-	this.setAssistIdentifier(null);			
-	alloc.type = typeReference;
-	this.setAssistIdentifier(oldIdent);		
+
+	alloc.type = typeReference;	
 
 	anonymousType.sourceEnd = alloc.sourceEnd;
 	//position at the type while it impacts the anonymous declaration
