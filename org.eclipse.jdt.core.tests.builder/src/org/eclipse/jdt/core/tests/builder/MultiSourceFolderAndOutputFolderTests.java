@@ -170,4 +170,36 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		fullBuild();
 		expectingOnlyProblemsFor(xPath);
 	}
+	
+	public void test0008() throws JavaModelException {
+		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath srcF1 = env.addPackageFragmentRoot(projectPath, "src/f1", null, null); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src", new IPath[]{new Path("f1/")}, null); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		
+		IPath xPath = env.addClass(src, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;"+ //$NON-NLS-1$
+			"public class X extends p2.Y{}" //$NON-NLS-1$
+			);
+			
+		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;"+ //$NON-NLS-1$
+			"public abstract class Y {"+ //$NON-NLS-1$
+			"  abstract void foo();"+ //$NON-NLS-1$
+			"}" //$NON-NLS-1$
+			);
+			
+		fullBuild();
+		expectingOnlyProblemsFor(xPath);
+		
+		env.addClass(srcF1, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;"+ //$NON-NLS-1$
+			"public class Y {}" //$NON-NLS-1$
+			);
+		
+		incrementalBuild();
+		
+		expectingNoProblems();
+	}
 }
