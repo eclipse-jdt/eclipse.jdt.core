@@ -1,9 +1,11 @@
+package org.eclipse.jdt.internal.core;
 /*
- * (c) Copyright 2001 MyCorporation.
+ * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-package org.eclipse.jdt.internal.core;
-
+/**
+ * Converter from a type to an AST type declaration.
+ */
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -16,10 +18,13 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  * @author
  */
 public class TypeConverter {
-	public static TypeDeclaration buildCompilationUnit(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult, ProblemReporter problemReporter)  {
+	
+	/**
+	 * Convert a type into an AST type declaration and put it in the given compilation unit.
+	 */
+	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult, ProblemReporter problemReporter)  {
 		try {
-			char[] fullyQualifiedName = type.getFullyQualifiedName().toCharArray();
-			char[] packageName = CharOperation.subarray(fullyQualifiedName, 0,CharOperation.lastIndexOf('.', fullyQualifiedName));
+			char[] packageName = type.getPackageFragment().getElementName().toCharArray();
 			
 			if (packageName != null && packageName.length > 0) { 
 				compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false);
