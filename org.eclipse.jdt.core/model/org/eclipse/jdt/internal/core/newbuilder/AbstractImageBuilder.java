@@ -219,8 +219,8 @@ protected void createErrorFor(IResource resource, String message) {
 	try {
 		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
 		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER},
-			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1), new Integer(1)});
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END},
+			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1)});
 	} catch (CoreException e) {
 		throw internalException(e);
 	}
