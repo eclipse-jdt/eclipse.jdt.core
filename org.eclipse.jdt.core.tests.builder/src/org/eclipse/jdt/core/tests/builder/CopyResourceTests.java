@@ -33,7 +33,7 @@ public class CopyResourceTests extends Tests {
 	public void testSimpleProject() {
 		IPath projectPath = env.addProject("P1"); //$NON-NLS-1$
 		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -55,7 +55,7 @@ public class CopyResourceTests extends Tests {
 	public void testProjectWithBin() {
 		IPath projectPath = env.addProject("P2"); //$NON-NLS-1$
 		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -87,7 +87,7 @@ public class CopyResourceTests extends Tests {
 		IPath projectPath = env.addProject("P3"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -119,7 +119,7 @@ public class CopyResourceTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addFile(src1, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -155,7 +155,7 @@ public class CopyResourceTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
-		IPath bin = env.setOutputFolder(projectPath, "src2"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "src2"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		env.addFile(src1, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
