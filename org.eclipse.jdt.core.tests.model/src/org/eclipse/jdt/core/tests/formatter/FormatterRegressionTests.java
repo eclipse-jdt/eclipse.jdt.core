@@ -69,11 +69,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		if (true) {
 			return new Suite(FormatterRegressionTests.class);
-		} else {
-			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test482"));  //$NON-NLS-1$
-			return suite;
 		}
+		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
+		suite.addTest(new FormatterRegressionTests("test009"));  //$NON-NLS-1$
+		return suite;
 	}
 
 	public FormatterRegressionTests(String name) {
