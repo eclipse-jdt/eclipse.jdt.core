@@ -176,10 +176,10 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 	
 	// extended unicode support
-	public static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
-	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
-	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
-	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
+	private static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
+	private static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
+	private static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
+	private static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
 
 public PublicScanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
