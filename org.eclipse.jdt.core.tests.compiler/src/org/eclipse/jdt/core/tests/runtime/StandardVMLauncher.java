@@ -80,7 +80,7 @@ public String[] getCommandLine() {
 	Vector commandLine= new Vector();
 	
 	// VM binary
-	if ("1.4.2-b28".equals(System.getProperty("java.vm.version"))) {
+	if (System.getProperty("java.vm.version").startsWith("1.4.2")) {
 		commandLine.addElement(
 			this.vmPath + 
 			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
