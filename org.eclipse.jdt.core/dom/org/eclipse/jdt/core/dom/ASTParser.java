@@ -340,16 +340,16 @@ public class ASTParser {
 	 * When the parse is successful the result returned includes the ASTs for the
 	 * requested source:
 	 * <ul>
-	 * <li>{@link #K_COMPILATION_UNIT}: The result node
+	 * <li>{@link #K_COMPILATION_UNIT K_COMPILATION_UNIT}: The result node
 	 * is a {@link CompilationUnit}.</li>
-	 * <li>{@link #K_CLASS_BODY_DECLARATIONS}: The result node
+	 * <li>{@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS}: The result node
 	 * is a {@link TypeDeclaration} whose
 	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
 	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
-	 * <li>{@link #K_STATEMENTS}: The result node is a
+	 * <li>{@link #K_STATEMENTS K_STATEMENTS}: The result node is a
 	 * {@link Block Block} whose {@link Block#statements() statements}
 	 * are the new trees. Other aspects of the block are unspecified.</li>
-	 * <li>{@link #K_EXPRESSION}: The result node is a subclass of
+	 * <li>{@link #K_EXPRESSION K_EXPRESSION}: The result node is a subclass of
 	 * {@link Expression Expression}. Other aspects of the expression are unspecified.</li>
 	 * </ul>
 	 * The resulting AST node is rooted under (possibly contrived)
