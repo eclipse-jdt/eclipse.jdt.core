@@ -61,6 +61,7 @@ public interface IType extends IMember {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @since 2.0
+	 * @deprecated Use {@link #codeComplete(char[],int,int,char[][],char[][],int[],boolean,CompletionRequestor)} instead.
 	 */
 	void codeComplete(
 		char[] snippet,
@@ -105,6 +106,7 @@ public interface IType extends IMember {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @since 3.0
+	 * @deprecated Use {@link #codeComplete(char[],int,int,char[][],char[][],int[],boolean,CompletionRequestor,WorkingCopyOwner)} instead.
 	 */
 	void codeComplete(
 		char[] snippet,

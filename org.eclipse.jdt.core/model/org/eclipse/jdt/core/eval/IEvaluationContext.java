@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.eval;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -113,6 +112,7 @@ public interface IEvaluationContext {
 	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
 	 *  </ul>
 	 * @since 2.0
+	 * @deprecated Use {@link #codeComplete(String,int,CompletionRequestor)} instead.
 	 */
 	public void codeComplete(
 		String codeSnippet,
@@ -145,6 +145,7 @@ public interface IEvaluationContext {
 	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
 	 *  </ul>
 	 * @since 3.0
+	 * @deprecated Use {@link #codeComplete(String,int,CompletionRequestor,WorkingCopyOwner)} instead.
 	 */
 	public void codeComplete(
 		String codeSnippet,

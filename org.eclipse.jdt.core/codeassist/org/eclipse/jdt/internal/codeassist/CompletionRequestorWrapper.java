@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.codeassist;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -21,12 +20,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
 /**
  * This CompletionRequetor wrap the old requestor ICOmpletionRequestor
  * @since 3.1
+ * @deprecated
  */
 public class CompletionRequestorWrapper extends CompletionRequestor {
 	private static boolean DECODE_SIGNATURE = false;
 	
-	private ICompletionRequestor requestor;
-	public CompletionRequestorWrapper(ICompletionRequestor requestor) {
+	private org.eclipse.jdt.core.ICompletionRequestor requestor;
+	public CompletionRequestorWrapper(org.eclipse.jdt.core.ICompletionRequestor requestor) {
 		this.requestor = requestor;
 	}
 	

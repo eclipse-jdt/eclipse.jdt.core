@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
@@ -591,6 +590,7 @@ public IType findPrimaryType() {
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICompletionRequestor)
+	 * @deprecated
 	 */
 	public void codeComplete(int offset, ICompletionRequestor requestor)
 		throws JavaModelException {
@@ -599,6 +599,7 @@ public IType findPrimaryType() {
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
+	 * @deprecated
 	 */
 	public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)
 		throws JavaModelException {

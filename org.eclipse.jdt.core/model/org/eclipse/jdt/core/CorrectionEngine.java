@@ -287,106 +287,103 @@ public class CorrectionEngine implements ProblemReasons {
 	/**
 	 * This field is not intended to be used by client.
 	 */
-	protected ICompletionRequestor completionRequestor = new ICompletionRequestor() {
-		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
-		public void acceptClass(char[] packageName,char[] className,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & (CLASSES | INTERFACES)) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptClass(
-					packageName,
-					className,
-					CharOperation.subarray(completionName, CorrectionEngine.this.prefixLength, completionName.length),
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			} else if((CorrectionEngine.this.filter & IMPORT) != 0) {
-				char[] fullName = CharOperation.concat(packageName, className, '.');
-				CorrectionEngine.this.correctionRequestor.acceptClass(
-					packageName,
-					className,
-					CharOperation.subarray(fullName, CorrectionEngine.this.prefixLength, fullName.length),
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
+	protected CompletionRequestor completionRequestor = new CompletionRequestor() {
+		public void accept(CompletionProposal proposal) {
+			switch (proposal.getKind()) {
+				case CompletionProposal.TYPE_REF:
+					int flags = proposal.getFlags();
+					if (!(Flags.isEnum(flags) || Flags.isAnnotation(flags))) {
+						if((CorrectionEngine.this.filter & (CLASSES | INTERFACES)) != 0) {
+							char[] completionName = proposal.getCompletion();
+							CorrectionEngine.this.correctionRequestor.acceptClass(
+								proposal.getDeclarationSignature(),
+								Signature.getSignatureSimpleName(proposal.getSignature()),
+								CharOperation.subarray(completionName, CorrectionEngine.this.prefixLength, completionName.length),
+								proposal.getFlags(),
+								CorrectionEngine.this.correctionStart,
+								CorrectionEngine.this.correctionEnd);
+						} else if((CorrectionEngine.this.filter & IMPORT) != 0) {
+							char[] packageName = proposal.getDeclarationSignature();
+							char[] className = Signature.getSignatureSimpleName(proposal.getSignature());
+							char[] fullName = CharOperation.concat(packageName, className, '.');
+							CorrectionEngine.this.correctionRequestor.acceptClass(
+								packageName,
+								className,
+								CharOperation.subarray(fullName, CorrectionEngine.this.prefixLength, fullName.length),
+								proposal.getFlags(),
+								CorrectionEngine.this.correctionStart,
+								CorrectionEngine.this.correctionEnd);
+						}					
+					}
+					break;
+				case CompletionProposal.FIELD_REF:
+					if((CorrectionEngine.this.filter & FIELD) != 0) {
+						char[] declaringSignature = proposal.getDeclarationSignature();
+						char[] signature = proposal.getSignature();
+						CorrectionEngine.this.correctionRequestor.acceptField(
+							Signature.getSignatureQualifier(declaringSignature),
+							Signature.getSignatureSimpleName(declaringSignature),
+							proposal.getName(),
+							Signature.getSignatureQualifier(signature),
+							Signature.getSignatureSimpleName(signature),
+							proposal.getName(),
+							proposal.getFlags(),
+							CorrectionEngine.this.correctionStart,
+							CorrectionEngine.this.correctionEnd);
+					}
+					break;
+				case CompletionProposal.LOCAL_VARIABLE_REF:
+					if((CorrectionEngine.this.filter & LOCAL) != 0) {
+						char[] signature = proposal.getSignature();
+						CorrectionEngine.this.correctionRequestor.acceptLocalVariable(
+							proposal.getName(),
+							Signature.getSignatureQualifier(signature),
+							Signature.getSignatureSimpleName(signature),
+							proposal.getFlags(),
+							CorrectionEngine.this.correctionStart,
+							CorrectionEngine.this.correctionEnd);
+					}
+					break;
+				case CompletionProposal.METHOD_REF:
+					if((CorrectionEngine.this.filter & METHOD) != 0) {
+						char[] declaringSignature = proposal.getDeclarationSignature();
+						char[] signature = proposal.getSignature();
+						char[][] parameterTypeSignatures = Signature.getParameterTypes(signature);
+						int length = parameterTypeSignatures.length;
+						char[][] parameterPackageNames = new char[length][];
+						char[][] parameterTypeNames = new char[length][];
+						for (int i = 0; i < length; i++) {
+							parameterPackageNames[i] = Signature.getSignatureQualifier(parameterTypeSignatures[i]);
+							parameterTypeNames[i] = Signature.getSignatureSimpleName(parameterTypeSignatures[i]);
+						}
+						char[] returnTypeSignature = Signature.getReturnType(signature);
+						CorrectionEngine.this.correctionRequestor.acceptMethod(
+							Signature.getSignatureQualifier(declaringSignature),
+							Signature.getSignatureSimpleName(declaringSignature),
+							proposal.getName(),
+							parameterPackageNames,
+							parameterTypeNames,
+							proposal.findParameterNames(null),
+							Signature.getSignatureQualifier(returnTypeSignature),
+							Signature.getSignatureSimpleName(returnTypeSignature),
+							proposal.getName(),
+							proposal.getFlags(),
+							CorrectionEngine.this.correctionStart,
+							CorrectionEngine.this.correctionEnd);
+					}
+					break;
+				case CompletionProposal.PACKAGE_REF:
+					if((CorrectionEngine.this.filter & (CLASSES | INTERFACES | IMPORT)) != 0) {
+						char[] packageName = proposal.getDeclarationSignature();
+						CorrectionEngine.this.correctionRequestor.acceptPackage(
+							packageName,
+							CharOperation.subarray(packageName, CorrectionEngine.this.prefixLength, packageName.length),
+							CorrectionEngine.this.correctionStart,
+							CorrectionEngine.this.correctionEnd);
+					}
+					break;
 			}
 		}
-		public void acceptError(IProblem error) {}
-		public void acceptField(char[] declaringTypePackageName,char[] declaringTypeName,char[] name,char[] typePackageName,char[] typeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & FIELD) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptField(
-					declaringTypePackageName,
-					declaringTypeName,
-					name,
-					typePackageName,
-					typeName,
-					name,
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			}
-		}
-		public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & (CLASSES | INTERFACES)) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptInterface(
-					packageName,
-					interfaceName,
-					CharOperation.subarray(completionName, CorrectionEngine.this.prefixLength, completionName.length),
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			} else if((CorrectionEngine.this.filter & IMPORT) != 0) {
-				char[] fullName = CharOperation.concat(packageName, interfaceName, '.');
-				CorrectionEngine.this.correctionRequestor.acceptInterface(
-					packageName,
-					interfaceName,
-					CharOperation.subarray(fullName, CorrectionEngine.this.prefixLength, fullName.length),
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			}
-		}
-		public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd, int relevance) {}
-		public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance) {}
-		public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & LOCAL) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptLocalVariable(
-					name,
-					typePackageName,
-					typeName,
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			}
-		}
-		public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & METHOD) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptMethod(
-					declaringTypePackageName,
-					declaringTypeName,
-					selector,
-					parameterPackageNames,
-					parameterTypeNames,
-					parameterNames,
-					returnTypePackageName,
-					returnTypeName,
-					selector,
-					modifiers,
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			}
-		}
-		public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
-		public void acceptModifier(char[] modifierName,int completionStart,int completionEnd, int relevance) {}
-		public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd, int relevance) {
-			if((CorrectionEngine.this.filter & (CLASSES | INTERFACES | IMPORT)) != 0) {
-				CorrectionEngine.this.correctionRequestor.acceptPackage(
-					packageName,
-					CharOperation.subarray(packageName, CorrectionEngine.this.prefixLength, packageName.length),
-					CorrectionEngine.this.correctionStart,
-					CorrectionEngine.this.correctionEnd);
-			}
-		}
-		public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance) {}
-		public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance) {}
 	};
 	
 	/**

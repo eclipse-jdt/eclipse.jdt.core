@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
-import org.eclipse.jdt.core.ICompletionRequestor;
-
-//TODO remove this class once new CompletionRequestor is working.
-public interface IExtendedCompletionRequestor extends ICompletionRequestor {
+/**
+ * @deprecated Use {@link org.eclipse.jdt.core.CompletionRequestor} instead
+ */
+//TODO remove this class once no more clients
+public interface IExtendedCompletionRequestor extends org.eclipse.jdt.core.ICompletionRequestor {
 	void acceptPotentialMethodDeclaration(
 			char[] declaringTypePackageName,
 			char[] declaringTypeName,
