@@ -33,16 +33,32 @@ public JavaWorkspaceScope() {
 	JavaModelManager.getJavaModelManager().rememberScope(this);
 }
 public boolean encloses(IJavaElement element) {
+	/*
 	if (this.needsInitialize) {
 		this.initialize();
 	}
 	return super.encloses(element);
+	*/
+	/*A workspace scope encloses all java elements (this assumes that the index selector
+	 * and thus enclosingProjectAndJars() returns indexes on the classpath only and that these
+	 * indexes are consistent.)
+	 * NOTE: Returning true gains 20% of a hierarchy build on Object
+	 */
+	return true;
 }
 public boolean encloses(String resourcePathString) {
+	/*
 	if (this.needsInitialize) {
 		this.initialize();
 	}
 	return super.encloses(resourcePathString);
+	*/
+	/*A workspace scope encloses all resources (this assumes that the index selector
+	 * and thus enclosingProjectAndJars() returns indexes on the classpath only and that these
+	 * indexes are consistent.)
+	 * NOTE: Returning true gains 20% of a hierarchy build on Object
+	 */
+	return true;
 }
 public IPath[] enclosingProjectsAndJars() {
 	if (this.needsInitialize) {
@@ -53,6 +69,11 @@ public IPath[] enclosingProjectsAndJars() {
 public boolean equals(Object o) {
   return o instanceof JavaWorkspaceScope;
 }
+public int hashCode() {
+	return JavaWorkspaceScope.class.hashCode();
+}
+
+
 public void initialize() {
 	super.initialize();
 	JavaCore javaCore = JavaCore.getJavaCore();
