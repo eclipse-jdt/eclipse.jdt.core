@@ -711,12 +711,17 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * must have a value at all times.
 		 */
 		private boolean compulsory;
-		
+
+		private Class nodeType;		
+		private String propertyName;
+
 		/**
 		 * Creates a new property with the given name.
 		 */
 		Property(String propertyName, boolean compulsory, Class nodeType) {
+			this.propertyName = propertyName;
 			this.compulsory = compulsory;
+			this.nodeType = nodeType;
 		}
 		
 		/**
@@ -806,6 +811,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 */
 		public void set(ASTNode value) {
 			throw new RuntimeException("get(" + value + ") not implemented"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		public String toString() {
+			return "Property(" + this.propertyName + ", " + this.compulsory + ", " + this.nodeType + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 	}
 
