@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.Map;
-
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -23,31 +21,24 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class BecomeWorkingCopyOperation extends JavaModelOperation {
 	
-	Map perOwnerWorkingCopies;
+	IPath path;
 	IProblemRequestor problemRequestor;
 	
 	/*
 	 * Creates a BecomeWorkingCopyOperation for the given working copy.
 	 * perOwnerWorkingCopies map is not null if the working copy is a shared working copy.
 	 */
-	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perOwnerWorkingCopies, IProblemRequestor problemRequestor) {
+	public BecomeWorkingCopyOperation(CompilationUnit workingCopy, IPath path, IProblemRequestor problemRequestor) {
 		super(new IJavaElement[] {workingCopy});
-		this.perOwnerWorkingCopies = perOwnerWorkingCopies;
+		this.path = path;
 		this.problemRequestor = problemRequestor;
 	}
 	protected void executeOperation() throws JavaModelException {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, problemRequestor);
+		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, problemRequestor);
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), fMonitor);
-
-		if (this.perOwnerWorkingCopies != null) {
-			this.perOwnerWorkingCopies.put(workingCopy.getOriginalElement(), workingCopy);
-			if (CompilationUnit.SHARED_WC_VERBOSE) {
-				System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
-			}
-		}
 
 		// report added java delta
 		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());

@@ -352,7 +352,7 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
  * @see IType
  */
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	return this.newSupertypeHierarchy(null, monitor);
+	return this.newSupertypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /**
  * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
@@ -366,7 +366,63 @@ public ITypeHierarchy newSupertypeHierarchy(
 	runOperation(op, monitor);
 	return op.getResult();
 }
+/**
+ * @see IType#newSupertypeHierarchy(WorkingCopyOwner, IProgressMonitor)
+ */
+public ITypeHierarchy newSupertypeHierarchy(
+	WorkingCopyOwner owner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
 
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
+	runOperation(op, monitor);
+	return op.getResult();
+}
+/**
+ * @see IType
+ */
+public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+	if (project == null) {
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+	}
+	
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
+		this, 
+		(IWorkingCopy[])null, // no working copies
+		project,
+		true);
+	runOperation(op, monitor);
+	return op.getResult();
+}
+/**
+ * @see IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	if (project == null) {
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+	}
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	int length = workingCopies.length;
+	ICompilationUnit[] projectWCs = new ICompilationUnit[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		ICompilationUnit wc = workingCopies[i];
+		if (project.equals(wc.getJavaProject())) {
+			projectWCs[index++] = wc;
+		}
+	}
+	if (index != length) {
+		System.arraycopy(projectWCs, 0, projectWCs = new ICompilationUnit[index], 0, index);
+	}
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
+		this, 
+		projectWCs,
+		project, 
+		true);
+	runOperation(op, monitor);
+	return op.getResult();
+}
 /**
  * @see IType
  */
@@ -385,70 +441,86 @@ public ITypeHierarchy newTypeHierarchy(
 	runOperation(op, monitor);
 	return op.getResult();
 }
-
 /**
- * @see IType
+ * @see IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)
  */
-public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
-	}
-	
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
-		this, 
-		(IWorkingCopy[])null, // no working copies
-		project,
-		true);
+public ITypeHierarchy newTypeHierarchy(
+	WorkingCopyOwner owner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+		
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
 	runOperation(op, monitor);
-	return op.getResult();
+	return op.getResult();	
 }
 /**
- * See ISourceType.resolveType(...)
+ * @see IType#resolveType(String)
  */
-
- public String[][] resolveType(String typeName) throws JavaModelException {
-	ISourceType info = (ISourceType) this.getElementInfo();
-	ISearchableNameEnvironment environment = ((JavaProject)getJavaProject()).getSearchableNameEnvironment();
-
-	class TypeResolveRequestor implements ISelectionRequestor {
-		String[][] answers = null;
-		void acceptType(String[] answer){
-			if (answers == null) {
-				answers = new String[][]{ answer };
-			} else {
-				// grow
-				int length = answers.length;
-				System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
-				answers[length] = answer;
+public String[][] resolveType(String typeName) throws JavaModelException {
+	return resolveType(typeName, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see IType#resolveType(String, WorkingCopyOwner)
+ */
+public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
+	JavaProject project = (JavaProject)getJavaProject();
+	NameLookup lookup = null;
+	try {
+		// set the units to look inside
+		lookup = ((JavaProject)project).getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		lookup.setUnitsToLookInside(workingCopies);
+			
+		// resolve
+		ISourceType info = (ISourceType) this.getElementInfo();
+		ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
+	
+		class TypeResolveRequestor implements ISelectionRequestor {
+			String[][] answers = null;
+			void acceptType(String[] answer){
+				if (answers == null) {
+					answers = new String[][]{ answer };
+				} else {
+					// grow
+					int length = answers.length;
+					System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
+					answers[length] = answer;
+				}
 			}
+			public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
+				acceptType(new String[]  { new String(packageName), new String(className) });
+			}
+			
+			public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
+				acceptType(new String[]  { new String(packageName), new String(interfaceName) });
+			}
+	
+			public void acceptError(IProblem error) {}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {}
+			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {}
+			public void acceptPackage(char[] packageName){}
+	
 		}
-		public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
-			acceptType(new String[]  { new String(packageName), new String(className) });
+		TypeResolveRequestor requestor = new TypeResolveRequestor();
+		SelectionEngine engine = 
+			new SelectionEngine(environment, requestor, this.getJavaProject().getOptions(true));
+			
+	 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
+	 	int length = topLevelTypes.length;
+	 	ISourceType[] topLevelInfos = new ISourceType[length];
+	 	for (int i = 0; i < length; i++) {
+			topLevelInfos[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
 		}
-		
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
-			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
+			
+		engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
+		return requestor.answers;
+	} finally {
+		if (lookup != null) {
+			lookup.setUnitsToLookInside(null);
 		}
-
-		public void acceptError(IProblem error) {}
-		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {}
-		public void acceptPackage(char[] packageName){}
-
 	}
-	TypeResolveRequestor requestor = new TypeResolveRequestor();
-	SelectionEngine engine = 
-		new SelectionEngine(environment, requestor, this.getJavaProject().getOptions(true));
-		
- 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
- 	int length = topLevelTypes.length;
- 	ISourceType[] topLevelInfos = new ISourceType[length];
- 	for (int i = 0; i < length; i++) {
-		topLevelInfos[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
-	}
-		
-	engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
-	return requestor.answers;
 }
 /**
  * @private Debugging purposes

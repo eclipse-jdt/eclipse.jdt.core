@@ -37,8 +37,5 @@ org.eclipse.jdt.core/debug/search=false
 # Reports open on selection activity : recovered unit, inferred selection
 org.eclipse.jdt.core/debug/selection=false
 
-# Reports shared working copy use
-org.eclipse.jdt.core/debug/sharedworkingcopy=false
-
 # Reports access to zip and jar files through the Java model
 org.eclipse.jdt.core/debug/zipaccess=false

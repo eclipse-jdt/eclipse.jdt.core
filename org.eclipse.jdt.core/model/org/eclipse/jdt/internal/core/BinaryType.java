@@ -417,7 +417,7 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
  * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)
  */
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	return this.newSupertypeHierarchy(null, monitor);
+	return this.newSupertypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /**
  * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
@@ -431,7 +431,62 @@ public ITypeHierarchy newSupertypeHierarchy(
 	runOperation(op, monitor);
 	return op.getResult();
 }
+/**
+ * @see IType#newSupertypeHierarchy(WorkingCopyOwner, IProgressMonitor)
+ */
+public ITypeHierarchy newSupertypeHierarchy(
+	WorkingCopyOwner owner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
 
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
+	runOperation(op, monitor);
+	return op.getResult();
+}
+/**
+ * @see IType#newTypeHierarchy(IJavaProject, IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+	if (project == null) {
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+	}
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
+		this, 
+		(IWorkingCopy[])null, // no working copies
+		project, 
+		true);
+	runOperation(op, monitor);
+	return op.getResult();
+}
+/**
+ * @see IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	if (project == null) {
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+	}
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	int length = workingCopies.length;
+	ICompilationUnit[] projectWCs = new ICompilationUnit[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		ICompilationUnit wc = workingCopies[i];
+		if (project.equals(wc.getJavaProject())) {
+			projectWCs[index++] = wc;
+		}
+	}
+	if (index != length) {
+		System.arraycopy(projectWCs, 0, projectWCs = new ICompilationUnit[index], 0, index);
+	}
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
+		this, 
+		projectWCs,
+		project, 
+		true);
+	runOperation(op, monitor);
+	return op.getResult();
+}
 /**
  * @see IType#newTypeHierarchy(IProgressMonitor monitor)
  */
@@ -450,23 +505,30 @@ public ITypeHierarchy newTypeHierarchy(
 	runOperation(op, monitor);
 	return op.getResult();
 }
-
 /**
- * @see IType#newTypeHierarchy(IJavaProject project, IProgressMonitor monitor)
+ * @see IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)
  */
-public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
-	}
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
-		this, 
-		(IWorkingCopy[])null, // no working copies
-		project, 
-		true);
+public ITypeHierarchy newTypeHierarchy(
+	WorkingCopyOwner owner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+		
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
 	runOperation(op, monitor);
-	return op.getResult();
+	return op.getResult();	
 }
+/**
+ * @see IType#resolveType(String)
+ */
 public String[][] resolveType(String typeName) throws JavaModelException {
+	// not implemented for binary types
+	return null;
+}
+/**
+ * @see IType#resolveType(String, WorkingCopyOwner)
+ */
+public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
 	// not implemented for binary types
 	return null;
 }

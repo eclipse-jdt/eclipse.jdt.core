@@ -107,10 +107,9 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String BUILDER_DEBUG = JavaCore.PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
 	private static final String COMPLETION_DEBUG = JavaCore.PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
-	private static final String SHARED_WC_DEBUG = JavaCore.PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
-	public final static IWorkingCopy[] NoWorkingCopy = new IWorkingCopy[0];
+	public final static ICompilationUnit[] NoWorkingCopy = new ICompilationUnit[0];
 	
 	/*
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
@@ -491,16 +490,10 @@ public class JavaModelManager implements ISaveParticipant {
 	protected Map perProjectInfos = new HashMap(5);
 	
 	/**
-	 * Table from ICompilationUnit (in working copy mode) to PerWorkingCopyInfo.
+	 * Table from WorkingCopyOwner to a table of IPath (working copy's path) to PerWorkingCopyInfo.
 	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per working copy infos
 	 */
 	protected Map perWorkingCopyInfos = new HashMap(5);
-	
-	/**
-	 * A map from ICompilationUnit to IWorkingCopy
-	 * of the shared working copies.
-	 */
-	public Map sharedWorkingCopies = new HashMap();
 	
 	/**
 	 * A weak set of the known search scopes.
@@ -535,9 +528,11 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 	
 	public static class PerWorkingCopyInfo implements IProblemRequestor {
-		public int useCount = 0;
+		int useCount = 0;
 		IProblemRequestor problemRequestor;
-		public PerWorkingCopyInfo(IProblemRequestor problemRequestor) {
+		ICompilationUnit workingCopy;
+		public PerWorkingCopyInfo(ICompilationUnit workingCopy, IProblemRequestor problemRequestor) {
+			this.workingCopy = workingCopy;
 			this.problemRequestor = problemRequestor;
 		}
 		public void acceptProblem(IProblem problem) {
@@ -551,6 +546,9 @@ public class JavaModelManager implements ISaveParticipant {
 		public void endReporting() {
 			if (this.problemRequestor == null) return;
 			this.problemRequestor.endReporting();
+		}
+		public ICompilationUnit getWorkingCopy() {
+			return this.workingCopy;
 		}
 		public boolean isActive() {
 			return this.problemRequestor != null && this.problemRequestor.isActive();
@@ -666,9 +664,6 @@ public class JavaModelManager implements ISaveParticipant {
 			option = Platform.getDebugOption(SELECTION_DEBUG);
 			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
-			option = Platform.getDebugOption(SHARED_WC_DEBUG);
-			if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
@@ -683,42 +678,33 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
 		synchronized(perWorkingCopyInfos) {
-			PerWorkingCopyInfo info = (PerWorkingCopyInfo)perWorkingCopyInfos.get(workingCopy);
-			if (info != null) {
-				if (--info.useCount == 0) {
-					IJavaElement originalElement = workingCopy.getOriginalElement();
+			WorkingCopyOwner owner = workingCopy.owner;
+			Map pathToPerWorkingCopyInfos = (Map)this.perWorkingCopyInfos.get(owner);
+			if (pathToPerWorkingCopyInfos == null) return -1;
+			
+			IPath path = workingCopy.getPath();
+			PerWorkingCopyInfo info = (PerWorkingCopyInfo)pathToPerWorkingCopyInfos.get(path);
+			if (info == null) return -1;
+			
+			if (--info.useCount == 0) {
+				IJavaElement originalElement = workingCopy.getOriginalElement();
 
-					// remove per working copy info
-					perWorkingCopyInfos.remove(workingCopy);
-
-					// remove infos + close buffer (since no longer working copy)
-					removeInfoAndChildren(workingCopy);
-					workingCopy.closeBuffer();
-					
-					// if original element is not on classpath flush it from the cache 
-					if (!workingCopy.getParent().exists()) {
-						((CompilationUnit)originalElement).close();
-					}
-					
-					// remove working copy from the shared working copy cache if needed
-					// In order to be shared, working copies have to denote the same compilation unit 
-					// AND use the same owner.
-					// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
-					Map perFactoryWorkingCopies = (Map) this.sharedWorkingCopies.get(workingCopy.owner);
-					if (perFactoryWorkingCopies != null){
-						if (perFactoryWorkingCopies.remove(originalElement) != null
-								&& CompilationUnit.SHARED_WC_VERBOSE) {
-							System.out.println("Destroying shared working copy " + workingCopy.toStringWithAncestors());//$NON-NLS-1$
-						}
-						if (perFactoryWorkingCopies.isEmpty()) {
-							this.sharedWorkingCopies.remove(workingCopy.owner);
-						}
-					}
+				// remove per working copy info
+				pathToPerWorkingCopyInfos.remove(path);
+				if (pathToPerWorkingCopyInfos.isEmpty()) {
+					this.perWorkingCopyInfos.remove(owner);
 				}
-				return info.useCount;
-			} else {
-				return -1;
-			}	
+
+				// remove infos + close buffer (since no longer working copy)
+				removeInfoAndChildren(workingCopy);
+				workingCopy.closeBuffer();
+				
+				// if original element is not on classpath flush it from the cache 
+				if (!workingCopy.getParent().exists()) {
+					((CompilationUnit)originalElement).close();
+				}
+			}
+			return info.useCount;
 		}
 	}
 	
@@ -894,17 +880,24 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 	
 	/*
-	 * Returns the per-working copy info for the given working copy.
+	 * Returns the per-working copy info for the given working copy at the given path.
 	 * If it doesn't exist and if create, add a new per-working copy info with the given problem requestor.
 	 * If recordUsage, increment the per-working copy info's use count.
 	 * Returns null if it doesn't exist and not create.
 	 */
-	public PerWorkingCopyInfo getPerWorkingCopyInfo(ICompilationUnit workingCopy, boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
+	public PerWorkingCopyInfo getPerWorkingCopyInfo(CompilationUnit workingCopy, IPath path, boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
 		synchronized(perWorkingCopyInfos) { // use the perWorkingCopyInfo collection as its own lock
-			PerWorkingCopyInfo info = (PerWorkingCopyInfo) perWorkingCopyInfos.get(workingCopy);
+			WorkingCopyOwner owner = workingCopy.owner;
+			Map pathToPerWorkingCopyInfos = (Map)this.perWorkingCopyInfos.get(owner);
+			if (pathToPerWorkingCopyInfos == null && create) {
+				pathToPerWorkingCopyInfos = new HashMap();
+				this.perWorkingCopyInfos.put(owner, pathToPerWorkingCopyInfos);
+			}
+
+			PerWorkingCopyInfo info = pathToPerWorkingCopyInfos == null ? null : (PerWorkingCopyInfo) pathToPerWorkingCopyInfos.get(path);
 			if (info == null && create) {
-				info= new PerWorkingCopyInfo(problemRequestor);
-				perWorkingCopyInfos.put(workingCopy, info);
+				info= new PerWorkingCopyInfo(workingCopy, problemRequestor);
+				pathToPerWorkingCopyInfos.put(path, info);
 			}
 			if (info != null && recordUsage) info.useCount++;
 			return info;
@@ -982,6 +975,29 @@ public class JavaModelManager implements ISaveParticipant {
 		IPluginDescriptor descr= JavaCore.getJavaCore().getDescriptor();
 		IPath workingLocation= project.getPluginWorkingLocation(descr);
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
+	}
+	
+	/*
+	 * Returns all the working copies which have the given owner.
+	 * Adds the working copies of the primary owner if specified.
+	 * Returns an empty array if it has none.
+	 */
+	public ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner, boolean addPrimary) {
+		synchronized(perWorkingCopyInfos) {
+			ICompilationUnit[] primaryWCs = addPrimary ? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) : NoWorkingCopy;
+			Map pathToPerWorkingCopyInfos = (Map)perWorkingCopyInfos.get(owner);
+			if (pathToPerWorkingCopyInfos == null) return primaryWCs;
+			int primaryLength = primaryWCs.length;
+			int size = pathToPerWorkingCopyInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
+			ICompilationUnit[] result = new ICompilationUnit[primaryLength + size];
+			System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
+			Iterator iterator = pathToPerWorkingCopyInfos.values().iterator();
+			int index = primaryLength;
+			while(iterator.hasNext()) {
+				result[index++] = ((JavaModelManager.PerWorkingCopyInfo)iterator.next()).getWorkingCopy();
+			}
+			return result;
+		}		
 	}
 	
 	/**

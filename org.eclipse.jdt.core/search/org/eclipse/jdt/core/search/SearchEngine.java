@@ -52,7 +52,7 @@ public class SearchEngine {
  * A list of working copies that take precedence over their original 
  * compilation units.
  */
-private IWorkingCopy[] workingCopies = null;
+private ICompilationUnit[] workingCopies = null;
 
 /**
  * For tracing purpose.
@@ -73,27 +73,40 @@ public SearchEngine() {
  * 
  * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
+ * TODO remove before 3.0
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
-	this.workingCopies = workingCopies;
+	int length = workingCopies.length;
+	System.arraycopy(workingCopies, 0, this.workingCopies = new ICompilationUnit[length], 0, length);
+}
+/**
+ * Creates a new search engine with the given working copy owner.
+ * The working copies owned by this owner will take precedence over 
+ * the primary compilation units in the subsequent search operations.
+ * 
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @since 3.0
+ */
+public SearchEngine(WorkingCopyOwner workingCopyOwner) {
+	this.workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
 }
 /*
  * Removes from the given list of working copies the ones that cannot see the given focus.
  */
-private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] copies, IJavaElement focus, boolean isPolymorphicSearch) {
+private ICompilationUnit[] filterWorkingCopies(ICompilationUnit[] copies, IJavaElement focus, boolean isPolymorphicSearch) {
 	if (focus == null || copies == null) return copies;
 	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
 		focus = focus.getParent();
 	}
 	int length = copies.length;
-	IWorkingCopy[] result = null;
+	ICompilationUnit[] result = null;
 	int index = -1;
 	for (int i=0; i<length; i++) {
-		IWorkingCopy workingCopy = copies[i];
+		ICompilationUnit workingCopy = copies[i];
 		IPath projectOrJar = IndexSelector.getProjectOrJar((IJavaElement)workingCopy).getPath();
 		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
 			if (result == null) {
-				result = new IWorkingCopy[length-1];
+				result = new ICompilationUnit[length-1];
 				System.arraycopy(copies, 0, result, 0, i);
 				index = i;
 			}
@@ -103,7 +116,7 @@ private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] copies, IJavaElement f
 	}
 	if (result != null) {
 		if (result.length != index) {
-			System.arraycopy(result, 0, result = new IWorkingCopy[index], 0, index);
+			System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
 		}
 		return result;
 	} else {
@@ -318,18 +331,18 @@ private IResource getResource(IJavaElement element) {
 /**
  * Returns the list of working copies used to do the search on the given java element.
  */
-private IWorkingCopy[] getWorkingCopies(IJavaElement element) {
+private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 	if (element instanceof IMember) {
 		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
 		if (cu != null && cu.isWorkingCopy()) {
 			int length = this.workingCopies == null ? 0 : this.workingCopies.length;
 			if (length > 0) {
-				IWorkingCopy[] newWorkingCopies = new IWorkingCopy[length+1];
+				ICompilationUnit[] newWorkingCopies = new ICompilationUnit[length+1];
 				System.arraycopy(this.workingCopies, 0, newWorkingCopies, 0, length);
 				newWorkingCopies[length] = cu;
 				return newWorkingCopies;
 			} else {
-				return new IWorkingCopy[] {cu};
+				return new ICompilationUnit[] {cu};
 			}
 		}
 	}

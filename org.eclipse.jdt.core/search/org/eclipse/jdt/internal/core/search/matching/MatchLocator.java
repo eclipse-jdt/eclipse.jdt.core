@@ -53,7 +53,7 @@ public class MatchLocator implements ITypeRequestor {
 	public IJavaSearchScope scope;
 	public IProgressMonitor progressMonitor;
 
-	public IWorkingCopy[] workingCopies;
+	public org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
 	public HandleFactory handleFactory;
 
 	// cache of all super type names if scope is hierarchy scope
@@ -741,7 +741,7 @@ public class MatchLocator implements ITypeRequestor {
 	public void locateMatches(
 		String[] filePaths, 
 		IWorkspace workspace,
-		IWorkingCopy[] copies)
+		org.eclipse.jdt.core.ICompilationUnit[] copies)
 		throws JavaModelException {
 			
 		if (SearchEngine.VERBOSE) {
@@ -754,7 +754,7 @@ public class MatchLocator implements ITypeRequestor {
 			if (copies != null) {
 				 System.out.println("and working copies ["); //$NON-NLS-1$
 				for (int i = 0, length = copies.length; i < length; i++) {
-					IWorkingCopy wc = copies[i];
+					org.eclipse.jdt.core.ICompilationUnit wc = copies[i];
 					System.out.println("\t" + ((JavaElement)wc).toStringWithAncestors()); //$NON-NLS-1$
 				}
 				System.out.println("]"); //$NON-NLS-1$
@@ -780,8 +780,8 @@ public class MatchLocator implements ITypeRequestor {
 			if (copies != null && (wcLength = copies.length) > 0) {
 				String[] newPaths = new String[wcLength];
 				for (int i = 0; i < wcLength; i++) {
-					IWorkingCopy workingCopy = copies[i];
-					String path = workingCopy.getOriginalElement().getPath().toString();
+					org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
+					String path = workingCopy.getPath().toString();
 					wcPaths.put(path, workingCopy);
 					newPaths[i] = path;
 				}

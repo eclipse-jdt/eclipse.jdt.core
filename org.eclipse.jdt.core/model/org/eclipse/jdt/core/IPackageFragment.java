@@ -101,17 +101,50 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 */
 	ICompilationUnit getCompilationUnit(String name);
 	/**
+	 * Returns the compilation unit with the specified name
+	 * in this package (for example, <code>"Object.java"</code>) and the given
+	 * owner.
+	 * The name has to be a valid compilation unit name.
+	 * This is a handle-only method.  The compilation unit may or may not be present.
+	 * @see JavaConventions#validateCompilationUnitName
+	 * @param name the given name
+	 * @param owner the owner of the returned compilation unit
+	 * @return the compilation unit with the specified name in this package
+	 * @since 3.0
+	 */
+	ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner);
+	/**
 	 * Returns all of the compilation units in this package fragment.
 	 *
 	 * <p>Note: it is possible that a package fragment contains only
 	 * class files (in other words, its kind is <code>K_BINARY</code>), in which
 	 * case this method returns an empty collection.
+	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return all of the compilation units in this package fragment
 	 */
 	ICompilationUnit[] getCompilationUnits() throws JavaModelException;
+	/**
+	 * Returns all of the compilation units in this package fragment that are 
+	 * in working copy mode and that have the given owner.
+	 * <p>
+	 * Only existing working copies are returned. So a compilation unit handle that has no 
+	 * corresponding resource on disk will be included if and only if is in working copy mode.
+	 * </p>
+	 * <p>Note: it is possible that a package fragment contains only
+	 * class files (in other words, its kind is <code>K_BINARY</code>), in which
+	 * case this method returns an empty collection.
+	 * </p>
+	 *
+	 * @param owner the owner of the returned compilation units
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @return all of the compilation units in this package fragment
+	 * @since 3.0
+	 */
+	ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) throws JavaModelException;
 	/**
 	 * Returns the dot-separated package name of this fragment, for example
 	 * <code>"java.lang"</code>, or <code>""</code> (the empty string),

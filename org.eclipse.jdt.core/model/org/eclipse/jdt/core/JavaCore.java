@@ -1869,15 +1869,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
 
-		Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
-		
 		WorkingCopyOwner owner = new BufferFactoryWrapper(factory);
-		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(owner);
-		if (perFactoryWorkingCopies == null) return JavaModelManager.NoWorkingCopy;
-		Collection copies = perFactoryWorkingCopies.values();
-		IWorkingCopy[] result = new IWorkingCopy[copies.size()];
-		copies.toArray(result);
-		return result;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		return manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
 	}
 	
 	/**

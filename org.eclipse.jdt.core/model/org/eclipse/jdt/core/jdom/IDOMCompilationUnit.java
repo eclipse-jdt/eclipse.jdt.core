@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.jdom;
 
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+
 /**
  * Represents a Java compilation unit (<code>.java</code> source file). 
  * The corresponding syntactic unit is CompilationUnit (JLS2 7.3).  
@@ -46,6 +50,18 @@ public String getHeader();
  * @return the name of this compilation unit, or <code>null</code> if none
  */
 public String getName();
+/**
+ * Returns a handle for the compilation unit associated with this 
+ * document fragment, based on the parent package fragment.
+ * The owner of the returned comppilation unit is the given owner.
+ *
+ * @param parent the parent package fragment
+ * @param owner the owner of the returned compilation unit
+ * @exception IllegalArgumentException if the parent element is not
+ *   of a valid parent type for this node
+ * @since 3.0
+ */
+public ICompilationUnit getCompilationUnit(IPackageFragment parent, WorkingCopyOwner owner) throws IllegalArgumentException;
 /**
  * Sets the header comment for this compilation unit. The header comment
  * appears before the first declaration in a compilation unit.

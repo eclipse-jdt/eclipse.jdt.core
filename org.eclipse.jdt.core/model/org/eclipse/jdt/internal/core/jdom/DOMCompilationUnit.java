@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.jdom;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -18,6 +19,7 @@ import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
@@ -68,6 +70,12 @@ public boolean canHaveChildren() {
 	return true;
 }
 /**
+ * @see IDOMCompilationUnit#getCompilationUnit
+ */
+public ICompilationUnit getCompilationUnit(IPackageFragment parent, WorkingCopyOwner owner) throws IllegalArgumentException {
+	return parent.getCompilationUnit(getName(), owner);
+}
+/**
  * @see IDOMCompilationUnit#getHeader()
  */
 public String getHeader() {
@@ -78,7 +86,7 @@ public String getHeader() {
  */
 public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentException {
 	if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-		return ((IPackageFragment)parent).getCompilationUnit(getName());
+		return getCompilationUnit((IPackageFragment)parent, DefaultWorkingCopyOwner.PRIMARY);
 	} else {
 		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}

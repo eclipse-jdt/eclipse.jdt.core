@@ -17,6 +17,7 @@ package org.eclipse.jdt.core;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
+// TODO: add WorkingCopyOwner
 public interface ICodeAssist {
 
 	/**

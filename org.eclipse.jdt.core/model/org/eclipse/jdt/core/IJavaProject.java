@@ -78,6 +78,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * classpath-relative path, or <code>null</code> if no such 
 	 * <code>IJavaElement</code> is found
 	 */
+	// TODO: add WorkingCopyOwner
 	IJavaElement findElement(IPath path) throws JavaModelException;
 
 	/**
@@ -153,6 +154,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @see IType#getFullyQualifiedName(char)
 	 * @since 2.0
 	 */
+	// TODO: add WorkingCopyOwner
 	IType findType(String fullyQualifiedName) throws JavaModelException;
 	/**
 	 * Returns the first type found following this project's classpath 
@@ -181,6 +183,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 
 	 * @since 2.0
 	 */
+	// TODO: add WorkingCopyOwner
 	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
 
 	/**
@@ -488,6 +491,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Creates a new evaluation context.
 	 * @return a new evaluation context.
 	 */
+	// TODO: add WorkingCopyOwner
 	IEvaluationContext newEvaluationContext();
 
 	/**
@@ -502,6 +506,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @return a type hierarchy for all types in the given
 	 * region, considering subtypes within that region
 	 */
+	// TODO: add WorkingCopyOwner
 	ITypeHierarchy newTypeHierarchy(IRegion region, IProgressMonitor monitor)
 		throws JavaModelException;
 
@@ -520,6 +525,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @return a type hierarchy for the given type considering
 	 * subtypes in the specified region
 	 */
+	// TODO: add WorkingCopyOwner
 	ITypeHierarchy newTypeHierarchy(
 		IType type,
 		IRegion region,

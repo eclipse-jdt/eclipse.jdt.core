@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -170,7 +171,13 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  */
 public ICompilationUnit getCompilationUnit(String name) {
-	return  new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
+	return  getCompilationUnit(name, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see IPackageFragment#getCompilationUnit(String, WorkingCopyOwner)
+ */
+public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) {
+	return new CompilationUnit(this, name, owner);
 }
 /**
  * @see IPackageFragment#getCompilationUnits()
@@ -184,6 +191,25 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 	ICompilationUnit[] array= new ICompilationUnit[list.size()];
 	list.toArray(array);
 	return array;
+}
+/**
+ * @see IPackageFragment#getCompilationUnits(WorkingCopyOwner)
+ */
+public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) throws JavaModelException {
+	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, false/*don't add primary*/);
+	int length = workingCopies.length;
+	ICompilationUnit[] result = new ICompilationUnit[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		ICompilationUnit wc = workingCopies[i];
+		if (equals(wc.getParent())) {
+			result[index++] = wc;
+		}
+	}
+	if (index != length) {
+		System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
+	}
+	return result;
 }
 /**
  * @see JavaElement#getHandleMementoDelimiter()
