@@ -43,6 +43,19 @@ Eclipse SDK 3.0M9 Build - ?th May 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Due to an implementation cleanup, the optional diagnosis for unnecessary empty statement or empty control-flow
+statement, will be reverted to ignore by default. If you did set it differently in the past, you will have to manually
+set it back. We now conform to the spec for this option (until JDT/UI converted, the old option ID was 
+incorrectly used: "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"):
+<pre>
+* COMPILER / Reporting Empty Statements and Unnecessary Semicolons
+*    When enabled, the compiler will issue an error or a warning if an empty statement or a
+*    unnecessary semicolon is encountered.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.emptyStatement"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>	 
+</li>
 <li>Improved error location when type indirectly referenced from required .class files.</li>
 </ul>
 
