@@ -42,13 +42,13 @@ boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 	if (simpleNames == null || qualifiedNames == null) {
 		if (simpleNames == null && qualifiedNames == null) {
 			if (JavaBuilder.DEBUG)
-				System.out.println("  found well known match"); //$NON-NLS-1$
+				System.out.println("Found well known match"); //$NON-NLS-1$
 			return true;
 		} else if (qualifiedNames == null) {
 			for (int i = 0, l = simpleNames.length; i < l; i++) {
 				if (includes(simpleNames[i])) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("  found match in well known package to " + new String(simpleNames[i])); //$NON-NLS-1$
+						System.out.println("Found match in well known package to " + new String(simpleNames[i])); //$NON-NLS-1$
 					return true;
 				}
 			}
@@ -57,7 +57,7 @@ boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 				char[][] qualifiedName = qualifiedNames[i];
 				if (qualifiedName.length == 1 ? includes(qualifiedName[0]) : includes(qualifiedName)) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("  found well known match in " + CharOperation.toString(qualifiedName)); //$NON-NLS-1$
+						System.out.println("Found well known match in " + CharOperation.toString(qualifiedName)); //$NON-NLS-1$
 					return true;
 				}
 			}
@@ -69,7 +69,7 @@ boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 					char[][] qualifiedName = qualifiedNames[j];
 					if (qualifiedName.length == 1 ? includes(qualifiedName[0]) : includes(qualifiedName)) {
 						if (JavaBuilder.DEBUG)
-							System.out.println("  found match in " + CharOperation.toString(qualifiedName) //$NON-NLS-1$
+							System.out.println("Found match in " + CharOperation.toString(qualifiedName) //$NON-NLS-1$
 								+ " to " + new String(simpleNames[i])); //$NON-NLS-1$
 						return true;
 					}
