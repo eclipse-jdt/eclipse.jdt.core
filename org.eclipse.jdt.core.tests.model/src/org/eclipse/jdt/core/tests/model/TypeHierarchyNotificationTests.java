@@ -103,6 +103,11 @@ protected void setUp() throws Exception {
 	this.setUpJavaProject("TypeHierarchyNotification");
 }
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(TypeHierarchyNotificationTests.class.getName());
+		suite.addTest(new TypeHierarchyNotificationTests("testRemoveExternalProject"));
+		return suite;
+	}
 	return new Suite(TypeHierarchyNotificationTests.class);
 }
 protected void tearDown() throws Exception {
@@ -859,7 +864,7 @@ public void testRemoveExternalProject() throws JavaModelException, CoreException
 		
 		try {
 			this.deleteProject("External");
-			assertTrue("Should not receive change", this.changeReceived);
+			assertTrue("Should receive change", this.changeReceived);
 		} finally {
 			h.removeTypeHierarchyChangedListener(this);
 		}
