@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.parser.NLSLine;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.core.*;
 
@@ -378,7 +379,8 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					IMarker.CHAR_START, 
 					IMarker.CHAR_END, 
 					IMarker.LINE_NUMBER,
-					"readOnly"}, //$NON-NLS-1$ //TODO: (philippe) improve once IMarker constant is added 
+					"userEditable", //$NON-NLS-1$ //TODO: (philippe) replace with once available: IMarker.USER_EDITABLE,
+				}, 
 				new Object[] { 
 					task.getMessage(),
 					new Integer(priority),
@@ -386,7 +388,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
-					new Boolean(true),
+					new Boolean(false),
 				});
 		}
 	}
