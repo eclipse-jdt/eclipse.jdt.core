@@ -21,7 +21,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * CPE_PROJECT, CPE_LIBRARY or CPE_SOURCE.
 	 */
 	protected int entryKind;
-	
+
 	/**
 	 * Describes the kind of package fragment roots found on
 	 * this classpath entry - either K_BINARY or K_SOURCE or
@@ -72,139 +72,198 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * A constant indicating an output location.
 	 */
-	protected static final int K_OUTPUT= 10;
-/**
- * Creates a class path entry of the specified kind with the given path.
- */
-public ClasspathEntry(int contentKind, int entryKind, IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) {
-	this.contentKind = contentKind;
-	this.entryKind = entryKind;
-	this.path = path;
-	this.sourceAttachmentPath = sourceAttachmentPath;
-	this.sourceAttachmentRootPath = sourceAttachmentRootPath;
-}
-/**
- * Returns true if the given object is a classpath entry
- * with equivalent attributes.
- */
-public boolean equals(Object object) {
-	if (this == object) return true;
-	if (object instanceof IClasspathEntry) {
-		IClasspathEntry otherEntry = (IClasspathEntry) object;
+	protected static final int K_OUTPUT = 10;
 
-		if (this.contentKind != otherEntry.getContentKind()) return false;
+	/**
+	 * The export flag
+	 */
+	protected boolean isExported;
 
-		if (this.entryKind != otherEntry.getEntryKind()) return false;
-		
-		if (!this.path.equals(otherEntry.getPath())) return false;
+	/**
+	 * Creates a class path entry of the specified kind with the given path.
+	 * @deprecated - use constructor with extra boolean argument
+	 */
+	public ClasspathEntry(
+		int contentKind,
+		int entryKind,
+		IPath path,
+		IPath sourceAttachmentPath,
+		IPath sourceAttachmentRootPath) {
 
-		IPath otherPath = otherEntry.getSourceAttachmentPath();
-		if (this.sourceAttachmentPath == null) { 
-			if (otherPath != null) return false;
+		this(contentKind, entryKind, path, sourceAttachmentPath, sourceAttachmentRootPath, false);
+	}
+
+	/**
+	 * Creates a class path entry of the specified kind with the given path.
+	 */
+	public ClasspathEntry(
+		int contentKind,
+		int entryKind,
+		IPath path,
+		IPath sourceAttachmentPath,
+		IPath sourceAttachmentRootPath,
+		boolean isExported) {
+
+		this.contentKind = contentKind;
+		this.entryKind = entryKind;
+		this.path = path;
+		this.sourceAttachmentPath = sourceAttachmentPath;
+		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
+		this.isExported = isExported;
+	}
+	/**
+	 * Returns true if the given object is a classpath entry
+	 * with equivalent attributes.
+	 */
+	public boolean equals(Object object) {
+		if (this == object)
+			return true;
+		if (object instanceof IClasspathEntry) {
+			IClasspathEntry otherEntry = (IClasspathEntry) object;
+
+			if (this.contentKind != otherEntry.getContentKind())
+				return false;
+
+			if (this.entryKind != otherEntry.getEntryKind())
+				return false;
+
+			if (this.isExported != otherEntry.isExported())
+				return false;
+
+			if (!this.path.equals(otherEntry.getPath()))
+				return false;
+
+			IPath otherPath = otherEntry.getSourceAttachmentPath();
+			if (this.sourceAttachmentPath == null) {
+				if (otherPath != null)
+					return false;
+			} else {
+				if (!this.sourceAttachmentPath.equals(otherPath))
+					return false;
+			}
+
+			otherPath = otherEntry.getSourceAttachmentRootPath();
+			if (this.sourceAttachmentRootPath == null) {
+				if (otherPath != null)
+					return false;
+			} else {
+				if (!this.sourceAttachmentRootPath.equals(otherPath))
+					return false;
+			}
+
+			return true;
 		} else {
-			if (!this.sourceAttachmentPath.equals(otherPath)) return false;
+			return false;
 		}
-		
-		otherPath = otherEntry.getSourceAttachmentRootPath();
-		if (this.sourceAttachmentRootPath == null) { 
-			if (otherPath != null) return false;
-		} else {
-			if (!this.sourceAttachmentRootPath.equals(otherPath)) return false;
+	}
+	/**
+	 * @see IClasspathEntry
+	 */
+	public int getContentKind() {
+		return this.contentKind;
+	}
+	/**
+	 * @see IClasspathEntry
+	 */
+	public int getEntryKind() {
+		return this.entryKind;
+	}
+	/**
+	 * @see IClasspathEntry
+	 */
+	public IPath getPath() {
+		return this.path;
+	}
+	/**
+	 * @see IClasspathEntry
+	 * @deprecated
+	 */
+	public IClasspathEntry getResolvedEntry() {
+
+		return JavaCore.getResolvedClasspathEntry(this);
+	}
+	/**
+	 * @see IClasspathEntry
+	 */
+	public IPath getSourceAttachmentPath() {
+		return this.sourceAttachmentPath;
+	}
+	/**
+	 * @see IClasspathEntry
+	 */
+	public IPath getSourceAttachmentRootPath() {
+		return this.sourceAttachmentRootPath;
+	}
+	/**
+	 * Returns the hash code for this classpath entry
+	 */
+	public int hashCode() {
+		return this.path.hashCode();
+	}
+
+	/**
+	 * Returns a printable representation of this classpath entry.
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(getPath().toString());
+		buffer.append('[');
+		switch (getEntryKind()) {
+			case IClasspathEntry.CPE_LIBRARY :
+				buffer.append("CPE_LIBRARY"); //$NON-NLS-1$
+				break;
+			case IClasspathEntry.CPE_PROJECT :
+				buffer.append("CPE_PROJECT"); //$NON-NLS-1$
+				break;
+			case IClasspathEntry.CPE_SOURCE :
+				buffer.append("CPE_SOURCE"); //$NON-NLS-1$
+				break;
+			case IClasspathEntry.CPE_VARIABLE :
+				buffer.append("CPE_VARIABLE"); //$NON-NLS-1$
+				break;
 		}
-
-	    return true;
-	} else {
-		return false;
-	}
-}
-/**
- * @see IClasspathEntry
- */
-public int getContentKind() {
-	return this.contentKind;
-}
-/**
- * @see IClasspathEntry
- */
-public int getEntryKind() {
-	return this.entryKind;
-}
-/**
- * @see IClasspathEntry
- */
-public IPath getPath() {
-	return this.path;
-}
-/**
- * @see IClasspathEntry
- * @deprecated
- */
-public IClasspathEntry getResolvedEntry() {
-
-	return JavaCore.getResolvedClasspathEntry(this);
-}
-/**
- * @see IClasspathEntry
- */
-public IPath getSourceAttachmentPath() {
-	return this.sourceAttachmentPath;
-}
-/**
- * @see IClasspathEntry
- */
-public IPath getSourceAttachmentRootPath() {
-	return this.sourceAttachmentRootPath;
-}
-/**
- * Returns the hash code for this classpath entry
- */
-public int hashCode() {
-	return this.path.hashCode();
-}
-/**
- * Returns a printable representation of this classpath entry.
- */
-public String toString() {
-	StringBuffer buffer= new StringBuffer();
-	buffer.append(getPath().toString());
-	buffer.append('[');
-	switch (getEntryKind()) {
-		case IClasspathEntry.CPE_LIBRARY:
-			buffer.append("CPE_LIBRARY"); //$NON-NLS-1$
-			break;
-		case IClasspathEntry.CPE_PROJECT:
-			buffer.append("CPE_PROJECT"); //$NON-NLS-1$
-			break;
-		case IClasspathEntry.CPE_SOURCE:
-			buffer.append("CPE_SOURCE"); //$NON-NLS-1$
-			break;
-		case IClasspathEntry.CPE_VARIABLE:
-			buffer.append("CPE_VARIABLE"); //$NON-NLS-1$
-			break;
-	}
-	buffer.append("]["); //$NON-NLS-1$
-	switch (getContentKind()) {
-		case IPackageFragmentRoot.K_BINARY:
-			buffer.append("K_BINARY"); //$NON-NLS-1$
-			break;
-		case IPackageFragmentRoot.K_SOURCE:
-			buffer.append("K_SOURCE"); //$NON-NLS-1$
-			break;
-		case ClasspathEntry.K_OUTPUT:
-			buffer.append("K_OUTPUT"); //$NON-NLS-1$
-			break;
-	}
-	buffer.append(']');
-	if (getSourceAttachmentPath() != null){
-		buffer.append("[sourcePath:"); //$NON-NLS-1$
-		buffer.append(getSourceAttachmentPath());
+		buffer.append("]["); //$NON-NLS-1$
+		switch (getContentKind()) {
+			case IPackageFragmentRoot.K_BINARY :
+				buffer.append("K_BINARY"); //$NON-NLS-1$
+				break;
+			case IPackageFragmentRoot.K_SOURCE :
+				buffer.append("K_SOURCE"); //$NON-NLS-1$
+				break;
+			case ClasspathEntry.K_OUTPUT :
+				buffer.append("K_OUTPUT"); //$NON-NLS-1$
+				break;
+		}
 		buffer.append(']');
-	}
-	if (getSourceAttachmentRootPath() != null){
-		buffer.append("[rootPath:"); //$NON-NLS-1$
-		buffer.append(getSourceAttachmentRootPath());
+		if (getSourceAttachmentPath() != null) {
+			buffer.append("[sourcePath:"); //$NON-NLS-1$
+			buffer.append(getSourceAttachmentPath());
+			buffer.append(']');
+		}
+		if (getSourceAttachmentRootPath() != null) {
+			buffer.append("[rootPath:"); //$NON-NLS-1$
+			buffer.append(getSourceAttachmentRootPath());
+			buffer.append(']');
+		}
+		buffer.append("[isExported:"); //$NON-NLS-1$
+		buffer.append(this.isExported);
 		buffer.append(']');
+		return buffer.toString();
 	}
-	return buffer.toString();
-}
+	/*
+	 * @see IClasspathEntry#isExported()
+	 */
+	public boolean isExported() {
+		return this.isExported;
+	}
+
+	/*
+	 * @see IClasspathEntry#setExported(boolean)
+	 */
+	public void setExported(boolean exportFlag) {
+		if (getEntryKind() != CPE_SOURCE) {
+			this.isExported = exportFlag;
+		}
+	}
+
 }

@@ -92,15 +92,19 @@ protected void executeOperation() throws JavaModelException {
 		JavaElementDelta delta= new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;
 		boolean oldResolvedPathLongest= oldResolvedPath.length >= newResolvedPath.length;
+		
 		for (int i= 0; i < oldResolvedPath.length; i++) {
+
 			int index= classpathContains(newResolvedPath, oldResolvedPath[i]);
 			if (index == -1) {
 				IPackageFragmentRoot[] pkgFragmentRoots = project.getPackageFragmentRoots(oldResolvedPath[i]);
 				addDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE;
+
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
 					IPackageFragmentRoot root = pkgFragmentRoots[j];
+
 					if (root instanceof JarPackageFragmentRoot) {
 						JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot)root;
 						try {
@@ -109,8 +113,8 @@ protected void executeOperation() throws JavaModelException {
 						}
 					}
 				}
-				
 				hasDelta = true;
+
 			} else if (oldResolvedPathLongest && index != i) { //reordering of the classpath
 				addDeltas(project.getPackageFragmentRoots(oldResolvedPath[i]), IJavaElementDelta.F_CLASSPATH_REORDER, delta);
 				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE;
@@ -119,11 +123,13 @@ protected void executeOperation() throws JavaModelException {
 		}
 
 		for (int i= 0; i < newResolvedPath.length; i++) {
+
 			int index= classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
 				addDeltas(project.getPackageFragmentRoots(newResolvedPath[i]), IJavaElementDelta.F_ADDED_TO_CLASSPATH, delta);
 				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
+
 			} else if (!oldResolvedPathLongest && index != i) { //reordering of the classpath
 				addDeltas(project.getPackageFragmentRoots(newResolvedPath[i]), IJavaElementDelta.F_CLASSPATH_REORDER, delta);
 				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE;				

@@ -481,29 +481,42 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (target == null)
 			return null;
 
+		IClasspathEntry targetEntry;
+		
 		// inside the workspace
 		if (target instanceof IResource) {
 			IResource resolvedResource = (IResource) target;
 			if (resolvedResource != null) {
 				switch (resolvedResource.getType()) {
-					case IResource.PROJECT :
-						return JavaCore.newProjectEntry(resolvedPath); // internal project
-					case IResource.FILE :
+					
+					case IResource.PROJECT :  
+						// internal project
+						targetEntry = JavaCore.newProjectEntry(resolvedPath);
+						targetEntry.setExported(entry.isExported());
+						return targetEntry;
+						
+					case IResource.FILE : 
 						String extension = resolvedResource.getFileExtension();
-						if ("jar"  //$NON-NLS-1$
-							.equalsIgnoreCase(extension) || "zip"  //$NON-NLS-1$
-							.equalsIgnoreCase(extension)) { // internal binary archive
-							return JavaCore.newLibraryEntry(
+						if ("jar".equalsIgnoreCase(extension)  //$NON-NLS-1$
+							 || "zip".equalsIgnoreCase(extension)) {  //$NON-NLS-1$
+							// internal binary archive
+							targetEntry = JavaCore.newLibraryEntry(
+									resolvedPath,
+									getResolvedVariablePath(entry.getSourceAttachmentPath()),
+									getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
+							targetEntry.setExported(entry.isExported());
+							return targetEntry;
+						}
+						break;
+						
+					case IResource.FOLDER : 
+						// internal binary folder
+						targetEntry = JavaCore.newLibraryEntry(
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
 								getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-						}
-						break;
-					case IResource.FOLDER : // internal binary folder
-						return JavaCore.newLibraryEntry(
-							resolvedPath,
-							getResolvedVariablePath(entry.getSourceAttachmentPath()),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
+						targetEntry.setExported(entry.isExported());
+						return targetEntry;
 				}
 			}
 		}
@@ -515,16 +528,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				if (fileName.endsWith(".jar"  //$NON-NLS-1$
 					) || fileName.endsWith(".zip"  //$NON-NLS-1$
 					)) { // external binary archive
-					return JavaCore.newLibraryEntry(
+					targetEntry = JavaCore.newLibraryEntry(
+							resolvedPath,
+							getResolvedVariablePath(entry.getSourceAttachmentPath()),
+							getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
+					targetEntry.setExported(entry.isExported());
+					return targetEntry;
+				}
+			} else { // external binary folder
+				targetEntry = JavaCore.newLibraryEntry(
 						resolvedPath,
 						getResolvedVariablePath(entry.getSourceAttachmentPath()),
 						getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
-				}
-			} else { // external binary folder
-				return JavaCore.newLibraryEntry(
-					resolvedPath,
-					getResolvedVariablePath(entry.getSourceAttachmentPath()),
-					getResolvedVariablePath(entry.getSourceAttachmentRootPath()));
+				targetEntry.setExported(entry.isExported());
+				return targetEntry;
 			}
 		}
 		return null;
@@ -615,20 +632,59 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * 
+	 * @deprecated - use newLibraryEntry(IPath, IPath, IPath, boolean) instead
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath) {
+			
+		return newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, false);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
+	 * identified by the given absolute path. This specifies that all package fragments within the root 
+	 * will have children of type <code>IClassFile</code>.
+	 * <p>
+	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
+	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
+	 * to the workspace root) or externally to the workspace (absolute path in the file system).
+	 *
+	 * e.g. Here are some examples of binary path usage<ul>
+	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
+	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
+	 *	<li><code> "c:/classes/" </code> - reference to an external binary folder</li>
+	 * </ul>
+	 * Note that this operation does not attempt to validate or access the 
+	 * resources at the given paths.
+	 * <p>
+	 * @param path the absolute path of the binary archive
+	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
+	 *    or <code>null</code> if none
+	 * @param sourceAttachmentRootPath the location of the root within the source archive
+	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
+	 * 	projects (in addition to the output location). By default, it should not.
+	 */
+	public static IClasspathEntry newLibraryEntry(
+		IPath path,
+		IPath sourceAttachmentPath,
+		IPath sourceAttachmentRootPath,
+		boolean isExported) {
+			
 		Assert.isTrue(
 			path.isAbsolute(),
 			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
 			JavaProject.canonicalizedPath(path),
 			sourceAttachmentPath,
-			sourceAttachmentRootPath);
+			sourceAttachmentRootPath,
+			isExported);
 	}
 
 	/**
@@ -643,8 +699,31 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
+	 * 
+	 * @deprecated - use newProjectEntry(IPath, boolean) instead
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path) {
+		return newProjectEntry(path, false);
+	}
+	
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
+	 * for the project identified by the given absolute path.
+	 * <p>
+	 * A project entry is used to denote a prerequisite project on a classpath.
+	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
+	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
+	 * whole output location).
+	 * <p>
+	 * A project reference allows to indirect through another project, independently from its internal layout. 
+	 * <p>
+	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
+	 *  <p>
+	 * @param path the absolute path of the prerequisite project
+	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
+	 * 	projects (in addition to the output location). By default, it should not.
+	 */
+	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
 		Assert.isTrue(
 			path.isAbsolute(),
 			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
@@ -653,7 +732,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IClasspathEntry.CPE_PROJECT,
 			path,
 			null,
-			null);
+			null,
+			isExported);
 	}
 
 	/**
@@ -672,6 +752,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * A source entry is used to setup the internal source layout of a project, and cannot be used out of the
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
+	 * <p>
+	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
+	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>)
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 		Assert.isTrue(
@@ -682,7 +765,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IClasspathEntry.CPE_SOURCE,
 			path,
 			null,
-			null);
+			null,
+			false);
 	}
 
 	/**
@@ -713,6 +797,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 *
+	 * @deprecated - use newVariableEntry(IPath, IPath, IPath, boolean) instead
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -721,12 +807,57 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Assert.isTrue(
 			variablePath != null && variablePath.segmentCount() >= 1,
 			Util.bind("classpath.illegalVariablePath" )); //$NON-NLS-1$
+		return newVariableEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, false);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the the path is the name of a classpath variable.
+	 * The trailing segments of the path will be appended to resolved variable path.
+	 * <p>
+	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
+	 * depending on what the classpath variable is referring.
+	 * <p>
+	 * e.g. Here are some examples of variable path usage<ul>
+	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
+	 * </ul>
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath variables
+	 * or access the resources at the given paths.
+	 * <p>
+	 * @param variablePath the path of the binary archive; first segment is the
+	 *   name of a classpath variable
+	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
+	 *    or <code>null</code> if none; if present, the first segment is the
+	 *    name of a classpath variable (not necessarily the same variable
+	 *    as the one that begins <code>variablePath</code>)
+	 * @param sourceAttachmentRootPath the location of the root within the source archive
+	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
+	 * 	projects (in addition to the output location). By default, it should not.
+	 */
+	public static IClasspathEntry newVariableEntry(
+		IPath variablePath,
+		IPath variableSourceAttachmentPath,
+		IPath sourceAttachmentRootPath,
+		boolean isExported) {
+			
+		Assert.isTrue(
+			variablePath != null && variablePath.segmentCount() >= 1,
+			Util.bind("classpath.illegalVariablePath" )); //$NON-NLS-1$
+			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_VARIABLE,
 			variablePath,
 			variableSourceAttachmentPath,
-			sourceAttachmentRootPath);
+			sourceAttachmentRootPath,
+			isExported);
 	}
 
 	/**
