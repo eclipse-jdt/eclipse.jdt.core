@@ -180,9 +180,14 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * have more than one root (if that project has more than on root
 	 * containing source), and classpath entries within the current
 	 * project identify a single root.
-	 *
-	 * If the classpath entry denotes a variable, it will be resolved and returning
+	 * <p>
+	 * If the classpath entry denotes a variable, it will be resolved and return
 	 * the roots of the target entry (empty if not resolvable).
+	 * <p>
+	 * If the classpath entry denotes a container, it will be resolved and return
+	 * the roots corresponding to the set of container entries (empty if not resolvable).
+	 * 
+	 * @see IClasspathContainer
 	 */
 	IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry);
 

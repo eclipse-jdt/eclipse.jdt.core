@@ -326,10 +326,10 @@ public class JavaProject
 	 * Note: this follows project classpath references to find required project contributions,
 	 * eliminating duplicates silently.
 	 */
-	public IPackageFragmentRoot[] computePackageFragmentRoots(boolean retrieveExportedRoots) {
+	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry[] classpath, boolean retrieveExportedRoots) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
-		computePackageFragmentRoots(accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
+		computePackageFragmentRoots(classpath, accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
@@ -345,7 +345,7 @@ public class JavaProject
 		HashSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
-		boolean retrieveExportedRoots) {
+		boolean retrieveExportedRoots) throws JavaModelException {
 			
 		String rootID = ((ClasspathEntry)entry).rootID();
 		if (rootIDs.contains(rootID)) return;
@@ -422,7 +422,13 @@ public class JavaProject
 				IProject requiredProjectRsc = requiredProject.getProject();
 				if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
 					rootIDs.add(rootID);
-					requiredProject.computePackageFragmentRoots(accumulatedRoots, rootIDs, false, checkExistency, retrieveExportedRoots);
+					requiredProject.computePackageFragmentRoots(
+						requiredProject.getResolvedClasspath(true), 
+						accumulatedRoots, 
+						rootIDs, 
+						false, 
+						checkExistency, 
+						retrieveExportedRoots);
 				}
 				break;
 			}
@@ -434,29 +440,25 @@ public class JavaProject
 	 * eliminating duplicates silently.
 	 */
 	public void computePackageFragmentRoots(
+		IClasspathEntry[] classpath,
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
-		boolean retrieveExportedRoots) {
+		boolean retrieveExportedRoots) throws JavaModelException {
 
 		if (insideOriginalProject){
 			rootIDs.add(rootID());
 		}	
-		try {
-			IClasspathEntry[] classpath = getResolvedClasspath(true);
-	
-			for (int i = 0, length = classpath.length; i < length; i++){
-				computePackageFragmentRoots(
-					classpath[i],
-					accumulatedRoots,
-					rootIDs,
-					insideOriginalProject,
-					checkExistency,
-					retrieveExportedRoots);
-			}
-		} catch(JavaModelException e){
-		}			
+		for (int i = 0, length = classpath.length; i < length; i++){
+			computePackageFragmentRoots(
+				classpath[i],
+				accumulatedRoots,
+				rootIDs,
+				insideOriginalProject,
+				checkExistency,
+				retrieveExportedRoots);
+		}
 	}
 
 	/**
@@ -523,13 +525,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns a new element info for this element.
-	 */
-	protected OpenableElementInfo createElementInfo() {
-
-		return new JavaProjectElementInfo();
-	}
-
 	/**
 	 * Removes the Java nature from the project.
 	 */
@@ -552,6 +547,7 @@ public class JavaProject
 		// remove project from java model
 		JavaElementInfo jmi = model.getElementInfo();
 		jmi.removeChild(this);
+	}
 	}
 
 	/**
@@ -831,7 +827,7 @@ public class JavaProject
 	public IPackageFragmentRoot[] getAllPackageFragmentRoots()
 		throws JavaModelException {
 
-		return computePackageFragmentRoots(true);
+		return computePackageFragmentRoots(getResolvedClasspath(true), true);
 	}
 
 	/**
@@ -1131,101 +1127,16 @@ public class JavaProject
 
 	/**
 	 * Returns the package fragment roots identified by the given entry.
-	 * @deprecated - use findPackageFragmentRoot(IPath)
 	 */
 	public IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry) {
+		
+		try {
 
-		entry = JavaCore.getResolvedClasspathEntry(entry);
-		if (entry == null) {
-			return new IPackageFragmentRoot[] {
-			}; // variable not found			
-		}
-		IPath path = entry.getPath();
-		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
+			IClasspathEntry[] correspondingEntries = this.getResolvedClasspath(new IClasspathEntry[]{entry}, true, false);
+			return computePackageFragmentRoots(correspondingEntries, false);
 
-		String ext = path.getFileExtension();
-		if (ext != null && entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
-			IPackageFragmentRoot root = null;
-			if (ext.equalsIgnoreCase("zip") //$NON-NLS-1$
-				|| ext.equalsIgnoreCase("jar")) {  //$NON-NLS-1$
-				// jar
-				Object target = JavaModel.getTarget(workspaceRoot, path, false);
-				if (target == null) {
-					return new IPackageFragmentRoot[0];
-				} else {
-					if (target instanceof java.io.File) {
-						// file system jar
-						if (((java.io.File)target).isDirectory()) {
-							return new IPackageFragmentRoot[0]; // directory not supported as external library
-						} else {
-							root = new JarPackageFragmentRoot(path.toOSString(), this);
-						}
-					} else {
-						// resource jar
-						IResource resource = workspaceRoot.getFile(path);
-						if (resource.getType() == IResource.FOLDER) {
-							root = new PackageFragmentRoot(resource, this); 
-						} else {
-							root = new JarPackageFragmentRoot(resource, this);
-						}
-					}
-					return new IPackageFragmentRoot[] { root };
-				}
-			}
-		}
-		IPath projectPath = getProject().getFullPath();
-		if (projectPath.isPrefixOf(path)) {
-			// local to this project
-			IResource resource = null;
-			if (path.segmentCount() > 1) {
-				resource = workspaceRoot.getFolder(path);
-			} else {
-				resource = workspaceRoot.findMember(path);
-			}
-			if (resource == null)
-				return new IPackageFragmentRoot[] {
-			};
-			IPackageFragmentRoot root = new PackageFragmentRoot(resource, this);
-			return new IPackageFragmentRoot[] { root };
-		} else {
-			// another project
-			if (path.segmentCount() != 1) {
-				if (entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
-					// binary folder in another project
-					IResource resource = workspaceRoot.getFolder(path);
-					if (resource == null) {
-						return new IPackageFragmentRoot[] {};
-					} else {
-						IPackageFragmentRoot root = new PackageFragmentRoot(resource, this);
-						return new IPackageFragmentRoot[] { root };
-					}
-				} else {
-					// invalid path for a project
-					return new IPackageFragmentRoot[] {};
-				}
-			} else {
-				String project = path.segment(0);
-				IJavaProject javaProject = getJavaModel().getJavaProject(project);
-				ArrayList sourceRoots = new ArrayList();
-				IPackageFragmentRoot[] roots = null;
-				try {
-					roots = javaProject.getPackageFragmentRoots();
-				} catch (JavaModelException e) {
-					return new IPackageFragmentRoot[] {};
-				}
-				for (int i = 0; i < roots.length; i++) {
-					try {
-						if (roots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
-							sourceRoots.add(roots[i]);
-						}
-					} catch (JavaModelException e) {
-						// do nothing if the root does not exist
-					}
-				}
-				IPackageFragmentRoot[] copy = new IPackageFragmentRoot[sourceRoots.size()];
-				sourceRoots.toArray(copy);
-				return copy;
-			}
+		} catch (JavaModelException e) {
+			return new IPackageFragmentRoot[] {};
 		}
 	}
 
@@ -2166,10 +2077,11 @@ public class JavaProject
 				try {
 					JavaProjectElementInfo info = getJavaProjectElementInfo();
 
+					IClasspathEntry[] classpath = getResolvedClasspath(true);
 					NameLookup lookup = info.getNameLookup();
 					if (lookup != null){
 						IPackageFragmentRoot[] oldRoots = lookup.fPackageFragmentRoots;
-						IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(true);
+						IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
 						checkIdentical: { // compare all pkg fragment root lists
 							if (oldRoots.length == newRoots.length){
 								for (int i = 0, length = oldRoots.length; i < length; i++){
@@ -2184,7 +2096,7 @@ public class JavaProject
 					}				
 					info.setNonJavaResources(null);
 					info.setChildren(
-						computePackageFragmentRoots(false));		
+						computePackageFragmentRoots(classpath, false));		
 
 				} catch(JavaModelException e){
 					try {
