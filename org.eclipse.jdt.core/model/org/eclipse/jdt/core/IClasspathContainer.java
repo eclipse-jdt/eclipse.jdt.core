@@ -13,31 +13,28 @@ package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IPath;
 
-/** TOFIX
- * Abstract base implementation of all classpath container initializer.
- * Classpath variable containers are used in conjunction with the
- * "org.eclipse.jdt.core.classpathContainerInitializer" extension point.
+/** 
+ * Interface of a classpath container.
+ * A classpath container provides a way to indirectly reference a set of classpath entries through
+ * a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
+ * be used to describe a complex library composed of multiple JARs, projects or classpath variables,
+ * considering also that containers can map to different set of entries on each project, i.e. several 
+ * projects can reference the same generic container path, but have each of them actually bound 
+ * to a different container object.
  * <p>
- * Clients should subclass this class to implement a specific classpath
- * container initializer. The subclass must have a public 0-argument
- * constructor and a concrete implementation of <code>initialize</code>.
+ * The set of entries associated with a classpath container may contain any of the following:
+ * <ul>
+ * <li> source entries (<code>CPE_SOURCE</code>) </li>
+ * <li> library entries (<code>CPE_LIBRARY</code>) </li>
+ * <li> project entries (<code>CPE_PROJECT</code>) </li>
+ * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
+ * </ul>
+ * In particular, a classpath container cannot reference further classpath containers.
  * <p>
- * Multiple classpath containers can be registered, each of them declares
- * a path prefix to narrow the set of container paths they can handle, i.e.
- * a container initializer is guaranteed to only be requested to resolve container
- * paths which match the prefix they registered onto.
+ * Classpath container values are persisted locally to the workspace, but are not preserved from a 
+ * session to another. It is thus highly recommended to register a <code>ClasspathContainerInitializer</code> 
+ * for each referenced container (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
  * <p>
- * This allows to register generic container initializers for a set of container paths,
- * e.g.
- * A container can denote a generic "JRE" or a more specific "JRE/1.3" and both
- * can be handled by the same container initializer registered for path prefix "JRE".
- * This initializer can then use the rest of the path as a clue for expanding the container
- * into a set of classpath entries.
- * <p>
- * In case multiple container initializers collide on the same prefixes, the most
- * specific one will be activated, in case of ambiguity, the first registered one
- * will be invoked.
- * </p>
  * @see IClasspathEntry
  * @since 2.0
  */

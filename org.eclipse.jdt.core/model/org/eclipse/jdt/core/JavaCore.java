@@ -285,22 +285,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * will be activated if any was registered for this container ID onto the extension point
 	 * "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
-	 * A classpath container provides a way to indirectly reference a set of classpath entries through
-	 * a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
-	 * be used to describe a complex library composed of multiple JARs, projects or classpath variables,
-	 * considering also that containers can be mapped differently on each project. Several projects can
-	 * reference the same generic container path, but have each of them actually bound to a different
-	 * container object.
-	 * <p>
-	 * The set of entries associated with a classpath container may contain any of the following:
-	 * <ul>
-	 * <li> source entries (<code>CPE_SOURCE</code>) </li>
-	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
-	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
-	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
-	 * </ul>
-	 * In particular, a classpath container cannot reference further classpath containers.
-	 * <p>
 	 * There is no assumption that the returned container must answer the exact same containerPath
 	 * when requested <code>IClasspathContainer#getPath</code>. 
 	 * Indeed, the containerPath is just an indication for resolving it to an actual container object.
@@ -312,10 +296,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * @param containerPath - the name of the container which needs to be resolved
 	 * @param project - a specific project in which the container is being resolved
+	 * @return IClasspathContainer - the corresponding classpath container or <code>null</code> if unable to find one.
 	 * 
 	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
 	 *   contains illegal entries (contains CPE_CONTAINER entries or null entries).	 
 	 * 
+	 * @see ClasspathContainerInitializer
+	 * @see IClasspathContainer
+	 * @see #setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @since 2.0
 	 */
 	public static IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
@@ -1148,7 +1136,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param respectiveContainers - the set of respective containers for the affected projects
 	 * @param monitor a monitor to report progress
 	 * 
+	 * @see ClasspathContainerInitializer
 	 * @see #getClasspathContainer(IPath, IJavaProject)
+	 * @see IClasspathContainer
 	 * @since 2.0
 	 */
 	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {

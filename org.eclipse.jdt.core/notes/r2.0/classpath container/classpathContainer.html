@@ -214,6 +214,15 @@ changes will be notified.
 <p> A classpath container implements <code>org.eclipse.jdt.core.IClasspathContainer</code> and can be queried
 through a JavaCore API: <code>JavaCore#getClasspathContainer(IPath containerPath, IJavaProject project) </code>.
 
+There is no assumption that the returned container must answer the exact same containerPath
+when requested <code>IClasspathContainer#getPath</code>. 
+Indeed, the containerPath is just an indication for resolving it to an actual container object.
+<p>
+Classpath container values are persisted locally to the workspace, but 
+are not preserved from a session to another. It is thus highly recommended to register a 
+<code>ClasspathContainerInitializer</code> for each referenced container 
+(through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
+	 
 <pre>
 public interface IClasspathContainer {
 	
