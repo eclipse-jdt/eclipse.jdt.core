@@ -81,9 +81,10 @@ public boolean build(SimpleLookupTable deltas) {
 		for (int i = 0, l = valueTable.length; i < l; i++) {
 			IResourceDelta delta = (IResourceDelta) valueTable[i];
 			if (delta != null) {
-				ClasspathLocation[] classFoldersAndJars = (ClasspathLocation[]) javaBuilder.binaryLocationsPerProject.get(keyTable[i]);
+				IProject p = (IProject) keyTable[i];
+				ClasspathLocation[] classFoldersAndJars = (ClasspathLocation[]) javaBuilder.binaryLocationsPerProject.get(p);
 				if (classFoldersAndJars != null)
-					if (!findAffectedSourceFiles(delta, classFoldersAndJars)) return false;
+					if (!findAffectedSourceFiles(delta, classFoldersAndJars, p)) return false;
 			}
 		}
 		notifier.updateProgressDelta(0.10f);
@@ -175,7 +176,7 @@ protected void addAffectedSourceFiles() {
 }
 
 protected void addDependentsOf(IPath path, boolean isStructuralChange) {
-	if (isStructuralChange) {
+	if (isStructuralChange && !this.hasStructuralChanges) {
 		newState.tagAsStructurallyChanged();
 		this.hasStructuralChanges = true;
 	}
@@ -204,7 +205,7 @@ protected void cleanUp() {
 	this.compileLoop = 0;
 }
 
-protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocation[] classFoldersAndJars) {
+protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocation[] classFoldersAndJars, IProject prereqProject) {
 	for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
 		ClasspathLocation bLocation = classFoldersAndJars[i];
 		// either a .class file folder or a zip/jar file
@@ -225,8 +226,11 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocatio
 					}
 					int segmentCount = binaryDelta.getFullPath().segmentCount();
 					IResourceDelta[] children = binaryDelta.getAffectedChildren(); // .class files from class folder
+					StringSet structurallyChangedTypes = null;
+					if (bLocation.isOutputFolder())
+						structurallyChangedTypes = this.newState.getStructurallyChangedTypes(javaBuilder.getLastState(prereqProject));
 					for (int j = 0, m = children.length; j < m; j++)
-						findAffectedSourceFiles(children[j], segmentCount);
+						findAffectedSourceFiles(children[j], segmentCount, structurallyChangedTypes);
 					notifier.checkCancel();
 				}
 			}
@@ -235,7 +239,7 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocatio
 	return true;
 }
 
-protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCount) {
+protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCount, StringSet structurallyChangedTypes) {
 	// When a package becomes a type or vice versa, expect 2 deltas,
 	// one on the folder & one on the class file
 	IResource resource = binaryDelta.getResource();
@@ -271,7 +275,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = binaryDelta.getAffectedChildren();
 					for (int i = 0, l = children.length; i < l; i++)
-						findAffectedSourceFiles(children[i], segmentCount);
+						findAffectedSourceFiles(children[i], segmentCount, structurallyChangedTypes);
 			}
 			return;
 		case IResource.FILE :
@@ -287,6 +291,8 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 					case IResourceDelta.CHANGED :
 						if ((binaryDelta.getFlags() & IResourceDelta.CONTENT) == 0)
 							return; // skip it since it really isn't changed
+						if (structurallyChangedTypes != null && !structurallyChangedTypes.includes(typePath.toString()))
+							return; // skip since it wasn't a structural change
 						if (JavaBuilder.DEBUG)
 							System.out.println("Found changed class file " + typePath); //$NON-NLS-1$
 						addDependentsOf(typePath, false);
@@ -611,9 +617,11 @@ protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newByt
 			if (JavaBuilder.DEBUG)
 				System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
 			addDependentsOf(new Path(fileName), true);
+			this.newState.wasStructurallyChanged(fileName);
 		}
 	} catch (ClassFormatException e) {
 		addDependentsOf(new Path(fileName), true);
+		this.newState.wasStructurallyChanged(fileName);
 	}
 	return true;
 }
