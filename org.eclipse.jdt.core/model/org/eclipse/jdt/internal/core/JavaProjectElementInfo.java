@@ -121,8 +121,9 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					case IResource.FOLDER :
 						resFullPath = res.getFullPath();
 						
-						// ignore folders on the classpath or that correspond to an output location
-						if (srcIsProject || this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+						// ignore non-excluded folders on the classpath or that correspond to an output location
+						if ((srcIsProject && !Util.isExcluded(res, exclusionPatterns))
+								|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 							break;
 						}
 						// else add non java resource

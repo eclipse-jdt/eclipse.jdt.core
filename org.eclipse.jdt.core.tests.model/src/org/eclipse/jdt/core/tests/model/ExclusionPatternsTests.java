@@ -110,6 +110,42 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 		pkg.getNonJavaResources());
 }
 /*
+ * Ensure that adding an exclusion on a folder directly under a project (and prj=src)
+ * makes it appears as a non-java resources.
+ * (regression test for bug 29374 Excluded folder on project not returned by Java Model)
+ */
+public void testAddExclusionOnFolderUnderProject() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P1", new String[] {""}, "");
+		this.createFolder("/P1/doc");
+
+		clearDeltas();
+		project.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}), null);
+	
+		assertDeltas(
+			"Unexpected deltas",
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]"
+		);
+	
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P1");
+		assertElementsEqual(
+			"Unexpected children",
+			"",
+			root.getChildren());
+		
+		assertResourcesEqual(
+			"Unexpected non-java resources of project",
+			".classpath\n" +
+			".project\n" +
+			"doc",
+			project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P1");
+	}
+}
+/*
  * Ensure that adding an exclusion on a package
  * makes it disappears from the children of its package fragment root 
  * and it is added to the non-java resources.

@@ -136,13 +136,12 @@ public interface IPackageFragmentRoot
 	 * <p>
 	 * Non-Java resources includes other files and folders located in the same
 	 * directories as the compilation units or class files under this package
-	 * fragment root. Source files excluded from this package fragment root
+	 * fragment root. Resources excluded from this package fragment root
 	 * by one or more exclusion patterns on the corresponding source classpath
 	 * entry are considered non-Java resources and will appear in the result
-	 * (possibly in a folder).
+	 * (possibly in a folder). Thus when a nested source folder is excluded, it will appear
+	 * in the non-Java resources of the outer folder.
 	 * </p>
-	 * TODO: (jerome) should explain how to recognize excluded resources from others
-	 * TODO: (jerome) should explain somewhere end result once using nested source folders (is inner non-java rsc of outer? no)
 	 * @return an array of non-Java resources contained in this package fragment root
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */

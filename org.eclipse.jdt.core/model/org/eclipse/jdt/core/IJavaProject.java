@@ -197,7 +197,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <p>
 	 * Non-Java resources includes other files and folders located in the
 	 * project not accounted for by any of it source or binary package fragment
-	 * roots.
+	 * roots. If the project is a source folder itself, resources excluded from the
+	 * corresponding source classpath entry by one or more exclusion patterns
+	 * are considered non-Java resources and will appear in the result
+	 * (possibly in a folder)
 	 * </p>
 	 * 
 	 * @return an array of non-Java resources directly contained in this project
