@@ -32,13 +32,17 @@ public class ASTConverterTest extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());		
 
-		Class c = ASTConverterTest.class;
-		Method[] methods = c.getMethods();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTConverterTest(methods[i].getName()));
+		if (true) {
+			Class c = ASTConverterTest.class;
+			Method[] methods = c.getMethods();
+			for (int i = 0, max = methods.length; i < max; i++) {
+				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+					suite.addTest(new ASTConverterTest(methods[i].getName()));
+				}
 			}
+			return suite;
 		}
+		suite.addTest(new ASTConverterTest("test0204"));			
 		return suite;
 	}
 		

@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0453"));			
+		suite.addTest(new ASTConverterTest2("test0454"));			
 		return suite;
 	}
 	/**
@@ -1426,6 +1426,31 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		assertNotNull("No method binding", methodBinding);
 		assertEquals("Wrong binding", "toString", methodBinding.getName());
+	}	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28296
+	 */
+	public void test0454() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0454", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0,1);
+		assertNotNull("No node", node);
+		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue("not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION); //$NON-NLS-1$
+		checkSourceRange(expression, "(int) (3.14f * a)", source);
+		CastExpression castExpression = (CastExpression) expression;
+		checkSourceRange(castExpression.getType(), "int", source);
+		Expression expression2 = castExpression.getExpression();
+		checkSourceRange(expression2, "(3.14f * a)", source);	
+		assertTrue("not a parenthesized expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
 	}	
 }
 
