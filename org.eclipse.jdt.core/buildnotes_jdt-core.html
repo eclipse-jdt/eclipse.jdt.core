@@ -17,12 +17,18 @@ Eclipse SDK Build ?? - ??th December 2001
 What's new in this drop</h2>
 
 <ul>
-<li> Java element deltas are batched.
+<li> Java element deltas are batched. If the java model operation modifies
+	 a resource, then the java element deltas are merged and fired during 
+	 the resource delta processing. If the java model operation doesn't 
+	 modify any resource (e.g. IWorkingCopy.reconcile()), then the java
+	 element delta is fired right away.
 </ul>
 <h3>
 Problem Reports Fixed</h3>
 
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6687">6687</a>
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6690">6690</a>
+CodeAssist finds types outside the classpath 
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6687">6687</a>
 Wrong JavaModel refresh after drag and drop outside folder with dot in name  
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6693">6693</a>
 AbstractImageBuilder.compile throws an ArrayIndexOutOfBoundsException on line 166 in build 20011206

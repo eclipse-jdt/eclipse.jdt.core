@@ -488,7 +488,6 @@ public class JavaProject
 				fgJavaModelManager.putInfo(this, info);
 
 				// read classpath property (contains actual classpath and output location settings)
-				boolean needToSaveClasspath = false;
 				IPath outputLocation = null;
 				IClasspathEntry[] classpath = null;
 
@@ -514,14 +513,12 @@ public class JavaProject
 				// restore output location				
 				if (outputLocation == null) {
 					outputLocation = defaultOutputLocation();
-					needToSaveClasspath = true;
 				}
 				((JavaProjectElementInfo)info).setOutputLocation(outputLocation);
 
 				// restore classpath
 				if (classpath == null) {
 					classpath = defaultClasspath();
-					needToSaveClasspath = true;
 				}
 				setRawClasspath0(classpath);
 
@@ -1876,7 +1873,6 @@ public IJavaElement rootedAt(IJavaProject project) {
 		JavaModelManager manager =
 			(JavaModelManager) JavaModelManager.getJavaModelManager();
 		try {
-			JavaProjectElementInfo info = getJavaProjectElementInfo();
 			IClasspathEntry[] newRawPath = newEntries;
 			if (newRawPath == null) { //are we already with the default classpath
 				newRawPath = defaultClasspath();
@@ -1950,7 +1946,6 @@ public IJavaElement rootedAt(IJavaProject project) {
 	public void setSharedProperty(QualifiedName key, String value)
 		throws CoreException {
 
-		IProject project = getProject();
 		String propertyName = computeSharedPropertyFileName(key);
 		IFile rscFile = getProject().getFile(propertyName);
 		InputStream input = new ByteArrayInputStream(value.getBytes());

@@ -26,6 +26,7 @@ public class SearchableEnvironment
 	public CompilationUnit unitToLookInside;
 
 	protected IJavaProject project;
+	protected IJavaSearchScope searchScope;
 
 	/**
 	 * Creates a SearchableEnvironment on the given project
@@ -33,6 +34,9 @@ public class SearchableEnvironment
 	public SearchableEnvironment(IJavaProject project) throws JavaModelException {
 		this.project = project;
 		this.nameLookup = (NameLookup) ((JavaProject) project).getNameLookup();
+
+		// Create search scope with visible entry on the project's classpath
+		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());
 	}
 
 	/**
@@ -196,11 +200,6 @@ public class SearchableEnvironment
 						CharOperation.subarray(prefix, lastDotIndex + 1, prefix.length));
 			}
 
-			SearchEngine searchEngine = new SearchEngine();
-
-			// Collect the project and its prerequisites (ie. referenced projects and jars)
-			IJavaSearchScope scope = searchEngine.createJavaSearchScope(new IJavaElement[] {this.project});
-
 			IProgressMonitor progressMonitor = new IProgressMonitor() {
 				boolean isCanceled = false;
 				public void beginTask(String name, int totalWork) {
@@ -247,14 +246,14 @@ public class SearchableEnvironment
 				}
 			};
 			try {
-				searchEngine.searchAllTypeNames(
+				new SearchEngine().searchAllTypeNames(
 					this.project.getUnderlyingResource().getWorkspace(),
 					qualification,
 					simpleName,
 					PREFIX_MATCH,
 					CASE_INSENSITIVE,
 					IJavaSearchConstants.TYPE,
-					scope,
+					this.searchScope,
 					nameRequestor,
 					CANCEL_IF_NOT_READY_TO_SEARCH,
 					progressMonitor);
