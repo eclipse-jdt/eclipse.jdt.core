@@ -3010,21 +3010,21 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		pos= rewriteRequiredNode(node, EnumDeclaration.NAME_PROPERTY);
 		pos= rewriteNodeList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, pos, " implements ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		int startIndent= getIndent(node.getStartPosition()) + 1;
-		RewriteEvent event= getEvent(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-		RewriteEvent[] events= event.getChildren();
-
-		pos= getPosAfterLeftBrace(pos);
 		StringBuffer leadString= new StringBuffer();
-		
-		if (isAllOfKind(events, RewriteEvent.INSERTED)) {
-			int lead= 1;
-			for (int i= 0; i < lead; i++) {
-				leadString.append(getLineDelimiter());
+		RewriteEvent constEvent= getEvent(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
+		if (constEvent != null && constEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
+			RewriteEvent[] events= constEvent.getChildren();
+	
+			pos= getPosAfterLeftBrace(pos);
+			if (isAllOfKind(events, RewriteEvent.INSERTED)) {
+				int lead= 1;
+				int startIndent= getIndent(node.getStartPosition()) + 1;
+				for (int i= 0; i < lead; i++) {
+					leadString.append(getLineDelimiter());
+				}
+				leadString.append(createIndentString(startIndent));
 			}
-			leadString.append(createIndentString(startIndent));
 		}
-		
 		pos= rewriteNodeList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, pos, leadString.toString(), ", "); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RewriteEvent bodyEvent= getEvent(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
