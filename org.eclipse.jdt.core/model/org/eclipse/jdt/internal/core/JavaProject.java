@@ -2122,33 +2122,24 @@ public class JavaProject
 	 * no cycle if the set is empty (and started empty)
 	 */
 	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, ArrayList visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
-
-		int index = visited.indexOf(this);
-		if (index >= 0){
-			// only consider direct participants inside the cycle
-			for (int i = index, size = visited.size(); i < size; i++){
-				cycleParticipants.add(visited.get(i)); 
-			}
-			return;
-		} else {
-			visited.add(this);
-		}
-		
+		visited.add(this);
 		try {
-			IClasspathEntry[] classpath;
-			if (preferredClasspath == null) {
-				classpath = getResolvedClasspath(true);
-			} else {
-				classpath = preferredClasspath;
-			}
+			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					String projectName = entry.getPath().lastSegment();
 					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
-					if (!cycleParticipants.contains(this) || !cycleParticipants.contains(project)) // skip if both are already part of cycle
+					int index = visited.indexOf(project);
+					if (index == -1 && cycleParticipants.contains(project))
+						index = visited.indexOf(this); // another loop in the cycle exists
+					if (index >= 0) { // only consider direct participants inside the cycle
+						for (int size = visited.size(); index < size; index++)
+							cycleParticipants.add(visited.get(index)); 
+					} else {
 						project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+					}
 				}
 			}
 		} catch(JavaModelException e){
