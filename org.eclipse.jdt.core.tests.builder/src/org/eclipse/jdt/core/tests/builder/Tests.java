@@ -395,4 +395,10 @@ public class Tests extends TestCase {
 		
 		return suite;
 	}
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+		env.resetWorkspace();
+	}
 }
