@@ -90,8 +90,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry entry) {
 
 		for (int i = 0; i < list.length; i++) {
-			if (list[i].getPath().equals(entry.getPath())) {
-				return i;
+			IClasspathEntry other = list[i];
+			if (other.getContentKind() == entry.getContentKind()
+				&& other.getEntryKind() == entry.getEntryKind()
+				&& other.isExported() == entry.isExported()
+				&& other.getPath().equals(entry.getPath())) {
+					return i;
 			}
 		}
 		return -1;
