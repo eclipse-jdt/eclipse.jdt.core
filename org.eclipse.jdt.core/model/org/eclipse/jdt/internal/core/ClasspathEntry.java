@@ -617,7 +617,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *      <ul><li> A source folder can coincidate with its own output location, in which case this output can then contain library archives. 
 	 *                     However, a specific output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li> 
 	 *              <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one. </li>
-	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself. </li>
+	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself, or if the output
+	 * 					location is excluded from the source folder. </li>
 	 *      </ul>
 	 * </ul>
 	 * 
@@ -678,20 +679,22 @@ public class ClasspathEntry implements IClasspathEntry {
 		// retrieve and check output locations
 		IPath potentialNestedOutput = null;
 		int sourceEntryCount = 0;
+		boolean disableExclusionPatterns = JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true));
+		boolean disableCustomOutputLocations = JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true));
+		
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry resolvedEntry = classpath[i];
 			switch(resolvedEntry.getEntryKind()){
 				case IClasspathEntry.CPE_SOURCE :
 					sourceEntryCount++;
 
-					if (resolvedEntry.getExclusionPatterns() != null && resolvedEntry.getExclusionPatterns().length > 0
-							&& JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
+					if (disableExclusionPatterns && resolvedEntry.getExclusionPatterns() != null && resolvedEntry.getExclusionPatterns().length > 0) {
 						return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, javaProject, resolvedEntry.getPath());
 					}
 					IPath customOutput; 
 					if ((customOutput = resolvedEntry.getOutputLocation()) != null) {
 
-						if (JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
+						if (disableCustomOutputLocations) {
 							return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS, javaProject, resolvedEntry.getPath());
 						}
 						// ensure custom output is in project
@@ -705,9 +708,13 @@ public class ClasspathEntry implements IClasspathEntry {
 						
 						// ensure custom output doesn't conflict with other outputs
 						int index;
+						
+						// check exact match
 						if ((index = Util.indexOfMatchingPath(customOutput, outputLocations, outputCount)) != -1) {
 							continue; // already found
 						}
+						
+						// check nesting
 						if ((index = Util.indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1) {
 							if (index == 0) {
 								// custom output is nested in project's output: need to check if all source entries have a custom
@@ -717,7 +724,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.makeRelative().toString(), outputLocations[index].makeRelative().toString())); //$NON-NLS-1$
 							}
 						}
-						outputLocations[outputCount++] = resolvedEntry.getOutputLocation();
+						outputLocations[outputCount++] = customOutput;
 					}
 			}	
 		}	
@@ -811,13 +818,20 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 			}
 			
-			// prevent nesting output location inside entry
-			int index;
-			if ((index = Util.indexOfNestedPath(entryPath, outputLocations, outputCount)) != -1) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocations[index].makeRelative().toString(), entryPath.makeRelative().toString())); //$NON-NLS-1$
-			}
+			// prevent nesting output location inside entry unless enclosing is a source entry which explicitly exclude the output location
+		    char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
+		    for (int j = 0; j < outputCount; j++){
+		        IPath currentOutput = outputLocations[j];
+    			if (entryPath.equals(currentOutput)) continue;
+				if (entryPath.isPrefixOf(currentOutput)) {
+				    if (kind != IClasspathEntry.CPE_SOURCE || !Util.isExcluded(currentOutput, exclusionPatterns)) {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", currentOutput.makeRelative().toString(), entryPath.makeRelative().toString())); //$NON-NLS-1$
+				    }
+				}
+		    }
 
-			// prevent nesting entry inside output location - when distinct from project or a source folder
+		    // prevent nesting entry inside output location - when distinct from project or a source folder
+			int index;
 			if ((index = Util.indexOfEnclosingPath(entryPath, outputLocations, outputCount)) != -1) {
 				if (!allowNestingInOutputLocations[index]) {
 					// allow nesting in project's output if all source entries have a custom output
