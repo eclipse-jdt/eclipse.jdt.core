@@ -92,6 +92,10 @@ package org.eclipse.jdt.core.dom;
  * a second time; in this case, the visits will be nested. In some cases,
  * this can lead to a stack overflow or out of memory condition.</li>
  * </ul>
+ * <p>Note that {@link #visit(LineComment) ASTVisitor.visit(LineComment)} and
+ * {@link #visit(BlockComment) ASTVisitor.visit(BlockComment)} are never traversed. 
+ * The user needs to use the {@link org.eclipse.jdt.core.dom.CompilationUnit#getCommentList() CompilationUnit.getCommentList()}
+ * to traverse all the comments in the compilation unit.
  * </p>
  * 
  * @see org.eclipse.jdt.core.dom.ASTNode#accept(ASTVisitor)
@@ -327,6 +331,7 @@ public abstract class ASTVisitor {
 	 * The default implementation does nothing and return true.
 	 * Subclasses may reimplement.
 	 * </p>
+	 * <p>Note: this method is old API and is never called.</p>
 	 * 
 	 * @param node the node to visit
 	 * @return <code>true</code> if the children of this node should be
@@ -770,6 +775,7 @@ public abstract class ASTVisitor {
 	 * The default implementation does nothing and return true.
 	 * Subclasses may reimplement.
 	 * </p>
+	 * <p>Note: this method is old API and is never called.</p>
 	 * 
 	 * @param node the node to visit
 	 * @return <code>true</code> if the children of this node should be
@@ -1656,7 +1662,7 @@ public abstract class ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
-	 * 
+	 * <p>Note: this method is old API and is never called.</p>
 	 * @param node the node to visit
 	 * @since 3.0
 	 */
@@ -1984,6 +1990,7 @@ public abstract class ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
+	 * <p>Note: this method is old API and is never called.</p>
 	 * 
 	 * @param node the node to visit
 	 * @since 3.0
