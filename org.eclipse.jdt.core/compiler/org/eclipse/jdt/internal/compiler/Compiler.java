@@ -416,16 +416,19 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			internalException.printStackTrace(writer);
 			StringBuffer buffer = stringWriter.getBuffer();
 
+			String[] pbArguments = new String[] {
+				Util.bind("compilation.internalError" ) //$NON-NLS-1$
+					+ "\n"  //$NON-NLS-1$
+					+ buffer.toString()};
+
 			result
 				.record(
 					problemReporter
 					.createProblem(
 						result.getFileName(),
 						IProblem.Unclassified,
-						new String[] {
-							Util.bind("compilation.internalError" ) //$NON-NLS-1$
-								+ "\n"  //$NON-NLS-1$
-								+ buffer.toString()},
+						pbArguments,
+						pbArguments,
 						Error, // severity
 						0, // source start
 						0, // source end
@@ -477,6 +480,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							result.getFileName(),
 							abortException.problemId,
 							abortException.problemArguments,
+							abortException.messageArguments,
 							Error, // severity
 							0, // source start
 							0, // source end

@@ -72,15 +72,34 @@ public char[] readableName() {
 		return sourceName;
 	}
 }
-// Record that the type is a local member type
 
+public char[] shortReadableName() {
+	if (isAnonymousType()) {
+		if (superInterfaces == NoSuperInterfaces)
+			return ("<"+Util.bind("binding.subclass",new String(superclass.shortReadableName())) + ">").toCharArray(); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+		else
+			return ("<"+Util.bind("binding.implementation",new String(superInterfaces[0].shortReadableName())) + ">").toCharArray();			 //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+	} else if (isMemberType()) {
+		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
+	} else {
+		return sourceName;
+	}
+}
+
+// Record that the type is a local member type
 public void setAsMemberType() {
 	tagBits |= MemberTypeMask;
 }
+
 public char[] sourceName() {
-	if (isAnonymousType())
-		return readableName();
-	else
+	if (isAnonymousType()) {
+		//return readableName();
+		if (superInterfaces == NoSuperInterfaces)
+			return ("<"+Util.bind("binding.subclass",new String(superclass.sourceName())) + ">").toCharArray(); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+		else
+			return ("<"+Util.bind("binding.implementation",new String(superInterfaces[0].sourceName())) + ">").toCharArray();			 //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			
+	} else
 		return sourceName;
 }
 public String toString() {

@@ -20,19 +20,23 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  *	try statements, exception handlers, etc...
  */
 public class LabelFlowContext extends SwitchFlowContext {
+	
 	public char[] labelName;
+	
 	public LabelFlowContext(
 		FlowContext parent,
 		AstNode associatedNode,
 		char[] labelName,
 		Label breakLabel,
 		BlockScope scope) {
+			
 		super(parent, associatedNode, breakLabel);
 		this.labelName = labelName;
 		checkLabelValidity(scope);
 	}
 
 	void checkLabelValidity(BlockScope scope) {
+		
 		// check if label was already defined above
 		FlowContext current = parent;
 		while (current != null) {
@@ -46,10 +50,12 @@ public class LabelFlowContext extends SwitchFlowContext {
 	}
 
 	public String individualToString() {
+
 		return "Label flow context [label:" + String.valueOf(labelName) + "]"; //$NON-NLS-2$ //$NON-NLS-1$
 	}
 
 	public char[] labelName() {
+
 		return labelName;
 	}
 }

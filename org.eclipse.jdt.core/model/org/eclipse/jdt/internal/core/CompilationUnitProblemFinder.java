@@ -180,7 +180,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 			public IProblem createProblem(
 				char[] originatingFileName,
 				int problemId,
-				String[] arguments,
+				String[] problemArguments,
+				String[] messageArguments,
 				int severity,
 				int startPosition,
 				int endPosition,
@@ -194,7 +195,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 					super.createProblem(
 						originatingFileName,
 						problemId,
-						arguments,
+						problemArguments,
+						messageArguments,
 						severity,
 						startPosition,
 						endPosition,

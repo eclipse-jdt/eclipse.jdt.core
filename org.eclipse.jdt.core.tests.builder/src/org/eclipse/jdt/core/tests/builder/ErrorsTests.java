@@ -54,6 +54,6 @@ public class ErrorsTests extends Tests {
 		incrementalBuild(projectPath);
 
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method p1.Indicted.foo()", collaboratorPath));
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method Indicted.foo()", collaboratorPath));
 	}
 }

@@ -556,6 +556,14 @@ public char[] readableName() /*java.lang.Object*/ {
 	else
 		return CharOperation.concatWith(compoundName, '.');
 }
+
+public char[] shortReadableName() /*Object*/ {
+	if (isMemberType())
+		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
+	else
+		return sourceName;
+}
+
 /* Answer the receiver's signature.
 *
 * NOTE: This method should only be used during/after code gen.

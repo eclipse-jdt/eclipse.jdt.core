@@ -120,5 +120,9 @@ public abstract char[] qualifiedSourceName();
 public char[] signature() {
 	return constantPoolName();
 }
+public char[] shortReadableName(){
+	return sourceName();
+}
+
 public abstract char[] sourceName();
 }

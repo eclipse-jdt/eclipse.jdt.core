@@ -28,7 +28,8 @@ public interface IProblemFactory {
 	IProblem createProblem(
 		char[] originatingFileName,
 		int problemId,
-		String[] arguments,
+		String[] problemArguments,
+		String[] messageArguments, // shorter versions of the problemArguments
 		int severity,
 		int startPosition,
 		int endPosition,
@@ -36,5 +37,5 @@ public interface IProblemFactory {
 		
 	Locale getLocale();
 	
-	String getLocalizedMessage(int problemId, String[] problemArguments);
+	String getLocalizedMessage(int problemId, String[] messageArguments);
 }

@@ -46,7 +46,8 @@ public DefaultProblemFactory(Locale loc) {
  * <ul>
  * <li>originatingFileName the name of the file name from which the problem is originated
  * <li>problemId the problem id
- * <li>arguments the arguments needed to set the error message
+ * <li>problemArguments the fully qualified arguments recorded inside the problem
+ * <li>messageArguments the arguments needed to set the error message (shorter names than problemArguments ones)
  * <li>severity the severity of the problem
  * <li>startPosition the starting position of the problem
  * <li>endPosition the end position of the problem
@@ -64,7 +65,8 @@ public DefaultProblemFactory(Locale loc) {
 public IProblem createProblem(
 	char[] originatingFileName, 
 	int problemId, 
-	String[] arguments, 
+	String[] problemArguments, 
+	String[] messageArguments, 
 	int severity, 
 	int startPosition, 
 	int endPosition, 
@@ -72,9 +74,9 @@ public IProblem createProblem(
 
 	return new DefaultProblem(
 		originatingFileName, 
-		this.getLocalizedMessage(problemId, arguments),
+		this.getLocalizedMessage(problemId, messageArguments),
 		problemId, 
-		arguments, 
+		problemArguments, 
 		severity, 
 		startPosition, 
 		endPosition, 
@@ -101,30 +103,6 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	char[] messageWithNoDoubleQuotes =
 		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 	message = new String(messageWithNoDoubleQuotes);
-
-	// dequalify problem arguments, using following heuristic:
-	// - if no segment is uppercased, then keep it all
-	// - if one segment is uppercased, then only preserve the trailing portion, starting from this segment
-	// e.g. 	java.lang.Object --> Object
-	// 		int --> int
-	//			java.lang --> java.lang
-	//			p.X.Y --> X.Y
-	for (int i = 0; i < problemArguments.length; i++){
-		String problemArgument = problemArguments[i];
-		int length = problemArgument.length();
-		
-		if (length > 0 && Character.isLowerCase(problemArgument.charAt(0))) {
-			int start = 0;
-			while (start < length) {
-				int index = problemArgument.indexOf('.', start);
-				if (index == -1) break;
-				if (index < length && Character.isUpperCase(problemArgument.charAt(index+1))){
-					problemArguments[i] = problemArgument.substring(index+1);
-				}
-				start = index+1;
-			}
-		}
-	}
 
 	int length = message.length();
 	int start = -1, end = length;

@@ -67,7 +67,8 @@ public class LabeledStatement extends Statement {
 	
 	public AstNode concreteStatement() {
 		
-		return statement.concreteStatement();
+		// return statement.concreteStatement(); // for supporting nested labels:   a:b:c: someStatement (see 21912)
+		return statement;
 	}
 	
 	/**

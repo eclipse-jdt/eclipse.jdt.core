@@ -84,7 +84,7 @@ public class AbstractMethodTests extends Tests {
 			
 		incrementalBuild();
 		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved (or is not a valid type) for the argument x of the method foo", classX));
-		expectingOnlySpecificProblemFor(classY, new Problem("Y", "Class must implement the inherited abstract method p2.X.foo(IX)", classY));
+		expectingOnlySpecificProblemFor(classY, new Problem("Y", "Class must implement the inherited abstract method X.foo(IX)", classY));
 		
 		//----------------------------
 		//           Step 3

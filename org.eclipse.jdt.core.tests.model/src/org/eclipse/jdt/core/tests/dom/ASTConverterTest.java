@@ -231,11 +231,11 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	}
 		
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return this.ast.parseCompilationUnit(unit, resolveBindings);
+		return AST.parseCompilationUnit(unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return this.ast.parseCompilationUnit(source, unitName, project);
+		return AST.parseCompilationUnit(source, unitName, project);
 	}
 	
 	public void test0001() throws JavaModelException {

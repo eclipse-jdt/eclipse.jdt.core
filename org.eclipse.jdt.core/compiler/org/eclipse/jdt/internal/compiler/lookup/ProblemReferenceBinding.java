@@ -38,4 +38,12 @@ public ProblemReferenceBinding(char[] name, Binding original, int problemId) {
 public final int problemId() {
 	return problemId;
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
+ */
+public char[] shortReadableName() {
+	return readableName();
+}
+
 }

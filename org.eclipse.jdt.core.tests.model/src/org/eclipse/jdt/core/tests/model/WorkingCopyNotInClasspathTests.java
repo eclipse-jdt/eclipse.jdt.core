@@ -53,7 +53,7 @@ public void tearDown() throws Exception {
 
 public void testCommit() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	this.assertTrue("Original element should not be null", original != null);
+	assertTrue("Original element should not be null", original != null);
 
 	IBuffer workingCopyBuffer = this.workingCopy.getBuffer();
 	assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -69,7 +69,7 @@ public void testCommit() throws CoreException {
 	IBuffer originalBuffer = original.getBuffer();
 	assertTrue("Original buffer should not be null", originalBuffer != null);
 	
-	this.assertEquals(
+	assertEquals(
 		"Unexpected contents", 
 		newContents, 
 		new String(originalBuffer.getCharacters()));
@@ -80,10 +80,10 @@ public void testCommit() throws CoreException {
  * (but can still be opened).
  */
 public void testExistence() throws CoreException {
-	this.assertTrue("Working copy should exist", this.workingCopy.exists());
+	assertTrue("Working copy should exist", this.workingCopy.exists());
 }
 public void testParentExistence() throws CoreException {
-	this.assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
+	assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
 }
 
 /*
@@ -92,22 +92,22 @@ public void testParentExistence() throws CoreException {
  */
 public void testOriginalExistence() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	this.assertTrue(
+	assertTrue(
 		"Original compilation unit should exist", 
 		original.exists());
 }
 public void testOriginalParentExistence() throws CoreException {
-	this.assertTrue(
+	assertTrue(
 		"Original compilation unit's parent should not exist", 
 		!this.workingCopy.getOriginalElement().getParent().exists());
 }
 
 public void testIsOpen() throws CoreException {
-	this.assertTrue("Working copy should be open", this.workingCopy.isOpen());
+	assertTrue("Working copy should be open", this.workingCopy.isOpen());
 }
 public void testOriginalIsOpen() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	this.assertTrue(
+	assertTrue(
 		"Original compilation should be open", 
 		original.isOpen());
 }

@@ -335,6 +335,27 @@ public char[] readableName() /* foo(int, Thread) */ {
 	buffer.append(')');
 	return buffer.toString().toCharArray();
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
+ */
+public char[] shortReadableName() {
+	StringBuffer buffer = new StringBuffer(parameters.length + 1 * 20);
+	if (isConstructor())
+		buffer.append(declaringClass.shortReadableName());
+	else
+		buffer.append(selector);
+	buffer.append('(');
+	if (parameters != NoParameters) {
+		for (int i = 0, length = parameters.length; i < length; i++) {
+			if (i > 0)
+				buffer.append(", "); //$NON-NLS-1$
+			buffer.append(parameters[i].shortReadableName());
+		}
+	}
+	buffer.append(')');
+	return buffer.toString().toCharArray();
+}
+
 protected final void selector(char[] selector) {
 	this.selector = selector;
 	this.signature = null;

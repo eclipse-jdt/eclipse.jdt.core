@@ -27,18 +27,22 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  *	try statements, exception handlers, etc...
  */
 public class FlowContext implements TypeConstants {
+	
 	public AstNode associatedNode;
 	public FlowContext parent;
 
 	public final static FlowContext NotContinuableContext =
+
 		new FlowContext(null, null);
 		
 	public FlowContext(FlowContext parent, AstNode associatedNode) {
+
 		this.parent = parent;
 		this.associatedNode = associatedNode;
 	}
 	
 	public Label breakLabel() {
+
 		return null;
 	}
 	
@@ -68,6 +72,7 @@ public class FlowContext implements TypeConstants {
 			0,
 			raisedCount);
 		FlowContext traversedContext = this;
+
 		while (traversedContext != null) {
 			AstNode sub;
 			if (((sub = traversedContext.subRoutine()) != null) && sub.cannotReturn()) {
@@ -248,6 +253,7 @@ public class FlowContext implements TypeConstants {
 	}
 
 	public Label continueLabel() {
+
 		return null;
 	}
 
@@ -255,6 +261,7 @@ public class FlowContext implements TypeConstants {
 	 * lookup through break labels
 	 */
 	public FlowContext getTargetContextForBreakLabel(char[] labelName) {
+
 		FlowContext current = this, lastNonReturningSubRoutine = null;
 		while (current != null) {
 			if (current.isNonReturningContext()) {
@@ -279,9 +286,11 @@ public class FlowContext implements TypeConstants {
 	 * lookup through continue labels
 	 */
 	public FlowContext getTargetContextForContinueLabel(char[] labelName) {
-		FlowContext current = this,
-			lastContinuable = null,
-			lastNonReturningSubRoutine = null;
+
+		FlowContext current = this;
+		FlowContext lastContinuable = null;
+		FlowContext lastNonReturningSubRoutine = null;
+
 		while (current != null) {
 			if (current.isNonReturningContext()) {
 				lastNonReturningSubRoutine = current;
@@ -290,12 +299,14 @@ public class FlowContext implements TypeConstants {
 					lastContinuable = current;
 				}
 			}
+			
 			char[] currentLabelName;
-			if (((currentLabelName = current.labelName()) != null)
-				&& CharOperation.equals(currentLabelName, labelName)) {
+			if ((currentLabelName = current.labelName()) != null && CharOperation.equals(currentLabelName, labelName)) {
+
+				// matching label found					
 				if ((lastContinuable != null)
-					&& (current.associatedNode.concreteStatement()
-						== lastContinuable.associatedNode)) {
+					&& (current.associatedNode.concreteStatement()	== lastContinuable.associatedNode)) {
+						
 					if (lastNonReturningSubRoutine == null) {
 						return lastContinuable;
 					} else {
@@ -316,6 +327,7 @@ public class FlowContext implements TypeConstants {
 	 * lookup a default break through breakable locations
 	 */
 	public FlowContext getTargetContextForDefaultBreak() {
+
 		FlowContext current = this, lastNonReturningSubRoutine = null;
 		while (current != null) {
 			if (current.isNonReturningContext()) {
@@ -338,6 +350,7 @@ public class FlowContext implements TypeConstants {
 	 * lookup a default continue amongst continuable locations
 	 */
 	public FlowContext getTargetContextForDefaultContinue() {
+
 		FlowContext current = this, lastNonReturningSubRoutine = null;
 		while (current != null) {
 			if (current.isNonReturningContext()) {
@@ -357,30 +370,37 @@ public class FlowContext implements TypeConstants {
 	}
 
 	public String individualToString() {
+
 		return "Flow context"; //$NON-NLS-1$
 	}
 
 	public FlowInfo initsOnBreak() {
+
 		return FlowInfo.DeadEnd;
 	}
 
 	public boolean isBreakable() {
+
 		return false;
 	}
 
 	public boolean isContinuable() {
+
 		return false;
 	}
 
 	public boolean isNonReturningContext() {
+
 		return false;
 	}
 
 	public boolean isSubRoutine() {
+
 		return false;
 	}
 
 	public char[] labelName() {
+
 		return null;
 	}
 
@@ -393,6 +413,7 @@ public class FlowContext implements TypeConstants {
 	boolean recordFinalAssignment(
 		VariableBinding variable,
 		Reference finalReference) {
+
 		return true; // keep going
 	}
 
@@ -402,6 +423,7 @@ public class FlowContext implements TypeConstants {
 	public void recordSettingFinal(
 		VariableBinding variable,
 		Reference finalReference) {
+
 		// for initialization inside looping statement that effectively loops
 		FlowContext context = this;
 		while (context != null) {
@@ -416,10 +438,12 @@ public class FlowContext implements TypeConstants {
 	}
 
 	public AstNode subRoutine() {
+
 		return null;
 	}
 
 	public String toString() {
+
 		StringBuffer buffer = new StringBuffer();
 		FlowContext current = this;
 		int parentsCount = 0;

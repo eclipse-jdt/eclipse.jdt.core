@@ -19,32 +19,41 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
  * should only be thrown from within problem handlers.
  */
 public class AbortCompilation extends RuntimeException {
+
 	public CompilationResult compilationResult;
 	public Throwable exception;
-	
 	public int problemId; 
-	public String[] problemArguments;
-
+	public String[] problemArguments, messageArguments;
 	/* special fields used to abort silently (e.g. when cancelling build process) */
 	public boolean isSilent;
 	public RuntimeException silentException;
-public AbortCompilation() {
-	this((CompilationResult)null);
-}
-public AbortCompilation(int problemId, String[] problemArguments) {
 
-	this.problemId = problemId;
-	this.problemArguments = problemArguments;
-}
-public AbortCompilation(CompilationResult compilationResult) {
-	this(compilationResult, null);
-}
-public AbortCompilation(CompilationResult compilationResult, Throwable exception) {
-	this.compilationResult = compilationResult;
-	this.exception = exception;
-}
-public AbortCompilation(boolean isSilent, RuntimeException silentException) {
-	this.isSilent = isSilent;
-	this.silentException = silentException;
-}
+	public AbortCompilation() {
+
+		this((CompilationResult)null);
+	}
+
+	public AbortCompilation(int problemId, String[] problemArguments, String[] messageArguments) {
+	
+		this.problemId = problemId;
+		this.problemArguments = problemArguments;
+		this.messageArguments = messageArguments;
+	}
+
+	public AbortCompilation(CompilationResult compilationResult) {
+
+		this(compilationResult, null);
+	}
+
+	public AbortCompilation(CompilationResult compilationResult, Throwable exception) {
+
+		this.compilationResult = compilationResult;
+		this.exception = exception;
+	}
+
+	public AbortCompilation(boolean isSilent, RuntimeException silentException) {
+
+		this.isSilent = isSilent;
+		this.silentException = silentException;
+	}
 }

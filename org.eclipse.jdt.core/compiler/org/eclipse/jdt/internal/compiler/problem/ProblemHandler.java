@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
 public class ProblemHandler implements ProblemSeverities {
 
+	public final static String[] NoArgument = new String[0];
+	
 	final public IErrorHandlingPolicy policy;
 	public final IProblemFactory problemFactory;
 	public final CompilerOptions options;
@@ -55,6 +57,7 @@ public IProblem createProblem(
 	char[] fileName, 
 	int problemId, 
 	String[] problemArguments, 
+	String[] messageArguments,
 	int severity, 
 	int problemStartPosition, 
 	int problemEndPosition, 
@@ -66,6 +69,7 @@ public IProblem createProblem(
 		fileName, 
 		problemId, 
 		problemArguments, 
+		messageArguments,
 		severity, 
 		problemStartPosition, 
 		problemEndPosition, 
@@ -74,6 +78,7 @@ public IProblem createProblem(
 public void handle(
 	int problemId, 
 	String[] problemArguments, 
+	String[] messageArguments,
 	int severity, 
 	int problemStartPosition, 
 	int problemEndPosition, 
@@ -86,7 +91,7 @@ public void handle(
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
 		if ((severity & Error) != 0) { // non reportable error is fatal
-			throw new AbortCompilation(problemId, problemArguments);
+			throw new AbortCompilation(problemId, problemArguments, messageArguments);
 		} else {
 			return; // ignore non reportable warning
 		}
@@ -97,6 +102,7 @@ public void handle(
 			unitResult.getFileName(), 
 			problemId, 
 			problemArguments, 
+			messageArguments,
 			severity, 
 			problemStartPosition, 
 			problemEndPosition, 
@@ -132,6 +138,7 @@ public void handle(
 public void handle(
 	int problemId, 
 	String[] problemArguments, 
+	String[] messageArguments,
 	int problemStartPosition, 
 	int problemEndPosition, 
 	ReferenceContext referenceContext, 
@@ -140,6 +147,7 @@ public void handle(
 	this.handle(
 		problemId,
 		problemArguments,
+		messageArguments,
 		this.computeSeverity(problemId), // severity inferred using the ID
 		problemStartPosition,
 		problemEndPosition,
