@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -146,11 +147,21 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 
+		this(outWriter, errWriter, systemExitWhenFinished, null);
+	}
+	
+	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions) {
 		this.logger = new Logger(outWriter, errWriter);
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		this.options = new CompilerOptions().getMap();
+		if (customDefaultOptions != null) {
+			for (Iterator iter = customDefaultOptions.keySet().iterator(); iter.hasNext();) {
+				Object key = iter.next();
+				this.options.put(key, customDefaultOptions.get(key));
+			}
+		}
 	}
-
+	
 	/**
 	 * Lookup the message with the given ID in this catalog 
 	 * @param id
