@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public abstract class VariableBinding extends Binding {
+    
 	public int modifiers;
 	public TypeBinding type;
 	public char[] name;
