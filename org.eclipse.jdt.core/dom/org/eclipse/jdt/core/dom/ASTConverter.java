@@ -588,7 +588,9 @@ class ASTConverter {
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
 		SimpleName methodName = this.ast.newSimpleName(new String(methodDeclaration.selector));
-		methodName.setSourceRange(methodDeclaration.sourceStart, methodDeclaration.sourceEnd - methodDeclaration.sourceStart + 1);
+		int start = methodDeclaration.sourceStart;
+		int end = retrieveIdentifierEndPosition(start, methodDeclaration.sourceEnd);
+		methodName.setSourceRange(start, end - start + 1);
 		methodDecl.setName(methodName);
 		TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
 		if (thrownExceptions != null) {
@@ -626,8 +628,8 @@ class ASTConverter {
 		
 		if (statements != null || explicitConstructorCall != null) {
 			Block block = this.ast.newBlock();
-			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
+			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
 			block.setSourceRange(start, end - start + 1);
 			if (explicitConstructorCall != null) {
 				block.statements().add(convert(explicitConstructorCall));
@@ -642,8 +644,8 @@ class ASTConverter {
 			}
 			methodDecl.setBody(block);
 		} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
+			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
 			if (start != -1 && end != -1) {
 				/*
 				 * start or end can be equal to -1 if we have an interface's method.
@@ -2343,6 +2345,25 @@ class ASTConverter {
 		}
 		return -1;
 	}
+	
+	/**
+	 * This method is used to retrieve the start position of the block.
+	 * @return int the dimension found, -1 if none
+	 */
+	private int retrieveIdentifierEndPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameIdentifier://110
+						return scanner.getCurrentTokenEndPosition();
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}	
 	
 	/**
 	 * This method is used to retrieve the end position of the block.
