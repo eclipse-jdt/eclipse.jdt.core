@@ -4981,4 +4981,155 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
+	// reject instanceof type variable or parameterized type
+	public void test178() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	\n" + 
+				"	T foo(T t) {\n" + 
+				"		if (t instanceof X<T>) {\n" + 
+				"			return t;\n" + 
+				"		} else if (t instanceof X<String>) {\n" + 
+				"			return t;\n" + 
+				"		} else 	if (t instanceof T) {\n" + 
+				"			return t;\n" + 
+				"		} else if (t instanceof X) {\n" + 
+				"			return t;\n" + 
+				"		}\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (t instanceof X<T>) {\n" + 
+			"	    ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type X<T>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	} else if (t instanceof X<String>) {\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type X<String>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	} else 	if (t instanceof T) {\n" + 
+			"	       	    ^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	} else if (t instanceof X) {\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Incompatible conditional operand types T and X\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+	// 61507
+	public void test179() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class U {\n" + 
+				" static <T> T notNull(T t) { return t; }\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				" void t() {\n" + 
+				"  String s = U.notNull(null);\n" + 
+				" }\n" + 
+				" public static void main(String[] args) {\n" + 
+				"	new X().t();\n" + 
+				"	System.out.println(\"SUCCESS\");\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}	
+	public void test180() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class U {\n" + 
+				" static <T> T notNull(T t) { return t; }\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				" void t() {\n" + 
+				"  String s = U.notNull(\"\");\n" + 
+				" }\n" + 
+				" public static void main(String[] args) {\n" + 
+				"	new X().t();\n" + 
+				"	System.out.println(\"SUCCESS\");\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}	
+	// 61507 - variation computing most specific type with 'null'
+	public void test181() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class U {\n" + 
+				" static <T> T notNull(T t, V<T> vt) { return t; }\n" + 
+				"}\n" + 
+				"class V<T> {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				" void t() {\n" + 
+				"  String s = U.notNull(null, new V<String>());\n" + 
+				" }\n" + 
+				" public static void main(String[] args) {\n" + 
+				"	new X().t();\n" + 
+				"	System.out.println(\"SUCCESS\");\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}
+	public void _test182() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"    X<E> self() {\n" + 
+				"    	return (X<E>) this;\n" + 
+				"    }\n" + 
+				"    X<String> string1() {\n" + 
+				"    	return (AX<String>) new X<String>();\n" + 
+				"    }\n" + 
+				"    X<String> string2(Object o) {\n" + 
+				"    	return (AX<String>) o;\n" + 
+				"    }\n" + 
+				"    X<E> him(Object o) {\n" + 
+				"    	return (AX<E>) o;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<F> extends X<F> {}\n", 
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	return (X<E>) this;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type X<E> for expression of type X<E>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	return (AX<String>) o;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not cast from Object to AX<String>. Generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	return (AX<E>) o;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not cast from Object to AX<E>. Generic type information will be erased at runtime\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}			
 }

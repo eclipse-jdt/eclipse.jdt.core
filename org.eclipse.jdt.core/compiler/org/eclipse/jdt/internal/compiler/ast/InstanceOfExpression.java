@@ -201,13 +201,17 @@ public class InstanceOfExpression extends OperatorExpression {
 
 		constant = NotAConstant;
 		TypeBinding expressionType = expression.resolveType(scope);
-		TypeBinding checkType = type.resolveType(scope);
-		if (expressionType == null || checkType == null)
+		TypeBinding checkedType = type.resolveType(scope);
+		if (expressionType == null || checkedType == null)
 			return null;
 
-		boolean necessary = checkCastTypesCompatibility(scope, checkType, expressionType);
-		if (!necessary) {
-			scope.problemReporter().unnecessaryInstanceof(this, checkType);
+		if (checkedType.isTypeVariable() || checkedType.isParameterizedType() || checkedType.isGenericType()) {
+			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
+		} else {
+			boolean necessary = checkCastTypesCompatibility(scope, checkedType, expressionType);
+			if (!necessary) {
+				scope.problemReporter().unnecessaryInstanceof(this, checkedType);
+			}
 		}
 		return this.resolvedType = BooleanBinding;
 	}

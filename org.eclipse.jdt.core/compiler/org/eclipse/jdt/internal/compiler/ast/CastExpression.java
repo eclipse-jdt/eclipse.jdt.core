@@ -101,7 +101,7 @@ public class CastExpression extends Expression {
 			//	if (castType.isArrayType()){ // 26903 - need checkcast when casting null to array type
 			//		needRuntimeCheckcast = true;
 			//	}
-			if (castType.isParameterizedType())
+			if (castType.isParameterizedType() || castType.isGenericType())
 				scope.problemReporter().unsafeCast(this);
 			return false; //null is compatible with every thing
 		}
@@ -156,27 +156,27 @@ public class CastExpression extends Expression {
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
 				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
-					if (castType.isParameterizedType())
+					if (castType.isParameterizedType() || castType.isGenericType())
 						scope.problemReporter().unsafeCast(this);
 					return false;
 				}
 				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType())
+					if (castType.isParameterizedType() || castType.isGenericType())
 						scope.problemReporter().unsafeCast(this);
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (expressionType.isCompatibleWith(castType)) {
-					if (castType.isParameterizedType())
+					if (castType.isParameterizedType() || castType.isGenericType())
 						scope.problemReporter().unsafeCast(this);
 					return false;
 				}
 				if (!((ReferenceBinding) expressionType).isFinal()) {
 					// a subclass may implement the interface ==> no check at compile time
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType())
+					if (castType.isParameterizedType() || castType.isGenericType())
 						scope.problemReporter().unsafeCast(this);
 					return true;				    
 				}

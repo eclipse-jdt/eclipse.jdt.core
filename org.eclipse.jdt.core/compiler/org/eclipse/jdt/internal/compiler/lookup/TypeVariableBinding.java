@@ -43,6 +43,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
+		if (argumentType == NullBinding) 
+			return true;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;
 		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute(this.superclass))) {
@@ -67,6 +69,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
 	 */
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+		// cannot infer anything from a null type
+		if (otherType == NullBinding) return;
+		
 	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
 	    if (variableSubstitutes != null) {
 	        int length = variableSubstitutes.length;

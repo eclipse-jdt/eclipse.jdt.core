@@ -1185,6 +1185,23 @@ public void illegalAbstractModifierCombinationForMethod(ReferenceBinding type, A
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
+	if (checkedType.isTypeVariable()) {
+		this.handle(
+		IProblem.IllegalInstanceofTypeParameter,
+			new String[] { new String(checkedType.readableName()), new String(checkedType.erasure().readableName())},
+			new String[] { new String(checkedType.shortReadableName()), new String(checkedType.erasure().shortReadableName())},
+			location.sourceStart,
+			location.sourceEnd);
+		return;
+	}
+	this.handle(
+		IProblem.IllegalInstanceofParameterizedType,
+		new String[] { new String(checkedType.readableName()), new String(checkedType.erasure().sourceName())},
+		new String[] { new String(checkedType.shortReadableName()), new String(checkedType.erasure().sourceName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void illegalModifierCombinationFinalAbstractForClass(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(

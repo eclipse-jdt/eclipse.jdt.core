@@ -885,6 +885,10 @@ public interface IProblem {
 	int UnsafeGenericCast = TypeRelated + 546;
 	/** @since 3.1 */
 	int UnsafeRawReturnValue = TypeRelated + 547;
+	/** @since 3.1 */
+	int IllegalInstanceofParameterizedType = Internal + 548;
+	/** @since 3.1 */
+	int IllegalInstanceofTypeParameter = Internal + 549;
 	
 	/**
 	 * Foreach
