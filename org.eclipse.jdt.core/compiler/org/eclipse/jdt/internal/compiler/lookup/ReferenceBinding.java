@@ -454,7 +454,7 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 
     if (this == erasure || erasure() == erasure) return this;
     ReferenceBinding currentType = this;
-    if (erasure.isClass()) {
+    if ((erasure.modifiers & AccInterface) == 0) {
 		while ((currentType = currentType.superclass()) != null) {
 			if (currentType == erasure || currentType.erasure() == erasure) return currentType;
 		}
@@ -643,9 +643,9 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	if (otherReferenceType.isWildcard()) {
 		return false; // should have passed equivalence check above if wildcard
 	}
-	if (otherReferenceType.isInterface())
+	if ((otherReferenceType.modifiers & AccInterface) != 0)
 		return implementsInterface(otherReferenceType, true);
-	if (isInterface())  // Explicit conversion from an interface to a class is not allowed
+	if ((this.modifiers & AccInterface) != 0)  // Explicit conversion from an interface to a class is not allowed
 		return false;
 	return otherReferenceType.isSuperclassOf(this);
 }

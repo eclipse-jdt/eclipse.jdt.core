@@ -2299,4 +2299,66 @@ public class EnumTest extends AbstractComparableTest {
 			"SUCCESS"
 		);
 	}
+	
+	public void test077() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		E.A.bar();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"enum E {\n" + 
+				"	A {\n" + 
+				"		void bar() {\n" + 
+				"			new M();\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	abstract void bar();\n" + 
+				"	\n" + 
+				"	class M {\n" + 
+				"		M() {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS"
+		);
+	}	
+	
+	public void test078() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		E.A.bar();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"enum E {\n" + 
+				"	A {\n" + 
+				"		void bar() {\n" + 
+				"			new X(){\n" + 
+				"				void baz() {\n" + 
+				"					new M();\n" + 
+				"				}\n" + 
+				"			}.baz();\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"	abstract void bar();\n" + 
+				"	\n" + 
+				"	class M {\n" + 
+				"		M() {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS"
+		);
+	}	
 }

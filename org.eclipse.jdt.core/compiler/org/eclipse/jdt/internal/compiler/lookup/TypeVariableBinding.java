@@ -230,7 +230,7 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 
     if (this == erasure) return this;
     ReferenceBinding currentType = this;
-    if (erasure.isClass()) {
+    if ((erasure.modifiers & AccInterface) == 0) {
 		while ((currentType = currentType.superclass()) != null) {
 			if (currentType == erasure || currentType.erasure() == erasure) return currentType;
 		}
