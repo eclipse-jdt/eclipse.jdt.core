@@ -25,12 +25,20 @@ IFile resource;
 ClasspathMultiDirectory sourceLocation;
 String initialTypeName;
 String encoding;
+boolean updateClassFile;
 
 public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, String encoding) {
 	this.resource = resource;
 	this.sourceLocation = sourceLocation;
 	this.initialTypeName = extractTypeName();
 	this.encoding = encoding;
+	this.updateClassFile = false;
+}
+
+public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, String encoding, boolean updateClassFile) {
+	this(resource, sourceLocation, encoding);
+
+	this.updateClassFile = updateClassFile;
 }
 
 public boolean equals(Object o) {
