@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.compiler.*;
 /**
  * Hashtable of {char[] --> Object }
  */
-public final class HashtableOfObject {
+public final class HashtableOfObject implements Cloneable {
 	
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public char[] keyTable[];
