@@ -239,8 +239,8 @@ public class ClasspathEntry implements IClasspathEntry {
 								this.getExclusionPatterns(), 
 								this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), this.getOutputLocation(), 
 								referringEntry.isExported()|| this.isExported, // duplicate container entry for tagging it as exported
-								combine ? ClasspathEntry.concatPatterns(referringEntry.getAccessibleFiles(), this.getAccessibleFiles()) : referringEntry.getAccessibleFiles(), 
-								combine ? ClasspathEntry.concatPatterns(referringEntry.getNonAccessibleFiles(), this.getNonAccessibleFiles()) : referringEntry.getNonAccessibleFiles(),
+								combine ? ClasspathEntry.concatPatterns(referringEntry.getAccessibleFiles(), this.getAccessibleFiles()) : this.getAccessibleFiles(), 
+								combine ? ClasspathEntry.concatPatterns(referringEntry.getNonAccessibleFiles(), this.getNonAccessibleFiles()) : this.getNonAccessibleFiles(),
 								this.combineAccessRestrictions,
 								this.extraAttributes); 
 		}
