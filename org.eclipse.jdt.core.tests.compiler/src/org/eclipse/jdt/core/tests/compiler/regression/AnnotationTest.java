@@ -1056,5 +1056,31 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	                    ^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to Class\n" + 
 			"----------\n");
+	}
+	
+	// check need for constant pair value
+	public void test046() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    boolean val() default true;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	boolean bar() {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"    @I(val = bar()) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	@I(val = bar()) void foo() {\n" + 
+		"	         ^^^^^\n" + 
+		"The value for annotation attribute I.val must be a constant expression\n" + 
+		"----------\n");
 	}			
 }
