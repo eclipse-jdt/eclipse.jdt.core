@@ -48,4 +48,14 @@ protected boolean close(LRUCacheEntry entry) {
 	protected LRUCache newInstance(int size, int overflow) {
 		return new BufferCache(size, overflow);
 	}
+/*public Object get(Object key) {
+	Object result = super.get(key);
+	System.out.println("key: " + key);
+	System.out.println("current space: " + fCurrentSpace);
+	System.out.println("entry size: " + fEntryTable.size());
+	int count = 0;
+	for (LRUCacheEntry entry = this.fEntryQueueTail; entry != null; entry = entry._fPrevious, count++);
+	System.out.println("chain size: " + count);
+	return result;
+}*/
 }
