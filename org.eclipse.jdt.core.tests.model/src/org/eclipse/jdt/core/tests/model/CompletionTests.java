@@ -209,6 +209,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod4"));
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName1"));
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
+	suite.addTest(new CompletionTests("testCompletionEmptyTypeName3"));
 	suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
 	suite.addTest(new CompletionTests("testCompletionMemberType"));
 	suite.addTest(new CompletionTests("testCompletionVoidMethod"));
@@ -2599,6 +2600,38 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=41643
+*/
+public void testCompletionEmptyTypeName3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionEmptyTypeName3.java");
+
+	String str = cu.getSource();
+	String completeBehind = " = ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CompletionEmptyTypeName2    completion:CompletionEmptyTypeName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+		"element:CompletionEmptyTypeName3    completion:CompletionEmptyTypeName3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:CompletionEmptyTypeName3.CompletionEmptyTypeName3_1    completion:CompletionEmptyTypeName3_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:CompletionEmptyTypeName3_2    completion:CompletionEmptyTypeName3_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +		
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:x    completion:x    relevance:"+(R_DEFAULT + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 /*

@@ -2396,7 +2396,8 @@ protected boolean resumeAfterRecovery() {
 			the end of the method body or compilation unit */
 		if ((scanner.eofPosition == cursorLocation+1)
 			&& (!(referenceContext instanceof CompilationUnitDeclaration) 
-				|| isIndirectlyInsideFieldInitialization())) {
+			|| isIndirectlyInsideFieldInitialization()
+			|| assistNodeParent instanceof FieldDeclaration && !(assistNodeParent instanceof Initializer))) {
 
 			/*	disabled since does not handle possible field/message refs, that is, Obj[ASSIST HERE]ect.registerNatives()		    
 			// consume extra tokens which were part of the qualified reference
