@@ -301,14 +301,36 @@ public void testGetReturnType() {
 	}
 	
 	// tests with 1.5-specific elements
-	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
 	assertEquals("Signature#getReturnType is not correct2", "I",
 			Signature.getReturnType(methodSig));
-	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;Qexception;Qerror;";
 	assertEquals("Signature#getReturnType is not correct3", "Qlist<Qxxx;>;",
 			Signature.getReturnType(methodSig));
 }
 
+/**
+ * @see Signature
+ */
+public void testGetThrownExceptionTypes() {
+	String methodSig = "(QString;QObject;I)I";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct1", "",
+			Signature.getThrownExceptionTypes(methodSig));
+	try {
+		Signature.getThrownExceptionTypes("");
+		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+	
+	// tests with 1.5-specific elements
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct2", "Qexception;\nQerror;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;Qexception<TT;>;Qerror;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "Qexception<TT;>;\nQerror;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+}
 /**
  * @see Signature
  * @since 3.0
