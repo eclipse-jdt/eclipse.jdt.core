@@ -330,6 +330,13 @@ public abstract class WorkingCopyOwner {
 	}
 }
 	</pre>
+	The intent for the primary owner is to use a buffer factory that would be
+	provided by the org.eclipse.text infractructure. This infrastructure not being
+	ready yet, in the meantime one can change the primary owner's 
+	<code>IBufferFactory</code> using the following internal API:
+	<pre>
+org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner.PRIMARY.factory = ...;
+	</pre>
 
 </li>
 </ul>
