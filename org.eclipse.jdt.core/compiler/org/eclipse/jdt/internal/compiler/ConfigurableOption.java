@@ -254,6 +254,13 @@ public class ConfigurableOption {
 	}
 	
 	/**
+	 * @deprecated - use getValueIndex() instead
+	 */
+	public int getCurrentValueIndex(){
+		return this.getValueIndex();
+	}
+	
+	/**
 	 * Gets the valueIndex
 	 * @return Returns a int
 	 */
