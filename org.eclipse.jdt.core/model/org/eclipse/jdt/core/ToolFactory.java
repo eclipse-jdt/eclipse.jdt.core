@@ -37,6 +37,9 @@ import org.eclipse.jdt.internal.formatter.CodeFormatter;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
+ * <p>
+ *  This class provides static methods only; it is not intended to be instantiated or subclassed by clients.
+ * </p>
  * 
  * @since 2.0
  */

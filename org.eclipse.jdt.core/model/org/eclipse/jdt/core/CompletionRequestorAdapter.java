@@ -14,6 +14,9 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * Adapter of the requestor interface <code>ICompletionRequestor</code>.
+ * <p>
+ * This class is intended to be instanciated and subclassed by clients.
+ * </p>
  *
  * @see ICompletionRequestor
  * @since 2.0

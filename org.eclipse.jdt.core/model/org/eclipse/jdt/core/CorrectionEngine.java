@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.*;
 /**
  * This class is the entry point for source corrections.
  * 
- * This class is not intended to be subclassed by client. This class is intended to be instantiated by client.
+ * This class is not intended to be subclassed by clients. This class is intended to be instantiated by clients.
  * 
  * @since 2.0 
  */
