@@ -27,7 +27,9 @@ public static Class[] getAllTestClasses() {
 		ASTConverterTest.class,		
 		ASTConverterTest2.class,
 		ASTConverterJavadocTest.class,
-		ASTConverter15Test.class
+		ASTConverter15Test.class,
+		ASTConverterAST3Test.class,
+		ASTConverterTestAST3_2.class
 	};
 }
 public static Test suite() {

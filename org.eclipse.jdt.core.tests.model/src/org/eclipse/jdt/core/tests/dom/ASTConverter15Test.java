@@ -59,6 +59,11 @@ import org.eclipse.jdt.core.dom.WildcardType;
 
 public class ASTConverter15Test extends ConverterTestSetup {
 	
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		this.ast = AST.newAST(AST.JLS3);
+	}
+	
 	public ASTConverter15Test(String name) {
 		super(name);
 	}

@@ -594,7 +594,7 @@ class ASTConverter {
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
 		int declarationSourceEnd = methodDeclaration.bodyEnd;
 		methodDecl.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDeclaration.bodyEnd, methodDeclaration.declarationSourceEnd);
+		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDeclaration.bodyEnd + 1, methodDeclaration.declarationSourceEnd);
 		if (closingPosition != -1) {
 			int startPosition = methodDecl.getStartPosition();
 			methodDecl.setSourceRange(startPosition, closingPosition - startPosition + 1);
