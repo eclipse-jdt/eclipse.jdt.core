@@ -161,7 +161,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			getWorkspace().setDescription(description);
 		}
 		setUpJavaProject("Formatter"); //$NON-NLS-1$
-		this.time = System.currentTimeMillis();
+		if (DEBUG) {
+			this.time = System.currentTimeMillis();
+		}
 	}	
 
 	/**
@@ -169,7 +171,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("Formatter"); //$NON-NLS-1$
-		System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));
+		if (DEBUG) {
+			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
+		}
 		super.tearDown();
 	}	
 
@@ -5462,5 +5466,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test452", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50719
+	 */
+	public void test453() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test453", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

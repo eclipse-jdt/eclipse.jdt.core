@@ -1533,8 +1533,8 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
-		this.insert_space_after_opening_bracket_in_array_allocation_expression = true;
-		this.insert_space_after_opening_bracket_in_array_reference = true;
+		this.insert_space_after_opening_bracket_in_array_allocation_expression = false;
+		this.insert_space_after_opening_bracket_in_array_reference = false;
 		this.insert_space_after_opening_brace_in_array_initializer = true;
 		this.insert_space_after_opening_paren_in_cast = false;
 		this.insert_space_after_opening_paren_in_catch = false;
