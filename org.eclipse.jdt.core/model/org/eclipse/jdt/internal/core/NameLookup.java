@@ -398,44 +398,6 @@ public IPackageFragment findPackageFragment(IPath path) {
 		}
 	}
 	/**
-	 * Notifies the given requestor of all types (classes and interfaces) in the
-	 * given type with the given (possibly qualified) name. Checks
-	 * the requestor at regular intervals to see if the requestor
-	 * has canceled.
-	 *
-	 * @param partialMatch partial name matches qualify when <code>true</code>,
-	 *  only exact name matches qualify when <code>false</code>
-	 */
-	protected void seekQualifiedMemberTypes(String qualifiedName, IType type, boolean partialMatch, IJavaElementRequestor requestor) {
-		if (type == null)
-			return;
-		IType[] types= null;
-		try {
-			types= type.getTypes();
-		} catch (JavaModelException npe) {
-			return; // the enclosing type is not present
-		}
-		String matchName= qualifiedName;
-		int index= qualifiedName.indexOf('$');
-		boolean nested= false;
-		if (index != -1) {
-			matchName= qualifiedName.substring(0, index);
-			nested= true;
-		}
-		int length= types.length;
-		for (int i= 0; i < length; i++) {
-			if (requestor.isCanceled())
-				return;
-			IType memberType= types[i];
-			if (nameMatches(matchName, memberType, partialMatch))
-				if (nested) {
-					seekQualifiedMemberTypes(qualifiedName.substring(index + 1, qualifiedName.length()), memberType, partialMatch, requestor);
-				} else {
-					requestor.acceptMemberType(memberType);
-				}
-		}
-	}
-	/**
 	 * @see INameLookup
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
@@ -551,14 +513,52 @@ public IPackageFragment findPackageFragment(IPath path) {
 					if (requestor.isCanceled())
 						return;
 					IType type= types[j];
-					if (nameMatches(matchName, type, partialMatch) && acceptType(type, acceptFlags))
+					if (nameMatches(matchName, type, partialMatch))
 						if (!memberType) {
-							requestor.acceptType(type);
+							if (acceptType(type, acceptFlags)) requestor.acceptType(type);
 						} else {
-							seekQualifiedMemberTypes(name.substring(index + 1, name.length()), type, partialMatch, requestor);
+							seekQualifiedMemberTypes(name.substring(index + 1, name.length()), type, partialMatch, requestor, acceptFlags);
 						}
 				}
 			}
+		}
+	}
+	/**
+	 * Notifies the given requestor of all types (classes and interfaces) in the
+	 * given type with the given (possibly qualified) name. Checks
+	 * the requestor at regular intervals to see if the requestor
+	 * has canceled.
+	 *
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 *  only exact name matches qualify when <code>false</code>
+	 */
+	protected void seekQualifiedMemberTypes(String qualifiedName, IType type, boolean partialMatch, IJavaElementRequestor requestor, int acceptFlags) {
+		if (type == null)
+			return;
+		IType[] types= null;
+		try {
+			types= type.getTypes();
+		} catch (JavaModelException npe) {
+			return; // the enclosing type is not present
+		}
+		String matchName= qualifiedName;
+		int index= qualifiedName.indexOf('$');
+		boolean nested= false;
+		if (index != -1) {
+			matchName= qualifiedName.substring(0, index);
+			nested= true;
+		}
+		int length= types.length;
+		for (int i= 0; i < length; i++) {
+			if (requestor.isCanceled())
+				return;
+			IType memberType= types[i];
+			if (nameMatches(matchName, memberType, partialMatch))
+				if (nested) {
+					seekQualifiedMemberTypes(qualifiedName.substring(index + 1, qualifiedName.length()), memberType, partialMatch, requestor, acceptFlags);
+				} else {
+					if (acceptType(memberType, acceptFlags)) requestor.acceptMemberType(memberType);
+				}
 		}
 	}
 }
