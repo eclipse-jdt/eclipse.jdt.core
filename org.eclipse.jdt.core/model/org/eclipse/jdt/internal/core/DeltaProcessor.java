@@ -353,6 +353,7 @@ private void cloneCurrentDelta(IJavaProject project, IResource rootResource) {
 			if (hasJavaNature(delta.getResource())) {
 				addToParentInfo(element);
 				fCurrentDelta.added(element);
+				this.projectsToUpdate.add(element);
 			}
 		} else {
 			addToParentInfo(element);
@@ -665,6 +666,7 @@ private void initializeRoots() {
 
 		try {
 			this.initializeRoots();
+			this.currentElement = null;
 			
 			// get the workspace delta, and start processing there.
 			IResourceDelta[] deltas = changes.getAffectedChildren();
@@ -760,11 +762,12 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	 * If it is not a resource on the classpath, it will be added as a non-java
 	 * resource by the sender of this method.
 	 */
-	protected boolean traverseDelta(IResourceDelta delta, int parentType, IJavaProject currentProject) {
+	protected boolean traverseDelta(IResourceDelta delta, int parentType, IJavaProject parentProject) {
 
 		IResource res = delta.getResource();
 		
 		// check if current resource is now on classpath and determine the element type
+		IJavaProject currentProject = parentProject;
 		IPath fullPath = res.getFullPath();
 		IJavaProject projectOfRoot = (IJavaProject)this.roots.get(fullPath);
 		int elementType = -1;
@@ -843,7 +846,11 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 									// force the currentProject to be used
 									this.currentElement = (Openable)currentProject;
 								}
-								element = this.createElement(res, elementType);
+								if (fullPath.equals(currentProject.getProject().getFullPath())) {
+									element = (Openable)currentProject;
+								} else {
+									element = this.createElement(res, elementType);
+								}
 								if (element == null) continue;
 							}
 							// add child as non java resource if current element on classpath
@@ -873,10 +880,12 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			} // else resource delta will be added by parent
 			result = currentProject != null || oneChildOnClasspath;
 		} else {
+			// if we changed the current project or if the element type is -1, 
+			// it's a non-java resource
 			result = 
 				currentProject != null 
-					&& (elementType == IJavaElement.COMPILATION_UNIT 
-						|| elementType == IJavaElement.CLASS_FILE);
+				&& currentProject.equals(parentProject)
+				&& elementType != -1;
 		}
 		
 		// other roots

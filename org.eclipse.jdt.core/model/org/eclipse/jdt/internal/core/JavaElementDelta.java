@@ -573,7 +573,24 @@ public String toDebugString(int depth) {
 		for (int j = 0; j < depth+1; j++) {
 			buffer.append('\t');
 		}
-		buffer.append(resourceDeltas[i].toString());
+		IResourceDelta resourceDelta = resourceDeltas[i];
+		buffer.append(resourceDelta.toString());
+		buffer.append("["); //$NON-NLS-1$
+		switch (resourceDelta.getKind()) {
+			case IResourceDelta.ADDED :
+				buffer.append('+');
+				break;
+			case IResourceDelta.REMOVED :
+				buffer.append('-');
+				break;
+			case IResourceDelta.CHANGED :
+				buffer.append('*');
+				break;
+			default :
+				buffer.append('?');
+				break;
+		}
+		buffer.append("]"); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }
