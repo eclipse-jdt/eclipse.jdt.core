@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SwitchStatement extends Statement {
 
-	public Expression testExpression;
+	public Expression expression;
 	public Statement[] statements;
 	public BlockScope scope;
 	public int explicitDeclarations;
@@ -46,13 +46,13 @@ public class SwitchStatement extends Statement {
 			FlowContext flowContext,
 			FlowInfo flowInfo) {
 			
-		flowInfo = testExpression.analyseCode(currentScope, flowContext, flowInfo);
+		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo);
 		SwitchFlowContext switchContext =
 			new SwitchFlowContext(flowContext, this, (breakLabel = new Label()));
 
 		// analyse the block by considering specially the case/default statements (need to bind them 
 		// to the entry point)
-		FlowInfo caseInits = FlowInfo.DEAD_END;
+		FlowInfo caseInits = FlowInfo.emptyDeadEnd();
 		// in case of statements before the first case
 		preSwitchInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -135,7 +135,7 @@ public class SwitchStatement extends Statement {
 			defaultCase.targetLabel = defaultLabel;
 		}
 		// generate expression testes
-		testExpression.generateCode(currentScope, codeStream, needSwitch);
+		expression.generateCode(currentScope, codeStream, needSwitch);
 
 		// generate the appropriate switch table/lookup bytecode
 		if (needSwitch) {
@@ -209,7 +209,7 @@ public class SwitchStatement extends Statement {
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("switch ("); //$NON-NLS-1$
-		testExpression.printExpression(0, output).append(") {"); //$NON-NLS-1$
+		expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
 		if (statements != null) {
 			for (int i = 0; i < statements.length; i++) {
 				output.append('\n');
@@ -233,13 +233,13 @@ public class SwitchStatement extends Statement {
 
 	public void resolve(BlockScope upperScope) {
 	
-		TypeBinding testType = testExpression.resolveType(upperScope);
+		TypeBinding testType = expression.resolveType(upperScope);
 		if (testType == null)
 			return;
-		testExpression.implicitWidening(testType, testType);
-		if (!(testExpression.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
+		expression.implicitWidening(testType, testType);
+		if (!(expression.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
 			if (!testType.isCompatibleWith(IntBinding)) {
-				upperScope.problemReporter().incorrectSwitchType(testExpression, testType);
+				upperScope.problemReporter().incorrectSwitchType(expression, testType);
 				return;
 			}
 		}
@@ -299,7 +299,7 @@ public class SwitchStatement extends Statement {
 			BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			testExpression.traverse(visitor, scope);
+			expression.traverse(visitor, scope);
 			if (statements != null) {
 				int statementsLength = statements.length;
 				for (int i = 0; i < statementsLength; i++)
