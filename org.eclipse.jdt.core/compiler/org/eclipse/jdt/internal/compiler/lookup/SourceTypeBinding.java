@@ -488,30 +488,6 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 
 	return (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
 }
-/* Answer the synthetic field for <targetEnclosingType>
-*	or null if one does not exist.
-*/
-
-public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope) {
-	if (synthetics == null)
-		return null;
-
-	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
-	if (field != null)
-		return field;
-
-	// type compatibility : to handle cases such as
-	// class T { class M{}}
-	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
-	Enumeration enum = synthetics[FIELD].elements();
-	while (enum.hasMoreElements()) {
-		field = (FieldBinding) enum.nextElement();
-		if (CharOperation.startsWith(field.name, SyntheticArgumentBinding.EnclosingInstancePrefix)
-			&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
-				return field;
-	}
-	return null;
-}
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
 }

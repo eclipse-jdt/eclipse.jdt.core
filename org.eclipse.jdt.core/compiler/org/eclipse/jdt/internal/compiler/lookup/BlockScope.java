@@ -686,7 +686,7 @@ public Object[] getCompatibleEmulationPath(ReferenceBinding targetEnclosingType)
 		if (insideConstructor) {
 			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this, false);
 		} else {
-			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this);
+			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this, false);
 		} 
 		if (path[0] != null) { // keep accumulating
 			int count = 1;
@@ -905,7 +905,7 @@ public Object[] getExactEmulationPath(ReferenceBinding targetEnclosingType) {
 		if (insideConstructor) {
 			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this, true);
 		} else {
-			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this);
+			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this, true);
 		} 
 		if (path[0] != null) { // keep accumulating
 			int count = 1;
