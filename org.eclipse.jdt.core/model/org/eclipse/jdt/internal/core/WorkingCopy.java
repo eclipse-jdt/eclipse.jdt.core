@@ -218,9 +218,10 @@ public boolean equals(Object o) {
 		return info;
 	}
 	private void reportProblemsIfNeeded(WorkingCopyElementInfo info) {
-		if (info.problems != null) {
+		ArrayList problems = info.problems;
+		if (problems != null) {
 			this.problemRequestor.beginReporting();
-			Iterator iterator = info.problems.iterator();
+			Iterator iterator = problems.iterator();
 			while (iterator.hasNext()) {
 				this.problemRequestor.acceptProblem((IProblem)iterator.next());
 			} 
