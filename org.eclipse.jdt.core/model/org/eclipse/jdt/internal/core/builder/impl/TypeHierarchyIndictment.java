@@ -28,6 +28,6 @@ protected TypeHierarchyIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("TypeHierarchyIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
+	return new StringBuffer("TypeHierarchyIndictment(").append(fName).append(")").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 }
 }

@@ -33,14 +33,14 @@ public SelectionOnImportReference(char[][] tokens , long[] positions) {
 public String toString(int tab, boolean withOnDemand) {
 
 	StringBuffer buffer = new StringBuffer(tabString(tab));
-	buffer.	append("<SelectOnImport:"/*nonNLS*/);
+	buffer.	append("<SelectOnImport:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."/*nonNLS*/);
+			buffer.append("."); //$NON-NLS-1$
 		}
 	}
-	buffer.append(">"/*nonNLS*/);
+	buffer.append(">"); //$NON-NLS-1$
 	return buffer.toString();
 }
 }

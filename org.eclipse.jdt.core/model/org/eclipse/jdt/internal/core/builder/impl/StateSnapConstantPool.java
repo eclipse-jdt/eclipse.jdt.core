@@ -114,14 +114,14 @@ public void add(IHandle handle) {
 			// NOP
 			break;
 		default:
-			Assert.isTrue(false, "Unknown kind of handle"/*nonNLS*/);
+			Assert.isTrue(false, "Unknown kind of handle"); //$NON-NLS-1$
 	}
 }
 /** 
  * Add a SourceEntry to the pool.
  */
 public void add(SourceEntry entry) {
-	Assert.isNotNull(entry, "Null SourceEntry being added to StateSnapConstantPool"/*nonNLS*/);
+	Assert.isNotNull(entry, "Null SourceEntry being added to StateSnapConstantPool"); //$NON-NLS-1$
 	if (!fSet.includes(entry)) {
 		add(entry.getPath());
 		String zipEntryPath = entry.fZipEntryPath;
@@ -171,12 +171,12 @@ public IHandle getHandle(int index) throws IOException {
 	try {
 		IHandle result = (IHandle)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -192,12 +192,12 @@ public IPackage getPackage(int index) throws IOException {
 	try {
 		IPackage result = (IPackage)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -207,12 +207,12 @@ public IPath getPath(int index) throws IOException {
 	try {
 		IPath result = (IPath)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -222,12 +222,12 @@ public SourceEntry getSourceEntry(int index) throws IOException {
 	try {
 		SourceEntry result = (SourceEntry)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -237,12 +237,12 @@ public String getString(int index) throws IOException {
 	try {
 		String result = (String)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -263,7 +263,7 @@ public Object getStringOrNumber(int index) throws IOException {
 		return result;
 	}
 	else {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /**
@@ -273,12 +273,12 @@ public IType getType(int index) throws IOException {
 	try {
 		IType result = (IType)fSet.get(index);
 		if (result == null) {
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		return result;
 	}
 	catch (ClassCastException e) {
-		throw new IOException("Error in format"/*nonNLS*/);
+		throw new IOException("Error in format"); //$NON-NLS-1$
 	}
 }
 /** 
@@ -306,10 +306,10 @@ public String histogram() {
 			++nN;
 		}
 		else {
-			Assert.isTrue(false, "Unexpected pool item"/*nonNLS*/);
+			Assert.isTrue(false, "Unexpected pool item"); //$NON-NLS-1$
 		}
 	}
-	return "nStr="/*nonNLS*/ + nStr + ", nID="/*nonNLS*/ + nID + ", nSE="/*nonNLS*/ + nSE + ", nH="/*nonNLS*/ + nH + ",nN="/*nonNLS*/ + nN;
+	return "nStr=" + nStr + ", nID=" + nID + ", nSE=" + nSE + ", nH=" + nH + ",nN=" + nN; //$NON-NLS-1$ //$NON-NLS-5$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-4$
 	
 }
 /** 
@@ -323,7 +323,7 @@ public int index(Object obj) {
 		return fSet.index(obj);
 	}
 	catch (IllegalArgumentException e) {
-		throw new IllegalArgumentException("Internal error in state serialization. Expected object missing from constant pool: "/*nonNLS*/ + obj);
+		throw new IllegalArgumentException("Internal error in state serialization. Expected object missing from constant pool: " + obj); //$NON-NLS-1$
 	}
 }
 /**
@@ -397,7 +397,7 @@ private void read(IDevelopmentContext dc, DataInputStream in, StateSnapV5 snap) 
 				fSet.put(i, readNumber(in, tag));
 				break;
 			default:
-				throw new IOException("Unexpected kind of pool item"/*nonNLS*/);
+				throw new IOException("Unexpected kind of pool item"); //$NON-NLS-1$
 		}
 	}
 }
@@ -415,7 +415,7 @@ private IHandle readHandle(IDevelopmentContext dc, DataInputStream in, int tag) 
 		case 5: {
 			// primitive type
 			// Should not occur since primitive types are well known and not written
-			throw new IOException("Error in format"/*nonNLS*/);
+			throw new IOException("Error in format"); //$NON-NLS-1$
 		}
 		case 6: {
 			// array type
@@ -433,7 +433,7 @@ private IHandle readHandle(IDevelopmentContext dc, DataInputStream in, int tag) 
 			// method
 			IType declaringClass = getType(in.readInt());
 			if (declaringClass.isPrimitive() || declaringClass.isArray()) {
-				throw new IOException("Error in format"/*nonNLS*/);
+				throw new IOException("Error in format"); //$NON-NLS-1$
 			}
 			String name = getString(in.readInt());
 			int numParams = in.readByte() & 0xFF;
@@ -447,7 +447,7 @@ private IHandle readHandle(IDevelopmentContext dc, DataInputStream in, int tag) 
 			// constructor
 			IType declaringClass = getType(in.readInt());
 			if (declaringClass.isPrimitive() || declaringClass.isArray()) {
-				throw new IOException("Error in format"/*nonNLS*/);
+				throw new IOException("Error in format"); //$NON-NLS-1$
 			}
 			int numParams = in.readByte() & 0xFF;
 			IType[] params = new IType[numParams];
@@ -460,7 +460,7 @@ private IHandle readHandle(IDevelopmentContext dc, DataInputStream in, int tag) 
 			// field 
 			IType declaringClass = getType(in.readInt());
 			if (declaringClass.isPrimitive() || declaringClass.isArray()) {
-				throw new IOException("Error in format"/*nonNLS*/);
+				throw new IOException("Error in format"); //$NON-NLS-1$
 			}
 			String name = getString(in.readInt());
 			return declaringClass.getFieldHandle(name);
@@ -469,7 +469,7 @@ private IHandle readHandle(IDevelopmentContext dc, DataInputStream in, int tag) 
 			// image
 			return dc.getImage();
 		default:
-			throw new IOException("Unexpected kind of pool item"/*nonNLS*/);
+			throw new IOException("Unexpected kind of pool item"); //$NON-NLS-1$
 	}
 }
 /**
@@ -490,7 +490,7 @@ private Number readNumber(DataInputStream in, int tag) throws IOException {
 			// Double
 			return new Double(Double.longBitsToDouble(in.readLong()));
 		default:
-			throw new IOException("Unexpected type of number"/*nonNLS*/);
+			throw new IOException("Unexpected type of number"); //$NON-NLS-1$
 	}
 }
 /** 
@@ -539,7 +539,7 @@ public void write(DataOutputStream out) throws IOException {
 			writeNumber((Number)obj, out);  // tags 12 through 15
 		}
 		else {
-			Assert.isTrue(false, "Unexpected kind of pool item"/*nonNLS*/);
+			Assert.isTrue(false, "Unexpected kind of pool item"); //$NON-NLS-1$
 		}
 	}
 }
@@ -559,7 +559,7 @@ private void writeHandle(IHandle h, DataOutputStream out) throws IOException {
 			if (t.isPrimitive()) {
 				// tag=5
 				// Primitive types should not show up since they are well known and are not written.
-				throw new IOException("Error in format"/*nonNLS*/);
+				throw new IOException("Error in format"); //$NON-NLS-1$
 			}
 			else if (t.isArray()) {
 				ArrayTypeHandleImpl at = (ArrayTypeHandleImpl)t;
@@ -611,7 +611,7 @@ private void writeHandle(IHandle h, DataOutputStream out) throws IOException {
 			out.writeByte(11);
 			break;
 		default:
-			Assert.isTrue(false, "Unknown kind of handle"/*nonNLS*/);
+			Assert.isTrue(false, "Unknown kind of handle"); //$NON-NLS-1$
 	}
 }
 /** 
@@ -635,7 +635,7 @@ private void writeNumber(Number num, DataOutputStream out) throws IOException {
 		out.writeLong(Double.doubleToLongBits(num.doubleValue()));
 	}
 	else {
-		Assert.isTrue(false, "Unexpected type of number"/*nonNLS*/);
+		Assert.isTrue(false, "Unexpected type of number"); //$NON-NLS-1$
 	}
 }
 }

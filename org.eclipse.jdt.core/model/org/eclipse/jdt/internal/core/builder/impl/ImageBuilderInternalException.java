@@ -40,7 +40,7 @@ public Throwable getThrowable() {
 	public void printStackTrace() {
 		if (fThrowable != null) {
 			System.err.println(this);
-			System.err.println("Stack trace of embedded throwable:"/*nonNLS*/);
+			System.err.println("Stack trace of embedded throwable:"); //$NON-NLS-1$
 			fThrowable.printStackTrace();
 		} else {
 			super.printStackTrace();

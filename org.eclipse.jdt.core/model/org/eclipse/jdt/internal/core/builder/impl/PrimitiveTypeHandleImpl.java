@@ -149,23 +149,23 @@ public String getName() {
 public String getSimpleName() {
 	switch (fTypeCode) {
 		case TC_BOOLEAN :
-			return "boolean"/*nonNLS*/;
+			return "boolean"; //$NON-NLS-1$
 		case TC_BYTE :
-			return "byte"/*nonNLS*/;
+			return "byte"; //$NON-NLS-1$
 		case TC_CHAR :
-			return "char"/*nonNLS*/;
+			return "char"; //$NON-NLS-1$
 		case TC_DOUBLE :
-			return "double"/*nonNLS*/;
+			return "double"; //$NON-NLS-1$
 		case TC_FLOAT :
-			return "float"/*nonNLS*/;
+			return "float"; //$NON-NLS-1$
 		case TC_INT :
-			return "int"/*nonNLS*/;
+			return "int"; //$NON-NLS-1$
 		case TC_LONG :
-			return "long"/*nonNLS*/;
+			return "long"; //$NON-NLS-1$
 		case TC_SHORT :
-			return "short"/*nonNLS*/;
+			return "short"; //$NON-NLS-1$
 		case TC_VOID :
-			return "void"/*nonNLS*/;
+			return "void"; //$NON-NLS-1$
 		default :
 	}
 	return null;
@@ -219,25 +219,25 @@ public boolean isPrimitive() {
 protected static String typeSignature(int typeCode) {
 	switch (typeCode) {
 		case TC_VOID :
-			return "V"/*nonNLS*/;
+			return "V"; //$NON-NLS-1$
 		case TC_BOOLEAN :
-			return "Z"/*nonNLS*/;
+			return "Z"; //$NON-NLS-1$
 		case TC_BYTE :
-			return "B"/*nonNLS*/;
+			return "B"; //$NON-NLS-1$
 		case TC_CHAR :
-			return "C"/*nonNLS*/;
+			return "C"; //$NON-NLS-1$
 		case TC_SHORT :
-			return "S"/*nonNLS*/;
+			return "S"; //$NON-NLS-1$
 		case TC_INT :
-			return "I"/*nonNLS*/;
+			return "I"; //$NON-NLS-1$
 		case TC_LONG :
-			return "J"/*nonNLS*/;
+			return "J"; //$NON-NLS-1$
 		case TC_FLOAT :
-			return "F"/*nonNLS*/;
+			return "F"; //$NON-NLS-1$
 		case TC_DOUBLE :
-			return "D"/*nonNLS*/;
+			return "D"; //$NON-NLS-1$
 		default :
-			return "unknown"/*nonNLS*/;
+			return "unknown"; //$NON-NLS-1$
 	}
 }
 }

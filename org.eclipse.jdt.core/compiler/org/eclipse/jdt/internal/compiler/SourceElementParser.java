@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
+import java.util.Locale;
 
 public class SourceElementParser extends Parser {
 	ISourceElementRequestor requestor;
@@ -42,26 +43,36 @@ public class SourceElementParser extends Parser {
 	private char[][] typeNames;
 	private char[][] superTypeNames;
 	private int nestedTypeIndex;
-	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object"/*nonNLS*/.toCharArray();
+	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
-	IProblemFactory problemFactory) {
+	IProblemFactory problemFactory,
+	CompilerOptions options) {
 	// we want to notify all syntax error with the acceptProblem API
 	// To do so, we define the record method of the ProblemReporter
 	super(new ProblemReporter(
-		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-		new CompilerOptions(), 
+		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
+		options, 
 		problemFactory) {
 		public void record(IProblem problem, CompilationResult unitResult) {
 			unitResult.record(problem);
 			requestor.acceptProblem(problem);
 		}
-	}, false);
+	},
+	false,
+	options.getAssertMode());
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];
 	nestedTypeIndex = 0;
 }
+
+public SourceElementParser(
+	final ISourceElementRequestor requestor, 
+	IProblemFactory problemFactory) {
+		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
+}
+
 protected void classInstanceCreation(boolean alwaysQualified) {
 
 	boolean previousFlag = reportReferenceInfo;
@@ -824,7 +835,7 @@ public void parseTypeMemberDeclarations(
 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
-				sourceType, 
+				new ISourceType[]{sourceType}, 
 				false,
 				false, 
 				problemReporter(), 

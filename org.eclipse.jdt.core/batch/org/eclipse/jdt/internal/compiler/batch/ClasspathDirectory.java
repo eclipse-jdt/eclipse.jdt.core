@@ -75,6 +75,6 @@ public NameEnvironmentAnswer readJavaFile(String fileName, char[][] packageName)
 	return new NameEnvironmentAnswer(new CompilationUnit(null, fullName));
 }
 public String toString() {
-	return "ClasspathDirectory "/*nonNLS*/ + path;
+	return "ClasspathDirectory " + path; //$NON-NLS-1$
 }
 }

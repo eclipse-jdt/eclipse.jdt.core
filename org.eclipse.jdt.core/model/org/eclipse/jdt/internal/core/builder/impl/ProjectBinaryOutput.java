@@ -103,7 +103,7 @@ private void deleteClassesInContainer(IContainer container) {
 			IResource resource = (IResource) members[i];
 			switch (resource.getType()) {
 				case IResource.FILE :
-					if (resource.getName().toLowerCase().endsWith(".class"/*nonNLS*/)) {
+					if (resource.getName().toLowerCase().endsWith(".class")) { //$NON-NLS-1$
 						resource.delete(true, null);
 					}
 					break;
@@ -141,8 +141,7 @@ public byte[] getBinary(TypeStructureEntry tsEntry, IType type) {
 	} catch (IOException e) {
 		return new byte[0];
 	} catch (CoreException e) {
-		return new byte[0];
-	}
+		return new byte[0];	}
 }
 /**
  * Returns the container for a path.
@@ -176,7 +175,7 @@ IPath getOutputPath() {
  * Returns the path in the output folder for the given type.
  */
 private IPath getPathForBinary(IType type) {
-	return getOutputPath().append(type.getName().replace('.', '/') + ".class"/*nonNLS*/);
+	return getOutputPath().append(type.getName().replace('.', '/') + ".class"); //$NON-NLS-1$
 }
 /**
  * Returns the container at the given path, creating it and any parent folders if necessary.

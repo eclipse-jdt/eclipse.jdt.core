@@ -59,8 +59,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/*slow code*/
 	
-	String s = ""/*nonNLS*/;
-	s = s + type.toString(0) + ".class"/*nonNLS*/ ;
+	String s = ""; //$NON-NLS-1$
+	s = s + type.toString(0) + ".class" ; //$NON-NLS-1$
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

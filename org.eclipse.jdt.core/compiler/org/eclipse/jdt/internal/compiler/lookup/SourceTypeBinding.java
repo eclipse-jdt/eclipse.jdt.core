@@ -118,7 +118,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 					synthField.name = CharOperation.concat(
 						SyntheticArgumentBinding.OuterLocalPrefix,
 						actualOuterLocalVariable.name,
-						("$"/*nonNLS*/ + String.valueOf(index++)).toCharArray());
+						("$" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
 					needRecheck = true;
 					break;
 				}
@@ -176,7 +176,7 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL].get(targetType);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			("class$"/*nonNLS*/ + synthetics[CLASS_LITERAL].size()).toCharArray(),
+			("class$" + synthetics[CLASS_LITERAL].size()).toCharArray(), //$NON-NLS-1$
 			blockScope.getJavaLangClass(),
 			AccDefault | AccStatic | AccSynthetic,
 			this,
@@ -198,6 +198,51 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	}		
 	return synthField;
 }
+
+/* Add a new synthetic field for the emulation of the assert statement.
+*	Answer the new field or the existing field if one already existed.
+*/
+public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
+	if (synthetics == null) {
+		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+	}
+
+	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get("assertionEmulation"); //$NON-NLS-1$
+	if (synthField == null) {
+		synthField = new SyntheticFieldBinding(
+			"$assertionsDisabled".toCharArray(), //$NON-NLS-1$
+			BooleanBinding,
+			AccDefault | AccStatic | AccSynthetic | AccFinal,
+			this,
+			Constant.NotAConstant,
+			0);
+		synthetics[FIELD].put("assertionEmulation", synthField); //$NON-NLS-1$
+	}
+	// ensure there is not already such a field defined by the user
+	// ensure there is not already such a field defined by the user
+	boolean needRecheck;
+	int index = 0;
+	do {
+		needRecheck = false;
+		FieldBinding existingField;
+		if ((existingField = this.getField(synthField.name)) != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl = typeDecl.fields[i];
+				if (fieldDecl.binding == existingField) {
+					synthField.name = CharOperation.concat(
+						"$assertionsDisabled".toCharArray(), //$NON-NLS-1$
+						("_" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
+					needRecheck = true;
+					break;
+				}
+			}
+		}
+	} while (needRecheck);
+	return synthField;
+}
+
 /* Add a new synthetic access method for read/write access to <targetField>.
 	Answer the new method or the existing method if one already existed.
 */
@@ -732,71 +777,71 @@ public FieldBinding[] syntheticFields() {
 	return bindings;
 }
 public String toString() {
-	String s = "(id="/*nonNLS*/+(id == NoId ? "NoId"/*nonNLS*/ : (""/*nonNLS*/+id) ) +")\n"/*nonNLS*/;
+	String s = "(id="+(id == NoId ? "NoId" : (""+id) ) +")\n"; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-4$ //$NON-NLS-1$
 
-	if (isDeprecated()) s += "deprecated "/*nonNLS*/;
-	if (isPublic()) s += "public "/*nonNLS*/;
-	if (isProtected()) s += "protected "/*nonNLS*/;
-	if (isPrivate()) s += "private "/*nonNLS*/;
-	if (isAbstract() && isClass()) s += "abstract "/*nonNLS*/;
-	if (isStatic() && isNestedType()) s += "static "/*nonNLS*/;
-	if (isFinal()) s += "final "/*nonNLS*/;
+	if (isDeprecated()) s += "deprecated "; //$NON-NLS-1$
+	if (isPublic()) s += "public "; //$NON-NLS-1$
+	if (isProtected()) s += "protected "; //$NON-NLS-1$
+	if (isPrivate()) s += "private "; //$NON-NLS-1$
+	if (isAbstract() && isClass()) s += "abstract "; //$NON-NLS-1$
+	if (isStatic() && isNestedType()) s += "static "; //$NON-NLS-1$
+	if (isFinal()) s += "final "; //$NON-NLS-1$
 
-	s += isInterface() ? "interface "/*nonNLS*/ : "class "/*nonNLS*/;
-	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"/*nonNLS*/;
+	s += isInterface() ? "interface " : "class "; //$NON-NLS-1$ //$NON-NLS-2$
+	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"; //$NON-NLS-1$
 
-	s += "\n\textends "/*nonNLS*/;
-	s += (superclass != null) ? superclass.debugName() : "NULL TYPE"/*nonNLS*/;
+	s += "\n\textends "; //$NON-NLS-1$
+	s += (superclass != null) ? superclass.debugName() : "NULL TYPE"; //$NON-NLS-1$
 
 	if (superInterfaces != null) {
 		if (superInterfaces != NoSuperInterfaces) {
-			s += "\n\timplements : "/*nonNLS*/;
+			s += "\n\timplements : "; //$NON-NLS-1$
 			for (int i = 0, length = superInterfaces.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "/*nonNLS*/;
-				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"/*nonNLS*/;
+					s += ", "; //$NON-NLS-1$
+				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
 			}
 		}
 	} else {
-		s += "NULL SUPERINTERFACES"/*nonNLS*/;
+		s += "NULL SUPERINTERFACES"; //$NON-NLS-1$
 	}
 
 	if (enclosingType() != null) {
-		s += "\n\tenclosing type : "/*nonNLS*/;
+		s += "\n\tenclosing type : "; //$NON-NLS-1$
 		s += enclosingType().debugName();
 	}
 
 	if (fields != null) {
 		if (fields != NoFields) {
-			s += "\n/*   fields   */"/*nonNLS*/;
+			s += "\n/*   fields   */"; //$NON-NLS-1$
 			for (int i = 0, length = fields.length; i < length; i++)
-				s += (fields[i] != null) ? "\n"/*nonNLS*/ + fields[i].toString() : "\nNULL FIELD"/*nonNLS*/;
+				s += (fields[i] != null) ? "\n" + fields[i].toString() : "\nNULL FIELD"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL FIELDS"/*nonNLS*/;
+		s += "NULL FIELDS"; //$NON-NLS-1$
 	}
 
 	if (methods != null) {
 		if (methods != NoMethods) {
-			s += "\n/*   methods   */"/*nonNLS*/;
+			s += "\n/*   methods   */"; //$NON-NLS-1$
 			for (int i = 0, length = methods.length; i < length; i++)
-				s += (methods[i] != null) ? "\n"/*nonNLS*/ + methods[i].toString() : "\nNULL METHOD"/*nonNLS*/;
+				s += (methods[i] != null) ? "\n" + methods[i].toString() : "\nNULL METHOD"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL METHODS"/*nonNLS*/;
+		s += "NULL METHODS"; //$NON-NLS-1$
 	}
 
 	if (memberTypes != null) {
 		if (memberTypes != NoMemberTypes) {
-			s += "\n/*   members   */"/*nonNLS*/;
+			s += "\n/*   members   */"; //$NON-NLS-1$
 			for (int i = 0, length = memberTypes.length; i < length; i++)
-				s += (memberTypes[i] != null) ? "\n"/*nonNLS*/ + memberTypes[i].toString() : "\nNULL TYPE"/*nonNLS*/;
+				s += (memberTypes[i] != null) ? "\n" + memberTypes[i].toString() : "\nNULL TYPE"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL MEMBER TYPES"/*nonNLS*/;
+		s += "NULL MEMBER TYPES"; //$NON-NLS-1$
 	}
 
-	s += "\n\n\n"/*nonNLS*/;
+	s += "\n\n\n"; //$NON-NLS-1$
 	return s;
 }
 void verifyMethods(MethodVerifier verifier) {

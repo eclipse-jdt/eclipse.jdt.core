@@ -145,7 +145,7 @@ public String readableName() {
 		for (int i = 0; i < length; i++) {
 			buffer.append(Signature.toString(parameterTypes[i]));
 			if (i < length - 1) {
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", "); //$NON-NLS-1$
 			}
 		}
 	}
@@ -192,11 +192,11 @@ protected boolean signatureEquals(IDOMMethod method) throws JavaModelException {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
 		buffer.append(getElementName());
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {
-				buffer.append("static "/*nonNLS*/);
+				buffer.append("static "); //$NON-NLS-1$
 			}
 			if (!this.isConstructor()) {
 				buffer.append(Signature.toString(this.getReturnType()));
@@ -210,13 +210,13 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				for (int i = 0; i < length; i++) {
 					buffer.append(Signature.toString(parameterTypes[i]));
 					if (i < length - 1) {
-						buffer.append(", "/*nonNLS*/);
+						buffer.append(", "); //$NON-NLS-1$
 					}
 				}
 			}
 			buffer.append(')');
 		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of "/*nonNLS*/ + getElementName());
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
 }

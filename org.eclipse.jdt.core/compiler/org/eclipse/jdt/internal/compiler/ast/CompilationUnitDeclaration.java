@@ -197,18 +197,18 @@ public void tagAsHavingErrors(){
 public String toString(int tab) {
 	/*very slow code*/
 
-	String s = ""/*nonNLS*/;
+	String s = ""; //$NON-NLS-1$
 	if (currentPackage != null)
-		s = tabString(tab) + "package "/*nonNLS*/ + currentPackage.toString(0, false) + ";\n"/*nonNLS*/;
+		s = tabString(tab) + "package " + currentPackage.toString(0, false) + ";\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	if (imports != null)
 		for (int i = 0; i < imports.length; i++) {
-			s += tabString(tab) + "import "/*nonNLS*/ + imports[i].toString() + ";\n"/*nonNLS*/;
+			s += tabString(tab) + "import " + imports[i].toString() + ";\n"; //$NON-NLS-1$ //$NON-NLS-2$
 		};
 
 	if (types != null)
 		for (int i = 0; i < types.length; i++) {
-			s +=  types[i].toString(tab) + "\n"/*nonNLS*/;
+			s +=  types[i].toString(tab) + "\n"; //$NON-NLS-1$
 		}
 	return s;
 }
@@ -228,6 +228,7 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope sc
 					types[i].traverse(visitor, scope);
 			}
 		}
+		visitor.endVisit(this, scope);
 	} catch (AbortCompilationUnit e) {
 	}
 }

@@ -23,8 +23,8 @@ public class CodeSnippetParser extends Parser implements EvaluationConstants {
 /**
  * Creates a new code snippet parser.
  */
-public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext evaluationContext, boolean optimizeStringLiterals, int codeSnippetStart, int codeSnippetEnd) {
-	super(problemReporter, optimizeStringLiterals);
+public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext evaluationContext, boolean optimizeStringLiterals, boolean assertMode, int codeSnippetStart, int codeSnippetEnd) {
+	super(problemReporter, optimizeStringLiterals, assertMode);
 	this.codeSnippetStart = codeSnippetStart;
 	this.codeSnippetEnd = codeSnippetEnd;
 	this.evaluationContext = evaluationContext;
@@ -140,7 +140,8 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	if (isSuperAccess) {
 		//considerates the fieldReference beginning at the 'super' ....	
 		fr.sourceStart = intStack[intPtr--];
-		fr.receiver = new SuperReference(fr.sourceStart, endPosition);
+		problemReporter().codeSnippetMissingClass(null,0, 0);
+		fr.receiver = new CodeSnippetSuperReference(fr.sourceStart, endPosition, evaluationContext);
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
@@ -281,6 +282,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		methodDecl.statements = newStatements;
 	}
 }
+
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
 
@@ -308,6 +310,20 @@ protected void consumeMethodInvocationName() {
 		super.consumeMethodInvocationName();
 	}
 }
+
+protected void consumeMethodInvocationSuper() {
+	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
+
+	MessageSend m = newMessageSend();
+	m.sourceStart = intStack[intPtr--];
+	m.sourceEnd = rParenPos;
+	m.nameSourcePosition = identifierPositionStack[identifierPtr];
+	m.selector = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	m.receiver = new CodeSnippetSuperReference(m.sourceStart, endPosition, this.evaluationContext);
+	pushOnExpressionStack(m);
+}
+
 protected void consumePrimaryNoNewArrayThis() {
 	// PrimaryNoNewArray ::= 'this'
 
@@ -315,7 +331,7 @@ protected void consumePrimaryNoNewArrayThis() {
 		&& scanner.startPosition <= codeSnippetEnd + 1
 		&& isTopLevelType()) {
 		pushOnExpressionStack(
-			new CodeSnippetThisReference(intStack[intPtr--], endPosition, evaluationContext, false));
+			new CodeSnippetThisReference(intStack[intPtr--], endPosition, this.evaluationContext, false));
 	} else {
 		super.consumePrimaryNoNewArrayThis();
 	}

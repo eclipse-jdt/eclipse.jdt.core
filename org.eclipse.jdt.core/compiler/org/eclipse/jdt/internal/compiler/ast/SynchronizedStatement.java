@@ -17,7 +17,7 @@ public class SynchronizedStatement extends Statement {
 
 	boolean blockExit;
 	public LocalVariableBinding synchroVariable;
-	static final char[] SecretLocalDeclarationName = " syncValue"/*nonNLS*/.toCharArray();
+	static final char[] SecretLocalDeclarationName = " syncValue".toCharArray(); //$NON-NLS-1$
 
 public SynchronizedStatement(Expression expression , Block statement, int s, int e) {
 	this.expression = expression;
@@ -73,7 +73,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// generate  the body of the synchronized block
 		ExceptionLabel anyExceptionHandler = new ExceptionLabel(codeStream, null); //'null' denotes any kind of exception
 		block.generateCode(scope, codeStream);
-		anyExceptionHandler.placeEnd();
 		Label endLabel = new Label(codeStream);
 		if (!blockExit) {
 			codeStream.load(synchroVariable);
@@ -81,6 +80,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.goto_(endLabel);
 		}
 		// generate the body of the exception handler
+		anyExceptionHandler.placeEnd();
 		anyExceptionHandler.place();
 		codeStream.incrStackSize(1);
 		codeStream.load(synchroVariable);
@@ -128,8 +128,8 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "synchronized ("/*nonNLS*/ + expression.toStringExpression() + ")"/*nonNLS*/;
-	s = s + "\n"/*nonNLS*/ + block.toString(tab+1) ;
+	s = s + "synchronized (" + expression.toStringExpression() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "\n" + block.toString(tab+1) ; //$NON-NLS-1$
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

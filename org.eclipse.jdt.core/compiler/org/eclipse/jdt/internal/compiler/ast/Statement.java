@@ -33,6 +33,9 @@ public abstract class Statement extends AstNode {
 
 	// for statements only
 	public static final int IsReachableMASK = 0x80000000; // highest bit
+	
+	// for type declaration only
+	public static final int AddAssertionMASK = 1; // highest bit
 
 	/*
 	public final static int BitMask1= 0x1; // decimal 1
@@ -78,7 +81,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 public void generateCode(BlockScope currentScope, CodeStream codeStream){
-	throw new ShouldNotImplement(Util.bind("ast.missingStatement"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.missingStatement")); //$NON-NLS-1$
 }
 public boolean isEmptyBlock(){
 	return false;

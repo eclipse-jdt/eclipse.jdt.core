@@ -43,7 +43,7 @@ private Object[] computeNonJavaResources(IResource resource) {
 			IResource child = members[i];
 			if (child.getType() != IResource.FOLDER) {
 				String extension = child.getProjectRelativePath().getFileExtension();
-				if (!"java"/*nonNLS*/.equalsIgnoreCase(extension) && !"class"/*nonNLS*/.equalsIgnoreCase(extension)) {
+				if (!"java".equalsIgnoreCase(extension) && !"class".equalsIgnoreCase(extension)) { //$NON-NLS-1$ //$NON-NLS-2$
 					if (nonJavaResources.length == nonJavaResourcesCounter) {
 						// resize
 						System.arraycopy(

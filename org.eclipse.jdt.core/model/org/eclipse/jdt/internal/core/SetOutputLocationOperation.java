@@ -85,7 +85,7 @@ protected Vector determineAffectedPackageFragments(IPath location) throws JavaMo
 					IPath relativePath = f.getFullPath().removeFirstSegments(segments);
 					String name = relativePath.toOSString();
 					name = name.replace(File.pathSeparatorChar, '.');
-					if (name.endsWith("."/*nonNLS*/)) {
+					if (name.endsWith(".")) { //$NON-NLS-1$
 						name = name.substring(0, name.length() - 1);
 					}
 					IPackageFragment pkg = root.getPackageFragment(name);
@@ -104,7 +104,7 @@ protected Vector determineAffectedPackageFragments(IPath location) throws JavaMo
  * a package fragment.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("classpath.settingOutputLocationProgress"/*nonNLS*/), 2);
+	beginTask(Util.bind("classpath.settingOutputLocationProgress"), 2); //$NON-NLS-1$
 	JavaProject project= ((JavaProject) getElementsToProcess()[0]);
 	
 	IPath oldLocation= project.getOutputLocation();
@@ -166,27 +166,6 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	if (fOutputLocation == null) {
-			return new JavaModelStatus(IJavaModelStatusConstants.NULL_PATH);
-	}
-	
-	if (fOutputLocation.isAbsolute()) {
-		IProject project = ((IJavaProject) fElementsToProcess[0]).getProject();
-
-		if (project.getFullPath().isPrefixOf(fOutputLocation)) {
-			//project relative path
-			String projectName = fOutputLocation.segment(0);
-			if (!projectName.equals(fElementsToProcess[0].getElementName())) {
-				//a workspace relative path outside of this project
-				return new JavaModelStatus(IJavaModelStatusConstants.PATH_OUTSIDE_PROJECT, fOutputLocation);
-			}
-		} else {
-			return new JavaModelStatus(IJavaModelStatusConstants.DEVICE_PATH, fOutputLocation);
-		}
-	} else {
-		return new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, fOutputLocation);
-	}
-
 	// retrieve classpath
 	IClasspathEntry[] classpath = null;
 	IJavaProject javaProject= (IJavaProject)getElementToProcess();
@@ -196,38 +175,6 @@ public IJavaModelStatus verify() {
 	} catch (JavaModelException e) {
 		return e.getJavaModelStatus();
 	}
-
-	// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-	boolean allowNestingInOutput = false;
-	boolean hasSource = false;
-	for (int i = 0 ; i < classpath.length; i++) {
-		if (classpath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
-		if (classpath[i].getPath().equals(fOutputLocation)){
-			allowNestingInOutput = true;
-			break;
-		}
-	}
-	if (!hasSource) allowNestingInOutput = true; // if no source, then allowed
-
-	// check all entries
-	for (int i = 0 ; i < classpath.length; i++) {
-		IClasspathEntry entry = classpath[i];
-		IPath entryPath = entry.getPath();
-
-		// no further check if entry coincidates with project or output location
-		if (entryPath.equals(projectPath)) continue;
-		if (entryPath.equals(fOutputLocation)) continue;
-		
-		// prevent nesting output location inside entry
-		if (entryPath.isPrefixOf(fOutputLocation)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, fOutputLocation);
-		}
-
-		// prevent nesting entry inside output location - when distinct from project or a source folder
-		if (!allowNestingInOutput && fOutputLocation.isPrefixOf(entryPath)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, fOutputLocation);
-		}
-	}
-	return JavaModelStatus.VERIFIED_OK;
+	return JavaConventions.validateClasspath((IJavaProject) fElementsToProcess[0], classpath, fOutputLocation);
 }
 }

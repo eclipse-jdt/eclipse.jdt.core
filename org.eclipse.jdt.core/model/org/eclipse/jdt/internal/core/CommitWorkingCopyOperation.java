@@ -86,7 +86,7 @@ private void checkPackageDeclaration(ICompilationUnit cu)
  * 	of the original compilation unit fails
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("workingCopy.commit"/*nonNLS*/), 2);
+	beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
 	ICompilationUnit copy = getCompilationUnit();
 	ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
 

@@ -61,14 +61,14 @@ public class MethodImpl extends AbstractMemberHandle implements IMethod {
 	 * unqualified source signature format.
 	 */
 	protected String getSourceParameters() {
-		String sourceSig = "("/*nonNLS*/;
+		String sourceSig = "("; //$NON-NLS-1$
 
 		/* append parameter types to signature */
 		IType[] parms = getParameterTypes();
 		for (int i = 0; i < parms.length; i++) {
 			sourceSig += parms[i].getSimpleName().replace('L', 'Q');
 		}
-		sourceSig += ")"/*nonNLS*/;
+		sourceSig += ")"; //$NON-NLS-1$
 		return sourceSig;
 	}
 /**

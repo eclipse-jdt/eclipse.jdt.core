@@ -226,7 +226,7 @@ DOMType(char[] document, int[] sourceRange, String name, int[] nameRange, int fl
  */
 public void addSuperInterface(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.addNullInterface"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("dom.addNullInterface")); //$NON-NLS-1$
 	}
 	if (fSuperInterfaces == null) {
 		fSuperInterfaces= new String[1];
@@ -264,7 +264,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 		if (getMask(MASK_TYPE_HAS_SUPERCLASS)) {
 			hasSuperclass = true;
 			if (fExtendsRange[0] < 0) {
-				buffer.append(" extends "/*nonNLS*/);
+				buffer.append(" extends "); //$NON-NLS-1$
 			} else {
 				buffer.append(fDocument, fExtendsRange[0], fExtendsRange[1] + 1 - fExtendsRange[0]);
 			}
@@ -277,7 +277,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 		if (getMask(MASK_TYPE_HAS_INTERFACES)) {
 			hasInterfaces = true;
 			if (fImplementsRange[0] < 0) {
-				buffer.append(" implements "/*nonNLS*/);
+				buffer.append(" implements "); //$NON-NLS-1$
 			} else {
 				buffer.append(fDocument, fImplementsRange[0], fImplementsRange[1] + 1 - fImplementsRange[0]);
 			}
@@ -307,7 +307,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 	} else {
 		if (getMask(MASK_TYPE_HAS_INTERFACES)) {
 			if (fExtendsRange[0] < 0) {
-				buffer.append(" extends "/*nonNLS*/);
+				buffer.append(" extends "); //$NON-NLS-1$
 			} else {
 				buffer.append(fDocument, fExtendsRange[0], fExtendsRange[1] + 1 - fExtendsRange[0]);
 			}
@@ -377,7 +377,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	} else if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getType(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
@@ -527,9 +527,9 @@ public void setClass(boolean b) {
 	fragment();
 	setMask(MASK_TYPE_IS_CLASS, b);
 	if (b) {
-		fTypeKeyword= "class"/*nonNLS*/;
+		fTypeKeyword= "class"; //$NON-NLS-1$
 	} else {
-		fTypeKeyword= "interface"/*nonNLS*/;
+		fTypeKeyword= "interface"; //$NON-NLS-1$
 		setSuperclass(null);
 	}
 }
@@ -556,7 +556,7 @@ void setCloseBodyRangeStart(int start) {
  */
 public void setName(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	super.setName(name);
 	Enumeration children= getChildren();
@@ -588,7 +588,7 @@ public void setSuperclass(String superclassName) {
 public void setSuperInterfaces(String[] names) {
 	becomeDetailed();
 	if (names == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullInterfaces"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("dom.nullInterfaces")); //$NON-NLS-1$
 	}
 	fragment();
 	fSuperInterfaces= names;
@@ -601,7 +601,7 @@ public void setSuperInterfaces(String[] names) {
 		CharArrayBuffer buffer = new CharArrayBuffer();
 		for (int i = 0; i < names.length; i++) {
 			if (i > 0) {
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", "); //$NON-NLS-1$
 			}
 			buffer.append(names[i]);
 		}
@@ -636,6 +636,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "TYPE: "/*nonNLS*/ + getName();
+	return "TYPE: " + getName(); //$NON-NLS-1$
 }
 }

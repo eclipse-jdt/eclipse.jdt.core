@@ -28,6 +28,6 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	return constantPoolName = CharOperation.concat(enclosingType().constantPoolName(), sourceName, '$');
 }
 public String toString() {
-	return "Member type : "/*nonNLS*/ + new String(sourceName()) + " "/*nonNLS*/ + super.toString();
+	return "Member type : " + new String(sourceName()) + " " + super.toString(); //$NON-NLS-2$ //$NON-NLS-1$
 }
 }

@@ -223,10 +223,8 @@ public final boolean canBeSeenByForCodeSnippet(ReferenceBinding referenceBinding
 }
 // Internal use only
 public MethodBinding findExactMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	compilationUnitScope().addTypeReference(receiverType);
 	MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
 	if (exactMethod != null){
-		compilationUnitScope().addTypeReferences(exactMethod.thrownExceptions);
 		if (receiverType.isInterface() || canBeSeenByForCodeSnippet(exactMethod, receiverType, invocationSite, this))
 			return exactMethod;
 	}
@@ -257,7 +255,6 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	if (!currentType.canBeSeenBy(this))
 		return new ProblemFieldBinding(fieldName, NotVisible); // *** Need a new problem id - TypeNotVisible?
 
-	compilationUnitScope().addTypeReference(currentType);
 	FieldBinding field = currentType.getField(fieldName);
 	if (field != null) {
 		if (canBeSeenByForCodeSnippet(field, currentType, invocationSite, this))
@@ -346,7 +343,6 @@ public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, 
 	MethodBinding matchingMethod = null;
 	ObjectVector found = null;
 
-	compilationUnitScope().addTypeReference(currentType);
 	if (currentType.isInterface()) {
 		MethodBinding[] currentMethods = currentType.getMethods(selector);
 		int currentLength = currentMethods.length;
@@ -447,7 +443,6 @@ public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, 
 			visible[visibleIndex++] = methodBinding;
 	}
 	if (visibleIndex == 1){
-		compilationUnitScope().addTypeReferences(visible[0].thrownExceptions);
 		return visible[0];
 	}
 	if (visibleIndex == 0)
@@ -523,7 +518,6 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	int currentIndex = 1;
 	foundType: if (binding instanceof PackageBinding) {
 		PackageBinding packageBinding = (PackageBinding) binding;
-		compilationUnitScope().addNamespaceReference(packageBinding);
 
 		while (currentIndex < length) {
 			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
@@ -537,13 +531,11 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
  			if (binding instanceof ReferenceBinding) {
 	 			if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
-				compilationUnitScope().addTypeReference((ReferenceBinding) binding);
 	 			if (!this.canBeSeenByForCodeSnippet((ReferenceBinding) binding, receiverType))
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotVisible);
 	 			break foundType;
  			}
  			packageBinding = (PackageBinding) binding;
-			compilationUnitScope().addNamespaceReference(packageBinding);
 		}
 
 		// It is illegal to request a PACKAGE from this method.

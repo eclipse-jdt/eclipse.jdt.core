@@ -88,9 +88,9 @@ public class ImageContextImpl implements IImageContext {
 	 * purposes only.
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer("ImageContext with packages: \n"/*nonNLS*/);
+		StringBuffer buf = new StringBuffer("ImageContext with packages: \n"); //$NON-NLS-1$
 		for (int i = 0; i < fPackages.length; i++)
-			buf.append("	"/*nonNLS*/ + fPackages[i].getName() + "\n"/*nonNLS*/);
+			buf.append("	" + fPackages[i].getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		return buf.toString();
 	}
 }

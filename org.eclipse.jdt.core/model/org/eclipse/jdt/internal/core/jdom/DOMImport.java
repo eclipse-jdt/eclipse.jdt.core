@@ -27,7 +27,7 @@ class DOMImport extends DOMNode implements IDOMImport {
  * Creates a new empty IMPORT node.
  */
 DOMImport() {
-	fName = "java.lang.*"/*nonNLS*/;
+	fName = "java.lang.*"; //$NON-NLS-1$
 	setMask(MASK_DETAILED_SOURCE_INDEXES, true);
 }
 /**
@@ -78,7 +78,7 @@ DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand) {
 protected void appendFragmentedContents(CharArrayBuffer buffer) {
 	if (fNameRange[0] < 0) {
 		buffer
-			.append("import "/*nonNLS*/)
+			.append("import ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
 			.append(JavaModelManager.LINE_SEPARATOR);
@@ -112,7 +112,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getImport(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
@@ -138,16 +138,16 @@ protected DOMNode newDOMNode() {
  */
 public void setName(String name) {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	becomeDetailed();
 	super.setName(name);
-	fOnDemand = name.endsWith(".*"/*nonNLS*/);
+	fOnDemand = name.endsWith(".*"); //$NON-NLS-1$
 }
 /**
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "IMPORT: "/*nonNLS*/ + getName();
+	return "IMPORT: " + getName(); //$NON-NLS-1$
 }
 }

@@ -33,7 +33,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(String)\""/*nonNLS*/ + value +"\""/*nonNLS*/; }
+	return "(String)\"" + value +"\""; } //$NON-NLS-2$ //$NON-NLS-1$
 public int typeID() {
 	return T_String;
 }

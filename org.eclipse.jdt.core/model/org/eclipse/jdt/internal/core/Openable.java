@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.core.*;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -95,7 +96,7 @@ protected void closing(Object info) throws JavaModelException {
  */
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICodeCompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
-		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
 	if (position < -1 || position > getBuffer().getLength()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
@@ -103,7 +104,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
 	environment.unitToSkip = unitToSkip;
 
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor), JavaModelManager.convertConfigurableOptions(JavaCore.getOptions()));
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor), JavaModelManager.getOptions());
 	engine.complete(cu, position);
 	environment.unitToSkip = null;
 }
@@ -134,7 +135,7 @@ protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 	ISearchableNameEnvironment environment = ((JavaProject)getJavaProject()).getSearchableNameEnvironment();
 	
 	// fix for 1FVXGDK
-	SelectionEngine engine = new SelectionEngine(environment, requestor, JavaModelManager.convertConfigurableOptions(JavaCore.getOptions()));
+	SelectionEngine engine = new SelectionEngine(environment, requestor, JavaModelManager.getOptions());
 	engine.select(cu, offset, offset + length - 1);
 }
 /**

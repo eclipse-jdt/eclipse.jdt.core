@@ -24,70 +24,77 @@ public MatchLocatorParser(ProblemReporter problemReporter) {
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	}
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
 }
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
 }
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	}
 }
 protected TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = super.getTypeReference(dim);
-	this.matchSet.checkMatching(typeRef); // NB: Don't check container since type reference can happen anywhere
+	if (this.matchSet != null) { 
+		this.matchSet.checkMatching(typeRef); // NB: Don't check container since type reference can happen anywhere
+	}
 	return typeRef;
 }
 protected NameReference getUnspecifiedReference() {
 	NameReference nameRef = super.getUnspecifiedReference();
-	this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	}
 	return nameRef;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
 	NameReference nameRef = super.getUnspecifiedReferenceOptimized();
-	this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	}
 	return nameRef;
-}
-/**
- * Parses the given source unit in 2 times:
- * - first do a diet parse to determine the structure of the compilation unit
- * - then do a method body parse of each method to determine the references
- */
-public CompilationUnitDeclaration parse(
-	ICompilationUnit sourceUnit, 
-	CompilationResult compilationResult) {
-
-	this.diet = true;
-	CompilationUnitDeclaration unit = super.parse(sourceUnit, compilationResult);
-	this.diet = false;
-	this.parseBodies(unit);
-	return unit;
 }
 /**
  * Parses the method bodies in the given compilation unit
  */
-private void parseBodies(CompilationUnitDeclaration unit) {
+public void parseBodies(CompilationUnitDeclaration unit) {
 	TypeDeclaration[] types = unit.types;
 	if (types != null) {
 		for (int i = 0; i < types.length; i++) {

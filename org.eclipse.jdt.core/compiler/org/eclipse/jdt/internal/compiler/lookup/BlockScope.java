@@ -139,16 +139,16 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 		|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }
 String basicToString(int tab) {
-	String newLine = "\n"/*nonNLS*/;
+	String newLine = "\n"; //$NON-NLS-1$
 	for (int i = tab; --i >= 0;)
-		newLine += "\t"/*nonNLS*/;
+		newLine += "\t"; //$NON-NLS-1$
 
-	String s = newLine + "--- Block Scope ---"/*nonNLS*/;
-	newLine += "\t"/*nonNLS*/;
-	s += newLine + "locals:"/*nonNLS*/;
+	String s = newLine + "--- Block Scope ---"; //$NON-NLS-1$
+	newLine += "\t"; //$NON-NLS-1$
+	s += newLine + "locals:"; //$NON-NLS-1$
 	for (int i = 0; i < localIndex; i++)
-		s += newLine + "\t"/*nonNLS*/ + locals[i].toString();
-	s += newLine + "startIndex = "/*nonNLS*/ + startIndex;
+		s += newLine + "\t" + locals[i].toString(); //$NON-NLS-1$
+	s += newLine + "startIndex = " + startIndex; //$NON-NLS-1$
 	return s;
 }
 private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
@@ -1175,7 +1175,7 @@ public String toString(int tab) {
 	String s = basicToString(tab);
 	for (int i = 0; i < scopeIndex; i++)
 		if (subscopes[i] instanceof BlockScope)
-			s += ((BlockScope) subscopes[i]).toString(tab + 1) + "\n"/*nonNLS*/;
+			s += ((BlockScope) subscopes[i]).toString(tab + 1) + "\n"; //$NON-NLS-1$
 	return s;
 }
 }

@@ -206,7 +206,7 @@ public int getDeclaredModifiers() throws NotPresentException {
 public String getDeclaredName() throws NotPresentException {
 
 	if (isAnonymous()) {
-		return ""/*nonNLS*/;
+		return ""; //$NON-NLS-1$
 	}
 
 	String name = fHandle.getSimpleName();

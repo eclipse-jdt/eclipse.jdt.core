@@ -52,8 +52,8 @@ public abstract class AssistParser extends Parser {
 	//  and it is poped when the type is exited)
 	protected int inMethodPtr;
 	protected boolean[] inMethodStack = new boolean[StackIncrement];
-public AssistParser(ProblemReporter problemReporter) {
-	super(problemReporter, false);
+public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
+	super(problemReporter, false, assertMode);
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){
@@ -90,7 +90,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			TypeDeclaration type = (TypeDeclaration) referenceContext;
 			for (int i = 0; i < type.fields.length; i++){
 				FieldDeclaration field = type.fields[i];					
-				if (field.declarationSourceStart <= scanner.initialPosition
+				if (!field.isField()
+						&& field.declarationSourceStart <= scanner.initialPosition
 						&& scanner.initialPosition <= field.declarationSourceEnd
 						&& scanner.eofPosition <= field.declarationSourceEnd+1){
 					element = new RecoveredInitializer((Initializer) field, null, 1, this);
