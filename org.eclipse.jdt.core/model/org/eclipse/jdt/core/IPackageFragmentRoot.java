@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor; 
 
 /**
  * A package fragment root contains a set of package fragments.
