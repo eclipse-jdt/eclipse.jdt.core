@@ -402,7 +402,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 				new Object[] { 
 					task.getMessage(),
 					new Integer(priority),
-					Boolean.valueOf(false),
+					org.eclipse.jdt.internal.compiler.util.Util.valueOf(false),
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),

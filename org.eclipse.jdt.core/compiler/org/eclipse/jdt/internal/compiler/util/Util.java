@@ -419,5 +419,23 @@ public class Util implements SuffixConstants {
 		}
 		return buffer.toString();
 	}
+
+	/**
+	 * Returns a <tt>Boolean</tt> instance representing the specified
+	 * <tt>boolean</tt> value.  If the specified <tt>boolean</tt> value
+	 * is <tt>true</tt>, this method returns <tt>Boolean.TRUE</tt>;
+	 * if it is <tt>false</tt>, this method returns <tt>Boolean.FALSE</tt>.
+	 * If a new <tt>Boolean</tt> instance is not required, this method
+	 * should generally be used in preference to the constructor
+	 * {@link #Boolean(boolean)}, as this method is likely to to yield
+	 * significantly better space and time performance.
+	 *
+	 * @param  b a boolean value.
+	 * @return a <tt>Boolean</tt> instance representing <tt>b</tt>.
+	 * @see Boolean#valueOf(boolean)
+	 */
+	public static Boolean valueOf(boolean b) {
+		return (b ? Boolean.TRUE : Boolean.FALSE);
+	}
 	
 }
