@@ -118,6 +118,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
   1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints 
 
 

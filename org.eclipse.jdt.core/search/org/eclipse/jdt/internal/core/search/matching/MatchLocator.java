@@ -655,7 +655,7 @@ public class MatchLocator implements ITypeRequestor {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
 				while (i < tokenNumber
-					&& !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource))) {
+					&& !(equals = CharOperation.equals(qualifiedName[i++], currentTokenSource))) {
 				}
 				if (equals && (previousValid == -1 || previousValid == i - 2)) {
 					previousValid = i - 1;
