@@ -173,8 +173,9 @@ public double getLoadFactor() {
 		LRUCacheEntry entry = fEntryQueueTail;
 	
 		while (fCurrentSpace + spaceNeeded > limit && entry != null) {
+			LRUCacheEntry previous = entry._fPrevious;
 			this.privateRemoveEntry(entry, false, false);
-			entry = entry._fPrevious;
+			entry = previous;
 		}
 	
 		/* check again, since we may have aquired enough space */
