@@ -35,11 +35,11 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	public ClassScope scope;
 
-	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and changed declaring class bindings
-	public final static int METHOD = 0;
-	public final static int FIELD = 1;
-	public final static int CLASS_LITERAL = 2;
-	public final static int CHANGED_DECLARING_CLASS = 3;
+	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and changed declaring type bindings
+	public final static int METHOD_EMUL = 0;
+	public final static int FIELD_EMUL = 1;
+	public final static int CLASS_LITERAL_EMUL = 2;
+	public final static int RECEIVER_TYPE_EMUL = 3;
 	
 	Hashtable[] synthetics;
 	
@@ -86,9 +86,9 @@ public void addDefaultAbstractMethods() {
 			for (int j = 0, length = interfaces.length; j < length; j++) {
 				ReferenceBinding superType = interfaces[j];
 				if (superType.isValidBinding()) {
-					MethodBinding[] methods = superType.methods();
-					for (int m = methods.length; --m >= 0;) {
-						MethodBinding method = methods[m];
+					MethodBinding[] superMethods = superType.methods();
+					for (int m = superMethods.length; --m >= 0;) {
+						MethodBinding method = superMethods[m];
 						if (!implementsMethod(method))
 							addDefaultAbstractMethod(method);
 					}
@@ -112,11 +112,11 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[FIELD] == null) {
-		synthetics[FIELD] = new Hashtable(5);
+	if (synthetics[FIELD_EMUL] == null) {
+		synthetics[FIELD_EMUL] = new Hashtable(5);
 	}
 	
-	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			CharOperation.concat(SyntheticArgumentBinding.OuterLocalPrefix, actualOuterLocalVariable.name), 
@@ -124,8 +124,8 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 			AccPrivate | AccFinal | AccSynthetic, 
 			this, 
 			Constant.NotAConstant,
-			synthetics[FIELD].size());
-		synthetics[FIELD].put(actualOuterLocalVariable, synthField);
+			synthetics[FIELD_EMUL].size());
+		synthetics[FIELD_EMUL].put(actualOuterLocalVariable, synthField);
 	}
 
 	// ensure there is not already such a field defined by the user
@@ -160,11 +160,11 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[FIELD] == null) {
-		synthetics[FIELD] = new Hashtable(5);
+	if (synthetics[FIELD_EMUL] == null) {
+		synthetics[FIELD_EMUL] = new Hashtable(5);
 	}
 
-	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get(enclosingType);
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(enclosingType);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			CharOperation.concat(
@@ -174,8 +174,8 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 			AccDefault | AccFinal | AccSynthetic,
 			this,
 			Constant.NotAConstant,
-			synthetics[FIELD].size());
-		synthetics[FIELD].put(enclosingType, synthField);
+			synthetics[FIELD_EMUL].size());
+		synthetics[FIELD_EMUL].put(enclosingType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
 	FieldBinding existingField;
@@ -200,21 +200,21 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[CLASS_LITERAL] == null) {
-		synthetics[CLASS_LITERAL] = new Hashtable(5);
+	if (synthetics[CLASS_LITERAL_EMUL] == null) {
+		synthetics[CLASS_LITERAL_EMUL] = new Hashtable(5);
 	}
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
-	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL].get(targetType);
+	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL_EMUL].get(targetType);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			("class$" + synthetics[CLASS_LITERAL].size()).toCharArray(), //$NON-NLS-1$
+			("class$" + synthetics[CLASS_LITERAL_EMUL].size()).toCharArray(), //$NON-NLS-1$
 			blockScope.getJavaLangClass(),
 			AccDefault | AccStatic | AccSynthetic,
 			this,
 			Constant.NotAConstant,
-			synthetics[CLASS_LITERAL].size());
-		synthetics[CLASS_LITERAL].put(targetType, synthField);
+			synthetics[CLASS_LITERAL_EMUL].size());
+		synthetics[CLASS_LITERAL_EMUL].put(targetType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
 	FieldBinding existingField;
@@ -239,11 +239,11 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[FIELD] == null) {
-		synthetics[FIELD] = new Hashtable(5);
+	if (synthetics[FIELD_EMUL] == null) {
+		synthetics[FIELD_EMUL] = new Hashtable(5);
 	}
 
-	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get("assertionEmulation"); //$NON-NLS-1$
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			"$assertionsDisabled".toCharArray(), //$NON-NLS-1$
@@ -251,8 +251,8 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 			AccDefault | AccStatic | AccSynthetic | AccFinal,
 			this,
 			Constant.NotAConstant,
-			synthetics[FIELD].size());
-		synthetics[FIELD].put("assertionEmulation", synthField); //$NON-NLS-1$
+			synthetics[FIELD_EMUL].size());
+		synthetics[FIELD_EMUL].put("assertionEmulation", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
 	// ensure there is not already such a field defined by the user
@@ -287,15 +287,15 @@ public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField,
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[METHOD] == null) {
-		synthetics[METHOD] = new Hashtable(5);
+	if (synthetics[METHOD_EMUL] == null) {
+		synthetics[METHOD_EMUL] = new Hashtable(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD].get(targetField);
+	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(targetField);
 	if (accessors == null) {
 		accessMethod = new SyntheticAccessMethodBinding(targetField, isReadAccess, this);
-		synthetics[METHOD].put(targetField, accessors = new SyntheticAccessMethodBinding[2]);
+		synthetics[METHOD_EMUL].put(targetField, accessors = new SyntheticAccessMethodBinding[2]);
 		accessors[isReadAccess ? 0 : 1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[isReadAccess ? 0 : 1]) == null) {
@@ -315,15 +315,15 @@ public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMetho
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[METHOD] == null) {
-		synthetics[METHOD] = new Hashtable(5);
+	if (synthetics[METHOD_EMUL] == null) {
+		synthetics[METHOD_EMUL] = new Hashtable(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD].get(targetMethod);
+	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(targetMethod);
 	if (accessors == null) {
 		accessMethod = new SyntheticAccessMethodBinding(targetMethod, isSuperAccess, this);
-		synthetics[METHOD].put(targetMethod, accessors = new SyntheticAccessMethodBinding[2]);
+		synthetics[METHOD_EMUL].put(targetMethod, accessors = new SyntheticAccessMethodBinding[2]);
 		accessors[isSuperAccess ? 0 : 1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[isSuperAccess ? 0 : 1]) == null) {
@@ -420,15 +420,15 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 			}
 		}
 	} else {
-		MethodBinding[] methods = getMethods(ConstructorDeclaration.ConstantPoolName); // takes care of duplicates & default abstract methods
-		nextMethod : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			TypeBinding[] toMatch = method.parameters;
+		MethodBinding[] constructors = getMethods(ConstructorDeclaration.ConstantPoolName); // takes care of duplicates & default abstract methods
+		nextConstructor : for (int c = constructors.length; --c >= 0;) {
+			MethodBinding constructor = constructors[c];
+			TypeBinding[] toMatch = constructor.parameters;
 			if (toMatch.length == argCount) {
 				for (int p = 0; p < argCount; p++)
 					if (toMatch[p] != argumentTypes[p])
-						continue nextMethod;
-				return method;
+						continue nextConstructor;
+				return constructor;
 			}
 		}
 	}
@@ -457,10 +457,10 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 			}
 		}
 	} else {
-		MethodBinding[] methods = getMethods(selector); // takes care of duplicates & default abstract methods
-		foundNothing = methods == NoMethods;
-		nextMethod : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
+		MethodBinding[] matchingMethods = getMethods(selector); // takes care of duplicates & default abstract methods
+		foundNothing = matchingMethods == NoMethods;
+		nextMethod : for (int m = matchingMethods.length; --m >= 0;) {
+			MethodBinding method = matchingMethods[m];
 			TypeBinding[] toMatch = method.parameters;
 			if (toMatch.length == argCount) {
 				for (int p = 0; p < argCount; p++)
@@ -625,8 +625,8 @@ public MethodBinding[] getMethods(char[] selector) {
 
 public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
 	
-	if (synthetics == null || synthetics[FIELD] == null) return null;
-	return (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
+	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
+	return (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 }
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
@@ -636,14 +636,14 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[CHANGED_DECLARING_CLASS] == null) {
-		synthetics[CHANGED_DECLARING_CLASS] = new Hashtable(5);
+	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
+		synthetics[RECEIVER_TYPE_EMUL] = new Hashtable(5);
 	}
 
-	Hashtable fieldMap = (Hashtable) synthetics[CHANGED_DECLARING_CLASS].get(targetField);
+	Hashtable fieldMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetField);
 	if (fieldMap == null) {
 		fieldMap = new Hashtable(5);
-		synthetics[CHANGED_DECLARING_CLASS].put(targetField, fieldMap);
+		synthetics[RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
 	}
 	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
 	if (updatedField == null){
@@ -658,15 +658,15 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 	if (synthetics == null) {
 		synthetics = new Hashtable[4];
 	}
-	if (synthetics[CHANGED_DECLARING_CLASS] == null) {
-		synthetics[CHANGED_DECLARING_CLASS] = new Hashtable(5);
+	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
+		synthetics[RECEIVER_TYPE_EMUL] = new Hashtable(5);
 	}
 
 
-	Hashtable methodMap = (Hashtable) synthetics[CHANGED_DECLARING_CLASS].get(targetMethod);
+	Hashtable methodMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetMethod);
 	if (methodMap == null) {
 		methodMap = new Hashtable(5);
-		synthetics[CHANGED_DECLARING_CLASS].put(targetMethod, methodMap);
+		synthetics[RECEIVER_TYPE_EMUL].put(targetMethod, methodMap);
 	}
 	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
 	if (updatedMethod == null){
@@ -882,19 +882,19 @@ public ReferenceBinding[] superInterfaces() {
 }
 public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 	
-	if (synthetics == null || synthetics[METHOD] == null || synthetics[METHOD].size() == 0) return null;
+	if (synthetics == null || synthetics[METHOD_EMUL] == null || synthetics[METHOD_EMUL].size() == 0) return null;
 
 	// difficult to compute size up front because of the embedded arrays so assume there is only 1
 	int index = 0;
 	SyntheticAccessMethodBinding[] bindings = new SyntheticAccessMethodBinding[1];
-	Enumeration fieldsOrMethods = synthetics[METHOD].keys();
+	Enumeration fieldsOrMethods = synthetics[METHOD_EMUL].keys();
 	while (fieldsOrMethods.hasMoreElements()) {
 
 		Object fieldOrMethod = fieldsOrMethods.nextElement();
 
 		if (fieldOrMethod instanceof MethodBinding) {
 
-			SyntheticAccessMethodBinding[] methodAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD].get(fieldOrMethod);
+			SyntheticAccessMethodBinding[] methodAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
 			int numberOfAccessors = 0;
 			if (methodAccessors[0] != null) numberOfAccessors++;
 			if (methodAccessors[1] != null) numberOfAccessors++;
@@ -907,7 +907,7 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 
 		} else {
 
-			SyntheticAccessMethodBinding[] fieldAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD].get(fieldOrMethod);
+			SyntheticAccessMethodBinding[] fieldAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
 			int numberOfAccessors = 0;
 			if (fieldAccessors[0] != null) numberOfAccessors++;
 			if (fieldAccessors[1] != null) numberOfAccessors++;
@@ -936,23 +936,23 @@ public FieldBinding[] syntheticFields() {
 	
 	if (synthetics == null) return null;
 
-	int fieldSize = synthetics[FIELD] == null ? 0 : synthetics[FIELD].size();
-	int literalSize = synthetics[CLASS_LITERAL] == null ? 0 :synthetics[CLASS_LITERAL].size();
+	int fieldSize = synthetics[FIELD_EMUL] == null ? 0 : synthetics[FIELD_EMUL].size();
+	int literalSize = synthetics[CLASS_LITERAL_EMUL] == null ? 0 :synthetics[CLASS_LITERAL_EMUL].size();
 	int totalSize = fieldSize + literalSize;
 	if (totalSize == 0) return null;
 	FieldBinding[] bindings = new FieldBinding[totalSize];
 
 	// add innerclass synthetics
-	if (synthetics[FIELD] != null){
-		Enumeration elements = synthetics[FIELD].elements();
+	if (synthetics[FIELD_EMUL] != null){
+		Enumeration elements = synthetics[FIELD_EMUL].elements();
 		for (int i = 0; i < fieldSize; i++) {
 			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
 			bindings[synthBinding.index] = synthBinding;
 		}
 	}
 	// add class literal synthetics
-	if (synthetics[CLASS_LITERAL] != null){
-		Enumeration elements = synthetics[CLASS_LITERAL].elements();
+	if (synthetics[CLASS_LITERAL_EMUL] != null){
+		Enumeration elements = synthetics[CLASS_LITERAL_EMUL].elements();
 		for (int i = 0; i < literalSize; i++) {
 			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
 			bindings[fieldSize+synthBinding.index] = synthBinding;
@@ -1041,15 +1041,15 @@ void verifyMethods(MethodVerifier verifier) {
 
 public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
 
-	if (synthetics == null || synthetics[FIELD] == null) return null;
-	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
+	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
+	FieldBinding field = (FieldBinding) synthetics[FIELD_EMUL].get(targetEnclosingType);
 	if (field != null) return field;
 
 	// type compatibility : to handle cases such as
 	// class T { class M{}}
 	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
 	if (!onlyExactMatch){
-		Enumeration enum = synthetics[FIELD].elements();
+		Enumeration enum = synthetics[FIELD_EMUL].elements();
 		while (enum.hasMoreElements()) {
 			field = (FieldBinding) enum.nextElement();
 			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
