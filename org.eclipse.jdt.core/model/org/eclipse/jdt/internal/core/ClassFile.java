@@ -454,7 +454,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 				return cu.getBuffer();
 			} else	{
 				// root is a class folder
-				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension("java");
+				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension("java"); //$NON-NLS-1$
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				if (workspace == null) {
 					checkAutomaticSourceMapping = true; // we don't want to check again
