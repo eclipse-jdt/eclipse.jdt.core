@@ -39,13 +39,13 @@ public static Test suite() {
 	String specVersion = System.getProperty("java.specification.version");
 	if (!"1.0".equals(specVersion) && !"1.1".equals(specVersion) && !"1.2".equals(specVersion) && !"1.3".equals(specVersion)) {
 		addTest(suite, AssertionTest.class);
+		addTest(suite, Compliance_1_4.class);	
 	}
 
 	addTest(suite, BatchCompilerTest.class);
 	addTest(suite, ClassFileComparatorTest.class);
 	addTest(suite, ClassFileReaderTest.class);
 	addTest(suite, Compliance_1_3.class);	
-	addTest(suite, Compliance_1_4.class);	
 	addTest(suite, DeprecatedTest.class);
 	addTest(suite, LookupTest.class);
 	addTest(suite, ProblemConstructorTest.class);
