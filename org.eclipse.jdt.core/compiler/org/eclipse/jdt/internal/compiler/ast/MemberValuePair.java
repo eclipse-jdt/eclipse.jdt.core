@@ -11,24 +11,28 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 /**
- * Normal annotation node
+ * MemberValuePair node
  */
-public class NormalAnnotation extends Annotation {
+public class MemberValuePair extends ASTNode {
 	
-	public MemberValuePair[] memberValuePairs;
+	public char[] token;
+	public Expression value;
 	
-	public StringBuffer printExpression(int indent, StringBuffer output) {
-		super.printExpression(indent, output);
-		output.append('(');
-		if (this.memberValuePairs != null) {
-			for (int i = 0, max = this.memberValuePairs.length; i < max; i++) {
-				if (i > 0) {
-					output.append(',');
-				}
-				this.memberValuePairs[i].print(indent, output);
-			}
-		}
-		output.append(')');
+	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
+		this.token = token;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
+		this.value = value;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
+	 */
+	public StringBuffer print(int indent, StringBuffer output) {
+		output
+			.append(token)
+			.append(" = "); //$NON-NLS-1$
+		value.print(indent, output);
 		return output;
 	}
 }

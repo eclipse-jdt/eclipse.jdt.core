@@ -270,7 +270,7 @@ public class ForeachStatement extends Statement {
 			case GENERIC_ITERABLE :
 				codeStream.load(this.indexVariable);
 				codeStream.invokeJavaUtilIteratorHasNext();
-				codeStream.ifeq(actionLabel);
+				codeStream.ifne(actionLabel);
 				break;
 		}
 		codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);

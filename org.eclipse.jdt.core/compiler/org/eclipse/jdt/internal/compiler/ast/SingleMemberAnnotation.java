@@ -11,24 +11,15 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 /**
- * Normal annotation node
+ * SingleMemberAnnotation node
  */
-public class NormalAnnotation extends Annotation {
-	
-	public MemberValuePair[] memberValuePairs;
+public class SingleMemberAnnotation extends Annotation {
+	public Expression memberValue;
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		super.printExpression(indent, output);
 		output.append('(');
-		if (this.memberValuePairs != null) {
-			for (int i = 0, max = this.memberValuePairs.length; i < max; i++) {
-				if (i > 0) {
-					output.append(',');
-				}
-				this.memberValuePairs[i].print(indent, output);
-			}
-		}
-		output.append(')');
-		return output;
-	}
+		this.memberValue.printExpression(indent, output);
+		return output.append(')');
+	}	
 }
