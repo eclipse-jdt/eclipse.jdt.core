@@ -165,42 +165,43 @@ public void deleting(IProject project) {
  * Remove the index from cache for a given project.
  * Passing null as a job family discards them all.
  */
-public synchronized void discardJobsUntilNextProjectAddition(String jobFamily) {
+public void discardJobsUntilNextProjectAddition(String jobFamily) {
 	boolean wasEnabled = isEnabled();
 	try {
 		disable();
-
-		// flush and compact awaiting jobs
-		int loc = -1;
-		boolean foundProjectAddition = false;
-		for (int i = jobStart; i <= jobEnd; i++){
-			IJob currentJob = awaitingJobs[i];
-			awaitingJobs[i] = null;
-			boolean discard = jobFamily == null;
-			if (!discard && currentJob.belongsTo(jobFamily)){ // might discard
-				if (!(foundProjectAddition || (foundProjectAddition = currentJob instanceof IndexAllProject))) {
-					discard = true;
-				}
-			}
-			if (discard) {
-				currentJob.cancel();
-				if (i == jobStart) {
-					// wait until current active job has accepted the cancel
-					while (thread != null && executing){
-						try {
-							Thread.currentThread().sleep(50);
-						} catch(InterruptedException e){
-						}
-					}
-				}
-			} else {
-				awaitingJobs[++loc] = currentJob;
+		
+		// wait until current active job has finished
+		while (thread != null && executing){
+			try {
+				Thread.currentThread().sleep(50);
+			} catch(InterruptedException e){
 			}
 		}
-		jobStart = 0;
-		jobEnd = loc;
+
+		synchronized(this) {
+			// flush and compact awaiting jobs
+			int loc = -1;
+			boolean foundProjectAddition = false;
+			for (int i = jobStart+1; i <= jobEnd; i++){
+				IJob currentJob = awaitingJobs[i];
+				awaitingJobs[i] = null;
+				boolean discard = jobFamily == null;
+				if (!discard && currentJob.belongsTo(jobFamily)){ // might discard
+					if (!(foundProjectAddition || (foundProjectAddition = currentJob instanceof IndexAllProject))) {
+						discard = true;
+					}
+				}
+				if (discard) {
+					currentJob.cancel();
+				} else {
+					awaitingJobs[++loc] = currentJob;
+				}
+			}
+			jobStart = 0;
+			jobEnd = loc;
+		}
 	} finally {
-		if (wasEnabled)	enable();
+		if (wasEnabled) enable();
 	}
 }
 
