@@ -236,6 +236,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				}
 			} else if (deprecation) {
 				cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
+			} else if (compilerArgs.length == 0) {
+				cmd.createArgument().setValue("-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			}
 	        /*
 			 * Add extra argument on the command line
