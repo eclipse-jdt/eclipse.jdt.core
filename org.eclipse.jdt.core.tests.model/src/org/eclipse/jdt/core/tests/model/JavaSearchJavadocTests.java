@@ -92,7 +92,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 
 	public static void buildSuite(TestSuite suite, String support) {
-//		TestSuite suite = new Suite("Doc "+support);
 		// Tests on type declarations
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclaration", support));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclarationWithJavadoc", support));
@@ -154,8 +153,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor", support));
 		suite.addTest(new JavaSearchJavadocTests("testBug54962"));
 		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified"));
-		
-//		return suite;
 	}
 
 	/* (non-Javadoc)
@@ -174,7 +171,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					buffer.append(token);
 				}
 			}
-//			System.out.println(getName()+" - Expected: "+buffer.toString());
 			super.assertSearchResults(message, buffer.toString(), collector);
 		}
 	}
@@ -212,22 +208,18 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocTypeDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					type, 
-					DECLARATIONS,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				type, 
+				DECLARATIONS,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH",
+				result);
 	}
 
 	/*
@@ -266,22 +258,18 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					field, 
-					DECLARATIONS,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				field, 
+				DECLARATIONS,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH",
+				result);
 	}
 
 	/*
@@ -335,43 +323,35 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocMethodDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("javadocSearchedMethod", null);
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					DECLARATIONS,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		IMethod method = type.getMethod("javadocSearchedMethod", null);
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
+				DECLARATIONS,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH",
+				result);
 	}
 	public void testJavadocMethodArgDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					DECLARATIONS,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
+				DECLARATIONS,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH",
+				result);
 	}
 
 	/*
@@ -428,61 +408,53 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocTypeReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					type, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [j1.JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
-				result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				type, 
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [j1.JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [j1.JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
+			result);
 	}
 	public void testJavadocTypeStringReferenceWithJavadoc() throws CoreException {
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					"JavadocSearched", 
-					TYPE,
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
-				result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				"JavadocSearched", 
+				TYPE,
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
+			result);
 	}
 
 	/*
@@ -524,44 +496,36 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					field, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				field, 
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
+				result);
 	}
 	public void testJavadocFieldStringReferenceWithJavadoc() throws CoreException {
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					"javadocSearchedVar", 
-					FIELD,
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] EXACT_MATCH\n" + 
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				"javadocSearchedVar", 
+				FIELD,
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] EXACT_MATCH\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
+				result);
 	}
 
 	/*
@@ -618,66 +582,54 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocMethodReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("javadocSearchedMethod", null);
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] POTENTIAL_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		IMethod method = type.getMethod("javadocSearchedMethod", null);
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] POTENTIAL_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
+				result);
 	}
 	public void testJavadocMethodArgReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
+				result);
 	}
 	public void testJavadocMethodStringReferenceWithJavadoc() throws CoreException {
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					"javadocSearchedMethod", 
-					METHOD,
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] EXACT_MATCH\n" + 
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] EXACT_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				"javadocSearchedMethod", 
+				METHOD,
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] EXACT_MATCH\n" + 
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] EXACT_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
+				result);
 	}
 
 	/*
@@ -732,64 +684,70 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocConstructorReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("JavadocSearched", null);
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
-	}
-	public void testJavadocConstructorArgReferenceWithJavadoc() throws CoreException {
-		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-					method, 
-					REFERENCES,
-					getJavaSearchScope(), 
-					result
-					);
-			assertSearchResults(
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
-					result);
-//		} finally {
-//			resetProjectOptions();
-//		}
-	}
-	public void testJavadocConstructorStringReferenceWithJavadoc() throws CoreException {
-//		try {
-			setJavadocOptions();
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-				"JavadocSearched", 
-				CONSTRUCTOR,
+		setJavadocOptions();
+		IMethod method = type.getMethod("JavadocSearched", null);
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
 				REFERENCES,
 				getJavaSearchScope(), 
 				result
-			);
-			assertSearchResults(
-				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n" + 
+				);
+		assertSearchResults(
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 				result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+	}
+	public void testJavadocConstructorArgReferenceWithJavadoc() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
+		setJavadocOptions();
+		IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+				method, 
+				REFERENCES,
+				getJavaSearchScope(), 
+				result
+				);
+		assertSearchResults(
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
+				result);
+	}
+	public void testJavadocConstructorStringReferenceWithJavadoc() throws CoreException {
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+			"JavadocSearched", 
+			CONSTRUCTOR,
+			REFERENCES,
+			getJavaSearchScope(), 
+			result
+		);
+		assertSearchResults(
+			"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n" + 
+			"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
+			result);
+	}
+
+	/**
+	 * Method reference through array test.
+	 * (regression test for 1GHDA2V: ITPJCORE:WINNT - ClassCastException when doing a search)
+	 */
+	public void testMethodReferenceThroughArray() throws CoreException {
+		IType type = getClassFile("JavaSearch", getExternalJCLPathString(), "java.lang", "Object.class").getType();
+		IMethod method = type.getMethod("equals", new String[] { "QObject;" });
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(
+			method, 
+			REFERENCES, 
+			getJavaSearchScope(), 
+			resultCollector);
+		assertSearchResults(
+			"src/E.java Object E.foo() [clone()]",
+			resultCollector);
 	}
 
 	/**
@@ -799,23 +757,19 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	public void testBug47909() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j3", "Y.java").getType("Y");
-//		try {
-			setJavadocOptions();
-			IMethod method = type.getMethod("Y", new String[] { "I" });
-			JavaSearchResultCollector result = new JavaSearchResultCollector();
-			result.showAccuracy = true;
-			search(
-				method, 
-				REFERENCES,
-				getJavaSearchScope(), 
-				result
-			);
-			assertSearchResults(
-				"test47909.jar void j3.X.bar() EXACT_MATCH",
-				result);
-//		} finally {
-//			resetProjectOptions();
-//		}
+		setJavadocOptions();
+		IMethod method = type.getMethod("Y", new String[] { "I" });
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		search(
+			method, 
+			REFERENCES,
+			getJavaSearchScope(), 
+			result
+		);
+		assertSearchResults(
+			"test47909.jar void j3.X.bar() EXACT_MATCH",
+			result);
 	}
 	
 	/**
