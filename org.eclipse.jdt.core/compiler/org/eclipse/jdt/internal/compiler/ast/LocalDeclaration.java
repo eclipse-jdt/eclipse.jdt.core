@@ -66,16 +66,14 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	}
 
 	public void checkModifiers() {
-		//only potential valid modifier is <<final>>
 
-		if (((modifiers & AccJustFlag) | AccFinal) != AccFinal)
+		//only potential valid modifier is <<final>>
+		if (((modifiers & AccJustFlag) & ~AccFinal) != 0)
 			//AccModifierProblem -> other (non-visibility problem)
 			//AccAlternateModifierProblem -> duplicate modifier
 			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
-			// -x-1 returns the bitInvert 
 
-			modifiers =
-				(modifiers & (-AccAlternateModifierProblem - 1)) | AccModifierProblem;
+			modifiers = (modifiers & ~AccAlternateModifierProblem) | AccModifierProblem;
 	}
 
 	/**
