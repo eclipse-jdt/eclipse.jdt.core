@@ -133,7 +133,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *    Nested type names are in the qualified form "A.M".
 	 *    The default package is represented by an empty array.
 	 */
-	public void acceptClass(char[] packageName, char[] className, int modifiers) {
+	public void acceptClass(char[] packageName, char[] className, int modifiers, AccessRestriction accessRestriction) {
 		if (CharOperation.equals(className, this.selectedIdentifier)) {
 			if (this.qualifiedSelection != null
 				&& !CharOperation.equals(
@@ -182,7 +182,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void acceptInterface(
 		char[] packageName,
 		char[] interfaceName,
-		int modifiers) {
+		int modifiers,
+		AccessRestriction accessRestriction) {
 
 		if (CharOperation.equals(interfaceName, this.selectedIdentifier)) {
 			if (this.qualifiedSelection != null
@@ -264,20 +265,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedInterfaces = null;
 			this.acceptedInterfacesCount = 0;
 		}
-	}
-	
-	/**
-	 * One result of the search consists of a new type.
-	 * @param packageName char[]
-	 * @param typeName char[]
-	 * 
-	 * NOTE - All package and type names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    Nested type names are in the qualified form "A.M".
-	 *    The default package is represented by an empty array.
-	 */
-	public void acceptType(char[] packageName, char[] typeName) {
-		acceptClass(packageName, typeName, 0);
 	}
 
 	private boolean checkSelection(

@@ -575,7 +575,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName, 
 				sourceFolders, 
 				null/*no lib*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
@@ -594,7 +598,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName, 
 				sourceFolders, 
 				null/*no lib*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no exported project*/, 
 				output, 
 				sourceOutputs,
@@ -609,7 +617,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName, 
 				sourceFolders, 
 				libraries, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
@@ -624,7 +636,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName, 
 				sourceFolders, 
 				libraries, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
@@ -639,7 +655,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName,
 				sourceFolders,
 				libraries,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				projects,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				null/*no exported project*/, 
 				projectOutput,
 				null/*no source outputs*/,
@@ -664,7 +684,11 @@ protected void assertDeltas(String message, String expected) {
 				projectName,
 				sourceFolders,
 				libraries,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				projects,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
 				exportedProject, 
 				projectOutput,
 				null/*no source outputs*/,
@@ -674,6 +698,39 @@ protected void assertDeltas(String message, String expected) {
 			);
 	}
 	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns, final String compliance) throws CoreException {
+		return
+		this.createJavaProject(
+			projectName,
+			sourceFolders,
+			libraries,
+			null/*no inclusion pattern*/,
+			null/*no exclusion pattern*/,
+			projects,
+			null/*no inclusion pattern*/,
+			null/*no exclusion pattern*/,
+			exportedProjects, 
+			projectOutput,
+			sourceOutputs,
+			inclusionPatterns,
+			exclusionPatterns,
+			compliance
+		);
+	}
+	protected IJavaProject createJavaProject(
+			final String projectName,
+			final String[] sourceFolders,
+			final String[] libraries,
+			final String[][] librariesInclusionPatterns,
+			final String[][] librariesExclusionPatterns,
+			final String[] projects,
+			final String[][] projectsInclusionPatterns,
+			final String[][] projectsExclusionPatterns,
+			final boolean[] exportedProjects,
+			final String projectOutput,
+			final String[] sourceOutputs,
+			final String[][] inclusionPatterns,
+			final String[][] exclusionPatterns,
+			final String compliance) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -760,6 +817,33 @@ protected void assertDeltas(String message, String expected) {
 							e.printStackTrace();
 						}
 					}
+					
+//					 inclusion patterns
+					IPath[] inclusionPaths;
+					if (librariesInclusionPatterns == null) {
+						inclusionPaths = new IPath[0];
+					} else {
+						String[] patterns = librariesInclusionPatterns[i];
+						int length = patterns.length;
+						inclusionPaths = new IPath[length];
+						for (int j = 0; j < length; j++) {
+							String inclusionPattern = patterns[j];
+							inclusionPaths[j] = new Path(inclusionPattern);
+						}
+					}
+					// exclusion patterns
+					IPath[] exclusionPaths;
+					if (librariesExclusionPatterns == null) {
+						exclusionPaths = new IPath[0];
+					} else {
+						String[] patterns = librariesExclusionPatterns[i];
+						int length = patterns.length;
+						exclusionPaths = new IPath[length];
+						for (int j = 0; j < length; j++) {
+							String exclusionPattern = patterns[j];
+							exclusionPaths[j] = new Path(exclusionPattern);
+						}
+					}
 					if (lib.equals(lib.toUpperCase())) { // all upper case is a var 
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
@@ -767,19 +851,61 @@ protected void assertDeltas(String message, String expected) {
 							vars.length > 1 ? new Path(new String(vars[1])) : null, 
 							vars.length > 2 ? new Path(new String(vars[2])) : null);
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
-						entries[sourceLength+i] = JavaCore.newContainerEntry(new Path(lib));
+						entries[sourceLength+i] = JavaCore.newContainerEntry(
+								new Path(lib),
+								inclusionPaths,
+								exclusionPaths, false);
 					} else {
 						IPath libPath = new Path(lib);
 						if (!libPath.isAbsolute() && libPath.segmentCount() > 0 && libPath.getFileExtension() == null) {
 							project.getFolder(libPath).create(true, true, null);
 							libPath = projectPath.append(libPath);
 						}
-						entries[sourceLength+i] = JavaCore.newLibraryEntry(libPath, null, null);
+						entries[sourceLength+i] = JavaCore.newLibraryEntry(
+								libPath,
+								null,
+								null,
+								inclusionPaths,
+								exclusionPaths,
+								false);
 					}
 				}
 				for  (int i= 0; i < projectLength; i++) {
 					boolean isExported = exportedProjects != null && exportedProjects.length > i && exportedProjects[i];
-					entries[sourceLength+libLength+i] = JavaCore.newProjectEntry(new Path(projects[i]), isExported);
+					
+					// inclusion patterns
+					IPath[] inclusionPaths;
+					if (projectsInclusionPatterns == null) {
+						inclusionPaths = new IPath[0];
+					} else {
+						String[] patterns = projectsInclusionPatterns[i];
+						int length = patterns.length;
+						inclusionPaths = new IPath[length];
+						for (int j = 0; j < length; j++) {
+							String inclusionPattern = patterns[j];
+							inclusionPaths[j] = new Path(inclusionPattern);
+						}
+					}
+					// exclusion patterns
+					IPath[] exclusionPaths;
+					if (projectsExclusionPatterns == null) {
+						exclusionPaths = new IPath[0];
+					} else {
+						String[] patterns = projectsExclusionPatterns[i];
+						int length = patterns.length;
+						exclusionPaths = new IPath[length];
+						for (int j = 0; j < length; j++) {
+							String exclusionPattern = patterns[j];
+							exclusionPaths[j] = new Path(exclusionPattern);
+						}
+					}
+					
+					entries[sourceLength+libLength+i] =
+						JavaCore.newProjectEntry(
+								new Path(projects[i]),
+								inclusionPaths,
+								exclusionPaths,
+								isExported);
 				}
 				
 				// create project's output folder

@@ -756,7 +756,13 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_ARGUMENT_SUFFIXES = PLUGIN_ID + ".codeComplete.argumentSuffixes"; //$NON-NLS-1$
-
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String CODEASSIST_RESTRICTIONS_CHECK = PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
+	
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -2147,6 +2153,13 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentSuffixes"
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
+	 *     
+	 *  CODEASSIST / Activate Access Restrictions Sensitive Completion
+	 *    When active, completion doesn't show that is access restricted.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.restrictionsCheck"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -2616,6 +2629,9 @@ public final class JavaCore extends Plugin {
 		
 		defaultPreferences.put(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
+		
+		defaultPreferences.put(CODEASSIST_RESTRICTIONS_CHECK, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_RESTRICTIONS_CHECK);
 	}
 	
 	/**

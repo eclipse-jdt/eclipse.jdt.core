@@ -51,6 +51,18 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added support inside CompletionEngine to not propose completion when an access restriction is violated.
+Currently access restrictions are applied only to top level types.
+</li>
+<li>Added code assist option to not propose completion when an access restriction is violated.
+<pre>
+	 * CODEASSIST / Activate Access Restrictions Sensitive Completion
+	 *    When active, completion doesn't show that is access restricted.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.restrictionsCheck"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+</pre>
+</li>
 <li>Added first-cut of enumeration support into compiler. Requires some more work to properly
 diagnose error situations, and be leveraged in various JDT/Core functionalities.
 </li>

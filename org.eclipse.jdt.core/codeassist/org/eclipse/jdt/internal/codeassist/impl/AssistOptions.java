@@ -38,10 +38,13 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.localSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_ArgumentSuffixes =
 		"org.eclipse.jdt.core.codeComplete.argumentSuffixes"; 	//$NON-NLS-1$
+	public static final String OPTION_PerformRestrictionsCheck =
+		"org.eclipse.jdt.core.codeComplete.restrictionsCheck"; 	//$NON-NLS-1$
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 
 	public boolean checkVisibility = false;
+	public boolean checkRestrictions = false;
 	public boolean forceImplicitQualification = false;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
@@ -163,6 +166,13 @@ public class AssistOptions {
 				} else {
 					this.argumentSuffixes = null;
 				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PerformRestrictionsCheck)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.checkRestrictions = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.checkRestrictions = false;
 			}
 		}
 	}

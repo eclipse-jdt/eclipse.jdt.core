@@ -69,11 +69,11 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	
 	assertEquals(
 		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -101,12 +101,12 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 	
 	assertEquals(
 		"should have 6 completions",
-		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -134,12 +134,12 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	
 	assertEquals(
 		"should have 6 completions",
-		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) ,
+		"element:Victory    completion:Victory    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) ,
 		requestor.getResults());
 }
 
@@ -164,11 +164,11 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 	
 	assertEquals(
 		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -197,11 +197,11 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	
 	assertEquals(
 		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -225,11 +225,11 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 	
 	assertEquals(
 		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -253,12 +253,12 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 	
 	assertEquals(
 		"should have 5 completions",
-		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varFoo    completion:varFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varFoo    completion:varFoo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelException {
@@ -279,9 +279,9 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 	
 	assertEquals(
 		"should have 3 completions",
-		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) ,
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) ,
 		requestor.getResults());
 }
 

@@ -247,7 +247,7 @@ public final class CompletionEngine
 	 *    Nested type names are in the qualified form "A.M".
 	 *    The default package is represented by an empty array.
 	 */
-	public void acceptClass(char[] packageName, char[] className, int modifiers) {
+	public void acceptClass(char[] packageName, char[] className, int modifiers, AccessRestriction accessRestriction) {
 
 		char[] fullyQualifiedName = CharOperation.concat(packageName, className, '.');
 		char[] completionName = fullyQualifiedName;
@@ -256,9 +256,12 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 		
+		if(this.options.checkRestrictions && accessRestriction != null) return;
+		
 		boolean isQualified = true;
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(accessRestriction != null);
 		if (this.resolvingImports) {
 			completionName = CharOperation.concat(completionName, SEMICOLON);
 			relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
@@ -307,7 +310,8 @@ public final class CompletionEngine
 	public void acceptInterface(
 		char[] packageName,
 		char[] interfaceName,
-		int modifiers) {
+		int modifiers,
+		AccessRestriction accessRestriction) {
 
 		char[] fullyQualifiedName = CharOperation.concat(packageName, interfaceName, '.');
 		char[] completionName = fullyQualifiedName;
@@ -316,9 +320,12 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 
+		if(this.options.checkRestrictions && accessRestriction != null) return;
+		
 		boolean isQualified = true;
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(accessRestriction != null);
 		if (this.resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
@@ -372,6 +379,7 @@ public final class CompletionEngine
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, packageName);
 		relevance += computeRelevanceForQualification(true);
+		relevance += computeRelevanceForRestrictions(false);
 		
 		this.noProposal = false;
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
@@ -382,61 +390,6 @@ public final class CompletionEngine
 					this.resolvingImports
 					? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
 					: packageName);
-			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-			proposal.setRelevance(relevance);
-			this.requestor.accept(proposal);
-			if(DEBUG) {
-				this.printDebug(proposal);
-			}
-		}
-	}
-
-	/**
-	 * One result of the search consists of a new type.
-	 *
-	 * NOTE - All package and type names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    Nested type names are in the qualified form "A.M".
-	 *    The default package is represented by an empty array.
-	 */
-	public void acceptType(char[] packageName, char[] typeName) {
-
-		char[] fullyQualifiedName = CharOperation.concat(packageName, typeName, '.');
-		char[] completionName = fullyQualifiedName;
-		
-		if (this.knownTypes.containsKey(completionName)) return;
-
-		this.knownTypes.put(completionName, this);
-
-		boolean isQualified = true;
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForInterestingProposal();
-		if (this.resolvingImports) {
-			completionName = CharOperation.concat(completionName, new char[] { ';' });
-			relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
-		} else {
-			if (mustQualifyType(packageName, typeName)) {
-				if (packageName == null || packageName.length == 0)
-					if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
-						return; // ignore types from the default package from outside it
-			} else {
-				completionName = typeName;
-				isQualified = false;
-			}
-			relevance += computeRelevanceForCaseMatching(this.completionToken, typeName);
-			relevance += computeRelevanceForExpectingType(packageName, typeName);
-			relevance += computeRelevanceForQualification(isQualified);
-		}
-		
-		this.noProposal = false;
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-			proposal.setDeclarationSignature(packageName);
-			proposal.setSignature(createNonGenericTypeSignature(packageName, typeName));
-			proposal.setPackageName(packageName);
-			proposal.setTypeName(typeName);
-			proposal.setCompletion(completionName);
-			proposal.setFlags(Flags.AccPublic);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
@@ -566,6 +519,7 @@ public final class CompletionEngine
 											int relevance = computeBaseRelevance();
 											relevance += computeRelevanceForInterestingProposal();
 											relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.THIS);
+											relevance += computeRelevanceForRestrictions(false); // no access restriction for keywords
 											this.noProposal = false;
 											if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 												CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
@@ -1156,6 +1110,10 @@ public final class CompletionEngine
 		InvocationSite invocationSite) {
 
 		if (currentType.isInterface()) {
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = currentType.hasRestrictedAccess();
+//			if(this.options.checkRestrictions && hasRestrictedAccess) return;
+			
 			char[] completion = CharOperation.NO_CHAR;
 			// nothing to insert - do not want to replace the existing selector & arguments
 			if (this.source == null
@@ -1164,6 +1122,7 @@ public final class CompletionEngine
 				completion = new char[] { ')' };
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
@@ -1212,6 +1171,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(token, classField);
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
+			relevance += computeRelevanceForRestrictions(false); //no access restriction for class field 
 			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
@@ -1259,6 +1219,10 @@ public final class CompletionEngine
 					if (this.options.checkVisibility
 						&& !constructor.canBeSeenBy(invocationSite, scope))	continue next;
 	
+					boolean hasRestrictedAccess = false;
+//					boolean hasRestrictedAccess = constructor.declaringClass.hasRestrictedAccess();
+//					if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
+					
 					TypeBinding[] parameters = constructor.parameters;
 					int paramLength = parameters.length;
 	
@@ -1282,6 +1246,7 @@ public final class CompletionEngine
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(this.completionToken, name);
+					relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 					
 					this.noProposal = false;
 					if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -1331,7 +1296,11 @@ public final class CompletionEngine
 						if(!forAnonymousType || !constructor.isProtected())
 							continue next;
 					}
-	
+					
+					boolean hasRestrictedAccess = false;
+//					boolean hasRestrictedAccess = constructor.declaringClass.hasRestrictedAccess();
+//					if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
+					
 					TypeBinding[] parameters = constructor.parameters;
 					int paramLength = parameters.length;
 					if (minArgLength > paramLength)
@@ -1360,6 +1329,7 @@ public final class CompletionEngine
 					if(forAnonymousType){
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
+						relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 						
 						this.noProposal = false;
 						if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
@@ -1385,6 +1355,7 @@ public final class CompletionEngine
 					} else {
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
+						relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 						
 						this.noProposal = false;
 						if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -1446,6 +1417,10 @@ public final class CompletionEngine
 
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
+			
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = field.declaringClass.hasRestrictedAccess();
+//			if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
 
 			boolean prefixRequired = false;
 
@@ -1507,7 +1482,8 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
-
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
@@ -1662,6 +1638,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token,lengthField);
 				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
+				relevance += computeRelevanceForRestrictions(false); // no access restriction for length field
 				
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
@@ -1694,6 +1671,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForExpectingType(objectRef);
 				relevance += computeRelevanceForStatic(false, false);
 				relevance += computeRelevanceForQualification(false);
+				relevance += computeRelevanceForRestrictions(false); // no access restriction for clone() method
 				
 				char[] completion;
 				if (this.source != null
@@ -1800,6 +1778,7 @@ public final class CompletionEngine
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
+					relevance += computeRelevanceForRestrictions(false); // no access restriction for keywors
 					
 					this.noProposal = false;
 					if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
@@ -1936,6 +1915,10 @@ public final class CompletionEngine
 			if (this.options.checkVisibility
 				&& !memberType.canBeSeenBy(receiverType, invocationType))
 				continue next;
+			
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = memberType.hasRestrictedAccess();
+//			if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
 
 			for (int i = typesFound.size; --i >= 0;) {
 				ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(i);
@@ -1966,6 +1949,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(typeName, memberType.sourceName);
 			relevance += computeRelevanceForExpectingType(memberType);
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
@@ -2297,6 +2281,10 @@ public final class CompletionEngine
 
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = method.declaringClass.hasRestrictedAccess();
+//			if (this.options.checkRestrictions && hasRestrictedAccess) continue next;
 
 			if(superCall && method.isAbstract()) {
 				methodsFound.add(new Object[]{method, receiverType});
@@ -2418,6 +2406,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(method.returnType);
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -2480,6 +2469,12 @@ public final class CompletionEngine
 		
 		if(prefixRequired && this.insideQualifiedReference) {
 			return R_QUALIFIED;
+		}
+		return 0;
+	}
+	int computeRelevanceForRestrictions(boolean hasRestrictedAccess) {
+		if(!hasRestrictedAccess) {
+			return R_NON_RESTRICTED;
 		}
 		return 0;
 	}
@@ -2591,6 +2586,10 @@ public final class CompletionEngine
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
 
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = method.declaringClass.hasRestrictedAccess();
+//			if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
+			
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
 					))
@@ -2699,7 +2698,8 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForStaticOveride(method.isStatic());
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
-
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_DECLARATION, this.actualCompletionPosition);
@@ -2972,6 +2972,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForException(localType.sourceName);
 								relevance += computeRelevanceForClass();
 								relevance += computeRelevanceForQualification(false);
+								relevance += computeRelevanceForRestrictions(false); // no access restriction for nested type
 								
 								this.noProposal = false;
 								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -3054,6 +3055,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForExpectingType(typeParameter.type == null ? null :typeParameter.type.resolvedType);
 					relevance += computeRelevanceForQualification(false);
 					relevance += computeRelevanceForException(typeParameter.name);
+					relevance += computeRelevanceForRestrictions(false); // no access restriction fot type parameter
 					
 					this.noProposal = false;
 					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -3106,6 +3108,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 				relevance += computeRelevanceForQualification(false);
+				relevance += computeRelevanceForRestrictions(false); // no access restriction for type in the current unit
 
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
@@ -3157,6 +3160,10 @@ public final class CompletionEngine
 				next : for (int i = 0; i <= this.expectedTypesPtr; i++) {
 					if(this.expectedTypes[i] instanceof ReferenceBinding) {
 						ReferenceBinding refBinding = (ReferenceBinding)this.expectedTypes[i];
+						
+						boolean hasRestrictedAccess = refBinding.hasRestrictedAccess();
+						if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
+						
 						boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 						
 						// top level types of the current unit are already proposed.
@@ -3181,6 +3188,7 @@ public final class CompletionEngine
 							relevance += computeRelevanceForCaseMatching(token, typeName);
 							relevance += computeRelevanceForExpectingType(refBinding);
 							relevance += computeRelevanceForQualification(isQualified);
+							relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
 							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
@@ -3265,6 +3273,9 @@ public final class CompletionEngine
 				if (!(packageBinding == sourceType.getPackage())) continue;
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;
 				
+				boolean hasRestrictedAccess = sourceType.hasRestrictedAccess();
+				if(this.options.checkRestrictions && hasRestrictedAccess) continue;
+				
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 
 				int relevance = computeBaseRelevance();
@@ -3272,7 +3283,8 @@ public final class CompletionEngine
 				relevance += computeRelevanceForCaseMatching(qualifiedName, qualifiedSourceTypeName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 				relevance += computeRelevanceForQualification(false);
-
+				relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+				
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
 					relevance += computeRelevanceForException(sourceType.sourceName);
@@ -3346,6 +3358,10 @@ public final class CompletionEngine
 							
 							if (typeLength > typeBinding.sourceName.length)	continue;
 							
+							boolean hasRestrictedAccess = false;
+//							boolean hasRestrictedAccess = typeBinding.hasRestrictedAccess();
+//							if(this.options.checkRestrictions && hasRestrictedAccess) continue;
+							
 							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false))	continue;
 							
 							if (typesFound.contains(typeBinding))  continue;
@@ -3356,7 +3372,8 @@ public final class CompletionEngine
 							relevance += computeRelevanceForInterestingProposal();
 							relevance += computeRelevanceForCaseMatching(token, typeBinding.sourceName);
 							relevance += computeRelevanceForExpectingType(typeBinding);
-
+							relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+							
 							if (typeBinding.isClass()){
 								relevance += computeRelevanceForClass();
 								relevance += computeRelevanceForException(typeBinding.sourceName);
@@ -3466,7 +3483,7 @@ public final class CompletionEngine
 						relevance += computeRelevanceForCaseMatching(token, local.name);
 						relevance += computeRelevanceForExpectingType(local.type);
 						relevance += computeRelevanceForQualification(false);
-						
+						relevance += computeRelevanceForRestrictions(false); // no access restriction for local variable
 						this.noProposal = false;
 						if(!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 							CompletionProposal proposal = this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, this.actualCompletionPosition);
@@ -3666,7 +3683,8 @@ public final class CompletionEngine
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(t, name);
 					relevance += prefixAndSuffixRelevance;
-
+					relevance += computeRelevanceForRestrictions(false); // no access restriction for variable name
+					
 					// accept result
 					CompletionEngine.this.noProposal = false;
 					if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
@@ -4154,6 +4172,7 @@ public final class CompletionEngine
 	private void proposeNewMethod(char[] token, ReferenceBinding reference) {
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(false); // no access restriction for new method
 		
 		CompletionProposal proposal = this.createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION, this.actualCompletionPosition);
 		proposal.setDeclarationSignature(getSignature(reference));

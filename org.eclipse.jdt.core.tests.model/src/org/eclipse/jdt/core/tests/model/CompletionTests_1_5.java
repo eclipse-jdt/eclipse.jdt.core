@@ -80,7 +80,7 @@ public void test0001() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0002() throws JavaModelException {
@@ -93,7 +93,7 @@ public void test0002() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0003() throws JavaModelException {
@@ -106,7 +106,7 @@ public void test0003() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0004() throws JavaModelException {
@@ -119,8 +119,8 @@ public void test0004() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:XZX    completion:XZX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:XZXSuper    completion:XZXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+		"element:XZX    completion:XZX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:XZXSuper    completion:XZXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0005() throws JavaModelException {
@@ -133,7 +133,7 @@ public void test0005() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0006() throws JavaModelException {
@@ -146,7 +146,7 @@ public void test0006() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0007() throws JavaModelException {
@@ -159,7 +159,7 @@ public void test0007() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0008() throws JavaModelException {
@@ -172,8 +172,8 @@ public void test0008() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:XYX    completion:XYX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:XYXSuper    completion:XYXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+		"element:XYX    completion:XYX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:XYXSuper    completion:XYXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0009() throws JavaModelException {
@@ -186,8 +186,8 @@ public void test0009() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0010() throws JavaModelException {
@@ -200,10 +200,10 @@ public void test0010() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:T_3    completion:T_3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:T_4    completion:T_4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:T_3    completion:T_3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:T_4    completion:T_4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0011() throws JavaModelException {
@@ -216,7 +216,7 @@ public void test0011() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0011<java.lang.Object>.Y0011    completion:Y0011    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0011<java.lang.Object>.Y0011    completion:Y0011    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0012() throws JavaModelException {
@@ -229,7 +229,7 @@ public void test0012() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0012<java.lang.Object>.Y0012    completion:Y0012    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0012<java.lang.Object>.Y0012    completion:Y0012    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0013() throws JavaModelException {
@@ -242,7 +242,7 @@ public void test0013() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0013<java.lang.Object>.Y0013    completion:Y0013    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0013<java.lang.Object>.Y0013    completion:Y0013    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0014() throws JavaModelException {
@@ -255,7 +255,7 @@ public void test0014() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0014<java.lang.Object>.Y0014    completion:Y0014    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
+		"element:Z0014<java.lang.Object>.Y0014    completion:Y0014    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0015() throws JavaModelException {
@@ -268,8 +268,8 @@ public void test0015() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0015<java.lang.Object>.Y0015    completion:Y0015    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
-		"element:Z0015<java.lang.Object>.Y0015I    completion:Y0015I    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
+		"element:Z0015<java.lang.Object>.Y0015    completion:Y0015    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
+		"element:Z0015<java.lang.Object>.Y0015I    completion:Y0015I    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0016() throws JavaModelException {
@@ -282,7 +282,7 @@ public void test0016() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0016<java.lang.Object>.Y0016    completion:Y0016    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0016<java.lang.Object>.Y0016    completion:Y0016    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0017() throws JavaModelException {
@@ -295,7 +295,7 @@ public void test0017() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0017<java.lang.Object>.Y0017    completion:Y0017    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0017<java.lang.Object>.Y0017    completion:Y0017    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0018() throws JavaModelException {
@@ -308,7 +308,7 @@ public void test0018() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0018<java.lang.Object>.Y0018    completion:Y0018    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0018<java.lang.Object>.Y0018    completion:Y0018    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0019() throws JavaModelException {
@@ -321,7 +321,7 @@ public void test0019() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0019<java.lang.Object>.Y0019    completion:Y0019    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0019<java.lang.Object>.Y0019    completion:Y0019    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0020() throws JavaModelException {
@@ -334,7 +334,7 @@ public void test0020() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0020<java.lang.Object>.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0020<java.lang.Object>.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0021() throws JavaModelException {
@@ -347,8 +347,8 @@ public void test0021() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0021Z    completion:Z0021Z    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:Z0021ZZ    completion:Z0021ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:Z0021Z    completion:Z0021Z    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
+		"element:Z0021ZZ    completion:Z0021ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0022() throws JavaModelException {
@@ -361,8 +361,8 @@ public void test0022() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0022ZZ    completion:Z0022ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n"+
-		"element:Z0022ZZZ    completion:Z0022ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:Z0022ZZ    completion:Z0022ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"\n"+
+		"element:Z0022ZZZ    completion:Z0022ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0023() throws JavaModelException {
@@ -401,7 +401,7 @@ public void test0025() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0026() throws JavaModelException {
@@ -414,7 +414,7 @@ public void test0026() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0027() throws JavaModelException {
@@ -427,7 +427,7 @@ public void test0027() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0028() throws JavaModelException {
@@ -440,7 +440,7 @@ public void test0028() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0029() throws JavaModelException {
@@ -453,7 +453,7 @@ public void test0029() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Test.Inner2<T>    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+		"element:Test.Inner2<T>    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0030() throws JavaModelException {
@@ -466,8 +466,8 @@ public void test0030() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:ZZX    completion:ZZX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+ "\n" +
-		"element:ZZY    completion:ZZY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:ZZX    completion:ZZX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+ "\n" +
+		"element:ZZY    completion:ZZY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -499,7 +499,7 @@ public void test0032() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -515,7 +515,7 @@ public void test0033() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -627,7 +627,7 @@ public void test0040() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -643,7 +643,7 @@ public void test0041() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -755,7 +755,7 @@ public void test0048() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -771,7 +771,7 @@ public void test0049() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 /*
@@ -787,7 +787,7 @@ public void test0050() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("unexpected result",
-		"element:T_0050    completion:T_0050    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED),
+		"element:T_0050    completion:T_0050    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void test0051() throws JavaModelException {
@@ -806,7 +806,7 @@ public void test0051() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -828,9 +828,9 @@ public void test0052() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType2.Inner2[TYPE_REF]{Inner2, test0052, Ltest0052.QQType2$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
-				"QQType2.Inner4[TYPE_REF]{Inner4, test0052, Ltest0052.QQType2$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
-				"QQType2.Inner8[TYPE_REF]{Inner8, test0052, Ltest0052.QQType2$Inner8;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType2.Inner2[TYPE_REF]{Inner2, test0052, Ltest0052.QQType2$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"QQType2.Inner4[TYPE_REF]{Inner4, test0052, Ltest0052.QQType2$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"QQType2.Inner8[TYPE_REF]{Inner8, test0052, Ltest0052.QQType2$Inner8;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -852,10 +852,10 @@ public void test0053() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner1[TYPE_REF]{Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
-				"QQType1.Inner3[TYPE_REF]{Inner3, pkgstaticimport, Lpkgstaticimport.QQType1$Inner3;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
-				"QQType1.Inner4[TYPE_REF]{Inner4, pkgstaticimport, Lpkgstaticimport.QQType1$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner1[TYPE_REF]{Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner3[TYPE_REF]{Inner3, pkgstaticimport, Lpkgstaticimport.QQType1$Inner3;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner4[TYPE_REF]{Inner4, pkgstaticimport, Lpkgstaticimport.QQType1$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -877,7 +877,7 @@ public void test0054() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -899,7 +899,7 @@ public void test0055() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -921,7 +921,7 @@ public void test0056() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -943,7 +943,7 @@ public void test0057() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -965,7 +965,7 @@ public void test0058() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -987,9 +987,9 @@ public void test0059() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Ltest0059.QQType5;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzvarzz4[FIELD_REF]{zzvarzz4, Ltest0059.QQType5;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzvarzz8[FIELD_REF]{zzvarzz8, Ltest0059.QQType5;, I, zzvarzz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Ltest0059.QQType5;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzvarzz4[FIELD_REF]{zzvarzz4, Ltest0059.QQType5;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzvarzz8[FIELD_REF]{zzvarzz8, Ltest0059.QQType5;, I, zzvarzz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1011,10 +1011,10 @@ public void test0060() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz1[FIELD_REF]{zzvarzz1, Lpkgstaticimport.QQType4;, I, zzvarzz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzvarzz3[FIELD_REF]{zzvarzz3, Lpkgstaticimport.QQType4;, I, zzvarzz3, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzvarzz4[FIELD_REF]{zzvarzz4, Lpkgstaticimport.QQType4;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz1[FIELD_REF]{zzvarzz1, Lpkgstaticimport.QQType4;, I, zzvarzz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzvarzz3[FIELD_REF]{zzvarzz3, Lpkgstaticimport.QQType4;, I, zzvarzz3, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzvarzz4[FIELD_REF]{zzvarzz4, Lpkgstaticimport.QQType4;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1036,7 +1036,7 @@ public void test0061() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1058,7 +1058,7 @@ public void test0062() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1080,7 +1080,7 @@ public void test0063() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1102,7 +1102,7 @@ public void test0064() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1124,7 +1124,7 @@ public void test0065() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1146,9 +1146,9 @@ public void test0066() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzfoozz2[METHOD_REF]{zzfoozz2(), Ltest0066.QQType8;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzfoozz4[METHOD_REF]{zzfoozz4(), Ltest0066.QQType8;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzfoozz8[METHOD_REF]{zzfoozz8(), Ltest0066.QQType8;, ()V, zzfoozz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzfoozz2[METHOD_REF]{zzfoozz2(), Ltest0066.QQType8;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzfoozz4[METHOD_REF]{zzfoozz4(), Ltest0066.QQType8;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzfoozz8[METHOD_REF]{zzfoozz8(), Ltest0066.QQType8;, ()V, zzfoozz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1170,10 +1170,10 @@ public void test0067() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzfoozz1[METHOD_REF]{zzfoozz1(), Lpkgstaticimport.QQType7;, ()V, zzfoozz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzfoozz3[METHOD_REF]{zzfoozz3(), Lpkgstaticimport.QQType7;, ()V, zzfoozz3, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n" +
-				"zzfoozz4[METHOD_REF]{zzfoozz4(), Lpkgstaticimport.QQType7;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzfoozz1[METHOD_REF]{zzfoozz1(), Lpkgstaticimport.QQType7;, ()V, zzfoozz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzfoozz3[METHOD_REF]{zzfoozz3(), Lpkgstaticimport.QQType7;, ()V, zzfoozz3, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzfoozz4[METHOD_REF]{zzfoozz4(), Lpkgstaticimport.QQType7;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);
@@ -1195,7 +1195,7 @@ public void test0068() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 	
 		assertResults(
-				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldOptions);

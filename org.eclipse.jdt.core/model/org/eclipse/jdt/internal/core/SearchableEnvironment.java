@@ -56,7 +56,11 @@ public class SearchableEnvironment
 		this.nameLookup = project.newNameLookup(workingCopies);
 
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
+		if(this.checkAccessRestrictions) {
+			this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
+		} else {
+			this.searchScope = SearchBasicEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+		}
 	}
 
 	/**
@@ -68,7 +72,11 @@ public class SearchableEnvironment
 		this.nameLookup = project.newNameLookup(owner);
 
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
+		if(this.checkAccessRestrictions) {
+			this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
+		} else {
+			this.searchScope = SearchBasicEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+		}
 	}
 
 	/**
@@ -275,7 +283,7 @@ public class SearchableEnvironment
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					storage.acceptClass(packageName, simpleTypeName, IConstants.AccPublic);
+					storage.acceptClass(packageName, simpleTypeName, IConstants.AccPublic, access);
 				}
 				public void acceptInterface(
 					char[] packageName,
@@ -287,7 +295,7 @@ public class SearchableEnvironment
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					storage.acceptInterface(packageName, simpleTypeName, IConstants.AccPublic);
+					storage.acceptInterface(packageName, simpleTypeName, IConstants.AccPublic, access);
 				}
 			};
 			try {
@@ -322,7 +330,7 @@ public class SearchableEnvironment
 	 */
 	private void findTypes(String prefix, ISearchRequestor storage, int type) {
 		SearchableEnvironmentRequestor requestor =
-			new SearchableEnvironmentRequestor(storage, this.unitToSkip);
+			new SearchableEnvironmentRequestor(storage, this.unitToSkip, this.project, this.nameLookup);
 		int index = prefix.lastIndexOf('.');
 		if (index == -1) {
 			this.nameLookup.seekTypes(prefix, null, true, type, requestor);
