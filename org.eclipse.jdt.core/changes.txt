@@ -27,6 +27,8 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GK1I2J: ITPJCORE:WIN2000 - Broken SourceEnd in ForStatement and WhileStatement
+  1GK1HWY: ITPJCORE:WIN2000 - Broken sourceEnd in for Assignment and CompoundAssignment
   1GIIBC3: ITPJCORE:WINNT - search for method references - missing matches
   1GGNOTF: ITPJCORE:WINNT - Search doesn't find method referenced in anonymous inner class
   1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when searching references in JAR
