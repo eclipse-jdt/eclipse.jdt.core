@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class IncrementalTests extends Tests {
@@ -294,7 +295,11 @@ public class IncrementalTests extends Tests {
 			"class ZA {}");
 
 		fullBuild(projectPath);
-		expectingNoProblems();
+		expectingOnlySpecificProblemsFor(
+			root, 
+			new Problem[]{ 
+				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java")),
+			});
 
 		/* Move M from AA to ZZ */
 		env.addClass(root, "p", "AA",
@@ -308,7 +313,11 @@ public class IncrementalTests extends Tests {
 			"class ZA {static class M{}}");
 
 		incrementalBuild(projectPath);
-		expectingNoProblems();
+		expectingOnlySpecificProblemsFor(
+			root, 
+			new Problem[]{ 
+				new Problem("", "The import p.AZ is never used", new Path("/Project/src/p/AB.java")),
+			});
 
 		/* Move M from ZZ to AA */
 		env.addClass(root, "p", "AA",
@@ -322,7 +331,11 @@ public class IncrementalTests extends Tests {
 			"class ZA {}");
 
 		incrementalBuild(projectPath);
-		expectingNoProblems();
+		expectingOnlySpecificProblemsFor(
+			root, 
+			new Problem[]{ 
+				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java")),
+			});
 	}
 
 	public void testMemberTypeFromClassFile() {

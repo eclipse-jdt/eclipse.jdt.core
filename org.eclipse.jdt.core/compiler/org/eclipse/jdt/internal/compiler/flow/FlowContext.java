@@ -80,8 +80,8 @@ public class FlowContext implements TypeConstants {
 				// exceptions will actually never get sent...
 				return;
 			}
-			// filter exceptions that are locally caught from the most enclosing 
-			// try statement to the outer ones.
+			// filter exceptions that are locally caught from the innermost enclosing 
+			// try statement to the outermost ones.
 			if (traversedContext instanceof ExceptionHandlingFlowContext) {
 				ExceptionHandlingFlowContext exceptionContext =
 					(ExceptionHandlingFlowContext) traversedContext;
@@ -195,8 +195,8 @@ public class FlowContext implements TypeConstants {
 				// exceptions will actually never get sent...
 				return;
 			}
-			// filter exceptions that are locally caught from the most enclosing 
-			// try statement to the outer ones.
+			// filter exceptions that are locally caught from the innermost enclosing 
+			// try statement to the outermost ones.
 			if (traversedContext instanceof ExceptionHandlingFlowContext) {
 				ExceptionHandlingFlowContext exceptionContext =
 					(ExceptionHandlingFlowContext) traversedContext;

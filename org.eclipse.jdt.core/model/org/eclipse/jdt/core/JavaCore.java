@@ -1007,7 +1007,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *		reference 
 	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.unusedImport"
 	 *     		- possible values:	{ "error", "warning", "ignore" }
-	 *     		- default:			"ignore"
+	 *     		- default:			"warning"
 	 *
 	 *	COMPILER / Reporting Synthetic Access Emulation
 	 *		When enabled, the compiler will issue an error or a warning whenever it emulates 
@@ -1036,7 +1036,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    or method is accessed with an expression receiver.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *     - default:			"warning"
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
@@ -1533,7 +1533,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
 		optionNames.add(COMPILER_PB_UNUSED_PARAMETER);
 
-		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, IGNORE); 
+		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, WARNING); 
 		optionNames.add(COMPILER_PB_UNUSED_IMPORT);
 
 		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
@@ -1545,7 +1545,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_ASSERT_IDENTIFIER, IGNORE); 
 		optionNames.add(COMPILER_PB_ASSERT_IDENTIFIER);
 
-		preferences.setDefault(COMPILER_PB_STATIC_ACCESS_RECEIVER, IGNORE); 
+		preferences.setDefault(COMPILER_PB_STATIC_ACCESS_RECEIVER, WARNING); 
 		optionNames.add(COMPILER_PB_STATIC_ACCESS_RECEIVER);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
