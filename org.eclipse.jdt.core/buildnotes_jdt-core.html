@@ -64,12 +64,25 @@ IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>.
       }
    }</pre>
    </li>
+   <li>Relevance of a proposal is higher if the completion is not qualified or is a local variable.
+   <br>In the following example the field <code>var2</code> and the parameter <code>var1</code> are more relevant
+   than field <code>var1</code>.<pre>
+   public class X {
+      int var1;
+      int var2;
+      void foo(int var1) {
+         var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
    </ul>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25890">25890</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23542">23542</a>
+CodeAssist proposal should offer non-qualified ones first
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25890">25890</a>
 code assist displays static members on non-static expressions
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=26025">26025</a>
 Search should not use a file based name environment 

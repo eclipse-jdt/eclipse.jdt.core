@@ -1114,6 +1114,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
+			relevance += computeRelevanceForQualification(prefixRequired);
 
 			requestor
 				.acceptField(
@@ -1792,7 +1793,8 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
-
+			relevance += computeRelevanceForQualification(prefixRequired);
+			
 			requestor.acceptMethod(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -1827,6 +1829,12 @@ public final class CompletionEngine
 	private int computeRelevanceForInterface(){
 		if(assistNodeIsInterface) {
 			return R_INTERFACE;
+		}
+		return 0;
+	}
+	private int computeRelevanceForQualification(boolean prefixRequired) {
+		if(!prefixRequired) {
+			return R_UNQUALIFIED;
 		}
 		return 0;
 	}
@@ -2483,6 +2491,7 @@ public final class CompletionEngine
 						relevance += computeRelevanceForInterestingProposal(local);
 						relevance += computeRelevanceForCaseMatching(token, local.name);
 						relevance += computeRelevanceForExpectingType(local.type);
+						relevance += computeRelevanceForQualification(false);
 						
 						requestor.acceptLocalVariable(
 							local.name,
