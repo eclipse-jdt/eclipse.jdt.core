@@ -858,10 +858,11 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		int currentModifiers = methodDeclaration.modifiers;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		if (methodDeclaration instanceof MethodDeclaration) {
+			TypeReference returnType = ((MethodDeclaration) methodDeclaration).returnType;
 			requestor.enterMethod(
 				methodDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				CharOperation.concatWith(((MethodDeclaration) methodDeclaration).returnType.getParameterizedTypeName(), '.'),
+				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
 				methodDeclaration.selector, 
 				methodDeclaration.sourceStart, 
 				selectorSourceEnd, 
@@ -869,10 +870,11 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				argumentNames, 
 				thrownExceptionTypes);
 		} else {
+			TypeReference returnType = ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
 			requestor.enterMethod(
 				methodDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				CharOperation.concatWith(((AnnotationTypeMemberDeclaration) methodDeclaration).returnType.getParameterizedTypeName(), '.'),
+				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
 				methodDeclaration.selector, 
 				methodDeclaration.sourceStart, 
 				selectorSourceEnd, 
