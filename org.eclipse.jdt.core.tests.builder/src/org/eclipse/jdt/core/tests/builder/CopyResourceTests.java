@@ -176,8 +176,8 @@ public class CopyResourceTests extends Tests {
 	public void testProjectWith2Src2Bin() {
 		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", "bin1"); //$NON-NLS-1$
-		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", "bin2"); //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 

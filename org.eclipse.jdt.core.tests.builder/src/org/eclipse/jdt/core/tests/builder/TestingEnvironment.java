@@ -125,7 +125,7 @@ public class TestingEnvironment {
 	}
 
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) {
-		return addPackageFragmentRoot(projectPath, sourceFolderName, ""); //$NON-NLS-1$
+		return addPackageFragmentRoot(projectPath, sourceFolderName, null, ""); //$NON-NLS-1$
 	}
 
 	/** Adds a package fragment root to the workspace.  If
@@ -133,7 +133,7 @@ public class TestingEnvironment {
 	 * exists, it is not replaced.  A workspace must be open.
 	 * Returns the path of the added package fragment root.
 	 */
-	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, String specificOutputLocation) {
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] exclusionPatterns, String specificOutputLocation) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath path = getPackageFragmentRootPath(projectPath, sourceFolderName);
 		createFolder(path);
@@ -142,7 +142,7 @@ public class TestingEnvironment {
 			outputPath = getPackageFragmentRootPath(projectPath, specificOutputLocation);
 			createFolder(outputPath);
 		}
-		IClasspathEntry entry = JavaCore.newSourceEntry(path, new Path[0], outputPath);
+		IClasspathEntry entry = JavaCore.newSourceEntry(path, exclusionPatterns == null ? new Path[0] : exclusionPatterns, outputPath);
 		addEntry(projectPath, entry);
 		return path;
 	}

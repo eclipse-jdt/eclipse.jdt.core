@@ -380,6 +380,31 @@ public class IncrementalTests extends Tests {
 			});
 	}
 
+	public void testMovePackage() {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath[] exclusionPatterns = new Path[] {new Path("src2/")}; //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", exclusionPatterns, ""); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src1/src2"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(src1, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"public class A {}"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.removePackage(src1, "p"); //$NON-NLS-1$
+		env.addClass(src2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"public class A {}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testMemberTypeFromClassFile() {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
