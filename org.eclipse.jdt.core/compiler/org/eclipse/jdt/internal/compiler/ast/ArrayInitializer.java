@@ -88,7 +88,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							codeStream.arrayAtPut(elementsTypeID, false);
 						}
 				}
-			} else {
+			} else if (!(expr instanceof NullLiteral)) {
 				codeStream.dup();
 				codeStream.generateInlinedValue(i);
 				expr.generateCode(currentScope, codeStream, true);
