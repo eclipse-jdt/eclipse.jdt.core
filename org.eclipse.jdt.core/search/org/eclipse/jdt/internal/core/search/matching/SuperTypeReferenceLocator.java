@@ -27,19 +27,18 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 //public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeReference node, MatchingNodeSet nodeSet) {
-	TypeReference typeRef = node;
-
 	if (this.pattern.superSimpleName == null) {
 		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
 	} else {
 		char[] typeRefSimpleName = null;
-		if (typeRef instanceof SingleTypeReference) {
-			typeRefSimpleName = ((SingleTypeReference) typeRef).token;
+		if (node instanceof SingleTypeReference) {
+			typeRefSimpleName = ((SingleTypeReference) node).token;
 		} else { // QualifiedTypeReference
-			char[][] tokens = ((QualifiedTypeReference) typeRef).tokens;
+			char[][] tokens = ((QualifiedTypeReference) node).tokens;
 			typeRefSimpleName = tokens[tokens.length-1];
 		}				
 	
