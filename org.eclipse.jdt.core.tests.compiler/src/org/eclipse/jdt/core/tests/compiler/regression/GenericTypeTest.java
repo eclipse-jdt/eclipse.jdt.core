@@ -6150,7 +6150,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"	, 
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 18)\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	static final Map<String, Class<? extends Object>> classes2 \n" + 
+			"	                                                  ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from HashMap<String,Class> to Map<String,Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 18)\n" + 
 			"	mx1.foo(mx2.get());\n" + 
 			"	        ^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not convert expression of raw type Class to type Class<? extends Object>. References to generic type Class<T> should be parameterized\n" + 
@@ -6789,4 +6794,157 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"The method foo(Object) of raw type X is no more generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 	}		
+	// 69320 parameterized type compatibility
+	public void test246() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"    class MX<E> {\n" + 
+				"    }\n" + 
+				"    void foo() {\n" + 
+				"      MX<Class<? extends Object>> mx2 = new MX<Class>();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	MX<Class<? extends Object>> mx2 = new MX<Class>();\n" + 
+		"	                            ^^^\n" + 
+		"Type mismatch: cannot convert from X.MX<Class> to X.MX<Class<? extends Object>>\n" + 
+		"----------\n");
+	}		
+	// 69320 variation
+	public void test247() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"    void foo() {\n" + 
+				"      MX<Class<? extends Object>> mx2 = new MX<Class>(); // wrong\n" + 
+				"      MX<Class<? extends Object>> mx3 = new MX<Class<? extends String>>(); // wrong\n" + 
+				"      MX<Class<? extends Object>> mx4 = new MX<Class<String>>(); // wrong\n" + 
+				"      MX<? extends Class> mx5 = new MX<Class>(); // ok\n" + 
+				"      MX<? super Class> mx6 = new MX<Class>(); // ok\n" + 
+				"      MX<Class<? extends Class>> mx7 = new MX<Class<Class>>(); // wrong\n" + 
+				"      MX<MX<? extends Class>> mx8 = new MX<MX<Class>>(); // wrong\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class MX<E> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	MX<Class<? extends Object>> mx2 = new MX<Class>(); // wrong\n" + 
+			"	                            ^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	MX<Class<? extends Object>> mx3 = new MX<Class<? extends String>>(); // wrong\n" + 
+			"	                            ^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<? extends String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	MX<Class<? extends Object>> mx4 = new MX<Class<String>>(); // wrong\n" + 
+			"	                            ^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	MX<Class<? extends Class>> mx7 = new MX<Class<Class>>(); // wrong\n" + 
+			"	                           ^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<Class>> to MX<Class<? extends Class>>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	MX<MX<? extends Class>> mx8 = new MX<MX<Class>>(); // wrong\n" + 
+			"	                        ^^^\n" + 
+			"Type mismatch: cannot convert from MX<MX<Class>> to MX<MX<? extends Class>>\n" + 
+			"----------\n");
+	}			
+	// 70247 check type variable is bound during super type resolution
+	public void test248() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T> extends Vector<? super X<int[]>>{}\n"			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X<T> extends Vector<? super X<int[]>>{}\n" + 
+		"	                          ^^^^^^\n" + 
+		"The type X cannot extend or implement Vector<? super X<int[]>>. A parameterized supertype may not use any wildcard\n" + 
+		"----------\n");
+	}			
+	// 70247 variation
+	public void test249() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T> implements List<? super X<int[]>>{}\n"			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T> implements List<? super X<int[]>>{}\n" + 
+			"	                             ^^^^\n" + 
+			"The type X cannot extend or implement List<? super X<int[]>>. A parameterized supertype may not use any wildcard\n" + 
+			"----------\n");
+	}			
+	// 70295 Class<? extends Object> is compatible with Class<?>
+	public void test250() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    void test(Object o) {\n" + 
+				"        X.class.isAssignableFrom(o.getClass());\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}			
+	// 69800 '? extends Object' is not compatible with A
+	public void test251() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"    static class A {\n" + 
+				"    }\n" + 
+				"    A test() throws Exception {\n" + 
+				"        Class<? extends Object> clazz = null;\n" + 
+				"        return clazz.newInstance(); // ? extends Object\n" + 
+				"    }\n" + 
+				"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	return clazz.newInstance(); // ? extends Object\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from ? extends Object to X.A\n" + 
+			"----------\n");
+	}
+	// 69799 NPE in foreach checkcast
+	public void test252() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Set<X> channel = channels.get(0);\n" + 
+				"	    for (Iterator<X> iter = channel.iterator(); iter.hasNext();) {\n" + 
+				"	        Set<X> element;\n" + 
+				"	        element = (Set<X>) iter.next();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Set<X> channel = channels.get(0);\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"channels cannot be resolved\n" + 
+			"----------\n");
+	}			
 }
