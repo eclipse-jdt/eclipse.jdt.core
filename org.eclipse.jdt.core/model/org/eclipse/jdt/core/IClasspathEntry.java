@@ -97,8 +97,8 @@ import org.eclipse.core.runtime.IPath;
  * Any classpath entry other than a source folder (kind <code>CPE_SOURCE</code>) can
  * be marked as being exported. Exported entries are automatically contributed to
  * dependent projects, along with the project's output folder(s), which is
- * implicitly exported. The project's default output folder is always listed
- * first, followed by the any exported entries.
+ * implicitly exported. The project's output folder(s) is always listed first,
+ * followed by the any exported entries.
  * <p>
  * This interface is not intended to be implemented by clients.
  * Classpath entries can be created via methods on <code>JavaCore</code>.
