@@ -131,21 +131,23 @@ public class HierarchyResolver implements ITypeRequestor {
 	
 public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, HierarchyBuilder requestor, IProblemFactory problemFactory) {
 	// create a problem handler with the 'exit after all problems' handling policy
-	options = new CompilerOptions(settings);
+	this.options = new CompilerOptions(settings);
 	IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitAfterAllProblems();
-	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
+	ProblemReporter problemReporter = new ProblemReporter(policy, this.options, problemFactory);
 
 	this.setEnvironment(
-		new LookupEnvironment(this, options, problemReporter, nameEnvironment),
+		new LookupEnvironment(this, this.options, problemReporter, nameEnvironment),
 		requestor);
 }
 public HierarchyResolver(LookupEnvironment lookupEnvironment, HierarchyBuilder requestor) {
 	this.setEnvironment(lookupEnvironment, requestor);
 }
+
 /**
  * Add an additional binary type
+ * @param binaryType
+ * @param packageBinding
  */
-
 public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 	BinaryTypeBinding typeBinding = this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 	try {
@@ -154,10 +156,11 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 		// ignore
 	}
 }
+
 /**
  * Add an additional compilation unit.
+ * @param sourceUnit
  */
-
 public void accept(ICompilationUnit sourceUnit) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	this.lookupEnvironment.problemReporter.abortDueToInternalError(
@@ -165,8 +168,11 @@ public void accept(ICompilationUnit sourceUnit) {
 			.append(sourceUnit.getFileName())
 			.toString());
 }
+
 /**
  * Add additional source types
+ * @param sourceTypes
+ * @param packageBinding
  */
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	// find most enclosing type first (needed when explicit askForType(...) is done 
@@ -182,7 +188,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
 			SourceTypeConverter.MEMBER_TYPE, // need member types
 			// no need for field initialization
-			lookupEnvironment.problemReporter, 
+			this.lookupEnvironment.problemReporter, 
 			result);
 		
 	// build bindings
@@ -232,9 +238,9 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 				}
 			}
 		}
-		for (int t = typeIndex; t >= 0; t--) {
-			if (typeBindings[t] == superBinding) {
-				return typeModels[t];
+		for (int t = this.typeIndex; t >= 0; t--) {
+			if (this.typeBindings[t] == superBinding) {
+				return this.typeModels[t];
 			}
 		}
 	} 
@@ -293,9 +299,9 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 			// ensure that the binding corresponds to the interface defined by the user
 			if (CharOperation.equals(simpleName, interfaceBinding.sourceName)) {
 				bindingIndex++;
-				for (int t = typeIndex; t >= 0; t--) {
-					if (typeBindings[t] == interfaceBinding) {
-						superinterfaces[i] = typeModels[t];
+				for (int t = this.typeIndex; t >= 0; t--) {
+					if (this.typeBindings[t] == interfaceBinding) {
+						superinterfaces[i] = this.typeModels[t];
 						continue next;
 					}
 				}
@@ -308,12 +314,12 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
 	
-	if (++typeIndex == typeModels.length) {
-		System.arraycopy(typeModels, 0, typeModels = new IGenericType[typeIndex * 2], 0, typeIndex);
-		System.arraycopy(typeBindings, 0, typeBindings = new ReferenceBinding[typeIndex * 2], 0, typeIndex);
+	if (++this.typeIndex == this.typeModels.length) {
+		System.arraycopy(this.typeModels, 0, this.typeModels = new IGenericType[this.typeIndex * 2], 0, this.typeIndex);
+		System.arraycopy(this.typeBindings, 0, this.typeBindings = new ReferenceBinding[this.typeIndex * 2], 0, this.typeIndex);
 	}
-	typeModels[typeIndex] = suppliedType;
-	typeBindings[typeIndex] = typeBinding;
+	this.typeModels[this.typeIndex] = suppliedType;
+	this.typeBindings[this.typeIndex] = typeBinding;
 }
 private void remember(IType type, ReferenceBinding typeBinding) {
 	if (((CompilationUnit)type.getCompilationUnit()).isOpen()) {
@@ -408,6 +414,11 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 		if (binaryTypeBinding != null) {
 			// binary type
 			this.focusType = binaryTypeBinding;
+		} else if (focus.isBinary()) {
+			// may have been resolved indirectly, should then be in type cache
+			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
+			this.focusType = this.lookupEnvironment.getCachedType(CharOperation.splitOn('.', fullyQualifiedName));
+			if (this.focusType == null) return;
 		} else {
 			// source type
 			Member declaringMember = ((Member)focus).getOuterMostLocalContext();
@@ -428,8 +439,8 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 	}
 	
 	int objectIndex = -1;
-	for (int current = typeIndex; current >= 0; current--) {
-		ReferenceBinding typeBinding = typeBindings[current];
+	for (int current = this.typeIndex; current >= 0; current--) {
+		ReferenceBinding typeBinding = this.typeBindings[current];
 
 		// java.lang.Object treated at the end
 		if (typeBinding.id == TypeIds.T_JavaLangObject) {
@@ -437,7 +448,7 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 			continue;
 		}
 
-		IGenericType suppliedType = typeModels[current];
+		IGenericType suppliedType = this.typeModels[current];
 
 		if (!subOrSuperOfFocus(typeBinding)) {
 			continue; // ignore types outside of hierarchy
@@ -451,11 +462,11 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 		}
 		IGenericType[] superinterfaces = this.findSuperInterfaces(suppliedType, typeBinding);
 		
-		requestor.connect(suppliedType, superclass, superinterfaces);
+		this.requestor.connect(suppliedType, superclass, superinterfaces);
 	}
 	// add java.lang.Object only if the super class is not missing
 	if (!this.hasMissingSuperClass && objectIndex > -1) {
-		requestor.connect(typeModels[objectIndex], null, null);
+		this.requestor.connect(this.typeModels[objectIndex], null, null);
 	}
 }
 private void reset(){
@@ -467,17 +478,33 @@ private void reset(){
 	this.typeModels = new IGenericType[5];
 	this.typeBindings = new ReferenceBinding[5];
 }
+
 /**
  * Resolve the supertypes for the supplied source type.
  * Inform the requestor of the resolved supertypes using:
  *    connect(ISourceType suppliedType, IGenericType superclass, IGenericType[] superinterfaces)
+ * @param suppliedType
  */
-
 public void resolve(IGenericType suppliedType) {
 	try {
 		if (suppliedType.isBinaryType()) {
 			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
 			remember(suppliedType, binaryTypeBinding);
+			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
+			int startIndex = this.typeIndex;
+			for (int i = startIndex; i <= this.typeIndex; i++) {
+				IGenericType igType = this.typeModels[i];
+				if (igType != null && igType.isBinaryType()) {
+					// fault in its hierarchy...
+					try {
+						ReferenceBinding typeBinding = this.typeBindings[i];
+						typeBinding.superclass();
+						typeBinding.superInterfaces();
+					} catch (AbortCompilation e) {
+						// classpath problem for this type: ignore
+					}
+				}
+			}		
 			this.superTypesOnly = true;
 			reportHierarchy(this.requestor.getType(), null, binaryTypeBinding);
 		} else {
@@ -492,6 +519,7 @@ public void resolve(IGenericType suppliedType) {
 		reset();
 	}
 }
+
 /**
  * Resolve the supertypes for the types contained in the given openables (ICompilationUnits and/or IClassFiles).
  * Inform the requestor of the resolved supertypes for each
@@ -501,8 +529,10 @@ public void resolve(IGenericType suppliedType) {
  * Also inform the requestor of the supertypes of each
  * additional requested super type which is also a source type
  * instead of a binary type.
+ * @param openables
+ * @param localTypes
+ * @param monitor
  */
-
 public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor monitor) {
 	try {
 		int openablesLength = openables.length;
@@ -694,9 +724,12 @@ private void setEnvironment(LookupEnvironment lookupEnvironment, HierarchyBuilde
 	this.typeModels = new IGenericType[5];
 	this.typeBindings = new ReferenceBinding[5];
 }
+
 /**
  * Set the focus type (ie. the type that this resolver is computing the hierarch for.
  * Returns the binding of this focus type or null if it could not be found.
+ * @param compoundName
+ * @return
  */
 public ReferenceBinding setFocusType(char[][] compoundName) {
 	if (compoundName == null || this.lookupEnvironment == null) return null;

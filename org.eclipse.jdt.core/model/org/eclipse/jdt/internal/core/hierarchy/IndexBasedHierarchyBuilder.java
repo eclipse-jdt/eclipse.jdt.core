@@ -86,7 +86,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 		public String toString(){
 			StringBuffer buffer = new StringBuffer("Queue:\n"); //$NON-NLS-1$
 			for (int i = this.start; i <= this.end; i++){
-				buffer.append(names[i]).append('\n');		
+				buffer.append(this.names[i]).append('\n');		
 			}
 			return buffer.toString();
 		}
@@ -364,7 +364,7 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 	class PathCollector implements IPathRequestor {
 		HashSet paths = new HashSet(10);
 		public void acceptPath(String path, boolean containsLocalTypes) {
-			paths.add(path);
+			this.paths.add(path);
 			if (containsLocalTypes) {
 				localTypes.add(path);
 			}
@@ -394,6 +394,7 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 	} 
 	return result;
 }
+
 /**
  * Find the set of candidate subtypes of a given type.
  *
@@ -402,8 +403,13 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
  * hierarchy.
  * The match locator is not used here to narrow down the results, the type hierarchy
  * resolver is rather used to compute the whole hierarchy at once.
+ * @param type
+ * @param scope
+ * @param binariesFromIndexMatches
+ * @param pathRequestor
+ * @param waitingPolicy
+ * @param progressMonitor
  */
-
 public static void searchAllPossibleSubTypes(
 	IType type,
 	IJavaSearchScope scope,
