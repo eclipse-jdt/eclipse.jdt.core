@@ -173,7 +173,6 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 public PublicScanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 }
-
 public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
@@ -192,7 +191,6 @@ public PublicScanner(
 	this.taskPriorities = taskPriorities;
 	this.isTaskCaseSensitive = isTaskCaseSensitive;
 }
-
 public  final boolean atEnd() {
 	// This code is not relevant if source is 
 	// Only a part of the real stream input
@@ -3039,25 +3037,106 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 	boolean floating = dotPrefix;
 	if ((!dotPrefix) && (this.currentCharacter == '0')) {
 		if (getNextChar('x', 'X') >= 0) { //----------hexa-----------------
-			//force the first char of the hexa number do exist...
-			// consume next character
-			this.unicodeAsBackSlash = false;
-			if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-				&& (this.source[this.currentPosition] == 'u')) {
-				getNextUnicodeChar();
-			} else {
-				if (this.withoutUnicodePtr != 0) {
-					unicodeStoreAt(++this.withoutUnicodePtr);
-				}
-			}
-			if (Character.digit(this.currentCharacter, 16) == -1)
-				throw new InvalidInputException(INVALID_HEXA);
-			//---end forcing--
+			int start = this.currentPosition;
 			while (getNextCharAsDigit(16)){/*empty*/}
-			if (getNextChar('l', 'L') >= 0)
+			int end = this.currentPosition;
+			if (getNextChar('l', 'L') >= 0) {
+				if (end == start) {
+					throw new InvalidInputException(INVALID_HEXA);
+				}
 				return TokenNameLongLiteral;
-			else
+			} else if (getNextChar('.')) {
+				if (this.sourceLevel < ClassFileConstants.JDK1_5) {
+					// if we are in source level < 1.5, we report an integer literal
+					this.currentPosition = end;
+					return TokenNameIntegerLiteral;
+				}
+				// hexadeciman floating point literal
+				// read decimal part
+				while (getNextCharAsDigit(16)){/*empty*/}
+				
+				if (getNextChar('p', 'P') >= 0) { // consume next character
+					this.unicodeAsBackSlash = false;
+					if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+						&& (this.source[this.currentPosition] == 'u')) {
+						getNextUnicodeChar();
+					} else {
+						if (this.withoutUnicodePtr != 0) {
+							unicodeStoreAt(++this.withoutUnicodePtr);
+						}
+					}
+
+					if ((this.currentCharacter == '-')
+						|| (this.currentCharacter == '+')) { // consume next character
+						this.unicodeAsBackSlash = false;
+						if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+							&& (this.source[this.currentPosition] == 'u')) {
+							getNextUnicodeChar();
+						} else {
+							if (this.withoutUnicodePtr != 0) {
+								unicodeStoreAt(++this.withoutUnicodePtr);
+							}
+						}
+					}
+					if (!isDigit(this.currentCharacter)) {
+						throw new InvalidInputException(INVALID_HEXA);
+					}
+					while (getNextCharAsDigit()){/*empty*/}
+					if (getNextChar('f', 'F') >= 0) {
+						return TokenNameFloatingPointLiteral;
+					}
+					if (getNextChar('d', 'D') >= 0) {
+						return TokenNameDoubleLiteral;
+					}
+					if (getNextChar('l', 'L') >= 0) {
+						throw new InvalidInputException(INVALID_HEXA);
+					}					
+					return TokenNameDoubleLiteral;
+				} else {
+					throw new InvalidInputException(INVALID_HEXA);
+				}
+			} else if (getNextChar('p', 'P') >= 0) { // consume next character
+				if (this.sourceLevel < ClassFileConstants.JDK1_5) {
+					// if we are in source level < 1.5 we report an integer literal
+					this.currentPosition = end;
+					return TokenNameIntegerLiteral;
+				}
+				this.unicodeAsBackSlash = false;
+				if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+					&& (this.source[this.currentPosition] == 'u')) {
+					getNextUnicodeChar();
+				} else {
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStoreAt(++this.withoutUnicodePtr);
+					}
+				}
+
+				if ((this.currentCharacter == '-')
+					|| (this.currentCharacter == '+')) { // consume next character
+					this.unicodeAsBackSlash = false;
+					if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+						&& (this.source[this.currentPosition] == 'u')) {
+						getNextUnicodeChar();
+					} else {
+						if (this.withoutUnicodePtr != 0) {
+							unicodeStoreAt(++this.withoutUnicodePtr);
+						}
+					}
+				}
+				if (!isDigit(this.currentCharacter))
+					throw new InvalidInputException(INVALID_FLOAT);
+				while (getNextCharAsDigit()){/*empty*/}
+				if (getNextChar('f', 'F') >= 0)
+					return TokenNameFloatingPointLiteral;
+				if (getNextChar('d', 'D') >= 0)
+					return TokenNameDoubleLiteral;
+				if (getNextChar('l', 'L') >= 0) {
+					throw new InvalidInputException(INVALID_HEXA);
+				}
+				return TokenNameDoubleLiteral;
+			} else {
 				return TokenNameIntegerLiteral;
+			}
 		}
 
 		//there is x or X in the number

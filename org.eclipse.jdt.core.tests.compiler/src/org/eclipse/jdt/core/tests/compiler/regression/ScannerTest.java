@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
@@ -33,7 +34,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
 	 */
 	public void test001() {
-		String sourceA001 =	"\\u003b";
+		String sourceA001 = "\\u003b";
 		IScanner scanner = ToolFactory.createScanner(false, true, false, false);
 		scanner.setSource(sourceA001.toCharArray());
 		int token = 0;
@@ -48,7 +49,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
 	 */
 	public void test002() {
-		String sourceA002 =	"// tests\n  ";
+		String sourceA002 = "// tests\n  ";
 		IScanner scanner = ToolFactory.createScanner(false, true, false, false);
 		scanner.setSource(sourceA002.toCharArray());
 		int token = 0;
@@ -66,7 +67,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
 	 */
 	public void test003() {
-		String sourceA003 =	"// tests\n  ";
+		String sourceA003 = "// tests\n  ";
 		IScanner scanner = ToolFactory.createScanner(true, true, false, false);
 		scanner.setSource(sourceA003.toCharArray());
 		int token = 0;
@@ -81,14 +82,14 @@ public class ScannerTest extends AbstractRegressionTest {
 		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
-	}				
-	
+	}
+
 	/**
 	 * float constant can have exponent part without dot: 01e0f
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=30704
 	 */
 	public void test004() {
-		String source =	"01e0f";
+		String source = "01e0f";
 		IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 		scanner.setSource(source.toCharArray());
 		int token = 0;
@@ -98,16 +99,16 @@ public class ScannerTest extends AbstractRegressionTest {
 		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
-	}						
+	}
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43437
 	 */
 	public void test005() {
-		StringBuffer buf= new StringBuffer();
+		StringBuffer buf = new StringBuffer();
 		buf.append("\"Hello\"");
 		String str = buf.toString();
-		IScanner scanner= ToolFactory.createScanner(true, false, false, false);
+		IScanner scanner = ToolFactory.createScanner(true, false, false, false);
 		scanner.setSource(str.toCharArray());
 		scanner.resetTo(0, str.length() - 1);
 		int token = 0;
@@ -119,13 +120,13 @@ public class ScannerTest extends AbstractRegressionTest {
 		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
-	}						
+	}
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43485
 	 */
 	public void test006() {
-		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 		try {
 			scanner.setSource(null);
 		} catch (NullPointerException e) {
@@ -137,17 +138,227 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * Check that bogus resetTo issues EOFs
 	 */
 	public void test007() {
-		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 		char[] source = "int i = 0;".toCharArray(); //$NON-NLS-1$
-		scanner.setSource(source); 
-		scanner.resetTo(source.length+50, source.length-1);
+		scanner.setSource(source);
+		scanner.resetTo(source.length + 50, source.length - 1);
 		int token = -1;
 		try {
 			token = scanner.getNextToken();
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
 		assertEquals("Expecting EOF", ITerminalSymbols.TokenNameEOF, token);
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test008() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x11aa.aap-3333f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int token = -1;
+		try {
+			token = scanner.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameFloatingPointLiteral, token);
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Expecting EOF", ITerminalSymbols.TokenNameEOF, token);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test009() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "0x11aa.aap-3333f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 5, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test010() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x11aa.aap-3333f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test011() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x.aap-3333f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test012() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaap3f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test013() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaapaf".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+			return;
+		}
+		assertTrue(false);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test014() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaap.1f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+			return;
+		}
+		assertTrue(false);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test015() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaa.p1f".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test016() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaa.p1F".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test017() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaa.p1D".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
+	 */
+	public void test018() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0xaa.p1d".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Wrong number of tokens", 1, counter);
+	}
 }
