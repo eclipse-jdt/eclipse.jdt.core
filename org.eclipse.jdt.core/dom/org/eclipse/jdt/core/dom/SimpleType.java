@@ -53,7 +53,7 @@ public class SimpleType extends Type {
 	ASTNode clone(AST target) {
 		SimpleType result = new SimpleType(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setName((Name) ((ASTNode) getName()).clone(target));
+		result.setName((Name) (getName()).clone(target));
 		return result;
 	}
 
@@ -105,7 +105,7 @@ public class SimpleType extends Type {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild((ASTNode) this.typeName, (ASTNode) typeName, false);
+		replaceChild(this.typeName, typeName, false);
 		this.typeName = typeName;
 	}
 

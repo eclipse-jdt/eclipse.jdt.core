@@ -206,7 +206,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (types == null || types.length == 0) {
 				return null;
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) types[0];
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type = types[0];
 			if (type != null) {
 				ITypeBinding typeBinding = this.getTypeBinding(type.binding);
 				if (typeBinding != null) {
@@ -274,7 +274,7 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
-			if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+			if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) { // TODO (olivier) Unnecessary instanceof check, the expression of type TypeBinding is already compatible with type TypeBinding
 				return this.getTypeBinding(binding.leafComponentType());
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {

@@ -93,7 +93,7 @@ public class FieldDeclaration extends BodyDeclaration {
 		FieldDeclaration result = new FieldDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
-			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
+			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(

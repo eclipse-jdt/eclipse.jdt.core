@@ -1118,7 +1118,7 @@ class ASTConverter {
 
 	public Expression convert(QualifiedAllocationExpression expression) {
 		if (expression.anonymousType != null) {
-			return convert((AnonymousLocalTypeDeclaration) expression.anonymousType);
+			return convert(expression.anonymousType);
 		} else {
 			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 			classInstanceCreation.setExpression(convert(expression.enclosingInstance));

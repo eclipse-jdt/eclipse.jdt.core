@@ -602,11 +602,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 				break;
 			}
 		}
-		if (typeBinding instanceof ReferenceBinding){
-			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-		} else {
-			typeBinding = null;
-		}
+		typeBinding = typeBinding.enclosingType();
 	}
 	if (tokens == null) {
 		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding) {

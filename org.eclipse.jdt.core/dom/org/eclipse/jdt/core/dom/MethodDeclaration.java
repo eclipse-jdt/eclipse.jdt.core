@@ -138,7 +138,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		MethodDeclaration result = new MethodDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
-			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
+			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setModifiers(getModifiers());
 		result.setConstructor(isConstructor());
 		result.setReturnType(
@@ -338,7 +338,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild((ASTNode) this.returnType, (ASTNode) type, false);
+		replaceChild(this.returnType, type, false);
 		this.returnType = type;
 	}
 

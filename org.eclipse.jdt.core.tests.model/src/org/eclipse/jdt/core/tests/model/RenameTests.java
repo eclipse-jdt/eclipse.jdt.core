@@ -400,7 +400,7 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 		"					fred[+]: {}\n" + 
 		"					bar[-]: {}"
 	);
-	ensureCorrectPositioning((IParent)type, type.getField("fred"), type.getField("other"));
+	ensureCorrectPositioning(type, type.getField("fred"), type.getField("other"));
 }
 /**
  * Ensures that fields can be renamed even if one of the renamings fails.  

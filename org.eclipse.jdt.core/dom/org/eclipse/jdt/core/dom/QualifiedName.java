@@ -125,7 +125,7 @@ public class QualifiedName extends Name {
 			throw new IllegalArgumentException();
 		}
 		// a QualifiedName may occur inside a QualifiedName - must check cycles
-		replaceChild((ASTNode) this.qualifier, (ASTNode) qualifier, true);
+		replaceChild(this.qualifier, qualifier, true);
 		this.qualifier = qualifier;
 	}
 	

@@ -112,9 +112,7 @@ public class ArrayType extends Type {
 			throw new IllegalArgumentException();
 		}
 		// an ArrayType may occur inside an ArrayType - must check cycles
-		replaceChild(
-			(ASTNode) this.componentType,
-			(ASTNode) componentType, true);
+		replaceChild(this.componentType, componentType, true);
 		this.componentType = componentType;
 	}
 

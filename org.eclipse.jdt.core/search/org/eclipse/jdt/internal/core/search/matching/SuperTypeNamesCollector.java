@@ -354,8 +354,7 @@ private String[] getPathsOfDeclaringType() {
 		final PathCollector pathCollector = new PathCollector();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 	
-		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
-										.getIndexManager();
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo;
 		SearchPattern searchPattern = new TypeDeclarationPattern(
 			this.typeSimpleName != null ? null : this.typeQualification, // use the qualification only if no simple name

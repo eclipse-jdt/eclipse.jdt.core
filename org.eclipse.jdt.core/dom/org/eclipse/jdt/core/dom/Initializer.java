@@ -68,7 +68,7 @@ public class Initializer extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setJavadoc(
-			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
+			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setBody((Block) getBody().clone(target));
 		return result;
 	}

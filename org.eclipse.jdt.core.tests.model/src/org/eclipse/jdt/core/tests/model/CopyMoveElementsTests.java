@@ -382,8 +382,8 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 	for (int i = 0; i < dests.length; i++) {
 		dests[i] = typeDest;
 	}
-	dests[1] = (IJavaElement)fieldsSource[0]; //invalid destination
-	dests[2]=  (IJavaElement)fieldsSource[0];
+	dests[1] = fieldsSource[0]; //invalid destination
+	dests[2]=  fieldsSource[0];
 
 	try {
 		startDeltas();
@@ -441,8 +441,8 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 		for (int i = 0; i < dests.length; i++) {
 			dests[i] = typeDest;
 		}
-		dests[1] = (IJavaElement)fieldsSource[0]; //invalid destination
-		dests[2]=  (IJavaElement)fieldsSource[0];
+		dests[1] = fieldsSource[0]; //invalid destination
+		dests[2]=  fieldsSource[0];
 
 		startDeltas();
 		boolean e= false;

@@ -127,11 +127,11 @@ public class TypeDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setModifiers(getModifiers());
 		result.setJavadoc(
-			(Javadoc) ASTNode.copySubtree(target,(ASTNode) getJavadoc()));
+			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 		result.setInterface(isInterface());
 		result.setName((SimpleName) getName().clone(target));
 		result.setSuperclass(
-			(Name) ASTNode.copySubtree(target,(ASTNode) getSuperclass()));
+			(Name) ASTNode.copySubtree(target, getSuperclass()));
 		result.superInterfaces().addAll(
 			ASTNode.copySubtrees(target, superInterfaces()));
 		result.bodyDeclarations().addAll(
@@ -295,8 +295,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 */ 
 	public void setSuperclass(Name superclassName) {
 		replaceChild(
-			(ASTNode) this.optionalSuperclassName,
-			(ASTNode) superclassName, false);
+			this.optionalSuperclassName,
+			superclassName, false);
 		this.optionalSuperclassName = superclassName;
 	}
 

@@ -106,7 +106,7 @@ public void testClassFileInSource1() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFile("P/src/X.class", "");
 		IClassFile classFile = this.getClassFile("P/src/X.class");
-		assertOpenFails((IOpenable)classFile);
+		assertOpenFails(classFile);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -142,7 +142,7 @@ public void testCompilationUnitInLibrary2() throws CoreException {
 			"public class X {}"
 		);
 		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
-		assertOpenFails((IOpenable)cu);
+		assertOpenFails(cu);
 	} finally {
 		this.deleteProject("P");
 	}

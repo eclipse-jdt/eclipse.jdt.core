@@ -110,7 +110,7 @@ public class ASTMatcher {
 			return false;
 		}
 		// N.B. call subtreeMatch even node1==node2!=null
-		return ((ASTNode) node1).subtreeMatch(this, (ASTNode) node2);
+		return ((ASTNode) node1).subtreeMatch(this, node2);
 	}
 
 	/**

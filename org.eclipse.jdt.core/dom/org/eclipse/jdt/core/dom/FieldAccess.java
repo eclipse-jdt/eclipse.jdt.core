@@ -149,7 +149,7 @@ public class FieldAccess extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// a FieldAccess may occur inside an Expression - must check cycles
-		replaceChild((ASTNode) this.expression, (ASTNode) expression, true);
+		replaceChild(this.expression, expression, true);
 		this.expression = expression;
 	}
 

@@ -643,7 +643,7 @@ public class Scribe {
 		} 
 		// reset scribe/scanner to restart at this given location
 		this.resetAt(this.currentAlignment.location);
-		this.scanner.resetTo(this.currentAlignment.location.inputOffset, ((PublicScanner)this.scanner).eofPosition);
+		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.currentAlignment.chunkKind = 0;
 		this.formatter.lastLocalDeclarationSourceStart = 0;

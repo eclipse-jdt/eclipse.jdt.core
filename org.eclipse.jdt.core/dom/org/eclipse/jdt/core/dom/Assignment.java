@@ -266,7 +266,7 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		replaceChild((ASTNode) this.leftHandSide, (ASTNode) expression, true);
+		replaceChild(this.leftHandSide, expression, true);
 		this.leftHandSide = expression;
 	}
 
@@ -301,7 +301,7 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		replaceChild((ASTNode) this.rightHandSide, (ASTNode) expression, true);
+		replaceChild(this.rightHandSide, expression, true);
 		this.rightHandSide = expression;
 	}
 
