@@ -16,8 +16,11 @@ import java.util.List;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -28,7 +31,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 
@@ -174,15 +176,24 @@ class DefaultJavaElementComparator implements Comparator {
 					return this.categories[STATIC_METHOD_CATEGORY];
 				}
 				return this.categories[METHOD_CATEGORY];
+			case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION :
+				if (Flags.isStatic(node.getModifiers())) {
+					return this.categories[STATIC_METHOD_CATEGORY];
+				}
+				return this.categories[METHOD_CATEGORY];
 			case ASTNode.FIELD_DECLARATION :
 				FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 				if (Flags.isStatic(fieldDeclaration.getModifiers())) {
 					return this.categories[STATIC_FIELD_CATEGORY];
 				}
 				return this.categories[FIELD_CATEGORY];
+			case ASTNode.ENUM_CONSTANT_DECLARATION :
+				return this.categories[STATIC_FIELD_CATEGORY];
 			case ASTNode.TYPE_DECLARATION :
-				TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-				if (Flags.isStatic(typeDeclaration.getModifiers())) {
+			case ASTNode.ENUM_DECLARATION :
+			case ASTNode.ANNOTATION_TYPE_DECLARATION :
+				AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) node;
+				if (Flags.isStatic(abstractTypeDeclaration.getModifiers())) {
 					return this.categories[STATIC_TYPE_CATEGORY];
 				}
 				return this.categories[TYPE_CATEGORY];
@@ -250,15 +261,23 @@ class DefaultJavaElementComparator implements Comparator {
 					Type type = parameter.getType();
 					buffer.append(buildSignature(type));
 				}
-				return buffer.toString();
+				return String.valueOf(buffer);
+			case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION :
+				AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) node;
+				return annotationTypeMemberDeclaration.getName().getIdentifier();
 			case ASTNode.FIELD_DECLARATION :
 				FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 				return ((VariableDeclarationFragment) fieldDeclaration.fragments().get(0)).getName().getIdentifier();
+			case ASTNode.ENUM_CONSTANT_DECLARATION :
+				EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
+				return enumConstantDeclaration.getName().getIdentifier();
 			case ASTNode.INITIALIZER :
 				return ((Integer) node.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).toString();
 			case ASTNode.TYPE_DECLARATION :
-				TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-				return typeDeclaration.getName().getIdentifier();
+			case ASTNode.ENUM_DECLARATION :
+			case ASTNode.ANNOTATION_TYPE_DECLARATION :
+				AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) node;
+				return abstractTypeDeclaration.getName().getIdentifier();
 		}
 		return null;
 	}

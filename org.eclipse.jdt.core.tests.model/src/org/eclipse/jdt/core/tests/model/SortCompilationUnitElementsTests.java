@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.ArrayList;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -25,7 +27,8 @@ import org.eclipse.jdt.core.util.CompilationUnitSorter;
  */
 public class SortCompilationUnitElementsTests extends ModifyingResourceTests {
 
-private static final boolean DEBUG = false;
+private static final boolean DEBUG = true;
+private static final boolean Bug88224 = true;
 
 public SortCompilationUnitElementsTests(String name) {
 	super(name);
@@ -33,7 +36,7 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
@@ -41,21 +44,42 @@ private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreE
 }
 
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
-	char[] initialSource = unit.getSource().toCharArray();
+	String initialSource = unit.getSource();
 	int[] positions = null;
+	int[] initialPositions = null;
+	ArrayList arrayList = new ArrayList();
 	if (testPositions) {
-		positions = new int[initialSource.length];
-		for (int i = 0; i < initialSource.length; i++) {
-			positions[i] = i;
+		for (int i = 0; i < initialSource.length(); i++) {
+			if (!Character.isWhitespace(initialSource.charAt(i))) {
+				arrayList.add(new Integer(i));
+			}
 		}
+		final int length = arrayList.size();
+		positions = new int[length];
+		for (int i = 0; i < length; i++) {
+			positions[i] = ((Integer) arrayList.get(i)).intValue();
+		}
+		initialPositions = new int[length];
+		System.arraycopy(positions, 0, initialPositions, 0, length);
 	}
 	ICompilationUnit copy = unit.getWorkingCopy(null);
 	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
 	assertEquals("Different output", expectedResult, sortedSource); //$NON-NLS-1$
+	final int expectedResultLength = expectedResult.length();
 	if (testPositions) {
 		for (int i = 0, max = positions.length; i < max; i++) {
-			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], expectedResult.charAt(positions[i]), initialSource[i]); //$NON-NLS-1$ //$NON-NLS-2$
+			char mappedChar = ' ';
+			char initial = initialSource.charAt(initialPositions[i]);
+			try {
+				mappedChar = expectedResult.charAt(positions[i]);
+				if (mappedChar != initial) {
+					System.out.println("wrong mapped positions: " + initialPositions[i] + " <-> " + positions[i] + ": expected " + initial + " but was " + mappedChar); //$NON-NLS-1$ //$NON-NLS-2$
+					assertEquals("wrong mapped positions: " + initialPositions[i] + " <-> " + positions[i], initial, mappedChar); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			} catch(StringIndexOutOfBoundsException e) {
+				System.out.println("Out of bounds : (length = " + expectedResultLength + ") " + positions[i]);
+			}
 		}
 	}
 }
@@ -74,7 +98,7 @@ public static Test suite() {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test007")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test024")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -93,15 +117,12 @@ public void test001() throws CoreException {
 			" */\n" + //$NON-NLS-1$
 			"package p;\n" + //$NON-NLS-1$
 			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
 			"	static class D {\n" + //$NON-NLS-1$
 			"		String toString() {\n" + //$NON-NLS-1$
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// start of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	void bar(int i) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
@@ -120,7 +141,7 @@ public void test001() throws CoreException {
 			"			void bar4() {}\n" + //$NON-NLS-1$
 			"			void bar5() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}\n\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
 			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
 			"		void bar2() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
@@ -131,26 +152,20 @@ public void test001() throws CoreException {
 			"		}\n" + //$NON-NLS-1$
 			"		void bar3() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" +  //$NON-NLS-1$
-			"// end of compilation unit\n" //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 		);
 		String expectedResult = "/**\n" + //$NON-NLS-1$
 			" *\n" + //$NON-NLS-1$
 			" */\n" + //$NON-NLS-1$
 			"package p;\n" + //$NON-NLS-1$
 			"public class X {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
 			"	static class D {\n" + //$NON-NLS-1$
 			"		String toString() {\n" + //$NON-NLS-1$
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// start of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
 			"		void bar() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
@@ -161,7 +176,7 @@ public void test001() throws CoreException {
 			"		void bar4() {\n" + //$NON-NLS-1$
 			"			System.out.println();\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
 			"		\n" + //$NON-NLS-1$
 			"\n" + //$NON-NLS-1$
@@ -182,9 +197,7 @@ public void test001() throws CoreException {
 			"	}\n" + //$NON-NLS-1$
 			"	void bar(int i) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" + //$NON-NLS-1$
-			"// end of compilation unit\n"; //$NON-NLS-1$
+			"}\n";//$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -268,16 +281,12 @@ public void test003() throws CoreException {
 			" */\n" + //$NON-NLS-1$
 			"package p;\n" + //$NON-NLS-1$
 			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
 			"	class D {\n" + //$NON-NLS-1$
 			"		String toString() {\n" + //$NON-NLS-1$
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	// start of field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" + //$NON-NLS-1$
+			"	int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
@@ -296,7 +305,7 @@ public void test003() throws CoreException {
 			"			void bar4() {}\n" + //$NON-NLS-1$
 			"			void bar5() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}\n\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
 			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$
 			"		void bar2(int[] j) {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
@@ -307,23 +316,19 @@ public void test003() throws CoreException {
 			"		}\n" + //$NON-NLS-1$
 			"		void bar3() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" +  //$NON-NLS-1$
-			"// end of compilation unit\n" //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
+			"}\n"//$NON-NLS-1$
 		);
 		String expectedResult = "/**\n" + //$NON-NLS-1$
 			" *\n" + //$NON-NLS-1$
 			" */\n" + //$NON-NLS-1$
 			"package p;\n" + //$NON-NLS-1$
 			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
 			"	class D {\n" + //$NON-NLS-1$
 			"		String toString() {\n" + //$NON-NLS-1$
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
 			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$
 			"		void bar() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
@@ -334,11 +339,8 @@ public void test003() throws CoreException {
 			"		void bar4() {\n" + //$NON-NLS-1$
 			"			System.out.println();\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	// start of field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" + //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
+			"	int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
 			"		\n" + //$NON-NLS-1$
 			"\n" + //$NON-NLS-1$
@@ -359,9 +361,7 @@ public void test003() throws CoreException {
 			"	}\n" + //$NON-NLS-1$
 			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" + //$NON-NLS-1$
-			"// end of compilation unit\n"; //$NON-NLS-1$
+			"}\n"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -385,9 +385,6 @@ public void test004() throws CoreException {
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	// start of method declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
 			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
@@ -410,9 +407,7 @@ public void test004() throws CoreException {
 			"			void bar5() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" +  //$NON-NLS-1$
-			"// end of compilation unit\n" //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 		);
 		String expectedResult = "/**\n" + //$NON-NLS-1$
 			" *\n" + //$NON-NLS-1$
@@ -446,15 +441,10 @@ public void test004() throws CoreException {
 			"			void bar6() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	// start of method declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
 			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" + //$NON-NLS-1$
-			"// end of compilation unit\n"; //$NON-NLS-1$
+			"}\n"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
@@ -603,9 +593,7 @@ public void test009() throws CoreException {
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// start of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	void bar(int i) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
@@ -635,10 +623,8 @@ public void test009() throws CoreException {
 			"		}\n" + //$NON-NLS-1$
 			"		void bar3() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" +  //$NON-NLS-1$
-			"// end of compilation unit\n" //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
+			"}\n"  //$NON-NLS-1$
 		);
 		String expectedResult = "/**\n" + //$NON-NLS-1$
 			" *\n" + //$NON-NLS-1$
@@ -651,10 +637,7 @@ public void test009() throws CoreException {
 			"			return \"HELLO\";\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// start of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
-			"\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;\n" + //$NON-NLS-1$
 			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
 			"		void bar() {\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
@@ -665,7 +648,7 @@ public void test009() throws CoreException {
 			"		void bar4() {\n" + //$NON-NLS-1$
 			"			System.out.println();\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
-			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	}, c1 = null;\n" + //$NON-NLS-1$
 			"	void bar() {\n" + //$NON-NLS-1$
 			"		\n" + //$NON-NLS-1$
 			"\n" + //$NON-NLS-1$
@@ -684,11 +667,10 @@ public void test009() throws CoreException {
 			"			void bar6() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
 			"	void bar(int i) {\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	// end of class X\n" + //$NON-NLS-1$
-			"}\n" + //$NON-NLS-1$
-			"// end of compilation unit\n"; //$NON-NLS-1$
+			"}\n"; //$NON-NLS-1$
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
 		sortUnit(unit, expectedResult, false);		
 	} finally {
@@ -700,7 +682,6 @@ public void test010() throws CoreException {
 		this.createFile(
 			"/P/src/SuperReference.java", //$NON-NLS-1$
 			"public class SuperReference extends ThisReference {\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
 			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$
 			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$
 			"}\r\n" + //$NON-NLS-1$
@@ -745,7 +726,6 @@ public void test010() throws CoreException {
 			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" + //$NON-NLS-1$
 			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" + //$NON-NLS-1$
 			"}\r\n" + //$NON-NLS-1$
-			"	\r\n" + //$NON-NLS-1$
 			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$
 			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$
 			"}\r\n" + //$NON-NLS-1$
@@ -870,6 +850,7 @@ public void test012() throws CoreException {
 		);
 		String expectedSource = "package p;\n" + //$NON-NLS-1$
 			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
 			"	bar() {\n" + //$NON-NLS-1$
 			"		System.out.println();\n" + //$NON-NLS-1$
 			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
@@ -881,7 +862,6 @@ public void test012() throws CoreException {
 			"		}\n" + //$NON-NLS-1$
 			"		return new C();\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
-			"	\n" + //$NON-NLS-1$
 			"	Object bar3() {\n" + //$NON-NLS-1$
 			"		return null;\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
@@ -935,16 +915,14 @@ public void test014() throws CoreException {
 			"  int j;\n" + 
 			"  \n" +
 			"  // start of static field declaration\n" + 
-			"  \n" +
 			"  static int i; // end of static field declaration\n" + 
 			"}"
 		);
 		String expectedResult = 
 			"public class X {\n" +
-			"  \n" +
 			"  // start of static field declaration\n" + 
-			"  \n" +
 			"  static int i; // end of static field declaration\n" + 
+			"  \n" +
 			"  int j;\n" + 
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
@@ -965,19 +943,17 @@ public void test015() throws CoreException {
 			"  /** some Java doc */\n" +
 			"  \n" +
 			"  // start of static field declaration\n" + 
-			"  \n" +
 			"  static int i; // end of static field declaration\n" + 
 			"}"
 		);
 		String expectedResult = 
 			"public class X {\n" +
-			"  \n" +
 			"  /** some Java doc */\n" +
 			"  \n" +
-			"  // start of static field declaration\n" + 
+			"  // start of static field declaration\n" +
+			"  static int i; // end of static field declaration\n" +
 			"  \n" +
-			"  static int i; // end of static field declaration\n" + 
-			"  int j;\n" + 
+			"  int j;\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
@@ -1019,7 +995,7 @@ public void test016() throws CoreException {
 			"      class D {\n" + 
 			"         // this appears to break also.\n" + 
 			"      }\n" + 
-			"   } \n" + 
+			"   }\n" + 
 			"   \n" + 
 			"   private class F {\n" + 
 			"      // but this works fine\n" + 
@@ -1053,7 +1029,7 @@ public void test016() throws CoreException {
 			"      class D {\n" + 
 			"         // this appears to break also.\n" + 
 			"      }\n" + 
-			"   } \n" + 
+			"   }\n" + 
 			"   \n" + 
 			"   public void b() {\n" + 
 			"      \n" + 
@@ -1103,7 +1079,7 @@ public void test017() throws CoreException {
 			"      class D {\n" + 
 			"         // this appears to break also.\n" + 
 			"      }\n" + 
-			"   } \n" + 
+			"   }\n" + 
 			"   \n" + 
 			"   private class F {\n" + 
 			"      // but this works fine\n" + 
@@ -1137,7 +1113,7 @@ public void test017() throws CoreException {
 			"      class D {\n" + 
 			"         // this appears to break also.\n" + 
 			"      }\n" + 
-			"   } \n" + 
+			"   }\n" + 
 			"   \n" + 
 			"   public void b() {\n" + 
 			"      \n" + 
@@ -1146,6 +1122,530 @@ public void test017() throws CoreException {
 			"   public void c() {\n" + 
 			"      \n" + 
 			"   }\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+public void test018() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" + 
+			"   public void c() {\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void b() {\n" + 
+			"   }\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" + 
+			"   public void b() {\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void c() {\n" + 
+			"   }\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
+public void test019() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public enum X {\n" + 
+			"	A, B, C, Z;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
+public void test020() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" +
+			"	A , B, C;\n" +
+			"	\n" +
+			"	void foo() {\n" +
+			"		\n" +
+			"	}\n" +
+			"	\n" +
+			"	public Object field;\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public enum X {\n" +
+			"	A , B, C;\n" +
+			"	\n" +
+			"	public Object field;\n" +
+			"	\n" +
+			"	void foo() {\n" +
+			"		\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
+public void test021() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"\n" +
+			"	public enum Suit {\n" +
+			"		SPADES, CLUBS, HEARTS, DIAMONDS\n" +
+			"	}\n" +
+			"\n" +
+			"	public enum Card {\n" +
+			"		KING, QUEEN, JACK, ACE\n" +
+			"	}\n" +
+			"	\n" +
+			"	private String string;\n" +
+			"	private int integer;\n" +
+			"	\n" +
+			"	public void method1() { }\n" +
+			"	\n" +
+			"	public void method2() { }\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"\n" +
+			"	public enum Card {\n" +
+			"		ACE, JACK, KING, QUEEN\n" +
+			"	}\n" +
+			"\n" +
+			"	public enum Suit {\n" +
+			"		CLUBS, DIAMONDS, HEARTS, SPADES\n" +
+			"	}\n" +
+			"	\n" +
+			"	private int integer;\n" +
+			"	private String string;\n" +
+			"	\n" +
+			"	public void method1() { }\n" +
+			"	\n" +
+			"	public void method2() { }\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80036
+public void test022() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/BuildUtilities.java",
+			"/**********************************************************************\n" +
+			" * Copyright (c) 2004 IBM Corporation and others. All rights reserved.   This\n" +
+			" * program and the accompanying materials are made available under the terms of\n" +
+			" * the Common Public License v1.0 which accompanies this distribution, and is\n" +
+			" * available at http://www.eclipse.org/legal/cpl-v10.html\n" +
+			" * \n" +
+			" * Contributors: \n" +
+			" * IBM - Initial API and implementation\n" +
+			" **********************************************************************/\n" +
+			"import java.util.HashSet;\n" +
+			"import org.eclipse.core.resources.ICommand;\n" +
+			"import org.eclipse.core.resources.IProject;\n" +
+			"import org.eclipse.core.resources.IProjectDescription;\n" +
+			"import org.eclipse.core.resources.IResource;\n" +
+			"import org.eclipse.core.resources.IncrementalProjectBuilder;\n" +
+			"import org.eclipse.core.resources.ResourcesPlugin;\n" +
+			"import org.eclipse.core.runtime.CoreException;\n" +
+			"import org.eclipse.core.runtime.IAdaptable;\n" +
+			"import org.eclipse.jface.viewers.ISelection;\n" +
+			"import org.eclipse.jface.viewers.IStructuredSelection;\n" +
+			"import org.eclipse.ui.IEditorInput;\n" +
+			"import org.eclipse.ui.IEditorPart;\n" +
+			"import org.eclipse.ui.IFileEditorInput;\n" +
+			"import org.eclipse.ui.IWorkbenchPart;\n" +
+			"import org.eclipse.ui.IWorkbenchWindow;\n" +
+			"\n" +
+			"/**\n" +
+			" * This class contains convenience methods used by the various build commands\n" +
+			" * to determine enablement.  These utilities cannot be factored into a common\n" +
+			" * class because some build actions are API and some are not.\n" +
+			" * \n" +
+			" * @since 3.1\n" +
+			" */\n" +
+			"public class BuildUtilities {\n" +
+			"	/**\n" +
+			"	 * Extracts the selected projects from a selection.\n" +
+			"	 * \n" +
+			"	 * @param selection The selection to analyze\n" +
+			"	 * @return The selected projects\n" +
+			"	 */\n" +
+			"	public static IProject[] extractProjects(Object[] selection) {\n" +
+			"		HashSet projects = new HashSet();\n" +
+			"		for (int i = 0; i < selection.length; i++) {\n" +
+			"			if (selection[i] instanceof IResource) {\n" +
+			"				projects.add(((IResource) selection[i]).getProject());\n" +
+			"			} else if (selection[i] instanceof IAdaptable) {\n" +
+			"				IAdaptable adaptable = (IAdaptable) selection[i];\n" +
+			"				IResource resource = (IResource) adaptable.getAdapter(IResource.class);\n" +
+			"				if (resource != null)\n" +
+			"					projects.add(resource.getProject());\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return (IProject[]) projects.toArray(new IProject[projects.size()]);\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Finds and returns the selected projects in the given window\n" +
+			"	 * \n" +
+			"	 * @param window The window to find the selection in\n" +
+			"	 * @return The selected projects, or an empty array if no selection could be found.\n" +
+			"	 */\n" +
+			"	public static IProject[] findSelectedProjects(IWorkbenchWindow window) {\n" +
+			"		if (window == null)\n" +
+			"			return new IProject[0];\n" +
+			"		ISelection selection = window.getSelectionService().getSelection();\n" +
+			"		IProject[] selected = null;\n" +
+			"		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {\n" +
+			"			selected = extractProjects(((IStructuredSelection) selection).toArray());\n" +
+			"		} else {\n" +
+			"			//see if we can extract a selected project from the active editor\n" +
+			"			IWorkbenchPart part = window.getPartService().getActivePart();\n" +
+			"			if (part instanceof IEditorPart) {\n" +
+			"				IEditorInput input = ((IEditorPart) part).getEditorInput();\n" +
+			"				if (input instanceof IFileEditorInput)\n" +
+			"					selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};\n" +
+			"			}\n" +
+			"		}\n" +
+			"		if (selected == null)\n" +
+			"			selected = new IProject[0];\n" +
+			"		return selected;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether the workspace has a builder installed that responds\n" +
+			"	 * to the given trigger.\n" +
+			"	 */\n" +
+			"	static boolean hasBuilder(int trigger) {\n" +
+			"		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();\n" +
+			"		boolean builderFound = false;\n" +
+			"		for (int i = 0; i < projects.length; i++) {\n" +
+			"			if (!projects[i].isAccessible())\n" +
+			"				continue;\n" +
+			"			try {\n" +
+			"				IProjectDescription description = projects[i].getDescription();\n" +
+			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
+			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
+			"					builderFound = true;\n" +
+			"					if (!buildSpec[j].isBuilding(trigger))\n" +
+			"						return true;\n" +
+			"				}\n" +
+			"			} catch (CoreException e) {\n" +
+			"				//ignore projects that are not available\n" +
+			"			}\n" +
+			"		}\n" +
+			"		//enable building if there are any accessible projects with builders\n" +
+			"		return builderFound;\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether the selection of projects is being managed by autobuild.\n" +
+			"	 * \n" +
+			"	 * @param projects The projects to examine\n" +
+			"	 * @return <code>true</code> if the projects are being managed by\n" +
+			"	 * autobuild, and <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	public static boolean isAutoBuilding(IProject[] projects) {\n" +
+			"		if (!ResourcesPlugin.getWorkspace().isAutoBuilding())\n" +
+			"			return false;\n" +
+			"		\n" +
+			"	/**\n" +
+			"	 * Returns whether one of the projects has a builder whose trigger setting\n" +
+			"	 * for the given trigger matches the given value.\n" +
+			"	 * \n" +
+			"	 * @param projects The projects to check\n" +
+			"	 * @param trigger The trigger to look for\n" +
+			"	 * @param value The trigger value to look for\n" +
+			"	 * @return <code>true</code> if one of the projects has a builder whose\n" +
+			"	 * trigger activation matches the provided value, and <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {\n" +
+			"		for (int i = 0; i < projects.length; i++) {\n" +
+			"			if (!projects[i].isAccessible())\n" +
+			"				continue;\n" +
+			"			try {\n" +
+			"				IProjectDescription description = projects[i].getDescription();\n" +
+			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
+			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
+			"					if (buildSpec[j].isBuilding(trigger) == value)\n" +
+			"						return true;\n" +
+			"				}\n" +
+			"			} catch (CoreException e) {\n" +
+			"				//ignore projects that are not available\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether a build command with the given trigger should\n" +
+			"	 * be enabled for the given selection.\n" +
+			"	 * @param projects The projects to use to determine enablement\n" +
+			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
+			"	 * @return <code>true</code> if the action should be enabled, and\n" +
+			"	 * <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Doesn\'t need to be instantiated\n" +
+			"	 */\n" +
+			"	private BuildUtilities() {\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"/**********************************************************************\n" +
+			" * Copyright (c) 2004 IBM Corporation and others. All rights reserved.   This\n" +
+			" * program and the accompanying materials are made available under the terms of\n" +
+			" * the Common Public License v1.0 which accompanies this distribution, and is\n" +
+			" * available at http://www.eclipse.org/legal/cpl-v10.html\n" +
+			" * \n" +
+			" * Contributors: \n" +
+			" * IBM - Initial API and implementation\n" +
+			" **********************************************************************/\n" +
+			"import java.util.HashSet;\n" +
+			"import org.eclipse.core.resources.ICommand;\n" +
+			"import org.eclipse.core.resources.IProject;\n" +
+			"import org.eclipse.core.resources.IProjectDescription;\n" +
+			"import org.eclipse.core.resources.IResource;\n" +
+			"import org.eclipse.core.resources.IncrementalProjectBuilder;\n" +
+			"import org.eclipse.core.resources.ResourcesPlugin;\n" +
+			"import org.eclipse.core.runtime.CoreException;\n" +
+			"import org.eclipse.core.runtime.IAdaptable;\n" +
+			"import org.eclipse.jface.viewers.ISelection;\n" +
+			"import org.eclipse.jface.viewers.IStructuredSelection;\n" +
+			"import org.eclipse.ui.IEditorInput;\n" +
+			"import org.eclipse.ui.IEditorPart;\n" +
+			"import org.eclipse.ui.IFileEditorInput;\n" +
+			"import org.eclipse.ui.IWorkbenchPart;\n" +
+			"import org.eclipse.ui.IWorkbenchWindow;\n" +
+			"\n" +
+			"/**\n" +
+			" * This class contains convenience methods used by the various build commands\n" +
+			" * to determine enablement.  These utilities cannot be factored into a common\n" +
+			" * class because some build actions are API and some are not.\n" +
+			" * \n" +
+			" * @since 3.1\n" +
+			" */\n" +
+			"public class BuildUtilities {\n" +
+			"	/**\n" +
+			"	 * Extracts the selected projects from a selection.\n" +
+			"	 * \n" +
+			"	 * @param selection The selection to analyze\n" +
+			"	 * @return The selected projects\n" +
+			"	 */\n" +
+			"	public static IProject[] extractProjects(Object[] selection) {\n" +
+			"		HashSet projects = new HashSet();\n" +
+			"		for (int i = 0; i < selection.length; i++) {\n" +
+			"			if (selection[i] instanceof IResource) {\n" +
+			"				projects.add(((IResource) selection[i]).getProject());\n" +
+			"			} else if (selection[i] instanceof IAdaptable) {\n" +
+			"				IAdaptable adaptable = (IAdaptable) selection[i];\n" +
+			"				IResource resource = (IResource) adaptable.getAdapter(IResource.class);\n" +
+			"				if (resource != null)\n" +
+			"					projects.add(resource.getProject());\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return (IProject[]) projects.toArray(new IProject[projects.size()]);\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Finds and returns the selected projects in the given window\n" +
+			"	 * \n" +
+			"	 * @param window The window to find the selection in\n" +
+			"	 * @return The selected projects, or an empty array if no selection could be found.\n" +
+			"	 */\n" +
+			"	public static IProject[] findSelectedProjects(IWorkbenchWindow window) {\n" +
+			"		if (window == null)\n" +
+			"			return new IProject[0];\n" +
+			"		ISelection selection = window.getSelectionService().getSelection();\n" +
+			"		IProject[] selected = null;\n" +
+			"		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {\n" +
+			"			selected = extractProjects(((IStructuredSelection) selection).toArray());\n" +
+			"		} else {\n" +
+			"			//see if we can extract a selected project from the active editor\n" +
+			"			IWorkbenchPart part = window.getPartService().getActivePart();\n" +
+			"			if (part instanceof IEditorPart) {\n" +
+			"				IEditorInput input = ((IEditorPart) part).getEditorInput();\n" +
+			"				if (input instanceof IFileEditorInput)\n" +
+			"					selected = new IProject[] {((IFileEditorInput) input).getFile().getProject()};\n" +
+			"			}\n" +
+			"		}\n" +
+			"		if (selected == null)\n" +
+			"			selected = new IProject[0];\n" +
+			"		return selected;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether the workspace has a builder installed that responds\n" +
+			"	 * to the given trigger.\n" +
+			"	 */\n" +
+			"	static boolean hasBuilder(int trigger) {\n" +
+			"		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();\n" +
+			"		boolean builderFound = false;\n" +
+			"		for (int i = 0; i < projects.length; i++) {\n" +
+			"			if (!projects[i].isAccessible())\n" +
+			"				continue;\n" +
+			"			try {\n" +
+			"				IProjectDescription description = projects[i].getDescription();\n" +
+			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
+			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
+			"					builderFound = true;\n" +
+			"					if (!buildSpec[j].isBuilding(trigger))\n" +
+			"						return true;\n" +
+			"				}\n" +
+			"			} catch (CoreException e) {\n" +
+			"				//ignore projects that are not available\n" +
+			"			}\n" +
+			"		}\n" +
+			"		//enable building if there are any accessible projects with builders\n" +
+			"		return builderFound;\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether the selection of projects is being managed by autobuild.\n" +
+			"	 * \n" +
+			"	 * @param projects The projects to examine\n" +
+			"	 * @return <code>true</code> if the projects are being managed by\n" +
+			"	 * autobuild, and <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	public static boolean isAutoBuilding(IProject[] projects) {\n" +
+			"		if (!ResourcesPlugin.getWorkspace().isAutoBuilding())\n" +
+			"			return false;\n" +
+			"		\n" +
+			"	/**\n" +
+			"	 * Returns whether a build command with the given trigger should\n" +
+			"	 * be enabled for the given selection.\n" +
+			"	 * @param projects The projects to use to determine enablement\n" +
+			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
+			"	 * @return <code>true</code> if the action should be enabled, and\n" +
+			"	 * <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether one of the projects has a builder whose trigger setting\n" +
+			"	 * for the given trigger matches the given value.\n" +
+			"	 * \n" +
+			"	 * @param projects The projects to check\n" +
+			"	 * @param trigger The trigger to look for\n" +
+			"	 * @param value The trigger value to look for\n" +
+			"	 * @return <code>true</code> if one of the projects has a builder whose\n" +
+			"	 * trigger activation matches the provided value, and <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	private static boolean matchingTrigger(IProject[] projects, int trigger, boolean value) {\n" +
+			"		for (int i = 0; i < projects.length; i++) {\n" +
+			"			if (!projects[i].isAccessible())\n" +
+			"				continue;\n" +
+			"			try {\n" +
+			"				IProjectDescription description = projects[i].getDescription();\n" +
+			"				ICommand[] buildSpec = description.getBuildSpec();\n" +
+			"				for (int j = 0; j < buildSpec.length; j++) {\n" +
+			"					if (buildSpec[j].isBuilding(trigger) == value)\n" +
+			"						return true;\n" +
+			"				}\n" +
+			"			} catch (CoreException e) {\n" +
+			"				//ignore projects that are not available\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Doesn\'t need to be instantiated\n" +
+			"	 */\n" +
+			"	private BuildUtilities() {\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/BuildUtilities.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/BuildUtilities.java");
+	}
+}
+// Sorting annotation type declaration
+public void test023() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public @interface X {\n" + 
+			"	String name();\n" + 
+			"	int id() default 0;\n" + 
+			"	String value;\n" + 
+			"	static int GlobalID;\n" + 
+			"}\n" +
+			"class A {}"
+		);
+		String expectedResult = 
+			"class A {}\n" +
+			"public @interface X {\n" +
+			"	static int GlobalID;\n" +
+			"	String value;\n" +
+			"	int id() default 0;\n" +
+			"	String name();\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81329
+public void test024() throws CoreException {
+	if (Bug88224) return;
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		class Local {\n" +
+			"			static enum E {\n" +
+			"				C, B;\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"	void bar() {\n" +
+			"	}\n" +
+			"	void foo() {\n" +
+			"		class Local {\n" +
+			"			static enum E {\n" +
+			"				B, C;\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
