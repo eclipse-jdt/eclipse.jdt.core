@@ -436,7 +436,54 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 		assertNotNull(tEntry);
 		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
+	}
+	
+	public void _test003() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X <T extends Object & p.B<? super T>> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        super(t);\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"}",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A<P> {\n" + 
+			"    protected P p;\n" + 
+			"    protected A(P p) {\n" + 
+			"        this.p = p;\n" + 
+			"    }\n" + 
+			"}",
+			"p/B.java",
+			"package p;\n" + 
+			"public interface B<T> {\n" + 
+			"}"
+		};
+		this.runConformTest(testsSource);
+		
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B<-TT;>;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+
+		if (!RunJavac) return;
+
+		// Compare with javac
+		cleanUp();
+		runJavac("test002", testsSource);
+		
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B<-TT;>;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}	
+	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
