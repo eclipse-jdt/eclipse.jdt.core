@@ -269,15 +269,17 @@ private void readModifierRelatedAttributes() {
 	for (int i = 0; i < attributesCount; i++) {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		switch(attributeName[0]) {
-			case 'D' :
-				if (CharOperation.equals(attributeName, DeprecatedName))
-					this.accessFlags |= AccDeprecated;
-				break;
-			case 'S' :
-				if (CharOperation.equals(attributeName, SyntheticName))
-					this.accessFlags |= AccSynthetic;
-				break;
+		if (attributeName.length != 0) {
+			switch(attributeName[0]) {
+				case 'D' :
+					if (CharOperation.equals(attributeName, DeprecatedName))
+						this.accessFlags |= AccDeprecated;
+					break;
+				case 'S' :
+					if (CharOperation.equals(attributeName, SyntheticName))
+						this.accessFlags |= AccSynthetic;
+					break;
+			}
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
