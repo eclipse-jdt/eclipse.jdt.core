@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -23,8 +24,7 @@ public char[] mainTypeName;
 public char[][] packageName;
 String encoding;
 
-public SourceFile(String fileName, String initialTypeName, String encoding) {
-	
+public SourceFile(String fileName, String initialTypeName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
@@ -32,17 +32,22 @@ public SourceFile(String fileName, String initialTypeName, String encoding) {
 	int lastIndex = CharOperation.lastIndexOf('/', typeName);
 	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
-	this.encoding = encoding;
+
+	this.encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+	if (this.encoding.length() == 0)
+		this.encoding = null;
 }
 
-public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
-	
+public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
 	this.mainTypeName = mainTypeName;
 	this.packageName = packageName;
-	this.encoding = encoding;
+
+	this.encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+	if (this.encoding.length() == 0)
+		this.encoding = null;
 }
 
 public char[] getContents() {
@@ -50,14 +55,10 @@ public char[] getContents() {
 	BufferedReader reader = null;
 	try {
 		File file = new File(new String(fileName));
-		InputStreamReader streamReader;
-		
-		// use encoding if any
-		if (this.encoding == null){
-			streamReader = new InputStreamReader(new FileInputStream(file));
-		} else {
-			streamReader = new InputStreamReader(new FileInputStream(file), this.encoding);
-		}
+		InputStreamReader streamReader =
+			this.encoding == null
+				? new InputStreamReader(new FileInputStream(file))
+				: new InputStreamReader(new FileInputStream(file), this.encoding);
 		reader = new BufferedReader(streamReader);
 		int length = (int) file.length();
 		char[] contents = new char[length];

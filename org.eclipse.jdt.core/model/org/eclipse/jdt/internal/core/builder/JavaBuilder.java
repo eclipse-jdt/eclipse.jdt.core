@@ -386,7 +386,6 @@ private void initializeBuilder() throws CoreException {
 
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
-	abortBuilds = true;
 	if (abortBuilds) {
 		IMarker[] markers =
 			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);

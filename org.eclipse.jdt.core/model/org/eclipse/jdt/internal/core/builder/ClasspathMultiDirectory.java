@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
@@ -40,9 +39,6 @@ NameEnvironmentAnswer findSourceFile(
 	char[] typeName,
 	String[] additionalSourceFilenames) {
 
-	String encoding = (String) JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
-	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
-	
 	// if an additional source file is waiting to be compiled, answer it
 	// BUT not if this is a secondary type search,
 	// if we answer the source file X.java which may no longer define Y
@@ -52,7 +48,7 @@ NameEnvironmentAnswer findSourceFile(
 	for (int i = 0, l = additionalSourceFilenames.length; i < l; i++)
 		if (fullSourceName.equals(additionalSourceFilenames[i]))
 			return new NameEnvironmentAnswer(
-				new SourceFile(fullSourceName, typeName, CharOperation.splitOn('/', qualifiedPackageName.toCharArray()), encoding));
+				new SourceFile(fullSourceName, typeName, CharOperation.splitOn('/', qualifiedPackageName.toCharArray())));
 	return null;
 }
 
