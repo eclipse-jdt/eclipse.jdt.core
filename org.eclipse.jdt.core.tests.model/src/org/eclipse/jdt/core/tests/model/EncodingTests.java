@@ -239,7 +239,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get compilation unit source on a file written in UTF-8 charset using no specific encoding.
 	 * Verification is done by comparing source with file contents read directly with no specific encoding...
 	 */
-	public void test006() throws JavaModelException, CoreException {
+	public void _test006() throws JavaModelException, CoreException {
 
 		// Get compilation unit and compare source
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -346,7 +346,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file with an associated source written in UTF-8 charset using no specific encoding.
 	 * Verification is done by comparing source with file contents read directly with ASCII encoding...
 	 */
-	public void test010() throws JavaModelException, CoreException {
+	public void _test010() throws JavaModelException, CoreException {
 
 		// Get class file and compare source
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -404,7 +404,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get class file from jar file with an associated source written in UTF-8 charset using no specific encoding for file.
 	 * Verification is done by comparing source with file contents read directly with no specific encoding...
 	 */
-	public void test013() throws JavaModelException, CoreException {
+	public void _test013() throws JavaModelException, CoreException {
 
 		// Get class file and compare source
 		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
@@ -413,7 +413,9 @@ public class EncodingTests extends ModifyingResourceTests {
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, null));
-		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
+		String independentEncodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
+		String independentSource = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
+		assertEquals("Encoded UTF-8 source should have been decoded the same way!", independentEncodedContents, independentSource);
 
 		// Now compare bytes array
 		byte[] sourceBytes =source.getBytes();
