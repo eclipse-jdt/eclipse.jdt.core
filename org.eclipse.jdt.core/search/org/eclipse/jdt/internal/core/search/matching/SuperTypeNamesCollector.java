@@ -64,7 +64,9 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * Returns null if the declaring type pattern doesn't require an exact match.
  */
 public class SuperTypeNamesCollector implements ITypeRequestor {
-	MethodReferencePattern pattern;
+	SearchPattern pattern;
+	char[] typeSimpleName;
+	char[] typeQualification;
 	MatchLocator locator;
 	IType type; 
 	IProgressMonitor progressMonitor;
@@ -120,12 +122,16 @@ public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 }
 	
 public SuperTypeNamesCollector(
-	MethodReferencePattern pattern,
+	SearchPattern pattern,
+	char[] typeSimpleName,
+	char[] typeQualification,
 	MatchLocator locator,
 	IType type, 
 	IProgressMonitor progressMonitor) {
 		
 	this.pattern = pattern;
+	this.typeSimpleName = typeSimpleName;
+	this.typeQualification = typeQualification;
 	this.locator = locator;
 	this.type = type;
 	this.progressMonitor = progressMonitor;
@@ -278,19 +284,17 @@ protected boolean matches(char[][] compoundName) {
 	int length = compoundName.length;
 	if (length == 0) return false;
 	char[] simpleName = compoundName[length-1];
-	char[] declaringSimpleName = this.pattern.declaringSimpleName;
-	char[] declaringQualification = this.pattern.declaringQualification;
 	int last = length - 1;
-	if (declaringSimpleName != null) {
+	if (this.typeSimpleName != null) {
 		// most frequent case: simple name equals last segment of compoundName
-		if (this.pattern.matchesName(simpleName, declaringSimpleName)) {
+		if (this.pattern.matchesName(simpleName, this.typeSimpleName)) {
 			char[][] qualification = new char[last][];
 			System.arraycopy(compoundName, 0, qualification, 0, last);
 			return 
 				this.pattern.matchesName(
-					declaringQualification, 
+					this.typeQualification, 
 					CharOperation.concatWith(qualification, '.'));
-		} else if (!CharOperation.endsWith(simpleName, declaringSimpleName)) {
+		} else if (!CharOperation.endsWith(simpleName, this.typeSimpleName)) {
 			return false;
 		} else {
 			// member type -> transform A.B.C$D into A.B.C.D
@@ -306,7 +310,7 @@ protected boolean matches(char[][] compoundName) {
 		System.arraycopy(compoundName, 0, qualification, 0, last);
 		return 
 			this.pattern.matchesName(
-				declaringQualification, 
+				this.typeQualification, 
 				CharOperation.concatWith(qualification, '.'));
 	}
 }
@@ -353,9 +357,7 @@ protected void collectSuperTypeNames(ReferenceBinding type) {
 
 
 private String[] getPathsOfDeclaringType() {
-	char[] declaringQualification = this.pattern.declaringQualification;
-	char[] declaringSimpleName = this.pattern.declaringSimpleName;
-	if (declaringQualification != null || declaringSimpleName != null) {
+	if (this.typeQualification != null || this.typeSimpleName != null) {
 		final PathCollector pathCollector = new PathCollector();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 	
@@ -363,9 +365,9 @@ private String[] getPathsOfDeclaringType() {
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo;
 		SearchPattern searchPattern = new TypeDeclarationPattern(
-			declaringSimpleName != null ? null : declaringQualification, // use the qualification only if no simple name
+			this.typeSimpleName != null ? null : this.typeQualification, // use the qualification only if no simple name
 			null, // do find member types
-			declaringSimpleName,
+			this.typeSimpleName,
 			IIndexConstants.TYPE_SUFFIX,
 			this.pattern.matchMode, 
 			true);

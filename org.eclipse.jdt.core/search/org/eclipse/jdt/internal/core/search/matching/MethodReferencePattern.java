@@ -112,6 +112,8 @@ public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor p
 		this.allSuperDeclaringTypeNames = 
 			new SuperTypeNamesCollector(
 				this, 
+				this.declaringSimpleName,
+				this.declaringQualification,
 				locator,
 				this.declaringType, 
 				progressMonitor).collect();
