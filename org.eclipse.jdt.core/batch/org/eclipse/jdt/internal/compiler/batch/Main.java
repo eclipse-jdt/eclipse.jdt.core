@@ -75,7 +75,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public boolean noWarn = false;
 
-	public Map options;
+	public Map options; 
+	public CompilerOptions compilerOptions; // read-only
 
 	public PrintWriter out;
 
@@ -83,11 +84,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean proceedOnError = false;
 	public boolean produceRefInfo = false;
 	public int repetitions;
+	public int maxProblems;
 	public boolean showProgress = false;
 	public boolean systemExitWhenFinished = true;
 	public long startTime;
 	public boolean timing = false;
-
+	public boolean useJsrBytecode = true;
 	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
@@ -378,6 +380,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		final int InsideSource = 32;
 		final int InsideDefaultEncoding = 64;
 		final int InsideBootClasspath = 128;
+		final int InsideMaxProblems = 256;
 		final int Default = 0;
 		String[] bootclasspaths = null;
 		int DEFAULT_SIZE_CLASSPATH = 4;
@@ -513,6 +516,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = InsideRepetition;
 				continue;
 			}
+			if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
+				if (this.maxProblems > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
+				mode = InsideMaxProblems;
+				continue;
+			}
 			if (currentArg.equals("-source")) { //$NON-NLS-1$
 				mode = InsideSource;
 				continue;
@@ -613,6 +623,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = Default;
 				this.produceRefInfo = true;
 				continue;
+			}
+			if (currentArg.equals("-noJSR")) { //$NON-NLS-1$
+			    mode = Default;
+			    this.useJsrBytecode = false;
+			    continue;
 			}
 			if (currentArg.startsWith("-g")) { //$NON-NLS-1$
 				mode = Default;
@@ -933,6 +948,19 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				} catch (NumberFormatException e) {
 					throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+				}
+				mode = Default;
+				continue;
+			}
+			if (mode == InsideMaxProblems) {
+				try {
+					this.maxProblems = Integer.parseInt(currentArg);
+					if (this.maxProblems <= 0) {
+						throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+					}
+					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
+				} catch (NumberFormatException e) {
+					throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
 				}
 				mode = Default;
 				continue;
@@ -1424,6 +1452,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
+						if (this.compilerOptions.verbose)
+							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
+								new String[] {
+									String.valueOf(this.exportedClassFilesCounter+1),
+									new String(relativeName) }));					    
 						ClassFile.writeToDisk(
 							this.generatePackagesStructure,
 							this.destinationPath,
@@ -1447,6 +1480,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
+						if (this.compilerOptions.verbose)
+							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
+								new String[] {
+									String.valueOf(this.exportedClassFilesCounter+1),
+									new String(relativeName) }));					    
 						ClassFile.writeToDisk(
 							this.generatePackagesStructure,
 							this.destinationPath,
@@ -1477,11 +1515,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.options,
 				getBatchRequestor(),
 				getProblemFactory());
-		CompilerOptions compilerOptions = batchCompiler.options;
+		this.compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.
-		compilerOptions.setVerboseMode(this.verbose);
+		compilerOptions.verbose = this.verbose;
 		compilerOptions.produceReferenceInfo = this.produceRefInfo;
+		compilerOptions.useJsrBytecode = this.useJsrBytecode;
 		batchCompiler.compile(getCompilationUnits());
 
 		printStats();
