@@ -858,7 +858,12 @@ public class SourceMapper
 				return enclosingType.getElementName() + SUFFIX_STRING_java;
 			} else if (info.isLocal() || info.isAnonymous()){
 				String typeQualifiedName = type.getTypeQualifiedName();
-				return typeQualifiedName.substring(0, typeQualifiedName.indexOf('$')) + SUFFIX_STRING_java;
+				int dollar = typeQualifiedName.indexOf('$');
+				if (dollar == -1) {
+					// malformed inner type: name doesn't contain a dollar
+					return type.getElementName() + SUFFIX_STRING_java;
+				}
+				return typeQualifiedName.substring(0, dollar) + SUFFIX_STRING_java;
 			} else {
 				return type.getElementName() + SUFFIX_STRING_java;
 			}

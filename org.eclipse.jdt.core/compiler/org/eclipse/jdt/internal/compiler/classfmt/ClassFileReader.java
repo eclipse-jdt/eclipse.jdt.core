@@ -464,10 +464,10 @@ public boolean isInterface() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isLocal() {
-	return 
-		this.innerInfo != null 
-		&& this.innerInfo.getEnclosingTypeName() == null 
-		&& this.innerInfo.getSourceName() != null;
+	if (this.innerInfo == null) return false;
+	if (this.innerInfo.getEnclosingTypeName() != null) return false;
+	char[] sourceName = this.innerInfo.getSourceName();
+	return (sourceName != null && sourceName.length > 0);	
 }
 /**
  * Answer true if the receiver is a member type, false otherwise
@@ -475,7 +475,10 @@ public boolean isLocal() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isMember() {
-	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() != null;
+	if (this.innerInfo == null) return false;
+	if (this.innerInfo.getEnclosingTypeName() == null) return false;
+	char[] sourceName = this.innerInfo.getSourceName();
+	return (sourceName != null && sourceName.length > 0);	 // protection against ill-formed attributes (67600)
 }
 /**
  * Answer true if the receiver is a nested type, false otherwise
