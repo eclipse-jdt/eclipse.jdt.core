@@ -57,7 +57,7 @@ public void removeAll() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < size; i++) {
-		buffer.append(CharOperation.toString(elements[i])).append("\n"/*nonNLS*/);
+		buffer.append(CharOperation.toString(elements[i])).append("\n"); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }

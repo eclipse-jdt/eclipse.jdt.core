@@ -599,7 +599,7 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 			updateIndex(element, delta);
 			elementAdded(element, delta);
 			if (element instanceof IPackageFragmentRoot) {
-				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");
+				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
 			}
 			if (element instanceof IPackageFragment) {
 				// add subpackages
@@ -624,7 +624,7 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 			updateIndex(element, delta);
 			elementRemoved(element, delta);
 			if (element instanceof IPackageFragmentRoot) {
-				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");
+				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
 			}
 			if (element instanceof IPackageFragment) {
 				// remove subpackages
@@ -844,7 +844,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						IPackageFragment pkg = null;
 						if (element instanceof IPackageFragmentRoot) {
 							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-							pkg = root.getPackageFragment("");
+							pkg = root.getPackageFragment("");//$NON-NLS-1$
 						} else {
 							pkg = (IPackageFragment)element;
 						}

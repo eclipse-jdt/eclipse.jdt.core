@@ -133,7 +133,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 		for (int i = 0; i < toDo; i++) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
-				System.out.println("About to compile " + filename);
+				System.out.println("About to compile " + filename);//$NON-NLS-1$
 			toCompile[i] = new SourceFile(filename);
 		}
 		compile(toCompile, initialTypeNames, null);
@@ -151,7 +151,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 				// already been compiled when it was referenced by another unit.
 				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("About to compile " + filename);
+						System.out.println("About to compile " + filename);//$NON-NLS-1$
 					toCompile[index] = new SourceFile(filename);
 					initialNamesInLoop[index++] = initialTypeNames[i];
 				}
@@ -343,10 +343,10 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	byte[] bytes = classFile.getBytes();
 	if (isClassFileChanged(file, fileName, bytes, isSecondaryType)) {
 		if (JavaBuilder.DEBUG)
-			System.out.println("Writing class file " + file.getName());
+			System.out.println("Writing class file " + file.getName());//$NON-NLS-1$
 		file.create(new ByteArrayInputStream(bytes), true, null);
 	} else if (JavaBuilder.DEBUG) {
-		System.out.println("Skipped over unchanged class file " + file.getName());
+		System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
 	}
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();

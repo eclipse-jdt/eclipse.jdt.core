@@ -268,7 +268,7 @@ public void doneSaving(ISaveContext context){
 				while (deltas.hasMoreElements()) {
 					IJavaElementDelta delta= (IJavaElementDelta) deltas.nextElement();
 					if (DeltaProcessor.VERBOSE){
-						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);
+						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
 					}
 					ElementChangedEvent event= new ElementChangedEvent(delta);
 					// Clone the listeners since they could remove themselves when told about the event 

@@ -185,7 +185,7 @@ public final class ObjectSet implements Cloneable {
 			if (object == null){
 				s+= "-\n";//$NON-NLS-1$
 			} else {
-				s+= object.toString()+ "\t#"+object.hashCode() +"(%" + (object.hashCode() % elementTable.length)+"\n";//$NON-NLS-1$//$NON-NLS-2$
+				s+= object.toString()+ "\t#"+object.hashCode() +"(%" + (object.hashCode() % elementTable.length)+"\n";//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		return s + "]";//$NON-NLS-1$

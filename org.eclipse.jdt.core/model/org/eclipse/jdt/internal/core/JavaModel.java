@@ -55,7 +55,7 @@ private void cleanupCycleMarkers() {
  */
 protected void closing(Object info) throws JavaModelException {
 	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	JavaModelManager.fgManager.fModelInfo.close();

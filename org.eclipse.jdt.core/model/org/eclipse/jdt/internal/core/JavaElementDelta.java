@@ -570,7 +570,7 @@ public String toDebugString(int depth) {
 		}
 	}
 	for (int i = 0; i < resourceDeltasCounter; i++) {
-		buffer.append("\n");
+		buffer.append("\n");//$NON-NLS-1$
 		for (int j = 0; j < depth+1; j++) {
 			buffer.append('\t');
 		}

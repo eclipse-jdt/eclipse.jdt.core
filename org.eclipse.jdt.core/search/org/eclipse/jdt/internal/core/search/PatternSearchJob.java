@@ -82,7 +82,7 @@ public class PatternSearchJob implements IJob {
 		}
 		if (JobManager.VERBOSE) {
 			System.out.println(
-				"-> execution time: " + executionTime + " ms. for : " + this);
+				"-> execution time: " + executionTime + " ms. for : " + this);//$NON-NLS-1$//$NON-NLS-2$
 			//$NON-NLS-2$ //$NON-NLS-1$
 		}
 		return isComplete;
@@ -110,7 +110,7 @@ public class PatternSearchJob implements IJob {
 					monitor.exitRead(); // free read lock
 					monitor.enterWrite(); // ask permission to write
 					if (IndexManager.VERBOSE)
-						System.out.println("-> merging index : " + index.getIndexFile());
+						System.out.println("-> merging index : " + index.getIndexFile());//$NON-NLS-1$
 					//$NON-NLS-1$
 					index.save();
 				} catch (IOException e) {

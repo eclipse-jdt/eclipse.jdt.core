@@ -84,7 +84,7 @@ class AddJarFileToIndex implements IJob {
 				}
 
 				if (JobManager.VERBOSE)
-					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$
+					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$//$NON-NLS-2$
 				long initialTime = System.currentTimeMillis();
 
 				final Hashtable indexedFileNames = new Hashtable(100);

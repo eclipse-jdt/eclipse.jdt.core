@@ -331,7 +331,7 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 	try {
 		
 		if (JavaModelManager.VERBOSE){
-			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
 		// 1) Parent must be open - open the parent if necessary
