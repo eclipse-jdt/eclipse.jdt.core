@@ -47,7 +47,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test033"));
+			suite.addTest(new BatchASTCreationTests("test037"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -783,6 +783,63 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 			},
 			"Lp1/X;.foo()V#1#b");
+	}
+
+	/*
+	 * Ensures that a parameterized method binding can be created using its key.
+	 */
+	public void test035() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  void foo(T t) {\n" +
+				"  }\n" +
+				"  void bar() {\n" +
+				"    new X<String>().foo(\"\");\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<Ljava/lang/String;>;.foo(TT;)V");
+	}
+
+	/*
+	 * Ensures that a parameterized generic method binding can be created using its key.
+	 */
+	public void test036() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  <U> void foo(T t, U u) {\n" +
+				"  }\n" +
+				"  void bar() {\n" +
+				"    new X<String>().foo(\"\", this);\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<Lp1/X;>");
+	}
+
+	/*
+	 * Ensures that a raw generic method binding can be created using its key.
+	 */
+	public void test037() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  <U> void foo(T t, U u) {\n" +
+				"  }\n" +
+				"  void bar() {\n" +
+				"    new X().foo(\"\", this);\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X;.foo<U:Ljava/lang/Object;>(TT;TU;)V");
 	}
 
 }

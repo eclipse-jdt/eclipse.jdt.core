@@ -181,6 +181,30 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		return methodSubstitute;
 	}
 
+	/*
+	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature percent typeArguments
+	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V%<Lp/X;>
+	 */
+	public char[] computeUniqueKey() {
+		if (this.isRaw)
+			return super.computeUniqueKey();
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(super.computeUniqueKey());
+		buffer.append('%');
+		buffer.append('<');
+		int length = this.typeArguments.length;
+		for (int i = 0; i < length; i++) {
+			TypeBinding typeArgument = this.typeArguments[i];
+			buffer.append(typeArgument.computeUniqueKey());
+		}
+		buffer.append('>');
+		int resultLength = buffer.length();
+		char[] result = new char[resultLength];
+		buffer.getChars(0, resultLength, result, 0);	
+		return result;
+		
+	}
+	
 	/**
 	 * Returns true if some parameters got substituted.
 	 * NOTE: generic method invocation delegates to its declaring method (could be a parameterized one)

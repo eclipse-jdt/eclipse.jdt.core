@@ -275,12 +275,22 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
  */
 public char[] computeUniqueKey() {
+	return computeUniqueKey(this);
+}
+protected char[] computeUniqueKey(MethodBinding methodBinding) {
+	// declaring class 
 	char[] declaringKey = this.declaringClass.computeUniqueKey();
 	int declaringLength = declaringKey.length;
-	char[] sig = genericSignature();
+	
+	// selector
+	int selectorLength = this.selector == TypeConstants.INIT ? 0 : this.selector.length;
+	
+	// generic signature
+	char[] sig = methodBinding.genericSignature();
 	if (sig == null) sig = signature();
 	int signatureLength = sig.length;
-	int selectorLength = this.selector == TypeConstants.INIT ? 0 : this.selector.length;
+	
+	// compute unique key
 	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
 	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
 	uniqueKey[declaringLength] = '.';

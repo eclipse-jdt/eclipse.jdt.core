@@ -63,10 +63,12 @@ class BindingKeyScanner {
 	}
 	
 	boolean isAtParametersStart() {
+		char currentChar;
 		return 
 			this.index > 0
 			&& this.index < this.source.length
-			&& this.source[this.index] == '<';
+			&& ((currentChar = this.source[this.index]) == '<'
+				|| currentChar == '%');
 	}
 	
 	boolean isAtTypeParameterStart() {
@@ -170,7 +172,8 @@ class BindingKeyScanner {
 	}
 	
 	void skipMethodSignature() {
-		while (this.index < this.source.length && this.source[this.index] != '#')
+		char currentChar;
+		while (this.index < this.source.length && (currentChar = this.source[this.index]) != '#' && currentChar != '%')
 			this.index++;
 	}
 	

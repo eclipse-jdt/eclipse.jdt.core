@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -158,12 +159,29 @@ class BindingKey {
 	 			int dim = this.dimension;
 	 			TypeBinding binding = getTypeBinding(parsedUnit, parsedUnit.types, typeName, resolver);
 	 			if (binding == null) return null;
+ 				TypeBinding typeBinding = null;
+ 				if (this.scanner.isAtParametersStart()) {
+					if (this.scanner.isAtTypeParameterStart())	 					
+	 					// generic type binding
+	 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding, resolver);
+	 				else if (this.scanner.isAtTypeStart())
+ 						// parameterized type binding
+	 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/, resolver); 
+ 				} else if (binding.typeVariables().length > 0)
+ 					// raw type binding
+ 					typeBinding = resolver.lookupEnvironment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
+ 				else
+					// non-generic type binding
+					typeBinding = binding;
 	 			if (this.scanner.isAtFieldOrMethodStart()) {
 	 				switch (this.scanner.nextToken()) {
 		 				case BindingKeyScanner.FIELD:
-		 					return getFieldBinding(((SourceTypeBinding) binding).fields);
+		 					return getFieldBinding(((ReferenceBinding) typeBinding).fields());
 		 				case BindingKeyScanner.METHOD:
-		 					MethodBinding methodBinding = getMethodBinding(((SourceTypeBinding) binding).methods, resolver);
+		 					MethodBinding methodBinding = getMethodBinding(((ReferenceBinding) typeBinding).methods(), resolver);
+		 					if (this.scanner.isAtParametersStart())
+		 						// parameterized generic method binding
+		 						methodBinding = getParameterizedGenericMethodBinding(methodBinding, resolver);
 		 					if (this.scanner.isAtLocalVariableStart()) {
 		 						MethodScope methodScope = methodBinding.sourceMethod().scope;
 		 						return getLocalVariableBinding(methodScope);
@@ -172,20 +190,6 @@ class BindingKey {
 	 				}
 	 				return null; // malformed key
 	 			} else {
-	 				TypeBinding typeBinding = null;
-	 				if (this.scanner.isAtParametersStart()) {
-						if (this.scanner.isAtTypeParameterStart())	 					
-		 					// generic type binding
-		 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding, resolver);
-		 				else if (this.scanner.isAtTypeStart())
-	 						// parameterized type binding
-		 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/, resolver); 
-	 				} else if (binding.typeVariables().length > 0)
-	 					// raw type binding
-	 					typeBinding = resolver.lookupEnvironment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
-	 				else
- 						// non-generic type binding
- 						typeBinding = binding;
 	 				return getArrayBinding(dim, typeBinding, resolver);
 	 			}
 	 	}
@@ -289,6 +293,25 @@ class BindingKey {
 			}
 		}
 	 	return null;
+	 }
+	 
+	 
+	 /*
+	  * Finds parameterized generic method binding that corresponds to this key.
+	  * This key's scanner should be positionned on the first type argument name token.
+	  */
+	 ParameterizedGenericMethodBinding getParameterizedGenericMethodBinding(MethodBinding methodBinding, CompilationUnitResolver resolver) {
+	 	this.scanner.index++; // skip percent
+	 	int length = methodBinding.typeVariables().length;
+	 	TypeBinding[] arguments = new TypeBinding[length];
+	 	for (int i = 0; i < length; i++) {
+			reset();
+			Binding argument = getCompilerBinding(resolver);
+			if (argument == null) 
+				return null;
+			arguments[i] = (TypeBinding) argument;
+		}
+	 	return new ParameterizedGenericMethodBinding(methodBinding, arguments, resolver.lookupEnvironment);
 	 }
 	 
 	 /*
