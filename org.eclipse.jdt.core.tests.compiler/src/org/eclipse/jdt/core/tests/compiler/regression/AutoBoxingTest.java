@@ -1165,7 +1165,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"The operator != is undefined for the argument type(s) int, null\n" + 
 			"----------\n"
 		);
-	}
+	}	
 	
 	public void _test040() { // boolean expression
 		this.runConformTest(
@@ -1182,6 +1182,24 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}",
 			},
 			"1"
+		);	
+	}
+	
+	public void test041() { // equal expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = 0;\n" + 
+				"		if (i != null) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS"
 		);
-	}	
+	}		
+
 }

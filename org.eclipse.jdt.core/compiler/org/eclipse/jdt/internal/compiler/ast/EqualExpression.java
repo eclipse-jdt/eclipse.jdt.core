@@ -422,7 +422,7 @@ public class EqualExpression extends BinaryExpression {
 		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
-			if (leftType.isBaseType()) {
+			if (leftType != NullBinding && leftType.isBaseType()) {
 				if (!rightType.isBaseType()) {
 					TypeBinding unboxedType = env.computeBoxingType(rightType);
 					if (unboxedType != rightType) {
@@ -431,7 +431,7 @@ public class EqualExpression extends BinaryExpression {
 					}
 				}
 			} else {
-				if (rightType.isBaseType()) {
+				if (rightType != NullBinding && rightType.isBaseType()) {
 					TypeBinding unboxedType = env.computeBoxingType(leftType);
 					if (unboxedType != leftType) {
 						leftType = unboxedType;
