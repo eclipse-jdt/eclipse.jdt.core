@@ -107,6 +107,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns the type to use for generic cast, or null if none required
 	 */
 	public TypeBinding genericCast(TypeBinding otherType) {
+	    if (this == otherType) return null;
 		if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
 		TypeBinding otherErasure = otherType.erasure();
 		if (otherErasure == this.firstBound) return null;
@@ -137,7 +138,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}	
-
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */
