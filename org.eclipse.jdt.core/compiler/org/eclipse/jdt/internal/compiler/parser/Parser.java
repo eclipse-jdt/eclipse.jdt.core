@@ -8936,7 +8936,7 @@ public String toString() {
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	
-	s = s + "genericsLengthStack : int["+(this.genericsLengthPtr + 1)+"] = {"; //$NON-NLS-1$
+	s = s + "genericsLengthStack : int["+(this.genericsLengthPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.genericsLengthPtr; i++) {
 		s = s + this.genericsLengthStack[i] + ","; //$NON-NLS-1$
 	}

@@ -585,7 +585,7 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 						messageSend.sourceEnd = node.sourceEnd;
 						currentElement = currentElement.add(messageSend, 0);
 					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
-						ParameterizedExplicitConstructorCall constructorCall = new ParameterizedExplicitConstructorCall(ParameterizedExplicitConstructorCall.ImplicitSuper);
+						ParameterizedExplicitConstructorCall constructorCall = new ParameterizedExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
 						constructorCall.typeArguments = new TypeReference[]{(TypeReference)node};
 						constructorCall.sourceStart = node.sourceStart;
 						constructorCall.sourceEnd = node.sourceEnd;
