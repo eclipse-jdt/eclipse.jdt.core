@@ -18,6 +18,7 @@
 <requires>
     <import plugin="org.eclipse.core.resources"/>
     <import plugin="org.apache.xerces"/>
+    <import plugin="org.eclipse.ant.core" optional="true"/>
 </requires>
 	
 <!-- =================================================================================== -->
