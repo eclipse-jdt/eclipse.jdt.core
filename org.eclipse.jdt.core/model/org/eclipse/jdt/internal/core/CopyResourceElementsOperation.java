@@ -424,8 +424,16 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					}
 				}
 				if (isEmpty) {
+					IResource rootResource;
+					// check if source is included in destination
+					if (destPath.isPrefixOf(srcFolder.getFullPath())) {
+						rootResource = newFrag.getResource();
+					} else {
+						rootResource =  source.getParent().getResource();
+					}
+					
 					// delete recursively empty folders
-					deleteEmptyPackageFragment(source, false);
+					deleteEmptyPackageFragment(source, false, rootResource);
 				}
 			}
 	

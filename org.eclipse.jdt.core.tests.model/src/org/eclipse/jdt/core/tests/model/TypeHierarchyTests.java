@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.Util;
 
 import junit.framework.Test;
 
@@ -30,22 +29,7 @@ public TypeHierarchyTests(String name) {
 public static Test suite() {
 	return new Suite(TypeHierarchyTests.class);
 }
-private void assertTypesEqual(String message, String expected, IType[] types) {
-	this.sortTypes(types);
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0; i < types.length; i++){
-		buffer.append(types[i].getFullyQualifiedName());
-		buffer.append("\n");
-	}
-	if (!expected.equals(buffer.toString())) {
-		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
-	}
-	assertEquals(
-		message,
-		expected,
-		buffer.toString()
-	);
-}
+
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUpSuite()
  */
@@ -60,16 +44,7 @@ public void setUpSuite() throws Exception {
 	region.add(root);
 	this.typeHierarchy = project.newTypeHierarchy(region, null);
 }
-protected void sortTypes(IType[] types) {
-	Util.Comparer comparer = new Util.Comparer() {
-		public int compare(Object a, Object b) {
-			IType typeA = (IType)a;
-			IType typeB = (IType)b;
-			return typeA.getFullyQualifiedName().compareTo(typeB.getFullyQualifiedName());
-		}
-	};
-	Util.sort(types, comparer);
-}
+
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
  */

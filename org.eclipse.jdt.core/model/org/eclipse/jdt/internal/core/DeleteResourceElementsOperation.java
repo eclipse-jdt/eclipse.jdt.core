@@ -83,7 +83,7 @@ private void deletePackageFragment(IPackageFragment frag)
 		}
 		if (isEmpty) {
 			// delete recursively empty folders
-			deleteEmptyPackageFragment(frag, false);
+			deleteEmptyPackageFragment(frag, false, frag.getParent().getResource());
 		}
 	}
 }

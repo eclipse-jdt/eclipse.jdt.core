@@ -94,6 +94,13 @@ public static Test suite() {
 	//Reconciler tests
 	suite.addTest(ReconcilerTests.suite());
 
+	//Copy and move operation tests
+	suite.addTest(CopyMoveElementsTests.suite());
+	suite.addTest(CopyMoveResourcesTests.suite());
+
+	//Rename tests
+	suite.addTest(RenameTests.suite());
+	
 	return suite;
 }
 

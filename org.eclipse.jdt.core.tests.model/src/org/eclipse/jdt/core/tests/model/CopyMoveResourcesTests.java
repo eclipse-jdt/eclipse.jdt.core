@@ -1,0 +1,802 @@
+/*******************************************************************************
+ * Copyright (c) 2002 IBM Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
+package org.eclipse.jdt.core.tests.model;
+
+import junit.framework.Test;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.*;
+
+public class CopyMoveResourcesTests extends CopyMoveTests {
+/**
+ */
+public CopyMoveResourcesTests(String name) {
+	super(name);
+}
+/**
+ * Copies the element to the container with optional rename
+ * and forcing. The operation should succeed, so any exceptions
+ * encountered are thrown.
+ */
+public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws JavaModelException {
+	try {
+		startDeltas();
+		
+		// if forcing, ensure that a name collision exists
+		if (force) {
+			IJavaElement collision = generateHandle(element, rename, container);
+			assertTrue("Collision does not exist", collision.exists());
+		}
+	
+		// copy
+	 	((ISourceManipulation) element).copy(container, sibling, rename, force, null);
+	
+		// ensure the original element still exists
+		assertTrue("The original element must still exist", element.exists());
+	
+		// generate the new element	handle
+		IJavaElement copy = generateHandle(element, rename, container);
+		assertTrue("Copy should exist", copy.exists());
+		//ensure correct position
+		if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
+			ensureCorrectPositioning((IParent) container, sibling, copy);
+		} else {
+			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
+			} else {
+				// ensure package name is correct
+				if (container.getElementName().equals("")) {
+					// default package - should be no package decl
+					IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
+					boolean found = false;
+					for (int i = 0; i < children.length; i++) {
+						if (children[i] instanceof IPackageDeclaration) {
+							found = true;
+						}
+					}
+					assertTrue("Should not find package decl", !found);
+				} else {
+					IJavaElement[] children = ((ICompilationUnit) copy).getChildren();
+					boolean found = false;
+					for (int i = 0; i < children.length; i++) {
+						if (children[i] instanceof IPackageDeclaration) {
+							assertTrue("package declaration incorrect", ((IPackageDeclaration) children[i]).getElementName().equals(container.getElementName()));
+							found = true;
+						}
+					}
+					assertTrue("Did not find package decl", found);
+				}
+			}
+		}
+		IJavaElementDelta destDelta = getDeltaFor(container, true);
+		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
+		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+		// FIXME: not strong enough
+		boolean found = false;
+		for (int i = 0; i < deltas.length; i++) {
+			if (deltas[i].getElement().equals(copy))
+				found = true;
+		}
+		assertTrue("Added children not correct for element copy", found);
+		return copy;
+	} finally {
+		stopDeltas();
+	}
+}
+
+/**
+ * Moves the elements to the containers with optional renaming
+ * and forcing. The operation should succeed, so any exceptions
+ * encountered are thrown.
+ */
+public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	try {
+		startDeltas();
+		
+		// if forcing, ensure that a name collision exists
+		int i;
+		if (force) {
+			for (i = 0; i < elements.length; i++) {
+				IJavaElement e = elements[i];
+				IJavaElement collision = null;
+				if (names == null) {
+					collision = generateHandle(e, null, destinations[i]);
+				} else {
+					collision = generateHandle(e, names[i], destinations[i]);
+				}
+				assertTrue("Collision does not exist", collision.exists());
+			}
+		}
+	
+		// move
+		getJavaModel().move(elements, destinations, siblings, names, force, monitor);
+	
+		for (i = 0; i < elements.length; i++) {
+			IJavaElement element = elements[i];
+			IJavaElement moved = null;
+			if (names == null) {
+				moved = generateHandle(element, null, destinations[i]);
+			} else {
+				moved = generateHandle(element, names[i], destinations[i]);
+			}
+			// ensure the original element no longer exists, unless moving within the same container
+			if (!destinations[i].equals(element.getParent())) {
+				assertTrue("The original element must not exist", !element.exists());
+			}
+			assertTrue("Moved element should exist", moved.exists());
+	
+			IJavaElement container = destinations[i];
+			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+				if (container.getElementName().equals("")) {
+					// default package
+					if (moved.getElementType() == IJavaElement.COMPILATION_UNIT) {
+						IJavaElement[] children = ((ICompilationUnit) moved).getChildren();
+						for (int j = 0; j < children.length; j++) {
+							if (children[j].getElementType() == IJavaElement.PACKAGE_DECLARATION) {
+								assertTrue("Should not find package decl", false);
+							}
+						}
+					}
+				} else {
+					IJavaElement[] children = ((ICompilationUnit) moved).getChildren();
+					boolean found = false;
+					for (int j = 0; j < children.length; j++) {
+						if (children[j] instanceof IPackageDeclaration) {
+							assertTrue("package declaration incorrect", ((IPackageDeclaration) children[j]).getElementName().equals(container.getElementName()));
+							found = true;
+							break;
+						}
+					}
+					assertTrue("Did not find package decl", found);
+				}
+			}
+			IJavaElementDelta destDelta = null;
+			if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
+				destDelta = getDeltaFor(moved.getParent());
+				assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
+				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+				assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(moved));
+				assertTrue("flag should be F_MOVED_FROM", (deltas[0].getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
+				assertTrue("moved from handle should be original", deltas[0].getMovedFromElement().equals(element));
+			} else {
+				destDelta = getDeltaFor(destinations[i], true);
+				assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
+				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+				for (int j = 0; j < deltas.length - 1; j++) {
+					// side effect packages added
+					IJavaElement pkg = deltas[j].getElement();
+					assertTrue("Side effect child should be a package fragment", pkg.getElementType() == IJavaElement.PACKAGE_FRAGMENT);
+					assertTrue("Side effect child should be an enclosing package", element.getElementName().startsWith(pkg.getElementName()));
+				}
+				IJavaElementDelta pkgDelta = deltas[deltas.length - 1];
+				assertTrue("Added children not correct for element copy", pkgDelta.getElement().equals(moved));
+				assertTrue("flag should be F_MOVED_FROM", (pkgDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
+				assertTrue("moved from handle shoud be original", pkgDelta.getMovedFromElement().equals(element));
+				IJavaElementDelta sourceDelta = getDeltaFor(element, true);
+				assertTrue("moved to handle should be original", sourceDelta.getMovedToElement().equals(moved));
+			}
+		}
+	} finally {
+		stopDeltas();
+	}
+}
+/**
+ * Setup for the next test.
+ */
+public void setUp() throws Exception {
+	super.setUp();
+	
+	this.createJavaProject("P", new String[] {"src", "src2"}, "bin");
+}
+public static Test suite() {
+	return new Suite(CopyMoveResourcesTests.class);
+}
+/**
+ * Cleanup after the previous test.
+ */
+public void tearDown() throws Exception {
+	this.deleteProject("P");
+	
+	super.tearDown();
+}
+/**
+ * Ensures that a CU can be copied to a different package.
+ */
+public void testCopyCU() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, null, false);
+	
+	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
+	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p2").exists());
+}
+/**
+ * This operation should fail as copying a CU and a CU member at the
+ * same time is not supported.
+ */
+public void testCopyCUAndType() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	copyNegative(
+		new IJavaElement[]{cuSource, cuSource.getType("X")}, 
+		new IJavaElement[]{cuSource.getParent(), cuSource}, 
+		null, 
+		new String[]{"Y.java", "Y"}, 
+		false, 
+		IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
+}
+/**
+ * Ensures that a CU can be copied to a different package, replacing an existing CU.
+ */
+public void testCopyCUForce() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/X.java",
+		"package p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, null, true);
+}
+/**
+ * Ensures that a CU can be copied to a different package,
+ * and be renamed.
+ */
+public void testCopyCURename() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, "Y.java", false);
+}
+/**
+ * Ensures that a CU can be copied to a different package,
+ * and be renamed, overwriting an existing CU
+ */
+public void testCopyCURenameForce() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/Y.java",
+		"package p2;\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, "Y.java", true);
+}
+/**
+ * Ensures that a CU cannot be copied to a different package,over an existing CU when no force.
+ */
+public void testCopyCUWithCollision() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/X.java",
+		"package p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyNegative(cuSource, pkgDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
+}
+/**
+ * Ensures that a CU cannot be copied to an invalid destination
+ */
+public void testCopyCUWithInvalidDestination() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	copyNegative(cuSource, cuSource, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
+}
+/**
+ * Ensures that a CU can be copied to a null container
+ */
+public void testCopyCUWithNullContainer() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	try {
+		cuSource.copy(null, null, null, false, null);
+	} catch (IllegalArgumentException iae) {
+		return;
+	}
+	assertTrue("Should not be able to move a cu to a null container", false);
+}
+/**
+ * Ensures that a CU can be copied to along with its server properties.
+ * (Regression test for PR #1G56QT9)
+ */
+public void testCopyCUWithServerProperties() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	QualifiedName qualifiedName = new QualifiedName("x.y.z", "a property");
+	cuSource.getUnderlyingResource().setPersistentProperty(
+		qualifiedName,
+		"some value");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, null, false);
+	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
+	String propertyValue = cu.getUnderlyingResource().getPersistentProperty(qualifiedName);
+	assertEquals(
+		"Server property should be copied with cu",
+		"some value",
+		propertyValue
+	);
+}
+/**
+ * Ensures that a package fragment can be copied to a different package fragment root.
+ */
+public void testCopyPackageFragment() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgSource = getPackage("/P/src/p1");
+
+	IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
+
+	copyPositive(pkgSource, rootDest, null, null, false);
+}
+/**
+ * Ensures that a WorkingCopy can be copied to a different package.
+ */
+public void testCopyWorkingCopy() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyPositive(copy, pkgDest, null, null, false);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a WorkingCopy can be copied to a different package, replacing an existing WorkingCopy.
+ */
+public void testCopyWorkingCopyForce() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		this.createFile(
+			"/P/src/p2/X.java",
+			"package p2;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyPositive(copy, pkgDest, null, null, true);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a WorkingCopy can be copied to a different package,
+ * and be renamed.
+ */
+public void testCopyWorkingCopyRename() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyPositive(copy, pkgDest, null, "Y.java", false);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a WorkingCopy can be copied to a different package,
+ * and be renamed, overwriting an existing WorkingCopy
+ */
+public void testCopyWorkingCopyRenameForce() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		this.createFile(
+			"/P/src/p2/Y.java",
+			"package p2;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyPositive(copy, pkgDest, null, "Y.java", true);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a WorkingCopy cannot be copied to a different package,over an existing WorkingCopy when no force.
+ */
+public void testCopyWorkingCopyWithCollision() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		this.createFile(
+			"/P/src/p2/X.java",
+			"package p2;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		copyNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a WorkingCopy cannot be copied to an invalid destination
+ */
+public void testCopyWorkingCopyWithInvalidDestination() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		copyNegative(copy, cuSource, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+/**
+ * Ensures that a CU can be moved to a different package.
+ */
+public void testMoveCU() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	movePositive(cuSource, pkgDest, null, null, false);
+	
+	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
+	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p2").exists());
+}
+/**
+ * This operation should fail as moving a CU and a CU member at the
+ * same time is not supported.
+ */
+public void testMoveCUAndType() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	moveNegative(
+		new IJavaElement[]{cuSource, cuSource.getType("X")}, 
+		new IJavaElement[]{cuSource.getParent(), cuSource}, 
+		null, 
+		new String[]{"Y.java", "Y"}, 
+		false, 
+		IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
+}
+/**
+ * Ensures that a CU can be moved to a different package, replacing an
+ * existing CU.
+ */
+public void testMoveCUForce() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/X.java",
+		"package p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	movePositive(cuSource, pkgDest, null, null, true);
+}
+/**
+ * Ensures that a CU can be moved to a different package,
+ * be renamed
+ */
+public void testMoveCURename() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	movePositive(cuSource, pkgDest, null, "Y.java", false);
+}
+/**
+ * Ensures that a CU can be moved to a different package,
+ * be renamed, overwriting an existing resource.
+ */
+public void testMoveCURenameForce() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/Y.java",
+		"package p2;\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	movePositive(cuSource, pkgDest, null, "Y.java", true);
+}
+/**
+ * Ensures that a CU cannot be moved to a different package, replacing an
+ * existing CU when not forced.
+ */
+public void testMoveCUWithCollision() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	this.createFile(
+		"/P/src/p2/X.java",
+		"package p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	moveNegative(cuSource, pkgDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
+}
+/**
+ * Ensures that a CU cannot be moved to an invalid destination.
+ */
+public void testMoveCUWithInvalidDestination() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	moveNegative(cuSource, cuSource, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
+}
+/**
+ * Ensures that a CU cannot be moved to a null container
+ */
+public void testMoveCUWithNullContainer() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	try {
+		cuSource.move(null, null, null, false, null);
+	} catch (IllegalArgumentException iae) {
+		return;
+	}
+	assertTrue("Should not be able to move a cu to a null container", false);
+}
+/**
+ * Ensures that a package fragment can be moved to a different package fragment root.
+ */
+public void testMovePackageFragment() throws CoreException {
+	this.createFolder("/P/src/p1");
+	this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IPackageFragment pkgSource = getPackage("/P/src/p1");
+
+	IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
+
+	movePositive(pkgSource, rootDest, null, null, false);
+}
+/**
+ * Ensures that a WorkingCopy cannot be moved to a different package.
+ */
+public void testMoveWorkingCopy() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+	
+		this.createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		moveNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
+	} finally {
+		if (copy != null) copy.destroy();
+	}
+}
+}

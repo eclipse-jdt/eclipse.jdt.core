@@ -239,16 +239,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void deleteEmptyPackageFragment(
 		IPackageFragment fragment,
-		boolean force)
+		boolean force,
+		IResource rootResource)
 		throws JavaModelException {
 	
 		IContainer resource = (IContainer) fragment.getResource();
-		IResource rootResource = fragment.getParent().getResource();
 	
 		try {
 			resource.delete(
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				getSubProgressMonitor(1));
+			this.setAttribute("hasModifiedResource", "true");
 			while (resource instanceof IFolder) {
 				// deleting a package: delete the parent if it is empty (eg. deleting x.y where folder x doesn't have resources but y)
 				// without deleting the package fragment root

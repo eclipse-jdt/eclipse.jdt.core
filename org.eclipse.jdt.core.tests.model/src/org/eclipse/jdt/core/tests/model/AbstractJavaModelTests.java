@@ -17,6 +17,7 @@ import java.security.CodeSource;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
@@ -89,6 +90,22 @@ public void assertDeletion(IJavaElement[] elementsToDelete) throws JavaModelExce
 		assertTrue("Element should not be present after deletion: " + elementToDelete, !elementToDelete.exists());
 	}
 }
+protected void assertTypesEqual(String message, String expected, IType[] types) {
+	this.sortTypes(types);
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0; i < types.length; i++){
+		buffer.append(types[i].getFullyQualifiedName());
+		buffer.append("\n");
+	}
+	if (!expected.equals(buffer.toString())) {
+		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
+	}
+	assertEquals(
+		message,
+		expected,
+		buffer.toString()
+	);
+}
 /**
  * Attaches a source zip to the given jar package fragment root.
  */
@@ -134,6 +151,7 @@ public void copy(File src, File dest) throws IOException {
 	out.write(srcBytes);
 	out.close();
 }
+
 /**
  * Copy the given source directory (and all its contents) to the given target directory.
  */
@@ -155,6 +173,7 @@ protected void copyDirectory(File source, File target) throws IOException {
 		}
 	}
 }
+
 /*
  * Creates a Java project with the given source folders an output location. 
  * Add those on the project's classpath.
@@ -334,6 +353,24 @@ protected boolean deltaMovedTo(IJavaElementDelta delta) {
 		(delta.getFlags() & IJavaElementDelta.F_MOVED_TO) != 0;
 }
 /**
+ * Ensure that the positioned element is in the correct position within the parent.
+ */
+public void ensureCorrectPositioning(IParent container, IJavaElement sibling, IJavaElement positioned) throws JavaModelException {
+	IJavaElement[] children = ((IParent) container).getChildren();
+	if (sibling != null) {
+		// find the sibling
+		boolean found = false;
+		for (int i = 0; i < children.length; i++) {
+			if (children[i].equals(sibling)) {
+				assertTrue("element should be before sibling", i > 0 && children[i - 1].equals(positioned));
+				found = true;
+				break;
+			}
+		}
+		assertTrue("Did not find sibling", found);
+	}
+}
+/**
  * Returns the specified compilation unit in the given project, root, and
  * package fragment or <code>null</code> if it does not exist.
  */
@@ -386,8 +423,10 @@ protected IJavaElementDelta getDeltaFor(IJavaElement element) {
  * If the boolean is true returns the first delta found.
  */
 protected IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
+	IJavaElementDelta[] deltas = this.deltaListener.deltas;
+	if (deltas == null) return null;
 	IJavaElementDelta result = null;
-	for (int i = 0; i < this.deltaListener.deltas.length; i++) {
+	for (int i = 0; i < deltas.length; i++) {
 		IJavaElementDelta delta = searchForDelta(element, (IJavaElementDelta) this.deltaListener.deltas[i]);
 		if (delta != null) {
 			if (returnFirst) {
@@ -448,9 +487,11 @@ public IPackageFragment getPackageFragment(String projectName, String rootPath, 
 /**
  * Returns the specified package fragment root in the given project, or
  * <code>null</code> if it does not exist.
- * The rootPath must be specified as a project relative path. The empty
- * path refers to the package fragment root that is the project
+ * If relative, the rootPath must be specified as a project relative path. 
+ * The empty path refers to the package fragment root that is the project
  * folder iteslf.
+ * If absolute, the rootPath refers to either an external jar, or a resource 
+ * internal to the workspace
  */
 public IPackageFragmentRoot getPackageFragmentRoot(
 	String projectName, 
@@ -463,7 +504,16 @@ public IPackageFragmentRoot getPackageFragmentRoot(
 	}
 	IPath path = new Path(rootPath);
 	if (path.isAbsolute()) {
-		IPackageFragmentRoot root = project.getPackageFragmentRoot(rootPath);
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = workspaceRoot.findMember(path);
+		IPackageFragmentRoot root;
+		if (resource == null) {
+			// external jar
+			root = project.getPackageFragmentRoot(rootPath);
+		} else {
+			// resource in the workspace
+			root = project.getPackageFragmentRoot(resource);
+		}
 		if (root.exists()) {
 			return root;
 		}
@@ -521,6 +571,7 @@ public IWorkspace getWorkspace() {
 protected IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
+
 public byte[] read(java.io.File file) throws java.io.IOException {
 	int fileLength;
 	byte[] fileBytes = new byte[fileLength = (int) file.length()];
@@ -627,13 +678,6 @@ protected IJavaProject setUpJavaProject(final String projectName) throws CoreExc
 			new Path[] {new Path(getExternalJCLPath()), new Path(getExternalJCLSourcePath()), new Path(getExternalJCLRootSourcePath())},
 			null);
 	}
-	
-	// ensure autobuilding is turned off
-	IWorkspaceDescription description = getWorkspace().getDescription();
-	if (description.isAutoBuilding()) {
-		description.setAutoBuilding(false);
-		 getWorkspace().setDescription(description);
-	}
 
 	// create project
 	final IProject project = getWorkspaceRoot().getProject(projectName);
@@ -649,6 +693,23 @@ protected IJavaProject setUpJavaProject(final String projectName) throws CoreExc
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL();
+	
+	// ensure autobuilding is turned off
+	IWorkspaceDescription description = getWorkspace().getDescription();
+	if (description.isAutoBuilding()) {
+		description.setAutoBuilding(false);
+		getWorkspace().setDescription(description);
+	}
+}
+protected void sortTypes(IType[] types) {
+	Util.Comparer comparer = new Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IType typeA = (IType)a;
+			IType typeB = (IType)b;
+			return typeA.getFullyQualifiedName().compareTo(typeB.getFullyQualifiedName());
+		}
+	};
+	Util.sort(types, comparer);
 }
 /**
  * Starts listening to element deltas, and queues them in fgDeltas.
@@ -734,9 +795,4 @@ public static String displayString(String inputString, int indent) {
 	buffer.append("\"");
 	return buffer.toString();
 }
-
-
-
-
-
 }

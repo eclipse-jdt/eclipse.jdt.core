@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -178,8 +179,13 @@ protected IFolder getFolder(String path) {
 	return getWorkspaceRoot().getFolder(new Path(path));
 }
 protected IPackageFragment getPackage(String path) {
-	if (path.indexOf('/') != -1) {
-		return (IPackageFragment)JavaCore.create(this.getFolder(path));
+	if (path.indexOf('/', 1) != -1) { // if path as more than one segment
+		IJavaElement element = JavaCore.create(this.getFolder(path));
+		if (element instanceof IPackageFragmentRoot) {
+			return ((IPackageFragmentRoot)element).getPackageFragment("");
+		} else {
+			return (IPackageFragment)element;
+		}
 	} else {
 		IProject project = this.getProject(path);
 		return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
