@@ -22,7 +22,7 @@ public class Scanner implements TerminalSymbols {
 	*/
 
 	// 1.4 feature
-	public boolean assertMode;
+	private boolean assertMode;
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 

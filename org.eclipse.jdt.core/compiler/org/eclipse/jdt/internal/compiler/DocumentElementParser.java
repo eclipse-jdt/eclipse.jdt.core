@@ -19,7 +19,6 @@ package org.eclipse.jdt.internal.compiler;
  *
  * Any (parsing) problem encountered is also provided.
  */
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;

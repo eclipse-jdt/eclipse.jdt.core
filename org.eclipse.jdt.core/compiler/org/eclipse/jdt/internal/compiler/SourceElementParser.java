@@ -24,7 +24,6 @@ package org.eclipse.jdt.internal.compiler;
  */
 import java.lang.reflect.Constructor;
 
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;

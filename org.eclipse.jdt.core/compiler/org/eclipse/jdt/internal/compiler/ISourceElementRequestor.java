@@ -1,6 +1,6 @@
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.IProblem;
+
 
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
