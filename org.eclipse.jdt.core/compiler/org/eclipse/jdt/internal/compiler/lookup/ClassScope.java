@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Clinit;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -313,7 +312,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextParameter : for (int i = 0; i < length; i++) {
 				TypeParameter typeParameter = referenceContext.typeParameters[i];
-				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter, i);
+				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
 				typeParameter.binding = parameterBinding;
 				
 				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
@@ -792,6 +791,7 @@ public class ClassScope extends Scope {
 	private boolean connectTypeVariables() {
 	    // TODO connect type parameter bounds
 		boolean noProblems = true;
+		TypeParameter[] typeParameters = referenceContext.typeParameters;
 		TypeVariableBinding[] typeVariables = referenceContext.binding.typeVariables;
 		nextVariable : for (int i = 0, length = typeVariables.length; i < length; i++) {
 			TypeVariableBinding typeVariable = typeVariables[i];
@@ -802,7 +802,7 @@ public class ClassScope extends Scope {
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
 
-			TypeReference typeRef = typeVariable.typeParameter.type;
+			TypeReference typeRef = typeParameters[typeVariable.rank].type;
 			if (typeRef == null)
 				continue nextVariable;
 			ReferenceBinding superType = findSupertype(typeRef);

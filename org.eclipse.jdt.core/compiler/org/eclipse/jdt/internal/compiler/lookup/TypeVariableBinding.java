@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
@@ -31,12 +30,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces; 
 	public char[] genericTypeSignature;
 
-	public TypeParameter typeParameter;
-	
-	public TypeVariableBinding(TypeParameter typeParameter, int rank) {
+	public TypeVariableBinding(char[] sourceName, int rank) {
+		this.sourceName = sourceName;
 		this.rank = rank;
-		this.sourceName = typeParameter.name;
-		this.typeParameter = typeParameter;
 	}
 	public char[] constantPoolName() { /* java/lang/Object */ 
 	    if (this.firstBound != null) {
