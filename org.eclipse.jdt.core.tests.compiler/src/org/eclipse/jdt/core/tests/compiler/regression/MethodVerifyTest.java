@@ -535,6 +535,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The return type is incompatible with I.foo(), A.foo()\n" + 
 			"----------\n"
 		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A { int get(short i, short s) { return i; } }\n" +
+				"class B extends A { short get(short i, short s) {return i; } }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 2)\r\n" + 
+			"	class B extends A { short get(short i, short s) {return i; } }\r\n" + 
+			"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with A.get(short, short)\n" + 
+			"----------\n"
+		);
 	}
 
 	public void test008() { // covariance test

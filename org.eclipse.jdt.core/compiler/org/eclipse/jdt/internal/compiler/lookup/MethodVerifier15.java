@@ -46,6 +46,9 @@ boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
 boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
 	if (one.returnType == substituteTwo.returnType) return true;
 
+	// short is compatible with int, but as far as covariance is concerned, its not
+	if (one.returnType.isBaseType()) return false;
+
 	if (one.declaringClass.isClass()) {
 		if (one.declaringClass.id == TypeIds.T_JavaLangObject)
 			return substituteTwo.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
