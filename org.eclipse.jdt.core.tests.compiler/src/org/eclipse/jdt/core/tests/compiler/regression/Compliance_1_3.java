@@ -793,7 +793,7 @@ public void test21() {
 		} catch(IOException e) {
 		}
 		String computedReferences = references.toString();
-		boolean check = computedReferences.indexOf("typeRef/AbstractB\nmethodRef/init/0") >= 0;
+		boolean check = computedReferences.indexOf("typeRef/AbstractB\nref/p1\nref/AbstractB\nmethodRef/init/0") >= 0;
 		if (!check){
 			System.out.println(computedReferences);
 		}
