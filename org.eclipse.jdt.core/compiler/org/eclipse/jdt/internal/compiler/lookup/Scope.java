@@ -860,26 +860,14 @@ public abstract class Scope
 		Binding binding = null;
 		FieldBinding problemField = null;
 		if ((mask & VARIABLE) != 0) {
-			if (this.kind == BLOCK_SCOPE || this.kind == METHOD_SCOPE) {
-				LocalVariableBinding variableBinding = findVariable(name);
-				// looks in this scope only
-				if (variableBinding != null) return variableBinding;
-			}
-
 			boolean insideStaticContext = false;
 			boolean insideConstructorCall = false;
-			if (this.kind == METHOD_SCOPE) {
-				MethodScope methodScope = (MethodScope) this;
-				insideStaticContext |= methodScope.isStatic;
-				insideConstructorCall |= methodScope.isConstructorCall;
-			}
 
 			FieldBinding foundField = null;
 			// can be a problem field which is answered if a valid field is not found
 			ProblemFieldBinding foundInsideProblem = null;
 			// inside Constructor call or inside static context
-			Scope scope = parent;
-			if (scope == null) return new ProblemBinding(name, null, NotFound);
+			Scope scope = this;
 			int depth = 0;
 			int foundDepth = 0;
 			ReferenceBinding foundActualReceiverType = null;
