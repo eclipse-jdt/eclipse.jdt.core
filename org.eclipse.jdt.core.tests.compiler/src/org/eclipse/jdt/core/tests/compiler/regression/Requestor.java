@@ -35,12 +35,12 @@ public Requestor(IProblemFactory problemFactory, String outputPath, boolean gene
 	this.generateOutput = generateOutput;
 }
 	public void acceptResult(CompilationResult cr) {
-		if (cr.hasProblems()) {
+		if (cr.hasProblems() || cr.hasTasks()) {
 			if (cr.hasErrors()) {
 				this.hasErrors = true;
 			}
 			
-			IProblem[] actualProblems = cr.getProblems();
+			IProblem[] actualProblems = cr.getAllProblems();
 			int actualProblemsCount = actualProblems == null ? 0 : actualProblems.length;
 			ExpectedProblem[] problems = (ExpectedProblem[])this.expectedProblems.get(new String(cr.getFileName()));
 			int expectedProblemsCount = problems == null ? 0 : problems.length;

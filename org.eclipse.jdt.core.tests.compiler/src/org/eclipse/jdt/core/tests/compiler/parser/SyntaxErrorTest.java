@@ -50,8 +50,8 @@ public void checkParse(
 	parser.parse(sourceUnit, compilationResult);
 
 	StringBuffer buffer = new StringBuffer(100);
-	if (compilationResult.hasProblems()) {
-		IProblem[] problems = compilationResult.getProblems();
+	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
+		IProblem[] problems = compilationResult.getAllProblems();
 		int count = problems.length;
 		int problemCount = 0;
 		for (int i = 0; i < count; i++) { 
