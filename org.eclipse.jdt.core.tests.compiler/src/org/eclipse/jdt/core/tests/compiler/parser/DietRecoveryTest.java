@@ -4248,7 +4248,8 @@ public void test74() {
 	String expectedDietPlusBodyUnitToString = 
 		"package pack;\n" + 
 		"class A extends IOException {\n" + 
-		"  {\n" + 
+		"  {\n" +
+		"    int x;\n" + 
 		"  }\n" + 
 		"  A() {\n" + 
 		"    super();\n" + 
@@ -4895,6 +4896,7 @@ public void test87() {
 		"public class A {\n" + 
 		"  int x;\n" + 
 		"  {\n" + 
+		"    int y;\n" + 
 		"  }\n" + 
 		"  public A() {\n" + 
 		"    super();\n" + 		
@@ -5419,10 +5421,6 @@ public void test98() {
 		"  int nX = 0;\n"+
 		"  {\n"+
 		"  }\n"+
-		"  final String sel = \"\";\n"+
-		"  Object l = null;\n"+
-		"  {\n"+
-		"  }\n"+
 		"  public A() {\n"+
 		"  }\n"+
 		"}\n";
@@ -5439,16 +5437,18 @@ public void test98() {
 		"  Object[] array = null;\n"+
 		"  int nX = 0;\n"+
 		"  {\n"+
-		"  }\n"+
-		"  final String sel = \"\";\n"+
-		"  Object l = null;\n"+
-		"  {\n"+
-		"    Platform.run(new Runnable() {\n"+
+		"    final String part = \"\";\n"+
+		"    final String sel = \"\";\n"+
+		"    Object l = null;\n"+
+    	"    if ((((part != null) && (sel != null)) || (l instanceof String))) \n"+
+    	"        {\n"+
+     	"          Platform.run(new Runnable() {\n"+
 		"  public void run() {\n"+
 		"  }\n"+
 		"  public void handleException(Throwable e) {\n"+
 		"  }\n"+
 		"});\n"+
+		"        };;\n"+
 		"  }\n"+
 		"  public A() {\n"+
 		"    super();\n"+
@@ -5467,10 +5467,6 @@ public void test98() {
 		"  }\n"+
 		"  Object[] array;\n"+
 		"  int nX;\n"+
-		"  {\n"+
-		"  }\n"+
-		"  final String sel;\n"+
-		"  Object l;\n"+
 		"  {\n"+
 		"  }\n"+
 		"  public A() {\n"+
