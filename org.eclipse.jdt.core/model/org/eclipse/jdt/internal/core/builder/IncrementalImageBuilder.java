@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 import java.io.*;
 import java.util.*;

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.jdt.internal.core.builder;
+package org.eclipse.jdt.internal.core.util;
 
 /**
  * A simple lookup table is a non-synchronized Hashtable, whose keys

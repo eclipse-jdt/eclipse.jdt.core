@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 class ClasspathDirectory extends ClasspathLocation {
 

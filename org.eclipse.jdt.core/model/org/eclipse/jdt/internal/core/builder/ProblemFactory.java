@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 import java.util.*;
 

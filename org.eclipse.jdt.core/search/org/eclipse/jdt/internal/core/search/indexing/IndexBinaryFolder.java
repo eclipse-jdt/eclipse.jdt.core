@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -27,6 +25,7 @@ import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
@@ -68,7 +67,7 @@ public class IndexBinaryFolder extends IndexRequest {
 
 			IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
 			int max = results == null ? 0 : results.length;
-			final Hashtable indexedFileNames = new Hashtable(100);
+			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
 			if (max == 0) {
@@ -111,19 +110,22 @@ public class IndexBinaryFolder extends IndexRequest {
 				});
 			}
 
-			Enumeration names = indexedFileNames.keys();
+			Object[] names = indexedFileNames.keyTable;
+			Object[] values = indexedFileNames.valueTable;
 			boolean shouldSave = false;
-			while (names.hasMoreElements()) {
-				if (this.isCancelled) return false;
+			for (int i = 0, length = names.length; i < length; i++) {
+				String name = (String) names[i];
+				if (name != null) {
+					if (this.isCancelled) return false;
 
-				String name = (String) names.nextElement();
-				Object value = indexedFileNames.get(name);
-				if (value != OK) {
-					shouldSave = true;
-					if (value == DELETED)
-						this.manager.remove(name, folderPath);
-					else
-						this.manager.addBinary((IFile) value, folderPath);
+					Object value = values[i];
+					if (value != OK) {
+						shouldSave = true;
+						if (value == DELETED)
+							this.manager.remove(name, folderPath);
+						else
+							this.manager.addBinary((IFile) value, folderPath);
+					}
 				}
 			}
 
