@@ -105,26 +105,22 @@ public void testVariableInitializer3() throws CoreException {
 		}));
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
-		// simulate state on startup
-		VariablesInitializer.reset();
+		// simulate state on startup (flush variables, and preserve their previous values)
+		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
+		JavaModelManager.Variables = new HashMap(5);
 		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();
-		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
-			"TEST_LIB", "/P1/lib.jar",
-			"TEST_SRC", "/P1/src.zip",
-			"TEST_ROOT", "src",
-		}));
+		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
 		p2.getResolvedClasspath(true);
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			// TODO: Change to "" when startup behavior is fixed
-			"P2[*]: {CHILDREN}\n" + 
-			"	lib.jar[*]: {ADDED TO CLASSPATH}"
+			""
 		);
 	} finally {
+		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
 		this.startDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
