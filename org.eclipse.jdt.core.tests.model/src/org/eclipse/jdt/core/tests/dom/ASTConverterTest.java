@@ -133,8 +133,6 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		}		
 	}
 	
-	
-	
 	/**
 	 * Check locally for the required JCL files, jclMin.jar and jclMinsrc.zip.
 	 * If not available, copy from the project resources.
@@ -199,6 +197,49 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		super.tearDown();
 	}	
 
+		
+	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
+		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
+		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
+	}
+
+	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex, int statementIndex) {
+		BodyDeclaration bodyDeclaration = (BodyDeclaration)((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
+		if (bodyDeclaration instanceof MethodDeclaration) {
+			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			Block block = methodDeclaration.getBody();
+			return (ASTNode) block.statements().get(statementIndex);
+		} else if (bodyDeclaration instanceof TypeDeclaration) {
+			TypeDeclaration typeDeclaration = (TypeDeclaration) bodyDeclaration;
+			return (ASTNode) typeDeclaration.bodyDeclarations().get(statementIndex);
+		}
+		return null;
+	}
+
+	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex) {
+		return (ASTNode) ((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
+	}
+
+	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex) {
+		return (ASTNode) (TypeDeclaration)unit.types().get(typeIndex);
+	}
+		
+	private void checkSourceRange(ASTNode node, String expectedContents, char[] source) {
+		assertNotNull("The node is null", node);
+		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0);
+		assertTrue("The node.getStartPosition() == -1", node.getStartPosition() != -1);
+		int length = node.getLength();
+		int start = node.getStartPosition();
+		char[] actualContents = new char[length];
+		System.arraycopy(source, start, actualContents, 0, length);
+		String actualContentsString = new String(actualContents);		
+		assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString));
+	}
+	
+	private boolean isMalformed(ASTNode node) {
+		return (node.getFlags() & ASTNode.MALFORMED) != 0;
+	}
+	
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());		
 
@@ -8990,46 +9031,30 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		checkSourceRange(node, "for (int i=0, j=0, k=0; i<10 ; i++, j++, k++) {}", source); //$NON-NLS-1$
 	}
 	
-	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
-		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
-		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=31626
+	 */
+	public void test0358() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0358", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		Javadoc javadoc = typeDeclaration.getJavadoc();
+		assertNull("Got a javadoc", javadoc);
+		node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		javadoc = methodDeclaration.getJavadoc();
+		assertNotNull("No javadoc", javadoc);
 	}
 
-	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex, int statementIndex) {
-		BodyDeclaration bodyDeclaration = (BodyDeclaration)((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
-		if (bodyDeclaration instanceof MethodDeclaration) {
-			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
-			Block block = methodDeclaration.getBody();
-			return (ASTNode) block.statements().get(statementIndex);
-		} else if (bodyDeclaration instanceof TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) bodyDeclaration;
-			return (ASTNode) typeDeclaration.bodyDeclarations().get(statementIndex);
-		}
-		return null;
-	}
-
-	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex) {
-		return (ASTNode) ((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
-	}
-
-	private ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex) {
-		return (ASTNode) (TypeDeclaration)unit.types().get(typeIndex);
-	}
-		
-	private void checkSourceRange(ASTNode node, String expectedContents, char[] source) {
-		assertNotNull("The node is null", node);
-		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0);
-		assertTrue("The node.getStartPosition() == -1", node.getStartPosition() != -1);
-		int length = node.getLength();
-		int start = node.getStartPosition();
-		char[] actualContents = new char[length];
-		System.arraycopy(source, start, actualContents, 0, length);
-		String actualContentsString = new String(actualContents);		
-		assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString));
-	}
-	
-	private boolean isMalformed(ASTNode node) {
-		return (node.getFlags() & ASTNode.MALFORMED) != 0;
-	}
 }
 
