@@ -43,6 +43,32 @@ Eclipse SDK 3.0M9 Build - ?th April 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API to register/deregister a pre-processing resource change listener:
+<pre>
+	/**
+	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
+	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * 
+	 * Has no effect if an identical listener is already registered.
+	 * 
+	 * @param listener the listener
+	 * @see #removePreResourceChangeListener(IResourceChangeListener)
+	 * @since 3.0
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener);
+	
+	/**
+	 * Removes the given pre-processing resource changed listener.
+	 *
+	 * Has no affect if an identical listener is not registered.
+	 *
+	 * @param listener the listener
+	 * @since 3.0
+	 */
+	public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener);
+</pre>
+</li>
 <li>When diagnostic for unnecessary semicolon is enabled, the compiler will also flag empty
 control-flow statement: e.g. if (bool);.  Note that the naming of the option is going soon
 to be revised to better reflect this evolution.

@@ -952,6 +952,22 @@ public final class JavaCore extends Plugin {
 	}
 	
 	/**
+	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
+	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * <p>
+	 * Has no effect if an identical listener is already registered.
+	 * </p>
+	 * 
+	 * @param listener the listener
+	 * @see #removePreResourceChangeListener(IResourceChangeListener)
+	 * @since 3.0
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
+		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener);
+	}
+	
+	/**
 	 * Configures the given marker for the given Java element.
 	 * Used for markers, which denote a Java element rather than a resource.
 	 *
@@ -3214,6 +3230,21 @@ public final class JavaCore extends Plugin {
 	public static void removeElementChangedListener(IElementChangedListener listener) {
 		JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(listener);
 	}
+
+	/**
+	 * Removes the given pre-processing resource changed listener.
+	 * <p>
+	 * Has no affect if an identical listener is not registered.
+	 *
+	 * @param listener the listener
+	 * @since 3.0
+	 */
+	public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener) {
+		JavaModelManager.getJavaModelManager().deltaState.removePreResourceChangedListener(listener);
+	}
+	
+
+	
 	/**
 	 * Runs the given action as an atomic Java model operation.
 	 * <p>
