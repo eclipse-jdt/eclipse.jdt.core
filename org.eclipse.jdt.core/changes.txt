@@ -126,6 +126,9 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  3369      Classpath gets out of sync (1GJU853)  
+  3281      change java project binary output create new package (1GEHK07)  
+  3298      Incorrect compile error on valid case statement (1GEYWET)  
   3562		Outliner bug for initializers (1G93CS3) 
   3447      search: could automatically narrow down scope (1GLDJVN)
   3288      CodeAssist - Code assist doesn't work in some methods (1GELEBH)

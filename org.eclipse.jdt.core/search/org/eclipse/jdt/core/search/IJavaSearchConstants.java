@@ -120,17 +120,17 @@ public interface IJavaSearchConstants {
 	 * has not finished indexing the workspace. Results will more likely
 	 * not contain all the matches.
 	 */
-	int FORCE_IMMEDIATE_SEARCH = IJobConstants.ForceImmediate;
+	int FORCE_IMMEDIATE_SEARCH = IJob.ForceImmediate;
 	/**
 	 * The search operation throws an <code>org.eclipse.core.runtime.OperationCanceledException</code>
 	 * if the underlying indexer has not finished indexing the workspace.
 	 */
-	int CANCEL_IF_NOT_READY_TO_SEARCH = IJobConstants.CancelIfNotReady;
+	int CANCEL_IF_NOT_READY_TO_SEARCH = IJob.CancelIfNotReady;
 	/**
 	 * The search operation waits for the underlying indexer to finish indexing 
 	 * the workspace before starting the search.
 	 */
-	int WAIT_UNTIL_READY_TO_SEARCH = IJobConstants.WaitUntilReady;
+	int WAIT_UNTIL_READY_TO_SEARCH = IJob.WaitUntilReady;
 	
 	
 }

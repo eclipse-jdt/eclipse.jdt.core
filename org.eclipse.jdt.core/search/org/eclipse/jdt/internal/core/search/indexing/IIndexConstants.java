@@ -6,7 +6,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
  */
 import org.eclipse.jdt.internal.core.search.processing.*;
 
-public interface IIndexConstants extends IJobConstants {
+public interface IIndexConstants {
 
 	/* index encoding */
 	char[] REF= "ref/".toCharArray(); //$NON-NLS-1$

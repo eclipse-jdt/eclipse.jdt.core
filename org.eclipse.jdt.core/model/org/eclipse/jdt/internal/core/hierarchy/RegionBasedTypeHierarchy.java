@@ -71,7 +71,7 @@ protected void destroy() {
 	fRegion = new Region();
 	super.destroy();	
 }
-protected boolean isAffectedByType(IJavaElementDelta delta, IJavaElement element) {
+protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
 	// ignore changes to working copies
 	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
 		return false;
@@ -81,7 +81,7 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IJavaElement element
 	if (fType == null) {
 		return fRegion.contains(element);
 	} else {
-		return super.isAffectedByType(delta, element);
+		return super.isAffectedByOpenable(delta, element);
 	}
 }
 /**

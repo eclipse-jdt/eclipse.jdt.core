@@ -8,6 +8,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -699,23 +700,7 @@ private boolean hasSubtypeNamed(String simpleName) {
 	}
 	return false;
 }
-/**
- * Returns whether the given delta (a compilation unit delta or a class file delta)
- * indicates that one of the supertypes has changed or one of the imports has changed.
- */
-private boolean hasSuperTypeOrImportChange(IJavaElementDelta delta) {
-	IJavaElementDelta[] children = delta.getAffectedChildren();
-	for (int i = 0, length = children.length; i < length; i++) {
-		IJavaElementDelta child = children[i];
-		if ((child.getFlags() & IJavaElementDelta.F_SUPER_TYPES) > 0) {
-			return true;
-		}
-		if (child.getElement() instanceof ImportContainer) {
-			return true;
-		}
-	}
-	return false;
-}
+
 /**
  * Returns whether one of the types in this hierarchy has the given simple name.
  */
@@ -728,20 +713,7 @@ private boolean hasTypeNamed(String simpleName) {
 	}
 	return false;
 }
-/**
- * Returns whether the given delta (a compilation unit delta or a class file delta)
- * indicates that one of its types has a visibility change.
- */
-private boolean hasVisibilityChange(IJavaElementDelta delta) {
-	IJavaElementDelta[] children = delta.getAffectedChildren();
-	for (int i = 0, length = children.length; i < length; i++) {
-		IJavaElementDelta child = children[i];
-		if ((child.getFlags() & IJavaElementDelta.F_MODIFIERS) > 0) {
-			return true;
-		}
-	}
-	return false;
-}
+
 /**
  * Returns whether the simple name of the given type or one of its supertypes is 
  * the simple name of one of the types in this hierarchy.
@@ -808,7 +780,7 @@ private boolean isAffected(IJavaElementDelta delta) {
 			return isAffectedByPackageFragment(delta, element);
 		case IJavaElement.CLASS_FILE:
 		case IJavaElement.COMPILATION_UNIT:
-			return isAffectedByType(delta, element);
+			return isAffectedByOpenable(delta, element);
 	}
 	return false;
 }
@@ -922,7 +894,71 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 /**
  * Returns true if the given type delta (a compilation unit delta or a class file delta)
  * could affect this type hierarchy.
- *
+ */
+protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
+	// ignore changes to working copies
+	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
+		return false;
+	}
+		
+	int kind = delta.getKind();
+	switch (kind) {
+		case IJavaElementDelta.REMOVED:
+			return this.files.get(element) != null;
+		case IJavaElementDelta.ADDED:
+			IType[] types = null;
+			try {
+				types = (element instanceof CompilationUnit) ?
+					((CompilationUnit)element).getAllTypes() :
+					new IType[] {((org.eclipse.jdt.internal.core.ClassFile)element).getType()};
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+				return false;
+			}
+			for (int i = 0, length = types.length; i < length; i++) {
+				IType type = types[i];
+				if (typeHasSupertype(type) || subtypesIncludeSupertypeOf(type)) {
+					return true;
+				}
+			}
+			break;
+		case IJavaElementDelta.CHANGED:
+			boolean hasImportChange = false;
+			IJavaElementDelta[] children = delta.getAffectedChildren();
+			for (int i = 0, length = children.length; i < length; i++) {
+				IJavaElementDelta child = children[i];
+				IJavaElement childElement = child.getElement();
+				if (childElement instanceof IType) {
+					// NB: rely on the fact that import statements are before type declarations
+					if (this.isAffectedByType(child, (IType)childElement, hasImportChange)) {
+						return true;
+					}
+				} else if (childElement instanceof ImportContainer) {
+					if (!hasImportChange) {
+						hasImportChange = true;
+						types = null;
+						try {
+							types = (element instanceof CompilationUnit) ?
+								((CompilationUnit)element).getAllTypes() :
+								new IType[] {((org.eclipse.jdt.internal.core.ClassFile)element).getType()};
+						} catch (JavaModelException e) {
+							e.printStackTrace();
+							return false;
+						}
+						for (int j = 0, typesLength = types.length; j < typesLength; j++) {
+							if (includesTypeOrSupertype(types[j])) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			break;
+		
+	}
+	return false;
+}
+/*
  * The rules are:
  * - if the delta is an added type X, then the hierarchy is changed 
  *   . if one of the types in this hierarchy has a supertype whose simple name is the
@@ -939,46 +975,40 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
  *   . if the given element is part of this hierarchy (note we cannot acces the types 
  *     because the element has been removed)
  */
-protected boolean isAffectedByType(IJavaElementDelta delta, IJavaElement element) {
-	// ignore changes to working copies
-	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
-		return false;
-	}
-		
-	int kind = delta.getKind();
-	if (kind == IJavaElementDelta.REMOVED) {
-		return this.files.get(element) != null;
-	} else {
-		IType[] types = null;
-		try {
-			types = (element instanceof CompilationUnit) ?
-				((CompilationUnit)element).getAllTypes() :
-				new IType[] {((org.eclipse.jdt.internal.core.ClassFile)element).getType()};
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-			return false;
-		}
-		if (kind == IJavaElementDelta.ADDED) {
-			for (int i = 0, length = types.length; i < length; i++) {
-				IType type = types[i];
-				if (typeHasSupertype(type) || subtypesIncludeSupertypeOf(type)) {
-					return true;
-				}
+protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean hasImportChange) {
+	switch (delta.getKind()) {
+		case IJavaElementDelta.ADDED:
+			if (typeHasSupertype(type) || subtypesIncludeSupertypeOf(type)) {
+				return true;
 			}
-		} else { // kind == IJavaElementDelta.CHANGED :
-			boolean hasSupertypeChange = hasSuperTypeOrImportChange(delta);
-			boolean hasVisibilityChange = hasVisibilityChange(delta);
-			for (int i = 0, length = types.length; i < length; i++) {
-				IType type = types[i];
-				if ((hasVisibilityChange && typeHasSupertype(type))
-					|| (hasSupertypeChange && includesTypeOrSupertype(type))) {
-					return true;
-				}
+			break;
+		case IJavaElementDelta.CHANGED:
+			boolean hasVisibilityChange = (delta.getFlags() & IJavaElementDelta.F_MODIFIERS) > 0;
+			boolean hasSupertypeChange = (delta.getFlags() & IJavaElementDelta.F_SUPER_TYPES) > 0;
+			if ((hasVisibilityChange && typeHasSupertype(type))
+					|| ((hasImportChange || hasSupertypeChange) 
+						&& includesTypeOrSupertype(type))) {
+				return true;
+			}
+			break;
+		case IJavaElementDelta.REMOVED:
+			if (this.contains(type)) {
+				return true;
+			}
+			break;
+	}
+	IJavaElementDelta[] children = delta.getAffectedChildren();
+	for (int i = 0, length = children.length; i < 0; i++) {
+		IJavaElementDelta child = children[i];
+		IJavaElement childElement = child.getElement();
+		if (childElement instanceof IType) {
+			if (this.isAffectedByType(child, (IType)childElement, hasImportChange)) {
+				return true;
 			}
 		}
 	}
 	return false;
-}
+} 
 /**
  * Returns the java project this hierarchy was created in.
  */

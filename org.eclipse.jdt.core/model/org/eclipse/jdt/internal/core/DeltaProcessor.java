@@ -309,8 +309,8 @@ public class DeltaProcessor {
 			return null;
 		String extension = resource.getFileExtension();
 		extension = extension == null ? null : extension.toLowerCase();
-		if ("jar".equals(extension)
-			|| "zip".equals(extension)) { //$NON-NLS-2$ //$NON-NLS-1$
+		if ("jar".equals(extension) //$NON-NLS-1$
+			|| "zip".equals(extension)) { //$NON-NLS-1$ 
 			IJavaProject[] projects = null;
 			try {
 				projects =
