@@ -128,318 +128,324 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE = PLUGIN_ID + ".compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT = PLUGIN_ID + ".compiler.problem.unusedParameterWhenImplementingAbstract"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE = PLUGIN_ID + ".compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_UNUSED_IMPORT = PLUGIN_ID + ".compiler.problem.unusedImport"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_NON_NLS_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_ASSERT_IDENTIFIER = PLUGIN_ID + ".compiler.problem.assertIdentifier"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_STATIC_ACCESS_RECEIVER = PLUGIN_ID + ".compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INDIRECT_STATIC_ACCESS = PLUGIN_ID + ".compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_NO_EFFECT_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.noEffectAssignment"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD = PLUGIN_ID + ".compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_UNUSED_PRIVATE_MEMBER = PLUGIN_ID + ".compiler.problem.unusedPrivateMember"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_LOCAL_VARIABLE_HIDING = PLUGIN_ID + ".compiler.problem.localVariableHiding"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD = PLUGIN_ID + ".compiler.problem.specialParameterHidingField"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_FIELD_HIDING = PLUGIN_ID + ".compiler.problem.fieldHiding"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.possibleAccidentalBooleanAssignment"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_SUPERFLUOUS_SEMICOLON = PLUGIN_ID + ".compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNNECESSARY_TYPE_CHECK = PLUGIN_ID + ".compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK = PLUGIN_ID + ".compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING = PLUGIN_ID + ".compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNQUALIFIED_FIELD_ACCESS = PLUGIN_ID + ".compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_MAX_PER_UNIT = PLUGIN_ID + ".compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_SOURCE = PLUGIN_ID + ".compiler.source"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_COMPLIANCE = PLUGIN_ID + ".compiler.compliance"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_TASK_PRIORITIES = PLUGIN_ID + ".compiler.taskPriorities"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_TASK_PRIORITY_HIGH = "HIGH"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_TASK_PRIORITY_LOW = "LOW"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_TASK_PRIORITY_NORMAL = "NORMAL"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_TASK_TAGS = PLUGIN_ID + ".compiler.taskTags"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CORE_JAVA_BUILD_RESOURCE_COPY_FILTER = PLUGIN_ID + ".builder.resourceCopyExclusionFilter"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CORE_JAVA_BUILD_DUPLICATE_RESOURCE = PLUGIN_ID + ".builder.duplicateResourceTask"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER = PLUGIN_ID + ".builder.cleanOutputFolder"; //$NON-NLS-1$	 	
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CORE_CIRCULAR_CLASSPATH = PLUGIN_ID + ".circularClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String CORE_INCOMPATIBLE_JDK_LEVEL = PLUGIN_ID + ".incompatibleJDKLevel"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CORE_JAVA_BUILD_INVALID_CLASSPATH = PLUGIN_ID + ".builder.invalidClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CORE_ENCODING = PLUGIN_ID + ".encoding"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1 
 	 */
 	public static final String CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS = PLUGIN_ID + ".classpath.exclusionPatterns"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
@@ -455,128 +461,128 @@ public final class JavaCore extends Plugin {
 	public static final String DEFAULT_TASK_PRIORITY = "NORMAL"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_NEWLINE_OPENING_BRACE = PLUGIN_ID + ".formatter.newline.openingBrace"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_NEWLINE_CONTROL = PLUGIN_ID + ".formatter.newline.controlStatement"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_NEWLINE_ELSE_IF = PLUGIN_ID + ".formatter.newline.elseIf"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_NEWLINE_EMPTY_BLOCK = PLUGIN_ID + ".formatter.newline.emptyBlock"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_CLEAR_BLANK_LINES = PLUGIN_ID + ".formatter.newline.clearAll"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String FORMATTER_LINE_SPLIT = PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 * @deprecated
 	 */
 	public static final String FORMATTER_COMPACT_ASSIGNMENT = PLUGIN_ID + ".formatter.style.assignment"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String FORMATTER_TAB_CHAR = PLUGIN_ID + ".formatter.tabulation.char"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String FORMATTER_TAB_SIZE = PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
 	/**
 	 * Possible configurable option ID
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 * @deprecated
 	 */
 	public static final String FORMATTER_SPACE_CASTEXPRESSION = PLUGIN_ID + ".formatter.space.castexpression"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_VISIBILITY_CHECK = PLUGIN_ID + ".codeComplete.visibilityCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_IMPLICIT_QUALIFICATION = PLUGIN_ID + ".codeComplete.forceImplicitQualification"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.fieldPrefixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_STATIC_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.staticFieldPrefixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_LOCAL_PREFIXES = PLUGIN_ID + ".codeComplete.localPrefixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_ARGUMENT_PREFIXES = PLUGIN_ID + ".codeComplete.argumentPrefixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.fieldSuffixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_STATIC_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.staticFieldSuffixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_LOCAL_SUFFIXES = PLUGIN_ID + ".codeComplete.localSuffixes"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CODEASSIST_ARGUMENT_SUFFIXES = PLUGIN_ID + ".codeComplete.argumentSuffixes"; //$NON-NLS-1$
@@ -585,147 +591,148 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String GENERATE = "generate"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String DO_NOT_GENERATE = "do not generate"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String PRESERVE = "preserve"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String OPTIMIZE_OUT = "optimize out"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String VERSION_1_1 = "1.1"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String ABORT = "abort"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPUTE = "compute"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String INSERT = "insert"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String DO_NOT_INSERT = "do not insert"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String PRESERVE_ONE = "preserve one"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CLEAR_ALL = "clear all"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String NORMAL = "normal"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPACT = "compact"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String TAB = "tab"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String SPACE = "space"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String CLEAN = "clean"; //$NON-NLS-1$
 	
 	/**
 	 * Creates the Java core plug-in.
+	 * @param pluginDescriptor
 	 * @since 2.1
 	 */
 	public JavaCore(IPluginDescriptor pluginDescriptor) {
@@ -742,8 +749,8 @@ public final class JavaCore extends Plugin {
 	 * For finer control of the notification, use <code>addElementChangedListener(IElementChangedListener,int)</code>,
 	 * which allows to specify a different eventMask.
 	 * 
-	 * @see ElementChangedEvent
 	 * @param listener the listener
+	 * @see ElementChangedEvent
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener) {
 		addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
@@ -875,7 +882,7 @@ public final class JavaCore extends Plugin {
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
 	 * 
-	 * @param the given file
+	 * @param file the given file
 	 * @return the Java element corresponding to the given file, or
 	 * <code>null</code> if unable to associate the given file
 	 * with a Java element
@@ -901,8 +908,8 @@ public final class JavaCore extends Plugin {
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
 	 * 
-	 * @param the given file
-	 * @param the owner of the returned compilation unit, ignored if this is not a compilation unit
+	 * @param file the given file
+	 * @param owner the owner of the returned compilation unit, ignored if this is not a compilation unit
 	 * @return the Java element corresponding to the given file, or
 	 * <code>null</code> if unable to associate the given file
 	 * with a Java element
@@ -920,7 +927,7 @@ public final class JavaCore extends Plugin {
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
 	 * 
-	 * @param the given folder
+	 * @param folder the given folder
 	 * @return the package fragment or package fragment root corresponding to the given folder, or
 	 * <code>null</code> if unable to associate the given folder with a Java element
 	 */
@@ -994,7 +1001,7 @@ public final class JavaCore extends Plugin {
 	 * element's parents if they are not yet open.
 	 * 
 	 * @param resource the given resource
-	 * @param the owner of the returned compilation unit, ignored if this is not a compilation unit
+	 * @param owner the owner of the returned compilation unit, ignored if this is not a compilation unit
 	 * @return the Java element corresponding to the given resource, or
 	 * <code>null</code> if unable to associate the given resource
 	 * with a Java element
@@ -1119,9 +1126,11 @@ public final class JavaCore extends Plugin {
 				try {
 					// wrap initializer call with Safe runnable in case initializer would be causing some grief
 					Platform.run(new ISafeRunnable() {
+						/** @param exception */
 						public void handleException(Throwable exception) {
 							Util.log(exception, "Exception occurred in classpath container initializer: "+initializer); //$NON-NLS-1$
 						}
+						/** @throws Exception */
 						public void run() throws Exception {
 							initializer.initialize(containerPath, project);
 						}
@@ -1166,7 +1175,7 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * A containerID is the first segment of any container path, used to identify the registered container initializer.
 	 * <p>
-	 * @param String - a containerID identifying a registered initializer
+	 * @param containerID - a containerID identifying a registered initializer
 	 * @return ClasspathContainerInitializer - the registered classpath container initializer or <code>null</code> if 
 	 * none was found.
 	 * @since 2.1
@@ -1221,7 +1230,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @return the path, or <code>null</code> if none 
-	 * @see #setClasspathVariable
+	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
 	
@@ -1244,9 +1253,11 @@ public final class JavaCore extends Plugin {
 			try {
 				// wrap initializer call with Safe runnable in case initializer would be causing some grief
 				Platform.run(new ISafeRunnable() {
+					/** @param exception */
 					public void handleException(Throwable exception) {
 						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer+" while initializing variable: "+variableName); //$NON-NLS-1$ //$NON-NLS-2$
 					}
+					/** @throws Exception */
 					public void run() throws Exception {
 						initializer.initialize(variableName);
 					}
@@ -1273,7 +1284,7 @@ public final class JavaCore extends Plugin {
 	 * or <code>null</code> if none was found while iterating over the contributions to extension point to
 	 * the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
 	 * <p>
- 	 * @param the given variable
+ 	 * @param variable the given variable
  	 * @return ClasspathVariableInitializer - the registered classpath variable initializer or <code>null</code> if 
 	 * none was found.
 	 * @since 2.1
@@ -1321,7 +1332,7 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 *
 	 * @return the list of classpath variable names
-	 * @see #setClasspathVariable
+	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static String[] getClasspathVariableNames() {
 		return JavaModelManager.variableNames();
@@ -1878,7 +1889,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @return a mutable table containing the default settings of all known options
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
-	 * @see #setOptions
+	 * @see #setOptions(Hashtable)
 	 */
  	public static Hashtable getDefaultOptions(){
 	
@@ -1929,7 +1940,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @param optionName the name of an option
 	 * @return the String value of a given option
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static String getOption(String optionName) {
@@ -1953,7 +1964,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 *///TODO: should return a Map for 3.0
 	public static Hashtable getOptions() {
 		
@@ -2724,7 +2735,7 @@ public final class JavaCore extends Plugin {
 	 *    represented as relative paths
 	 * @return a new source classpath entry with the given exclusion patterns
 	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getExclusionPatterns
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 * 
 	 * @since 2.1
 	 */
@@ -2789,10 +2800,10 @@ public final class JavaCore extends Plugin {
 	 * @param path the absolute workspace-relative path of a source folder
 	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
-	 * @param outputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
+	 * @param specificOutputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
 	 * @return a new source classpath entry with the given exclusion patterns
 	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getExclusionPatterns
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @see IClasspathEntry#getOutputLocation()
 	 * 
 	 * @since 2.1
@@ -2890,7 +2901,7 @@ public final class JavaCore extends Plugin {
 	 *    or <code>null</code> if none; if present, the first segment is the
 	 *    name of a classpath variable (not necessarily the same variable
 	 *    as the one that begins <code>variablePath</code>)
-	 * @param sourceAttachmentRootPath the location of the root within the source archive
+	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -2931,7 +2942,7 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 *
 	 * @param variableName the name of the classpath variable
-	 * @see #setClasspathVariable
+	 * @see #setClasspathVariable(String, IPath)
 	 *
 	 * @deprecated - use version with extra IProgressMonitor
 	 */
@@ -2951,7 +2962,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @param monitor the progress monitor to report progress
-	 * @see #setClasspathVariable
+	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static void removeClasspathVariable(
 		String variableName,
@@ -3047,7 +3058,7 @@ public final class JavaCore extends Plugin {
 	 * @param affectedProjects - the set of projects for which this container is being bound
 	 * @param respectiveContainers - the set of respective containers for the affected projects
 	 * @param monitor a monitor to report progress
-	 * 
+	 * @throws JavaModelException
 	 * @see ClasspathContainerInitializer
 	 * @see #getClasspathContainer(IPath, IJavaProject)
 	 * @see IClasspathContainer
@@ -3190,7 +3201,8 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @param path the path
-	 * @see #getClasspathVariable
+	 * @throws JavaModelException
+	 * @see #getClasspathVariable(String)
 	 *
 	 * @deprecated - use API with IProgressMonitor
 	 */
@@ -3214,7 +3226,8 @@ public final class JavaCore extends Plugin {
 	 * @param variableName the name of the classpath variable
 	 * @param path the path
 	 * @param monitor a monitor to report progress
-	 * @see #getClasspathVariable
+	 * @throws JavaModelException
+	 * @see #getClasspathVariable(String)
 	 */
 	public static void setClasspathVariable(
 		String variableName,
@@ -3241,7 +3254,8 @@ public final class JavaCore extends Plugin {
 	 * @param paths an array of path updates for the modified classpath variables (null
 	 *       meaning that the corresponding value will be removed
 	 * @param monitor a monitor to report progress
-	 * @see #getClasspathVariable
+	 * @throws JavaModelException
+	 * @see #getClasspathVariable(String)
 	 * @since 2.0
 	 */
 	public static void setClasspathVariables(
@@ -3264,7 +3278,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 *///TODO: should use a Map for 3.0
 	public static void setOptions(Hashtable newOptions) {
 		
@@ -3319,6 +3333,7 @@ public final class JavaCore extends Plugin {
 	 * Registers the JavaModelManager as a resource changed listener and save participant.
 	 * Starts the background indexing, and restore saved classpath variable values.
 	 * <p>
+	 * @throws CoreException
 	 * @see org.eclipse.core.runtime.Plugin#startup()
 	 */
 	public void startup() throws CoreException {
@@ -3364,7 +3379,7 @@ public final class JavaCore extends Plugin {
 	}
 
 
-	/**
+	/*
 	 * Internal updating of a variable values (null path meaning removal), allowing to change multiple variable values at once.
 	 */
 	private static void updateVariableValues(
