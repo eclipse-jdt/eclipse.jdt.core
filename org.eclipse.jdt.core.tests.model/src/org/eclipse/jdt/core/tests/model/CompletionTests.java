@@ -147,6 +147,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration4"));
 	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration5"));
 	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration6"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethod1"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8467,6 +8468,22 @@ public void testCompletionStaticMethodDeclaration6() throws JavaModelException {
 
 	assertEquals(
 			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethod1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethod1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo    completion:CompletionStaticMethod1.foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME) + "\n" +
+			"element:foo    completion:foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME) + "\n" +
+			"element:foo0    completion:CompletionStaticMethod1.this.foo0()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:foo0    completion:foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }

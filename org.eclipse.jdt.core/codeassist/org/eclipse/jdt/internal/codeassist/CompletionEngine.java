@@ -2084,6 +2084,9 @@ public final class CompletionEngine
 							.declaringClass
 							.implementsInterface(method.declaringClass,true))
 							continue next;
+						
+					if(receiverType.isAnonymousType()) continue next;
+					
 					prefixRequired = true;
 				}
 			}
