@@ -145,7 +145,23 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
-					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan, false);
+					TypeReference fieldType;
+					
+					int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+					int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
+					if(kind == K_BINARY_OPERATOR && info == LESS) {
+						if(this.genericsLengthStack[this.genericsLengthPtr] > 0) {
+							this.consumeTypeArguments();
+						}
+						this.pushOnGenericsStack(orphan);
+						this.consumeTypeArguments();
+						fieldType = getTypeReference(0);
+						this.assistNodeParent = fieldType;
+					} else {
+						fieldType = (TypeReference)orphan;
+					}
+					
+					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType(fieldType, false);
 
 					// retrieve available modifiers if any
 					if (intPtr >= 2 && intStack[intPtr-1] == this.lastModifiersStart && intStack[intPtr-2] == this.lastModifiers){
@@ -1100,6 +1116,11 @@ private boolean checkRecoveredType() {
 		RecoveredType recoveredType = (RecoveredType)currentElement;
 		/* filter out cases where scanner is still inside type header */
 		if (recoveredType.foundOpeningBrace) {
+			// complete generics stack if necessary
+			if(this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] <= this.identifierPtr) {
+				pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+				pushOnGenericsLengthStack(0); // handle type arguments
+			}
 			this.assistNode = this.getTypeReference(0);
 			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 			this.isOrphanCompletionNode = true;

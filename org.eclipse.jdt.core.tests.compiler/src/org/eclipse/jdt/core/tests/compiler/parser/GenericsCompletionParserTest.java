@@ -7751,4 +7751,141 @@ public void test0177(){
 			expectedReplacedSource,
 	"diet ast");
 }
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
+ */
+public void test0178(){
+	String str =
+		"public class X <T>{\n" + 
+		"  X<ZZZ<\n" + 
+		"}\n" + 
+		"\n";
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.indexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "X<<CompleteOnType:ZZZ>>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  X<<CompleteOnType:ZZZ>>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
+ */
+public void test0179(){
+	String str =
+		"public class X <T>{\n" + 
+		"  X<ZZZ.\n" + 
+		"}\n" + 
+		"\n";
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.indexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "X<<CompleteOnType:ZZZ>>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  X<<CompleteOnType:ZZZ>>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
+ */
+public void test0180(){
+	String str =
+		"public class X <T>{\n" + 
+		"  X<ZZZ\n" + 
+		"}\n" + 
+		"\n";
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.indexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "X<<CompleteOnType:ZZZ>>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  X<<CompleteOnType:ZZZ>>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
+ */
+public void test0181(){
+	String str =
+		"public class X <T>{\n" + 
+		"  X<ZZZ>\n" + 
+		"}\n" + 
+		"\n";
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.indexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "X<<CompleteOnType:ZZZ>>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X<T> {\n" + 
+		"  X<<CompleteOnType:ZZZ>>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
