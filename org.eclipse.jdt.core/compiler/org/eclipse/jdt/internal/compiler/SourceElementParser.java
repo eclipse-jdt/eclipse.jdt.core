@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -44,6 +45,9 @@ public class SourceElementParser extends Parser {
 	private char[][] superTypeNames;
 	private int nestedTypeIndex;
 	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
+	private NameReference[] unknownRefs;
+	private int unknownRefsCounter;
+	
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,
@@ -377,7 +381,8 @@ public NameReference getUnspecifiedReference() {
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
+			this.addUnknownRef(ref);
+//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	} else {
@@ -391,10 +396,11 @@ public NameReference getUnspecifiedReference() {
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(
+			this.addUnknownRef(ref);
+/*			requestor.acceptUnknownReference(
 				ref.tokens, 
 				ref.sourceStart(), 
-				ref.sourceEnd()); 
+				ref.sourceEnd()); */
 		}
 		return ref;
 	}
@@ -417,7 +423,8 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		ref.bits &= ~NameReference.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
+			this.addUnknownRef(ref);
+//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	}
@@ -440,10 +447,11 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	ref.bits &= ~NameReference.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	if (reportReferenceInfo) {
-		requestor.acceptUnknownReference(
+		this.addUnknownRef(ref);
+/*		requestor.acceptUnknownReference(
 			ref.tokens, 
 			ref.sourceStart(), 
-			ref.sourceEnd());
+			ref.sourceEnd());*/
 	}
 	return ref;
 }
@@ -465,7 +473,9 @@ private boolean isLocalDeclaration() {
  * Update the bodyStart of the corresponding parse node
  */
 public void notifySourceElementRequestor() {
-
+	if (reportReferenceInfo) {
+		notifyAllUnknownReferences();
+	}
 	// collect the top level ast nodes
 	int length = 0;
 	AstNode[] nodes = null;
@@ -527,6 +537,42 @@ public void notifySourceElementRequestor() {
 	if (sourceType == null){
 		if (scanner.eofPosition >= compilationUnit.sourceEnd) {
 			requestor.exitCompilationUnit(compilationUnit.sourceEnd);
+		}
+	}
+}
+
+private void notifyAllUnknownReferences() {
+	for (int i = 0, max = this.unknownRefsCounter; i < max; i++) {
+		NameReference nameRef = this.unknownRefs[i];
+		if ((nameRef.bits & BindingIds.VARIABLE) != 0) {
+			if ((nameRef.bits & BindingIds.FIELD) != 0) {
+				if (nameRef instanceof SingleNameReference) {
+					requestor.acceptFieldReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+				} else {
+					// it is a QualifiedNameReference
+					// The last token is a field reference and the previous tokens are a type reference
+					char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
+					int tokensLength = tokens.length;
+					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd() - tokens[tokensLength - 1].length + 1);
+					char[][] typeRef = new char[tokensLength - 1][];
+					System.arraycopy(tokens, 0, typeRef, 0, tokensLength - 1);
+					requestor.acceptTypeReference(typeRef, nameRef.sourceStart(), nameRef.sourceEnd() - tokens[tokensLength - 1].length);
+				}
+			} else {
+				if (nameRef instanceof SingleNameReference) {
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+				} else {
+				// it is a QualifiedNameReference
+				requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+			}
+			}
+		} else if ((nameRef.bits & BindingIds.TYPE) != 0) {
+			if (nameRef instanceof SingleNameReference) {
+				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+			} else {
+				// it is a QualifiedNameReference
+				requestor.acceptTypeReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+			}
 		}
 	}
 }
@@ -821,6 +867,10 @@ public void parseCompilationUnit(
 	CompilationUnitDeclaration result;
 	reportReferenceInfo = needReferenceInfo;
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
 	try {
 		diet = !needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
@@ -839,6 +889,11 @@ public void parseCompilationUnit(
 
 	CompilationUnitDeclaration result;
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
+		
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
@@ -860,6 +915,11 @@ public void parseTypeMemberDeclarations(
 	boolean needReferenceInfo) {
 
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
+	
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
@@ -957,6 +1017,19 @@ private char[] returnTypeName(TypeReference type) {
 			dimensionsArray); 
 	}
 	return CharOperation.concatWith(type.getTypeName(), '.');
+}
+
+public void addUnknownRef(NameReference nameRef) {
+	if (this.unknownRefs.length == this.unknownRefsCounter) {
+		// resize
+		System.arraycopy(
+			this.unknownRefs,
+			0,
+			(this.unknownRefs = new NameReference[this.unknownRefsCounter * 2]),
+			0,
+			this.unknownRefsCounter);
+	}
+	this.unknownRefs[this.unknownRefsCounter++] = nameRef;
 }
 private TypeReference typeReference(
 	int dim, 
