@@ -239,9 +239,6 @@ public class Scribe {
 		}
 		this.indentationLevel = alignment.location.outputIndentationLevel;
 			
-		if (alignment.wasSplit) {
-			this.column = alignment.location.outputColumn;
-		}
 		if (discardAlignment){ 
 			this.currentAlignment = alignment.enclosing;
 		}

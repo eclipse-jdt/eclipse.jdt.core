@@ -29,6 +29,30 @@ public interface IMethodBinding extends IBinding {
 	 *    and <code>false</code> if this is the binding for a method
 	 */ 
 	public boolean isConstructor();
+
+	/**
+	 * Returns whether this binding is known to be a compiler-generated 
+	 * default constructor. 
+	 * <p>
+	 * This method returns <code>false</code> for:
+	 * <ul>
+	 * <li>methods</li>
+	 * <li>constructors with more than one parameter</li>
+	 * <li>0-argument constructors where the binding information was obtained
+	 * from a Java source file containing an explicit 0-argument constructor
+	 * declaration</li>
+	 * <li>0-argument constructors where the binding information was obtained
+	 * from a Java class file (it is not possible to determine from a
+	 * class file whether a 0-argument constructor was present in the source
+	 * code versus generated automatically by a Java compiler)</li>
+	 * </ul>
+	 * 
+	 * @return <code>true</code> if this is known to be the binding for a 
+	 * compiler-generated default constructor, and <code>false</code>
+	 * otherwise
+	 * @since 3.0
+	 */ 
+	public boolean isDefaultConstructor();
 	
 	/**
 	 * Returns the name of the method declared in this binding. The method name

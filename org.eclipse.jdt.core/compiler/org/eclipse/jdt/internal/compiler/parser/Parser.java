@@ -7215,9 +7215,6 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 	astStack : MethodDeclaration
 	identifierStack :
 	*/
-
-	//must provide a default constructor call when needed
-
 	if (hasBody) {
 		// pop the position of the {  (body of the method) pushed in block decl
 		intPtr--;
@@ -7231,6 +7228,12 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 	int length;
 	if (hasBody && ((length = astLengthStack[astLengthPtr--]) != 0)) {
 		astPtr -= length;
+	}
+	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) astStack[astPtr];
+	constructorDeclaration.bodyEnd = endStatementPosition;
+	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	if (!hasBody) {
+		constructorDeclaration.modifiers |= AccSemicolonBody;
 	}
 }
 protected void ignoreMethodBody() {

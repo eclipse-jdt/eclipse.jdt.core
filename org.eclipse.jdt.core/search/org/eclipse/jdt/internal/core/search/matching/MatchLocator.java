@@ -444,8 +444,12 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	if (openable instanceof CompilationUnit)
 		return ((CompilationUnit) openable).getImport(new String(importName));
 
-	// binary types do not contain import statements so just answer the type as the element
-	return ((ClassFile) openable).getType();
+	// binary types do not contain import statements so just answer the top-level type as the element
+	IType binaryType = ((ClassFile) openable).getType();
+	String typeName = binaryType.getElementName();
+	int lastDollar = typeName.lastIndexOf('$');
+	if (lastDollar == -1) return binaryType;
+	return createTypeHandle(typeName.substring(0, lastDollar));
 }
 /**
  * Creates an IType from the given simple top level type name. 

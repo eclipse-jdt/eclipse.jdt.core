@@ -33,11 +33,65 @@
   </tr>
 </table>
 
-<a name="v_388"></a>
+<a name="v_389"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK 3.0M6 Build - ?th November 2003
+<br>Project org.eclipse.jdt.core v_389
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_389">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Spec and implementation for <code>ITypeBinding.getBinaryName()</code> was changed to be '.' separated:
+<pre>
+ /**
+ * Returns the binary name of this type binding.
+ * The binary name of a class is defined in the Java Language 
+ * Specification 2nd edition, section 13.1.
+ *
+ * Note that in some cases, the binary name may be unavailable.
+ * This may happen, for example, for a local type declared in 
+ * unreachable code.
+ *
+ * @return the binary name of this type, or null 
+ * if the binary name is unknown
+ * @since 3.0
+ */
+public String getBinaryName();
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44493">44493</a>
+Improve formatting of throws clauses
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44765">44765</a>
+New formatter not properly formatting long method invocation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44653">44653</a>
+// $NON-NLS-1$ comments not kept on same line of the string while formatting
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44642">44642</a>
+New formatter should better handle cascaded message
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46699">46699</a>
+IBinding.isSynthetic() returns false for compiler-generated constructor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057">46057</a>
+need mechanism for retrieving the name of anonymous and local classes 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47415">47415</a>
+[Search] package references confused with multiple fragments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38679">38679</a>
+Search for class ref shows local class containing a match on an import [search]
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47049">47049</a>
+[Builder] Build output folder not getting flushed because files are not marked as derived
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46613">46613</a>
+AST nodes and string buffers
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47396">47396</a>
+JAVA AST Creation failure
+
+<a name="v_388"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 25th November 2003
 <br>Project org.eclipse.jdt.core v_388
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_388">cvs</a>).
 <h2>
@@ -67,9 +121,9 @@ What's new in this drop</h2>
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44397">44397</a>
 Search doesn't find references to local types
-<br<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46571">46571</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46571">46571</a>
 Searching for all occurrences for method declarated in local types doesn't wor
-<br<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46943">46943</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46943">46943</a>
 refactoring: encapsulate field of local type: references from enclosing type are not replaced by setter 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47180">47180</a>
 NPE in Delta Processor 
@@ -170,8 +224,6 @@ IllegalArgumentException in StringLiteral
 NPE in PatternLocator.qualifiedSourceName
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47074">47074</a>
 inability to detect invalid cast between interfaces
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057">46057</a>
-need mechanism for retrieving the name of anonymous and local classes 
 
 <a name="v_385"></a>
 <p><hr><h1>

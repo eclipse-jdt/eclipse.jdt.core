@@ -499,7 +499,7 @@ protected NameReference getUnspecifiedReference() {
 		return ref;
 	}
 }
-protected NameReference getUnspecifiedReferenceOptimized() {
+public NameReference getUnspecifiedReferenceOptimized() {
 	/* build a (unspecified) NameReference which may be qualified
 	The optimization occurs for qualified reference while we are
 	certain in this case the last item of the qualified name is

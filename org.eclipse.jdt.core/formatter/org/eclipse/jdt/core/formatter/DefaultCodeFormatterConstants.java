@@ -36,6 +36,11 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_AFTER_IMPORTS = JavaCore.PLUGIN_ID + ".formatter.blank_lines_after_imports";	//$NON-NLS-1$
 	public static final String FORMATTER_INITIAL_INDENTATION_LEVEL = JavaCore.PLUGIN_ID + ".formatter.initial_indentation_level";	//$NON-NLS-1$
 	public static final String FORMATTER_CONTINUATION_INDENTATION = JavaCore.PLUGIN_ID + ".formatter.continuation_indentation";	//$NON-NLS-1$
+	// TODO remove before 3.0
+	/**
+	 * @deprecated
+	 */
+	public static final String FORMATTER_CONVERT_OLD_TO_NEW = JavaCore.PLUGIN_ID + ".formatter.convert_old_to_new";	//$NON-NLS-1$
 	public static final String FORMATTER_TYPE_DECLARATION_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.type_declaration_brace_position";	//$NON-NLS-1$
 	public static final String FORMATTER_METHOD_DECLARATION_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.method_declaration_brace_position";	//$NON-NLS-1$
 	public static final String FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_assignment_operators";	//$NON-NLS-1$

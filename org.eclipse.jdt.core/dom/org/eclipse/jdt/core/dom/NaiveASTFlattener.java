@@ -45,7 +45,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * Creates a new AST printer.
 	 */
 	NaiveASTFlattener() {
-		this.buffer = new StringBuffer(6000);
+		this.buffer = new StringBuffer();
 	}
 	
 	/**
@@ -54,7 +54,6 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @return the serialized 
 	 */
 	public String getResult() {
-		// convert to a string, but lose any extra space in the string buffer by copying
 		return buffer.toString();
 	}
 	

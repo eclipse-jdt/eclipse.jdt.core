@@ -1004,12 +1004,6 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, unitScope)) {
-				if (this.typeParameters != null) {
-					int typeParametersLength = this.typeParameters.length;
-					for (int i = 0; i < typeParametersLength; i++) {
-						this.typeParameters[i].traverse(visitor, scope);
-					}
-				}
 				if (superclass != null)
 					superclass.traverse(visitor, scope);
 				if (superInterfaces != null) {
@@ -1037,12 +1031,6 @@ public class TypeDeclaration
 					int methodsLength = methods.length;
 					for (int i = 0; i < methodsLength; i++)
 						methods[i].traverse(visitor, scope);
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
 				}
 			}
 			visitor.endVisit(this, unitScope);

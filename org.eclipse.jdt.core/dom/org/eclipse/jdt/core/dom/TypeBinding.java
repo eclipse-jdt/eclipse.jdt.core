@@ -312,11 +312,16 @@ class TypeBinding implements ITypeBinding {
 	
 	/*
 	 * @see ITypeBinding#getBinaryName()
+	 * @since 3.0
 	 */
 	public String getBinaryName() {
 		char[] constantPoolName = this.binding.constantPoolName();
 		if (constantPoolName == null) return null;
-		return new String(constantPoolName);
+		int length = constantPoolName.length;
+		char[] dotSeparated = new char[length];
+		System.arraycopy(constantPoolName, 0, dotSeparated, 0, length);
+		CharOperation.replace(dotSeparated, '/', '.');
+		return new String(dotSeparated);
 	}
 
 	/*

@@ -11,7 +11,10 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -25,6 +28,23 @@ public PackageReferenceLocator(PackageReferencePattern pattern) {
 	super(pattern);
 
 	this.pattern = pattern;
+}
+// check that referenced type is actually defined in this package fragment
+public boolean isDeclaringPackageFragment(IPackageFragment packageFragment, ReferenceBinding typeBinding) {
+	char[] fileName = typeBinding.getFileName();
+	if (fileName != null) {
+		// retrieve the actual file name from the full path (sources are generally only containing it already)
+		CharOperation.replace(fileName, '/', '\\');
+		fileName = CharOperation.lastSegment(fileName, '\\');
+		if (typeBinding.isBinaryBinding()) {
+			IClassFile classfile = packageFragment.getClassFile(new String(fileName));
+			return classfile.exists();
+		} else {
+			ICompilationUnit unit = packageFragment.getCompilationUnit(new String(fileName));
+			return unit.exists();
+		}
+	}
+	return true; // by default, do not eliminate 
 }
 public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
@@ -174,8 +194,15 @@ public int resolveLevel(Binding binding) {
 			compoundName = pkgBinding.compoundName;
 		}
 	}
-	return compoundName != null && matchesName(this.pattern.pkgName, CharOperation.concatWith(compoundName, '.'))
-		? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+	if (compoundName != null && matchesName(this.pattern.pkgName, CharOperation.concatWith(compoundName, '.'))) {
+		if (this.pattern.focus instanceof IPackageFragment && binding instanceof ReferenceBinding) {
+			// check that type is located inside this instance of a package fragment
+			if (!isDeclaringPackageFragment((IPackageFragment)this.pattern.focus, (ReferenceBinding)binding)) return IMPOSSIBLE_MATCH;
+		}				
+		return ACCURATE_MATCH;
+	} else {
+		return IMPOSSIBLE_MATCH;
+	}
 }
 protected int resolveLevel(QualifiedNameReference qNameRef) {
 	TypeBinding typeBinding = null;

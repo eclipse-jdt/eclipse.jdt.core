@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+
 /**
  * Internal implementation of method bindings.
  */
@@ -37,6 +39,17 @@ class MethodBinding implements IMethodBinding {
 		return this.binding.isConstructor();
 	}
 
+	/*
+	 * @see IMethodBinding#isDefaultConstructor()
+	 * @since 3.0
+	 */
+	public boolean isDefaultConstructor() {
+		if (this.binding.declaringClass.isBinaryBinding()) {
+			return false;
+		}
+		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+	}
+	
 	/*
 	 * @see IBinding#getName()
 	 */
