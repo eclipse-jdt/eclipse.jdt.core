@@ -102,10 +102,10 @@ public class Main implements ProblemSeverities {
 			CompilerOptions.DO_NOT_GENERATE);
 		options.put(
 			CompilerOptions.OPTION_LineNumberAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
+			CompilerOptions.GENERATE);
 		options.put(
 			CompilerOptions.OPTION_SourceFileAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
+			CompilerOptions.GENERATE);
 		options.put(
 			CompilerOptions.OPTION_PreserveUnusedLocal,
 			CompilerOptions.OPTIMIZE_OUT);
