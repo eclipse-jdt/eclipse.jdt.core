@@ -117,6 +117,7 @@ void delete(IJavaElement[] elements, boolean force, IProgressMonitor monitor) th
  * Returns the Java project with the given name. This is a handle-only method. 
  * The project may or may not exist.
  * 
+ * @param name the name of the Java project
  * @return the Java project with the given name
  */
 IJavaProject getJavaProject(String name);

@@ -78,7 +78,7 @@ public interface IJavaModelStatusConstants {
 	 * supplied do not exist. 
 	 * The element(s) can be retrieved using <code>getElements</code> on the status object.
 	 *
-	 * @see IJavaModelStatus#isDoesNotExist
+	 * @see IJavaModelStatus#isDoesNotExist()
 	 */
 	public static final int ELEMENT_DOES_NOT_EXIST = 969;
 

@@ -61,13 +61,13 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 
 		fResultElements = new IJavaElement[] {workingCopy};
 	}
-	/**
+	/*
 	 * Returns the working copy this operation is working on.
 	 */
 	protected CompilationUnit getWorkingCopy() {
 		return (CompilationUnit)getElementToProcess();
 	}
-	/**
+	/*
 	 * @see JavaModelOperation#isReadOnly
 	 */
 	public boolean isReadOnly() {

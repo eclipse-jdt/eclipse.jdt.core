@@ -93,6 +93,7 @@ public class ElementChangedEvent extends EventObject {
 	 * Creates an new element changed event (based on a <code>IJavaElementDelta</code>).
 	 *
 	 * @param delta the Java element delta.
+	 * @param type the type of delta (ADDED, REMOVED, CHANGED) this event contains
 	 */
 	public ElementChangedEvent(IJavaElementDelta delta, int type) {
 		super(delta);

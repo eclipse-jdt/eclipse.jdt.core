@@ -72,7 +72,7 @@ void acceptField(
  * Notification of an interface correction.
  *
  * @param packageName Declaring package name of the interface.
- * @param className Name of the interface.
+ * @param interfaceName Name of the interface.
  * @param correctionName The correction for the interface.
  *   Can include ';' for imported interfaces.
  * @param modifiers The modifiers of the interface.
@@ -123,7 +123,9 @@ void acceptLocalVariable(
  * @param selector Name of the method.
  * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    Should contain as many elements as parameterTypeNames.
- * @param parameterTypeNames Names of the parameters types.
+ * @param parameterTypeNames Names of the parameter types.
+ *    Should contain as many elements as parameterPackageNames.
+ * @param parameterNames Names of the parameters.
  *    Should contain as many elements as parameterPackageNames.
  * @param returnTypePackageName Name of the package in which the return type is declared.
  * @param returnTypeName Name of the return type of this method, should be <code>null</code> for a constructor.

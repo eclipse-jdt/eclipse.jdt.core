@@ -67,9 +67,10 @@ public abstract class ClasspathContainerInitializer {
      * 	to be resolved
      * @param project the Java project in which context the container is to be resolved.
      *    This allows generic containers to be bound with project specific values.
+     * @throws CoreException if an exception occurs during the initialization
      * 
      * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
-     * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+     * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], org.eclipse.core.runtime.IProgressMonitor)
      * @see IClasspathContainer
      */
     public abstract void initialize(IPath containerPath, IJavaProject project) throws CoreException;
@@ -108,7 +109,7 @@ public abstract class ClasspathContainerInitializer {
      * @param project the project for which the container is to be updated
 	 * @param containerSuggestion a suggestion to update the corresponding container definition
 	 * @throws CoreException when <code>JavaCore#setClasspathContainer</code> would throw any.
-	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], org.eclipse.core.runtime.IProgressMonitor)
 	 * @see ClasspathContainerInitializer#canUpdateClasspathContainer(IPath, IJavaProject)
 	 * @since 2.1
 	 */

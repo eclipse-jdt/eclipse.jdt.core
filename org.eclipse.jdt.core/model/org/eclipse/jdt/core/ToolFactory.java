@@ -279,7 +279,7 @@ public class ToolFactory {
 	 * <p>
 	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
 	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
-	 * @param assertKeyword if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
+	 * @param assertMode if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
 	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>true</code>, it
 	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
 	 * a new 'assert' keyword.

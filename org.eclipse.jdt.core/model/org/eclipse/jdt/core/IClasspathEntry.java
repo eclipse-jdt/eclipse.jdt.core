@@ -103,11 +103,11 @@ import org.eclipse.core.runtime.IPath;
  * Classpath entries can be created via methods on <code>JavaCore</code>.
  * </p>
  *
- * @see JavaCore#newLibraryEntry
- * @see JavaCore#newProjectEntry
- * @see JavaCore#newSourceEntry
- * @see JavaCore#newVariableEntry
- * @see JavaCore#newContainerEntry
+ * @see JavaCore#newLibraryEntry(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath)
+ * @see JavaCore#newProjectEntry(org.eclipse.core.runtime.IPath)
+ * @see JavaCore#newSourceEntry(org.eclipse.core.runtime.IPath)
+ * @see JavaCore#newVariableEntry(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath)
+ * @see JavaCore#newContainerEntry(org.eclipse.core.runtime.IPath)
  * @see ClasspathVariableInitializer
  * @see ClasspathContainerInitializer
  */

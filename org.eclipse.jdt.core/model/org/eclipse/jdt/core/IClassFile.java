@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * This interface is not intended to be implemented by clients.
  * </p>
  *
- * @see IPackageFragmentRoot#attachSource
+ * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, IProgressMonitor)
  */
  
 public interface IClassFile extends IJavaElement, IParent, IOpenable, ISourceReference, ICodeAssist {
@@ -71,6 +71,7 @@ IType getType() throws JavaModelException;
  *                 or <code>null</code> if no progress should be reported 
  * @param factory the factory that creates a buffer that is used to get the content of the working copy
  *                 or <code>null</code> if the internal factory should be used
+ * @return a  a working copy on the source associated with this class file
  * @exception JavaModelException if the source of this class file can
  *   not be determined. Reasons include:
  * <ul>

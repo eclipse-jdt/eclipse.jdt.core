@@ -1128,11 +1128,9 @@ public final class JavaCore extends Plugin {
 				try {
 					// wrap initializer call with Safe runnable in case initializer would be causing some grief
 					Platform.run(new ISafeRunnable() {
-						/** @param exception */
 						public void handleException(Throwable exception) {
 							Util.log(exception, "Exception occurred in classpath container initializer: "+initializer); //$NON-NLS-1$
 						}
-						/** @throws Exception */
 						public void run() throws Exception {
 							initializer.initialize(containerPath, project);
 						}
@@ -2482,7 +2480,7 @@ public final class JavaCore extends Plugin {
 			Assert.isTrue(
 				false,
 				"Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
-		}		
+		}
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
@@ -2915,7 +2913,7 @@ public final class JavaCore extends Plugin {
 		IPath variableSourceAttachmentPath,
 		IPath variableSourceAttachmentRootPath,
 		boolean isExported) {
-
+			
 		if (variablePath == null) {
 			Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
 		}		

@@ -84,6 +84,7 @@ public interface IClasspathContainer {
 	 * 	implicitly contributed by the runtime).</li>
 	 * </ul>
 	 * Typically, system containers should be placed first on a build path.
+	 * @return the kind of this container
 	 */	
     int getKind();
 

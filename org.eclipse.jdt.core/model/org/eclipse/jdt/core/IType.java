@@ -45,7 +45,7 @@ public interface IType extends IMember {
 	 * A possible value is -1, if the position is not known.
 	 * @param position the position with in snippet where the user 
 	 * is performing code assist.
-	 * @param localVariableTypesNames an array (possibly empty) of fully qualified 
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified 
 	 * type names of local variables visible at the current scope
 	 * @param localVariableNames an array (possibly empty) of local variable names 
 	 * that are visible at the current scope
@@ -53,6 +53,8 @@ public interface IType extends IMember {
 	 * local variables
 	 * @param isStatic whether the current scope is in a static context
 	 * @param requestor the completion requestor
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
 	 * @since 2.0
 	 */
 	void codeComplete(
@@ -86,7 +88,7 @@ public interface IType extends IMember {
 	 * A possible value is -1, if the position is not known.
 	 * @param position the position with in snippet where the user 
 	 * is performing code assist.
-	 * @param localVariableTypesNames an array (possibly empty) of fully qualified 
+	 * @param localVariableTypeNames an array (possibly empty) of fully qualified 
 	 * type names of local variables visible at the current scope
 	 * @param localVariableNames an array (possibly empty) of local variable names 
 	 * that are visible at the current scope
@@ -95,6 +97,8 @@ public interface IType extends IMember {
 	 * @param isStatic whether the current scope is in a static context
 	 * @param requestor the completion requestor
 	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
 	 * @since 3.0
 	 */
 	void codeComplete(
@@ -415,7 +419,7 @@ public interface IType extends IMember {
 	 * Returns the member type declared in this type with the given simple name.
 	 * This is a handle-only method. The type may or may not exist.
 	 * 
-	 * @param the given simple name
+	 * @param name the given simple name
 	 * @return the member type declared in this type with the given simple name
 	 */
 	IType getType(String name);
@@ -537,7 +541,7 @@ public interface IType extends IMember {
 	 * @exception JavaModelException if the hierarchy could not be restored, reasons include:
 	 *      - type is not the focus of the hierarchy or 
 	 *		- unable to read the input stream (wrong format, IOException during reading, ...)
-	 * @see ITypeHierarchy#store(OutputStream, IProgressMonitor)
+	 * @see ITypeHierarchy#store(java.io.OutputStream, IProgressMonitor)
 	 * @since 2.1
 	 */
 	ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monitor) throws JavaModelException;
@@ -545,9 +549,9 @@ public interface IType extends IMember {
 	 * Creates and returns a type hierarchy for this type containing
 	 * this type and all of its supertypes.
 	 *
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
-	 * @param monitor the given progress monitor
 	 * @return a type hierarchy for this type containing this type and all of its supertypes
 	 */
 	ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException;
@@ -636,9 +640,9 @@ public interface IType extends IMember {
 	 * Creates and returns a type hierarchy for this type containing
 	 * this type, all of its supertypes, and all its subtypes in the workspace.
 	 *
+	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
-	 * @param monitor the given progress monitor
 	 * @return a type hierarchy for this type containing
 	 * this type, all of its supertypes, and all its subtypes in the workspace
 	 */
@@ -674,7 +678,6 @@ public interface IType extends IMember {
 	 * unit had been deleted.
 	 * <p>
 	 *
-	 * @param workingCopies the working copies that take precedence over their original compilation units
 	 * @param owner the owner of working copies that take precedence over their original compilation units
 	 * @param monitor the given progress monitor
 	 * @return a type hierarchy for this type containing

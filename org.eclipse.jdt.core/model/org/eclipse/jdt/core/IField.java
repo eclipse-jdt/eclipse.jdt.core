@@ -96,10 +96,10 @@ String getElementName();
 /**
  * Returns the type signature of this field.
  *
- * @see Signature
  * @return the type signature of this field.
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource
+ * @see Signature
  */
 String getTypeSignature() throws JavaModelException;
 }

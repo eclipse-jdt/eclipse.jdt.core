@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
  * the <code>org.eclipse.jdt.core.dom</code> package.
  * </p>
  *
- * @see IMember#getFlags
+ * @see IMember#getFlags()
  */
 public final class Flags {
 

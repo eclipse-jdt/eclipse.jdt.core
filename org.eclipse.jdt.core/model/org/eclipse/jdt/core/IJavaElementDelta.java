@@ -120,7 +120,7 @@ public interface IJavaElementDelta {
 	 * Status constant indicating that the element has been changed,
 	 * as described by the change flags.
 	 * 
-	 * @see #getFlags
+	 * @see #getFlags()
 	 */
 	public int CHANGED = 4;
 
@@ -233,7 +233,7 @@ public interface IJavaElementDelta {
 	 * This flag is only valid if the element is an <code>IPackageFragmentRoot</code>
 	 * which is an archive.
 	 * 
-	 * @see IPackageFragmentRoot#isArchive
+	 * @see IPackageFragmentRoot#isArchive()
 	 * @since 2.0
 	 */
 	public int F_ARCHIVE_CONTENT_CHANGED = 0x08000;

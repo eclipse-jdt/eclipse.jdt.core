@@ -42,8 +42,8 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
  * instantiated or subclassed by clients.
  * </p>
  * 
- * @see JavaCore#setOptions
- * @see JavaCore#getDefaultOptions
+ * @see JavaCore#setOptions(java.util.Hashtable)
+ * @see JavaCore#getDefaultOptions()
  * @since 2.1
  */
 public final class NamingConventions {
@@ -293,8 +293,8 @@ public final class NamingConventions {
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
 	 * @return char[] the name without prefix and suffix.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[] removePrefixAndSuffixForArgumentName(IJavaProject javaProject, char[] argumentName) {
 		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
@@ -324,8 +324,8 @@ public final class NamingConventions {
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
 	 * @return char[] the name without prefix and suffix.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String removePrefixAndSuffixForArgumentName(IJavaProject javaProject, String argumentName) {
 		return String.valueOf(removePrefixAndSuffixForArgumentName(javaProject, argumentName.toCharArray()));
@@ -355,8 +355,8 @@ public final class NamingConventions {
 	 * <code>Flags</code>.
 	 * @return char[] the name without prefix and suffix.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[] removePrefixAndSuffixForFieldName(IJavaProject javaProject, char[] fieldName, int modifiers) {
 		boolean isStatic = Flags.isStatic(modifiers);
@@ -391,8 +391,8 @@ public final class NamingConventions {
 	 * <code>Flags</code>.
 	 * @return char[] the name without prefix and suffix.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String removePrefixAndSuffixForFieldName(IJavaProject javaProject, String fieldName, int modifiers) {
 		return String.valueOf(removePrefixAndSuffixForFieldName(javaProject, fieldName.toCharArray(), modifiers));
@@ -417,8 +417,8 @@ public final class NamingConventions {
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
 	 * @return char[] the name without prefix and suffix.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[] removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, char[] localName) {
 		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
@@ -448,8 +448,8 @@ public final class NamingConventions {
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
 	 * @return char[] the name without prefix and suffix.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, String localName) {
 		return String.valueOf(removePrefixAndSuffixForLocalVariableName(javaProject, localName.toCharArray()));
@@ -480,8 +480,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[][] suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
 		NamingRequestor requestor = new NamingRequestor();
@@ -521,8 +521,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String[] suggestArgumentNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
 		return convertCharsToString(
@@ -562,8 +562,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {
 		NamingRequestor requestor = new NamingRequestor();
@@ -608,8 +608,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String[] suggestFieldNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, int modifiers, String[] excludedNames) {
 		return convertCharsToString(
@@ -647,8 +647,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[][] suggestLocalVariableNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {
 		NamingRequestor requestor = new NamingRequestor();
@@ -688,8 +688,8 @@ public final class NamingConventions {
 	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String[] suggestLocalVariableNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
 		return convertCharsToString(
@@ -729,8 +729,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 		if (isBoolean) {
@@ -781,8 +781,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String suggestGetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(
@@ -821,8 +821,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 
@@ -877,8 +877,8 @@ public final class NamingConventions {
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
-	 * @see JavaCore#setOptions
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#setOptions(java.util.Hashtable)
+	 * @see JavaCore#getDefaultOptions()
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 
 /* package */ class BinaryField extends BinaryMember implements IField {
 
-/**
+/*
  * Constructs a handle to the field with the given name in the specified type. 
  */
 protected BinaryField(JavaElement parent, String name) {
@@ -31,40 +31,40 @@ public boolean equals(Object o) {
 	if (!(o instanceof BinaryField)) return false;
 	return super.equals(o);
 }
-/**
+/*
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return convertConstant(info.getConstant());
 }
-/**
+/*
  * @see IMember
  */
 public int getFlags() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return info.getModifiers();
 }
-/**
+/*
  * @see IJavaElement
  */
 public int getElementType() {
 	return FIELD;
 }
-/**
+/*
  * @see JavaElement#getHandleMemento()
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
 }
-/**
+/*
  * @see IField
  */
 public String getTypeSignature() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return new String(ClassFile.translatedName(info.getTypeName()));
 }
-/**
+/*
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {

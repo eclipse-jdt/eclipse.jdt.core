@@ -118,6 +118,7 @@ public interface IWorkingCopy {
 	 * or <code>null</code> if this is not a working copy element.  This is a handle
 	 * only method, the returned element may or may not exist.
 	 * 
+	 * @param workingCopyElement the specified working copy element
 	 * @return the original element the specified working copy element was created from,
 	 * or <code>null</code> if this is not a working copy element
 	 */
@@ -269,6 +270,7 @@ public interface IWorkingCopy {
 	 * Returns whether this working copy's original element's content
 	 * has not changed since the inception of this working copy.
 	 * 
+	 * @param resource this working copy's resource
 	 * @return true if this working copy's original element's content
 	 * has not changed since the inception of this working copy, false otherwise
 	 */

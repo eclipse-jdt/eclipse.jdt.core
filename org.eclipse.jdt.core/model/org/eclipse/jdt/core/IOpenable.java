@@ -97,7 +97,7 @@ boolean hasUnsavedChanges() throws JavaModelException;
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource.
  * @return true if the element is consistent with its underlying resource or buffer, false otherwise.
- * @see IOpenable#makeConsistent
+ * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 boolean isConsistent() throws JavaModelException;
 /**
@@ -115,7 +115,7 @@ boolean isOpen();
  * <ul>
  *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
- * @see IOpenable#isConsistent
+ * @see IOpenable#isConsistent()
  */
 void makeConsistent(IProgressMonitor progress) throws JavaModelException;
 /**

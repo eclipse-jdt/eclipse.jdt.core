@@ -26,7 +26,7 @@ package org.eclipse.jdt.core;
  * Instances can be created via the <code>JavaCore.newRegion</code>.
  * </p>
  *
- * @see JavaCore#newRegion
+ * @see JavaCore#newRegion()
  */
 public interface IRegion {
 	/**

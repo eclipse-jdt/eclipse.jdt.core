@@ -99,7 +99,7 @@ public boolean equals(Object o) {
 	if (!(o instanceof BinaryMethod)) return false;
 	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((BinaryMethod)o).parameterTypes);
 }
-/**
+/*
  * @see IMethod
  */
 public String[] getExceptionTypes() throws JavaModelException {
@@ -124,20 +124,20 @@ public String[] getExceptionTypes() throws JavaModelException {
 	}
 	return this.exceptionTypes;
 }
-/**
+/*
  * @see IJavaElement
  */
 public int getElementType() {
 	return METHOD;
 }
-/**
+/*
  * @see IMember
  */
 public int getFlags() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return info.getModifiers();
 }
-/**
+/*
  * @see JavaElement#getHandleMemento()
  */
 public String getHandleMemento() {
@@ -154,19 +154,19 @@ public String getHandleMemento() {
 	}
 	return buff.toString();
 }
-/**
+/*
  * @see JavaElement#getHandleMemento()
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_METHOD;
 }
-/**
+/*
  * @see IMethod
  */
 public int getNumberOfParameters() {
 	return this.parameterTypes == null ? 0 : this.parameterTypes.length;
 }
-/**
+/*
  * @see IMethod
  * Look for source attachment information to retrieve the actual parameter names as stated in source.
  */
@@ -208,13 +208,13 @@ public String[] getParameterNames() throws JavaModelException {
 	}
 	return this.parameterNames;
 }
-/**
+/*
  * @see IMethod
  */
 public String[] getParameterTypes() {
 	return this.parameterTypes;
 }
-/**
+/*
  * @see IMethod
  */
 public String getReturnType() throws JavaModelException {
@@ -225,28 +225,28 @@ public String getReturnType() throws JavaModelException {
 	}
 	return this.returnType;
 }
-/**
+/*
  * @see IMethod
  */
 public String getSignature() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return new String(info.getMethodDescriptor());
 }
-/**
+/*
  * @see IMethod
  */
 public boolean isConstructor() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return info.isConstructor();
 }
-/**
+/*
  * @see IMethod#isMainMethod()
  */
 public boolean isMainMethod() throws JavaModelException {
 	return this.isMainMethod(this);
 }
 
-/**
+/*
  * @see IMethod#isSimilar(IMethod)
  */
 public boolean isSimilar(IMethod method) {
@@ -257,8 +257,6 @@ public boolean isSimilar(IMethod method) {
 			null);
 }
 
-/**
- */
 public String readableName() {
 
 	StringBuffer buffer = new StringBuffer(super.readableName());
@@ -276,7 +274,7 @@ public String readableName() {
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
-/**
+/*
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {

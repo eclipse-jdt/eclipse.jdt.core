@@ -21,9 +21,9 @@ import org.eclipse.jdt.internal.core.BufferManager;
  * Clients can also override the default implementation of <code>createBuffer(ICompilationUnit)</code>.
  * </p>
  * 
- * @see ICompilationUnit#becomeWorkingCopy
- * @see ICompilationUnit#discardWorkingCopy
- * @see ICompilationUnit#getWorkingCopy
+ * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ * @see ICompilationUnit#discardWorkingCopy()
+ * @see ICompilationUnit#getWorkingCopy()
  * @since 3.0
  */
 public abstract class WorkingCopyOwner {

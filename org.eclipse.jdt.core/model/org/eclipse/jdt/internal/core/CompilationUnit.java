@@ -843,6 +843,13 @@ public boolean hasChildren() throws JavaModelException {
 	}
 }
 /*
+ * Returns whether the underlying resource of this working copy has changed since the
+ * inception of this working copy.
+ */
+public boolean hasResourceChanged() {
+	return !isBasedOn(getResource());
+}
+/*
  * @see ICompilationUnit#isBasedOn(IResource)
  */
 public boolean isBasedOn(IResource resource) {

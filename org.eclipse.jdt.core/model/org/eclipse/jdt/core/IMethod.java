@@ -25,6 +25,7 @@ public interface IMethod extends IMember {
  * For the class initialization methods in binary types, this returns
  * the special name <code>"&lt;clinit&gt;"</code>.
  * This is a handle-only method.
+ * @return the simple name of this method
  */
 String getElementName();
 /**
@@ -89,12 +90,13 @@ String[] getParameterTypes();
  */
 String getReturnType() throws JavaModelException;
 /**
- * Returns the signature of the method. This includes the signatures for the parameter
+ * Returns the signature of this method. This includes the signatures for the parameter
  * types and return type, but does not include the method name or exception types.
  *
  * <p>For example, a source method declared as <code>public void foo(String text, int length)</code>
  * would return <code>"(QString;I)V"</code>.
  *
+ * @return the signature of this method
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  *
@@ -138,7 +140,7 @@ boolean isMainMethod() throws JavaModelException;
  * 
  * @param method the given method
  * @return true if this method is similar to the given method.
- * @see Signature#getSimpleName
+ * @see Signature#getSimpleName(char[])
  * @since 2.0
  */
 boolean isSimilar(IMethod method);

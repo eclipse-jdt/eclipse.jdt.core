@@ -394,7 +394,7 @@ private ICompilationUnit[] getWorkingCopies() {
 		try {
 			if (!copy.isPrimary()
 					|| copy.hasUnsavedChanges()
-					|| !copy.isBasedOn(copy.getResource())) {
+					|| copy.hasResourceChanged()) {
 				if (result == null) {
 					result = new ICompilationUnit[length];
 				}

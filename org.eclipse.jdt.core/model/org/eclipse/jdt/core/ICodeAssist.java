@@ -90,13 +90,13 @@ public interface ICodeAssist {
 	void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)
 		throws JavaModelException;
 	/**
-	 * Performs code selection on the given selected text in this compilation unit,
-	 * reporting results to the given selection requestor. The <code>offset</code>
-	 * is the 0-based index of the first selected character. The <code>length</code> 
-	 * is the number of selected characters.
+	 * Returns the Java elements correspondiing to the given selected text in this compilation unit. 
+	 * The <code>offset</code> is the 0-based index of the first selected character. 
+	 * The <code>length</code> is the number of selected characters.
 	 * 
 	 * @param offset the given offset position
 	 * @param length the number of selected characters
+	 * @return the Java elements correspondiing to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
@@ -107,10 +107,9 @@ public interface ICodeAssist {
 	 */
 	IJavaElement[] codeSelect(int offset, int length) throws JavaModelException;
 	/**
-	 * Performs code selection on the given selected text in this compilation unit,
-	 * reporting results to the given selection requestor. The <code>offset</code>
-	 * is the 0-based index of the first selected character. The <code>length</code> 
-	 * is the number of selected characters.
+	 * Returns the Java elements correspondiing to the given selected text in this compilation unit. 
+	 * The <code>offset</code> is the 0-based index of the first selected character. 
+	 * The <code>length</code> is the number of selected characters.
 	 * It considers types in the working copies with the given owner first. In other words, 
 	 * the owner's working copies will take precedence over their original compilation units
 	 * in the workspace.
@@ -122,6 +121,7 @@ public interface ICodeAssist {
 	 * @param offset the given offset position
 	 * @param length the number of selected characters
 	 * @param owner the owner of working copies that take precedence over their original compilation units
+	 * @return the Java elements correspondiing to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>

@@ -306,7 +306,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param optionName the name of an option
 	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
 	 * @return the String value of a given option
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.1
 	 */
 	String getOption(String optionName, boolean inheritJavaCoreOptions);
@@ -322,7 +322,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.1
 	 */
 	Map getOptions(boolean inheritJavaCoreOptions);
@@ -344,8 +344,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @return the workspace-relative absolute path of the default output folder
 	 * @exception JavaModelException if this element does not exist
-	 * @see #setOutputLocation
-	 * @see IClasspathEntry#getOutputLocation
+	 * @see #setOutputLocation(org.eclipse.core.runtime.IPath, IProgressMonitor)
+	 * @see IClasspathEntry#getOutputLocation()
 	 */
 	IPath getOutputLocation() throws JavaModelException;
 
@@ -525,7 +525,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param element the given element
 	 * @return <code>true</code> if the given element is on the classpath of
 	 * this project, <code>false</code> otherwise
-	 * @see IClasspathEntry#getExclusionPatterns
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @since 2.0
 	 */
 	boolean isOnClasspath(IJavaElement element);
@@ -534,10 +534,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * that is, referenced from a classpath entry and not explicitly excluded
 	 * using an exclusion pattern.
 	 * 
-	 * @param element the given element
+	 * @param resource the given resource
 	 * @return <code>true</code> if the given resource is on the classpath of
 	 * this project, <code>false</code> otherwise
-	 * @see IClasspathEntry#getExclusionPatterns
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @since 2.1
 	 */
 	boolean isOnClasspath(IResource resource);
@@ -665,7 +665,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <code>proj.setRawClasspath(proj.readRawClasspath(), proj.readOutputLocation(), monitor)</code>
 	 * <p>
 	 * @return the workspace-relative absolute path of the default output folder
-	 * @see #getOutputLocation
+	 * @see #getOutputLocation()
 	 * @since 3.0
 	 */
 	IPath readOutputLocation();
@@ -695,7 +695,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <code>proj.setRawClasspath(proj.readRawClasspath(), proj.readOutputLocation(), monitor)</code>
 	 * <p>
 	 * @return the raw classpath from disk for the project, as a list of classpath entries
-	 * @see #getRawClassPath
+	 * @see #getRawClasspath()
 	 * @see IClasspathEntry
 	 * @since 3.0
 	 */
@@ -709,7 +709,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @param optionName the name of an option
 	 * @param optionValue the value of the option to set
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 * @since 3.0
 	 */
 	void setOption(String optionName, String optionValue);
@@ -724,7 +724,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to flush all custom options (clients will automatically get the global JavaCore options).
-	 * @see JavaCore#getDefaultOptions
+	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.1
 	 */
 	void setOptions(Map newOptions);
@@ -756,8 +756,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *  <li> The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
 	 *  <li> The output location is being modified during resource change event notification (CORE_EXCEPTION)	 
 	 * </ul>
-	 * @see #getOutputLocation
-     * @see IClasspathEntry#getOutputLocation
+	 * @see #getOutputLocation()
+     * @see IClasspathEntry#getOutputLocation()
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)
 		throws JavaModelException;

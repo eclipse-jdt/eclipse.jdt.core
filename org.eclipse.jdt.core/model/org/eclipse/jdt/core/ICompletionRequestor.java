@@ -29,23 +29,18 @@ public interface ICompletionRequestor {
  * 		new anonymous type declaration .
  * 
  * @param superTypeName Name of the super type of this new anonymous type declaration.
- * 
  * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    	Should contain as many elements as parameterTypeNames.
- * 
- * @param parameterTypeNames Names of the parameters types. 
+ * @param parameterTypeNames Names of the parameter types. 
  * 		Should contain as many elements as parameterPackageNames.
- * 
+ * @param parameterNames Names of the parameters. 
+ * 		Should contain as many elements as parameterPackageNames.
  * @param completionName The completion for the anonymous type declaration.
  * 		Can include zero, one or two brackets. If the closing bracket is included,
  * 		then the cursor should be placed before it.
- * 
  * @param modifiers The modifiers of the constructor.
- * 
  * @param completionStart The start position of insertion of the name of this new anonymous type declaration.
- * 
  * @param completionEnd The end position of insertion of the name of this new anonymous type declaration.
- * 
  * @param relevance The relevance of the completion proposal
  * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
  * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
@@ -149,7 +144,7 @@ void acceptField(
  * Code assist notification of an interface completion.
  * 
  * @param packageName Declaring package name of the interface.
- * @param className Name of the interface.
+ * @param interfaceName Name of the interface.
  * @param completionName The completion for the interface.	Can include ';' for imported interfaces.
  * @param modifiers The modifiers of the interface.
  * @param completionStart The start position of insertion of the name of the interface.
@@ -232,7 +227,9 @@ void acceptLocalVariable(
  * @param selector Name of the new method.
  * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    	Should contain as many elements as parameterTypeNames.
- * @param parameterTypeNames Names of the parameters types.
+ * @param parameterTypeNames Names of the parameter types.
+ *    	Should contain as many elements as parameterPackageNames.
+ * @param parameterNames Names of the parameters.
  *    	Should contain as many elements as parameterPackageNames.
  * @param returnTypePackageName Name of the package in which the return type is declared.
  * @param returnTypeName Name of the return type of this new method, should be <code>null</code> for a constructor.
@@ -277,7 +274,9 @@ void acceptMethod(
  * @param selector Name of the new method.
  * @param parameterPackageNames Names of the packages in which the parameter types are declared.
  *    	Should contain as many elements as parameterTypeNames.
- * @param parameterTypeNames Names of the parameters types.
+ * @param parameterTypeNames Names of the parameter types.
+ *    	Should contain as many elements as parameterPackageNames.
+ * @param parameterNames Names of the parameters.
  *    	Should contain as many elements as parameterPackageNames.
  * @param returnTypePackageName Name of the package in which the return type is declared.
  * @param returnTypeName Name of the return type of this new method, should be <code>null</code> for a constructor.

@@ -22,13 +22,13 @@ import org.eclipse.jdt.core.JavaModelException;
  * Common functionality for Binary member handles.
  */
 public abstract class BinaryMember extends Member {
-/**
+/*
  * Constructs a binary member.
  */
 protected BinaryMember(JavaElement parent, String name) {
 	super(parent, name);
 }
-/**
+/*
  * @see ISourceManipulation
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
@@ -49,7 +49,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	if (openableParentInfo == null) return;
 	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
 }
-/**
+/*
  * @see ISourceReference
  */
 public ISourceRange getNameRange() throws JavaModelException {
@@ -63,7 +63,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 		return SourceMapper.fgUnknownRange;
 	}
 }
-/**
+/*
  * @see ISourceReference
  */
 public ISourceRange getSourceRange() throws JavaModelException {
@@ -77,31 +77,31 @@ public ISourceRange getSourceRange() throws JavaModelException {
 		return SourceMapper.fgUnknownRange;
 	}
 }
-/**
+/*
  * @see IMember
  */
 public boolean isBinary() {
 	return true;
 }
-/**
+/*
  * @see IJavaElement
  */
 public boolean isStructureKnown() throws JavaModelException {
 	return ((IJavaElement)getOpenableParent()).isStructureKnown();
 }
-/**
+/*
  * @see ISourceManipulation
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
-/**
+/*
  * @see ISourceManipulation
  */
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
-/**
+/*
  * Sets the contents of this element.
  * Throws an exception as this element is read only.
  */

@@ -70,7 +70,7 @@ public final class JavaConventions {
 		return rootPath1.isPrefixOf(rootPath2) || rootPath2.isPrefixOf(rootPath1);
 	}
 
-	/**
+	/*
 	 * Returns the current identifier extracted by the scanner (without unicode
 	 * escapes) from the given id.
 	 * Returns <code>null</code> if the id was not valid
@@ -404,8 +404,8 @@ public final class JavaConventions {
 	 *  be performed during the classpath setting operation (if validation fails, the classpath setting will not complete).
 	 *  <p>
 	 * @param javaProject the given java project
-	 * @param classpath a given classpath
-	 * @param outputLocation a given output location
+	 * @param rawClasspath the given classpath
+	 * @param projectOutputLocation the given output location
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given classpath and output location are compatible, otherwise a status 
 	 *		object indicating what is wrong with the classpath or output location
@@ -421,7 +421,7 @@ public final class JavaConventions {
 	 * a status object with code <code>IStatus.OK</code> if the entry is fine (that is, if the
 	 * given classpath entry denotes a valid element to be referenced onto a classpath).
 	 * 
-	 * @param javaProject the given java project
+	 * @param project the given java project
 	 * @param entry the given classpath entry
 	 * @param checkSourceAttachment a flag to determine if source attachement should be checked
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine

@@ -97,13 +97,12 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 
 	 * @param marker
 	 * 		the marker which describe the problem to correct.
-	 * 
 	 * @param targetUnit
 	 * 		replace the compilation unit given by the marker. Ignored if null.
-	 * 
 	 * @param positionOffset
 	 * 		the offset of position given by the marker.
-	 *
+	 * @param requestor
+	 * 		the given correction requestor
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @exception JavaModelException currently this exception is never thrown, but the opportunity to thrown an exception
 	 * 	when the correction failed is kept for later. 
@@ -134,10 +133,10 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 
 	 * @param problem
 	 * 		the problem which describe the problem to correct.
-	 * 
 	 * @param targetUnit
 	 * 		denote the compilation unit in which correction occurs. Cannot be null.
-	 * 
+	 * @param requestor
+	 * 		the given correction requestor
 	 * @exception IllegalArgumentException if <code>targetUnit</code> or <code>requestor</code> is <code>null</code>
 	 * @exception JavaModelException currently this exception is never thrown, but the opportunity to thrown an exception
 	 * 	when the correction failed is kept for later.
@@ -155,7 +154,7 @@ public class CorrectionEngine implements ProblemReasons {
 			requestor);
 	}
 
-	/**
+	/*
 	 * Ask the engine to compute a correction for the specified problem
 	 * of the given compilation unit.
 	 * Correction results are answered through a requestor.

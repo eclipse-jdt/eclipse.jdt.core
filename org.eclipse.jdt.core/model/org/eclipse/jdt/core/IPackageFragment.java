@@ -39,6 +39,8 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	/**
 	 * Returns whether this fragment contains at least one Java resource.
 	 * @return true if this fragment contains at least one Java resource, false otherwise
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
 	 */
 	boolean containsJavaResources() throws JavaModelException;
 	/**
@@ -95,9 +97,10 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * in this package (for example, <code>"Object.java"</code>).
 	 * The name has to be a valid compilation unit name.
 	 * This is a handle-only method.  The compilation unit may or may not be present.
-	 * @see JavaConventions#validateCompilationUnitName
+	 * 
 	 * @param name the given name
 	 * @return the compilation unit with the specified name in this package
+	 * @see JavaConventions#validateCompilationUnitName(String)
 	 */
 	ICompilationUnit getCompilationUnit(String name);
 	/**
@@ -108,10 +111,11 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * primary compilation unit.
 	 * The name has to be a valid compilation unit name.
 	 * This is a handle-only method.  The compilation unit may or may not be present.
-	 * @see JavaConventions#validateCompilationUnitName
+	 * 
 	 * @param name the given name
 	 * @param owner the owner of the returned compilation unit
 	 * @return the compilation unit with the specified name in this package
+	 * @see JavaConventions#validateCompilationUnitName(String)
 	 * @since 3.0
 	 */
 	ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner);
@@ -160,12 +164,11 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * A package fragment can contain <code>.java</code> source files,
 	 * or <code>.class</code> files. This is a convenience method.
 	 *
-	 * @see IPackageFragmentRoot#K_SOURCE
-	 * @see IPackageFragmentRoot#K_BINARY
-	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return this package fragment's root kind encoded as an integer
+	 * @see IPackageFragmentRoot#K_SOURCE
+	 * @see IPackageFragmentRoot#K_BINARY
 	 */
 	int getKind() throws JavaModelException;
 	/**
@@ -185,7 +188,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
 	 *              package fragment is in an archive) contained in this package 
 	 *              fragment
-	 * @see IClasspathEntry#getExclusionPatterns
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;
 	/**

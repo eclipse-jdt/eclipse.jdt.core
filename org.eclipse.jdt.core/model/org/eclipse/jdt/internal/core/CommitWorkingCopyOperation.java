@@ -163,8 +163,8 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	/**
 	 * Returns the compilation unit this operation is working on.
 	 */
-	protected ICompilationUnit getCompilationUnit() {
-		return (ICompilationUnit)getElementToProcess();
+	protected CompilationUnit getCompilationUnit() {
+		return (CompilationUnit)getElementToProcess();
 	}
 	/**
 	 * Possible failures: <ul>
@@ -178,12 +178,12 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	 *  </ul>
 	 */
 	public IJavaModelStatus verify() {
-		ICompilationUnit cu = getCompilationUnit();
+		CompilationUnit cu = getCompilationUnit();
 		if (!cu.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
 		IResource resource = cu.getResource();
-		if (!cu.isBasedOn(resource) && !fForce) {
+		if (cu.hasResourceChanged() && !fForce) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}
 		// no read-only check, since some repository adapters can change the flag on save

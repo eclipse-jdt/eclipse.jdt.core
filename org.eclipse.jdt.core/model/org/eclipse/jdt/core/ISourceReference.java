@@ -30,7 +30,7 @@ package org.eclipse.jdt.core;
  * This interface is not intended to be implemented by clients.
  * </p>
  *
- * @see IPackageFragmentRoot#attachSource
+ * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IProgressMonitor)
  */
 public interface ISourceReference {
 /**

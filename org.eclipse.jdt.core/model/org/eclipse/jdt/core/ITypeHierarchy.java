@@ -145,9 +145,10 @@ IType[] getAllSupertypes(IType type);
 IType[] getAllTypes();
 
 /**
- * Return the flags associated with this type (would be equivalent to <code>IMember.getFlags()</code>),
+ * Return the flags associated with the given type (would be equivalent to <code>IMember.getFlags()</code>),
  * or <code>-1</code> if this information wasn't cached on the hierarchy during its computation.
  * 
+ * @param type the given type
  * @return the modifier flags for this member
  * @see Flags
  * @since 2.0
@@ -265,8 +266,8 @@ IType getType();
 /**
  * Re-computes the type hierarchy reporting progress.
  *
- * @exception JavaModelException if unable to refresh the hierarchy
  * @param monitor the given progress monitor
+ * @exception JavaModelException if unable to refresh the hierarchy
  */
 void refresh(IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -291,7 +292,7 @@ void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener);
  * @param outputStream output stream where the hierarchy will be stored
  * @param monitor the given progress monitor
  * @exception JavaModelException if unable to store the hierarchy in the ouput stream
- * @see IType#loadTypeHierachy(InputStream, IProgressMonitor)
+ * @see IType#loadTypeHierachy(java.io.InputStream, IProgressMonitor)
  * @since 2.1
  */
 void store(OutputStream outputStream, IProgressMonitor monitor) throws JavaModelException;
