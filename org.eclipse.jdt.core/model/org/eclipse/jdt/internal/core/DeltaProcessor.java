@@ -1684,10 +1684,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 				
 				// find out whether the child is a package fragment root of the current project
 				IPath childPath = childRes.getFullPath();
-				RootInfo childInfo = rootInfo == null ? (RootInfo)this.roots.get(childPath) : null;
-				if (childInfo != null && !childInfo.project.getProject().getFullPath().isPrefixOf(childPath)) {
+				RootInfo childRootInfo = rootInfo == null ? (RootInfo)this.roots.get(childPath) : null;
+				if (childRootInfo != null && !childRootInfo.project.getProject().getFullPath().isPrefixOf(childPath)) {
 					// package fragment root of another project (dealt with later)
-					childInfo = null;
+					childRootInfo = null;
 				}
 				
 				// compute child type
@@ -1697,15 +1697,16 @@ public class DeltaProcessor implements IResourceChangeListener {
 						child.getKind(),
 						child.getFlags(),
 						elementType, 
-						rootInfo == null ? childInfo : rootInfo
+						rootInfo == null ? childRootInfo : rootInfo
 					);
 						
 				// is childRes in the output folder and is it filtered out ?
 				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputsInfo, childRes, childType);
-				
-				if (!isResFilteredFromOutput) {
+
+				if (!isResFilteredFromOutput 
+						&& childRootInfo == null) { // do not treat as non-java rsc in rootInfo if nested root (childRootInfo)
 					if (childType == -1
-							|| !this.traverseDelta(child, childType, rootInfo == null ? childInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
+							|| !this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
 						
 						// it is a non-java resource
 						try {
@@ -1747,8 +1748,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 								
 				// if child was not a package fragment root of the current project
 				// but it is a package fragment root of another project, traverse delta too
-				if (childInfo == null && (childInfo = (RootInfo)this.roots.get(childPath)) != null) {
-					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, childInfo, null); // binary output of childInfo.project cannot be this root
+				if (childRootInfo == null && (childRootInfo = (RootInfo)this.roots.get(childPath)) != null) {
+					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, childRootInfo, null); // binary output of childRootInfo.project cannot be this root
 					// NB: No need to check the return value as the child can only be on the classpath
 				}
 	
@@ -1757,8 +1758,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 				if ((rootList = (ArrayList)this.otherRoots.get(childPath)) != null) {
 					Iterator iterator = rootList.iterator();
 					while (iterator.hasNext()) {
-						childInfo = (RootInfo) iterator.next();
-						this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, childInfo, null); // binary output of childInfo.project cannot be this root
+						childRootInfo = (RootInfo) iterator.next();
+						this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, childRootInfo, null); // binary output of childRootInfo.project cannot be this root
 					}
 				}
 			}
