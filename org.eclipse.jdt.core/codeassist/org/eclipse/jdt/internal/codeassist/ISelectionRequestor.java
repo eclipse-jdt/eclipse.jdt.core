@@ -145,11 +145,8 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected field is a declaration
 	 * 
-	 * @param genericDeclaringTypeSignature
-	 *  	generic signature of the field's declaring type
-	 *  
-	 * @param genericSignature
-	 *  	field's generic signature
+	 * @param uniqueKey
+	 *  	unique key of this field
 	 *  
 	 * @param start
 	 *  	Start of the selection

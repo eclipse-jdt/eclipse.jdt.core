@@ -42,34 +42,22 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeArrayDimension(char[] brakets) {
 		this.signature.append(brakets);
 	}
-	
-	public void consumeField(char[] fieldName) {
-	}
-	
-	public void consumeParameterizedMethod() {
-	}
-	
-	public void consumeLocalType(char[] signature) {
+		
+	public void consumeLocalType(char[] typeSignature) {
 		this.signature = new StringBuffer();
 		// remove trailing semi-colon as it is added later in comsumeType()
-		signature = CharOperation.subarray(signature, 0, signature.length-1);
-		CharOperation.replace(signature, '/', '.');
-		this.signature.append(signature);
+		typeSignature = CharOperation.subarray(typeSignature, 0, typeSignature.length-1);
+		CharOperation.replace(typeSignature, '/', '.');
+		this.signature.append(typeSignature);
 	}
 	
-	public void consumeLocalVar(char[] varName) {
-	}
-	
-	public void consumeMethod(char[] selector, char[] signature) {
+	public void consumeMethod(char[] selector, char[] methodSignature) {
 		this.arguments = new ArrayList();
 	}
 	
 	public void consumeMemberType(char[] simpleTypeName) {
 		this.signature.append('$');
 		this.signature.append(simpleTypeName);
-	}
-
-	public void consumeNonParameterizedType() {
 	}
 
 	public void consumePackage(char[] pkgName) {
@@ -98,17 +86,11 @@ public class KeyToSignature extends BindingKeyParser {
 		this.arguments.add(((KeyToSignature) parser).signature);
 	}
 	
-	public void consumeScope(int scopeNumber) {
-	}
-
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
 		this.signature.append('L');
 		this.signature.append(CharOperation.replaceOnCopy(fullyQualifiedName, '/', '.'));
 	}
 
-	public void consumeTopLevelType() {
-	}
-	
 	public void consumeType() {
 		int length = this.typeParameters.size();
 		if (length > 0) {
@@ -135,8 +117,8 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(';');
 	}
 	
-	public void consumeWildCard(int kind, int rank) {
-		switch (kind) {
+	public void consumeWildCard(int wildCardKind, int rank) {
+		switch (wildCardKind) {
 			case Wildcard.UNBOUND:
 				this.arguments.add(new StringBuffer("*")); //$NON-NLS-1$
 				break;

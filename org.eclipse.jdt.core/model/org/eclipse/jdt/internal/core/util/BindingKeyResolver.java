@@ -313,13 +313,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	private TypeBinding getTypeBinding(char[] simpleTypeName) {
-		TypeDeclaration[] types = 
+		TypeDeclaration[] typeDeclarations = 
 			this.typeDeclaration == null ? 
 				this.parsedUnit.types : 
 				this.typeDeclaration.memberTypes;
-		if (types == null) return null;
-		for (int i = 0, length = types.length; i < length; i++) {
-			TypeDeclaration declaration = types[i];
+		if (typeDeclarations == null) return null;
+		for (int i = 0, length = typeDeclarations.length; i < length; i++) {
+			TypeDeclaration declaration = typeDeclarations[i];
 			if (CharOperation.equals(simpleTypeName, declaration.name)) {
 				this.typeDeclaration = declaration;
 				return declaration.binding;

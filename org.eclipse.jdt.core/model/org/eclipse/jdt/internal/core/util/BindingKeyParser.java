@@ -292,57 +292,75 @@ public class BindingKeyParser {
 	}
 	
 	public void consumeArrayDimension(char[] brakets) {
+		// default is to do nothing
 	}
 	
 	public void consumeField(char[] fieldName) {
+		// default is to do nothing
 	}
 	
 	public void consumeParameterizedMethod() {
+		// default is to do nothing
 	}
 	
 	public void consumeLocalType(char[] signature) {
+		// default is to do nothing
 	}
 	
 	public void consumeLocalVar(char[] varName) {
+		// default is to do nothing
 	}
 	
 	public void consumeMethod(char[] selector, char[] signature) {
+		// default is to do nothing
 	}
 	
 	public void consumeNonParameterizedType() {
+		// default is to do nothing
 	}
 
 	public void consumeMemberType(char[] simpleTypeName) {
+		// default is to do nothing
 	}
 
 	public void consumePackage(char[] pkgName) {
+		// default is to do nothing
 	}
 	
 	public void consumeParameterizedType(char[] simpleTypeName) {
+		// default is to do nothing
 	}
 	
 	public void consumeParser(BindingKeyParser parser) {
+		// default is to do nothing
 	}
 	
 	public void consumeScope(int scopeNumber) {
+		// default is to do nothing
 	}
 
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
+		// default is to do nothing
 	}
 
 	public void consumeTopLevelType() {
+		// default is to do nothing
 	}
 	
 	public void consumeType() {
+		// default is to do nothing
 	}
 	
 	public void consumeTypeParameter(char[] typeParameterName) {
+		// default is to do nothing
 	}
 	
 	public void consumeTypeVariable(char[] typeVariableName) {
+		// default is to do nothing
 	}
 	
 	public void consumeWildCard(int kind, int rank) {
+		// default is to do nothing
 	}
 	
 	/*
@@ -357,6 +375,7 @@ public class BindingKeyParser {
 	}
 	
 	public void malformedKey() {
+		// default is to do nothing
 	}
 	
 	public BindingKeyParser newParser() {
