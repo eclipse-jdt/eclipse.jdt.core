@@ -756,10 +756,12 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		selectorSourceEnd = 
 			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
 	}
-	if (isInRange){
+	if (isInRange) {
+		int modifiers = methodDeclaration.modifiers;
+		boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		requestor.enterMethod(
 			methodDeclaration.declarationSourceStart, 
-			methodDeclaration.modifiers & AccJustFlag, 
+			deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
 			returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
 			methodDeclaration.selector, 
 			methodDeclaration.sourceStart, 
@@ -794,9 +796,11 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			}
 		}
 		if (isInRange) {
+			int modifiers = fieldDeclaration.modifiers;
+			boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 			requestor.enterField(
 				fieldDeclaration.declarationSourceStart, 
-				fieldDeclaration.modifiers & AccJustFlag, 
+				deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
 				returnTypeName(fieldDeclaration.type), 
 				fieldDeclaration.name, 
 				fieldDeclaration.sourceStart, 
@@ -892,9 +896,11 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		}
 		if (isInterface) {
 			if (isInRange){
+				int modifiers = typeDeclaration.modifiers;
+				boolean deprecated = (modifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 				requestor.enterInterface(
 					typeDeclaration.declarationSourceStart, 
-					typeDeclaration.modifiers & AccJustFlag, 
+					deprecated ? (modifiers & AccJustFlag) | AccDeprecated : modifiers & AccJustFlag, 
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
 					typeDeclaration.sourceEnd, 
