@@ -132,6 +132,8 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
+  5498      Java Compile - code does not compile correctly in JDT, but does with javac
+  5493      Adding project references doesn't update the classpath  
   5426      CodeAssist returns empty completion
   1690		Local variables not always displayed when in scope (1GJ8PX4)
   4368      Wrong match in Java Search  
