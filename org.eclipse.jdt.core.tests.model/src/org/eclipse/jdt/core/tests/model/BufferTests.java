@@ -176,7 +176,7 @@ public void testGetUnderlyingResource() throws CoreException {
 		assertEquals("Unexpected underlying resource", file, buffer.getUnderlyingResource());
 		
 		copy = (ICompilationUnit)this.getCompilationUnit("P/x/y/A.java").getWorkingCopy();
-		assertEquals("Unexpected underlying resource 2", null, copy.getBuffer().getUnderlyingResource());
+		assertEquals("Unexpected underlying resource 2", file, copy.getBuffer().getUnderlyingResource());
 	} finally {
 		this.deleteBuffer(buffer);
 		if (copy != null) {

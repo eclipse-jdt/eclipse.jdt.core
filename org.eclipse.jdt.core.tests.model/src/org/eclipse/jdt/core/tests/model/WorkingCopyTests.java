@@ -777,7 +777,7 @@ public void testNonExistingCU() throws JavaModelException {
 		assertEquals("Unexpected path", new Path("/P/src/x/y/NonExisting.java"), ((IJavaElement)workingCopy).getPath());
 		
 		// getResource()
-		assertEquals("Unexpected resource", null, ((IJavaElement)workingCopy).getResource());
+		assertEquals("Unexpected resource", nonExistingCU.getResource(), ((IJavaElement)workingCopy).getResource());
 		
 		// isConsistent()
 		assertTrue("Working copy should be consistent", ((IOpenable)workingCopy).isConsistent());

@@ -252,12 +252,10 @@ public interface IJavaElement extends IAdaptable {
 	 * this is the underlying resource corresponding to the archive. 
 	 * If this element is included in an external archive, <code>null</code>
 	 * is returned.
-	 * If this element is a working copy, <code>null</code> is returned.
-	 * TODO: no need to return null for a working copy
 	 * This is a handle-only method.
 	 * 
 	 * @return the innermost resource enclosing this element, <code>null</code> if this 
-	 * element is a working copy or is included in an external archive
+	 * element is included in an external archive
 	 * @since 2.0
 	 */
 	IResource getResource();

@@ -73,7 +73,7 @@ public void testHierarchyScopeOnWorkingCopy() throws JavaModelException, CoreExc
 		assertTrue("a9.C should be included in hierarchy scope", scope.encloses(copy.getType("C")));
 		assertTrue("a9.B should be included in hierarchy scope", scope.encloses(copy.getType("B")));
 		IPath path = unit.getUnderlyingResource().getFullPath();
-		assertTrue("a9/A.java should not be included in hierarchy scope", !scope.encloses(path.toString()));
+		assertTrue("a9/A.java should be included in hierarchy scope", scope.encloses(path.toString()));
 	} finally {
 		copy.destroy();
 	}

@@ -791,7 +791,6 @@ public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
  * @see IJavaElement#getResource()
  */
 public IResource getResource() {
-	if (isWorkingCopy()) return null;
 	PackageFragmentRoot root = this.getPackageFragmentRoot();
 	if (root.isArchive()) {
 		return root.getResource();

@@ -139,7 +139,7 @@ bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38531">38531</a>.
 </li>
 <li>2003/06/16 (->M2)
 In the process of closing the gap between compilation units and working copies 
-(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888 </a>), the following new APIs 
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888</a>), the following new APIs 
 are added to <code>ICompilationUnit</code>:
 	<ul>
 	<li><pre>
@@ -321,6 +321,11 @@ public abstract class WorkingCopyOwner {
 	}
 }
 	</pre>
+</li>
+<li>2003/06/18 (->M2)
+<code>IJavaElement.getResource()</code> was specified to return <code>null</code> for working copies. This didn't make sense as
+this is a handle-only operation and an <code>IResource</code> is also a handle. This restriction was removed and 
+<code>IJavaElement.getResource()</code> returns a non-<code>null</code> value for a working copy.
 </li>
 </ul>
 </body>
