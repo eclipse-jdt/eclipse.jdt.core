@@ -332,6 +332,7 @@ private void rebuildIndex(String indexName, IPath path) {
 	} else if (target instanceof java.io.File) {
 		// remember the timestamp of this library
 		long timestamp = DeltaProcessor.getTimeStamp((java.io.File) target);
+		//TODO: side-effect likely breaking external JAR update support (see DeltaProcessor#checkExternalArchiveChanges)
 		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
 		request = new AddJarFileToIndex(path, this, ""); //$NON-NLS-1$
 	}
