@@ -19,10 +19,11 @@ public LocalDeclaration(Expression expr,char[] name, int sourceStart, int source
 	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
 	if (initialization != null) {
-		declarationSourceEnd = initialization.sourceEnd;
+		this.declarationSourceEnd = initialization.sourceEnd;
 	} else {
-		declarationSourceEnd = sourceEnd;
+		this.declarationSourceEnd = sourceEnd;
 	}
+	this.declarationEnd = this.declarationSourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 

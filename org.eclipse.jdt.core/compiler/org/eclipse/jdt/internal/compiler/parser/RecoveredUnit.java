@@ -31,6 +31,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		RecoveredType type = this.types[typeCount -1];
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
+		type.typeDeclaration.bodyEnd = 0;
 		return type.add(methodDeclaration, bracketBalance);
 	}
 	return this; // ignore
@@ -45,6 +46,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 		RecoveredType type = this.types[typeCount -1];
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
+		type.typeDeclaration.bodyEnd = 0;
 		return type.add(fieldDeclaration, bracketBalance);
 	}
 	return this; // ignore
@@ -144,6 +146,7 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 		// may need to update the declarationSourceEnd of the last type
 		if (types[typeCount - 1].typeDeclaration.declarationSourceEnd == 0){
 			types[typeCount - 1].typeDeclaration.declarationSourceEnd = unitDeclaration.sourceEnd;
+			types[typeCount - 1].typeDeclaration.bodyEnd = unitDeclaration.sourceEnd;
 		}
 		for (int i = 0; i < typeCount; i++){
 			typeDeclarations[existingCount + i] = types[i].updatedTypeDeclaration();

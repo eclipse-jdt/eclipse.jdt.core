@@ -204,8 +204,10 @@ public RecoveredElement updateOnOpeningBrace(int currentPosition){
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int sourceEnd){
-	if (this.fieldDeclaration.declarationSourceEnd == 0)	
+	if (this.fieldDeclaration.declarationSourceEnd == 0) {
 		this.fieldDeclaration.sourceEnd = sourceEnd;
 		this.fieldDeclaration.declarationSourceEnd = sourceEnd;
+		this.fieldDeclaration.declarationEnd = sourceEnd;
+	}
 }
 }

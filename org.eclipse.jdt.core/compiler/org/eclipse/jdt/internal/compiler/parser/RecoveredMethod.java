@@ -369,6 +369,7 @@ public void updateParseTree(){
 public void updateSourceEndIfNecessary(int sourceEnd){
 	if (this.methodDeclaration.declarationSourceEnd == 0) {
 		this.methodDeclaration.declarationSourceEnd = sourceEnd;
+		this.methodDeclaration.bodyEnd = sourceEnd;
 	}
 }
 }

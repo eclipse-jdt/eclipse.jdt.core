@@ -1037,6 +1037,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		dispatchDeclarationInto(length);
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
+		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
 		}
@@ -1427,6 +1428,7 @@ protected void consumeClassDeclaration() {
 		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
+	typeDecl.bodyEnd = endStatementPosition;
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeClassHeader() {
@@ -1646,10 +1648,7 @@ protected void consumeInvalidConstructorDeclaration() {
 	// now we know that the top of stack is a constructorDeclaration
 	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
 
-	//watch for } that could be given as a unicode ! ( u007D is '}' )
-	// store the endPosition (position just before the '}') in case there is
-	// a trailing comment behind the end of the method
-	cd.bodyEnd = endStatementPosition; // position of the trailing semi-colon
+	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
 	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 }
@@ -1974,6 +1973,7 @@ protected void consumeExitVariableWithInitialization() {
 	// we need to update the declarationSourceEnd of the local variable declaration to the
 	// source end position of the initialization expression
 	variableDecl.declarationSourceEnd = variableDecl.initialization.sourceEnd;
+	variableDecl.declarationEnd = variableDecl.initialization.sourceEnd;
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
@@ -2063,7 +2063,7 @@ protected void consumeFieldDeclaration() {
 	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) astStack[astPtr - i];
 		fieldDeclaration.declarationSourceEnd = endStatementPosition; 
-		// semi-colon included
+		fieldDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
 	}
 	updateSourceDeclarationParts(variableDeclaratorsCounter);
 	int endPos = flushAnnotationsDefinedPriorTo(endStatementPosition);
@@ -2200,6 +2200,7 @@ protected void consumeInterfaceDeclaration() {
 		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
+	typeDecl.bodyEnd = endStatementPosition;
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
 protected void consumeInterfaceHeader() {
@@ -2671,6 +2672,7 @@ protected void consumePackageDeclaration() {
 
 	ImportReference impt = compilationUnit.currentPackage;
 	// flush annotations defined prior to import statements
+	impt.declarationEnd = endStatementPosition;
 	impt.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd);
 }
 protected void consumePackageDeclarationName() {
@@ -3699,6 +3701,7 @@ protected void consumeSingleTypeImportDeclaration() {
 
 	ImportReference impt = (ImportReference) astStack[astPtr];
 	// flush annotations defined prior to import statements
+	impt.declarationEnd = endStatementPosition;
 	impt.declarationSourceEnd = 
 		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
 
@@ -3730,6 +3733,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
+	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
 	impt.declarationSourceStart = intStack[intPtr--];
 
@@ -4496,6 +4500,7 @@ protected void consumeTypeImportOnDemandDeclaration() {
 
 	ImportReference impt = (ImportReference) astStack[astPtr];
 	// flush annotations defined prior to import statements
+	impt.declarationEnd = endStatementPosition;
 	impt.declarationSourceEnd = 
 		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
 
@@ -4527,6 +4532,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
+	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
 	impt.declarationSourceStart = intStack[intPtr--];
 
@@ -6340,6 +6346,7 @@ protected void ignoreInterfaceDeclaration() {
 
 	// report the problem and continue parsing
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	typeDecl.bodyEnd = endStatementPosition;
 	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
 
 	// mark fields and initializer with local type mark if needed
@@ -6367,7 +6374,6 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 
 	//must provide a default constructor call when needed
 
-	int length;
 	if (hasBody) {
 		// pop the position of the {  (body of the method) pushed in block decl
 		intPtr--;
@@ -6378,14 +6384,10 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 		realBlockPtr--;
 	}
 
+	int length;
 	if (hasBody && ((length = astLengthStack[astLengthPtr--]) != 0)) {
 		astPtr -= length;
 	}
-
-	// we know that the top of stack is a constructorDeclaration
-	//watch for } that could be given as a unicode ! ( u007D is '}' )
-	flushAnnotationsDefinedPriorTo(endStatementPosition);
-
 }
 protected void ignoreMethodBody() {
 	// InterfaceMemberDeclaration ::= InvalidMethodDeclaration

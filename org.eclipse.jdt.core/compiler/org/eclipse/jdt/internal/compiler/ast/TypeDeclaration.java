@@ -33,6 +33,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int declarationSourceStart ;
 	public int declarationSourceEnd ;
 	public int bodyStart;
+	public int bodyEnd; // doesn't include the trailing comment if any.
 	protected boolean hasBeenGenerated = false;
 	
 /*
@@ -84,6 +85,7 @@ public final void addClinit() {
 		methods[0] =  clinit;// clinit is added in first location, so as to minimize the use of ldcw (big consumer of constant inits)
 		clinit.declarationSourceStart = clinit.sourceStart = sourceStart;
 		clinit.declarationSourceEnd = clinit.sourceEnd = sourceEnd;
+		clinit.bodyEnd = sourceEnd;
 		this.methods = methods;
 	}
 }

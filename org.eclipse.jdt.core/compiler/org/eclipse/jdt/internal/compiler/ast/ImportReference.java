@@ -12,7 +12,7 @@ public class ImportReference extends AstNode {
 	public char[][] tokens;
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
 	public boolean onDemand = true; //most of the time
-
+	public int declarationEnd;// doesn't include an potential trailing comment
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 

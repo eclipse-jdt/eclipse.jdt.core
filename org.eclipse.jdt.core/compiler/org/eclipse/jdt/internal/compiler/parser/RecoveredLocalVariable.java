@@ -75,7 +75,9 @@ public void updateParseTree(){
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int sourceEnd){
-	if (this.localDeclaration.declarationSourceEnd == 0)	
+	if (this.localDeclaration.declarationSourceEnd == 0) {
 		this.localDeclaration.declarationSourceEnd = sourceEnd;
+		this.localDeclaration.declarationEnd = sourceEnd;	
+	}
 }
 }

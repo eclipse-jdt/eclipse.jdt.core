@@ -42,7 +42,9 @@ public void updateParseTree(){
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int sourceEnd){
-	if (this.importReference.declarationSourceEnd == 0)	
+	if (this.importReference.declarationSourceEnd == 0) {
 		this.importReference.declarationSourceEnd = sourceEnd;
+		this.importReference.declarationEnd = sourceEnd;
+	}
 }
 }

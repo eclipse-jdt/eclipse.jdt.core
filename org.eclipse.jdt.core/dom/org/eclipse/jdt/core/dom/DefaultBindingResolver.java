@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
@@ -108,6 +109,16 @@ class DefaultBindingResolver extends BindingResolver {
 			} else {
 				// this is a variable
 				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
+			}
+		} else if (node instanceof QualifiedNameReference) {
+			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+			if (qualifiedNameReference.isFieldReference()) {
+				return this.getVariableBinding(qualifiedNameReference.fieldBinding());
+			} else if (qualifiedNameReference.isTypeReference()) {
+				this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+			} else {
+				// this is a variable
+				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
 			}
 		}
 		return super.resolveName(name);

@@ -36,6 +36,7 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
 		this.alreadyCompletedFieldInitialization = true;
 		this.fieldDeclaration.initialization = (Expression)statement;
 		this.fieldDeclaration.declarationSourceEnd = statement.sourceEnd;
+		this.fieldDeclaration.declarationEnd = statement.sourceEnd;
 		return this;
 	}
 }
@@ -147,7 +148,9 @@ public void updateParseTree(){
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int sourceEnd){
-	if (this.fieldDeclaration.declarationSourceEnd == 0)	
+	if (this.fieldDeclaration.declarationSourceEnd == 0) {
 		this.fieldDeclaration.declarationSourceEnd = sourceEnd;
+		this.fieldDeclaration.declarationEnd = sourceEnd;
+	}
 }
 }

@@ -14,7 +14,7 @@ public abstract class AbstractVariableDeclaration extends Statement {
 	public Expression initialization;
 
 	public char[] name;
-
+	public int declarationEnd;
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 	public int modifiersSourceStart;

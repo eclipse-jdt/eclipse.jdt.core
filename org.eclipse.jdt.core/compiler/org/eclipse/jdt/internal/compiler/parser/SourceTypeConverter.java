@@ -179,6 +179,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		type.modifiers = sourceType.getModifiers();
 		type.declarationSourceStart = sourceType.getDeclarationSourceStart();
 		type.declarationSourceEnd = sourceType.getDeclarationSourceEnd();
+		type.bodyEnd = type.declarationSourceEnd;
 
 		/* set superclass and superinterfaces */
 		if (sourceType.getSuperclassName() != null)

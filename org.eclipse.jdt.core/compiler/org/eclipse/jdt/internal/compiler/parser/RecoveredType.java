@@ -244,7 +244,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		// may need to update the declarationSourceEnd of the last type
 		if (memberTypes[memberTypeCount - 1].typeDeclaration.declarationSourceEnd == 0){
-			memberTypes[memberTypeCount - 1].typeDeclaration.declarationSourceEnd = bodyEnd();
+			int bodyEnd = bodyEnd();
+			memberTypes[memberTypeCount - 1].typeDeclaration.declarationSourceEnd = bodyEnd;
+			memberTypes[memberTypeCount - 1].typeDeclaration.bodyEnd =  bodyEnd;
 		}
 		for (int i = 0; i < memberTypeCount; i++){
 			memberTypeDeclarations[existingCount + i] = (MemberTypeDeclaration)memberTypes[i].updatedTypeDeclaration();
@@ -280,7 +282,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		// may need to update the declarationSourceEnd of the last method
 		if (methods[methodCount - 1].methodDeclaration.declarationSourceEnd == 0){
-			methods[methodCount - 1].methodDeclaration.declarationSourceEnd = bodyEnd();
+			int bodyEnd = bodyEnd();
+			methods[methodCount - 1].methodDeclaration.declarationSourceEnd = bodyEnd;
+			methods[methodCount - 1].methodDeclaration.bodyEnd = bodyEnd;
 		}
 		for (int i = 0; i < methodCount; i++){
 			AbstractMethodDeclaration updatedMethod = methods[i].updatedMethodDeclaration();			
@@ -349,6 +353,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 		newTypeDeclaration.maxFieldCount = typeDeclaration.maxFieldCount;
 		newTypeDeclaration.declarationSourceStart = typeDeclaration.declarationSourceStart;
 		newTypeDeclaration.declarationSourceEnd = typeDeclaration.declarationSourceEnd;
+		newTypeDeclaration.bodyEnd = typeDeclaration.bodyEnd;
 		newTypeDeclaration.bodyStart = typeDeclaration.bodyStart;
 		typeDeclaration = newTypeDeclaration;
 	}
@@ -430,6 +435,7 @@ public void updateSourceEndIfNecessary(int sourceEnd){
 	if (this.typeDeclaration.declarationSourceEnd == 0){
 		this.bodyEnd = 0;
 		this.typeDeclaration.declarationSourceEnd = sourceEnd;
+		this.typeDeclaration.bodyEnd = sourceEnd;
 	}
 }
 }
