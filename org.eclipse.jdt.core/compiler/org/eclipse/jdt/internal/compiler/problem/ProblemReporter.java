@@ -2109,7 +2109,7 @@ public void invalidUnaryExpression(Expression expression) {
 		expression.sourceEnd);
 }
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl) {
-	if (compUnitDecl != null) this.referenceContext = compUnitDecl;
+	this.referenceContext = compUnitDecl;
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
 	this.handle(
 		IProblem.IsClassPathCorrect,
