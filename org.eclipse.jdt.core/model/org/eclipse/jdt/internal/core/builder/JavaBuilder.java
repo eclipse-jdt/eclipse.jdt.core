@@ -524,7 +524,6 @@ private boolean isWorthBuilding() throws CoreException {
 void mustPropagateStructuralChanges() {
 	HashSet cycleParticipants = new HashSet(3);
 	javaProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, workspaceRoot, new HashSet(3));
-	IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 	IPath currentPath = javaProject.getPath();
 	Iterator i= cycleParticipants.iterator();
 	while (i.hasNext()) {
