@@ -118,9 +118,28 @@ STREAM: 2.0
           char[] completionName,
           int completionStart,
           int completionEnd);
+          
+  * SearchEngine.createJavaSearchScope(IResource[]) has been deprecated.
+  	Use SearchEngine.createJavaSearchScope(IJavaElement[]) instead.
+  	The rational is that createJavaSearchScope(IResource[]) was not well
+  	defined for projects, and it could not define a search scope for java
+  	elements that didn't have a corresponding resource (e.g. external jars).
+  	
+  	The specification of createJavaSearchScope(IJavaElement[]) is as follows:
+	- If an element is an IJavaProject, then the project's source folders, 
+      its jars (external and internal) and its references projects (with their 
+      source folders and jars, recursively) will be included.
+    - If an element is an IPackageFragmentRoot, then only the package fragments of 
+      this package fragment root will be included.
+    - If an element is an IPackageFragment, then only the compilation unit and class 
+      files of this package fragment will be included. Subpackages will NOT be 
+      included.
+  	
 
   PRs Fixed in this Release
   ================================================================================
+  4921      Serach does not find types in internal jar  
+  4917      Latest build fails updating TypeHierarchy  
   3296  	CodeAssist - should filter out duplicates if any (1GEWDL7)
   3325  	Too much codeassist match on interface (1GH0GV1)
   3424  	DCR: code assist support for variable name suggestions (1GKM6OQ)

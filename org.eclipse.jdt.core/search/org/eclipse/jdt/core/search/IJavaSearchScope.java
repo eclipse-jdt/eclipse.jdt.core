@@ -52,6 +52,7 @@ IPath[] enclosingProjectsAndJars();
  * in folders or within JARs).
  * 
  * @return whether this scope contains any <code>.class</code> files
+ * @deprecated
  */
 boolean includesBinaries();
 /**
@@ -59,6 +60,7 @@ boolean includesBinaries();
  * the projects of the resources of this search scope.
  * 
  * @return whether this scope includes classpaths
+ * @deprecated 
  */
 boolean includesClasspaths();
 /**
@@ -66,6 +68,8 @@ boolean includesClasspaths();
  * in folders or within JARs).
  * 
  * @param includesBinaries whether this scope contains any <code>.class</code> files
+ * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragement
+ * 				root that correspond to the binaries instead
  */
 public void setIncludesBinaries(boolean includesBinaries);
 /**
@@ -73,6 +77,8 @@ public void setIncludesBinaries(boolean includesBinaries);
  * the projects of the resources of this search scope.
  * 
  * @return includesClasspaths whether this scope includes classpaths
+ * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
+ * 				with a java project instead
  */
 public void setIncludesClasspaths(boolean includesClasspaths);
 }

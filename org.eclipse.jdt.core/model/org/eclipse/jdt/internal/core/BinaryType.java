@@ -305,7 +305,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	}
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
 		this, 
-		SearchEngine.createJavaSearchScope(new IResource[]{ project.getProject() }), 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
 		true);
 	runOperation(op, monitor);
 	return op.getResult();

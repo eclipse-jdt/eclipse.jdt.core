@@ -743,11 +743,14 @@ private boolean hasVisibilityChange(IJavaElementDelta delta) {
 	return false;
 }
 /**
- * Returns whether the simple name of a supertype of the given type is 
+ * Returns whether the simple name of the given type or one of its supertypes is 
  * the simple name of one of the types in this hierarchy.
  */
-private boolean includesSupertypeOf(IType type) {
+private boolean includesTypeOrSupertype(IType type) {
 	try {
+		// check type
+		if (hasTypeNamed(type.getElementName())) return true;
+		
 		// check superclass
 		String superclassName = type.getSuperclassName();
 		if (superclassName != null) {
@@ -968,7 +971,7 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IJavaElement element
 			for (int i = 0, length = types.length; i < length; i++) {
 				IType type = types[i];
 				if ((hasVisibilityChange && typeHasSupertype(type))
-					|| (hasSupertypeChange && includesSupertypeOf(type))) {
+					|| (hasSupertypeChange && includesTypeOrSupertype(type))) {
 					return true;
 				}
 			}

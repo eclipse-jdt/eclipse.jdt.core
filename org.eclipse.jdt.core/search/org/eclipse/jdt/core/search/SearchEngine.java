@@ -61,18 +61,48 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
  * <p>
  * Resources must not overlap, e.g. one cannot include a folder and its children.
  * </p>
- * Projects are treated specialy: if a project is included in the search scope, 
- * its source folders, the jars internal to the project and its external jars 
- * are added for free. Jars that are contained in other projects must be included 
- * explicitely.
  *
  * @param resources the resources the scope is limited to
  * @return a new java search scope
+ * @deprecated Use createJavaSearchScope(IJavaElement[]) instead
  */
 public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
+	JavaCore javaCore = JavaCore.getJavaCore();
+	int length = resources.length;
+	IJavaElement[] elements = new IJavaElement[length];
+	for (int i = 0; i < length; i++) {
+		elements[i] = javaCore.create(resources[i]);
+	}
+	return createJavaSearchScope(elements);
+}
+/**
+ * Returns a java search scope limited to the given java elements.
+ * The java elements resulting from a search with this scope will
+ * be children of the given elements.
+ * <p>
+ * If an element is an IJavaProject, then the project's source folders, 
+ * its jars (external and internal) and its references projects (with their source 
+ * folders and jars, recursively) will be included.
+ * If an element is an IPackageFragmentRoot, then only the package fragments of 
+ * this package fragment root will be included.
+ * If an element is an IPackageFragment, then only the compilation unit and class 
+ * files of this package fragment will be included. Subpackages will NOT be 
+ * included.
+ *
+ * @param elements the java elements the scope is limited to
+ * @return a new java search scope
+ */
+public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
 	JavaSearchScope scope = new JavaSearchScope();
-	for (int i = 0, length = resources.length; i < length; i++) {
-		scope.add(resources[i]);
+	for (int i = 0, length = elements.length; i < length; i++) {
+		IJavaElement element = elements[i];
+		if (element != null) {
+			try {
+				scope.add(element);
+			} catch (JavaModelException e) {
+				// ignore
+			}
+		}
 	}
 	return scope;
 }

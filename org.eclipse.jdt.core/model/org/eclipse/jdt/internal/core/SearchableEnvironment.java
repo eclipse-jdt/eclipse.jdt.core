@@ -199,31 +199,8 @@ public class SearchableEnvironment
 			SearchEngine searchEngine = new SearchEngine();
 
 			// Collect the project and its prerequisites (ie. referenced projects and jars)
-			JavaSearchScope scope = new JavaSearchScope();
-			IWorkspaceRoot root = this.project.getUnderlyingResource().getWorkspace().getRoot();
-			IClasspathEntry[] entries = ((JavaProject)this.project).getExpandedClasspath(true);
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
-				switch (entry.getEntryKind()) {
-					case IClasspathEntry.CPE_LIBRARY:
-						scope.add(root.getFile(entry.getPath()), false);
-						break;
-					case IClasspathEntry.CPE_PROJECT:
-						scope.add(root.getProject(entry.getPath().lastSegment()), false);
-						break;
-					case IClasspathEntry.CPE_SOURCE:
-						IPath path = entry.getPath();
-						if (path.segmentCount() == 1) {
-							// project is source
-							scope.add(root.getProject(path.lastSegment()), false);
-						} else {
-							// regular source folder
-							scope.add(root.getFolder(path), false);
-						}
-						break;
-				}
-			}
-			
+			IJavaSearchScope scope = searchEngine.createJavaSearchScope(new IJavaElement[] {this.project});
+
 			IProgressMonitor progressMonitor = new IProgressMonitor() {
 				boolean isCanceled = false;
 				public void beginTask(String name, int totalWork) {

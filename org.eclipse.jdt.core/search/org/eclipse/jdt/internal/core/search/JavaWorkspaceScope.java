@@ -20,10 +20,16 @@ import java.util.*;
  */
 public class JavaWorkspaceScope extends JavaSearchScope {
 public JavaWorkspaceScope() {
-	this.setIncludesBinaries(true);
+	JavaCore javaCore = JavaCore.getJavaCore();
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	for (int i = 0, length = projects.length; i < length; i++) {
-		this.add(projects[i]);
+		IProject project = projects[i];
+		if (project.isAccessible()) {
+			try {
+				this.add(javaCore.create(project), false);
+			} catch (JavaModelException e) {
+			}
+		}
 	}
 }
 }
