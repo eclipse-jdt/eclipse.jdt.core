@@ -17,9 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-
-import java.io.*;
+import org.eclipse.jdt.internal.core.Util;
 
 public class SourceFile implements ICompilationUnit {
 
@@ -69,29 +67,10 @@ String extractTypeName() {
 }
 
 public char[] getContents() {
-	// otherwise retrieve it
-	InputStreamReader reader = null;
-	try {
-		reader =
-			this.encoding == null
-				? new InputStreamReader(resource.getContents())
-				: new InputStreamReader(resource.getContents(), this.encoding);
-		CharArrayBuffer result = new CharArrayBuffer();
-		try {
-			int count;
-			char[] buffer = new char[4096];
-			while ((count = reader.read(buffer, 0, buffer.length)) > -1)
-				result.append(buffer, 0, count);
-		} finally {
-			reader.close();
-		}
-		return result.getContents();
+
+	try {	
+		return Util.getResourceContentsAsCharArray(resource, this.encoding);
 	} catch (CoreException e) {
-		throw new AbortCompilation(true, new MissingSourceFileException(resource.getFullPath().toString()));
-	} catch (IOException e) {
-		if (reader != null) {
-			try { reader.close(); } catch(IOException ioe) {}
-		}
 		throw new AbortCompilation(true, new MissingSourceFileException(resource.getFullPath().toString()));
 	}
 }

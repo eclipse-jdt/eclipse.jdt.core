@@ -612,6 +612,11 @@ public class Util {
 	 * Returns the given file's contents as a character array.
 	 */
 	public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
+		String encoding = JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
+		return getResourceContentsAsCharArray(file, encoding);
+	}
+
+	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
 		InputStream stream= null;
 		try {
 			stream = new BufferedInputStream(file.getContents(true));
@@ -619,7 +624,6 @@ public class Util {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 		try {
-			String encoding = JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
 			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
