@@ -38,7 +38,14 @@ public class CompletionScanner extends Scanner {
 
 	public static final char[] EmptyCompletionIdentifier = {};
 public CompletionScanner(boolean assertMode) {
-	super(false /*comment*/, false /*whitespace*/, false /*nls*/, assertMode /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
+	super(
+		false /*comment*/, 
+		false /*whitespace*/, 
+		false /*nls*/, 
+		assertMode /*assert*/, 
+		false /*strict comment*/, // should never need to be on
+		null /*taskTags*/, 
+		null/*taskPriorities*/);
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed
@@ -543,10 +550,17 @@ public int getNextToken() throws InvalidInputException {
 									currentPosition--; // reset one character behind
 									return TokenNameCOMMENT_LINE;
 								}
-							} catch (IndexOutOfBoundsException e) { //an eof will them be generated
-								if (tokenizeComments) {
-									currentPosition--; // reset one character behind
-									return TokenNameCOMMENT_LINE;
+							} catch (IndexOutOfBoundsException e) {
+								if (strictCommentMode) {
+									// a line comment needs to be followed by a line break to be valid
+									throw new InvalidInputException(UNTERMINATED_COMMENT);
+								} else {
+									recordComment(false);
+									if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
+									if (tokenizeComments) {
+										this.currentPosition--; // reset one character behind
+										return TokenNameCOMMENT_LINE;
+									}
 								}
 							}
 							break;

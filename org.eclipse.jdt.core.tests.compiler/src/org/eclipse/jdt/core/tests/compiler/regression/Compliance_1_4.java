@@ -1365,6 +1365,53 @@ public void test36() {
 	);
 }
 
+/*
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=24744
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
+ */
+public void test37() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;	\n"+
+			"public class X {\n"+
+			"}\n"+
+			"// TODO: something"
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 4)\n" + 
+		"	// TODO: something\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Unexpected end of comment\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+/*
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=24833
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
+ */
+public void test38() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"// TODO: something"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	// TODO: something\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Unexpected end of comment\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

@@ -1,12 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added #createScanner allowing to make comment check stricter
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -223,6 +224,10 @@ public class ToolFactory {
 	 * </pre>
 	 * </code>
 	 * 
+	 * <p>
+	 * The returned scanner will tolerate unterminated line comments (missing line separator). It can be made stricter
+	 * by using API with extra boolean parameter (<code>strictCommentMode</code>).
+	 * <p>
 	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
 	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
 	 * @param assertKeyword if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
@@ -231,14 +236,53 @@ public class ToolFactory {
 	 * a new 'assert' keyword.
 	 * @param recordLineSeparator if set to <code>true</code>, the scanner will record positions of encountered line 
 	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
-	 * can then be extracted using <code>IScanner#getLineEnds</code>
+	 * can then be extracted using <code>IScanner#getLineEnds</code>. Only non-unicode escape sequences are 
+	 * considered as valid line separators.
   	 * @return a scanner
-	 * 
+	 * @see ToolFactory#createScanner(boolean,boolean,boolean,boolean, boolean)
 	 * @see org.eclipse.jdt.core.compiler.IScanner
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
+		return createScanner(tokenizeComments, tokenizeWhiteSpace, assertMode, recordLineSeparator, false);
+	}
+	
+	/**
+	 * Create a scanner, indicating the level of detail requested for tokenizing. The scanner can then be
+	 * used to tokenize some source in a Java aware way.
+	 * Here is a typical scanning loop:
+	 * 
+	 * <code>
+	 * <pre>
+	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
+	 *   scanner.setSource("int i = 0;".toCharArray());
+	 *   while (true) {
+	 *     int token = scanner.getNextToken();
+	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
+	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
+	 *   }
+	 * </pre>
+	 * </code>
+	 * 
+	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
+	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
+	 * @param assertMode if set to <code>false</code>, occurrences of 'assert' will be reported as identifiers
+	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>true</code>, it
+	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
+	 * a new 'assert' keyword.
+	 * @param recordLineSeparator if set to <code>true</code>, the scanner will record positions of encountered line 
+	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
+	 * can then be extracted using <code>IScanner#getLineEnds</code>. Only non-unicode escape sequences are 
+	 * considered as valid line separators.
+	 * @param strictCommentMode if set to <code>true</code>, line comments with no trailing line separator will be
+	 * treated as invalid tokens.
+  	 * @return a scanner
+	 * 
+	 * @see org.eclipse.jdt.core.compiler.IScanner
+	 * @since 2.1
+	 */
+	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator, boolean strictCommentMode){
 
-		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode, null/*taskTags*/, null/*taskPriorities*/);
+		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode, strictCommentMode /*strict comment*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}

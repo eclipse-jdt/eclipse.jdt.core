@@ -6544,6 +6544,7 @@ public void initializeScanner(){
 		false /*whitespace*/, 
 		options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
 		this.assertMode /*assert*/, 
+		options.complianceLevel >= CompilerOptions.JDK1_4 /*strict comment*/,
 		options.taskTags/*taskTags*/,
 		options.taskPriorites/*taskPriorities*/);
 }

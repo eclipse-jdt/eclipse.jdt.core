@@ -96,14 +96,14 @@ public final class AST {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public AST(Map options) {
-		Object value = options.get("org.eclipse.jdt.core.compiler.source"); //$NON-NLS-1$
-		if ("1.3".equals(value)) { //$NON-NLS-1$
-			// use a 1.3 scanner - treats assert as an identifier
-			this.scanner = new Scanner();
-		} else {
-			// use a 1.4 scanner - treats assert as an keyword
-			this.scanner = new Scanner(false, false, false, true, null, null);
-		}
+		this.scanner = new Scanner(
+			false /*comment*/, 
+			false /*whitespace*/, 
+			false /*nls*/, 
+			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) /*assert*/, 
+			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_COMPLIANCE)) /*strict comment*/, 
+			null/*taskTag*/, 
+			null/*taskPriorities*/);
 	}
 		
 	/**

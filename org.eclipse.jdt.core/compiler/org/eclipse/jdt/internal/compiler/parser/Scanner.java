@@ -32,20 +32,20 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	*/
 
 	// 1.4 feature 
-	private boolean assertMode;
+	private boolean assertMode = false;
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 
 	
-	public boolean recordLineSeparator;
+	public boolean recordLineSeparator = false;
 	public char currentCharacter;
 	public int startPosition;
 	public int currentPosition;
 	public int initialPosition, eofPosition;
 	// after this position eof are generated instead of real token from the source
 
-	public boolean tokenizeComments;
-	public boolean tokenizeWhiteSpace;
+	public boolean tokenizeComments = false;
+	public boolean tokenizeWhiteSpace = false;
 
 	//source should be viewed as a window (aka a part)
 	//of a entire very large stream
@@ -63,7 +63,8 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public int[] commentStops = new int[10];
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
-
+	public boolean strictCommentMode = false;
+	
 	// task tag support
 	public char[][] foundTaskTags = null;
 	public char[][] foundTaskMessages;
@@ -86,8 +87,7 @@ public class Scanner implements IScanner, ITerminalSymbols {
 
 	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"; //$NON-NLS-1$
 	public static final String INVALID_OCTAL = "Invalid_Octal_Literal"; //$NON-NLS-1$
-	public static final String INVALID_CHARACTER_CONSTANT = 
-		"Invalid_Character_Constant";  //$NON-NLS-1$
+	public static final String INVALID_CHARACTER_CONSTANT = "Invalid_Character_Constant";  //$NON-NLS-1$
 	public static final String INVALID_ESCAPE = "Invalid_Escape"; //$NON-NLS-1$
 	public static final String INVALID_INPUT = "Invalid_Input"; //$NON-NLS-1$
 	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"; //$NON-NLS-1$
@@ -142,7 +142,7 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
 	public static final int TAG_POSTFIX_LENGTH= TAG_POSTFIX.length();
 	public StringLiteral[] nonNLSStrings = null;
-	public boolean checkNonExternalizedStringLiterals = true;
+	public boolean checkNonExternalizedStringLiterals = false;
 	public boolean wasNonExternalizedStringLiteral = false;
 	
 	/*static*/ {
@@ -166,13 +166,14 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null/*taskTag*/, null/*taskPriorities*/);
 }
 public Scanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
 	boolean checkNonExternalizedStringLiterals, 
 	boolean assertMode,
+	boolean strictCommentMode,
 	char[][] taskTags,
 	char[][] taskPriorities) {
 		
@@ -181,6 +182,7 @@ public Scanner(
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.assertMode = assertMode;
+	this.strictCommentMode = strictCommentMode;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 }
@@ -191,6 +193,12 @@ public  final boolean atEnd() {
 	// Only a part of the real stream input
 
 	return source.length == currentPosition;
+}
+
+private void checkNonExternalizeString()  throws InvalidInputException {
+	if (currentLine == null)
+		return;
+	parseTags(currentLine);
 }
 
 // chech presence of task: tags
@@ -235,13 +243,13 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 			}
 		}
 		if (end < 0){
-			for (int j = commentEnd; j >= nextPos; j--){
+			for (int j = commentEnd-1; j >= nextPos; j--){
 				if ((c = this.source[j]) == '*') {
-					end = j - 1;
+					end = j-1;
 					break;
 				}
 			}
-			if (end < 0) end = nextPos+1;
+			if (end < 0) end =commentEnd-1;
 		}
 		
 		// trim message
@@ -378,6 +386,15 @@ public final int getLineEnd(int lineNumber) {
 	if (lineNumber == lineEnds.length - 1) return eofPosition;
 	return lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line
 }
+
+public final int[] getLineEnds() {
+	//return a bounded copy of this.lineEnds 
+
+	int[] copy;
+	System.arraycopy(lineEnds, 0, copy = new int[linePtr + 1], 0, linePtr + 1);
+	return copy;
+}
+
 /**
  * Search the source position corresponding to the beginning of a given line number
  *
@@ -1189,9 +1206,17 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
-								/* 
-								 * a line comment needs to be followed by a line break to be valid								 */
-								throw new InvalidInputException(UNTERMINATED_COMMENT);
+								if (strictCommentMode) {
+									// a line comment needs to be followed by a line break to be valid
+									throw new InvalidInputException(UNTERMINATED_COMMENT);
+								} else {
+									recordComment(false);
+									if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
+									if (tokenizeComments) {
+										this.currentPosition--; // reset one character behind
+										return TokenNameCOMMENT_LINE;
+									}
+								}
 							}
 							break;
 						}
@@ -1357,6 +1382,11 @@ public final void getNextUnicodeChar()
 	}
 	unicodeAsBackSlash = currentCharacter == '\\';
 }
+
+public char[] getSource(){
+	return this.source;
+}
+
 /* Tokenize a method body, assuming that curly brackets are properly balanced.
  */
 public final void jumpOverMethodBody() {
@@ -1691,17 +1721,6 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
 }
-public final int[] getLineEnds() {
-	//return a bounded copy of this.lineEnds 
-
-	int[] copy;
-	System.arraycopy(lineEnds, 0, copy = new int[linePtr + 1], 0, linePtr + 1);
-	return copy;
-}
-
-public char[] getSource(){
-	return this.source;
-}
 
 final char[] optimizedCurrentTokenSource1() {
 	//return always the same char[] build only once
@@ -1950,6 +1969,46 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
+private void parseTags(NLSLine line) throws InvalidInputException {
+	String s = new String(getCurrentTokenSource());
+	int pos = s.indexOf(TAG_PREFIX);
+	int lineLength = line.size();
+	while (pos != -1) {
+		int start = pos + TAG_PREFIX_LENGTH;
+		int end = s.indexOf(TAG_POSTFIX, start);
+		String index = s.substring(start, end);
+		int i = 0;
+		try {
+			i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
+		} catch (NumberFormatException e) {
+			i = -1; // we don't want to consider this as a valid NLS tag
+		}
+		if (line.exists(i)) {
+			line.set(i, null);
+		}
+		pos = s.indexOf(TAG_PREFIX, start);
+	}
+
+	this.nonNLSStrings = new StringLiteral[lineLength];
+	int nonNLSCounter = 0;
+	for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
+		StringLiteral literal = (StringLiteral) iterator.next();
+		if (literal != null) {
+			this.nonNLSStrings[nonNLSCounter++] = literal;
+		}
+	}
+	if (nonNLSCounter == 0) {
+		this.nonNLSStrings = null;
+		currentLine = null;
+		return;
+	} 
+	this.wasNonExternalizedStringLiteral = true;
+	if (nonNLSCounter != lineLength) {
+		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
+	}
+	currentLine = null;
+}
+
 public final void pushLineSeparator() throws InvalidInputException {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
@@ -3141,51 +3200,5 @@ public final String toStringAction(int act) {
 		default :
 			return "not-a-token"; //$NON-NLS-1$
 	}
-}
-
-private void checkNonExternalizeString()  throws InvalidInputException {
-	if (currentLine == null)
-		return;
-	parseTags(currentLine);
-}
-
-private void parseTags(NLSLine line) throws InvalidInputException {
-	String s = new String(getCurrentTokenSource());
-	int pos = s.indexOf(TAG_PREFIX);
-	int lineLength = line.size();
-	while (pos != -1) {
-		int start = pos + TAG_PREFIX_LENGTH;
-		int end = s.indexOf(TAG_POSTFIX, start);
-		String index = s.substring(start, end);
-		int i = 0;
-		try {
-			i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
-		} catch (NumberFormatException e) {
-			i = -1; // we don't want to consider this as a valid NLS tag
-		}
-		if (line.exists(i)) {
-			line.set(i, null);
-		}
-		pos = s.indexOf(TAG_PREFIX, start);
-	}
-
-	this.nonNLSStrings = new StringLiteral[lineLength];
-	int nonNLSCounter = 0;
-	for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
-		StringLiteral literal = (StringLiteral) iterator.next();
-		if (literal != null) {
-			this.nonNLSStrings[nonNLSCounter++] = literal;
-		}
-	}
-	if (nonNLSCounter == 0) {
-		this.nonNLSStrings = null;
-		currentLine = null;
-		return;
-	} 
-	this.wasNonExternalizedStringLiteral = true;
-	if (nonNLSCounter != lineLength) {
-		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
-	}
-	currentLine = null;
 }
 }

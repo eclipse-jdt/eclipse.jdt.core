@@ -162,7 +162,14 @@ public final class CompletionEngine
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 		this.nameScanner =
-			new Scanner(false /*comment*/, false /*whitespace*/, false /*nls*/, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
+			new Scanner(
+				false /*comment*/, 
+				false /*whitespace*/, 
+				false /*nls*/, 
+				this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, 
+				this.compilerOptions.complianceLevel >= CompilerOptions.JDK1_4 /*strict comment*/,
+				null /*taskTags*/, 
+				null/*taskPriorities*/);
 	}
 
 	/**
