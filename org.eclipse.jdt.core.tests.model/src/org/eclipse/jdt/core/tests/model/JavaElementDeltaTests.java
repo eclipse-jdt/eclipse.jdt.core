@@ -196,12 +196,11 @@ public JavaElementDeltaTests(String name) {
 }
 /**
  * Ensures that adding a comment to a working copy and commiting it triggers an empty fine grained
- * delta with the kind set for PRE_AUTO_BUILD listeners.
+ * delta with the kind set for POST_CHANGE listeners.
  * (regression test for bug 32937 Kind not set for empty fine-grained delta)
- * @deprecated
  */
-public void _testAddCommentAndCommit() throws CoreException { // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
-	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
+public void testAddCommentAndCommit() throws CoreException {
+	DeltaListener listener = new DeltaListener(ElementChangedEvent.POST_CHANGE);
 	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P", new String[] {""}, "");
@@ -218,15 +217,15 @@ public void _testAddCommentAndCommit() throws CoreException { // TODO (jerome) r
 			"}");
 
 		// commit working copy
-		JavaCore.addElementChangedListener(listener, ElementChangedEvent.PRE_AUTO_BUILD);
-		copy.commit(true, null);
+		JavaCore.addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE);
+		copy.commitWorkingCopy(true, null);
 		assertEquals(
 			"Unexpected delta after committing working copy", 
 			"X.java[*]: {CONTENT | FINE GRAINED}",
 			listener.toString());
 	} finally {
 		JavaCore.removeElementChangedListener(listener);
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("P");
 	}
 }
@@ -991,113 +990,6 @@ public void testDestroyWorkingCopy() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
-		this.deleteProject("P");
-	}
-}
-/**
- * Ensures that a delta listener that asks for PRE_AUTO_BUILD events gets those events 
- * and no others.
- * @deprecated
- */
-public void _testListenerAutoBuild() throws CoreException {  // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
-	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
-	ICompilationUnit wc = null;
-	try {
-		this.createJavaProject("P", new String[] {""}, "");
-		JavaCore.addElementChangedListener(listener, ElementChangedEvent.PRE_AUTO_BUILD);
-		
-		// cu creation
-		IPackageFragment pkg = this.getPackage("P");
-		ICompilationUnit cu = pkg.createCompilationUnit(
-			"X.java",
-			"public class X {\n" +
-			"}",
-			false,
-			null);
-		assertEquals(
-			"Unexpected delta after creating CU", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[+]: {}", 
-			listener.toString());
-		listener.flush();
-		
-		// type creation
-		cu.createType(
-			"class A {\n" +
-			"}",
-			cu.getType("X"),
-			false,
-			null);
-		assertEquals(
-			"Unexpected delta after creating type", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-			"				A[+]: {}", 
-			listener.toString());
-		listener.flush();
-		
-		// non-java resource creation
-		this.createFile("P/readme.txt", "");
-		assertEquals(
-			"Unexpected delta after creating non-java resource",
-			"",
-			listener.toString());
-		listener.flush();
-		
-		// shared working copy creation
-		wc = (ICompilationUnit)cu.getSharedWorkingCopy(null, null, null);
-		assertEquals(
-			"Unexpected delta after creating shared working copy",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[+]: {}",
-			listener.toString());
-		listener.flush();
-			
-		// reconcile
-		wc.getBuffer().setContents(
-			"public class X {\n" +
-			"  public void foo() {\n" +
-			"  }\n" +
-			"}");
-		wc.reconcile();
-		assertEquals(
-			"Unexpected delta after reconciling working copy",
-			"",
-			listener.toString());
-		listener.flush();
-		
-		// commit
-		wc.commit(false, null);
-		assertEquals(
-			"Unexpected delta after committing working copy",
-			"X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	foo()[+]: {}\n" +
-			"A[-]: {}",
-			listener.toString());
-		listener.flush();
-		
-		// shared working copy destruction
-		wc.discardWorkingCopy();
-		assertEquals(
-			"Unexpected delta after destroying shared working copy",
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[-]: {}",
-			listener.toString());
-		listener.flush();
-		wc = null;
-		
-			
-	} finally {
-		if (wc != null) wc.discardWorkingCopy();
-		JavaCore.removeElementChangedListener(listener);
 		this.deleteProject("P");
 	}
 }
