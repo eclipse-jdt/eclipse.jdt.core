@@ -104,6 +104,8 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	switch (javaElementType) {
 		case PACKAGE_DECLARATION :
 			return cu.getPackageDeclaration(workingCopyElement.getElementName());
+		case IMPORT_CONTAINER :
+			return cu.getImportContainer();
 		case IMPORT_DECLARATION :
 			return cu.getImport(workingCopyElement.getElementName());
 		case TYPE :
