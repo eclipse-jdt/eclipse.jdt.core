@@ -89,7 +89,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0107"));
+		suite.addTest(new ASTConverter15Test("test0109"));
 		return suite;
 	}
 		
@@ -2973,6 +2973,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 3);
 			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -3020,6 +3021,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 0);
 			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -3054,7 +3056,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 0, 0);
 			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -3116,7 +3118,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 0);
 			assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -3173,7 +3175,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 0, 0, 0);
 			assertEquals("Not an assert statement", ASTNode.ASSERT_STATEMENT, node.getNodeType());
 			AssertStatement assertStatement = (AssertStatement) node;
@@ -3205,7 +3207,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 0, 0);
 			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -3335,7 +3337,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 1);
 			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -3372,7 +3374,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 1);
 			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -3424,10 +3426,96 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			assertProblemsSize(compilationUnit, 0);
 			node = getASTNode(compilationUnit, 2);
 			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			checkSourceRange(node, "@Main(child=@A(\"\")) @A class X {}", contents.toCharArray());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83228
+	 */
+	public void _test0108() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"class X<E> {\n" +
+				"    enum Numbers {\n" +
+				"        ONE {\n" +
+				"            Numbers getSquare() {\n" +
+				"                return ONE;\n" +
+				"            }\n" +
+				"        };\n" +
+				"        abstract Numbers getSquare();\n" +
+				"    }\n" +
+				"}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0);
+			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+			SimpleName simpleName = enumDeclaration.getName();
+			ITypeBinding typeBinding = simpleName.resolveTypeBinding();
+			
+			List enumConstants = enumDeclaration.enumConstants();
+			assertEquals("Wrong size", 1, enumConstants.size());
+			EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+			AnonymousClassDeclaration anonymousClassDeclaration = constantDeclaration.getAnonymousClassDeclaration();
+			assertNotNull("No anonymous", anonymousClassDeclaration);
+			List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+			assertEquals("Wrong size", 1, bodyDeclarations.size());
+			BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			Type type = methodDeclaration.getReturnType2();
+			assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+			SimpleType simpleType = (SimpleType) type;
+			Name name = simpleType.getName();
+			assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+			simpleName = (SimpleName) name;
+			ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
+			
+			assertTrue("Not identical", typeBinding == typeBinding2);
+			assertTrue("Not equals", typeBinding.isEqualTo(typeBinding2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=883297
+	 */
+	public void test0109() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"@Annot(value=\"Hello\", count=-1)\n" +
+				"@interface Annot {\n" +
+				"    String value();\n" +
+				"    int count();\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/Annot.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0);
+			AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
+			ITypeBinding typeBinding = annotationTypeDeclaration.resolveBinding();
+			assertNotNull("No type binding", typeBinding);
+			IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+			assertEquals("Wrong size", 2, methods.length);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
