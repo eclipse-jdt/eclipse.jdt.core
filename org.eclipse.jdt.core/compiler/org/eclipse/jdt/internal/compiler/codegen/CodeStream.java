@@ -1431,14 +1431,6 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
  * @param implicitConversionCode int
  */
 public void generateImplicitConversion(int implicitConversionCode) {
-	if ((implicitConversionCode & BOXING) != 0) {
-		// need to unbox/box the constant
-		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
-		generateBoxingConversion(typeId);
-		// no further implicit conversion when boxing
-		return;
-	}
-	
 	if ((implicitConversionCode & UNBOXING) != 0) {
 		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
 		generateUnboxingConversion(typeId);
@@ -1540,6 +1532,11 @@ public void generateImplicitConversion(int implicitConversionCode) {
 			break;
 		case Float2Long :
 			this.f2l();
+	}
+	if ((implicitConversionCode & BOXING) != 0) {
+		// need to unbox/box the constant
+		final int typeId = (implicitConversionCode & IMPLICIT_CONVERSION_MASK) >> 4;
+		generateBoxingConversion(typeId);
 	}
 }
 public void generateInlinedValue(byte inlinedValue) {

@@ -509,8 +509,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 					}
 				}
+				codeStream.generateImplicitConversion(implicitConversion);		
 				codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
-				codeStream.sendOperator(postIncrement.operator, fieldBinding.type.id);
+				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
 				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 				// no need for generic cast 
@@ -536,8 +537,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.dup();
 						}
 					}
+					codeStream.generateImplicitConversion(implicitConversion);
 					codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
-					codeStream.sendOperator(postIncrement.operator, localBinding.type.id);
+					codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 					codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
 	
 					codeStream.store(localBinding, false);

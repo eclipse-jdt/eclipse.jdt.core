@@ -1058,7 +1058,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	
-	public void _test034() { // postfix expression
+	public void test034() { // postfix expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1076,7 +1076,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	
-	public void _test035() { // postfix expression
+	public void test035() { // postfix expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1167,7 +1167,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}	
 	
-	public void _test040() { // boolean expression
+	public void test040() { // boolean expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1276,4 +1276,35 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	
+	public void test046() { // postfix increment
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		Byte b = new Byte((byte)1);\n" + 
+				"		b++;\n" + 
+				"		System.out.println((Byte)b);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"2");
+	}	
+
+	public void test047() { // postfix increment
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		Byte b = new Byte((byte)1);\n" + 
+				"		b++;\n" + 
+				"		if (b instanceof Byte) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
 }

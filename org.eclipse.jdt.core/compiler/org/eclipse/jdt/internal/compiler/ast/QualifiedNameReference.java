@@ -452,7 +452,7 @@ public class QualifiedNameReference extends NameReference {
 		codeStream.generateConstant(
 			postIncrement.expression.constant,
 			implicitConversion);
-		codeStream.sendOperator(postIncrement.operator, lastFieldBinding.type.id);
+		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
 			postIncrement.assignmentImplicitConversion);
 		fieldStore(codeStream, lastFieldBinding, syntheticWriteAccessor, false);
