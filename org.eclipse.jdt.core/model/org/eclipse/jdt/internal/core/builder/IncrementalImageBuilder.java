@@ -65,16 +65,14 @@ public boolean build(SimpleLookupTable deltas) {
 			if (!findSourceFiles(sourceDelta)) return false;
 		notifier.updateProgressDelta(0.10f);
 
-		if (javaBuilder.prereqOutputFolders.elementSize > 0) {
-			Object[] keyTable = javaBuilder.prereqOutputFolders.keyTable;
-			Object[] valueTable = javaBuilder.prereqOutputFolders.valueTable;
-			for (int i = 0, l = keyTable.length; i < l; i++) {
-				IProject prereqProject = (IProject) keyTable[i];
-				if (prereqProject != null) {
-					IResourceDelta binaryDelta = (IResourceDelta) deltas.get(prereqProject);
-					if (binaryDelta != null)
-						if (!findAffectedSourceFiles(binaryDelta, (IResource) valueTable[i])) return false;
-				}
+		Object[] keyTable = deltas.keyTable;
+		Object[] valueTable = deltas.valueTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			IResourceDelta delta = (IResourceDelta) valueTable[i];
+			if (delta != null) {
+				IResource[] binaryResources = (IResource[]) javaBuilder.binaryResources.get(keyTable[i]);
+				if (binaryResources != null)
+					if (!findAffectedSourceFiles(delta, binaryResources)) return false;
 			}
 		}
 		notifier.updateProgressDelta(0.10f);
@@ -179,21 +177,28 @@ protected void cleanUp() {
 	this.simpleStrings = null;
 }
 
-protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
-	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
-	if (binaryDelta != null) {
-		if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED)
-			return false;
-		int outputFolderSegmentCount = prereqOutputFolder.getLocation().segmentCount();
-		IResourceDelta[] children = binaryDelta.getAffectedChildren();
-		for (int i = 0, length = children.length; i < length; ++i)
-			findAffectedSourceFiles(children[i], outputFolderSegmentCount);
-		notifier.checkCancel();
+protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource[] binaryResources) {
+	for (int j = 0, k = binaryResources.length; j < k; j++) {
+		IResource binaryResource = binaryResources[j];
+		// either a .class file folder or a zip/jar file
+		if (binaryResource != null) { // skip unchanged output folder
+			IResourceDelta binaryDelta = delta.findMember(binaryResource.getProjectRelativePath());
+			if (binaryDelta != null) {
+				if (binaryResource instanceof IFile) return false; // do full build since jar file was added/removed/changed
+				if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED)
+					return false; // added/removed binary folder should not make it here, but handle anyways
+				int segmentCount = binaryResource.getLocation().segmentCount();
+				IResourceDelta[] children = binaryDelta.getAffectedChildren(); // .class files from class folder
+				for (int i = 0, length = children.length; i < length; ++i)
+					findAffectedSourceFiles(children[i], segmentCount);
+				notifier.checkCancel();
+			}
+		}
 	}
 	return true;
 }
 
-protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFolderSegmentCount) {
+protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCount) {
 	// When a package becomes a type or vice versa, expect 2 deltas,
 	// one on the folder & one on the class file
 	IResource resource = binaryDelta.getResource();
@@ -204,7 +209,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 			switch (binaryDelta.getKind()) {
 				case IResourceDelta.ADDED :
 				case IResourceDelta.REMOVED :
-					IPath packagePath = location.removeFirstSegments(outputFolderSegmentCount);
+					IPath packagePath = location.removeFirstSegments(segmentCount);
 					if (JavaBuilder.DEBUG)
 						System.out.println("Add dependents of added/removed package " + packagePath); //$NON-NLS-1$
 					addDependentsOf(packagePath, false);
@@ -212,12 +217,12 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = binaryDelta.getAffectedChildren();
 					for (int i = 0, length = children.length; i < length; i++)
-						findAffectedSourceFiles(children[i], outputFolderSegmentCount);
+						findAffectedSourceFiles(children[i], segmentCount);
 			}
 			return;
 		case IResource.FILE :
 			if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(location.getFileExtension())) {
-				IPath typePath = location.removeFirstSegments(outputFolderSegmentCount).removeFileExtension();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension();
 				switch (binaryDelta.getKind()) {
 					case IResourceDelta.ADDED :
 					case IResourceDelta.REMOVED :
@@ -242,18 +247,18 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
 		if (sourceDelta != null) {
 			if (sourceDelta.getKind() == IResourceDelta.ADDED || sourceDelta.getKind() == IResourceDelta.REMOVED)
-				return false;
-			int sourceFolderSegmentCount = sourceFolders[i].getLocation().segmentCount();
+				return false; // added/removed source folder should not make it here, but handle anyways
+			int segmentCount = sourceFolders[i].getLocation().segmentCount();
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
-				findSourceFiles(children[c], sourceFolderSegmentCount);
+				findSourceFiles(children[c], segmentCount);
 			notifier.checkCancel();
 		}
 	}
 	return true;
 }
 
-protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegmentCount) throws CoreException {
+protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) throws CoreException {
 	// When a package becomes a type or vice versa, expect 2 deltas,
 	// one on the folder & one on the source file
 	IResource resource = sourceDelta.getResource();
@@ -264,7 +269,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 			if (resource.getName().equalsIgnoreCase("CVS")) return; // TEMPORARY //$NON-NLS-1$
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
-					IPath addedPackagePath = location.removeFirstSegments(sourceFolderSegmentCount);
+					IPath addedPackagePath = location.removeFirstSegments(segmentCount);
 					IFolder addedPackageFolder = outputFolder.getFolder(addedPackagePath);
 					if (!addedPackageFolder.exists())
 						addedPackageFolder.create(true, true, null);
@@ -276,10 +281,10 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = sourceDelta.getAffectedChildren();
 					for (int i = 0, length = children.length; i < length; i++)
-						findSourceFiles(children[i], sourceFolderSegmentCount);
+						findSourceFiles(children[i], segmentCount);
 					return;
 				case IResourceDelta.REMOVED :
-					IPath removedPackagePath = location.removeFirstSegments(sourceFolderSegmentCount);
+					IPath removedPackagePath = location.removeFirstSegments(segmentCount);
 					IFolder removedPackageFolder = outputFolder.getFolder(removedPackagePath);
 					for (int i = 0, length = sourceFolders.length; i < length; i++) {
 						if (sourceFolders[i].findMember(removedPackagePath) != null) {
@@ -288,7 +293,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 								removedPackageFolder.create(true, true, null);
 							IResourceDelta[] removedChildren = sourceDelta.getAffectedChildren();
 							for (int j = 0, rlength = removedChildren.length; j < rlength; j++)
-								findSourceFiles(removedChildren[j], sourceFolderSegmentCount);
+								findSourceFiles(removedChildren[j], segmentCount);
 							return;
 						}
 					}
@@ -304,7 +309,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 		case IResource.FILE :
 			String extension = location.getFileExtension();
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
-				IPath typePath = location.removeFirstSegments(sourceFolderSegmentCount).removeFileExtension();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension();
 				String sourceLocation = location.toString();
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :
@@ -345,7 +350,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				if (javaBuilder.filterResource(resource)) return;
 
 				// copy all other resource deltas to the output folder
-				IPath resourcePath = location.removeFirstSegments(sourceFolderSegmentCount);
+				IPath resourcePath = location.removeFirstSegments(segmentCount);
 				IResource outputFile = outputFolder.getFile(resourcePath);
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :

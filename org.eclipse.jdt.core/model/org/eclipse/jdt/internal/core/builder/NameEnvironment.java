@@ -55,8 +55,7 @@ public NameEnvironment(IJavaProject javaProject) {
 *  NOTE: These can be in any order & separated by prereq projects or libraries
 * 1c. project external to workspace (only detectable using getLocation()):
 *   /Test/src[CPE_SOURCE][K_SOURCE] -> d:/eclipse.zzz/src
-*  Need to search source folder & output folder TOGETHER
-*  Use .java file if its more recent than .class file
+*  Need to search source folder & output folder
 *
 * 2. zip files:
 *   D:/j9/lib/jclMax/classes.zip[CPE_LIBRARY][K_BINARY][sourcePath:d:/j9/lib/jclMax/source/source.zip]
@@ -72,7 +71,7 @@ public static ClasspathLocation[] computeLocations(
 	IJavaProject javaProject,
 	String outputFolderLocation,
 	ArrayList sourceFolders,
-	SimpleLookupTable prereqOutputFolders) throws JavaModelException {
+	SimpleLookupTable binaryResources) throws JavaModelException {
 
 	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true, true);
 	int cpCount = 0;
@@ -82,7 +81,8 @@ public static ClasspathLocation[] computeLocations(
 	boolean firstSourceFolder = true;
 	nextEntry : for (int i = 0; i < max; i++) {
 		IClasspathEntry entry = classpathEntries[i];
-		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
+		IPath path = entry.getPath();
+		Object target = JavaModel.getTarget(workspaceRoot, path, true);
 		if (target == null) continue nextEntry;
 
 		if (target instanceof IResource) {
@@ -115,27 +115,46 @@ public static ClasspathLocation[] computeLocations(
 					}
 					if (prereqOutputFolder.getLocation() == null) // sanity check
 						continue nextEntry;
-					if (prereqOutputFolders != null)
-						prereqOutputFolders.put(prereqProject, prereqOutputFolder);
+					if (binaryResources != null) { // normal builder mode
+						IResource[] existingResources = (IResource[]) binaryResources.get(prereqProject);
+						if (existingResources == null)
+							binaryResources.put(prereqProject, new IResource[] {prereqOutputFolder});
+						else
+							existingResources[0] = prereqOutputFolder; // project's output folder is always first
+					}
 					classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(prereqOutputFolder.getLocation().toString());
 					continue nextEntry;
 
 				case IClasspathEntry.CPE_LIBRARY :
+					if (resource.getLocation() == null) // sanity check
+						continue nextEntry;
 					if (resource instanceof IFile) {
-						String extension = entry.getPath().getFileExtension();
+						String extension = path.getFileExtension();
 						if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
 							continue nextEntry;
 						classpathLocations[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
 					} else if (resource instanceof IFolder) {
 						classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(resource.getLocation().toString());
 					}
+					if (binaryResources != null) { // normal builder mode
+						IProject p = resource.getProject(); // can be the project being built
+						IResource[] existingResources = (IResource[]) binaryResources.get(p);
+						if (existingResources == null) {
+							existingResources = new IResource[] {null, resource}; // project's output folder is always first, null if not included
+						} else {
+							int size = existingResources.length;
+							System.arraycopy(existingResources, 0, existingResources = new IResource[size + 1], 0, size);
+							existingResources[size] = resource;
+						}
+						binaryResources.put(p, existingResources);
+					}
 					continue nextEntry;
 			}
 		} else if (target instanceof File) {
-			String extension = entry.getPath().getFileExtension();
+			String extension = path.getFileExtension();
 			if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
 				continue nextEntry;
-			classpathLocations[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toString());
+			classpathLocations[cpCount++] = ClasspathLocation.forLibrary(path.toString());
 		}
 	}
 	if (cpCount < max)

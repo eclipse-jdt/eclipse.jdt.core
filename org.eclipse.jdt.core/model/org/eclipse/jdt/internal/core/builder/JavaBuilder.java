@@ -25,7 +25,7 @@ IWorkspaceRoot workspaceRoot;
 ClasspathLocation[] classpath;
 IContainer outputFolder;
 IContainer[] sourceFolders;
-SimpleLookupTable prereqOutputFolders; // maps a prereq project to its output folder
+SimpleLookupTable binaryResources; // maps a project to its binary resources (output folder, class folders, zip/jar files)
 State lastState;
 BuildNotifier notifier;
 char[][] resourceFilters;
@@ -164,7 +164,6 @@ private void cleanup() {
 	this.classpath = null;
 	this.outputFolder = null;
 	this.sourceFolders = null;
-	this.prereqOutputFolders = null;
 	this.lastState = null;
 	this.notifier = null;
 }
@@ -195,7 +194,7 @@ boolean filterResource(IResource resource) {
 private SimpleLookupTable findDeltas() {
 	notifier.subTask(Util.bind("build.readingDelta", currentProject.getName())); //$NON-NLS-1$
 	IResourceDelta delta = getDelta(currentProject);
-	SimpleLookupTable deltas = new SimpleLookupTable(prereqOutputFolders.elementSize + 1);
+	SimpleLookupTable deltas = new SimpleLookupTable(binaryResources.elementSize + 1);
 	if (delta != null) {
 		deltas.put(currentProject, delta);
 	} else {
@@ -205,17 +204,25 @@ private SimpleLookupTable findDeltas() {
 		return null;
 	}
 
-	Object[] keyTable = prereqOutputFolders.keyTable;
-	for (int i = 0, l = keyTable.length; i < l; i++) {
-		IProject prereqProject = (IProject) keyTable[i];
-		if (prereqProject != null && lastState.isStructurallyChanged(prereqProject, getLastState(prereqProject))) {
-			notifier.subTask(Util.bind("build.readingDelta", prereqProject.getName())); //$NON-NLS-1$
-			delta = getDelta(prereqProject);
+	Object[] keyTable = binaryResources.keyTable;
+	Object[] valueTable = binaryResources.valueTable;
+	nextProject : for (int i = 0, l = keyTable.length; i < l; i++) {
+		IProject p = (IProject) keyTable[i];
+		if (p != null && p != currentProject) {
+			if (!lastState.isStructurallyChanged(p, getLastState(p))) { // see if we can skip its delta
+				IResource[] binaryResources = (IResource[]) valueTable[i];
+				if (binaryResources.length <= 1)
+					continue nextProject; // project has no structural changes in its output folder
+				binaryResources[0] = null; // skip the output folder
+			}
+
+			notifier.subTask(Util.bind("build.readingDelta", p.getName())); //$NON-NLS-1$
+			delta = getDelta(p);
 			if (delta != null) {
-				deltas.put(prereqProject, delta);
+				deltas.put(p, delta);
 			} else {
 				if (DEBUG)
-					System.out.println("Missing delta for: " + prereqProject.getName());	 //$NON-NLS-1$
+					System.out.println("Missing delta for: " + p.getName());	 //$NON-NLS-1$
 				notifier.subTask(""); //$NON-NLS-1$
 				return null;
 			}
@@ -248,6 +255,16 @@ private IProject[] getRequiredProjects() {
 				if (p != null && !projects.contains(p))
 					projects.add(p);
 			}
+		}
+		// some binary resources on the class path can come from projects that are not included in the project references
+		if (binaryResources != null) {
+			Object[] keyTable = binaryResources.keyTable;
+			for (int i = 0, l = keyTable.length; i < l; i++) {
+				IProject p = (IProject) keyTable[i];
+				if (p != null && !projects.contains(p))
+					projects.add(p);
+			}
+			this.binaryResources = null;
 		}
 	} catch(JavaModelException e) {
 		return new IProject[0];
@@ -293,13 +310,13 @@ private void initializeBuilder() throws CoreException {
 	}
 
 	ArrayList sourceList = new ArrayList();
-	this.prereqOutputFolders = new SimpleLookupTable();
+	this.binaryResources = new SimpleLookupTable(3);
 	this.classpath = NameEnvironment.computeLocations(
 		workspaceRoot,
 		javaProject,
 		outputFolder.getLocation().toString(),
 		sourceList,
-		prereqOutputFolders);
+		binaryResources);
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 	
@@ -318,10 +335,10 @@ private void initializeBuilder() throws CoreException {
 }
 
 private void recordNewState(State state) {
-	Object[] keyTable = prereqOutputFolders.keyTable;
+	Object[] keyTable = binaryResources.keyTable;
 	for (int i = 0, l = keyTable.length; i < l; i++) {
 		IProject prereqProject = (IProject) keyTable[i];
-		if (prereqProject != null) {
+		if (prereqProject != null && prereqProject != currentProject) {
 			State prereqState = getLastState(prereqProject);
 			if (prereqState != null)
 				state.recordLastStructuralChanges(prereqProject, prereqState.lastStructuralBuildNumber);
