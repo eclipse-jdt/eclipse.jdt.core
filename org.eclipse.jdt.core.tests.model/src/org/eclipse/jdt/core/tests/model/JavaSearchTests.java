@@ -208,6 +208,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceNotInClasspath"));
 	suite.addTest(new JavaSearchTests("testVariousTypeReferences"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInImport"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceInImport2"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInArray"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInArray2"));
 	suite.addTest(new JavaSearchTests("testNegativeTypeReference"));
@@ -2114,6 +2115,28 @@ public void testTypeReferenceInImport() throws JavaModelException, CoreException
 		resultCollector);
 	assertEquals(
 		"src/TypeReferenceInImport/X.java [p2.Z]",
+		resultCollector.toString());
+}
+/**
+ * Type reference in import test.
+ * (regression test for bug 23077 search: does not find type references in some imports)
+ */
+public void testTypeReferenceInImport2() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "r6", "A.java").getType("A");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/r6/B.java [r6.A]\n" +
+		"src/r6/B.java [r6.A]\n" +
+		"src/r6/B.java [r6.A]\n" +
+		"src/r6/B.java [r6.A]\n" +
+		"src/r6/B.java [r6.A]\n" +
+		"src/r6/B.java [r6.A]",
 		resultCollector.toString());
 }
 /**

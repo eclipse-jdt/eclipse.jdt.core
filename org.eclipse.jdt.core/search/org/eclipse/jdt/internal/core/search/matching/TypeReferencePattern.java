@@ -372,8 +372,6 @@ public int matchLevel(AstNode node, boolean resolve) {
  */
 private int matchLevel(ImportReference importRef, boolean resolve) {
 
-	if (importRef.onDemand) return IMPOSSIBLE_MATCH;
-
 	char[][] tokens = importRef.tokens;
 	int importLength = tokens.length;
 	
