@@ -77,7 +77,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0042"));
+		suite.addTest(new ASTConverter15Test("test0043"));
 		return suite;
 	}
 		
@@ -1198,12 +1198,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "T:test0040/A/test0040.Tfoo()", binding.getKey());
+		assertEquals("wrong key", "T:test0040/A/Tfoo()", binding.getKey());
 		Type returnType = methodDeclaration.getReturnType2();
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "T:test0040/A/test0040.Tfoo()", binding2.getKey());		
+		assertEquals("wrong key", "T:test0040/A/Tfoo()", binding2.getKey());		
 	}
 	
 	/**
@@ -1237,12 +1237,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "T:test0042/A/test0042.T[]foo()", binding.getKey());
+		assertEquals("wrong key", "T:test0042/A/T[]foo()", binding.getKey());
 		Type returnType = methodDeclaration.getReturnType2();
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "T:test0042/A/test0042.T[]foo()[]", binding2.getKey());		
-	}	
+		assertEquals("wrong key", "T:test0042/A/T[]foo()[]", binding2.getKey());		
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72882
+	 */
+	public void test0043() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0043", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		IBinding binding = typeParameter.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong qualified name", "X", typeBinding.getQualifiedName());
+	}
 }
 

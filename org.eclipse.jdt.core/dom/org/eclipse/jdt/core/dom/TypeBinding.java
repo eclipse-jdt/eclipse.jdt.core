@@ -606,6 +606,10 @@ class TypeBinding implements ITypeBinding {
 			}
 		}
 		
+		if (this.isTypeVariable()) {
+			return new String(this.binding.sourceName());			
+		}
+		
 		if (isTopLevel() || isMember()) {
 			PackageBinding packageBinding = this.binding.getPackage();
 			
