@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IPath;
@@ -120,6 +121,9 @@ public boolean search(Index index, IProgressMonitor progressMonitor) {
 		executionTime += System.currentTimeMillis() - start;
 		return COMPLETE;
 	} catch (IOException e) {
+		if (e instanceof EOFException) {
+			e.printStackTrace();
+		}
 		return FAILED;
 	} finally {
 		monitor.exitRead(); // finished reading

@@ -42,7 +42,7 @@ private int documentReferenceSize; // 1, 2 or more bytes... depends on # of docu
 private String[][] cachedChunks;
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s)
 
-public static final String SIGNATURE= "INDEX FILE 0.001"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX FILE 0.002"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;
@@ -605,7 +605,7 @@ private int[] readDocumentNumbers(DataInputStream stream) throws IOException {
 	if (arraySize < 0)
 		return new int[] {-arraySize}; // used a negative offset to represent an array of 1 element
 
-	if (arraySize == 0)
+	if (arraySize == 0x7FFF)
 		arraySize = stream.readInt();
 	int[] result = new int[arraySize];
 	for (int i = 0; i < arraySize; i++) {
@@ -746,12 +746,12 @@ private void writeCategoryTable(char[] categoryName, HashtableOfObject wordsToDo
 private void writeDocumentNumbers(int[] documentNumbers, DataOutputStream stream) throws IOException {
 	int length = documentNumbers.length;
 	if (length == 1 && documentNumbers[0] > 0) {
-		stream.writeShort(-documentNumbers[0]); // save writing out an array of size 1
+			stream.writeShort(-documentNumbers[0]); // save writing out an array of size 1
 	} else {
-		if (length <= 0x7FFF) {
+		if (length < 0x7FFF) {
 			stream.writeShort(length);
 		} else {
-			stream.writeShort(0);
+			stream.writeShort(0x7FFF); // use 0x7FFF as a marker for big lengths
 			stream.writeInt(length);
 		}
 		Util.sort(documentNumbers);

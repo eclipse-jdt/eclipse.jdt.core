@@ -15,8 +15,6 @@ import java.io.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -92,14 +90,6 @@ public Index(String fileName, String printableName, boolean reuseExistingFile) t
 	initialize(fileName, reuseExistingFile);
 }
 public void addIndexEntry(char[] category, char[] key, SearchDocument document) {
-
-	// TODO (jerome) remove once concurrency problem is solved
-	ReadWriteMonitor monitor = JavaModelManager.getJavaModelManager().getIndexManager().getMonitorFor(this);
-	if (monitor.status >= 0) {
-		System.out.println("Index doesn't have permission to write"); //$NON-NLS-1$
-		new Exception().printStackTrace();
-	}
-
 	this.memoryIndex.addIndexEntry(category, key, document);
 }
 public void close() throws IOException {
@@ -139,13 +129,6 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 //		}
 //	}
 
-	// TODO (jerome) remove once concurrency problem is solved
-	ReadWriteMonitor monitor = JavaModelManager.getJavaModelManager().getIndexManager().getMonitorFor(this);
-	if (monitor.status == 0) {
-		System.out.println("Index doesn't have permission to read"); //$NON-NLS-1$
-		new Exception().printStackTrace();
-	}
-
 	HashtableOfObject results;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addQueryResults(categories, key, matchRule, this.memoryIndex);
@@ -169,14 +152,6 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
  * Returns the document names that contain the given substring, if null then returns all of them.
  */
 public String[] queryDocumentNames(String substring) throws IOException {
-	
-	// TODO (jerome) remove once concurrency problem is solved
-	ReadWriteMonitor monitor = JavaModelManager.getJavaModelManager().getIndexManager().getMonitorFor(this);
-	if (monitor.status == 0) {
-		System.out.println("Index doesn't have permission to read"); //$NON-NLS-1$
-		new Exception().printStackTrace();
-	}
-
 	SimpleSet results;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addDocumentNames(substring, this.memoryIndex);
@@ -198,13 +173,6 @@ public void remove(String documentName) {
 	this.memoryIndex.remove(documentName);
 }
 public void save() throws IOException {
-	// TODO (jerome) remove once concurrency problem is solved
-	ReadWriteMonitor monitor = JavaModelManager.getJavaModelManager().getIndexManager().getMonitorFor(this);
-	if (monitor.status >= 0) {
-		System.out.println("Index doesn't have permission to write"); //$NON-NLS-1$
-		new Exception().printStackTrace();
-	}
-
 	// must own the write monitor for this index (stored in the IndexManager)
 	if (!hasChanged()) return;
 
