@@ -42,7 +42,7 @@ protected Map getCompilerOptions() {
 public static Test suite() {
 	return setupSuite(testClass());
 }
-public void test01() {
+public void test001() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -66,7 +66,7 @@ public void test01() {
 		},
 		"SUCCESS");
 }
-public void test02() {
+public void test002() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -91,7 +91,7 @@ public void test02() {
 		},
 		"SUCCESS");
 }
-public void test03() {
+public void test003() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -114,7 +114,7 @@ public void test03() {
 		},
 		"SUCCESS");
 }
-public void test04() {
+public void test004() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -139,7 +139,7 @@ public void test04() {
 		},
 		"SUCCESS");
 }
-public void test05() {
+public void test005() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -162,7 +162,7 @@ public void test05() {
 		},
 		"SUCCESS");
 }
-public void test06() {
+public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/Test.java",
@@ -193,7 +193,7 @@ public void test06() {
 		"----------\n"
 	);
 }
-public void test07() {
+public void test007() {
 	this.runConformTest(
 		new String[] {
 			"p1/Test.java",
@@ -210,7 +210,7 @@ public void test07() {
 		},
 		"SUCCESS");
 }
-public void test08() {
+public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/Test.java",
@@ -241,7 +241,7 @@ public void test08() {
 	);
 }
 // binary compatibility
-public void test09() {
+public void test009() {
 	this.runConformTest(
 		new String[] {
 			"p1/Z.java",
@@ -291,7 +291,7 @@ public void test09() {
 }
 
 // check actualReceiverType when array type
-public void test10() {
+public void test010() {
 	this.runConformTest(
 		new String[] {
 			"p1/Z.java",
@@ -307,7 +307,7 @@ public void test10() {
 		"1SUCCESS");
 }
 // test unreachable code complaints
-public void test11() {
+public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/X.java",
@@ -349,7 +349,7 @@ public void test11() {
 	);
 }
 // binary compatibility
-public void test12() {
+public void test012() {
 	this.runConformTest(
 		new String[] {
 			"p1/Y.java",
@@ -439,7 +439,7 @@ public void test12() {
 		null); // no special vm args		
 }
 // binary compatibility
-public void test13() {
+public void test013() {
 	this.runConformTest(
 		new String[] {
 			"p1/Y.java",
@@ -514,7 +514,7 @@ public void test13() {
 		null); // no special vm args		
 }
 
-public void test14() {
+public void test014() {
 	this.runConformTest(
 		new String[] {
 			"p1/X.java",
@@ -557,7 +557,7 @@ public void test14() {
 /*
  * check handling of default abstract methods
  */
-public void test15() {
+public void test015() {
 	this.runConformTest(
 		new String[] {
 			"p1/X.java",
@@ -581,7 +581,7 @@ public void test15() {
 		"SUCCESS");
 }
 			
-public void test16() {
+public void test016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -607,7 +607,7 @@ public void test16() {
 		"----------\n");
 }
 
-public void test17() {
+public void test017() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -631,7 +631,7 @@ public void test17() {
 		"SUCCESS");
 }
 
-public void test18() {
+public void test018() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -654,7 +654,7 @@ public void test18() {
 		},
 		"SUCCESS");
 }
-public void test19() {
+public void test019() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -679,7 +679,7 @@ public void test19() {
 		},
 		"SUCCESS");
 }
-public void test20() {
+public void test020() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -705,7 +705,7 @@ public void test20() {
 		"SUCCESS");
 }
 // binary check for 11511
-public void test21() {
+public void test021() {
 	this.runConformTest(
 		new String[] {
 			"p1/Z.java",
@@ -773,7 +773,7 @@ public void test21() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
-public void test22() {
+public void test022() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -815,7 +815,7 @@ public void test22() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
-public void test23() {
+public void test023() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -856,7 +856,7 @@ public void test23() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
-public void test24() {
+public void test024() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -912,7 +912,7 @@ public void test24() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis (no matter if super is abstract or not)
  */
-public void test25() {
+public void test025() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -946,7 +946,7 @@ public void test25() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis (no matter if super is abstract or not)
  */
-public void test26() {
+public void test026() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -980,7 +980,7 @@ public void test26() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11922
  * should report unreachable empty statement
  */
-public void test27() {
+public void test027() {
 
 	this.runNegativeTest(
 		new String[] {
@@ -1007,7 +1007,7 @@ public void test27() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=12445
  * should report unreachable empty statement
  */
-public void test28() {
+public void test028() {
 
 	this.runConformTest(
 		new String[] {
@@ -1044,7 +1044,7 @@ public void test28() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * verify error on qualified name ref in 1.4
  */
-public void test29() {
+public void test029() {
 
 	this.runConformTest(
 		new String[] {
@@ -1081,7 +1081,7 @@ public void test29() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected method implementations.
  */
-public void test30() {
+public void test030() {
 	
 	this.runNegativeTest(
 		new String[] {
@@ -1137,7 +1137,7 @@ public void test30() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected method implementations.
  */
-public void test31() {
+public void test031() {
 	
 	this.runNegativeTest(
 		new String[] {
@@ -1192,7 +1192,7 @@ public void test31() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected field implementations.
  */
-public void test32() {
+public void test032() {
 	
 	this.runNegativeTest(
 		new String[] {
@@ -1236,7 +1236,7 @@ public void test32() {
  * Initialization of synthetic fields prior to super constructor call
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23075
  */
-public void test33() {
+public void test033() {
 
 	this.runConformTest(
 		new String[] {
@@ -1284,7 +1284,7 @@ public void test33() {
  * Initialization of synthetic fields prior to super constructor call - NPE check
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25174
  */
-public void test34() {
+public void test034() {
 
 	this.runConformTest(
 		new String[] {
@@ -1316,7 +1316,7 @@ public void test34() {
 		"X.this != null-X$1.baz()");
 }
 
-public void test35() {
+public void test035() {
 	this.runConformTest(
 		new String[] {
 			/* p1/X.java */
@@ -1340,7 +1340,7 @@ public void test35() {
 	);
 }
 
-public void test36() {
+public void test036() {
 	this.runConformTest(
 		new String[] {
 			/* p1/X.java */
@@ -1373,7 +1373,7 @@ public void test36() {
  * 
  * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
-public void test37() {
+public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
 	this.runNegativeTest(
@@ -1401,7 +1401,7 @@ public void test37() {
  * 
  * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
-public void test38() {
+public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
 	this.runNegativeTest(
@@ -1423,7 +1423,7 @@ public void test38() {
 /*
  * unreachable empty statement/block are diagnosed in 1.3
  */
-public void test39() {
+public void test039() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1465,7 +1465,7 @@ public void test39() {
 }
 // jls6.5.5.1 - simple type names favor member type over toplevel one.
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=30705
-public void test40() {
+public void test040() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1500,7 +1500,7 @@ public void test40() {
 /*
  * 30856 - 1.4 compliant mode should consider abstract method matches
  */
-public void test41() {
+public void test041() {
 	this.runConformTest(
 		new String[] {
 			"p/X.java", //================================
@@ -1531,7 +1531,7 @@ public void test41() {
 /*
  * variation - 30856 - 1.4 compliant mode should consider abstract method matches
  */
-public void test42() {
+public void test042() {
 	this.runConformTest(
 		new String[] {
 			"p/X.java", //================================
@@ -1564,7 +1564,7 @@ public void test42() {
 }
 
 // binary compatibility
-public void _test43() {
+public void _test043() {
 	this.runConformTest(
 		new String[] {
 			"p1/Y.java",
@@ -1615,7 +1615,7 @@ public void _test43() {
  * array.clone() should use array type in methodRef
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36307
  */
-public void test44() {
+public void test044() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1652,7 +1652,7 @@ public void test44() {
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
 // 39172
-public void test45() {
+public void test045() {
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -1676,7 +1676,7 @@ public void test45() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39467
  * should diagnose missing abstract method implementation
  */
-public void test46() {
+public void test046() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1706,7 +1706,7 @@ public void test46() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
  * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
  */
-public void test47() {
+public void test047() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1741,7 +1741,7 @@ public void test47() {
  * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
  * variation with 2 found methods
  */
-public void test48() {
+public void test048() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1775,7 +1775,7 @@ public void test48() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=41278
  */
-public void test49() {
+public void test049() {
 	this.runNegativeTest(
 		new String[] {
 			"pa/Caller.java",
@@ -1808,6 +1808,215 @@ public void test49() {
 		"The method callme() from the type Concrete is not visible\n" + 
 		"----------\n");
 }
+
+public void test050() {
+	this.runNegativeTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"public class X {\n" + 
+		"  public static void main(String args[]) {\n" + 
+		"     foo();\n" + 
+		"  }\n" + 
+		"  public static void foo() {\n" + 
+		"     int a1 = 1;\n" + 
+		"     int a2 = 1;\n" + 
+		"     a1 = 2;\n" + 
+		"     while (false) {};\n" + 
+		"     a2 = 2;\n" + 
+		"  }\n" + 
+		"}\n",
+	},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 10)\n" + 
+		"	while (false) {};\n" + 
+		"	              ^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+
+public void test051() {
+	this.runNegativeTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"public class X {\n" + 
+		"  public static void main(String args[]) {\n" + 
+		"     foo();\n" + 
+		"  }\n" + 
+		"  public static void foo() {\n" + 
+		"     int a1 = 1;\n" + 
+		"     int a2 = 1;\n" + 
+		"     a1 = 2;\n" + 
+		"     while (false);\n" + 
+		"     a2 = 2;\n" + 
+		"  }\n" + 
+		"}\n",
+	},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 10)\n" + 
+		"	while (false);\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+
+public void test052() {
+	this.runNegativeTest(
+		new String[] {
+			"p/A.java",
+			"package p;\n" + 
+			"public class A {\n" + 
+			"  public static void main(String[] argv) {\n" + 
+			"    foo();\n" + 
+			"  }\n" + 
+			"  private int i;\n" + 
+			"  static class Y extends X {\n" + 
+			"    int x = i;\n" + 
+			"  }\n" + 
+			"  public static void foo() {\n" + 
+			"    return;\n" + 
+			"  }\n" + 
+			"}",
+	
+			"p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public static void main(String argv[]) {\n" + 
+			"     foo();\n" + 
+			"  }\n" + 
+			"  public static void foo() {\n" + 
+			"     int a1 = 1;\n" + 
+			"     int a2 = 1;\n" + 
+			"     a1 = 2;\n" + 
+			"     while (false);\n" + 
+			"     a2 = 2;\n" + 
+			"  }\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\A.java (at line 6)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The private field A.i is never read locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\A.java (at line 8)\n" + 
+		"	int x = i;\n" + 
+		"	        ^\n" + 
+		"Cannot make a static reference to the non-static field i\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 10)\n" + 
+		"	while (false);\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n"
+	);
+}
+
+public void test053() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"class X {\n" + 
+			"  static class A {\n" + 
+			"    interface I {\n" + 
+			"      int a = 3;\n" + 
+			"    }\n" + 
+			"  } \n" + 
+			"  interface I { \n" + 
+			"    int b = 4;\n" + 
+			"  }\n" + 
+			"  class Y extends A implements I {\n" + 
+			"    Object F() {\n" + 
+			"      return new I() {\n" + 
+			"        int c = a; // WE SHOULD NOT BE ABLE TO SEE BOTH a and b\n" + 
+			"        int d = b; // WE SHOULD NOT BE ABLE TO SEE BOTH a and b\n" + 
+			"      };\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		}
+	);
+}
+
+public void test054() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  static class A {\n" + 
+			"    interface I {\n" + 
+			"      int a = 3;\n" + 
+			"      void foo();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  interface I {\n" + 
+			"    int a = 4;\n" + 
+			"    void foo();\n" + 
+			"  }\n" + 
+			"  class Y extends A implements I {\n" + 
+			"    public void foo() {\n" + 
+			"      new I() {\n" + 
+			"        public void foo() {\n" + 
+			"          System.out.println(\"X$1::foo-\" + a);\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"      .foo();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"public static void main(String argv[]) {\n" + 
+			"  new X().new Y().foo();\n" + 
+			"}\n" + 
+			"}",
+		}
+	);
+}
+public void test055() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  static class A {\n" + 
+			"    interface I2 {\n" + 
+			"      int a = 3;\n" + 
+			"      void foo();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  interface I1 {\n" + 
+			"    int a = 4;\n" + 
+			"    void foo(int a);\n" + 
+			"  }\n" + 
+			"  class Y extends A implements I1 {\n" + 
+			"    public void foo(int a) {\n" + 
+			"      new I2() {\n" + 
+			"        public void foo() {\n" + 
+			"          System.out.println(\"X$1::foo-\" + a);\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"      .foo();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"public static void main(String argv[]) {\n" + 
+			"  new X().new Y().foo(8);\n" + 
+			"}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 11)\n" + 
+		"	void foo(int a);\n" + 
+		"	             ^\n" + 
+		"The argument a is hiding a field from type X.I1\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 14)\n" + 
+		"	public void foo(int a) {\n" + 
+		"	                    ^\n" + 
+		"The argument a is hiding a field from type X.I1\n" + 
+		"----------\n"
+	);
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
