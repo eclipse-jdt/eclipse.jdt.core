@@ -44,6 +44,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public final static int RECEIVER_TYPE_EMUL = 3;
 	
 	Hashtable[] synthetics;
+	Hashtable bridgeMethods;
 	char[] genericReferenceTypeSignature;
 	
 	
@@ -60,6 +61,14 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.methods = NoMethods;
 
 	computeId();
+}
+public void addBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	if (this.bridgeMethods == null)
+		this.bridgeMethods = new Hashtable(3);
+	this.bridgeMethods.put(currentMethod, inheritedMethod);
+	// TODO (philippe) need to gen bridge methods
+//	System.out.println("need bridge method for " + new String(currentMethod.shortReadableName())
+//		+ " -> " + new String(inheritedMethod.shortReadableName()));
 }
 private void addDefaultAbstractMethod(MethodBinding abstractMethod) {
 	MethodBinding defaultAbstract = new MethodBinding(
