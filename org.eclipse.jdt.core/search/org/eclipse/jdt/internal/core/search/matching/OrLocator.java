@@ -48,6 +48,10 @@ public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	for (int i = 0, length = this.patternLocators.length; i < length; i++)
 		this.patternLocators[i].match(node, nodeSet);
 }
+public void match(MessageSend node, MatchingNodeSet nodeSet) {
+	for (int i = 0, length = this.patternLocators.length; i < length; i++)
+		this.patternLocators[i].match(node, nodeSet);
+}
 public void match(Reference node, MatchingNodeSet nodeSet) {
 	for (int i = 0, length = this.patternLocators.length; i < length; i++)
 		this.patternLocators[i].match(node, nodeSet);

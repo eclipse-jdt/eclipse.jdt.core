@@ -40,21 +40,7 @@ protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend)
 }
 //public void match(AstNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-public void match(Expression node, MatchingNodeSet nodeSet) { // interested in MessageSend
-	if (!this.pattern.findReferences) return;
-	if (!(node instanceof MessageSend)) return;
-
-	MessageSend messageSend = (MessageSend) node;
-	if (!matchesName(this.pattern.selector, messageSend.selector)) return;
-	if (this.pattern.parameterSimpleNames != null) {
-		int length = this.pattern.parameterSimpleNames.length;
-		AstNode[] args = messageSend.arguments;
-		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return;
-	}
-
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
-}
+//public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findDeclarations) return;
@@ -69,8 +55,20 @@ public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 		for (int i = 0; i < argsLength; i++)
 			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return;
 	}
-	TypeReference returnType =  node.returnType;
-	if (returnType == null || !matchesTypeReference(this.pattern.returnSimpleName, returnType)) return;
+	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return;
+
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+}
+public void match(MessageSend node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return;
+
+	if (!matchesName(this.pattern.selector, node.selector)) return;
+	if (this.pattern.parameterSimpleNames != null) {
+		int length = this.pattern.parameterSimpleNames.length;
+		AstNode[] args = node.arguments;
+		int argsLength = args == null ? 0 : args.length;
+		if (length != argsLength) return;
+	}
 
 	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
 }

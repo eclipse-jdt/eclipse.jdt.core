@@ -1498,7 +1498,7 @@ public void testMethodDeclarationNoReturnType() throws JavaModelException {
 		scope, 
 		resultCollector);
 	assertEquals(
-		"", 
+		"src/e8/A.java e8.A.m() -> void [m]", 
 		resultCollector.toString());
 }
 /**
@@ -1722,6 +1722,7 @@ public void testOrPattern() throws CoreException {
 		getJavaSearchScope(),
 		resultCollector);
 	assertEquals(
+		"src/e8/A.java e8.A.m() -> void [m] POTENTIAL_MATCH\n" +
 		"src/q9/I.java q9.I.m() -> void [m] EXACT_MATCH\n" +
 		"src/q9/I.java q9.A1.m() -> void [m] EXACT_MATCH",
 		resultCollector.toString());

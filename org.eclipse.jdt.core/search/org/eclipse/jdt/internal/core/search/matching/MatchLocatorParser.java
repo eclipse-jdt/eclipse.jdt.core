@@ -103,23 +103,27 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
-	Expression node = this.expressionStack[this.expressionPtr];
-	if (node instanceof Reference) // should always be a FieldReference, but play it safe
-		this.patternLocator.match((Reference) node, this.matchSet);
-	else
-		this.patternLocator.match(node, this.matchSet);
+
+	// this is always a Reference
+	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeMethodInvocationPrimary() {
-	super.consumeMethodInvocationPrimary();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
+	super.consumeMethodInvocationPrimary(); 
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
+
+	// this is always a MessageSend
+	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions

@@ -85,6 +85,9 @@ public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 }
+public void match(MessageSend node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+}
 public void match(Reference node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 }
@@ -130,6 +133,7 @@ protected boolean matchesName(char[] pattern, char[] name) {
  */
 protected boolean matchesTypeReference(char[] pattern, TypeReference type) {
 	if (pattern == null) return true; // null is as if it was "*"
+	if (type == null) return true; // treat as an inexact match
 
 	char[][] compoundName = type.getTypeName();
 	char[] simpleName = compoundName[compoundName.length - 1];
