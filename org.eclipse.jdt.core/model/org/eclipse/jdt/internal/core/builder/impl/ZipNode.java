@@ -57,6 +57,6 @@ public IPath getZipFile() {
  * purposes only.
  */
 public String toString() {
-	return "ZipNode("/*nonNLS*/ + fZipFile + ")"/*nonNLS*/;
+	return "ZipNode(" + fZipFile + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 }
 }

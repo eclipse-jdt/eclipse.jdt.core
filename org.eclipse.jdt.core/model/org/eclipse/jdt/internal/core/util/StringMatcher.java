@@ -229,9 +229,9 @@ public class StringMatcher {
 	 * @param p, a String object that is a simple regular expression with ‘*’ and/or ‘?’
 	 */
 	private void parseWildCards() {
-		if(fPattern.startsWith("*"/*nonNLS*/))
+		if(fPattern.startsWith("*")) //$NON-NLS-1$
 			fHasLeadingStar = true;
-		if(fPattern.endsWith("*"/*nonNLS*/)) {
+		if(fPattern.endsWith("*")) { //$NON-NLS-1$
 			/* make sure it's not an escaped wildcard */
 			if (fLength > 1 && fPattern.charAt(fLength - 2) != '\\') {
 				fHasTrailingStar = true;

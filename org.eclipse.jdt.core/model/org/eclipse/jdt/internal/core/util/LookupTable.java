@@ -62,7 +62,7 @@ public class LookupTable extends Dictionary implements Cloneable {
 	    	entry = null;
 	    	return next;
 		}
-	    throw new NoSuchElementException("LookupTable Enumerator"/*nonNLS*/);
+	    throw new NoSuchElementException("LookupTable Enumerator"); //$NON-NLS-1$
 	}
 	}      	
 	/**
@@ -94,10 +94,10 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 */
 	public LookupTable(int initialCapacity, float loadFactor) {
 	if (initialCapacity < 0)
-	    throw new IllegalArgumentException("Illegal Capacity: "/*nonNLS*/+
+	    throw new IllegalArgumentException("Illegal Capacity: "+ //$NON-NLS-1$
 											   initialCapacity);
 		if (loadFactor <= 0)
-			throw new IllegalArgumentException("Illegal Load: "/*nonNLS*/+loadFactor);
+			throw new IllegalArgumentException("Illegal Load: "+loadFactor); //$NON-NLS-1$
 
 		if (initialCapacity==0)
 			initialCapacity = 1;
@@ -428,27 +428,27 @@ public class LookupTable extends Dictionary implements Cloneable {
 		for (int i = 0; i < keys.length; ++i) {
 			if (keys[i] == null) {
 				if (values[i] != null) {
-					System.err.println("LookupTable sanity check in "/*nonNLS*/ + where + ": key is null, but value isn't at index "/*nonNLS*/ + i);
+					System.err.println("LookupTable sanity check in " + where + ": key is null, but value isn't at index " + i); //$NON-NLS-2$ //$NON-NLS-1$
 					throw new Error();
 				}
 			}
 			else {
 				if (values[i] == null) {
-					System.err.println("LookupTable sanity check in "/*nonNLS*/ + where + ": value is null, but key isn't at index "/*nonNLS*/ + i);
+					System.err.println("LookupTable sanity check in " + where + ": value is null, but key isn't at index " + i); //$NON-NLS-2$ //$NON-NLS-1$
 					throw new Error();
 				}
 				else {
 					++n;
 					Object value = get(keys[i]);
 					if (value == null || value != values[i]) {
-						System.err.println("LookupTable sanity check in "/*nonNLS*/ + where + ": key doesn't hash to proper value: "/*nonNLS*/ + keys[i]);
+						System.err.println("LookupTable sanity check in " + where + ": key doesn't hash to proper value: " + keys[i]); //$NON-NLS-2$ //$NON-NLS-1$
 						throw new Error();
 					}
 				}
 			}
 		}
 		if (n != count) {
-			System.err.println("LookupTable sanity check in "/*nonNLS*/ + where + ": count is "/*nonNLS*/ + count + " but there are "/*nonNLS*/ + n + " entries"/*nonNLS*/);
+			System.err.println("LookupTable sanity check in " + where + ": count is " + count + " but there are " + n + " entries"); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 			throw new Error();
 		}
 	}
@@ -473,7 +473,7 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 */
 	public synchronized String toString() {
 	StringBuffer buf = new StringBuffer();
-	buf.append("{"/*nonNLS*/);
+	buf.append("{"); //$NON-NLS-1$
 	boolean first = true;
 	for (int i = 0, max = keys.length; i < max; i++) {
 		if (keys[i] != null) {
@@ -481,18 +481,18 @@ public class LookupTable extends Dictionary implements Cloneable {
 				first = false;
 			}
 			else {
-				buf.append(", "/*nonNLS*/);
+				buf.append(", "); //$NON-NLS-1$
 			}
 			if (buf.length() > 1000) {
-				buf.append("..."/*nonNLS*/);
+				buf.append("..."); //$NON-NLS-1$
 				break;
 			}
 			else {
-			    buf.append(keys[i]).append("="/*nonNLS*/).append(values[i]);
+			    buf.append(keys[i]).append("=").append(values[i]); //$NON-NLS-1$
 		    }
 	    }
 	}
-	buf.append("}"/*nonNLS*/);
+	buf.append("}"); //$NON-NLS-1$
 	return buf.toString();
 	}
 }

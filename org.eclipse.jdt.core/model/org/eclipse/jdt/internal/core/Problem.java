@@ -137,13 +137,13 @@ public void setSourceStart(int sourceStart) {
 public String toString() {
 
 
-	String s = "Pb("/*nonNLS*/ + (id & IgnoreCategoriesMask) + ") "/*nonNLS*/;
+	String s = "Pb(" + (id & IgnoreCategoriesMask) + ") "; //$NON-NLS-1$ //$NON-NLS-2$
 	if (message != null) {
 		s += message;
 	} else {
 		if (arguments != null)
 			for (int i = 0; i < arguments.length; i++)
-				s += " "/*nonNLS*/ + arguments[i];
+				s += " " + arguments[i]; //$NON-NLS-1$
 	}
 	return s;
 }

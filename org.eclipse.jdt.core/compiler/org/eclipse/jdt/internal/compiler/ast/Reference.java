@@ -19,7 +19,7 @@ public Reference() {
 	super();
 }
 public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
-	throw new ShouldNotImplement(Util.bind("ast.variableShouldProvide"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.variableShouldProvide")); //$NON-NLS-1$
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	return flowInfo;
@@ -61,13 +61,13 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 	}
 }
 public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
-	throw new ShouldNotImplement(Util.bind("ast.compoundPreShouldProvide"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.compoundPreShouldProvide")); //$NON-NLS-1$
 }
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
-	throw new ShouldNotImplement(Util.bind("ast.compoundVariableShouldProvide"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.compoundVariableShouldProvide")); //$NON-NLS-1$
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
-	throw new ShouldNotImplement(Util.bind("ast.postIncrShouldProvide"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.postIncrShouldProvide")); //$NON-NLS-1$
 }
 public boolean isFieldReference() {
 

@@ -155,7 +155,7 @@ protected void addChangedFileNamesFromChangedPackage(IResourceDelta pkgDelta, Ha
 				IPath path = elementDelta.getFullPath();
 				String extension = path.getFileExtension();
 				if (extension != null) {
-					if (extension.equalsIgnoreCase("java"/*nonNLS*/) || extension.equalsIgnoreCase("class"/*nonNLS*/)) {
+					if (extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("class")) { //$NON-NLS-1$ //$NON-NLS-2$
 						SourceEntry entry = new SourceEntry(path, null, null);
 						PackageElement element = new PackageElement(pkg, entry);
 						pkgTable.put(entry.getFileName(), element);
@@ -198,17 +198,16 @@ protected void addSourceElement(SourceEntry newEntry) {
 public void applySourceDelta(Hashtable deltas) {
 	fNotifier = new BuildNotifier(fDC, false);
 	fNotifier.begin();
-	fNotifier.subTask(Util.bind("build.preparingBuild"/*nonNLS*/));
+	fNotifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	fSourceDeltas = deltas;
 	fNewState = fOldState.copy(fNewProject, fImageContext);
 
 	// options might have changed since last builder run, thus refresh them
-	fCompilerOptions = JavaModelManager.convertConfigurableOptions(JavaCore.getOptions());
-	fNewState.setCompilerOptions(fCompilerOptions);
+	fCompilerOptions = JavaModelManager.getOptions();
 	
 	try {
 		/* find out what has changed at the package level */
-		fNotifier.subTask(Util.bind("build.analyzingPackages"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.analyzingPackages")); //$NON-NLS-1$
 		computeAllPackages();
 		checkCancel();
 
@@ -236,7 +235,7 @@ public void applySourceDelta(Hashtable deltas) {
 		}
 		
 		/* find out what has changed at the package element level */
-		fNotifier.subTask(Util.bind("build.analyzingSources"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
 		computeAllClasses();
 		checkCancel();
 
@@ -560,7 +559,7 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 				for (int i = 0; i < oldRoots.length; i++) {
 					rootResource = null;
 					try {
-						oldRoots[i].getUnderlyingResource();
+						rootResource = oldRoots[i].getUnderlyingResource();
 					} catch (JavaModelException e) {
 					}
 					if (rootResource != null && rootResource.getFullPath().isPrefixOf(path)) {
@@ -582,8 +581,8 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 	for (int i = 0; i < children.length; ++i) {
 		String extension = children[i].getFullPath().getFileExtension();
 		if (extension == null
-			|| extension.equalsIgnoreCase("zip"/*nonNLS*/)
-			|| extension.equalsIgnoreCase("jar"/*nonNLS*/)) {
+			|| extension.equalsIgnoreCase("zip") //$NON-NLS-1$
+			|| extension.equalsIgnoreCase("jar")) { //$NON-NLS-1$
 			// TBD: Currently rely on empty extension indicating folder
 			computeAllPackages(children[i], oldRoots, newRoots);
 		}
@@ -628,7 +627,7 @@ protected void computeNamespaceChanges() {
 	// Process added packages
 	for (Enumeration addedPkgs = fAddedPackageHandles.elements(); addedPkgs.hasMoreElements();) {
 		IPackage pkg = (IPackage) addedPkgs.nextElement();
-		fNotifier.subTask(Util.bind("build.analyzing"/*nonNLS*/, PackageImpl.readableName(pkg)));
+		fNotifier.subTask(Util.bind("build.analyzing", PackageImpl.readableName(pkg))); //$NON-NLS-1$
 
 		// Mark all dependents of missing namespace as needing compile.
 		markDependentsAsNeedingCompile(pkg);
@@ -643,7 +642,7 @@ protected void computeNamespaceChanges() {
 	// Process removed packages
 	for (Enumeration removedPkgs = fRemovedPackageHandles.elements(); removedPkgs.hasMoreElements();) {
 		IPackage pkg = (IPackage) removedPkgs.nextElement();
-		fNotifier.subTask(Util.bind("build.analyzing"/*nonNLS*/, PackageImpl.readableName(pkg)));
+		fNotifier.subTask(Util.bind("build.analyzing", PackageImpl.readableName(pkg))); //$NON-NLS-1$
 
 		// Mark all dependents of namespace as needing compile.
 		markDependentsAsNeedingCompile(pkg);
@@ -658,7 +657,7 @@ protected void computeNamespaceChanges() {
 	// Process changed packages
 	for (Enumeration changedPkgs = fChangedPackageHandles.elements(); changedPkgs.hasMoreElements();) {
 		IPackage pkg = (IPackage) changedPkgs.nextElement();
-		fNotifier.subTask(Util.bind("build.analyzing"/*nonNLS*/, PackageImpl.readableName(pkg)));
+		fNotifier.subTask(Util.bind("build.analyzing", PackageImpl.readableName(pkg))); //$NON-NLS-1$
 		computeNamespaceChanges(pkg);
 		fNotifier.updateProgressDelta(progressDelta);
 		fNotifier.checkCancel();
@@ -671,7 +670,7 @@ protected void computeNamespaceChanges(Hashtable oldTSEntries, String parentType
 	String typeName = type.getElementName();
 	if (parentTypeName != null) {
 		int len = parentTypeName.length() + typeName.length() + 1;
-		typeName = new StringBuffer(len).append(parentTypeName).append("$"/*nonNLS*/).append(typeName).toString();
+		typeName = new StringBuffer(len).append(parentTypeName).append("$").append(typeName).toString(); //$NON-NLS-1$
 	}
 	/* Remove it so that only non-matching ones remain in the table. */
 	TypeStructureEntry tsEntry = (TypeStructureEntry) oldTSEntries.remove(typeName);
@@ -914,7 +913,7 @@ static void dump(IResourceDelta delta) {
 	StringBuffer sb = new StringBuffer();
 	IPath path = delta.getFullPath();
 	for (int i = path.segmentCount(); --i > 0;) {
-		sb.append("  "/*nonNLS*/);
+		sb.append("  "); //$NON-NLS-1$
 	}
 	switch (delta.getKind()) {
 		case IResourceDelta.ADDED:
@@ -1048,7 +1047,7 @@ protected Dictionary getSourceChanges(IPackage pkgHandle) {
 
 					/* skip non-java resources */
 					String extension = path.getFileExtension();
-					if (extension != null && (extension.equalsIgnoreCase("java"/*nonNLS*/) || extension.equalsIgnoreCase("class"/*nonNLS*/))) {
+					if (extension != null && (extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("class"))) { //$NON-NLS-1$ //$NON-NLS-2$
 						set.put(path, path);
 					}
 				}
@@ -1072,7 +1071,7 @@ protected boolean hasPackageMapChanges() {
 		IResourceDelta changed = (IResourceDelta) e.nextElement();
 		String extension = changed.getFullPath().getFileExtension();
 		if (extension != null) {
-			if (extension.equalsIgnoreCase("zip"/*nonNLS*/) || extension.equalsIgnoreCase("jar"/*nonNLS*/)) {
+			if (extension.equalsIgnoreCase("zip") || extension.equalsIgnoreCase("jar")) { //$NON-NLS-1$ //$NON-NLS-2$
 				return true;
 			}
 		}
@@ -1127,7 +1126,7 @@ protected boolean hasSourceEntryChanges(IPackage pkgHandle) {
 			/* skip java resources */
 			String extension = path.getFileExtension();
 			if (extension != null) {
-				if ((extension.equalsIgnoreCase("java"/*nonNLS*/) || extension.equalsIgnoreCase("class"/*nonNLS*/))) {
+				if ((extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("class"))) { //$NON-NLS-1$ //$NON-NLS-2$
 					/* if there is an added or removed jcu or binary, the source entries have changed */
 					int status = fileDeltas[j].getKind();
 					if (status == IResourceDelta.ADDED || status == IResourceDelta.REMOVED) {
@@ -1423,7 +1422,7 @@ protected void sort(PackageElement[] compileArray) {
  * @see IImageBuilder
  */
 public String toString() {
-	return "incremental image builder for:\n"/*nonNLS*/ + "\tnew state: "/*nonNLS*/ + getNewState() + "\n"/*nonNLS*/ + "\told state: "/*nonNLS*/ + getOldState();
+	return "incremental image builder for:\n" + "\tnew state: " + getNewState() + "\n" + "\told state: " + getOldState(); //$NON-NLS-1$ //$NON-NLS-4$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 /**
  * If this type is a subtype is the originator of an abstract method
@@ -1634,7 +1633,7 @@ protected boolean tryZeroArgConstructorInSuperclass(PackageElement unit, Indictm
 	for (int i = 0; i < types.length; ++i) {
 		IType superclass = getBuilderType(types[i]).getSuperclass();
 		if (superclass != null) {
-			String key = '<' + superclass.getDeclaredName() + ">/0"/*nonNLS*/;
+			String key = '<' + superclass.getDeclaredName() + ">/0"; //$NON-NLS-1$
 			if (indictments.tryMethodEvidence(key.toCharArray())) {
 				return true;
 			}

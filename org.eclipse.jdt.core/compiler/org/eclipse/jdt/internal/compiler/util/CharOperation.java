@@ -542,7 +542,7 @@ final static public char[] toLowerCase(char[] chars) {
 final static public String toString(char[][] array) {
 	char[] result = concatWith(array, '.');
 	if (result == null)
-		return ""/*nonNLS*/;
+		return ""; //$NON-NLS-1$
 	return new String(result);
 }
 }

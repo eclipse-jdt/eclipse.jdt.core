@@ -21,11 +21,11 @@ public BasicCompilationUnit(char[] contents, String fileName) {
 	this.contents = contents;
 	this.fileName = fileName.toCharArray();
 
-	int start = fileName.lastIndexOf("/"/*nonNLS*/) + 1;
-	if (start == 0 || start < fileName.lastIndexOf("\\"/*nonNLS*/))
-		start = fileName.lastIndexOf("\\"/*nonNLS*/) + 1;
+	int start = fileName.lastIndexOf("/") + 1; //$NON-NLS-1$
+	if (start == 0 || start < fileName.lastIndexOf("\\")) //$NON-NLS-1$
+		start = fileName.lastIndexOf("\\") + 1; //$NON-NLS-1$
 
-	int end = fileName.lastIndexOf("."/*nonNLS*/);
+	int end = fileName.lastIndexOf("."); //$NON-NLS-1$
 	if (end == -1)
 		end = fileName.length();
 
@@ -75,6 +75,6 @@ public char[] getMainTypeName() {
 	return mainTypeName;
 }
 public String toString(){
-	return "CompilationUnit: "/*nonNLS*/+new String(fileName);
+	return "CompilationUnit: "+new String(fileName); //$NON-NLS-1$
 }
 }

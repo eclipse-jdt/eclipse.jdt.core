@@ -48,6 +48,8 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public void endVisit(Assignment assignment, BlockScope scope) {
 	}
+	public void endVisit(AssertStatement assertStatement, BlockScope scope) {
+	}
 	public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
 	}
 	public void endVisit(Block block, BlockScope scope) {
@@ -256,6 +258,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true;
 	}
 	public boolean visit(Assignment assignment, BlockScope scope) {
+		return true;
+	}
+	public boolean visit(AssertStatement assertStatement, BlockScope scope) {
 		return true;
 	}
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {

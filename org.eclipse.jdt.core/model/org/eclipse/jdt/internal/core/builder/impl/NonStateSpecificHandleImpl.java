@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.core.builder.*;
 
 public abstract class NonStateSpecificHandleImpl implements IHandle {
 public boolean equals(Object obj) {
-	Assert.isTrue(false, "TBD"/*nonNLS*/);
+	Assert.isTrue(false, "TBD"); //$NON-NLS-1$
 	return false;
 }
 	public IDevelopmentContext getDevelopmentContext() {
@@ -107,7 +107,7 @@ static IType[] nonStateSpecific(IType[] stateSpecific) {
 	return result;
 }
 public String toString() {
-	Assert.isTrue(false, "TBD"/*nonNLS*/);
+	Assert.isTrue(false, "TBD"); //$NON-NLS-1$
 	return null;
 }
 }

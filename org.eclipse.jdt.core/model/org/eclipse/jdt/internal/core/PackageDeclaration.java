@@ -33,10 +33,10 @@ protected char getHandleMementoDelimiter() {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append("package "/*nonNLS*/);
+	buffer.append("package "); //$NON-NLS-1$
 	buffer.append(getElementName());
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	}
 }
 }

@@ -20,10 +20,10 @@ import org.eclipse.jdt.internal.core.index.*;
 public class IndexedFile implements IQueryResult {
 	protected String path;
 	protected int fileNumber;
-	protected static final String INFO_BEGIN= "("/*nonNLS*/;
-	protected static final String INFO_END= ")"/*nonNLS*/;
-	protected static final String INFO_SEPARATOR= ","/*nonNLS*/;
-	protected static final String INFO_VALUE_SEPARATOR= ":"/*nonNLS*/;
+	protected static final String INFO_BEGIN= "("; //$NON-NLS-1$
+	protected static final String INFO_END= ")"; //$NON-NLS-1$
+	protected static final String INFO_SEPARATOR= ","; //$NON-NLS-1$
+	protected static final String INFO_VALUE_SEPARATOR= ":"; //$NON-NLS-1$
 	protected static final int MAX_PROPERTIES_SIZE= 2 * 1024;
 	protected Hashtable properties;
 	protected int propertiesSize= 2 * (INFO_BEGIN.length() + INFO_END.length());
@@ -131,7 +131,7 @@ public class IndexedFile implements IQueryResult {
 	}
 	public String propertiesToString() {
 		if (properties.isEmpty())
-			return ""/*nonNLS*/;
+			return ""; //$NON-NLS-1$
 		StringBuffer prop= new StringBuffer(INFO_BEGIN);
 		for (Enumeration e= getPropertyNames(); e.hasMoreElements();) {
 			String property= (String) e.nextElement();
@@ -160,6 +160,6 @@ public class IndexedFile implements IQueryResult {
 			properties.put(propertyName, value);
 	}
 	public String toString() {
-		return "IndexedFile("/*nonNLS*/ + fileNumber + ": "/*nonNLS*/ + path + ")"/*nonNLS*/;
+		return "IndexedFile(" + fileNumber + ": " + path + ")"; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 	}
 }

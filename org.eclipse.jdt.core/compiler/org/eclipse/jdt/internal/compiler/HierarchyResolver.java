@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
+import java.util.Locale;
+
 public class HierarchyResolver implements ITypeRequestor {
 	IHierarchyRequestor requestor;
 	LookupEnvironment lookupEnvironment;
@@ -72,22 +74,22 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 public void accept(ICompilationUnit sourceUnit) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	lookupEnvironment.problemReporter.abortDueToInternalError(
-		new StringBuffer(Util.bind("accept.cannot"/*nonNLS*/))
+		new StringBuffer(Util.bind("accept.cannot")) //$NON-NLS-1$
 			.append(sourceUnit.getFileName())
 			.toString());
 }
 /**
- * Add an additional source type
+ * Add additional source types
  */
 
-public void accept(ISourceType sourceType, PackageBinding packageBinding) {
-	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1);
+public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
 	CompilationUnitDeclaration unit =
-		SourceTypeConverter.buildCompilationUnit(sourceType, false, true, lookupEnvironment.problemReporter, result);
+		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, lookupEnvironment.problemReporter, result);
 
 	if (unit != null) {
 		lookupEnvironment.buildTypeBindings(unit);
-		rememberWithMemberTypes(sourceType, unit.types[0].binding);
+		rememberWithMemberTypes(sourceTypes[0], unit.types[0].binding);
 
 		lookupEnvironment.completeTypeBindings(unit, false);
 	}
@@ -242,7 +244,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
 				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength);
-				units[++count] = SourceTypeConverter.buildCompilationUnit(topLevelType, false, true, lookupEnvironment.problemReporter, result);
+				units[++count] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 
 				if (units[count] == null) {
 					count--;
@@ -260,7 +262,8 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			sourceUnits[i] = null; // no longer needed pass this point
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
-			Parser parser = new Parser(lookupEnvironment.problemReporter);
+			CompilerOptions options = new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault()));
+			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.getAssertMode());
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[++count] = parsedUnit;
@@ -299,7 +302,7 @@ public void resolve(IGenericType suppliedType) {
 				topLevelType = topLevelType.getEnclosingType();
 			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1);
 			CompilationUnitDeclaration unit =
-				SourceTypeConverter.buildCompilationUnit(topLevelType, false, true, lookupEnvironment.problemReporter, result);
+				SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 
 			if (unit != null) {
 				lookupEnvironment.buildTypeBindings(unit);

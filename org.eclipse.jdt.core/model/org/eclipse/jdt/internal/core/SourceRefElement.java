@@ -23,7 +23,7 @@ protected SourceRefElement(int type, IJavaElement parent, String name) {
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -104,7 +104,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -163,7 +163,7 @@ public void offsetSourceRange(int amount) {
  */
 public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};

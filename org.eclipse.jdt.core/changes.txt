@@ -1,14 +1,55 @@
-STREAM: 1.0 NL
+STREAM: 2.0
 
-What's new in this drop
+What's new in this drop (since 0.9)
 ==================================================================================
   * JCK1.3a compliant. 
   * All messages have been externalized. 
+  * Added 2 new APIs on JavaConventions for classpath validation.
+         - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
+         - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
+ * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
+ * Assertions support enabled: by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options.
+ * Added new APIs on JavaCore so as to change optional settings (compiler, formatter, codeassist, ...). 
+ 		- Description of available options is available in JavaCore.ini 	along with default values. 
+ 		- Option settings are globally kept on JavaCore.
+
+PRs Fixed in this Release (since 1.0NL stream)
+==================================================================================
+1GI6T4Y: ITPJCORE:WINNT - NPE in JavaModeManager retrieving workspace options
+1GE4ILR: ITPJCORE:ALL - Eval - Evaluation in Binary Project fails
+1GI3LLC: ITPJCORE:ALL - Incorrect formatting for the new keyword
+1GHU6O5: ITPJCORE:WINNT - RMIC test fail
+1GHH6O7: ITPJCORE:ALL - Need to tune the exception analysis for AssertStatement
+1GHUW7T: ITPJCORE:WIN2000 - Build Problem
+1GI3IG9: ITPJCORE:ALL - internal compiler error involving bogus method/field declaration
+1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
+1GHONAX: ITPJCORE:WIN2000 - Compiler uses different name lookup for refactoring
+1GEJYAJ: ITPJCORE:WIN2000 - Compiler - Binding of QualifiedNameReference is null
+1GHFHWR: ITPJCORE:ALL - Assertions: CodeAssist and Selection need to be updated
+1GHFHXG: ITPJCORE:ALL - Assertions: Add optional warning on assert identifier
+1GCZ9VM: ITPJCORE:WIN2000 - DCR - Compiler - Batch compiler should be API
+1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return type is secondary one
+1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
+1GH2R62: ITPJCORE:WIN2000 - Typo in progress message
+1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
+1GDFJK0: IVJIDT:WIN2000 - Using 'synchronized' produces invalid exception table values in class, causes "Illegal exception table range" exception, VAJ 3.5+ 
+1GGAK6G: ITPJCORE:ALL - Incorrect javadoc comment in JavaElement 
+1GF9L3K: ITPDUI:ALL - Eval - Private array resolution failure 
+1GF8KHX: ITPJUI:ALL - Invalid project build path should be warning, not error 
+1GF7JIH: ITPJCORE:ALL - Exception when removing network drive 
+1GEYBL9: ITPJUI:WINNT - Adding source folders on CP is very confusing 
+1GEJAOT: ITPJUI:WINNT - JRE Source attachment set to path to does not exist 
+1GEHZNB: ITPJUI:WINNT - smoke 114: formatter inserts extra tab in first line 
+1GCZZT4: ITPJCORE:Fault-tolerance - missing constructor invocation could still answer the allocated type 
+1GAU96P: ITPJCORE:WINNT - DCR - JM - JavaProject should provide a class path validation method 
+1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified 
+1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName() 
+
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
 1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
-1GH3218: ITPJUI:WIN - mnemonic problems
+1GH3218: ITPJUI:WIN - mnuemonic problems
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
 1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
 1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
@@ -29,4 +70,128 @@ PRs Fixed in 1.0NL stream (since 0.9)
 1GF9Y01: ITPCORE:WIN2000 - NPE when deleting everything in a java file and saving it. 
 1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatu
 1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
-1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP 
+1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP
+
+
+PRs Closed in this Release
+==================================================================================
+1GGRCGZ: ITPJUI:WIN2000 - Can't rename/copy/move/delete default package
+1GDRXHP: ITPDUI:WINNT - NPE inspecting local var
+1G7RAO5: ITPJCORE:ALL - Java Model Core Tests: JavaProjectTests>>testProjectClose() has been removed
+1GF7PZW: ITPJCORE:WINNT - Evaluation - Walkback reporting error on local variable type 
+1GGLNOQ: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB - use a space instead. 
+1G295FE: ITPJCORE:ALL - Improve package fragment root management for java project 
+1GFQ3FD: ITPJUI:WINNT - Non java resources do not show up under default package, but do under other packages 
+1GFBJS9: ITPJUI:ALL - Unbound variable path task not removed 
+1GF2LA7: ITPJCORE:WINNT - Adding classpath variable triggers many builds? 
+1GEAHG1: ITPJCORE:WIN2000 - Positions of type and method declarations 
+1GD57YY: ITPJCORE:WINNT - Unhandled exception in standalone compiler 
+1GBPLAP: ITPJUI:WINNT - create class/package not allowed with umlaut 
+1G82CEX: ITPJCORE:Adding evaluation support in debugger 
+1G4GELA: ITPJCORE:WINNT - NPE: after restarting a crashed workbench 
+1G3FV4S: ITPJCORE:WIN - DOMException when renaming constructor 
+1G0K0OI: ITPCORE:ALL - Too many ICompilationUnits 
+1FRTN67: ITPJCORE:ALL - JM - CodeAssist/TypeHierarchy optimization 
+1FJOQSH: LFCOM:WINNT - usage of strictfp modifier 
+1FFYDGD: LFCOM:ALL - Weird behavior on incorrect source 
+1ETNYD2: IVJIDT:AIX - Format code with "Experminent with Code" 
+1ETAM38: IVJIDT:AIX - Code Formatter does not put CR after comment end 
+1GE906O: ITPJCORE:ALL - Having trouble getting projects to build properly - project properties noting getting set correctly 
+1GE6V5W: ITPJCORE:WINNT - Problems saving workspace 
+1GDXCY7: ITPJCORE:WIN2000 - Adding a project to build path doesn't trigger build in dependents 
+1GAM4RI: ITPJCORE:WINNT - Errors did not go away after adding jars to buildpath 
+1GAJBOB: ITPJUI:WINNT - Code Assist continues after entering blank 
+1G4CLZM: ITPJUI:WINNT - 'Import Selection' - Set not found 
+1G47HWU: ITPJUI:WINNT - Method Stub Generation: Error on methods throwing Exceptions 
+1G3H21Z: ITPJCORE:ALL - Package fragment reorganization problems 
+1FWCDYN: ITPJUI:WINNT - resources prematurely made local 
+1FWAPGJ: ITPJCORE:ALL - Synchronization is confusing with Java builder 
+1FW8MAI: ITPCORE:WIN2000 - Compiler does not recompile all the classes 
+1FW6JQG: ITPUI:WINNT - Joining a team may have incorrect classpath 
+1GEAX3R: ITPJCORE:WIN2000 - bad error message for ambiguous references 
+1GDJ1QU: ITPJCORE:WINNT - NPE building project 
+1GD0MLS: ITPJCORE:ALL - Stack traces in log of unknown origin 
+1G0UYOQ: ITPJCORE:ALL - Different text range definitions 
+1GFJ764: ITPJCORE:ALL - Inconpatible conditional operand types 
+1GFBFV7: ITPJCORE:WINNT - Resource copy - should not copy nested internal JARs 
+1GF9OW7: ITPJCORE:ALL - Build silently fails for reappearing deleted classes 
+1GEOY41: ITPJCORE:WINNT - DeltaProcessor - createElements seems bogus 
+1GENY3I: ITPJUI:WINNT - Rename Refactoring introduced compile errors 
+1GEJC08: ITPJCORE:WIN2000 - Assertion failed in builder 
+1GEI1SS: ITPJCORE:ALL - .java file outside of the classpath should be a compilation unit 
+1GE6PGY: ITPJUI:ALL - Wrong class everywhere 
+1GE2UUN: ITPDUI:IndexOutOfBounds during eval? 
+1GE25VE: ITPJUI:WIN2000 - Cannot search on text selection 
+1GDXD7U: ITPJCORE:WINNT - Search not working for projects 
+1GDX5E3: ITPJCORE:WINNT - Assertion failed when rename Java Project 
+1GDTT7B: ITPJCORE:WIN2000 - Classpath extension in jar manifest not respected 
+1GDMMBJ: ITPDUI:WINNT - Stack trace on inspect 
+1GDKLB6: ITPDUI:Linux - Inspect from editor broken in linux 
+1GDJ3BJ: ITPJCORE:WINNT - Error while typing in editor 
+1GDIUMQ: ITPJCORE:WINNT - Build time anomaly when doing incremental builds 
+1GDG971: ITPJCORE:WIN2000 - Classpath changes aren't honored by the builder 
+1GDDWFM: ITPJCORE:WINNT - Builder leaving bogus errors after auto-build + hand build 
+1GDBL1B: ITPJCORE:WIN2000 - Throwable type hierarchy calculation is slow 
+1GD4KY2: ITPJCORE:WINNT - False compile errors not going away when building by hand 
+1GCTG65: ITPJUI:WIN2000 - Classpath file is copied to bin 
+1GCR9MT: ITPJCORE:WINNT - ClassCastException creating a text file 
+1GCP6LR: ITPJUI:WINNT - User must get feedback if .classpath file is manipulated 
+1GCNFC2: ITPJCORE:ALL - ArrayIndeOutOfBoundsException in CodeAssist 
+1GCN2N4: ITPJUI:WIN2000 - Walkback while organizing imports 
+1GCFZPA: ITPJCORE:WINNT - Could SourceRange be public API? 
+1GCFNQR: ITPJCORE:WINNT - How should the path in ITypeNameRequestor be used? 
+1GCBQ2E: ITPJCORE:WINNT - how to efficiently find methods along 'the ripple'? 
+1GBRLSV: ITPJCORE:WIN2000 - Question: how to I find an inner type 
+1GBALN1: ITPJUI:Incorrect source for created class 
+1GAUUQ9: ITPJCORE:WINNT - JavaBuilder doesn't handle internal exceptions during full build 
+1GAP1QC: ITPJCORE:WINNT - JavaProject.configure creates invalid output path 
+1GAML2O: ITPJCORE:WINNT - NPE during start-up 
+1GALZ9N: ITPJCORE:WINNT - Compiler work being done on empty projects 
+1GAJ82M: ITPJUI:WINNT - walkback when delete a jar from a java project 
+1GAH7KH: ITPJCORE:WINNT - Reopened projects show the bin folder as a package 
+1G86704: ITPJUI:WINNT - Drap'nDrop doesn't give operation progress 
+1G840BE: ITPJUI:WINNT - code assist - only some keywords are recognized 
+1G82D17: ITPJCORE:WINNT - getJavaModel(IWorkspace) looks like an accessor but it does creation 
+1G58H14: ITPJCORE:WIN98 - OutOfMemoryException building a big workbench 
+1G4W2XB: ITPJCORE:WIN98 - CodeAssist should not always report an error when no completion was found 
+1G4U1CZ: ITPJCORE:WINNT - JavaDCDuplicateInnerClassName test is failing 
+1G4ENQI: ITPJUI:WIN - NewInterface wizard adds wrong import for inner types 
+1G4CKVG: ITPJCORE:WIN - Can't patch classes in jar 
+1G426W6: ITPJCORE:WINNT - VerifyError running jre Eclipse 010 with the IBM 1.3 VM 
+1G41GH7: ITPJCORE:WINNT - adding a project invokes a recompile 
+1G3T0OO: ITPJCORE:WINNT - Invisible class in all possible super classes 
+1G3MKWT: ITPJCORE:WIN - Would like more progress on java reorg operations 
+1G3DP5Z: ITPJCORE:WIN - IPackageFragment.delete() doesn't delete resources 
+1G31A03: ITPJCORE:WIN98 - Building vs. packaging 
+1G2NW6V: ITPJUI:WIN2000 - Open on selection doesn't work for inner classes 
+1G14M8E: ITPCOM:WINNT - Wrong completion when package name collides with a class name 
+1G03GWJ: ITPJCORE:ALL - TypeHierarchy update tuning 
+1FYEH7R: ITPJCORE:WINNT - CoreException running WorkingCopyTests with autobuild on 
+1FY94XA: ITPJCORE:WINNT - JM - testWorkingCopyGeneral() tests randomly fail 
+1FXOAS3: ITPJCORE:ALL - JDOM - remove deprecated method #findNode 
+1FWYKB2: ITPJCORE:WIN98 - Feature: When I open a class file for a member type... 
+1FWX73S: ITPJCORE:WINNT - Java Builder error when saving html file 
+1FWWU28: ITPJCORE:WIN98 - Cannot access compilation unit - Reason: Java Image Builder 
+1FWUZ9J: ITPJCORE:WINNT - Add autobuilding option to test suite 
+1FWUXTH: ITPJCORE:WINNT - Java Image Builder error message no help 
+1FWT5CP: ITPJCORE:ALL - Disable timestamps assertion failed 
+1FWST7K: ITPJCORE:WINNT - SCENARIO B3 - error saving jsp 
+1FWNLL4: ITPJCORE:WIN2000 - "Editing" internal jar results in ImageBuilderInternalException 
+1FWN24W: ITPSRCEDIT:WIN - Get error message if class not saved - task list out of sync 
+1FWHWGK: ITPJCORE:ALL - javadoc - warnings during javadoc generation 
+1FW6M3U: ITPJCORE:WIN98 - JDOM cannot reproduce "import java. lang. *;" 
+1FVU7O2: ITPJCORE:WINNT - JDOM cannot handle "import java.lang.* " 
+1FVRW2A: ITPJCORE:WIN98 - Source text still accessible after manually deleting file 
+1FVL59P: ITPJUI:WINNT - double clicking on task does not go to right place in source 
+1FVII1P: ITPJCORE:ALL - JDOM - Import names reported by parser do not contain '.*' 
+1FUNPVG: ITPJCORE:ALL - JavaDCChangeFromFullyQualifiedToImportTest1 is failing 
+1FU4P4U: ITPJCORE:ALL - JM - factory should throw detailed exception if unable to create an element 
+1FT78Y7: ITPJCORE:ALL - JM - Reference info is slow 
+1FSZXSX: ITPCOM:WINNT - Do we need FieldEndPosition? 
+1FRKC3T: ITPJCORE:ALL - JM - Incremental Reconciler 
+1FRK6S7: ITPJCORE:ALL - JM - hook for builder to get/put binary types 
+1FPCMAN: ITPJCORE:ALL - JM - Validating Save Operation 
+1GFBCOU: ITPJCORE:WINNT - CodeCompletion - Code assist fails in a method with an incorrect return type
+1GF1VHY: ITPJCORE:ALL - JM - validateFieldName/PackageName should warn if uppercase
+1GEMNE8: ITPJCORE:WIN2000 - JM - JDT DeltaProcessor is very eager
+1FVXJPZ: ITPJCORE:WIN2000 - minor- review error messages

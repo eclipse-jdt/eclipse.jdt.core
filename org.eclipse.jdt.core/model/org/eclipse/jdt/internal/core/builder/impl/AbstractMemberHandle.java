@@ -24,7 +24,7 @@ public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl im
 	String computeSignature(String name, IType[] parameterTypes) {
 
 		if (parameterTypes.length == 0) {
-			return name + "()"/*nonNLS*/;
+			return name + "()"; //$NON-NLS-1$
 		}
 		
 		StringBuffer sb = new StringBuffer(name);
@@ -33,7 +33,7 @@ public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl im
 			try {
 				((TypeImpl)parameterTypes[i]).appendSignature(sb, true);
 			} catch (ClassCastException e) {
-				throw new StateSpecificException("Incompatible parameter types"/*nonNLS*/);
+				throw new StateSpecificException("Incompatible parameter types"); //$NON-NLS-1$
 			}
 		}
 		sb.append(')');

@@ -112,92 +112,6 @@ protected int matchContainer() {
 	return METHOD | FIELD;
 }
 /**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	if (node instanceof FieldReference) {
-		return this.matches((FieldReference)node, resolve);
-	} else if (node instanceof NameReference) {
-		return this.matches((NameReference)node, resolve);
-	}
-	return false;
-}
-/**
- * Returns whether this field reference pattern matches the given field reference.
- * Look at resolved information only if specified.
- */
-private boolean matches(FieldReference fieldRef, boolean resolve) {	
-	// field name
-	if (!this.matchesName(this.name, fieldRef.token))
-		return false;
-
-	if (resolve) {
-		// receiver type and field type
-		FieldBinding binding = fieldRef.binding;
-		if (binding != null && !this.matches(fieldRef.receiverType, fieldRef.isSuperAccess(), binding))
-			return false;
-	}
-
-	return true;
-}
-/**
- * Returns whether this field reference pattern matches the given name reference.
- * Look at resolved information only if specified.
- */
-private boolean matches(NameReference nameRef, boolean resolve) {	
-	// field name
-	boolean nameMatch = true;
-	if (this.name != null) {
-		if (nameRef instanceof SingleNameReference) {
-			nameMatch = matchesName(this.name, ((SingleNameReference)nameRef).token);
-		} else { // QualifiedNameReference
-			nameMatch = false;
-			QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
-			char[][] tokens = qNameRef.tokens;
-			for (int i = qNameRef.indexOfFirstFieldBinding-1, max = tokens.length; i < max && !nameMatch; i++){
-				if (i >= 0) nameMatch = matchesName(this.name, tokens[i]);
-			}
-		}				
-	} 
-	if (!nameMatch) return false;
-
-	if (resolve){	
-		Binding binding = nameRef.binding;
-		if (binding != null){
-			if (nameRef instanceof SingleNameReference){
-				if (binding instanceof FieldBinding){
-					if (!this.matches(nameRef.receiverType, false, (FieldBinding) binding)){
-						return false;
-					}
-				} else {
-					return false; // must be a field binding
-				}
-			} else { // QualifiedNameReference
-				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
-				TypeBinding receiverType = qNameRef.receiverType;
-				FieldBinding fieldBinding = null;
-				if (!(binding instanceof FieldBinding 
-						&& matchesName(this.name, (fieldBinding = (FieldBinding)binding).name) 
-						&& matches(receiverType, false, fieldBinding))){
-					if (binding instanceof VariableBinding){
-						receiverType = ((VariableBinding) binding).type;
-					}
-					boolean otherMatch = false;
-					int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
-					for (int i = 0; i < otherMax && !otherMatch; i++){
-						FieldBinding otherBinding = qNameRef.otherBindings[i];
-						if (otherBinding == null) break;
-						otherMatch = matchesName(this.name, otherBinding.name) && matches(receiverType, false, otherBinding);
-						receiverType = otherBinding.type;
-					}
-					if (!otherMatch) return false;
-				}
-			}
-		}
-	}
-	return true;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -222,25 +136,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * Finds out whether the given ast node matches this search pattern.
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- * Returns TRUSTED_MATCH if it matches exactly this search pattern (ie. 
- * it doesn't need to be resolved or it has already been resolved.)
- * Returns POSSIBLE_MATCH if it potentially matches 
- * this search pattern and it needs to be resolved to get more information.
- */
-public int matchLevel(AstNode node) {
-	if (this.matches(node, false)) {
-		if (this.needsResolve 
-			|| node instanceof NameReference) { // ensure it is a field
-			return POSSIBLE_MATCH;
-		} else {
-			return TRUSTED_MATCH;
-		}
-	}
-	return IMPOSSIBLE_MATCH;
 }
 /**
  * @see SearchPattern#matchReportReference
@@ -272,38 +167,38 @@ protected void resetQuery() {
 public String toString(){
 
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("FieldReferencePattern: "/*nonNLS*/);
+	buffer.append("FieldReferencePattern: "); //$NON-NLS-1$
 	if (declaringQualification != null) buffer.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
 		buffer.append(declaringSimpleName).append('.');
-	else if (declaringQualification != null) buffer.append("*."/*nonNLS*/);
+	else if (declaringQualification != null) buffer.append("*."); //$NON-NLS-1$
 	if (name != null) {
 		buffer.append(name);
 	} else {
-		buffer.append("*"/*nonNLS*/);
+		buffer.append("*"); //$NON-NLS-1$
 	}
 	if (typeQualification != null) 
-		buffer.append(" --> "/*nonNLS*/).append(typeQualification).append('.');
-	else if (typeSimpleName != null) buffer.append(" --> "/*nonNLS*/);
+		buffer.append(" --> ").append(typeQualification).append('.'); //$NON-NLS-1$
+	else if (typeSimpleName != null) buffer.append(" --> "); //$NON-NLS-1$
 	if (typeSimpleName != null) 
 		buffer.append(typeSimpleName);
-	else if (typeQualification != null) buffer.append("*"/*nonNLS*/);
-	buffer.append(", "/*nonNLS*/);
+	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
+	buffer.append(", "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive"); //$NON-NLS-1$
 	return buffer.toString();
 }
 
@@ -313,24 +208,130 @@ public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
 }
 
 /**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	if (node instanceof FieldReference) {
+		return this.matchLevel((FieldReference)node, resolve);
+	} else if (node instanceof NameReference) {
+		return this.matchLevel((NameReference)node, resolve);
+	}
+	return IMPOSSIBLE_MATCH;
+}
+
+/**
+ * Returns whether this field reference pattern matches the given field reference.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(FieldReference fieldRef, boolean resolve) {	
+	// field name
+	if (!this.matchesName(this.name, fieldRef.token))
+		return IMPOSSIBLE_MATCH;
+
+	if (resolve) {
+		// receiver type and field type
+		return this.matchLevel(fieldRef.receiverType, fieldRef.isSuperAccess(), fieldRef.binding);
+	} else {
+		return POSSIBLE_MATCH;
+	}
+}
+
+/**
+ * Returns whether this field reference pattern matches the given name reference.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(NameReference nameRef, boolean resolve) {	
+	// field name
+	boolean nameMatch = true;
+	if (this.name != null) {
+		if (nameRef instanceof SingleNameReference) {
+			nameMatch = this.matchesName(this.name, ((SingleNameReference)nameRef).token);
+		} else { // QualifiedNameReference
+			nameMatch = false;
+			QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
+			char[][] tokens = qNameRef.tokens;
+			for (int i = qNameRef.indexOfFirstFieldBinding-1, max = tokens.length; i < max && !nameMatch; i++){
+				if (i >= 0) nameMatch = this.matchesName(this.name, tokens[i]);
+			}
+		}				
+	} 
+	if (!nameMatch) return IMPOSSIBLE_MATCH;
+
+	if (resolve) {	
+		Binding binding = nameRef.binding;
+		if (binding == null) {
+			return INACCURATE_MATCH;
+		} else {
+			if (nameRef instanceof SingleNameReference){
+				if (binding instanceof FieldBinding){
+					return this.matchLevel(nameRef.receiverType, false, (FieldBinding) binding);
+				} else {
+					return IMPOSSIBLE_MATCH; // must be a field binding
+				}
+			} else { // QualifiedNameReference
+				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
+				TypeBinding receiverType = qNameRef.receiverType;
+				FieldBinding fieldBinding = null;
+				if (binding instanceof FieldBinding && this.matchesName(this.name, (fieldBinding = (FieldBinding)binding).name)) {
+					return this.matchLevel(receiverType, false, fieldBinding);
+				} else {
+					if (binding instanceof VariableBinding){
+						receiverType = ((VariableBinding) binding).type;
+					}
+					int otherLevel = IMPOSSIBLE_MATCH;
+					int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
+					for (int i = 0; i < otherMax && (otherLevel == IMPOSSIBLE_MATCH); i++){
+						FieldBinding otherBinding = qNameRef.otherBindings[i];
+						if (this.matchesName(this.name, otherBinding.name)) {
+							otherLevel = this.matchLevel(receiverType, false, otherBinding);
+						}
+						receiverType = otherBinding.type;
+					}
+					return otherLevel;
+				}
+			}
+		}
+	} else {
+		return POSSIBLE_MATCH;
+	}
+}
+
+/**
  * Returns whether this field reference pattern matches the given field binding and receiver type.
  */
-private boolean matches(TypeBinding receiverType, boolean isSuperAccess, FieldBinding binding) {
+private int matchLevel(TypeBinding receiverType, boolean isSuperAccess, FieldBinding binding) {
+	if (receiverType == null || binding == null) return INACCURATE_MATCH;
+	int level;
+	
 	// receiver type
 	ReferenceBinding receiverBinding = 
 		isSuperAccess || binding.isStatic() ? 
 			binding.declaringClass : 
 			(ReferenceBinding)receiverType;
-	if (receiverBinding != null 
-		&& !this.matchesAsSubtype(receiverBinding, this.declaringSimpleName, this.declaringQualification)
-		&& !this.matchesType(this.allSuperDeclaringTypeNames, receiverBinding)) {
-			return false;
+	if (receiverBinding == null) {
+		return INACCURATE_MATCH;
+	} else {
+		level = this.matchLevelAsSubtype(receiverBinding, this.declaringSimpleName, this.declaringQualification);
+		if (level == IMPOSSIBLE_MATCH) {
+			level = this.matchLevelForType(this.allSuperDeclaringTypeNames, receiverBinding);
+			if (level == IMPOSSIBLE_MATCH) {
+				return IMPOSSIBLE_MATCH;
+			}
+		}
 	}
 
 	// field type
-	if (!this.matchesType(this.typeSimpleName, this.typeQualification, binding.type))
-		return false;
+	int newLevel = this.matchLevelForType(this.typeSimpleName, this.typeQualification, binding.type);
+	switch (newLevel) {
+		case IMPOSSIBLE_MATCH:
+			return IMPOSSIBLE_MATCH;
+		case ACCURATE_MATCH: // keep previous level
+			break;
+		default: // ie. INACCURATE_MATCH
+			level = newLevel;
+			break;
+	}
 
-	return true;
+	return level;
 }
 }

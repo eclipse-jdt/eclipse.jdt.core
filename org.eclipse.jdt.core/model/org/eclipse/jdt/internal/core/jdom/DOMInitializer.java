@@ -102,7 +102,7 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 			.append(getBody())
 			.append(fDocument, fBodyRange[1] + 1, fSourceRange[1] - fBodyRange[1]);
 	} else {
-		buffer.append("{}"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append("{}").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
 	}
 }
 /**
@@ -156,7 +156,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		}
 		return ((IType) parent).getInitializer(count);
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
@@ -219,6 +219,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "INITIALIZER"/*nonNLS*/;
+	return "INITIALIZER"; //$NON-NLS-1$
 }
 }

@@ -477,7 +477,7 @@ public String toDebugString(int depth) {
 		buffer.append('\t');
 	}
 	buffer.append(((JavaElement)getElement()).toDebugString());
-	buffer.append("["/*nonNLS*/);
+	buffer.append("["); //$NON-NLS-1$
 	switch (getKind()) {
 		case IJavaElementDelta.ADDED :
 			buffer.append('+');
@@ -492,68 +492,68 @@ public String toDebugString(int depth) {
 			buffer.append('?');
 			break;
 	}
-	buffer.append("]: {"/*nonNLS*/);
+	buffer.append("]: {"); //$NON-NLS-1$
 	int changeFlags = getFlags();
 	boolean prev = false;
 	if ((changeFlags & IJavaElementDelta.F_CHILDREN) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("CHILDREN"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CHILDREN"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_CONTENT) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("CONTENT"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CONTENT"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MOVED_FROM) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MOVED_FROM("/*nonNLS*/ + ((JavaElement)getMovedFromElement()).toDebugString() + ")"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("MOVED_FROM(" + ((JavaElement)getMovedFromElement()).toDebugString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MOVED_TO) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MOVED_TO("/*nonNLS*/ + ((JavaElement)getMovedToElement()).toDebugString() + ")"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("MOVED_TO(" + ((JavaElement)getMovedToElement()).toDebugString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("ADDED TO CLASSPATH"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("ADDED TO CLASSPATH"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("REMOVED FROM CLASSPATH"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("REMOVED FROM CLASSPATH"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_CLASSPATH_REORDER) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("REORDERED IN CLASSPATH"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("REORDERED IN CLASSPATH"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MODIFIERS) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MODIFIERS CHANGED"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("MODIFIERS CHANGED"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_SUPER_TYPES) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("SUPER TYPES CHANGED"/*nonNLS*/);
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("SUPER TYPES CHANGED"); //$NON-NLS-1$
 		prev = true;
 	}
-	buffer.append("}"/*nonNLS*/);
+	buffer.append("}"); //$NON-NLS-1$
 	IJavaElementDelta[] children = getAffectedChildren();
 	if (children != null) {
 		for (int i = 0; i < children.length; ++i) {
-			buffer.append("\n"/*nonNLS*/);
+			buffer.append("\n"); //$NON-NLS-1$
 			buffer.append(((JavaElementDelta) children[i]).toDebugString(depth + 1));
 		}
 	}

@@ -60,7 +60,7 @@ protected void commitChanges(IDOMCompilationUnit cuDOM, ICompilationUnit cu) thr
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.deleteElementProgress"/*nonNLS*/);
+	return Util.bind("operation.deleteElementProgress"); //$NON-NLS-1$
 }
 /**
  * Groups the elements to be processed by their compilation unit.
@@ -112,7 +112,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 		if (e.exists()) {
 			IDOMNode node = ((JavaElement) e).findNode(cuDOM);
 			// TBD
-			Assert.isTrue(node != null, Util.bind("element.cannotLocate"/*nonNLS*/, e.getElementName(), cuDOM.getName()));
+			Assert.isTrue(node != null, Util.bind("element.cannotLocate", e.getElementName(), cuDOM.getName())); //$NON-NLS-1$
 			node.remove();
 			delta.removed(e);
 			if (e.getElementType() == IJavaElement.IMPORT_DECLARATION) {
