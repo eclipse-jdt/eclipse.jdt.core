@@ -1203,23 +1203,29 @@ public int getNextToken() throws InvalidInputException {
 								   	} else if ((source[currentPosition] == '\\')
 										&& (source[currentPosition + 1] == 'u')) {
 										isUnicode = true;
-										char unicodeChar;										
+										char unicodeChar;
+										int index = currentPosition + 1;
+										index++;
+										while (source[index] == 'u') {
+											index++;
+										}
 										//-------------unicode traitement ------------
 										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-										if ((c1 = Character.getNumericValue(source[currentPosition+2])) > 15
+										if ((c1 = Character.getNumericValue(source[index++])) > 15
 											|| c1 < 0
-											|| (c2 = Character.getNumericValue(source[currentPosition+3])) > 15
+											|| (c2 = Character.getNumericValue(source[index++])) > 15
 											|| c2 < 0
-											|| (c3 = Character.getNumericValue(source[currentPosition+4])) > 15
+											|| (c3 = Character.getNumericValue(source[index++])) > 15
 											|| c3 < 0
-											|| (c4 = Character.getNumericValue(source[currentPosition+5])) > 15
+											|| (c4 = Character.getNumericValue(source[index++])) > 15
 											|| c4 < 0) {
+											currentPosition = index;
 											throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 										} else {
 											unicodeChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 										}
 										if (unicodeChar == '\n') {
-											currentPosition+=6;
+											currentPosition = index;
 											currentCharacter = '\n';
 										}
 									}
