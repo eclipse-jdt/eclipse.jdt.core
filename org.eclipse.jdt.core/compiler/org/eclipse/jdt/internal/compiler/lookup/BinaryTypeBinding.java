@@ -626,7 +626,6 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	if ((variable.modifiers & AccUnresolved) == 0)
 		return variable;
 
-	// TODO (kent) should iterate over bounds, then reassign superclass/superinterfaces
 	if (variable.superclass != null)
 		variable.superclass = resolveType(variable.superclass, this.environment, true);
 	if (variable.firstBound != null)
