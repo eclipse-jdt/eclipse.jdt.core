@@ -495,6 +495,7 @@ class CompilationUnitResolver extends Compiler {
 
 	private void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor astRequestor, int apiLevel, Map compilerOptions, WorkingCopyOwner owner, IProgressMonitor monitor) {
 	
+		// temporararily connect ourselves to the ASTResolver - must disconnect when done
 		astRequestor.compilationUnitResolver = this;
 		this.bindingTables = new DefaultBindingResolver.BindingTables();
 		CompilationUnitDeclaration unit = null;
@@ -573,13 +574,8 @@ class CompilationUnitResolver extends Compiler {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
-			// No reset is performed there anymore since,
-			// within the CodeAssist (or related tools),
-			// the compiler may be called *after* a call
-			// to this resolve(...) method. And such a call
-			// needs to have a compiler with a non-empty
-			// environment.
-			// this.reset();
+			// disconnect ourselves from ast requestor
+            astRequestor.compilationUnitResolver = null;
 		}
 	}
 	
