@@ -367,14 +367,20 @@ private char[] normalizeCRs(char[] text) {
 				break;
 			case '\r':
 				lineLength = i-lineStart;
-				line = new char[lineLength];
-				System.arraycopy(text, lineStart, line, 0, lineLength);
-				buffer.append(line);
-				buffer.append(lineSeparator);
-				if (nextChar == '\n') {
-					nextChar = ' ';
+				if (lineLength >= 0) {
+					line = new char[lineLength];
+					System.arraycopy(text, lineStart, line, 0, lineLength);
+					buffer.append(line);
+					buffer.append(lineSeparator);
+					if (nextChar == '\n') {
+						nextChar = ' ';
+					}
+					lineStart = i+2;
+				} else {
+					// when line separator are mixed in the same file
+					// we need to prevent NegativeArraySizeException
+					lineStart = i+1;
 				}
-				lineStart = i+2;
 				break;
 		}
 	}

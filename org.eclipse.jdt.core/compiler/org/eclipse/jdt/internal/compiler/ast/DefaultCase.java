@@ -16,9 +16,9 @@ public class DefaultCase extends Statement {
 /**
  * DefautCase constructor comment.
  */
-public DefaultCase(int startPosition) {
-	this.sourceStart = startPosition ;
-	this.sourceEnd = startPosition+6; //default.length-1  (good approximation)
+public DefaultCase(int sourceEnd, int sourceStart) {
+	this.sourceStart = sourceStart;
+	this.sourceEnd = sourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	return flowInfo;

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import java.util.Locale;
+import java.util.Map;
 
 public class HierarchyResolver implements ITypeRequestor {
 	IHierarchyRequestor requestor;
@@ -39,7 +40,7 @@ public class HierarchyResolver implements ITypeRequestor {
 public HierarchyResolver(
 	INameEnvironment nameEnvironment,
 	IErrorHandlingPolicy policy,
-	ConfigurableOption[] settings,
+	Map settings,
 	IHierarchyRequestor requestor,
 	IProblemFactory problemFactory) {
 
@@ -91,7 +92,9 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 
 	if (unit != null) {
 		lookupEnvironment.buildTypeBindings(unit);
-		rememberWithMemberTypes(sourceTypes[0], unit.types[0].binding);
+		for (int i = 0, length = sourceTypes.length; i < length; i++) {
+			rememberWithMemberTypes(sourceTypes[i], unit.types[i].binding);
+		}
 
 		lookupEnvironment.completeTypeBindings(unit, false);
 	}
@@ -262,7 +265,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
-			CompilerOptions options = new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault()));
+			CompilerOptions options = new CompilerOptions();
 			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.getAssertMode());
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
@@ -349,6 +352,19 @@ public void resolve(IGenericType suppliedType) {
 public void setFocusType(char[][] compoundName) {
 	if (compoundName == null || this.lookupEnvironment == null) return;
 	this.focusType = this.lookupEnvironment.askForType(compoundName);
+	
+	/* All siblings of the focus type were added (since this.focusType == null).
+	   Remove the ones that are not part of the hierarchy
+	 */
+	int typeIndex = this.typeIndex;
+	this.typeIndex = -1;
+	ReferenceBinding[] typeBindings = this.typeBindings;
+	this.typeBindings = new ReferenceBinding[5];
+	IGenericType[] typeModels = this.typeModels;
+	this.typeModels = new IGenericType[5];
+	for (int i = 0; i <= typeIndex; i++) {
+		this.remember(typeModels[i], typeBindings[i]); // will skip types not part of the hierarchy
+	}
 	
 }
 private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {

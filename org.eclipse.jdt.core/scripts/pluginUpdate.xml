@@ -16,8 +16,7 @@
 		<echo message="UPDATE jdtcore.jar" />
 		<jar 
 			jarfile="${dest}/jdtcore.jar"
-			basedir="bin"
-		/>
+			basedir="bin" />
 		
 		<echo message="UPDATE plugin.xml" />
 		<copy file="plugin.xml" todir="${dest}" />

@@ -16,9 +16,9 @@ public class PrefixExpression extends CompoundAssignment {
  * @param op int
  */
 public PrefixExpression(Expression l, Expression e, int op, int pos) {
-	super(l, e, op);
-	sourceStart = pos;
-	sourceEnd = l.sourceEnd;
+	super(l, e, op, l.sourceEnd);
+	this.sourceStart = pos;
+	this.sourceEnd = l.sourceEnd;
 }
 public String operatorToString() {
 	switch (operator) {

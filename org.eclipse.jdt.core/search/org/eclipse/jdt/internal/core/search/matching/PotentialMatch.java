@@ -31,18 +31,36 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 	this.resource = resource;
 	this.openable = openable;
 	if (openable instanceof CompilationUnit) {
-		this.buildTypeBindings();
+		this.buildTypeBindings(this.getSource());
+	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+		try {
+			String source = ((org.eclipse.jdt.internal.core.ClassFile)openable).getSource();
+			if (source != null) {
+				this.buildTypeBindings(source.toCharArray());
+			}
+		} catch (JavaModelException e) {
+		}
 	}
 }
-private void buildTypeBindings() {
+private void buildTypeBindings(final char[] source) {
 	// get main type name
 	String fileName = this.resource.getFullPath().lastSegment();
 	// remove extension ".java"
 	final char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
 
 	// get qualified name
-	CompilationUnit cu = (CompilationUnit)this.openable;
-	char[] qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	char[] qualifiedName;
+	if (this.openable instanceof CompilationUnit) {
+		CompilationUnit cu = (CompilationUnit)this.openable;
+		qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	} else {
+		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+		try {
+			qualifiedName = classFile.getType().getFullyQualifiedName().toCharArray();
+		} catch (JavaModelException e) {
+			return; // nothing we can do here
+		}
+	}
 
 	// create match set	
 	this.matchSet = new MatchSet(this.locator);
@@ -50,9 +68,6 @@ private void buildTypeBindings() {
 
 	this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName);
 	if (this.parsedUnit == null) {
-		// get source
-		final char[] source = this.getSource();
-
 		// source unit
 		ICompilationUnit sourceUnit = new ICompilationUnit() {
 			public char[] getContents() {
@@ -106,13 +121,30 @@ public static char[] getContents(IFile file) {
 	}
 }
 public char[] getSource() {
-	return getContents((IFile)this.resource);
+	if (this.openable instanceof CompilationUnit) {
+		return getContents((IFile)this.resource);
+	} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+		try {
+			return classFile.getSource().toCharArray();
+		} catch (JavaModelException e) {
+			return null;
+		}
+	} else {
+		return null;
+	}
 }
 public void locateMatches() throws CoreException {
 	if (this.openable instanceof CompilationUnit) {
-		this.locateMatchesInCompilationUnit();
+		this.locateMatchesInCompilationUnit(this.getSource());
 	} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		this.locateMatchesInClassFile();
+		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+		String source = classFile.getSource();
+		if (source != null) {
+			this.locateMatchesInCompilationUnit(source.toCharArray());
+		} else {
+			this.locateMatchesInClassFile();
+		}
 	}
 }
 /**
@@ -192,18 +224,22 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				for (int i = 0; i < methods.length; i++) {
 					MethodBinding method = methods[i];
 					int level = this.locator.pattern.matchLevel(method);
-					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
-						IMethod methodHandle = 
-							binaryType.getMethod(
-								new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
-								Signature.getParameterTypes(new String(method.signature()).replace('/', '.'))
-							);
-						this.locator.reportBinaryMatch(
-							methodHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH ? 
-								IJavaSearchResultCollector.EXACT_MATCH : 
-								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					switch (level) {
+						case SearchPattern.IMPOSSIBLE_MATCH:
+						case SearchPattern.INACCURATE_MATCH:
+							break;
+						default:
+							IMethod methodHandle = 
+								binaryType.getMethod(
+									new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
+									Signature.getParameterTypes(new String(method.signature()).replace('/', '.'))
+								);
+							this.locator.reportBinaryMatch(
+								methodHandle, 
+								info, 
+								level == SearchPattern.ACCURATE_MATCH ? 
+									IJavaSearchResultCollector.EXACT_MATCH : 
+									IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
@@ -214,14 +250,18 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				for (int i = 0; i < fields.length; i++) {
 					FieldBinding field = fields[i];
 					int level = this.locator.pattern.matchLevel(field);
-					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
-						IField fieldHandle = binaryType.getField(new String(field.name));
-						this.locator.reportBinaryMatch(
-							fieldHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH ? 
-								IJavaSearchResultCollector.EXACT_MATCH : 
-								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					switch (level) {
+						case SearchPattern.IMPOSSIBLE_MATCH:
+						case SearchPattern.INACCURATE_MATCH:
+							break;
+						default:
+							IField fieldHandle = binaryType.getField(new String(field.name));
+							this.locator.reportBinaryMatch(
+								fieldHandle, 
+								info, 
+								level == SearchPattern.ACCURATE_MATCH ? 
+									IJavaSearchResultCollector.EXACT_MATCH : 
+									IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
@@ -264,10 +304,10 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 		}
 	}
 }
-private void locateMatchesInCompilationUnit() throws CoreException {
+private void locateMatchesInCompilationUnit(char[] source) throws CoreException {
 	if (this.parsedUnit != null) {
 		this.locator.parser.matchSet = this.matchSet;
-		this.locator.parser.scanner.setSourceBuffer(this.getSource());
+		this.locator.parser.scanner.setSourceBuffer(source);
 		this.locator.parser.parseBodies(this.parsedUnit);
 		// report matches that don't need resolve
 		this.matchSet.cuHasBeenResolved = false;
