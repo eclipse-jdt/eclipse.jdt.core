@@ -4074,7 +4074,7 @@ public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Ex
 		IProblem.InvalidUsageOfForeachStatements,
 		new String[] {}, 
 		new String[] {}, 
-		elementVariable.sourceStart,
+		elementVariable.declarationSourceStart,
 		collection.sourceEnd);
 }
 public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
