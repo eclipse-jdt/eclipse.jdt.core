@@ -326,7 +326,9 @@ public class Scribe {
 		}
 		for (int i= 0, max = this.editsIndex; i < max; i++) {
 			OptimizedReplaceEdit currentEdit = edits[i];
-			edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
+			if (isValidEdit(currentEdit)) {
+				edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
+			}
 		}
 		this.edits = null;
 		return edit;
@@ -383,6 +385,22 @@ public class Scribe {
 		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
 	}	
 	
+	private boolean isValidEdit(OptimizedReplaceEdit edit) {
+		final int editLength= edit.length;
+		final int editReplacementLength= edit.replacement.length();
+		final int editOffset= edit.offset;
+		if (editLength != 0 && editReplacementLength != 0 && editLength == editReplacementLength) {
+			for (int i = editOffset, max = editOffset + editLength; i < max; i++) {
+				if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	private void preserveEmptyLines(int count) {
 		if (count > 0) {
 			if (this.formatter.preferences.preserve_user_linebreaks) {
