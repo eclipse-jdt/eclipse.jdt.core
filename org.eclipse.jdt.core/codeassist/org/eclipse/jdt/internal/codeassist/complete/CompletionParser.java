@@ -967,31 +967,28 @@ public void completionIdentifierCheck(){
 	}
 
 	// check for different scenarii
-	try {
-		// no need to go further if we found a non empty completion node
-		// (we still need to store labels though)
-		if (this.assistNode != null) {
-			// however inside an invocation, the completion identifier may already have been consumed into an empty name 
-			// completion, so this check should be before we check that we are at the cursor location
-			if (!isEmptyNameCompletion() || checkInvocation()) return;
-		}
-
-		// no need to check further if we are not at the cursor location
-		if (this.indexOfAssistIdentifier() < 0) return;
-
-		if (checkClassInstanceCreation()) return;
-		if (checkCatchClause()) return;
-		if (checkMemberAccess()) return;
-		if (checkClassLiteralAccess()) return;
-		if (checkInstanceofKeyword()) return;
-		
-		// if the completion was not on an empty name, it can still be inside an invocation (eg. this.fred("abc"[cursor])
-		// (NB: Put this check before checkNameCompletion() because the selector of the invocation can be on the identifier stack)
-		if (checkInvocation()) return;
-
-		if (checkNameCompletion()) return;
-	} finally {
+	// no need to go further if we found a non empty completion node
+	// (we still need to store labels though)
+	if (this.assistNode != null) {
+		// however inside an invocation, the completion identifier may already have been consumed into an empty name 
+		// completion, so this check should be before we check that we are at the cursor location
+		if (!isEmptyNameCompletion() || checkInvocation()) return;
 	}
+
+	// no need to check further if we are not at the cursor location
+	if (this.indexOfAssistIdentifier() < 0) return;
+
+	if (checkClassInstanceCreation()) return;
+	if (checkCatchClause()) return;
+	if (checkMemberAccess()) return;
+	if (checkClassLiteralAccess()) return;
+	if (checkInstanceofKeyword()) return;
+	
+	// if the completion was not on an empty name, it can still be inside an invocation (eg. this.fred("abc"[cursor])
+	// (NB: Put this check before checkNameCompletion() because the selector of the invocation can be on the identifier stack)
+	if (checkInvocation()) return;
+
+	if (checkNameCompletion()) return;
 }
 protected void consumeArrayCreationExpressionWithInitializer() {
 	super.consumeArrayCreationExpressionWithInitializer();
