@@ -85,38 +85,42 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		    // check generic and arity
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 		    TypeReference[] args = this.typeArguments[i];
-			int argLength = args.length;
-			TypeBinding[] argTypes = new TypeBinding[argLength];
-			boolean argHasError = false;
-			for (int j = 0; j < argLength; j++) {
-			    TypeReference arg = args[j];
-			    TypeBinding argType = isClassScope
-					? arg.resolveTypeArgument((ClassScope) scope, currentType, j)
-					: arg.resolveTypeArgument((BlockScope) scope, currentType, j);
-				if (argType == null) {
-					argHasError = true;
-				} else {
-					argTypes[j] = argType;
-				}			    
-			}
-			if (argHasError) return null;
-			if (typeVariables == NoTypeVariables) { // check generic
-				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
-				return null;
-			} else if (argLength != typeVariables.length) { // check arity
-				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
-				return null;
-			}			
-			// check argument type compatibility
-			for (int j = 0; j < argLength; j++) {
-			    TypeBinding argType = argTypes[j];
-			    if (!typeVariables[j].boundCheck(argType)) {
-			        argHasError = true;
-					scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
-			    }
-			}
-			if (argHasError) return null;
-			currentType = scope.createParameterizedType(currentType, argTypes);
+		    if (args != null) {
+				int argLength = args.length;
+				TypeBinding[] argTypes = new TypeBinding[argLength];
+				boolean argHasError = false;
+				for (int j = 0; j < argLength; j++) {
+				    TypeReference arg = args[j];
+				    TypeBinding argType = isClassScope
+						? arg.resolveTypeArgument((ClassScope) scope, currentType, j)
+						: arg.resolveTypeArgument((BlockScope) scope, currentType, j);
+					if (argType == null) {
+						argHasError = true;
+					} else {
+						argTypes[j] = argType;
+					}			    
+				}
+				if (argHasError) return null;
+				if (typeVariables == NoTypeVariables) { // check generic
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
+					return null;
+				} else if (argLength != typeVariables.length) { // check arity
+					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+					return null;
+				}			
+				// check argument type compatibility
+				for (int j = 0; j < argLength; j++) {
+				    TypeBinding argType = argTypes[j];
+				    if (!typeVariables[j].boundCheck(argType)) {
+				        argHasError = true;
+						scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
+				    }
+				}
+				if (argHasError) return null;
+				currentType = scope.createParameterizedType(currentType, argTypes);
+		    } else if (currentType.isGenericType()) { // check raw type
+			        currentType = scope.createRawType(currentType); // raw type
+				}				    
 		}
 		this.resolvedType = currentType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
