@@ -1924,7 +1924,9 @@ public void recursiveConstructorInvocation(TypeDeclaration typeDeclaration) {
 			if (methods[i].isConstructor()){
 				ConstructorDeclaration constructor = (ConstructorDeclaration) methods[i];
 				if (constructor.referenceCount > 0){
-					ConstructorDeclaration targetConstructor = (ConstructorDeclaration)(typeDeclaration.declarationOf(constructor.constructorCall.binding));
+					ConstructorDeclaration targetConstructor = constructor.constructorCall == null
+						? null
+						: (ConstructorDeclaration)(typeDeclaration.declarationOf(constructor.constructorCall.binding));
 					if ((targetConstructor == null) || (targetConstructor.referenceCount < 0)){
 						hasChanged = true;
 						constructor.referenceCount = -1;
