@@ -45,6 +45,7 @@ STREAM: 2.0
   
   JCK1.4 remaining defects:
   ================================================================================
+  1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
   1GK7MHO: ITPJCORE:WIN2000 - JCK 1.4 - BINC - Adding a String field that has the same name as a String field of a superclass
   1GK7VCA: ITPJCORE:WIN2000 - JCK 1.4 - BINC - detection of an IncompatibleClassChangeError
