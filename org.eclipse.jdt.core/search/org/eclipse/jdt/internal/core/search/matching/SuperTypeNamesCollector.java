@@ -153,6 +153,8 @@ protected char[][][] collect() {
 						this.collectSuperTypeNames(binding);
 					}
 				}
+			} catch (AbortCompilation e) {
+				// ignore: continue with next element
 			} catch (JavaModelException e) {
 				// ignore: continue with next element
 			}
@@ -236,7 +238,7 @@ private String[] getPathsOfDeclaringType() {
 	char[] declaringSimpleName = this.pattern.declaringSimpleName;
 	if (declaringQualification != null || declaringSimpleName != null) {
 		final PathCollector pathCollector = new PathCollector();
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, false);
 	
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
 										.getIndexManager();
