@@ -187,11 +187,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TestMatcher() {
 		}
 
-		boolean standardBody(ASTNode receiver, Object other, boolean superMatchResult) {
+		boolean standardBody(ASTNode receiver, Object other, boolean matchResult) {
 			matchCalls++;
 			this.receiverNode = receiver;
 			this.otherNode = other;
-			this.superMatchResult = superMatchResult;
+			this.superMatchResult = matchResult;
 			if (superMatch) {
 				return this.superMatchResult;
 			} else {
