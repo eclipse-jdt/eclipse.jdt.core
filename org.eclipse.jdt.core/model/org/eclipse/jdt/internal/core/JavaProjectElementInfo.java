@@ -22,7 +22,8 @@ import java.util.*;
  * that are internal to the project, use <code>JavaProject#getChildren()</code>.
  */
 
-/* package */ class JavaProjectElementInfo extends OpenableElementInfo {
+/* package */
+class JavaProjectElementInfo extends OpenableElementInfo {
 
 	/**
 	 * The classpath for this project
@@ -38,8 +39,8 @@ import java.util.*;
 	 * The searchable builder environment facility used
 	 * with this project (doubles as the builder environment). 
 	 */
-	protected SearchableEnvironment fSearchableEnvironment= null;
-	
+	protected SearchableEnvironment fSearchableEnvironment = null;
+
 	/**
 	 * The output location for this project.
 	 */
@@ -50,157 +51,187 @@ import java.util.*;
 	 */
 	private Object[] fNonJavaResources;
 
-/**
- * Create and initialize a new instance of the receiver
- */
-public JavaProjectElementInfo() {
-	fNonJavaResources = null;
-}
-/**
- * Compute the non-java resources contained in this java project.
- */
-private Object[] computeNonJavaResources(JavaProject project) {
-	// determine if src == project and/or if bin == project
-	IPath projectPath = project.getProject().getFullPath();
-	boolean srcIsProject = false;
-	boolean binIsProject = false;
-	try {
-		IClasspathEntry[] classpath = project.getExpandedClasspath(true);
-		for (int i = 0; i < classpath.length; i++) {
-			IClasspathEntry entry = classpath[i];
-			if (projectPath.equals(entry.getPath())) {
-				srcIsProject = true;
-				break;
-			}
-		}
-		binIsProject = projectPath.equals(project.getOutputLocation());
-	} catch (JavaModelException e) {
-		// ignore
+	/**
+	 * Recently computed classpath
+	 */
+	public IClasspathEntry[] lastExpandedClasspath = null;
+	public IClasspathEntry[] lastResolvedClasspath = null;
+
+	/**
+	 * Create and initialize a new instance of the receiver
+	 */
+	public JavaProjectElementInfo() {
+		fNonJavaResources = null;
 	}
 	
-	Object[] nonJavaResources = new IResource[5];
-	int nonJavaResourcesCounter = 0;
-	try {
-		IResource[] members = ((IContainer) project.getUnderlyingResource()).members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource res = members[i];
-			switch (res.getType()) {
-				case IResource.FILE :
-					// check if this file might be a jar or a zip inside the build path
-					IPath resFullPath = res.getFullPath();
-					if (project.findPackageFragmentRoot(resFullPath) == null) {
-						String resName = res.getName();
-						// ignore .java file if src == project
-						if (srcIsProject && Util.isValidCompilationUnitName(resName)) {
-							break;
-						}
-						// ignore .class file if bin == project
-						if (binIsProject && Util.isValidClassFileName(resName)) {
-							break;
-						}
-						// else add non java resource
-						if (nonJavaResources.length == nonJavaResourcesCounter) {
-							// resize
-							System.arraycopy(
-								nonJavaResources, 
-								0, 
-								(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 
-								0, 
-								nonJavaResourcesCounter); 
-						}
-						nonJavaResources[nonJavaResourcesCounter++] = res;
-					}
+	/**
+	 * Compute the non-java resources contained in this java project.
+	 */
+	private Object[] computeNonJavaResources(JavaProject project) {
+		
+		// determine if src == project and/or if bin == project
+		IPath projectPath = project.getProject().getFullPath();
+		boolean srcIsProject = false;
+		boolean binIsProject = false;
+		try {
+			IClasspathEntry[] classpath = project.getExpandedClasspath(true);
+			for (int i = 0; i < classpath.length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (projectPath.equals(entry.getPath())) {
+					srcIsProject = true;
 					break;
-				case IResource.FOLDER :
-					resFullPath = res.getFullPath();
-					if (!resFullPath.equals(project.getOutputLocation())
-						&& project.findPackageFragmentRoot(resFullPath) == null
-						&& project.findPackageFragment(resFullPath) == null) {
-						if (nonJavaResources.length == nonJavaResourcesCounter) {
-							// resize
-							System.arraycopy(
-								nonJavaResources, 
-								0, 
-								(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 
-								0, 
-								nonJavaResourcesCounter); 
-						}
-						nonJavaResources[nonJavaResourcesCounter++] = res;
-					}
+				}
 			}
+			binIsProject = projectPath.equals(project.getOutputLocation());
+		} catch (JavaModelException e) {
+			// ignore
 		}
-		if (nonJavaResources.length != nonJavaResourcesCounter) {
-			System.arraycopy(
-				nonJavaResources, 
-				0, 
-				(nonJavaResources = new IResource[nonJavaResourcesCounter]), 
-				0, 
-				nonJavaResourcesCounter); 
-		}
-	} catch (CoreException e) {
-		nonJavaResources = NO_NON_JAVA_RESOURCES;
-		nonJavaResourcesCounter = 0;
-	}
-	return nonJavaResources;
-}
-/**
- * @see IJavaProject
- */
-protected NameLookup getNameLookup() {
-	return fNameLookup;
-}
-/**
- * Returns an array of non-java resources contained in the receiver.
- */
-Object[] getNonJavaResources(JavaProject project) {
-	Object[] nonJavaResources = fNonJavaResources;
-	if (nonJavaResources == null) {
-		nonJavaResources = computeNonJavaResources(project);
-		fNonJavaResources = nonJavaResources;
-	}
-	return nonJavaResources;
-}
-/**
- * @see IJavaProject
- */
-protected IPath getOutputLocation() {
-	return fOutputLocation;
-}
-/**
- * Returns the classpath for this project
- */
-protected IClasspathEntry[] getRawClasspath() {
-	return fClasspath;
-}
-/**
- * @see IJavaProject 
- */
-protected SearchableEnvironment getSearchableEnvironment() {
-	return fSearchableEnvironment;
-}
-protected void setNameLookup(NameLookup newNameLookup) {
-	fNameLookup = newNameLookup;
 
-	// Reinitialize the searchable name environment since it caches
-	// the name lookup.
-	fSearchableEnvironment = null;
-}
-/**
- * Set the fNonJavaResources to res value
- */
-synchronized void setNonJavaResources(Object[] resources) {
-	fNonJavaResources = resources;
-}
-protected void setOutputLocation(IPath newOutputLocation) {
-	fOutputLocation = newOutputLocation;
-}
-/**
- * Sets the classpath for this project
- */
-protected void setRawClasspath(IClasspathEntry[] newClasspath) {
-	fClasspath = newClasspath;
-}
-protected void setSearchableEnvironment(SearchableEnvironment newSearchableEnvironment) {
-	fSearchableEnvironment = newSearchableEnvironment;
-}
+		Object[] nonJavaResources = new IResource[5];
+		int nonJavaResourcesCounter = 0;
+		try {
+			IResource[] members = ((IContainer) project.getUnderlyingResource()).members();
+			for (int i = 0, max = members.length; i < max; i++) {
+				IResource res = members[i];
+				switch (res.getType()) {
+					case IResource.FILE :
+						// check if this file might be a jar or a zip inside the build path
+						IPath resFullPath = res.getFullPath();
+						if (project.findPackageFragmentRoot(resFullPath) == null) {
+							String resName = res.getName();
+							// ignore .java file if src == project
+							if (srcIsProject && Util.isValidCompilationUnitName(resName)) {
+								break;
+							}
+							// ignore .class file if bin == project
+							if (binIsProject && Util.isValidClassFileName(resName)) {
+								break;
+							}
+							// else add non java resource
+							if (nonJavaResources.length == nonJavaResourcesCounter) {
+								// resize
+								System.arraycopy(
+									nonJavaResources,
+									0,
+									(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]),
+									0,
+									nonJavaResourcesCounter);
+							}
+							nonJavaResources[nonJavaResourcesCounter++] = res;
+						}
+						break;
+					case IResource.FOLDER :
+						resFullPath = res.getFullPath();
+						if (!resFullPath.equals(project.getOutputLocation())
+							&& project.findPackageFragmentRoot(resFullPath) == null
+							&& project.findPackageFragment(resFullPath) == null) {
+							if (nonJavaResources.length == nonJavaResourcesCounter) {
+								// resize
+								System.arraycopy(
+									nonJavaResources,
+									0,
+									(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]),
+									0,
+									nonJavaResourcesCounter);
+							}
+							nonJavaResources[nonJavaResourcesCounter++] = res;
+						}
+				}
+			}
+			if (nonJavaResources.length != nonJavaResourcesCounter) {
+				System.arraycopy(
+					nonJavaResources,
+					0,
+					(nonJavaResources = new IResource[nonJavaResourcesCounter]),
+					0,
+					nonJavaResourcesCounter);
+			}
+		} catch (CoreException e) {
+			nonJavaResources = NO_NON_JAVA_RESOURCES;
+			nonJavaResourcesCounter = 0;
+		}
+		return nonJavaResources;
+	}
+	
+	/**
+	 * @see IJavaProject
+	 */
+	protected NameLookup getNameLookup() {
+
+		return fNameLookup;
+	}
+	
+	/**
+	 * Returns an array of non-java resources contained in the receiver.
+	 */
+	Object[] getNonJavaResources(JavaProject project) {
+
+		Object[] nonJavaResources = fNonJavaResources;
+		if (nonJavaResources == null) {
+			nonJavaResources = computeNonJavaResources(project);
+			fNonJavaResources = nonJavaResources;
+		}
+		return nonJavaResources;
+	}
+	
+	/**
+	 * @see IJavaProject
+	 */
+	protected IPath getOutputLocation() {
+
+		return fOutputLocation;
+	}
+	
+	/**
+	 * Returns the classpath for this project
+	 */
+	protected IClasspathEntry[] getRawClasspath() {
+
+		return fClasspath;
+	}
+	
+	/**
+	 * @see IJavaProject 
+	 */
+	protected SearchableEnvironment getSearchableEnvironment() {
+
+		return fSearchableEnvironment;
+	}
+	
+	protected void setNameLookup(NameLookup newNameLookup) {
+
+		fNameLookup = newNameLookup;
+
+		// Reinitialize the searchable name environment since it caches
+		// the name lookup.
+		fSearchableEnvironment = null;
+	}
+	
+	/**
+	 * Set the fNonJavaResources to res value
+	 */
+	synchronized void setNonJavaResources(Object[] resources) {
+
+		fNonJavaResources = resources;
+	}
+	
+	protected void setOutputLocation(IPath newOutputLocation) {
+
+		fOutputLocation = newOutputLocation;
+	}
+	/**
+	 * Sets the classpath for this project
+	 */
+
+	protected void setRawClasspath(IClasspathEntry[] newClasspath) {
+
+		this.fClasspath = newClasspath;
+		this.lastExpandedClasspath = null;
+		this.lastResolvedClasspath = null;
+	}
+	
+	protected void setSearchableEnvironment(SearchableEnvironment newSearchableEnvironment) {
+
+		fSearchableEnvironment = newSearchableEnvironment;
+	}
 }

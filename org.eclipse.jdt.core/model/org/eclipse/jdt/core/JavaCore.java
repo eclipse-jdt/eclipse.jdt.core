@@ -1143,15 +1143,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
 	 * </p>
-	 * <p>
-	 * [Issue: The parameter should be a java.util.Map rather than a concrete Hashtable.]
-	 * </p>
-	 * <p>
-	 * [Issue: If any client ever passes in a "short" table that is missing some options, 
-	 *  then getOptions() will nevermore return a table containing this option. The
-	 *  client would have to call getDefaultOptions() to discover its default setting.
-	 * ]
-	 * </p>
 	 * 
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
@@ -1170,9 +1161,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * and this method returns a table that includes all known options.
 	 * <p>
 	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
-	 * </p>
-	 * <p>
-	 * [Issue: The return type should be a java.util.Map rather than a concrete Hashtable.]
 	 * </p>
 	 * 
 	 * @return table of current settings of all options 
@@ -1395,9 +1383,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:				"disabled"
 	 * </pre>
-	 * <p>
-	 * [Issue: The return type should be a java.util.Map rather than a concrete Hashtable.]
-	 * </p>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
