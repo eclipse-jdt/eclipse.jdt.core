@@ -507,14 +507,14 @@ class CompilationUnitResolver extends Compiler {
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			}
 			// first unit cleanup is done by caller, but cleanup all enqueued requested units (not processed)
-			if (resolver != null) {
-				for (int i = 1, length = resolver.totalUnits; i < length; i++) {
-					CompilationUnitDeclaration parsedUnit = resolver.unitsToProcess[i];
-					if (parsedUnit.scope != null) 
-						parsedUnit.scope.faultInTypes(); // force resolution of signatures, so clients can query DOM AST
-					parsedUnit.cleanUp();
-				}
-			}
+//			if (resolver != null) {
+//				for (int i = 1, length = resolver.totalUnits; i < length; i++) {
+//					CompilationUnitDeclaration parsedUnit = resolver.unitsToProcess[i];
+//					if (parsedUnit.scope != null) 
+//						parsedUnit.scope.faultInTypes(); // force resolution of signatures, so clients can query DOM AST
+//					parsedUnit.cleanUp();
+//				}
+//			}
 		}
 	}
 	public static IBinding[] resolve(
