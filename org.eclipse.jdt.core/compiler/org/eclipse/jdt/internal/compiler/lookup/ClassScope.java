@@ -704,7 +704,12 @@ public class ClassScope extends Scope {
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
 		connectMemberTypes();
-		checkForInheritedMemberTypes(sourceType);
+		try {
+			checkForInheritedMemberTypes(sourceType);
+		} catch (AbortCompilation e) {
+			e.updateContext(referenceContext, referenceCompilationUnit().compilationResult);
+			throw e;
+		}
 	}
 	
 	private void connectTypeHierarchyWithoutMembers() {
