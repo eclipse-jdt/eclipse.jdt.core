@@ -288,6 +288,7 @@ void faultInImports() {
 		for (int j = 0; j < index; j++)
 			if (resolvedImports[j].onDemand == importReference.onDemand)
 				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName)) {
+					problemReporter().unusedImport(importReference); // since skipped, must be reported now
 					continue nextImport;
 				}
 		if (importReference.onDemand == true)
