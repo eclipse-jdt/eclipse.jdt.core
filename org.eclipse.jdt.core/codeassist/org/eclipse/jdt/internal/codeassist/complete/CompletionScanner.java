@@ -216,6 +216,10 @@ public int getNextToken() throws InvalidInputException {
 				case ',' :
 					return TokenNameCOMMA;
 				case '.' :
+					if (startPosition <= cursorLocation 
+					    && cursorLocation < currentPosition){
+					    	return TokenNameDOT; // completion inside .<|>12
+				    }
 					if (getNextCharAsDigit())
 						return scanNumber(true);
 					return TokenNameDOT;
@@ -684,6 +688,7 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	return id;
 }
 public int scanNumber(boolean dotPrefix) throws InvalidInputException {
+	
 	int token = super.scanNumber(dotPrefix);
 
 	// consider completion just before a number to be ok, will insert before it

@@ -166,8 +166,10 @@ public class QualifiedNameReference extends NameReference {
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
+
 		return analyseCode(currentScope, flowContext, flowInfo, true);
 	}
+	
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
