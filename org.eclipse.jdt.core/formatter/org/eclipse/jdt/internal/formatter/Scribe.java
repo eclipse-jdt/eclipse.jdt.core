@@ -1141,6 +1141,9 @@ public class Scribe {
 						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 						if (annotationsIndex < annotationsLength) {
 							annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
+							if (this.formatter.preferences.insert_new_line_after_annotation) {
+								this.printNewLine();
+							}
 						} else {
 							return;
 						}

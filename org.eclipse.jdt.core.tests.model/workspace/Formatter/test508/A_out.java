@@ -1,4 +1,5 @@
-@Retention package test0006;
+@Retention
+package test0006;
 
 @interface Name {
 	String first() default "Joe";
@@ -15,5 +16,7 @@
 @interface Retention {
 }
 
-@Retention @Author(@Name(first = "Joe", last = "Hacker", age = 32)) class A {
+@Retention
+@Author(@Name(first = "Joe", last = "Hacker", age = 32))
+class A {
 }
