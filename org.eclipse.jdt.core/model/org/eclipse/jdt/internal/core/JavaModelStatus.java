@@ -300,7 +300,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					String description = null;
 					if (initializer != null) description = initializer.getDescription(this.path, javaProject);
 					if (description == null) description = path.makeRelative().toString();
-					return Util.bind("classpath.unboundContainerPath", description); //$NON-NLS-1$
+					return Util.bind("classpath.unboundContainerPath", description, javaProject.getElementName()); //$NON-NLS-1$
 
 				case INVALID_CP_CONTAINER_ENTRY:
 					javaProject = (IJavaProject)elements[0];
@@ -318,20 +318,34 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 						description = container.getDescription();
 					}
 					if (description == null) description = path.makeRelative().toString();
-					return Util.bind("classpath.invalidContainer", description); //$NON-NLS-1$
+					return Util.bind("classpath.invalidContainer", description, javaProject.getElementName()); //$NON-NLS-1$
 
 			case CP_VARIABLE_PATH_UNBOUND:
-					return Util.bind("classpath.unboundVariablePath", path.makeRelative().toString()); //$NON-NLS-1$
+				javaProject = (IJavaProject)elements[0];
+				return Util.bind("classpath.unboundVariablePath", path.makeRelative().toString(), javaProject.getElementName()); //$NON-NLS-1$
 					
 			case CLASSPATH_CYCLE: 
-					javaProject = (IJavaProject)elements[0];
-					return Util.bind("classpath.cycle", javaProject.getElementName()); //$NON-NLS-1$
+				javaProject = (IJavaProject)elements[0];
+				return Util.bind("classpath.cycle", javaProject.getElementName()); //$NON-NLS-1$
 												 
 			case DISABLED_CP_EXCLUSION_PATTERNS:
-					return Util.bind("classpath.disabledExclusionPatterns", path.makeRelative().toString()); //$NON-NLS-1$
+				javaProject = (IJavaProject)elements[0];
+				String projectName = javaProject.getElementName();
+				IPath newPath = path;
+				if (path.segment(0).toString().equals(projectName)) {
+					newPath = path.removeFirstSegments(1);
+				}
+				return Util.bind("classpath.disabledExclusionPatterns", newPath.makeRelative().toString(), projectName); //$NON-NLS-1$
 
 			case DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS:
-					return Util.bind("classpath.disabledMultipleOutputLocations", path.makeRelative().toString()); //$NON-NLS-1$
+				javaProject = (IJavaProject)elements[0];
+				projectName = javaProject.getElementName();
+				newPath = path;
+				if (path.segment(0).toString().equals(projectName)) {
+					newPath = path.removeFirstSegments(1);
+				}
+				return Util.bind("classpath.disabledMultipleOutputLocations", newPath.makeRelative().toString(), projectName); //$NON-NLS-1$
+
 			case INCOMPATIBLE_JDK_LEVEL:
 					javaProject = (IJavaProject)elements[0];
 					return Util.bind("classpath.incompatibleLibraryJDKLevel", new String[]{	//$NON-NLS-1$

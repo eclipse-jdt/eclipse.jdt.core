@@ -54,13 +54,13 @@ public class ClasspathTests extends Tests {
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
 				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
 				new Problem("", "The project cannot be built until build path errors are resolved.", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project CP3 is missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -79,10 +79,10 @@ public class ClasspathTests extends Tests {
 		incrementalBuild();
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 		expectingOnlySpecificProblemFor(project3Path,
-			new Problem("Build path", "Missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project CP3 is missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		env.openProject(project1Path);
@@ -114,7 +114,7 @@ public class ClasspathTests extends Tests {
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
 				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Missing required Java project: MP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -135,7 +135,7 @@ public class ClasspathTests extends Tests {
 		incrementalBuild();
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Missing required Java project: MP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		project1Path = env.addProject("MP1"); //$NON-NLS-1$

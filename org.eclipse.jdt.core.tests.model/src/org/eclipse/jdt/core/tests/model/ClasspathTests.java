@@ -685,7 +685,7 @@ public void testClasspathValidation01() throws CoreException {
 		
 		assertEquals(
 			"should have detected duplicate entries on the classpath", 
-			"Build path contains duplicate entry: P/src",
+			"Build path contains duplicate entry: 'src' for project P",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -804,7 +804,7 @@ public void testClasspathValidation05() throws CoreException {
 		status = JavaConventions.validateClasspathEntry(p[0], newClasspath[1], true);
 		assertEquals(
 			"should have detected external source folder through a container on the classpath", 
-			"Invalid classpath container: container/default",
+			"Invalid classpath container: 'container/default' in project P0.",
 			status.getMessage());
 
 	} finally {
@@ -1149,7 +1149,7 @@ public void testClasspathValidation20() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"Multiple output locations are disabled, cannot associate entry: 'P/src' with a specific output.",
+			"Multiple output locations are disabled in project P, cannot associate entry: 'src' with a specific output.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -1174,7 +1174,7 @@ public void testClasspathValidation21() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"Exclusion patterns are disabled, cannot exclude from entry: 'P/src'.",
+			"Exclusion patterns are disabled in project P, cannot exclude from entry: 'src'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -1197,7 +1197,7 @@ public void testClasspathValidation22() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"Source folder 'P/src' cannot output to distinct source folder 'P/src2'.",
+			"Source folder 'src' in project P cannot output to distinct source folder 'src2'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -1270,7 +1270,7 @@ public void testClasspathValidation25() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"Source folder 'P/src' cannot output to library 'P/lib2'.",
+			"Source folder 'src' in project P cannot output to library 'lib2'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -1637,7 +1637,7 @@ public void testInvalidClasspath1() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"XML format error in 'P/.classpath' file: Bad format.",
+			"XML format error in \'.classpath\' file of project P: Bad format.",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -1659,7 +1659,7 @@ public void testInvalidClasspath2() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in 'P/.classpath' file: Unknown kind: src1",
+		"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
 			javaProject);
 			
 		// Verify that error marker is not removed after build
@@ -1668,7 +1668,7 @@ public void testInvalidClasspath2() throws CoreException {
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in 'P/.classpath' file: Unknown kind: src1",
+			"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -1691,7 +1691,7 @@ public void testMissingClasspath() throws CoreException {
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		assertMarkers(
 			"Unexpected markers",
-			"Unable to read \'P/.classpath\' file.",
+			"Unable to read '.classpath' file of project P.",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -1710,7 +1710,7 @@ public void testMissingPrereq1() throws CoreException {
 		javaProject.setRawClasspath(classpath, null);
 		this.assertMarkers(
 			"Unexpected markers",
-			"Missing required Java project: B.",
+			"Project A is missing required Java project: 'B'.",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -1730,7 +1730,7 @@ public void testMissingPrereq2() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers",
-			"Missing required Java project: B.",
+			"Project A is missing required Java project: 'B'.",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -1788,7 +1788,7 @@ public void testMissingPrereq4() throws CoreException {
 		this.deleteProject("B");
 		this.assertMarkers(
 			"Unexpected markers for project A after deleting of project B",
-			"Missing required Java project: B.",
+			"Project A is missing required Java project: 'B'.",
 			projectA);
 			
 		// add project B back
@@ -2284,7 +2284,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Invalid build path in \'P/.classpath\' file: Build path contains duplicate entry: P/src",
+			"Invalid build path in '.classpath' file of project P: Build path contains duplicate entry: 'src' for project P",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -2522,8 +2522,8 @@ public void testOutputFolder1() throws CoreException {
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 		this.assertMarkers(
 		"Unexpected markers",
-		"Missing required source folder: \'P/src1\'.\n" + 
-		"Missing required source folder: \'P/src2\'.",
+		"Project P is missing required source folder: 'src1'.\n" + 
+		"Project P is missing required source folder: 'src2'.",
 		JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
