@@ -275,7 +275,7 @@ public boolean hasUnsavedChanges() throws JavaModelException{
 	if (fLEType == PACKAGE_FRAGMENT ||
 		fLEType == PACKAGE_FRAGMENT_ROOT ||
 		fLEType == JAVA_PROJECT ||
-		fLEType == JAVA_MODEL) { // fix for 1FWNMHH, part (2)
+		fLEType == JAVA_MODEL) { // fix for 1FWNMHH
 		Enumeration openBuffers= getBufferManager().getOpenBuffers();
 		while (openBuffers.hasMoreElements()) {
 			IBuffer buffer= (IBuffer)openBuffers.nextElement();
