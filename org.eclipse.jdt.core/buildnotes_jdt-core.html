@@ -136,7 +136,7 @@ When this flag is set, search engine will found all types whose erasure matches 
 compatible matches for generic or parameterized types.<br>
 Added new API method to make this flag settable even while creating pattern using a IJavaElement:
 <ul>
-<lo><code>SearchPattern#createPattern(IJavaElement element, int limitTo, int matchRule)</code></lo>
+<li><code>SearchPattern#createPattern(IJavaElement element, int limitTo, int matchRule)</code></li>
 </ul>
 </li>
 <li>
@@ -156,8 +156,8 @@ Note this is always the case when either pattern or reference is a raw type
 </ul>
 Added new API methods to access this field:
 <ul>
-<lo><code>SearchMatch#getRule()</code><br></lo>
-<lo><code>SearchMatch#setRule(int)</code></lo>
+<li><code>SearchMatch#getRule()</code><br></li>
+<li><code>SearchMatch#setRule(int)</code></li>
 </ul>
 </li>
 <li>Added API IType#getFullyQualifiedParameterizedName() that shows the type parameter/arguments if the type is generic/parameterized.</li>
@@ -187,7 +187,7 @@ Code Select does not work for annotations inside class file
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80672">80672</a>
 [1.5] Annotation change does not trigger recompilation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80466">80466</a>
-ITypeBinding#getJavaElement() is null for declaration of java.util.List<E>
+ITypeBinding#getJavaElement() is null for declaration of java.util.List&lt;E&gt;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80083">80083</a>
 VerifyError on String-Operator += when using generics
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77430">77430</a>
