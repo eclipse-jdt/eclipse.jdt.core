@@ -312,6 +312,12 @@ protected synchronized void moveToNextJob() {
 protected void notifyIdle(long idlingTime){
 	if (idlingTime > 1000 && needToSave) saveIndexes();
 }
+/*
+ * For debug purpose
+ */
+public IIndex peekAtIndex(IPath path) {
+	return (IIndex) indexes.get(path);
+}
 /**
  * Name of the background process
  */
@@ -537,8 +543,9 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer(10);
 	buffer.append(super.toString());
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
+	int count = 0;
 	for (Iterator iter = this.indexes.values().iterator(); iter.hasNext();) {
-		buffer.append(" -").append(iter.next().toString()).append('\n'); //$NON-NLS-1$
+		buffer.append(++count).append(" -").append(iter.next().toString()).append('\n'); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }

@@ -64,7 +64,7 @@ public class Index implements IIndex {
 	/**
 	 * String representation of this index.
 	 */
-	private String toString;
+	public String toString;
 	public Index(File indexDirectory, boolean reuseExistingFile) throws IOException {
 		this(indexDirectory,".index", reuseExistingFile); //$NON-NLS-1$
 	}
