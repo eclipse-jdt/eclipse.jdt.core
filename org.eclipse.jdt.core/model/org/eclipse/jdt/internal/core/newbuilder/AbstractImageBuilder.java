@@ -87,7 +87,7 @@ public void acceptResult(CompilationResult result) {
 		try {
 			workQueue.finished(sourceLocation);
 			updateProblemsFor(sourceLocation, result); // record compilation problems before potentially adding duplicate errors
-
+	
 			ICompilationUnit compilationUnit = result.getCompilationUnit();
 			ClassFile[] classFiles = result.getClassFiles();
 			int length = classFiles.length;
@@ -112,9 +112,9 @@ public void acceptResult(CompilationResult result) {
 						duplicateTypeNames.add(compoundName);
 						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName)));
 						continue;
-					}
-					newState.locationForType(qualifiedTypeName, sourceLocation);
 				}
+					newState.locationForType(qualifiedTypeName, sourceLocation);
+			}
 				definedTypeNames.add(writeClassFile(classFile, !isNestedType));
 			}
 
@@ -122,9 +122,9 @@ public void acceptResult(CompilationResult result) {
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
 			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile"));
+			}
 		}
 	}
-}
 
 protected void cleanUp() {
 	this.nameEnvironment.cleanup();
@@ -223,7 +223,7 @@ protected void createErrorFor(IResource resource, String message) {
 			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1), new Integer(1)});
 	} catch (CoreException e) {
 		throw internalException(e);
-	}
+}
 }
 
 protected String extractTypeNameFrom(String sourceLocation) {
@@ -332,14 +332,15 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 
 		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
 		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.ID, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER, IJavaModelMarker.ARGUMENTS},
 			new Object[] { 
 				problem.getMessage(),
-				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING),
+				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
 				new Integer(id),
 				new Integer(problem.getSourceStart()),
 				new Integer(problem.getSourceEnd() + 1),
-				new Integer(problem.getSourceLineNumber())
+				new Integer(problem.getSourceLineNumber()),
+				Util.getProblemArgumentsForMarker(problem.getArguments())
 			});
 
 		// compute a user-friendly location
@@ -365,7 +366,7 @@ protected void updateProblemsFor(String sourceLocation, CompilationResult result
 
 	notifier.updateProblemCounts(problems);
 	storeProblemsFor(resourceForLocation(sourceLocation), problems);
-}
+	}
 
 protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) throws CoreException {
 	// Before writing out the class file, compare it to the previous file

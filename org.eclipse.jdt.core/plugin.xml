@@ -62,6 +62,7 @@
 	<persistent value="true"/>
 	<attribute name="id"/>
 	<attribute name="flags"/>
+	<attribute name="argments"/>
 </extension>   
 <extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="%buildPathProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
@@ -73,6 +74,7 @@
 	<persistent value="false"/>
 	<attribute name="id"/>
 	<attribute name="flags"/>
+	<attribute name="argments"/>
 	<attribute name="cycleDetected"/>	
 </extension>
     

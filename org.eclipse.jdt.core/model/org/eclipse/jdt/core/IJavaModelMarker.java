@@ -30,6 +30,12 @@ public interface IJavaModelMarker {
 	 */
 	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"; //$NON-NLS-1$
     
+    /** 
+	 * Id marker attribute (value <code>"arguments"</code>).
+	 * Reserved for future use.
+	 */
+	 public static final String ARGUMENTS = "arguments"; //$NON-NLS-1$
+    
 	/** 
 	 * Id marker attribute (value <code>"id"</code>).
 	 * Reserved for future use.
