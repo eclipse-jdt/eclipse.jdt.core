@@ -188,7 +188,7 @@ public void computeId() {
 		}
 		return;		// all other types are in java.*.*
 	}
-
+	//TODO (philippe) should optimize by checking on fragment sizes
 	if (!CharOperation.equals(JAVA, compoundName[0]))
 		return;		// assumes we only look up types in java
 
