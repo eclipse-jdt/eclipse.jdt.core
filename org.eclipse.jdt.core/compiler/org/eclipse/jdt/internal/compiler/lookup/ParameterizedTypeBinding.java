@@ -388,53 +388,26 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-	    TypeBinding originalType = this.type;
 		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
-		boolean isDifferent = resolvedType != originalType;  // TODO (kent) should disappear if cache updating takes care of it
-		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
-		int argLength = originalArguments.length;
+		int argLength = this.arguments.length;
 		for (int i = 0; i < argLength; i++) {
-		    TypeBinding originalArgument = originalArguments[i];
-		    TypeBinding resolvedArgument = BinaryTypeBinding.resolveType(originalArgument, this.environment, this, i);
-		    if (resolvedArgument != originalArgument) {
-		        if (resolvedArguments == originalArguments) {
-		            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
-		        }
-		        isDifferent = true;
-		        resolvedArguments[i] = resolvedArgument;
-		    } else if (resolvedArguments != originalArguments) {
-		        resolvedArguments[i] = originalArgument;
-		    }
+		   BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
 		}
 		// arity check
 		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
-			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, resolvedArguments);
+			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
 			return type;
 		} else if (argLength != refTypeVariables.length) { // check arity
-			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, resolvedArguments);
+			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
 			return type;
 		}			
 		// check argument type compatibility
-		boolean argHasError = false;
 		for (int i = 0; i < argLength; i++) {
-		    TypeBinding resolvedArgument = resolvedArguments[i];
+		    TypeBinding resolvedArgument = this.arguments[i];
 			if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
-		        argHasError = true;
 				this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
 		    }
-		}
-		if (argHasError) {
-		    return type;
-		}
-		// if portion of the type got resolved, then update the type in cache
-		if (isDifferent) {
-		    // TODO (kent) investigate if we still need this? if not then last argument should disappear
-		    if (this.type != resolvedType) {
-		        // perform side-effect on the cache to recache the updated parameterized type
-		        environment.createParameterizedType(resolvedType, resolvedArguments, this);
-		    }
-		    initialize(resolvedType, resolvedArguments);
 		}
 		return this;
 	}
@@ -494,7 +467,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		        TypeBinding[] originalArguments = originalParameterizedType.arguments;
 		        TypeBinding[] substitutedArguments = substitute(originalArguments);
 		        if (substitutedArguments != originalArguments) {
-		            return this.environment.createParameterizedType(originalParameterizedType.type, substitutedArguments, null);
+		            return this.environment.createParameterizedType(originalParameterizedType.type, substitutedArguments);
 		        }
 		    }
 	    }

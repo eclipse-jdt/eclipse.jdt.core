@@ -99,7 +99,7 @@ public abstract class Scope
 			for (int i = 0, max = arguments.length; i < max; i++){
 				if (!arguments[i].isValidBinding()) break valid;
 			}
-			return environment().createParameterizedType(genericType, arguments, null);
+			return environment().createParameterizedType(genericType, arguments);
 		}
 		return new ParameterizedTypeBinding(genericType, arguments, environment());
 	}

@@ -129,25 +129,18 @@ public class WildcardBinding extends ReferenceBinding {
     }
     
 	ReferenceBinding resolve(ParameterizedTypeBinding parameterizedType, int rank) {
-	    TypeBinding resolvedBound = null;
 	    switch(this.kind) {
 	        case Wildcard.EXTENDS :
 	        case Wildcard.SUPER :
-				resolvedBound = BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
-				if (resolvedBound != this.bound) {
-					// if portion of the type got resolved, then update the type in cache
-			        // perform side-effect on the cache to recache the updated parameterized type
-			        environment.createWildcard(resolvedBound, rank, this);
-				    initialize(resolvedBound);
-				}
+				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
 				break;
 			case Wildcard.UNBOUND :
 				if (this.bound == null) {
 				    TypeVariableBinding[] typeVariables = parameterizedType.type.typeVariables();
 				    if (rank < typeVariables.length) {
-				        resolvedBound = typeVariables[rank];
-						WildcardBinding newWildcard = environment.createWildcard(resolvedBound, rank, null); // create a new wildcard since shared null one
-					    newWildcard.initialize(resolvedBound);				        
+				        this.bound = typeVariables[rank];
+						WildcardBinding newWildcard = environment.createWildcard(this.bound, rank); // create a new wildcard since shared null one
+					    newWildcard.initialize(this.bound);				        
 					    return newWildcard;
 				    }
 				}

@@ -350,7 +350,7 @@ PackageBinding createPackage(char[][] compoundName) {
 	return packageBinding;
 }
 
-public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ParameterizedTypeBinding updatedParameterizedType) {
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments) {
 
 	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
@@ -383,7 +383,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	ParameterizedTypeBinding parameterizedType = updatedParameterizedType == null ? new ParameterizedTypeBinding(genericType,typeArguments, this) : updatedParameterizedType;
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, this);
 	cachedInfo[cachedInfo.length-1] = parameterizedType;
 	return parameterizedType;
 }
@@ -399,7 +399,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, int kind, WildcardBinding existingWildcard) {
+public WildcardBinding createWildcard(TypeBinding bound, int kind) {
 	// cached info is array of already created wildcard types for this type bound
     Object key = bound == null ? (Object)TypeConstants.WILDCARD_NAME : bound; // null bound denote unresolved unbound (in binaries)
     
@@ -410,7 +410,7 @@ public WildcardBinding createWildcard(TypeBinding bound, int kind, WildcardBindi
 	}
 	WildcardBinding wildcard = cachedInfo[kind];
 	if (wildcard == null || wildcard.bound != bound) {
-	    cachedInfo[kind] = wildcard = (existingWildcard == null ? new WildcardBinding(bound, kind, this) : existingWildcard);
+	    cachedInfo[kind] = wildcard = new WildcardBinding(bound, kind, this);
 	}
 	return wildcard;
 }
@@ -650,7 +650,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	wrapper.start += 2; // skip '>' and ';'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
 	args.toArray(typeArguments);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments);
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
 TypeBinding getTypeFromVariantTypeSignature(
@@ -667,16 +667,16 @@ TypeBinding getTypeFromVariantTypeSignature(
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.SUPER, null);
+			return createWildcard(bound, Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.EXTENDS, null);
+			return createWildcard(bound, Wildcard.EXTENDS);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return createWildcard(null, Wildcard.UNBOUND, null);
+			return createWildcard(null, Wildcard.UNBOUND);
 		default :
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}
@@ -782,7 +782,7 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 		}
 	}
 
-// TODO (philippe) do we need these?
+// TODO (kent) we should be recreating unresolved raw bindings from binaries (in case no generic signature and referencing a generic type)
 //	if (uniqueRawTypeBindings.get(unresolvedType) != null) { // update the key
 //		Object[] keys = uniqueRawTypeBindings.keyTable;
 //		for (int i = 0, l = keys.length; i < l; i++) {
@@ -817,15 +817,16 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 			for (int j = 0, m = cachedInfo.length; j < m; j++) {
 				WildcardBinding cachedType = cachedInfo[j];
 				if (cachedType == null) continue;
-				if (cachedType.bound == unresolvedType)
-					cachedType.bound = resolvedType;
-				if (cachedType.superclass == unresolvedType)
-					cachedType.superclass = resolvedType;
-				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
-				if (cachedInterfaces != null)
-					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
-						if (cachedInterfaces[k] == unresolvedType)
-							cachedInterfaces[k] = resolvedType;
+				if (cachedType.bound == unresolvedType) {
+					cachedType.initialize(resolvedType);
+				}
+//				if (cachedType.superclass == unresolvedType)
+//					cachedType.superclass = resolvedType;
+//				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
+//				if (cachedInterfaces != null)
+//					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
+//						if (cachedInterfaces[k] == unresolvedType)
+//							cachedInterfaces[k] = resolvedType;
 			}
 		}
 	}
