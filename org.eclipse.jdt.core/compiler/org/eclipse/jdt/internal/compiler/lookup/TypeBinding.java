@@ -53,6 +53,10 @@ String debugName() {
 public int dimensions(){
 	return 0;
 }
+// TODO (philippe) similar to #rawType except for TypeVariableBinding, need to check again later
+public TypeBinding erasure() {
+    return this;
+}
 public char[] genericTypeSignature() {
     return signature();
 }

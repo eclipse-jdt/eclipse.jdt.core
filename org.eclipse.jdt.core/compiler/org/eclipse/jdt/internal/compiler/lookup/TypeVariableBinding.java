@@ -60,6 +60,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
+	public TypeBinding erasure() {
+	    if (this.firstBound != null) {
+			return this.firstBound.erasure();
+	    }
+	    return this.superclass; // java/lang/Object
+	}	
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
