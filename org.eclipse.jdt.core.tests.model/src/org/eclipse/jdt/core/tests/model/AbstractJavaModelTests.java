@@ -461,6 +461,12 @@ protected void assertDeltas(String message, String expected) {
 	public void copy(File src, File dest) throws IOException {
 		// read source bytes
 		byte[] srcBytes = this.read(src);
+		
+		if (src.getName().endsWith(".java")) {
+			String contents = new String(srcBytes);
+			contents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(contents);
+			srcBytes = contents.getBytes();
+		}
 	
 		// write bytes to dest
 		FileOutputStream out = new FileOutputStream(dest);

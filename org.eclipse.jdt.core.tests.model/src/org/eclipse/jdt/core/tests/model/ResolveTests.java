@@ -413,7 +413,7 @@ public void testLocalClass1() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y[]", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass1$73;} [in foo() [in ResolveLocalClass1 [in ResolveLocalClass1.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass1$69;} [in foo() [in ResolveLocalClass1 [in ResolveLocalClass1.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -425,7 +425,7 @@ public void testLocalClass2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass2$80;} [in foo() [in ResolveLocalClass2 [in ResolveLocalClass2.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass2$76;} [in foo() [in ResolveLocalClass2 [in ResolveLocalClass2.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -437,7 +437,7 @@ public void testLocalClass3() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y[]{", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass3$73;} [in foo() [in ResolveLocalClass3 [in ResolveLocalClass3.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass3$69;} [in foo() [in ResolveLocalClass3 [in ResolveLocalClass3.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -449,7 +449,7 @@ public void testLocalClass4() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y bar()", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass4$73;} [in foo() [in ResolveLocalClass4 [in ResolveLocalClass4.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass4$69;} [in foo() [in ResolveLocalClass4 [in ResolveLocalClass4.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -461,7 +461,7 @@ public void testLocalClass5() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass5$73;} [in foo() [in ResolveLocalClass5 [in ResolveLocalClass5.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass5$69;} [in foo() [in ResolveLocalClass5 [in ResolveLocalClass5.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -473,7 +473,7 @@ public void testLocalClass6() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y { // superclass", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y {key=LResolveLocalClass6$58;} [in foo() [in ResolveLocalClass6 [in ResolveLocalClass6.java [in <default> [in src [in Resolve]]]]]]",
+		"Y {key=LResolveLocalClass6$56;} [in foo() [in ResolveLocalClass6 [in ResolveLocalClass6.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -485,7 +485,7 @@ public void testLocalClass7() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "X var", "X");
 	assertElementsEqual(
 		"Unexpected elements",
-		"X {key=LResolveLocalClass7$131;} [in <anonymous #2> [in foo2() [in ResolveLocalClass7 [in ResolveLocalClass7.java [in <default> [in src [in Resolve]]]]]]]",
+		"X {key=LResolveLocalClass7$122;} [in <anonymous #2> [in foo2() [in ResolveLocalClass7 [in ResolveLocalClass7.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -497,7 +497,7 @@ public void testLocalConstructor() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y(\"", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y(String) {key=LResolveLocalConstructor$63;.(Ljava/lang/String;)V} [in Y [in foo() [in ResolveLocalConstructor [in ResolveLocalConstructor.java [in <default> [in src [in Resolve]]]]]]]",
+		"Y(String) {key=LResolveLocalConstructor$61;.(Ljava/lang/String;)V} [in Y [in foo() [in ResolveLocalConstructor [in ResolveLocalConstructor.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -509,7 +509,7 @@ public void testLocalConstructorDeclaration() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Y(i", "Y");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Y(int) {key=LResolveLocalConstructorDeclaration$74;.(I)V} [in Y [in foo() [in ResolveLocalConstructorDeclaration [in ResolveLocalConstructorDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
+		"Y(int) {key=LResolveLocalConstructorDeclaration$72;.(I)V} [in Y [in foo() [in ResolveLocalConstructorDeclaration [in ResolveLocalConstructorDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -521,7 +521,7 @@ public void testLocalField() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "fred =", "fred");
 	assertElementsEqual(
 		"Unexpected elements",
-		"fred {key=LResolveLocalField$57;.fred} [in Y [in foo() [in ResolveLocalField [in ResolveLocalField.java [in <default> [in src [in Resolve]]]]]]]",
+		"fred {key=LResolveLocalField$55;.fred} [in Y [in foo() [in ResolveLocalField [in ResolveLocalField.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -533,7 +533,7 @@ public void testLocalField2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "var =", "var");
 	assertElementsEqual(
 		"Unexpected elements",
-		"var {key=LResolveLocalField2$110;.var} [in <anonymous #2> [in foo2() [in ResolveLocalField2 [in ResolveLocalField2.java [in <default> [in src [in Resolve]]]]]]]",
+		"var {key=LResolveLocalField2$102;.var} [in <anonymous #2> [in foo2() [in ResolveLocalField2 [in ResolveLocalField2.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -545,7 +545,7 @@ public void testLocalFieldDeclaration() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "fred", "fred");
 	assertElementsEqual(
 		"Unexpected elements",
-		"fred {key=LResolveLocalFieldDeclaration$68;.fred} [in Y [in foo() [in ResolveLocalFieldDeclaration [in ResolveLocalFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
+		"fred {key=LResolveLocalFieldDeclaration$66;.fred} [in Y [in foo() [in ResolveLocalFieldDeclaration [in ResolveLocalFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -557,7 +557,7 @@ public void testLocalMemberTypeDeclaration() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "Member {", "Member");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Member {key=LResolveLocalMemberTypeDeclaration1$88;} [in Y [in foo() [in ResolveLocalMemberTypeDeclaration1 [in ResolveLocalMemberTypeDeclaration1.java [in <default> [in src [in Resolve]]]]]]]",
+		"Member {key=LResolveLocalMemberTypeDeclaration1$85;} [in Y [in foo() [in ResolveLocalMemberTypeDeclaration1 [in ResolveLocalMemberTypeDeclaration1.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -569,7 +569,7 @@ public void testLocalMemberTypeDeclaration2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "MemberOfMember", "MemberOfMember");
 	assertElementsEqual(
 		"Unexpected elements",
-		"MemberOfMember {key=LResolveLocalMemberTypeDeclaration2$108;} [in Member [in Y [in foo() [in ResolveLocalMemberTypeDeclaration2 [in ResolveLocalMemberTypeDeclaration2.java [in <default> [in src [in Resolve]]]]]]]]",
+		"MemberOfMember {key=LResolveLocalMemberTypeDeclaration2$104;} [in Member [in Y [in foo() [in ResolveLocalMemberTypeDeclaration2 [in ResolveLocalMemberTypeDeclaration2.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -581,7 +581,7 @@ public void testLocalMethod() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "foo(\"", "foo");
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo(String) {key=LResolveLocalMethod$58;.foo(Ljava/lang/String;)V} [in Y [in bar() [in ResolveLocalMethod [in ResolveLocalMethod.java [in <default> [in src [in Resolve]]]]]]]",
+		"foo(String) {key=LResolveLocalMethod$56;.foo(Ljava/lang/String;)V} [in Y [in bar() [in ResolveLocalMethod [in ResolveLocalMethod.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -593,7 +593,7 @@ public void testLocalMethod2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "bar();", "bar");
 	assertElementsEqual(
 		"Unexpected elements",
-		"bar() {key=LResolveLocalMethod2$111;.bar()V} [in <anonymous #2> [in foo2() [in ResolveLocalMethod2 [in ResolveLocalMethod2.java [in <default> [in src [in Resolve]]]]]]]",
+		"bar() {key=LResolveLocalMethod2$103;.bar()V} [in <anonymous #2> [in foo2() [in ResolveLocalMethod2 [in ResolveLocalMethod2.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -605,7 +605,7 @@ public void testLocalMethodDeclaration() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "foo(i", "foo");
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo(int) {key=LResolveLocalMethodDeclaration$69;.foo(I)V} [in Y [in bar() [in ResolveLocalMethodDeclaration [in ResolveLocalMethodDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
+		"foo(int) {key=LResolveLocalMethodDeclaration$67;.foo(I)V} [in Y [in bar() [in ResolveLocalMethodDeclaration [in ResolveLocalMethodDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -790,7 +790,7 @@ public void testMethodDeclarationInAnonymous() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "bar()", "bar");
 	assertElementsEqual(
 		"Unexpected elements",
-		"bar() {key=LResolveMethodDeclarationInAnonymous$84;.bar()V} [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous [in ResolveMethodDeclarationInAnonymous.java [in <default> [in src [in Resolve]]]]]]]",
+		"bar() {key=LResolveMethodDeclarationInAnonymous$82;.bar()V} [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous [in ResolveMethodDeclarationInAnonymous.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -803,7 +803,7 @@ public void testMethodDeclarationInAnonymous2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "foo()", "foo");
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo() {key=LResolveMethodDeclarationInAnonymous2$73;.foo()V} [in <anonymous #1> [in field [in ResolveMethodDeclarationInAnonymous2 [in ResolveMethodDeclarationInAnonymous2.java [in <default> [in src [in Resolve]]]]]]]",
+		"foo() {key=LResolveMethodDeclarationInAnonymous2$72;.foo()V} [in <anonymous #1> [in field [in ResolveMethodDeclarationInAnonymous2 [in ResolveMethodDeclarationInAnonymous2.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -816,7 +816,7 @@ public void testMethodDeclarationInAnonymous3() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "selectMe(", "selectMe");
 	assertElementsEqual(
 		"Unexpected elements",
-		"selectMe() {key=LResolveMethodDeclarationInAnonymous3$200;.selectMe()V} [in <anonymous #1> [in bar() [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous3 [in ResolveMethodDeclarationInAnonymous3.java [in <default> [in src [in Resolve]]]]]]]]]",
+		"selectMe() {key=LResolveMethodDeclarationInAnonymous3$194;.selectMe()V} [in <anonymous #1> [in bar() [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous3 [in ResolveMethodDeclarationInAnonymous3.java [in <default> [in src [in Resolve]]]]]]]]]",
 		elements
 	);
 }
