@@ -62,7 +62,7 @@ public static Test suite() {
 	return new Suite(ThreadSafetyTests.class);	
 }
 /**
- * 32905 - deadlocked if activating initializer while some concurrent action is populating the JavaModel
+ * 33231 - deadlocked if activating initializer while some concurrent action is populating the JavaModel
  */
 public void testDeadlock01() throws CoreException {
 
