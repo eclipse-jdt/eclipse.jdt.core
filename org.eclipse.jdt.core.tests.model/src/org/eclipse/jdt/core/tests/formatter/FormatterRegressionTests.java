@@ -71,7 +71,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test457"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test460"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -5522,4 +5522,45 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
 		runTest(codeFormatter, "test458", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51158
+	 */
+	public void test459() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						true,
+						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+						DefaultCodeFormatterConstants.INDENT_BY_ONE
+				));
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						false,
+						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+						DefaultCodeFormatterConstants.INDENT_BY_ONE
+				));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test459", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51158
+	 */
+	public void test460() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						false,
+						DefaultCodeFormatterConstants.WRAP_COMPACT,
+						DefaultCodeFormatterConstants.INDENT_BY_ONE
+				));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test460", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
 }

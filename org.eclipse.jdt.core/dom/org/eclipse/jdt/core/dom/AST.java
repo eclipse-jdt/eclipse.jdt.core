@@ -317,9 +317,16 @@ public final class AST {
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+		CompilationUnit compilationUnit = ast.newCompilationUnit();
 		switch(kind) {
 			case K_STATEMENTS :
 				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(source, offset, length, options, true);
+				RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
+				int[][] comments = recordedParsingInformation.commentPositions;
+				if (comments != null) {
+					converter.buildCommentsTable(compilationUnit, comments);
+				}
+				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (constructorDeclaration != null) {
 					Block block = ast.newBlock();
 					Statement[] statements = constructorDeclaration.statements;
@@ -329,28 +336,52 @@ public final class AST {
 							block.statements().add(converter.convert(statements[i]));
 						}
 					}
-					rootNodeToCompilationUnit(ast, converter, block, codeSnippetParsingUtil);
+					rootNodeToCompilationUnit(ast, converter, compilationUnit, block, recordedParsingInformation);
 					return block;
 				} else {
-					return handledSevereErrorsWhileParsing(ast, codeSnippetParsingUtil);
+					IProblem[] problems = recordedParsingInformation.problems;
+					if (problems != null) {
+						compilationUnit.setProblems(problems);
+					}
+					return compilationUnit;
 				}
 			case K_EXPRESSION :
 				org.eclipse.jdt.internal.compiler.ast.Expression expression = codeSnippetParsingUtil.parseExpression(source, offset, length, options, true);
+				recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
+				comments = recordedParsingInformation.commentPositions;
+				if (comments != null) {
+					converter.buildCommentsTable(compilationUnit, comments);
+				}
+				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (expression != null) {
 					Expression expression2 = converter.convert(expression);
-					rootNodeToCompilationUnit(ast, converter, expression2, codeSnippetParsingUtil);
+					rootNodeToCompilationUnit(ast, converter, compilationUnit, expression2, codeSnippetParsingUtil.recordedParsingInformation);
 					return expression2;
 				} else {
-					return handledSevereErrorsWhileParsing(ast, codeSnippetParsingUtil);
+					IProblem[] problems = recordedParsingInformation.problems;
+					if (problems != null) {
+						compilationUnit.setProblems(problems);
+					}
+					return compilationUnit;
 				}
 			case K_CLASS_BODY_DECLARATIONS :
 				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options, true);
+				recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
+				comments = recordedParsingInformation.commentPositions;
+				if (comments != null) {
+					converter.buildCommentsTable(compilationUnit, comments);
+				}
+				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
-					rootNodeToCompilationUnit(ast, converter, typeDeclaration, codeSnippetParsingUtil);
+					rootNodeToCompilationUnit(ast, converter, compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation);
 					return typeDeclaration;
 				} else {
-					return handledSevereErrorsWhileParsing(ast, codeSnippetParsingUtil);
+					IProblem[] problems = recordedParsingInformation.problems;
+					if (problems != null) {
+						compilationUnit.setProblems(problems);
+					}
+					return compilationUnit;
 				}
 		}
 		throw new IllegalArgumentException();
@@ -1400,20 +1431,7 @@ public final class AST {
 		}
 	}
 	
-	private static CompilationUnit handledSevereErrorsWhileParsing(AST ast, CodeSnippetParsingUtil codeSnippetParsingUtil) {
-		CompilationUnit compilationUnit = ast.newCompilationUnit();
-		RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
-		IProblem[] problems = recordedParsingInformation.problems;
-		if (problems != null) {
-			compilationUnit.setProblems(problems);
-		}
-		return compilationUnit;
-	}
-	
-	private static void rootNodeToCompilationUnit(AST ast, ASTConverter converter, ASTNode node, CodeSnippetParsingUtil codeSnippetParsingUtil) {
-		// TODO record the comments information
-		CompilationUnit compilationUnit = ast.newCompilationUnit();
-		RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
+	private static void rootNodeToCompilationUnit(AST ast, ASTConverter converter, CompilationUnit compilationUnit, ASTNode node, RecordedParsingInformation recordedParsingInformation) {
 		final int problemsCount = recordedParsingInformation.problemsCount;
 		switch(node.getNodeType()) {
 			case ASTNode.BLOCK :
@@ -1467,7 +1485,6 @@ public final class AST {
 					compilationUnit.types().add(typeDeclaration);
 				}
 		}
-		compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 	}
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that

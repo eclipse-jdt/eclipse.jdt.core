@@ -593,6 +593,18 @@ public ICompilationUnit getCompilationUnit(String projectName, String rootPath, 
 		return pkg.getCompilationUnit(cuName);
 	}
 }
+/**
+ * Returns the specified compilation unit in the given project, root, and
+ * package fragment or <code>null</code> if it does not exist.
+ */
+public ICompilationUnit[] getCompilationUnits(String projectName, String rootPath, String packageName) throws JavaModelException {
+	IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
+	if (pkg == null) {
+		return null;
+	} else {
+		return pkg.getCompilationUnits();
+	}
+}
 protected ICompilationUnit getCompilationUnitFor(IJavaElement element) {
 
 	if (element instanceof ICompilationUnit) {

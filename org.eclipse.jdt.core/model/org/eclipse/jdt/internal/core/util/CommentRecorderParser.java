@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -30,7 +28,7 @@ public class CommentRecorderParser extends Parser {
 	int[] commentStarts = new int[10];
 	int commentPtr = -1; // no comment test with commentPtr value -1
 	protected final static int CommentIncrement = 100;
-	
+
 	/**
 	 * @param problemReporter
 	 * @param optimizeStringLiterals
@@ -139,7 +137,8 @@ public class CommentRecorderParser extends Parser {
 
 		for (int i=start; i<=end; i++) {
 			// First see if comment hasn't been already stored
-			if (this.commentPtr == -1 || this.scanner.commentStarts[i] > this.commentStarts[this.commentPtr]) {
+			int commentStart = this.scanner.commentStarts[i]<0 ? -this.scanner.commentStarts[i] : this.scanner.commentStarts[i];
+			if (this.commentPtr == -1 ||  commentStart > this.commentStarts[this.commentPtr]) {
 				try {
 					this.commentPtr++;
 					this.commentStarts[this.commentPtr] = this.scanner.commentStarts[i];
@@ -166,16 +165,6 @@ public class CommentRecorderParser extends Parser {
 	protected void resetModifiers() {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.resetModifiers();
-	}
-
-	/**
-	 * Store comments positions saved in stack in compilation unit declaration.
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#dietParse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit, org.eclipse.jdt.internal.compiler.CompilationResult)
-	 */
-	public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {
-		CompilationUnitDeclaration unit = super.dietParse(sourceUnit, compilationResult);
-		unit.comments = getCommentsPositions();
-		return unit;
 	}
 
 	/**
@@ -231,5 +220,17 @@ public class CommentRecorderParser extends Parser {
 	public void initialize() {
 		super.initialize();
 		this.commentPtr = -1;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#endParse(int)
+	 */
+	protected CompilationUnitDeclaration endParse(int act) {
+		CompilationUnitDeclaration unit = super.endParse(act);
+		if (unit.comments == null) {
+			pushOnCommentsStack(0, this.scanner.commentPtr);
+			unit.comments = getCommentsPositions();
+		}
+		return unit;
 	}
 }

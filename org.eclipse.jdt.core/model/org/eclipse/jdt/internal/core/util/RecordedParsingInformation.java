@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 /**
  * Use to keep track of recorded information during the parsing like comment positions,
@@ -27,5 +28,12 @@ public class RecordedParsingInformation {
 		this.lineEnds = lineEnds;
 		this.commentPositions = commentPositions;
 		this.problemsCount = problems != null ? problems.length : 0;
+	}
+	
+	void updateRecordedParsingInformation(CompilationResult compilationResult) {
+		if (compilationResult.problems != null) {
+			this.problems = compilationResult.problems;
+			this.problemsCount = this.problems.length;
+		}
 	}
 }
