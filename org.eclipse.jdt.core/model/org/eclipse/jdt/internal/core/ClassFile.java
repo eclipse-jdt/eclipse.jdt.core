@@ -555,14 +555,15 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 			try {
 				jar = jarPackageFragmentRoot.getJar();
 				String[] pkgName = ((PackageFragment) getParent()).names;
-				for (int i = 0, length = Util.JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
+				char[][] javaLikeExtensions = Util.getJavaLikeExtensions();
+				for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
 					StringBuffer entryName = new StringBuffer();
 					for (int j = 0, pkgNameLength = pkgName.length; j < pkgNameLength; j++) {
 						entryName.append(pkgName[j]);
 						entryName.append('/');
 					}
 					entryName.append(sourceFileWithoutExtension);
-					entryName.append(Util.JAVA_LIKE_EXTENSIONS[i]);
+					entryName.append(javaLikeExtensions[i]);
 					ZipEntry zipEntry = jar.getEntry(entryName.toString());
 					if (zipEntry != null) {
 						// found a source file

@@ -77,7 +77,7 @@ public class Util {
 
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
-	public static char[][] JAVA_LIKE_EXTENSIONS = {SuffixConstants.SUFFIX_java, SuffixConstants.SUFFIX_JAVA};
+	public static char[][] JAVA_LIKE_EXTENSIONS;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -637,8 +637,9 @@ public class Util {
 				return false;
 			}
 		}
-		suffixes: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
-			char[] suffix = JAVA_LIKE_EXTENSIONS[i];
+		char[][] javaLikeExtensions = getJavaLikeExtensions();
+		suffixes: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
+			char[] suffix = javaLikeExtensions[i];
 			if (stringLength + suffix.length != fileNameLength) continue;
 			for (int j = stringLength; j < fileNameLength; j++) {
 				if (fileName.charAt(j) != suffix[j-stringLength]) 
@@ -781,6 +782,15 @@ public class Util {
 			}
 		}
 		return null;
+	}
+	/**
+	 * Returns the registered Java like extensions.
+	 */
+	public static char[][] getJavaLikeExtensions() {
+		if (JAVA_LIKE_EXTENSIONS == null) {
+			JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java, SuffixConstants.SUFFIX_JAVA};
+		}
+		return JAVA_LIKE_EXTENSIONS;
 	}
 	/**
 	 * Get the jdk level of this root.
@@ -1117,8 +1127,9 @@ public class Util {
 	 */
 	public static int indexOfJavaLikeExtension(String fileName) {
 		int fileNameLength = fileName.length();
-		extensions: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
-			char[] extension = JAVA_LIKE_EXTENSIONS[i];
+		char[][] javaLikeExtensions = getJavaLikeExtensions();
+		extensions: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
+			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
 			if (extensionStart < 0) continue;
@@ -2222,8 +2233,9 @@ public class Util {
 	public final static boolean isJavaLikeFileName(char[] fileName) {
 		if (fileName == null) return false;
 		int fileNameLength = fileName.length;
-		extensions: for (int i = 0, length = JAVA_LIKE_EXTENSIONS.length; i < length; i++) {
-			char[] extension = JAVA_LIKE_EXTENSIONS[i];
+		char[][] javaLikeExtensions = getJavaLikeExtensions();
+		extensions: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
+			char[] extension = javaLikeExtensions[i];
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
 			if (extensionStart < 0) continue;
