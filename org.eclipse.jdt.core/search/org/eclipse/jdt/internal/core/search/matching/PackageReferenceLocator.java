@@ -71,10 +71,10 @@ protected int matchLevelForTokens(char[][] tokens) {
 				return POTENTIAL_MATCH;
 			break;
 		case IJavaSearchConstants.PATTERN_MATCH:
-			char[] pattern = this.pattern.pkgName[this.pattern.pkgName.length-1] == '*'
+			char[] patternName = this.pattern.pkgName[this.pattern.pkgName.length-1] == '*'
 				? this.pattern.pkgName
 				: CharOperation.concat(this.pattern.pkgName, ".*".toCharArray()); //$NON-NLS-1$
-			if (CharOperation.match(pattern, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
+			if (CharOperation.match(patternName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
 				return POTENTIAL_MATCH;
 			break;
 	}
@@ -229,6 +229,6 @@ protected int resolveLevel(QualifiedNameReference qNameRef) {
 	return resolveLevel(typeBinding);
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }

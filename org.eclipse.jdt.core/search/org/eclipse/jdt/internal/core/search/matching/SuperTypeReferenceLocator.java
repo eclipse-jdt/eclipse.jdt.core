@@ -30,7 +30,7 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 //public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeReference node, MatchingNodeSet nodeSet) {
-	TypeReference typeRef = (TypeReference) node;
+	TypeReference typeRef = node;
 
 	if (this.pattern.superSimpleName == null) {
 		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
@@ -81,6 +81,6 @@ public int resolveLevel(Binding binding) {
 	return level;
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }

@@ -92,17 +92,17 @@ public void match(TypeReference node, MatchingNodeSet nodeSet) {
 protected int matchLevel(ImportReference importRef) {
 	if (this.pattern.qualification != null) {
 		char[][] tokens = importRef.tokens;
-		char[] pattern = this.pattern.simpleName == null
+		char[] patternName = this.pattern.simpleName == null
 			? this.pattern.qualification
 			: CharOperation.concat(this.pattern.qualification, this.pattern.simpleName, '.');
 		char[] qualifiedTypeName = CharOperation.concatWith(tokens, '.');
 		switch (this.matchMode) {
 			case IJavaSearchConstants.EXACT_MATCH :
 			case IJavaSearchConstants.PREFIX_MATCH :
-				if (CharOperation.prefixEquals(pattern, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
+				if (CharOperation.prefixEquals(patternName, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
 				break;
 			case IJavaSearchConstants.PATTERN_MATCH:
-				if (CharOperation.match(pattern, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
+				if (CharOperation.match(patternName, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
 				break;
 		}
 	} else {
@@ -487,6 +487,6 @@ protected int resolveLevel(TypeReference typeRef) {
 	return IMPOSSIBLE_MATCH;
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }

@@ -313,6 +313,6 @@ protected int resolveLevel(NameReference nameRef) {
 	return IMPOSSIBLE_MATCH;
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }

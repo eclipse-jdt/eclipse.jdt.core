@@ -254,6 +254,6 @@ protected int resolveLevelAsSubtype(char[] simpleNamePattern, char[] qualificati
 	return IMPOSSIBLE_MATCH;
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }

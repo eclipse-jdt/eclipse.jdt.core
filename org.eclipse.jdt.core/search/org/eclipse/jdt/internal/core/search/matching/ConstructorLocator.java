@@ -98,7 +98,6 @@ protected int matchLevelForReferences(ConstructorDeclaration constructor) {
 	return this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 }
 protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
-	int declarationsLevel = IMPOSSIBLE_MATCH;
 	// constructor name is stored in selector field
 	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, constructor.selector))
 		return IMPOSSIBLE_MATCH;
@@ -190,6 +189,6 @@ protected int resolveLevel(TypeDeclaration type) {
 	return IMPOSSIBLE_MATCH;
 }
 public String toString() {
-	return "Locator for " + this.pattern.toString();
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
 }
 }
