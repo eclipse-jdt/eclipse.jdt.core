@@ -1237,6 +1237,7 @@ private JavaModelException newInvalidElementType() {
 			case IResourceDelta.ADDED :
 				// check if any actual difference
 				project.flushClasspathProblemMarkers(false, true);
+				boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
 				try {
 					// force to (re)read the property file
 					IClasspathEntry[] fileEntries = null;
@@ -1247,26 +1248,28 @@ private JavaModelException newInvalidElementType() {
 						}
 					} catch(JavaModelException e) {
 						if (project.getProject().isAccessible()) {
-							Util.log(e, 
-								"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-								+"/.classpath, ignore change"); //$NON-NLS-1$
+							project.createClasspathProblemMarker(
+								Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+								IMarker.SEVERITY_ERROR,
+								false,	//  cycle error
+								true);	//	file format error
 						}
-						project.createClasspathProblemMarker(
-							Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-							IMarker.SEVERITY_ERROR,
-							false,	//  cycle error
-							true);	//	file format error
 					} catch (IOException e) {
 						if (project.getProject().isAccessible()) {
-							Util.log(e, 
-								"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-								+"/.classpath, ignore change"); //$NON-NLS-1$
+							project.createClasspathProblemMarker(
+								Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+								IMarker.SEVERITY_ERROR,
+								false,	//  cycle error
+								true);	//	file format error
 						}
-						project.createClasspathProblemMarker(
-							Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-							IMarker.SEVERITY_ERROR,
-							false,	//  cycle error
-							true);	//	file format error
+					} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
+						if (project.getProject().isAccessible()) {
+							project.createClasspathProblemMarker(
+								Util.bind("classpath.illegalEntryInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
+								IMarker.SEVERITY_ERROR,
+								false,	//  cycle error
+								true);	//	file format error
+						}
 					}
 					if (fileEntries == null)
 						break; // could not read, ignore 
@@ -1296,18 +1299,29 @@ private JavaModelException newInvalidElementType() {
 						true, // canChangeResource
 						project.getResolvedClasspath(true), // ignoreUnresolvedVariable
 						true); // needValidation
+					
+					// if reach that far, the classpath file change got absorbed
+					wasSuccessful = true;
 				} catch (RuntimeException e) {
 					// setRawClasspath might fire a delta, and a listener may throw an exception
 					if (project.getProject().isAccessible()) {
 						Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
 					}
 					break;
-				} catch (CoreException e) {
-					// happens if the .classpath could not be written to disk
+				} catch (JavaModelException e) { // CP failed validation
 					if (project.getProject().isAccessible()) {
-						Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+						// TODO: (jbl) need to distinguish scenario where .classpath file couldn't be written out
+						project.createClasspathProblemMarker(
+								Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
+								IMarker.SEVERITY_ERROR,
+								false,	//  cycle error
+								true);	//	file format error					
 					}
 					break;
+				} finally {
+					if (!wasSuccessful){ 
+						// TODO: (jbl) rename the .classpath file into .classpath_invalid
+					}
 				}
 		}
 	}
