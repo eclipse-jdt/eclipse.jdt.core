@@ -323,7 +323,7 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type 
-	 * <code>MethodInvocation<code>.
+	 * <code>MethodInvocation</code>.
 	 * @see MethodInvocation
 	 */
 	public static final int METHOD_INVOCATION = 32;

@@ -29,19 +29,19 @@ public class Assignment extends Expression {
 	/**
  	 * Assignment operators (typesafe enumeration).
 	 * <pre>
-	 * AssignmentOperator:
-	 *    <b><code>=</code></b> <code>ASSIGN</code>
-	 *    <b><code>+=</code></b> <code>PLUS_ASSIGN</code>
-	 *    <b><code>-=</code></b> <code>MINUS_ASSIGN</code>
-	 *    <b><code>*=</code></b> <code>TIMES_ASSIGN</code>
-	 *    <b><code>/=</code></b> <code>DIVIDE_ASSIGN</code>
-	 *    <b><code>&amp;=</code></b> <code>BIT_AND_ASSIGN</code>
-	 *    <b><code>|=</code></b> <code>BIT_OR_ASSIGN</code>
-	 *    <b><code>^=</code></b> <code>BIT_XOR_ASSIGN</code>
-	 *    <b><code>%=</code></b> <code>REMAINDER_ASSIGN</code>
-	 *    <b><code>&lt;&lt;=</code></b> <code>LEFT_SHIFT_ASSIGN</code>
-	 *    <b><code>&gt;&gt;=</code></b> <code>RIGHT_SHIFT_SIGNED_ASSIGN</code>
-	 *    <b><code>&gt;&gt;&gt;=</code></b> <code>RIGHT_SHIFT_UNSIGNED_ASSIGN</code>
+	 * AssignmentOperator:<code>
+	 *    <b>=</b> ASSIGN
+	 *    <b>+=</b> PLUS_ASSIGN
+	 *    <b>-=</b> MINUS_ASSIGN
+	 *    <b>*=</b> TIMES_ASSIGN
+	 *    <b>/=</b> DIVIDE_ASSIGN
+	 *    <b>&amp;=</b> BIT_AND_ASSIGN
+	 *    <b>|=</b> BIT_OR_ASSIGN
+	 *    <b>^=</b> BIT_XOR_ASSIGN
+	 *    <b>%=</b> REMAINDER_ASSIGN
+	 *    <b>&lt;&lt;=</b> LEFT_SHIFT_ASSIGN
+	 *    <b>&gt;&gt;=</b> RIGHT_SHIFT_SIGNED_ASSIGN
+	 *    <b>&gt;&gt;&gt;=</b> RIGHT_SHIFT_UNSIGNED_ASSIGN</code>
 	 * </pre>
 	 */
 	public static class Operator {

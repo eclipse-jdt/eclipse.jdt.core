@@ -85,7 +85,7 @@ public final class AST {
 	 *    indicates source compatibility mode (as per <code>JavaCore</code>);
 	 *    <code>"1.3"</code> means the source code is as per JDK 1.3;
 	 *    <code>"1.4"</code> means the source code is as per JDK 1.4
-	 *    (<code>assert<code> is a keyword);
+	 *    (<code>assert</code> is a keyword);
 	 *    additional legal values may be added later. </li>
 	 * </ul>
 	 * Options other than the above are ignored.
