@@ -48,9 +48,9 @@ public class EncodingTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
+//		testsNames = new String[] { "testCreateCompilationUnitAndImportContainer" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 13 };
+//		testsNumbers = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 16, -1 };
 	}
@@ -120,7 +120,7 @@ public class EncodingTests extends ModifyingResourceTests {
 				throw new RuntimeException(e);
 			}
 			byte[] encodedContents = Util.getResourceContentsAsByteArray(newProject.getProject().getWorkspace().getRoot().getFile(cu.getPath()));
-			assertTrue("wrong size of encoded string", tab.length == encodedContents.length);
+			assertEquals("wrong size of encoded string", tab.length, encodedContents.length);
 			for (int i = 0, max = tab.length; i < max; i++) {
 				assertTrue("wrong size of encoded character at" + i, tab[i] == encodedContents[i]);
 			}
@@ -555,6 +555,26 @@ public class EncodingTests extends ModifyingResourceTests {
 			}
 			this.deleteProject("P");
 		}
-
 	}
+
+	/*
+	 * Get compilation unit source on a file written in UTF-8 BOM charset using default charset.
+	 * Verify first that source is the same than UTF-8 file contents read using UTF-8 encoding...
+	 */
+	public void test032() throws JavaModelException, CoreException, UnsupportedEncodingException {
+
+		// Set file encoding
+		String encoding = "UTF-8";
+		this.utf8File.setCharset(encoding);
+		
+		// Get source and compare with file contents
+		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
+		String source = this.utf8Source.getSource();
+
+		// Get source and compare with file contents
+		IFile bomFile = (IFile) this.encodingProject.findMember("src/testUTF8BOM/Test.java");
+		ISourceReference bomSourceRef = getCompilationUnit(bomFile.getFullPath().toString());
+		String bomSource = bomSourceRef.getSource();
+		assertEquals("BOM UTF-8 source should be idtentical than UTF-8!", source, bomSource);
+	}	
 }

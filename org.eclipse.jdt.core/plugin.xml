@@ -189,7 +189,13 @@
 	<file-association 
 		content-type="org.eclipse.core.runtime.xml" 
 		file-names=".classpath"/>  
+	<!-- declares a content type for Java Source files -->
+	<content-type id="javaSource" name="%javaSourceName" 
+		base-type="org.eclipse.core.runtime.text"
+		priority="high"				
+		file-extensions="java"/>
 </extension>
-
+<extension point="org.eclipse.core.runtime.contentTypes">
+</extension>
 
 </plugin>
