@@ -223,6 +223,16 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	cd.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -293,6 +303,16 @@ protected void consumeMethodHeaderName() {
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	md.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -402,6 +422,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.selector = c.selector;
 	m.statements = c.statements;
 	m.modifiers = c.modifiers;
+	m.annotations = c.annotations;
 	m.arguments = c.arguments;
 	m.thrownExceptions = c.thrownExceptions;
 	m.explicitDeclarations = c.explicitDeclarations;

@@ -367,8 +367,9 @@ TypeDeclaration -> AnnotationTypeDeclaration
 
 --18.7 Only in the LALR(1) Grammar
 
-Modifiers ::= Modifier
+Modifiers -> Modifier
 Modifiers ::= Modifiers Modifier
+/.$putCase consumeModifiers2(); $break ./
 /:$readableName Modifiers:/
 
 Modifier -> 'public' 

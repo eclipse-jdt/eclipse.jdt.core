@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -72,19 +70,11 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-
 	if (true) {
-		Class c = SortCompilationUnitElementsTests.class;
-		Method[] methods = c.getMethods();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new SortCompilationUnitElementsTests(methods[i].getName()));
-			}
-		}
-	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test014")); //$NON-NLS-1$
-	}	
+		return new Suite(SortCompilationUnitElementsTests.class);
+	}
+	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
+	suite.addTest(new SortCompilationUnitElementsTests("test007")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {

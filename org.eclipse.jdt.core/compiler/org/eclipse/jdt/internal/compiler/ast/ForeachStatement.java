@@ -63,18 +63,11 @@ public class ForeachStatement extends Statement {
 	public ForeachStatement(
 		LocalDeclaration elementVariable,
 		Expression collection,
-		Statement action,
-		int start,
-		int end) {
+		int start) {
 
 		this.elementVariable = elementVariable;
 		this.collection = collection;
 		this.sourceStart = start;
-		this.sourceEnd = end;
-		this.action = action;
-		// remember useful empty statement
-		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
-		
 		this.kind = -1;
 	}
 

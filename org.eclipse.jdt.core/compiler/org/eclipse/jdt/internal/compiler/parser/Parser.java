@@ -2493,6 +2493,10 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	} else {
 		this.intPtr-=2;
 	}
+
+	//updates are on the expression stack
+	this.expressionLengthPtr--;
+	Expression collection = this.expressionStack[this.expressionPtr--];
 	
 	type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
 
@@ -2514,8 +2518,13 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	}
 	localDeclaration.type = type;
 
-	pushOnAstStack(localDeclaration);
-		
+	ForeachStatement iteratorForStatement =
+		new ForeachStatement(
+			localDeclaration,
+			collection,
+			this.intStack[this.intPtr--]); 
+	pushOnAstStack(iteratorForStatement);
+	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition && 
 			this.expressionLengthStack[this.expressionLengthPtr] == 1) {
@@ -2526,29 +2535,17 @@ protected void consumeEnhancedForStatement() {
 	// EnhancedForStatement ::= EnhancedForStatementHeader Statement
 	// EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
 
-	Expression collection = null;
 	//statements
 	this.astLengthPtr--;
 	Statement statement = (Statement) this.astStack[this.astPtr--];
 
-	//updates are on the expression stack
-	if (this.expressionLengthStack[this.expressionLengthPtr--] == 1) {
-		this.expressionPtr--;
-		collection = this.expressionStack[this.expressionPtr + 1];
-	}
-
-	//	local declaration
-	this.astLengthPtr--;
-	LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr--];
+	// foreach statement is on the ast stack
+	ForeachStatement foreachStatement = (ForeachStatement) this.astStack[this.astPtr];
+	foreachStatement.action = statement;
+	// remember useful empty statement
+	if (statement instanceof EmptyStatement) statement.bits |= ASTNode.IsUsefulEmptyStatementMASK;
 	
-	ForeachStatement iteratorForStatement =
-		new ForeachStatement(
-			localDeclaration,
-			collection,
-			statement, 
-			this.intStack[this.intPtr--], 
-			this.endStatementPosition); 
-	pushOnAstStack(iteratorForStatement);
+	foreachStatement.sourceEnd = this.endStatementPosition;
 }
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
@@ -3974,6 +3971,9 @@ protected void consumeModifiers() {
 	pushOnIntStack(this.modifiersSourceStart);
 	resetModifiers();
 }
+protected void consumeModifiers2() {
+	this.expressionLengthStack[this.expressionLengthPtr - 1] += this.expressionLengthStack[this.expressionLengthPtr--];
+}
 protected void consumeNameArrayType() {
 	pushOnGenericsLengthStack(0); // handle type arguments
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
@@ -4332,6 +4332,10 @@ protected void consumeRule(int act) {
  
      case 85 : if (DEBUG) { System.out.println("TypeDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyTypeDeclaration();  
+			break;
+ 
+    case 89 : if (DEBUG) { System.out.println("Modifiers ::= Modifiers Modifier"); }  //$NON-NLS-1$
+		    consumeModifiers2();  
 			break;
  
     case 102 : if (DEBUG) { System.out.println("ClassDeclaration ::= ClassHeader ClassBody"); }  //$NON-NLS-1$
@@ -7855,10 +7859,10 @@ public void initialize() {
 	this.rBraceStart = 0;
 	this.rBraceEnd = 0;
 	this.rBraceSuccessorStart = 0;
-	
+
 	this.genericsIdentifiersLengthPtr = -1;
 	this.genericsLengthPtr = -1;
-	this.genericsPtr = -1;	
+	this.genericsPtr = -1;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(
@@ -8768,9 +8772,6 @@ public void recoveryTokenCheck() {
 		}
 	}
 	this.ignoreNextOpeningBrace = false;
-}
-public void reduceModifiers() {
-	this.expressionLengthStack[this.expressionLengthPtr - 1] += this.expressionLengthStack[this.expressionLengthPtr--];
 }
 // A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
