@@ -63,6 +63,7 @@ public static Test suite() {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
+	    tests_1_5.add(GenericTypeTest.class);
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 	return all;
