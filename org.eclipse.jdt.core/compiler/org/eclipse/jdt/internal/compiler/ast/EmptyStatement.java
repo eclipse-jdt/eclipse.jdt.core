@@ -21,5 +21,9 @@ public class EmptyStatement extends Statement {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
+	
+	public String toString(int tab) {
+		return tabString(tab) + ";";
+	}
 }
 
