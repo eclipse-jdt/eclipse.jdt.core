@@ -144,7 +144,9 @@ public void checkIndexConsistency() {
 	try {
 		disable();
 
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		IWorkspace workspace =  ResourcesPlugin.getWorkspace();
+		if (workspace == null) return; // NB: workspace can be null if it has shut down (see http://dev.eclipse.org/bugs/show_bug.cgi?id=16175)
+		IProject[] projects = workspace.getRoot().getProjects();
 		for (int i = 0, max = projects.length; i < max; i++){
 			IProject project = projects[i];
 			// not only java project, given at startup nature may not have been set yet
@@ -173,64 +175,8 @@ private String computeIndexName(IPath path) {
 		return indexDirectory + File.separator + fileName;
 	} 
 }
-/**
- * About to delete a project.
- */
-public void deleting(IProject project) {
-	discardJobsUntilNextProjectAddition(project.getName());
-}
-/**
- * Remove the index from cache for a given project.
- * Passing null as a job family discards them all.
- */
-public void discardJobsUntilNextProjectAddition(String jobFamily) {
-	boolean wasEnabled = isEnabled();
-	try {
-		disable();
-		
-		// cancel current job if it belongs to the given family
-		IJob currentJob = this.currentJob();
-		if (currentJob != null 
-				&& (jobFamily == null || currentJob.belongsTo(jobFamily))) {
 
-			currentJob.cancel();
-		
-			// wait until current active job has finished
-			while (thread != null && executing){
-				try {
-					Thread.currentThread().sleep(50);
-				} catch(InterruptedException e){
-				}
-			}
-		}
 
-		synchronized(this) {
-			// flush and compact awaiting jobs
-			int loc = -1;
-			boolean foundProjectAddition = false;
-			for (int i = jobStart; i <= jobEnd; i++){
-				currentJob = awaitingJobs[i];
-				if (currentJob == null) continue;
-				awaitingJobs[i] = null;
-				boolean discard = jobFamily == null;
-				if (!discard && currentJob.belongsTo(jobFamily)){ // might discard
-					if (!(foundProjectAddition || (foundProjectAddition = currentJob instanceof IndexAllProject))) {
-						discard = true;
-					}
-				}
-				if (discard) {
-					currentJob.cancel();
-				} else {
-					awaitingJobs[++loc] = currentJob;
-				}
-			}
-			jobStart = 0;
-			jobEnd = loc;
-		}
-	} finally {
-		if (wasEnabled) enable();
-	}
-}
 
 /**
  * Returns the index for a given project, if none then create an empty one.

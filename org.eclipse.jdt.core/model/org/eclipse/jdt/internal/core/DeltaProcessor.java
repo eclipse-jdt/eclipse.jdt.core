@@ -492,8 +492,6 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 	 */
 	public void deleting(IProject project) {
 		
-		this.indexManager.deleting(project);
-		
 		try {
 			JavaProject javaProject = (JavaProject)JavaCore.create(project);
 			javaProject.close();
@@ -686,7 +684,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 
 		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
-				element.getJavaModelManager().getIndexManager().reset();
+				this.indexManager.reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
@@ -987,6 +985,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						boolean wasJavaProject = javaModel.findJavaProject(res) != null;
 						if (wasJavaProject) {
 							this.elementRemoved(element, delta);
+							this.indexManager.discardJobs(element.getElementName());
 							this.indexManager.removeIndex(res.getFullPath());
 							
 						}
@@ -1007,6 +1006,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 							this.indexManager.indexAll(res);
 						} else {
 							this.elementRemoved(element, delta);
+							this.indexManager.discardJobs(element.getElementName());
 							this.indexManager.removeIndex(res.getFullPath());
 						}
 						return false; // when a project's nature is added/removed don't process children
@@ -1412,10 +1412,11 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 		case IJavaElement.JAVA_PROJECT :
 			switch (delta.getKind()) {
 				case IResourceDelta.ADDED :
-					indexManager.indexAll(element.getJavaProject().getProject());
+					this.indexManager.indexAll(element.getJavaProject().getProject());
 					break;
 				case IResourceDelta.REMOVED :
-					indexManager.removeIndex(element.getJavaProject().getProject().getFullPath());
+					this.indexManager.discardJobs(element.getElementName());
+					this.indexManager.removeIndex(element.getJavaProject().getProject().getFullPath());
 					break;
 				// NB: Update of index if project is opened, closed, or its java nature is added or removed
 				//     is done in updateCurrentDeltaAndIndex
