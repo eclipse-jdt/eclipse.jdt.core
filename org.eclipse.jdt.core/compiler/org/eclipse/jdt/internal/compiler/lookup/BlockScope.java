@@ -456,7 +456,6 @@ public class BlockScope extends Scope {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding, 
 							NotFound);
 					else
 						return new ProblemBinding(
@@ -467,7 +466,6 @@ public class BlockScope extends Scope {
 					if (!binding.isValidBinding())
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding,
 							binding.problemId());
 					compilationUnitScope().addTypeReference((ReferenceBinding) binding);
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
@@ -484,7 +482,6 @@ public class BlockScope extends Scope {
 			// It is illegal to request a PACKAGE from this method.
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
-				binding, 
 				NotFound);
 		}
 
@@ -509,7 +506,6 @@ public class BlockScope extends Scope {
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					binding,
 					binding.problemId());
 		}
 
@@ -557,7 +553,6 @@ public class BlockScope extends Scope {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding, 
 							NotFound);
 					else
 						return new ProblemBinding(
@@ -568,7 +563,6 @@ public class BlockScope extends Scope {
 					if (!binding.isValidBinding())
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							binding,
 							binding.problemId());
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
@@ -606,7 +600,6 @@ public class BlockScope extends Scope {
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						binding,
 						binding.problemId());
 			}
 			return binding;

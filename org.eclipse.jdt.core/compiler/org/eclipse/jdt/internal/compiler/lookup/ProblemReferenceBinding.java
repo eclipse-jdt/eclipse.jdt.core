@@ -11,6 +11,13 @@ public class ProblemReferenceBinding extends ReferenceBinding {
 	private int problemId;
 // NOTE: must only answer the subset of the name related to the problem
 
+public ProblemReferenceBinding(char[][] compoundName, int problemId) {
+	this(compoundName, null, problemId);
+}
+public ProblemReferenceBinding(char[] name, int problemId) {
+	this(new char[][] {name}, null, problemId);
+}
+
 public ProblemReferenceBinding(char[][] compoundName, Binding original, int problemId) {
 	this.compoundName = compoundName;
 	this.original = original;
@@ -30,7 +37,7 @@ public final int problemId() {
 
 public char[] readableName() /*java.lang.Object*/ {
 	if(original != null)
-		return super.readableName();
+		return original.readableName();
 	
 	return CharOperation.concatWith(compoundName, '.');
 }

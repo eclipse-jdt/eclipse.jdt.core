@@ -780,7 +780,6 @@ public class ClassScope extends Scope {
 				// record package ref
 				return new ProblemReferenceBinding(
 					compoundName[0],
-					typeOrPackage,
 					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
 			}
 			boolean checkVisibility = false;
@@ -794,14 +793,13 @@ public class ClassScope extends Scope {
 				if (typeOrPackage == null || !typeOrPackage.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, n + 1),
-						typeOrPackage, 
 						typeOrPackage == null ? NotFound : typeOrPackage.problemId());
 				checkVisibility = true;
 			}
 
 			// convert to a ReferenceBinding
 			if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), typeOrPackage, NotFound);
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
 			superType = (ReferenceBinding) typeOrPackage;
 			compilationUnitScope().recordTypeReference(superType); // to record supertypes
 			compilationUnitScope().addTypeReference(superType);
@@ -827,7 +825,7 @@ public class ClassScope extends Scope {
 			char[] typeName = compoundName[n++];
 			superType = findMemberType(typeName, superType);
 			if (superType == null)
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotFound);
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
 			if (!superType.isValidBinding()) {
 				superType.compoundName = CharOperation.subarray(compoundName, 0, n);
 				return superType;

@@ -524,13 +524,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 			invocationSite.setFieldIndex(currentIndex);
  			if (binding == null) {
 	 			if (currentIndex == length) // must be a type if its the last name, otherwise we have no idea if its a package or type
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, NotFound);
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
 				else
 					return new ProblemBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
  			}
  			if (binding instanceof ReferenceBinding) {
 	 			if (!binding.isValidBinding())
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, binding.problemId());
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 	 			if (!this.canBeSeenByForCodeSnippet((ReferenceBinding) binding, receiverType))
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, NotVisible);
 	 			break foundType;
@@ -539,7 +539,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		}
 
 		// It is illegal to request a PACKAGE from this method.
-		return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, NotFound);
+		return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
 	}
 
 	// know binding is now a ReferenceBinding
@@ -555,7 +555,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		if ((binding = findMemberType(nextName, typeBinding)) == null)
 			return new ProblemBinding(CharOperation.subarray(compoundName, 0, currentIndex), typeBinding, NotFound);
 		 if (!binding.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding, binding.problemId());
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 	}
 
 	if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field

@@ -335,10 +335,10 @@ private Binding findOnDemandImport(char[][] compoundName) {
 	ReferenceBinding type;
 	if (binding == null) {
 		if (environment.defaultPackage == null)
-			return new ProblemReferenceBinding(compoundName, binding, NotFound);
+			return new ProblemReferenceBinding(compoundName, NotFound);
 		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(compoundName, type, NotFound);
+			return new ProblemReferenceBinding(compoundName, NotFound);
 		i = 1; // reset to look for member types inside the default package type
 	} else {
 		type = (ReferenceBinding) binding;
@@ -348,7 +348,7 @@ private Binding findOnDemandImport(char[][] compoundName) {
 		addTypeReference(type);
 		// does not look for inherited member types on purpose
 		if ((type = type.getMemberType(compoundName[i])) == null)
-			return new ProblemReferenceBinding(compoundName, type, NotFound);
+			return new ProblemReferenceBinding(compoundName, NotFound);
 	}
 	addTypeReference(type);
 	if (!type.canBeSeenBy(fPackage))
@@ -360,10 +360,10 @@ private Binding findSingleTypeImport(char[][] compoundName) {
 		// findType records the reference
 		// the name cannot be a package
 		if (environment.defaultPackage == null)
-			return new ProblemReferenceBinding(compoundName, null, NotFound);
+			return new ProblemReferenceBinding(compoundName, NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)
-			return new ProblemReferenceBinding(compoundName, typeBinding, NotFound);
+			return new ProblemReferenceBinding(compoundName, NotFound);
 		else
 			return typeBinding;
 	}
