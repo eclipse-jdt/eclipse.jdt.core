@@ -129,7 +129,6 @@ public class SimpleName extends Name {
 		SimpleName result = new SimpleName(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setIdentifier(getIdentifier());
-		result.index = this.index;
 		return result;
 	}
 	
@@ -274,7 +273,7 @@ public class SimpleName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NAME_NODE_SIZE + 1 * 4;
+		int size = BASE_NAME_NODE_SIZE + 2 * 4;
 		if (identifier != MISSING_IDENTIFIER) {
 			// everything but our missing id costs
 			size += stringSize(identifier);

@@ -148,7 +148,6 @@ public class QualifiedName extends Name {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Name) getQualifier().clone(target));
 		result.setName((SimpleName) getName().clone(target));
-		result.index = this.index;
 		return result;
 	}
 
@@ -265,7 +264,7 @@ public class QualifiedName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NAME_NODE_SIZE + 2 * 4;
+		return BASE_NAME_NODE_SIZE + 3 * 4;
 	}
 	
 	/* (omit javadoc for this method)

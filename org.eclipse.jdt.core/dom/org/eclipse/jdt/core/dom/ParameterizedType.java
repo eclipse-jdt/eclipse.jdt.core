@@ -161,7 +161,6 @@ public class ParameterizedType extends Type {
 		result.setType((Type) ((ASTNode) getType()).clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
-		result.index = this.index;
 		return result;
 	}
 
@@ -242,7 +241,7 @@ public class ParameterizedType extends Type {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 	
 	/* (omit javadoc for this method)
