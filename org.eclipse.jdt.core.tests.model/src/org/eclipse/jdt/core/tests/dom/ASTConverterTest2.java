@@ -1637,6 +1637,26 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(methodInvocation2.getName(), "foo", source);
 		assertNull("no null", methodInvocation2.getExpression());
 	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=32338
+	 */
+	public void test0462() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "Test462.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertEquals("Wrong name", "Test462", typeDeclaration.getName().getIdentifier());
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertEquals("Wrong name", "Test462", typeBinding.getQualifiedName());
+	}	
 	
 }
 
