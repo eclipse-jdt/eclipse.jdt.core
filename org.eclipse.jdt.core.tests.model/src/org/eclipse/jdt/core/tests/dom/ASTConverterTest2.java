@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3311,7 +3311,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0);
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
