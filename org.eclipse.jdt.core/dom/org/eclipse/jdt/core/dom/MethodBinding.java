@@ -223,6 +223,27 @@ class MethodBinding implements IMethodBinding {
 		return this.key;
 	}
 	
+	/*
+	 * @see IBinding#isEqualTo(Binding)
+	 * @since 3.1
+	 */
+	public boolean isEqualTo(IBinding other) {
+		if (other == this) {
+			// identical binding - equal (key or no key)
+			return true;
+		}
+		if (other == null) {
+			// other binding missing
+			return false;
+		}
+		String key1 = other.getKey();
+		if (key1 == null) {
+			// other binding has no key
+			return false;
+		}
+		return key1.equals(getKey());
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeParameters()
 	 */

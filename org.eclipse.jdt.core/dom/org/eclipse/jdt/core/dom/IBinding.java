@@ -187,13 +187,31 @@ public interface IBinding {
 	 * bindings, each binding is represented by a distinct object. However,
 	 * between different clusters of bindings, the binding objects may or may
 	 * not be different; in these cases, the client should compare bindings
-	 * via their binding keys (<code>getKey</code>) if available.
+	 * using {@link #isEqualTo(IBinding)}, which checks their keys.
 	 * 
 	 * @param obj {@inheritDoc}
 	 * @return {@inheritDoc}
-	 * @see #getKey()
 	 */
 	public boolean equals(Object obj);
+	
+	/**
+	 * Returns whether this binding has the same key as that of the given
+	 * binding. Within the context of a single cluster of bindings, each
+	 * binding is represented by a distinct object. However, between
+	 * different clusters of bindings, the binding objects may or may
+	 * not be different objects; in these cases, the binding keys
+	 * are used where available.
+	 * 
+	 * @param binding the other binding, or <code>null</code>
+	 * @return <code>true</code> if the given binding is the identical
+	 * object as this binding, or if the keys of both bindings are the
+	 * same string; <code>false</code> if the given binding is
+	 * <code>null</code>, or if the bindings do not have the same key,
+	 * or if one or both of the bindings have no key
+	 * @see #getKey()
+	 * @since 3.1
+	 */
+	public boolean isEqualTo(IBinding binding);
 	
 	/**
 	 * Returns a string representation of this binding suitable for debugging
