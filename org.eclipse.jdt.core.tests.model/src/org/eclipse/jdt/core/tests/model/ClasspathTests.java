@@ -186,9 +186,13 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		swappedEntries[0] = newEntries[1];
 		swappedEntries[1] = newEntries[0];
 		setClasspath(proj, swappedEntries);
-		assertTrue("should be one delta - two jars reordered", this.deltaListener.deltas.length == 1);
-		IJavaElementDelta d = getDeltaFor(proj);
-		assertTrue("should be a delta for the project", d != null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	D:/eclipse/jclMin.jar[*]: {REORDERED}\n" + 
+			"	D:/eclipse/jclMinsrc.zip[*]: {REORDERED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
@@ -1416,12 +1420,12 @@ public void testEmptyClasspath() throws CoreException {
 		assertTrue("classpath should have no entries", cp.length == 0);
 
 		// ensure the deltas are correct
-		assertTrue("there should be a delta", this.deltaListener.deltas != null && this.deltaListener.deltas.length == 1);
-		for (int i= 0; i < oldRoots.length; i++) {
-			IJavaElementDelta d= null;
-			assertTrue("root should be removed", (d= getDeltaFor(oldRoots[i])) != null &&
-				(d.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0);
-		} 
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");

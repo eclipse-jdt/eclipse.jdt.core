@@ -190,16 +190,26 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 	try {
 		startDeltas();
 		project.setOutputLocation(folder.getFullPath(), null);
-		IPackageFragment fragment= root.getPackageFragment("bin");
-		assertTrue("bin package fragment should appear", getDeltaFor(fragment).getKind() == IJavaElementDelta.ADDED);
+		assertDeltas(
+			"Unexpected delta 1",
+			"JavaProjectTests[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		bin[+]: {}\n" + 
+			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
+		);
 	} finally {
 		stopDeltas();
 		try {
 			startDeltas();
 			folder= underLyingResource.getFolder(new Path("bin"));	
 			project.setOutputLocation(folder.getFullPath(), null);
-			IPackageFragment fragment= root.getPackageFragment("bin");
-			assertTrue("bin package fragment should be removed", getDeltaFor(fragment).getKind() == IJavaElementDelta.REMOVED);
+			assertDeltas(
+				"Unexpected delta 2",
+				"JavaProjectTests[*]: {CHILDREN}\n" + 
+				"	[project root][*]: {CHILDREN}\n" + 
+				"		bin[-]: {}\n" + 
+				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
+			);
 		} finally {
 			stopDeltas();
 		}
@@ -250,7 +260,12 @@ public void testDeletePackageWithAutobuild() throws JavaModelException, CoreExce
 	IFolder folder = (IFolder) frag.getUnderlyingResource();
 	try {
 		folder.delete(true, null);
-		assertTrue("should have been notified of package removal", getDeltaFor(frag) != null);
+		assertDeltas(
+			"Unexpected delta",
+			"JavaProjectTests[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		x.y[-]: {}"
+		);
 	} finally {
 		stopDeltas();
 		
@@ -811,15 +826,21 @@ public void testProjectClose() throws JavaModelException, CoreException {
 	try {
 		startDeltas();
 		project.close(null);
-		IJavaElementDelta delta= getDeltaFor(jproject);
-		assertTrue("should be a removed delta", delta != null && delta.getKind() == IJavaElementDelta.REMOVED);
+		assertDeltas(
+			"Unexpected delta 1",
+			"JavaProjectTests[-]: {}\n" + 
+			"ResourceDelta(/JavaProjectTests)"
+		);
 	} finally {
 		try {
 			clearDeltas();
 			
 			project.open(null);
-			IJavaElementDelta delta= getDeltaFor(jproject);
-			assertTrue("should be an added delta", delta != null && delta.getKind() == IJavaElementDelta.ADDED);
+			assertDeltas(
+				"Unexpected delta 2",
+				"JavaProjectTests[+]: {}\n" + 
+				"ResourceDelta(/JavaProjectTests)"
+			);
 
 			IPackageFragmentRoot[] openRoots = jproject.getPackageFragmentRoots();
 			assertTrue("should have same number of roots", openRoots.length == originalRoots.length);
