@@ -194,8 +194,12 @@
 		base-type="org.eclipse.core.runtime.text"
 		priority="high"				
 		file-extensions="java"/>
-</extension>
-<extension point="org.eclipse.core.runtime.contentTypes">
+	<!-- declares a content type for JAR manifest files -->
+    <content-type id="JARManifest" name="%jarManifestName" 
+        base-type="org.eclipse.core.runtime.text"
+        priority="high"				
+        file-names="MANIFEST.MF"
+        default-charset="UTF-8"/>
 </extension>
 
 </plugin>
