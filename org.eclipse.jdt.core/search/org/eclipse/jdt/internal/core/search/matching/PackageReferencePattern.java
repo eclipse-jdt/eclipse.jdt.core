@@ -73,7 +73,7 @@ protected char[][] getPossibleTags() {
 protected boolean hasNextQuery() {
 	if (this.segments.length > 2) {
 		// if package has more than 2 segments, don't look at the first 2 since they are mostly
-		// redundant (eg. in 'org.eclipse.jdt.core.*', 'com.ibm' is used all the time)
+		// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 		return --this.currentSegment >= 2;
 	} else {
 		return --this.currentSegment >= 0;

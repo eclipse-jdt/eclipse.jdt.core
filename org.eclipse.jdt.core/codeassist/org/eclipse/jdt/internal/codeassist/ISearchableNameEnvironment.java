@@ -17,7 +17,7 @@ public interface ISearchableNameEnvironment extends INameEnvironment {
 	/**
 	 * Find the packages that start with the given prefix.
 	 * A valid prefix is a qualified name separated by periods
-	 * (ex. com.ibm.com or java.util).
+	 * (ex. java.util).
 	 * The packages found are passed to:
 	 *    ISearchRequestor.acceptPackage(char[][] packageName)
 	 */

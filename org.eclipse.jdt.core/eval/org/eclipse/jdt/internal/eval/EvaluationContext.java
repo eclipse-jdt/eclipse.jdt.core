@@ -471,16 +471,22 @@ public GlobalVariable newVariable(char[] typeName, char[] name, char[] initializ
 /**
  * Computes the selection at the specified positions of the given code snippet.
  * (Note that this evaluation context's VM doesn't need to be running.)
- *
- *  @param environment com.ibm.codeassist.java.api.ISearchableNameEnvironment
+ *  @param codeSnippet char[]
+ * 		The code snipper source
+ * 
+ *  @param selectionSourceStart int
+ * 
+ *  @param selectionSourceEnd int
+ * 
+ *  @param environment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
  *      used to resolve type/package references and search for types/packages
  *      based on partial names.
  *
- *  @param requestor com.ibm.codeassist.java.api.ISelectionRequestor
+ *  @param requestor org.eclipse.jdt.internal.codeassist.ISelectionRequestor
  *      since the engine might produce answers of various forms, the engine 
  *      is associated with a requestor able to accept all possible selections.
  *
- *  @param options com.ibm.compiler.java.api.ConfigurableOptions
+ *  @param options java.util.Map
  *		set of options used to configure the code assist engine.
  */
 public void select( 

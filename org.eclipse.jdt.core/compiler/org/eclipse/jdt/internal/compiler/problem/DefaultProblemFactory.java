@@ -33,14 +33,23 @@ public DefaultProblemFactory(Locale loc) {
 }
 /**
  * Answer a new IProblem created according to the parameters value
- * @param originatingFileName the name of the file name from which the problem is originated
- * @param problemId the problem id
- * @param arguments the arguments needed to set the error message
- * @param severity the severity of the problem
- * @param startPosition the starting position of the problem
- * @param endPosition the end position of the problem
- * @param lineNumber the line on which the problem occured
- * @return com.ibm.compiler.java.api.IProblem
+ * <ul>
+ * <li>originatingFileName the name of the file name from which the problem is originated
+ * <li>problemId the problem id
+ * <li>arguments the arguments needed to set the error message
+ * <li>severity the severity of the problem
+ * <li>startPosition the starting position of the problem
+ * <li>endPosition the end position of the problem
+ * <li>lineNumber the line on which the problem occured
+ * </ul>
+ * @param originatingFileName char[]
+ * @param problemId int
+ * @param arguments String[]
+ * @param severity int
+ * @param startPosition int
+ * @param endPosition int
+ * @param lineNumber int
+ * @return org.eclipse.jdt.internal.compiler.IProblem
  */
 public IProblem createProblem(
 	char[] originatingFileName, 
@@ -111,8 +120,8 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	return output.toString();
 }
 /**
- * @return com.ibm.compiler.java.problem.LocalizedProblem
- * @param problem com.ibm.compiler.java.problem.Problem
+ * @param problem org.eclipse.jdt.internal.compiler.IProblem
+ * @return String
  */
 public final String localizedMessage(IProblem problem) {
 	return getLocalizedMessage(problem.getID(), problem.getArguments());

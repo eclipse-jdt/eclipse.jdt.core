@@ -192,7 +192,7 @@ public byte[] dumpBytes() {
  * Returns -1 if the @fieldBinding is not a predefined fieldBinding, 
  * the right index otherwise.
  *
- * @param fieldBinding com.ibm.compiler.namelookup.FieldBinding
+ * @param fieldBinding org.eclipse.jdt.internal.compiler.lookup.FieldBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownFieldNameAndType(FieldBinding fieldBinding) {
@@ -208,7 +208,7 @@ public int indexOfWellKnownFieldNameAndType(FieldBinding fieldBinding) {
  * Returns -1 if the @fieldBinding is not a predefined fieldBinding, 
  * the right index otherwise.
  *
- * @param fieldBinding com.ibm.compiler.namelookup.FieldBinding
+ * @param fieldBinding org.eclipse.jdt.internal.compiler.lookup.FieldBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownFields(FieldBinding fieldBinding) {
@@ -261,7 +261,7 @@ public int indexOfWellKnownFields(FieldBinding fieldBinding) {
  * Returns -1 if the @methodBinding is not a predefined methodBinding, 
  * the right index otherwise.
  *
- * @param methodBinding com.ibm.compiler.namelookup.MethodBinding
+ * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
@@ -428,7 +428,7 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
  * Returns -1 if the @methodBinding is not a predefined methodBinding, 
  * the right index otherwise.
  *
- * @param methodBinding com.ibm.compiler.namelookup.MethodBinding
+ * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownMethods(MethodBinding methodBinding) {
@@ -587,7 +587,7 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
  * Returns -1 if the @typeBinding is not a predefined binding, the right index 
  * otherwise.
  *
- * @param typeBinding com.ibm.compiler.namelookup.TypeBinding
+ * @param typeBinding org.eclipse.jdt.internal.compiler.lookup.TypeBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownTypes(TypeBinding typeBinding) {
