@@ -166,6 +166,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionToplevelType1"));
 	suite.addTest(new CompletionTests("testCompletionLocalType1"));
 	suite.addTest(new CompletionTests("testCompletionType1"));
+	suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8275,6 +8276,19 @@ public void testCompletionType1() throws JavaModelException {
 	assertEquals(
 		"element:CT1    completion:CT1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n"+
 		"element:CT1    completion:q2.CT1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+		requestor.getResults());
+}
+public void testCompletionQualifiedAllocationType1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionQualifiedAllocationType1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "YYY";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CompletionQualifiedAllocationType1.YYY    completion:YYY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 }

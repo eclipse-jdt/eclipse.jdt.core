@@ -93,6 +93,9 @@ public static Test suite() {
 	// Prefix and suffix tests
 	suite.addTest(NamingConventionTests.suite());
 	
+	// Code correction tests
+	suite.addTest(CodeCorrectionTests.suite());
+	
 	// Options tests
 	suite.addTest(OptionTests.suite());
 	
