@@ -42,11 +42,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	protected SearchableEnvironment fSearchableEnvironment = null;
 
 	/**
-	 * The output location for this project.
-	 */
-	protected IPath fOutputLocation = null;
-
-	/**
 	 * A array with all the non-java resources contained by this PackageFragment
 	 */
 	private Object[] fNonJavaResources;
@@ -173,16 +168,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	}
 	
 	/**
-	 * @see IJavaProject
-	 */
-	protected IPath getOutputLocation() {
-
-		return fOutputLocation;
-	}
-	
-
-	
-	/**
 	 * @see IJavaProject 
 	 */
 	protected SearchableEnvironment getSearchableEnvironment() {
@@ -206,12 +191,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 
 		fNonJavaResources = resources;
 	}
-	
-	protected void setOutputLocation(IPath newOutputLocation) {
-
-		fOutputLocation = newOutputLocation;
-	}
-
 	
 	protected void setSearchableEnvironment(SearchableEnvironment newSearchableEnvironment) {
 

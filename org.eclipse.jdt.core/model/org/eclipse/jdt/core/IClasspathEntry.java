@@ -8,7 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added exclusion patterns to source entries
- ******************************************************************************/
+ *     IBM             Corporation - added specific output location to source entries, and cleaning flag
+ * *****************************************************************************/
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IPath;
@@ -258,6 +259,21 @@ public interface IClasspathEntry {
 	IPath[] getExclusionPatterns();
 	
 	/**
+	 * Returns the full path to the specific location where the builder writes 
+	 * <code>.class</code> files generated for this source entry 
+	 * (entry kind <code>CPE_SOURCE</code>).
+	 * <p>
+	 * Source entries can optionally be associated with a specific output location.
+	 * If none is provided, the source entry will be implicitly associated with its project
+	 * default output location (see <code>IJavaProject#getOutputLocation</code>).
+	 * 
+	 * @return the full path to the specific location where the builder writes 
+	 * <code>.class</code> files for this source entry, or <code>null</code>
+	 * if using default output folder.
+	 * @since 2.1	 */
+	IPath getOutputLocation();
+	
+	/**
 	 * Returns the path of this classpath entry.
 	 *
 	 * The meaning of the path of a classpath entry depends on its entry kind:<ul>
@@ -323,6 +339,15 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	boolean isExported();
+	
+	/**
+	 * Returns whether the Java builder is allowed to clean the specific
+	 * output location for this source entry (entry kind <code>CPE_SOURCE</code>).
+	 * <p>
+	 * @return <code>true</code> if the output location can be cleaned by the Java builder.
+	 * @since 2.1
+	 */
+	boolean isCleaningOutputLocation();
 	
 	/**
 	 * This is a helper method, which returns the resolved classpath entry denoted 

@@ -414,6 +414,8 @@ public final class JavaConventions {
 	 */
 	public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClasspathEntry[] classpath, IPath outputLocation) {
 	
+		// TODO: allow nesting source folders (as long as nested one is excluded from the enclosing one)
+		
 		IProject project = javaProject.getProject();
 		IPath projectPath= project.getFullPath();
 	
@@ -556,7 +558,6 @@ public final class JavaConventions {
 		
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();			
 		IPath path = entry.getPath();
-		
 		switch(entry.getEntryKind()){
 	
 			// container entry check
@@ -670,6 +671,8 @@ public final class JavaConventions {
 
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
+				// TODO: check custom output folder is located inside same project as src folder
+				// TODO: check clean flag is positionned only if custom output folder
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= javaProject.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){

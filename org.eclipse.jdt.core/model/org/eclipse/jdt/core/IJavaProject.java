@@ -238,7 +238,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Returns the full path to the location where the builder writes 
 	 * <code>.class</code> files.
-	 *
+	 * TODO: should mention specific source folder output locations, and cleaning control
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the full path to the location where the builder writes 
@@ -445,6 +445,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 
 	/**
+	 * TODO: describe #isCleaningOutputLocation (exception is thrown in same case as #getRawClasspath)	 * @return boolean
+	 * @since 2.1	 */
+	boolean isCleaningOutputLocation() throws JavaModelException;
+	
+	/**
 	 * Creates a new evaluation context.
 	 * @return a new evaluation context.
 	 */
@@ -505,21 +510,27 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Sets the output location of this project to the location
 	 * described by the given absolute path.
 	 * <p>
-	 *
+	 * TODO: should mention specific source folder output locations, and cleaning control
 	 * @param path the given absolute path
 	 * @param monitor the given progress monitor
 	 * 
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
-	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *	<li>The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
-	 *	<li>The path is not an absolute path (<code>RELATIVE_PATH</code>)
-	 *  <li>The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+	 *  <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 *  <li> The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
+	 *  <li> The path is not an absolute path (<code>RELATIVE_PATH</code>)
+	 *  <li> The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
 	 *  <li> The output location is being modified during resource change event notification (CORE_EXCEPTION)	 
 	 * </ul>
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)
 		throws JavaModelException;
+		
+	/**
+	 * TODO: describe #setOutputLocation( -, isCleaning, -)	 * @param entries	 * @param monitor	 * @throws JavaModelException	 */		
+	void setOutputLocation(IPath path, boolean isCleaning, IProgressMonitor monitor)
+		throws JavaModelException;
+	
 
 	/**
 	 * Sets the classpath of this project using a list of classpath entries. In particular such a classpath may contain
@@ -554,6 +565,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		
 	/**
 	 * Sets the both the classpath of this project and its output location at once.
+	 * TODO: should mention specific source folder output locations, and cleaning control
 	 * The classpath is defined using a list of classpath entries. In particular such a classpath may contain
 	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
 	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
@@ -590,5 +602,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 2.0
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
+		throws JavaModelException;
+
+	/**
+	 * TODO: describe #setRawClasspath(-,-, isCleaningOutputLocation, -)	 * @param entries	 * @param outputLocation	 * @param isCleaningOutputLocation	 * @param monitor	 * @throws JavaModelException
+	 * @since 2.1	 */
+	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, boolean isCleaningOutputLocation, IProgressMonitor monitor)
 		throws JavaModelException;
 }

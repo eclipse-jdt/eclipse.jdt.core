@@ -25,7 +25,6 @@ import org.apache.xml.serialize.SerializerFactory;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -163,99 +162,6 @@ public class JavaProject
 //			System.out.println("JAVA MODEL - Canonical path is " + result.toString()); //$NON-NLS-1$
 //		}
 		return result;
-	}
-	
-	/**
-	 * Returns the XML String encoding of the class path.
-	 */
-	protected static Element getEntryAsXMLElement(
-		Document document,
-		IClasspathEntry entry,
-		IPath prefixPath)
-		throws JavaModelException {
-
-		Element element = document.createElement("classpathentry"); //$NON-NLS-1$
-		element.setAttribute("kind", kindToString(entry.getEntryKind()));	//$NON-NLS-1$
-		IPath path = entry.getPath();
-		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE && entry.getEntryKind() != IClasspathEntry.CPE_CONTAINER) {
-			// translate to project relative from absolute (unless a device path)
-			if (path.isAbsolute()) {
-				if (prefixPath != null && prefixPath.isPrefixOf(path)) {
-					if (path.segment(0).equals(prefixPath.segment(0))) {
-						path = path.removeFirstSegments(1);
-						path = path.makeRelative();
-					} else {
-						path = path.makeAbsolute();
-					}
-				}
-			}
-		}
-		element.setAttribute("path", path.toString()); //$NON-NLS-1$
-		if (entry.getSourceAttachmentPath() != null) {
-			element.setAttribute("sourcepath", entry.getSourceAttachmentPath().toString()); //$NON-NLS-1$
-		}
-		if (entry.getSourceAttachmentRootPath() != null) {
-			element.setAttribute(
-				"rootpath", //$NON-NLS-1$
-				entry.getSourceAttachmentRootPath().toString());
-		}
-		if (entry.isExported()) {
-			element.setAttribute("exported", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		
-		IPath[] exclusionPatterns;
-		if ((exclusionPatterns = entry.getExclusionPatterns()).length > 0) {
-			StringBuffer excludeRule = new StringBuffer(10);
-			for (int i = 0, max = exclusionPatterns.length; i < max; i++){
-				if (i > 0) excludeRule.append('|');
-				excludeRule.append(exclusionPatterns[i]);
-			}
-			element.setAttribute("excluding", excludeRule.toString());  //$NON-NLS-1$
-		}
-		return element;
-	}
-
-	/**
-	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.
-	 */
-	static int kindFromString(String kindStr) {
-
-		if (kindStr.equalsIgnoreCase("prj")) //$NON-NLS-1$
-			return IClasspathEntry.CPE_PROJECT;
-		if (kindStr.equalsIgnoreCase("var")) //$NON-NLS-1$
-			return IClasspathEntry.CPE_VARIABLE;
-		if (kindStr.equalsIgnoreCase("con")) //$NON-NLS-1$
-			return IClasspathEntry.CPE_CONTAINER;
-		if (kindStr.equalsIgnoreCase("src")) //$NON-NLS-1$
-			return IClasspathEntry.CPE_SOURCE;
-		if (kindStr.equalsIgnoreCase("lib")) //$NON-NLS-1$
-			return IClasspathEntry.CPE_LIBRARY;
-		if (kindStr.equalsIgnoreCase("output")) //$NON-NLS-1$
-			return ClasspathEntry.K_OUTPUT;
-		return -1;
-	}
-
-	/**
-	 * Returns a <code>String</code> for the kind of a class path entry.
-	 */
-	static String kindToString(int kind) {
-
-		switch (kind) {
-			case IClasspathEntry.CPE_PROJECT :
-				return "src"; // backward compatibility //$NON-NLS-1$
-			case IClasspathEntry.CPE_SOURCE :
-				return "src"; //$NON-NLS-1$
-			case IClasspathEntry.CPE_LIBRARY :
-				return "lib"; //$NON-NLS-1$
-			case IClasspathEntry.CPE_VARIABLE :
-				return "var"; //$NON-NLS-1$
-			case IClasspathEntry.CPE_CONTAINER :
-				return "con"; //$NON-NLS-1$
-			case ClasspathEntry.K_OUTPUT :
-				return "output"; //$NON-NLS-1$
-			default :
-				return "unknown"; //$NON-NLS-1$
-		}
 	}
 
 	/**
@@ -899,12 +805,13 @@ public class JavaProject
 				// read classpath property (contains actual classpath and output location settings)
 				IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 				IPath outputLocation = null;
-
+				boolean isCleaning = true;
 				// extract out the output location
 				if (classpath != null && classpath.length > 0) {
 					IClasspathEntry entry = classpath[classpath.length - 1];
 					if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
 						outputLocation = entry.getPath();
+						isCleaning = entry.isCleaningOutputLocation();
 						IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
 						System.arraycopy(classpath, 0, copy, 0, copy.length);
 						classpath = copy;
@@ -914,7 +821,13 @@ public class JavaProject
 				if (outputLocation == null) {
 					outputLocation = defaultOutputLocation();
 				}
-				((JavaProjectElementInfo)info).setOutputLocation(outputLocation);
+
+				JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+				synchronized (perProjectInfo) {
+					// clear cache of resolved classpath
+					perProjectInfo.outputLocation = outputLocation;
+					perProjectInfo.isCleaningOutputLocation = isCleaning;
+				}
 
 				// restore classpath
 				if (classpath == null) {
@@ -956,25 +869,25 @@ public class JavaProject
 	 */
 	protected String getClasspathAsXML(
 		IClasspathEntry[] classpath,
-		IPath outputLocation)
+		IPath outputLocation,
+		boolean isCleaning)
 		throws JavaModelException {
 
-		Document doc = new DocumentImpl();
-		Element cpElement = doc.createElement("classpath"); //$NON-NLS-1$
-		doc.appendChild(cpElement);
+		Document document = new DocumentImpl();
+		Element cpElement = document.createElement("classpath"); //$NON-NLS-1$
+		document.appendChild(cpElement);
 
 		for (int i = 0; i < classpath.length; ++i) {
-			Element cpeElement =
-				getEntryAsXMLElement(doc, classpath[i], getProject().getFullPath());
-			cpElement.appendChild(cpeElement);
+			cpElement.appendChild(((ClasspathEntry)classpath[i]).elementEncode(document, getProject().getFullPath()));
 		}
 
 		if (outputLocation != null) {
 			outputLocation = outputLocation.removeFirstSegments(1);
 			outputLocation = outputLocation.makeRelative();
-			Element oElement = doc.createElement("classpathentry"); //$NON-NLS-1$
-			oElement.setAttribute("kind", kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
-			oElement.setAttribute("path", outputLocation.toOSString()); //$NON-NLS-1$
+			Element oElement = document.createElement("classpathentry"); //$NON-NLS-1$
+			oElement.setAttribute("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
+			oElement.setAttribute("path", outputLocation.toString()); //$NON-NLS-1$
+			if (!isCleaning) oElement.setAttribute("cleaning", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			cpElement.appendChild(oElement);
 		}
 
@@ -989,7 +902,7 @@ public class JavaProject
 				SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(
 					new OutputStreamWriter(s, "UTF8"), //$NON-NLS-1$
 					format);
-			serializer.asDOMSerializer().serialize(doc);
+			serializer.asDOMSerializer().serialize(document);
 			return s.toString("UTF8"); //$NON-NLS-1$
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
@@ -1180,32 +1093,17 @@ public class JavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
 
-		IPath outputLocation = null;
-		if (this.isOpen()) {
-			JavaProjectElementInfo info = getJavaProjectElementInfo();
-			outputLocation = info.getOutputLocation();
-			if (outputLocation != null) {
-				return outputLocation;
-			}
+		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		IPath outputLocation = perProjectInfo.outputLocation;
+		if (outputLocation != null) return outputLocation;
+
+		// force to read classpath - will position output location as well
+		this.getRawClasspath();
+		outputLocation = perProjectInfo.outputLocation;
+		if (outputLocation == null) {
 			return defaultOutputLocation();
 		}
-		// if not already opened, then read from file (avoid populating the model for CP question)
-		if (!this.getProject().exists()){
-			throw newNotPresentException();
-		}
-		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
-
-		// extract out the output location
-		if (classpath != null && classpath.length > 0) {
-			IClasspathEntry entry = classpath[classpath.length - 1];
-			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-				outputLocation = entry.getPath();
-			}
-		}
-		if (outputLocation != null) {
-			return outputLocation;
-		}
-		return defaultOutputLocation();
+		return outputLocation;
 	}
 
 	/**
@@ -1400,9 +1298,13 @@ public class JavaProject
 		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 		
 		// extract out the output location
+		boolean isCleaning = true;
+		IPath outputLocation = null;
 		if (classpath != null && classpath.length > 0) {
 			IClasspathEntry entry = classpath[classpath.length - 1];
 			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+				outputLocation = entry.getPath();
+				isCleaning = entry.isCleaningOutputLocation();
 				IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
 				System.arraycopy(classpath, 0, copy, 0, copy.length);
 				classpath = copy;
@@ -1418,6 +1320,8 @@ public class JavaProject
 		}
 		*/
 		perProjectInfo.classpath = classpath;
+		perProjectInfo.outputLocation = outputLocation;
+		perProjectInfo.isCleaningOutputLocation = isCleaning;
 		return classpath;
 	}
 
@@ -1559,6 +1463,8 @@ public class JavaProject
 								containerRawEntry.getExclusionPatterns(),
 								containerRawEntry.getSourceAttachmentPath(),
 								containerRawEntry.getSourceAttachmentRootPath(),
+								containerRawEntry.getOutputLocation(),
+								containerRawEntry.isCleaningOutputLocation(),
 								true); // duplicate container entry for tagging it as exported
 						}
 						resolvedEntries.add(containerRawEntry);
@@ -1705,7 +1611,7 @@ public class JavaProject
 	 * Compare current classpath with given one to see if any different.
 	 * Note that the argument classpath contains its binary output.
 	 */
-	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, IClasspathEntry[] otherClasspathWithOutput)
+	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, boolean newIsCleaning, IClasspathEntry[] otherClasspathWithOutput)
 		throws JavaModelException {
 
 		if (otherClasspathWithOutput != null && otherClasspathWithOutput.length > 0) {
@@ -1720,9 +1626,10 @@ public class JavaProject
 						return false;
 				}
 				// compare binary outputs
-				if (otherClasspathWithOutput[length - 1].getContentKind()
-					== ClasspathEntry.K_OUTPUT
-					&& otherClasspathWithOutput[length - 1].getPath().equals(newOutputLocation))
+				IClasspathEntry output = otherClasspathWithOutput[length - 1];
+				if (output.getContentKind() == ClasspathEntry.K_OUTPUT
+						&& output.getPath().equals(newOutputLocation)
+						&& output.isCleaningOutputLocation() == newIsCleaning)
 					return true;
 			}
 		}
@@ -1747,6 +1654,20 @@ public class JavaProject
 	}
 
 
+	/**
+	 * @see IJavaProject#isCleaningOutputLocation()
+	 */
+	public boolean isCleaningOutputLocation() throws JavaModelException {
+
+		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		IClasspathEntry[] classpath = perProjectInfo.classpath;
+		if (classpath != null){ // if classpath is set, then flag is up to date
+			return perProjectInfo.isCleaningOutputLocation;
+		}
+		// force to read classpath - will position clean mode (since flag is persisted in there)
+		this.getRawClasspath();
+		return perProjectInfo.isCleaningOutputLocation;
+		}
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
@@ -1888,106 +1809,14 @@ public class JavaProject
 			if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
 				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 			}
-			IPath projectPath = getProject().getFullPath();
 			NodeList list = cpElement.getElementsByTagName("classpathentry"); //$NON-NLS-1$
 			int length = list.getLength();
 	
 			for (int i = 0; i < length; ++i) {
 				Node node = list.item(i);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					Element cpeElement = (Element) node;
-	
-					String cpeElementKind = cpeElement.getAttribute("kind"); //$NON-NLS-1$
-					String pathStr = cpeElement.getAttribute("path"); //$NON-NLS-1$
-					// ensure path is absolute
-					IPath path = new Path(pathStr);
-					int kind = kindFromString(cpeElementKind);
-					if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
-						path = projectPath.append(path);
-					}
-					// source attachment info (optional)
-					String sourceAttachmentPathStr = cpeElement.getAttribute("sourcepath");	//$NON-NLS-1$
-					IPath sourceAttachmentPath =
-						sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
-					String sourceAttachmentRootPathStr = cpeElement.getAttribute("rootpath"); //$NON-NLS-1$
-					IPath sourceAttachmentRootPath =
-						sourceAttachmentRootPathStr.equals("") //$NON-NLS-1$
-							? null
-							: new Path(sourceAttachmentRootPathStr);
-					
-					// exported flag (optional)
-					boolean isExported = cpeElement.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
-
-					// exclusion patterns (optional)
-					String exclusion = cpeElement.getAttribute("excluding"); //$NON-NLS-1$ 
-					IPath[] exclusionPatterns = ClasspathEntry.NO_EXCLUSION_PATTERNS;
-					if (!exclusion.equals("")) { //$NON-NLS-1$ 
-						char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
-						int patternCount;
-						if ((patternCount  = patterns.length) > 0) {
-							exclusionPatterns = new IPath[patternCount];
-							for (int j = 0; j < patterns.length; j++){
-								exclusionPatterns[j] = new Path(new String(patterns[j]));
-							}
-						}
-					}
-					
-					// recreate the CP entry
-					switch (kind) {
-			
-						case IClasspathEntry.CPE_PROJECT :
-							paths.add(JavaCore.newProjectEntry(path, isExported));
-							break;
-							
-						case IClasspathEntry.CPE_LIBRARY :
-							paths.add(JavaCore.newLibraryEntry(
-															path,
-															sourceAttachmentPath,
-															sourceAttachmentRootPath,
-															isExported));
-							break;
-							
-						case IClasspathEntry.CPE_SOURCE :
-							// must be an entry in this project or specify another project
-							String projSegment = path.segment(0);
-							if (projSegment != null && projSegment.equals(getElementName())) {
-								// this project
-								paths.add(JavaCore.newSourceEntry(path, exclusionPatterns));
-							} else {
-								// another project
-								paths.add(JavaCore.newProjectEntry(path, isExported));
-							}
-							break;
-			
-						case IClasspathEntry.CPE_VARIABLE :
-							paths.add(JavaCore.newVariableEntry(
-									path,
-									sourceAttachmentPath,
-									sourceAttachmentRootPath, 
-									isExported));
-							break;
-							
-						case IClasspathEntry.CPE_CONTAINER :
-							paths.add(JavaCore.newContainerEntry(
-									path,
-									isExported));
-							break;
-
-						case ClasspathEntry.K_OUTPUT :
-							if (!path.isAbsolute()) return null;
-							paths.add(new ClasspathEntry(
-									ClasspathEntry.K_OUTPUT,
-									IClasspathEntry.CPE_LIBRARY,
-									path,
-									ClasspathEntry.NO_EXCLUSION_PATTERNS, 
-									null, // source attachment
-									null, // source attachment root
-									false));
-							break;
-							
-						default:
-							throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", cpeElementKind)); //$NON-NLS-1$
-					}
+					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this);
+					if (entry != null) paths.add(entry);
 				}
 			}
 		} catch(CoreException e) {
@@ -2087,12 +1916,12 @@ public class JavaProject
 	 * 
 	 * @return Return whether the .classpath file was modified.
 	 */
-	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
+	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation, boolean newIsCleaning) throws JavaModelException {
 
 		if (!getProject().exists()) return false;
 
 		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/);
-		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
+		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, newIsCleaning, fileEntries)) {
 			// no need to save it, it is the same
 			return false;
 		}
@@ -2101,7 +1930,7 @@ public class JavaProject
 		try {
 			setSharedProperty(
 				CLASSPATH_FILENAME,
-				getClasspathAsXML(newClasspath, newOutputLocation));
+				getClasspathAsXML(newClasspath, newOutputLocation, newIsCleaning));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
@@ -2210,16 +2039,25 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public void setOutputLocation(IPath outputLocation, IProgressMonitor monitor)
+	public void setOutputLocation(IPath path, IProgressMonitor monitor)
 		throws JavaModelException {
 
-		if (outputLocation == null) {
+		setOutputLocation(path, true/*clean*/, monitor);
+	}
+
+	/**
+	 * @see IJavaProject#setOutputLocation(IPath, boolean, IProgressMonitor)
+	 */
+	public void setOutputLocation(IPath path, boolean isCleaning, IProgressMonitor monitor)
+		throws JavaModelException {
+
+		if (path == null) {
 			throw new IllegalArgumentException(Util.bind("path.nullpath")); //$NON-NLS-1$
 		}
-		if (outputLocation.equals(getOutputLocation())) {
+		if (path.equals(getOutputLocation())) {
 			return;
 		}
-		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, outputLocation, monitor);
+		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, path, isCleaning, monitor);
 	}
 
 	/*
@@ -2255,6 +2093,7 @@ public class JavaProject
 		setRawClasspath(
 			entries, 
 			outputLocation, 
+			true, // clean
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
@@ -2262,9 +2101,31 @@ public class JavaProject
 			true); // need to save
 	}
 
+	/**
+	 * @see IJavaProject#setRawClasspath(IClasspathEntry[], IPath, boolean, IProgressMonitor)
+	 */
+	public void setRawClasspath(
+		IClasspathEntry[] entries,
+		IPath outputLocation,
+		boolean isCleaning,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+			
+		setRawClasspath(
+			entries, 
+			outputLocation, 
+			isCleaning,
+			monitor, 
+			true, // canChangeResource (as per API contract)
+			getResolvedClasspath(true), // ignoreUnresolvedVariable
+			true, // needValidation
+			true); // need to save			
+	}
+
 	public void setRawClasspath(
 		IClasspathEntry[] newEntries,
 		IPath newOutputLocation,
+		boolean newIsCleaning,
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		IClasspathEntry[] oldResolvedPath,
@@ -2285,6 +2146,7 @@ public class JavaProject
 					oldResolvedPath, 
 					newRawPath, 
 					newOutputLocation,
+					newIsCleaning,
 					canChangeResource, 
 					needValidation,
 					needSave);
@@ -2307,6 +2169,7 @@ public class JavaProject
 		setRawClasspath(
 			entries, 
 			SetClasspathOperation.ReuseOutputLocation, 
+			true, // dummy value since ReuseOutputLocation is used
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable

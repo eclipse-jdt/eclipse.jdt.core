@@ -11,9 +11,15 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @see IClasspathEntry
@@ -90,6 +96,14 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath sourceAttachmentRootPath;
 
 	/**
+	 * Specific output location (for this source entry)	 */
+	public IPath specificOutputLocation;
+	
+	/**
+	 * Flag indicating whether the specific output location is to be cleaned	 */
+	public boolean isCleaningOutputLocation;
+	
+	/**
 	 * A constant indicating an output location.
 	 */
 	public static final int K_OUTPUT = 10;
@@ -109,6 +123,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath[] exclusionPatterns,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
+		IPath specificOutputLocation,
+		boolean isCleaningOutputLocation,
 		boolean isExported) {
 
 		this.contentKind = contentKind;
@@ -120,6 +136,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
+		this.specificOutputLocation = specificOutputLocation;
+		this.isCleaningOutputLocation = isCleaningOutputLocation;
 		this.isExported = isExported;
 	}
 	
@@ -144,6 +162,159 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 	
 	/**
+	 * Returns the XML encoding of the class path.
+	 */
+	public Element elementEncode(
+		Document document,
+		IPath projectPath)
+		throws JavaModelException {
+
+		Element element = document.createElement("classpathentry"); //$NON-NLS-1$
+		element.setAttribute("kind", kindToString(this.entryKind));	//$NON-NLS-1$
+		IPath xmlPath = this.path;
+		if (this.entryKind != IClasspathEntry.CPE_VARIABLE && this.entryKind != IClasspathEntry.CPE_CONTAINER) {
+			// translate to project relative from absolute (unless a device path)
+			if (xmlPath.isAbsolute()) {
+				if (projectPath != null && projectPath.isPrefixOf(xmlPath)) {
+					if (xmlPath.segment(0).equals(projectPath.segment(0))) {
+						xmlPath = xmlPath.removeFirstSegments(1);
+						xmlPath = xmlPath.makeRelative();
+					} else {
+						xmlPath = xmlPath.makeAbsolute();
+					}
+				}
+			}
+		}
+		element.setAttribute("path", xmlPath.toString()); //$NON-NLS-1$
+		if (this.sourceAttachmentPath != null) {
+			element.setAttribute("sourcepath", this.sourceAttachmentPath.toString()); //$NON-NLS-1$
+		}
+		if (this.sourceAttachmentRootPath != null) {
+			element.setAttribute("rootpath", this.sourceAttachmentRootPath.toString()); //$NON-NLS-1$
+		}
+		if (this.isExported) {
+			element.setAttribute("exported", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		if (!this.isCleaningOutputLocation && this.specificOutputLocation != null) {
+			element.setAttribute("cleaning", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		if (this.exclusionPatterns.length > 0) {
+			StringBuffer excludeRule = new StringBuffer(10);
+			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
+				if (i > 0) excludeRule.append('|');
+				excludeRule.append(this.exclusionPatterns[i]);
+			}
+			element.setAttribute("excluding", excludeRule.toString());  //$NON-NLS-1$
+		}
+		
+		if (this.specificOutputLocation != null) {
+			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
+			outputLocation = outputLocation.makeRelative();
+			element.setAttribute("output", outputLocation.toString()); //$NON-NLS-1$ 
+		}
+		return element;
+	}
+	
+	public static IClasspathEntry elementDecode(Element element, IJavaProject project) {
+	
+		IPath projectPath = project.getProject().getFullPath();
+		String kindAttr = element.getAttribute("kind"); //$NON-NLS-1$
+		String pathAttr = element.getAttribute("path"); //$NON-NLS-1$
+
+		// ensure path is absolute
+		IPath path = new Path(pathAttr); 		
+		int kind = kindFromString(kindAttr);
+		if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
+			path = projectPath.append(path);
+		}
+		// source attachment info (optional)
+		String sourceAttachmentPathStr = element.getAttribute("sourcepath");	//$NON-NLS-1$
+		IPath sourceAttachmentPath =
+			sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
+		String sourceAttachmentRootPathStr = element.getAttribute("rootpath"); //$NON-NLS-1$
+		IPath sourceAttachmentRootPath =
+			sourceAttachmentRootPathStr.equals("") //$NON-NLS-1$
+				? null
+				: new Path(sourceAttachmentRootPathStr);
+		
+		// exported flag (optional)
+		boolean isExported = element.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		// exclusion patterns (optional)
+		String exclusion = element.getAttribute("excluding"); //$NON-NLS-1$ 
+		IPath[] exclusionPatterns = ClasspathEntry.NO_EXCLUSION_PATTERNS;
+		if (!exclusion.equals("")) { //$NON-NLS-1$ 
+			char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
+			int patternCount;
+			if ((patternCount  = patterns.length) > 0) {
+				exclusionPatterns = new IPath[patternCount];
+				for (int j = 0; j < patterns.length; j++){
+					exclusionPatterns[j] = new Path(new String(patterns[j]));
+				}
+			}
+		}
+
+		// custom output location
+		String outputLocationStr = element.getAttribute("output"); //$NON-NLS-1$ 
+		IPath outputLocation = outputLocationStr.equals("") ? null : new Path(outputLocationStr); //$NON-NLS-1$
+		
+		// cleaning flag (optional)
+		boolean isCleaning = !element.getAttribute("cleaning").equals("false"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		// recreate the CP entry
+		switch (kind) {
+
+			case IClasspathEntry.CPE_PROJECT :
+				return JavaCore.newProjectEntry(path, isExported);
+				
+			case IClasspathEntry.CPE_LIBRARY :
+				return JavaCore.newLibraryEntry(
+												path,
+												sourceAttachmentPath,
+												sourceAttachmentRootPath,
+												isExported);
+				
+			case IClasspathEntry.CPE_SOURCE :
+				// must be an entry in this project or specify another project
+				String projSegment = path.segment(0);
+				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
+					return JavaCore.newSourceEntry(path, exclusionPatterns, outputLocation, outputLocation != null && isCleaning);
+				} else { // another project
+					return JavaCore.newProjectEntry(path, isExported);
+				}
+
+			case IClasspathEntry.CPE_VARIABLE :
+				return JavaCore.newVariableEntry(
+						path,
+						sourceAttachmentPath,
+						sourceAttachmentRootPath, 
+						isExported);
+				
+			case IClasspathEntry.CPE_CONTAINER :
+				return JavaCore.newContainerEntry(
+						path,
+						isExported);
+
+			case ClasspathEntry.K_OUTPUT :
+				if (!path.isAbsolute()) return null;
+				return new ClasspathEntry(
+						ClasspathEntry.K_OUTPUT,
+						IClasspathEntry.CPE_LIBRARY,
+						path,
+						ClasspathEntry.NO_EXCLUSION_PATTERNS, 
+						null, // source attachment
+						null, // source attachment root
+						null, // custom output location
+						isCleaning, // clean
+						false);
+			default :
+				throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", kindAttr)); //$NON-NLS-1$
+		}
+	}
+
+	/**
 	 * Returns true if the given object is a classpath entry
 	 * with equivalent attributes.
 	 */
@@ -160,6 +331,9 @@ public class ClasspathEntry implements IClasspathEntry {
 				return false;
 
 			if (this.isExported != otherEntry.isExported())
+				return false;
+
+			if (this.isCleaningOutputLocation != otherEntry.isCleaningOutputLocation())
 				return false;
 
 			if (!this.path.equals(otherEntry.getPath()))
@@ -193,6 +367,15 @@ public class ClasspathEntry implements IClasspathEntry {
 						return false;
 				}
 			}
+			
+			otherPath = otherEntry.getOutputLocation();
+			if (this.specificOutputLocation == null) {
+				if (otherPath != null)
+					return false;
+			} else {
+				if (!this.specificOutputLocation.equals(otherPath))
+					return false;
+			}
 			return true;
 		} else {
 			return false;
@@ -214,10 +397,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.IClasspathEntry#getExclusionPatterns()
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	public IPath[] getExclusionPatterns() {
 		return this.exclusionPatterns;
+	}
+
+	/**
+	 * @see IClasspathEntry#getOutputLocation()
+	 */
+	public IPath getOutputLocation() {
+		return this.specificOutputLocation;
 	}
 
 	/**
@@ -253,6 +443,56 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public boolean isExported() {
 		return this.isExported;
+	}
+
+	/**
+	 * @see IClasspathEntry#isCleaningOutputLocation()
+	 */
+	public boolean isCleaningOutputLocation() {
+		return this.isCleaningOutputLocation;
+	}
+
+	/**
+	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.
+	 */
+	static int kindFromString(String kindStr) {
+
+		if (kindStr.equalsIgnoreCase("prj")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_PROJECT;
+		if (kindStr.equalsIgnoreCase("var")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_VARIABLE;
+		if (kindStr.equalsIgnoreCase("con")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_CONTAINER;
+		if (kindStr.equalsIgnoreCase("src")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_SOURCE;
+		if (kindStr.equalsIgnoreCase("lib")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_LIBRARY;
+		if (kindStr.equalsIgnoreCase("output")) //$NON-NLS-1$
+			return ClasspathEntry.K_OUTPUT;
+		return -1;
+	}
+
+	/**
+	 * Returns a <code>String</code> for the kind of a class path entry.
+	 */
+	static String kindToString(int kind) {
+
+		switch (kind) {
+			case IClasspathEntry.CPE_PROJECT :
+				return "src"; // backward compatibility //$NON-NLS-1$
+			case IClasspathEntry.CPE_SOURCE :
+				return "src"; //$NON-NLS-1$
+			case IClasspathEntry.CPE_LIBRARY :
+				return "lib"; //$NON-NLS-1$
+			case IClasspathEntry.CPE_VARIABLE :
+				return "var"; //$NON-NLS-1$
+			case IClasspathEntry.CPE_CONTAINER :
+				return "con"; //$NON-NLS-1$
+			case ClasspathEntry.K_OUTPUT :
+				return "output"; //$NON-NLS-1$
+			default :
+				return "unknown"; //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -317,6 +557,14 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 			buffer.append(']');
 		}
+		if (getOutputLocation() != null) {
+			buffer.append("[output:"); //$NON-NLS-1$
+			buffer.append(getOutputLocation());
+			buffer.append(']');
+		}
+		buffer.append("[isCleaning:"); //$NON-NLS-1$
+		buffer.append(this.isCleaningOutputLocation);
+		buffer.append(']');
 		return buffer.toString();
 	}
 	
@@ -325,8 +573,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * fragment root computations
 	 */
 	public String rootID(){
-		StringBuffer buffer = new StringBuffer(10);
-		buffer.append('[');
+
 		switch(this.entryKind){
 			case IClasspathEntry.CPE_LIBRARY :
 				return "[LIB]"+this.path;  //$NON-NLS-1$
@@ -350,5 +597,4 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 		return JavaCore.getResolvedClasspathEntry(this);
 	}
-	
 }

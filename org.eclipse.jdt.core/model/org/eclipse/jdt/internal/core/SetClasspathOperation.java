@@ -53,8 +53,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 	boolean needSave;
 	
 	IPath newOutputLocation;
+	boolean newIsCleaning; // TODO: implement change wrt newIsCleaning
+	
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
 	public static final IClasspathEntry[] UpdateClasspath = new IClasspathEntry[0];
+	// if reusing output location, then also reuse clean flag
 	public static final IPath ReuseOutputLocation = new Path("Reuse Existing Output Location");  //$NON-NLS-1$
 	
 	/**
@@ -65,6 +68,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
+		boolean newIsCleaning,
 		boolean canChangeResource,
 		boolean needValidation,
 		boolean needSave) {
@@ -73,6 +77,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.oldResolvedPath = oldResolvedPath;
 		this.newRawPath = newRawPath;
 		this.newOutputLocation = newOutputLocation;
+		this.newIsCleaning = newIsCleaning;
 		this.canChangeResource = canChangeResource;
 		this.needValidation = needValidation;
 		this.needSave = needSave;
@@ -473,13 +478,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 			classpathForSave = this.newRawPath;
 		}
 		IPath outputLocationForSave;
+		boolean isCleaningForSave;
 		if (this.newOutputLocation == ReuseOutputLocation){
 			outputLocationForSave = project.getOutputLocation();
+			isCleaningForSave = project.isCleaningOutputLocation();
 		} else {
 			outputLocationForSave = this.newOutputLocation;
+			isCleaningForSave = this.newIsCleaning;
 		}
 		// if read-only .classpath, then the classpath setting will never been performed completely
-		if (project.saveClasspath(classpathForSave, outputLocationForSave)) {
+		if (project.saveClasspath(classpathForSave, outputLocationForSave, isCleaningForSave)) {
 			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		}
 	}
@@ -562,6 +570,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 							project.setRawClasspath(
 								UpdateClasspath, 
 								SetClasspathOperation.ReuseOutputLocation, 
+								true, // dummy value since ReuseOutputLocation is used
 								this.fMonitor, 
 								this.canChangeResource,  
 								project.getResolvedClasspath(true), 
@@ -640,14 +649,19 @@ public class SetClasspathOperation extends JavaModelOperation {
 		iter = removed.iterator();
 		while (iter.hasNext()){
 			IPackageFragment frag= (IPackageFragment)iter.next();
-			((IPackageFragmentRoot)frag.getParent()).close();
+			((IPackageFragmentRoot)frag.getParent()).close(); 
 			if (!Util.isExcluded(frag)) {
 				delta.removed(frag);
 				deltaToFire = true;
 			}
 		}
-		
-		project.getJavaProjectElementInfo().setOutputLocation(this.newOutputLocation);
+
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+		synchronized (perProjectInfo) {
+			perProjectInfo.outputLocation = this.newOutputLocation;
+			perProjectInfo.isCleaningOutputLocation = this.newIsCleaning;
+		}
+				
 		if (deltaToFire) {
 			addDelta(delta);	
 		}
