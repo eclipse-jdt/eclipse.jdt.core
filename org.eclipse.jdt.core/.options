@@ -33,3 +33,6 @@ org.eclipse.jdt.core/debug/completion=true
 
 # Reports open on selection activity : recovered unit, inferred selection
 org.eclipse.jdt.core/debug/selection=true
+
+# Reports java search activity
+org.eclipse.jdt.core/debug/search=true

@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -92,6 +92,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String COMPLETION_DEBUG = PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SHARED_WC_DEBUG = PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
+	private static final String SEARCH_DEBUG = PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 	
 	private static Map Variables = new HashMap(5);
 	private final static IPath InitializationInProgress = new Path("Initialization In Progress"); //$NON-NLS-1$
@@ -1011,6 +1012,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 			option = Platform.getDebugOption(SELECTION_DEBUG);
 			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(SEARCH_DEBUG);
+			if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();

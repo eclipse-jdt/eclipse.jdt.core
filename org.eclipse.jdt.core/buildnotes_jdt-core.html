@@ -16,6 +16,10 @@ Eclipse SDK Build 200203? - ? March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added option to trace java search activity.
+    To enable it, see the following line in the org.eclipse.jdt.core/.options file:
+    <code>org.eclipse.jdt.core/debug/search=true</code>
+</li>
 <li>Added API <code>CorrectionEngine#computeCorrections(IProblem, ICompilationUnit, ICorrectionRequestor)</code>, allowing.
 to compute replacement corrections for IProblem(s) detected while reconciling.</li>
 <li>Added API <code>ISourceReference#exists()</code>, allowing.

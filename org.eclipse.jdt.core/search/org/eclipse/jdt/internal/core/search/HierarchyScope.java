@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
@@ -219,6 +220,9 @@ public class HierarchyScope extends AbstractSearchScope {
 	 * @deprecated
 	 */
 	public void setIncludesClasspaths(boolean includesClasspaths) {
+	}
+	public String toString() {
+		return "HierarchyScope on " + ((JavaElement)fHierarchy.getType()).toStringWithAncestors(); //$NON-NLS-1$
 	}
 
 }

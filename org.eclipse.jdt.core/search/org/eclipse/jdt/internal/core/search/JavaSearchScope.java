@@ -312,5 +312,30 @@ public void setIncludesBinaries(boolean includesBinaries) {
  */
 public void setIncludesClasspaths(boolean includesClasspaths) {
 }
+public String toString() {
+	StringBuffer result = new StringBuffer("JavaSearchScope on "); //$NON-NLS-1$
+	if (this.elements != null) {
+		result.append("["); //$NON-NLS-1$
+		for (int i = 0, length = this.elements.size(); i < length; i++) {
+			JavaElement element = (JavaElement)this.elements.get(i);
+			result.append("\n\t"); //$NON-NLS-1$
+			result.append(element.toStringWithAncestors());
+		}
+		result.append("\n]"); //$NON-NLS-1$
+	} else {
+		if (this.pathsCount == 0) {
+			result.append("[empty scope]"); //$NON-NLS-1$
+		} else {
+			result.append("["); //$NON-NLS-1$
+			for (int i = 0; i < this.pathsCount; i++) {
+				IPath path = this.paths[i];
+				result.append("\n\t"); //$NON-NLS-1$
+				result.append(path.toString());
+			}
+			result.append("\n]"); //$NON-NLS-1$
+		}
+	}
+	return result.toString();
+}
 
 }

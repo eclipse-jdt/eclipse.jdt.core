@@ -102,4 +102,7 @@ public void processDelta(IJavaElementDelta delta) {
 			break;
 	}
 }
+public String toString() {
+	return "JavaWorkspaceScope"; //$NON-NLS-1$
+}
 }

@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -80,6 +81,7 @@ import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.HandleFactory;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -450,6 +452,23 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 		IProgressMonitor progressMonitor)
 		throws JavaModelException {
 			
+		if (SearchEngine.VERBOSE) {
+			System.out.println("Locating matches in files ["); //$NON-NLS-1$
+			for (int i = 0, length = filePaths.length; i < length; i++) {
+				String path = filePaths[i];
+				System.out.println("\t" + path);
+			}
+			System.out.println("]"); //$NON-NLS-1$
+			if (workingCopies != null) {
+				 System.out.println(" and working copies ["); //$NON-NLS-1$
+				for (int i = 0, length = workingCopies.length; i < length; i++) {
+					IWorkingCopy wc = workingCopies[i];
+					System.out.println("\t" + ((JavaElement)wc).toStringWithAncestors()); //$NON-NLS-1$
+				}
+				System.out.println("]"); //$NON-NLS-1$
+			}
+		}
+		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			// optimize access to zip files during search operation
@@ -688,6 +707,18 @@ public IType lookupType(TypeBinding typeBinding) {
 		throws CoreException {
 
 		if (this.scope.encloses(element)) {
+			if (SearchEngine.VERBOSE) {
+				IResource res = this.getCurrentResource();
+				System.out.println("Reporting match"); //$NON-NLS-1$
+				System.out.println("\tResource: " + (res == null ? " <unknown> " : res.getFullPath().toString())); //$NON-NLS-1$
+				System.out.println("\tPositions: [" + sourceStart + ", " + sourceEnd + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				System.out.println("\tJava element: " + ((JavaElement)element).toStringWithAncestors()); //$NON-NLS-1$
+				if (accuracy == IJavaSearchResultCollector.EXACT_MATCH) {
+					System.out.println("\tAccuracy: EXACT_MATCH"); //$NON-NLS-1$
+				} else {
+					System.out.println("\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
+				}
+			}
 			this.report(
 				this.getCurrentResource(),
 				sourceStart,

@@ -46,7 +46,9 @@ public class SearchEngine {
 	 * A list of working copies that take precedence over their original 
 	 * compilation units.
 	 */
-	private IWorkingCopy[] workingCopies = null;	
+	private IWorkingCopy[] workingCopies = null;
+	
+	public static boolean VERBOSE = false;	
 
 /**
  * Creates a new search engine.
@@ -365,6 +367,10 @@ public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJav
  *	</ul>
  */
 public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
+	
+	if (VERBOSE) {
+		System.out.println("Searching for " + searchPattern + " in " + scope); //$NON-NLS-1$//$NON-NLS-2$
+	}
 
 	/* search is starting */
 	resultCollector.aboutToStart();
@@ -563,6 +569,9 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
+		if (VERBOSE) {
+			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
@@ -618,6 +627,9 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
+		if (VERBOSE) {
+			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
@@ -676,6 +688,9 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
+		if (VERBOSE) {
+			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
