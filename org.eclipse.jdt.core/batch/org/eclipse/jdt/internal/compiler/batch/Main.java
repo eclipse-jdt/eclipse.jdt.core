@@ -505,7 +505,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				parameters.clear();
 				parameters.put(NUMBER_OF_PROBLEMS, new Integer(globalProblemsCount));
 				parameters.put(NUMBER_OF_ERRORS, new Integer(globalErrorsCount));
-				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount - globalTasksCount));
+				parameters.put(NUMBER_OF_WARNINGS, new Integer(globalWarningsCount));
 				parameters.put(NUMBER_OF_TASKS, new Integer(globalTasksCount));
 				this.printTag(PROBLEM_SUMMARY, parameters, true, true);
 			}
@@ -521,11 +521,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						errorMessage = Main.bind("compile.severalErrors", String.valueOf(globalErrorsCount)); //$NON-NLS-1$
 					}
 				}
-				if (globalWarningsCount > 0) {
-					if (globalWarningsCount == 1) {
+				int warningsNumber = globalWarningsCount + globalTasksCount;
+				if (warningsNumber > 0) {
+					if (warningsNumber == 1) {
 						warningMessage = Main.bind("compile.oneWarning"); //$NON-NLS-1$
 					} else {
-						warningMessage = Main.bind("compile.severalWarnings", String.valueOf(globalWarningsCount)); //$NON-NLS-1$
+						warningMessage = Main.bind("compile.severalWarnings", String.valueOf(warningsNumber)); //$NON-NLS-1$
 					}
 				}
 				if (errorMessage == null || warningMessage == null) {
@@ -569,14 +570,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								errors++;
 								currentMain.globalErrorsCount++;
 								localErrorCount++;
+							} else if (problem.getID() == IProblem.Task) {
+								currentMain.globalTasksCount++;
+								tasks++;
 							} else {
-								if (problem.getID() == IProblem.Task) {
-									currentMain.globalTasksCount++;
-									tasks++;
-								} else {
-									warnings++;
-								}
 								currentMain.globalWarningsCount++;
+								warnings++;
 							}
 						}
 					}
