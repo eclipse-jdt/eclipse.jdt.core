@@ -167,6 +167,7 @@
   <fileTypes extension="properties" type="text"/>
   <fileTypes extension="class" type="binary"/>
   <fileTypes extension="jar" type="binary"/>
+  <fileTypes extension="jardesc" type="text"/>
   <fileTypes extension="zip" type="binary"/>
 </extension>
 

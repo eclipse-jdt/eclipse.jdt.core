@@ -2875,6 +2875,7 @@ public void testReplaceProject() throws CoreException {
 public void testBug55992a() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+	
 		IPath path = new Path(EXTERNAL_JAR_DIR_PATH+"/jclMin.jar");
 		IPath sourceAttachmentPath = new Path("jclMin.zip");
 		JavaCore.setClasspathVariables(

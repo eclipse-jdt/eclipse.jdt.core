@@ -1146,32 +1146,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 	
 	private void formatEmptyStatement() {
-		if (this.preferences.remove_unnecessary_semicolon) {
-			this.scribe.consumeNextToken();
-		} else {
-			if (this.preferences.put_empty_statement_on_new_line) {
-				this.scribe.printNewLine();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		if (this.preferences.put_empty_statement_on_new_line) {
+			this.scribe.printNewLine();
 		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
 	}
 
 	private void formatEmptyTypeDeclaration(boolean isFirst) {
 		boolean hasSemiColon = isSemiColon();
-		if (this.preferences.remove_unnecessary_semicolon) {
-			while(isSemiColon()) {
-				this.scribe.consumeNextToken();
-				this.scribe.printTrailingComment();
-			}
-		} else {
-			while(isSemiColon()) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.printTrailingComment();
-			}
-			if (hasSemiColon && isFirst) {
-				this.scribe.printNewLine();
-			}
+		while(isSemiColon()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+		}
+		if (hasSemiColon && isFirst) {
+			this.scribe.printNewLine();
 		}
 	}
 
@@ -1544,11 +1533,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
 					}
 					if (isSemiColon()) {
-						if (this.preferences.remove_unnecessary_semicolon) {
-							this.scribe.consumeNextToken();
-						} else {
-							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-						}
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
 					this.scribe.printNewLine();

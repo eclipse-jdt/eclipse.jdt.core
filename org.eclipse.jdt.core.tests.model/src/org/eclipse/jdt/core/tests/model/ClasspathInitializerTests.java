@@ -148,8 +148,9 @@ public static Test suite() {
 }
 protected void tearDown() throws Exception {
 	// Cleanup caches
-	JavaModelManager.Containers = new HashMap(5);
-	JavaModelManager.Variables = new HashMap(5);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.containers = new HashMap(5);
+	manager.variables = new HashMap(5);
 
 	super.tearDown();
 }
@@ -184,9 +185,10 @@ public void testContainerInitializer2() throws CoreException {
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = manager.containers;
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();
@@ -219,9 +221,10 @@ public void testContainerInitializer3() throws CoreException {
 
 		// simulate state on startup (flush containers, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = manager.containers;
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();
@@ -256,9 +259,10 @@ public void testContainerInitializer4() throws CoreException {
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = manager.containers;
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();
@@ -294,9 +298,10 @@ public void testContainerInitializer5() throws CoreException {
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p1);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = manager.containers;
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p1);
 		p1.close();
 		
 		startDeltas();
@@ -369,14 +374,15 @@ public void testContainerInitializer6() throws CoreException {
 
 		// simulate state on startup (flush containers, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = manager.containers;
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
-		JavaModelManager.getJavaModelManager().deltaState = new DeltaProcessingState();
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(manager.deltaState);
+		manager.deltaState = new DeltaProcessingState();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-			JavaModelManager.getJavaModelManager().deltaState,
+			manager.deltaState,
 			IResourceChangeEvent.PRE_AUTO_BUILD
 					| IResourceChangeEvent.POST_AUTO_BUILD
 					| IResourceChangeEvent.POST_CHANGE
@@ -445,9 +451,10 @@ public void testVariableInitializer3() throws CoreException {
 
 		// simulate state on startup (flush variables, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
-		JavaModelManager.Variables = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionVariables = manager.variables;
+		manager.variables = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();
@@ -562,9 +569,10 @@ public void testVariableInitializer7() throws CoreException {
 
 		// simulate state on startup (flush variables, and preserve their previous values)
 		waitUntilIndexesReady();
-		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
-		JavaModelManager.Variables = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionVariables = manager.variables;
+		manager.variables = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)p2);
 		p2.close();
 		
 		startDeltas();

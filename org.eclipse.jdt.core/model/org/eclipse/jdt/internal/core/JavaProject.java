@@ -1394,16 +1394,12 @@ public class JavaProject
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
 		
 		String propertyName = optionName;
-		if (JavaModelManager.OptionNames.contains(propertyName)){
+		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
 			Preferences preferences = getPreferences();
 			if (preferences == null || preferences.isDefault(propertyName)) {
 				return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
 			}
 			return preferences.getString(propertyName).trim();
-		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPreferences();
-			return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : Util.getConvertedDeprecatedValue(preferences, propertyName);
 		}
 		return null;
 	}
@@ -1418,7 +1414,7 @@ public class JavaProject
 
 		Preferences preferences = getPreferences();
 		if (preferences == null) return options; // cannot do better (non-Java project)
-		HashSet optionNames = JavaModelManager.OptionNames;
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// project cannot hold custom preferences set to their default, as it uses CUSTOM_DEFAULT_OPTION_VALUE
 
@@ -1429,10 +1425,6 @@ public class JavaProject
 			String value = preferences.getString(propertyName).trim();
 			if (optionNames.contains(propertyName)){
 				options.put(propertyName, value);
-			}		
-			// TODO (olivier) Remove after M7
-			else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-				Util.convertFormatterDeprecatedOptions(propertyName, value, options);
 			}
 		}		
 
@@ -2487,7 +2479,7 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
 	 */
 	public void setOption(String optionName, String optionValue) {
-		if (!JavaModelManager.OptionNames.contains(optionName)) return; // unrecognized option
+		if (!JavaModelManager.getJavaModelManager().optionNames.contains(optionName)) return; // unrecognized option
 		Preferences preferences = getPreferences();
 		preferences.setDefault(optionName, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
 		preferences.setValue(optionName, optionValue);
@@ -2504,7 +2496,7 @@ public class JavaProject
 			Iterator keys = newOptions.keySet().iterator();
 			while (keys.hasNext()){
 				String key = (String)keys.next();
-				if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+				if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
 				// no filtering for encoding (custom encoding for project is allowed)
 				String value = (String)newOptions.get(key);
 				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)

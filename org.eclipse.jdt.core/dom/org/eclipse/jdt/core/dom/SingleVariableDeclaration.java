@@ -73,13 +73,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * @since 3.0
-	 * @deprecated Renamed VARARGS_PROPERTY
-	 * TODO (jeem) - Remove before M9
-	 */
-	public static final SimplePropertyDescriptor VARIABLE_ARITY_PROPERTY = VARARGS_PROPERTY;
-	
-	/**
 	 * The "extraDimensions" structural property of this node type.
 	 * @since 3.0
 	 */
@@ -306,7 +299,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return SINGLE_VARIABLE_DECLARATION;
 	}
 
@@ -333,7 +326,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
@@ -543,24 +536,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		preValueChange(VARARGS_PROPERTY);
 		this.variableArity = variableArity;
 		postValueChange(VARARGS_PROPERTY);
-	}
-
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed isVarargs
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public boolean isVariableArity() {
-		return isVarargs();
-	}
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed setVarargs
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public void setVariableArity(boolean variableArity) {
-		setVarargs(variableArity);
 	}
 
 	/* (omit javadoc for this method)

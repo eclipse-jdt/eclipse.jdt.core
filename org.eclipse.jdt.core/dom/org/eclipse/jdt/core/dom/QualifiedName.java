@@ -134,7 +134,7 @@ public class QualifiedName extends Name {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return QUALIFIED_NAME;
 	}
 
@@ -152,7 +152,7 @@ public class QualifiedName extends Name {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
@@ -239,6 +239,15 @@ public class QualifiedName extends Name {
 		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 	
+	/* (omit javadoc for this method)
+	 * Method declared on Name.
+	 */
+	void appendName(StringBuffer buffer) {
+		getQualifier().appendName(buffer);
+		buffer.append('.');
+		getName().appendName(buffer);
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

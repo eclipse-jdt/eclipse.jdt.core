@@ -439,7 +439,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return METHOD_DECLARATION;
 	}
 
@@ -478,7 +478,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
@@ -637,15 +637,6 @@ public class MethodDeclaration extends BodyDeclaration {
 			SingleVariableDeclaration v = (SingleVariableDeclaration) parameters().get(parameters().size() - 1);
 			return v.isVarargs();
 		}
-	}
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed isVarargs
-	 * TODO (jeem) - Remove before M9
-	 */ 
-	public boolean isVariableArity() {
-		return isVarargs();
 	}
 	
 	/**

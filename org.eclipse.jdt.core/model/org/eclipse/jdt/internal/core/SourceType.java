@@ -357,10 +357,10 @@ public String getSuperclassName() throws JavaModelException {
 }
 
 /**
- * @see IType#getSuperclassType()
+ * @see IType#getSuperclassTypeSignature()
  * @since 3.0
  */
-public String getSuperclassType() throws JavaModelException {
+public String getSuperclassTypeSignature() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[] superclassName= info.getSuperclassName();
 	if (superclassName == null) {
@@ -386,10 +386,10 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 }
 
 /**
- * @see IType#getSuperInterfaceTypes()
+ * @see IType#getSuperInterfaceTypeSignatures()
  * @since 3.0
  */
-public String[] getSuperInterfaceTypes() throws JavaModelException {
+public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
 	if (names == null) {
@@ -403,10 +403,10 @@ public String[] getSuperInterfaceTypes() throws JavaModelException {
 }
 
 /**
- * @see IType#getTypeParameters()
+ * @see IType#getTypeParameterSignatures()
  * @since 3.0
  */
-public String[] getTypeParameters() throws JavaModelException {
+public String[] getTypeParameterSignatures() throws JavaModelException {
 	// TODO (jerome) - missing implementation
 	return new String[0];
 }

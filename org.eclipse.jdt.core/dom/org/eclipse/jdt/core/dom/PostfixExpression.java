@@ -210,7 +210,7 @@ public class PostfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return POSTFIX_EXPRESSION;
 	}
 
@@ -228,7 +228,7 @@ public class PostfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}

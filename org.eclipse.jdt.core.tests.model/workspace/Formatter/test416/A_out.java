@@ -1,7 +1,7 @@
 package p;
-// comment
+;;; // comment
 class A {
-} // comment 2
+}; // comment 2
 
 class B {
-} /* comment3 */
+};; /* comment3 */

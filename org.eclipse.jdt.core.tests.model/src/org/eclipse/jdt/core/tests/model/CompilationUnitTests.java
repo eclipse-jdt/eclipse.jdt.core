@@ -392,10 +392,10 @@ public void testGetTypes() throws JavaModelException {
 		assertEquals("Incorrect isAnnotation for the " + i + " type", isAnnotation[i], types[i].isAnnotation());
 		assertEquals("Incorrect isEnum for the " + i + " type", isEnum[i], types[i].isEnum());
 		assertEquals("Incorrect superclassName for the " + i + " type", superclassName[i], types[i].getSuperclassName());
-		assertEquals("Incorrect superclassType for the " + i + " type", superclassType[i], types[i].getSuperclassType());
+		assertEquals("Incorrect superclassType for the " + i + " type", superclassType[i], types[i].getSuperclassTypeSignature());
 		assertEquals("Incorrect superInterfaceNames for the " + i + " type", superInterfaceNames[i].length, types[i].getSuperInterfaceNames().length);
-		assertEquals("Incorrect superInterfaceTypes for the " + i + " type", superInterfaceTypes[i].length, types[i].getSuperInterfaceTypes().length);
-		assertEquals("Incorrect formalTypeParameters for the " + i + " type", formalTypeParameters[i].length, types[i].getTypeParameters().length);
+		assertEquals("Incorrect superInterfaceTypes for the " + i + " type", superInterfaceTypes[i].length, types[i].getSuperInterfaceTypeSignatures().length);
+		assertEquals("Incorrect formalTypeParameters for the " + i + " type", formalTypeParameters[i].length, types[i].getTypeParameterSignatures().length);
 	}
 }
 /**

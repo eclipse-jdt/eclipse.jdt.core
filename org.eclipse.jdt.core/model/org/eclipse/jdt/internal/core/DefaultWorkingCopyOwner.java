@@ -25,6 +25,8 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 	 * @deprecated
 	 */
 	public org.eclipse.jdt.core.IBufferFactory factory; // TODO remove before 3.0
+	
+	public WorkingCopyOwner primaryBufferProvider;
 		
 	public static final DefaultWorkingCopyOwner PRIMARY =  new DefaultWorkingCopyOwner();
 	
@@ -36,8 +38,9 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 	 * @deprecated Marked deprecated as it is using deprecated code
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
+		if (this.primaryBufferProvider != null) return this.primaryBufferProvider.createBuffer(workingCopy);
 		if (this.factory == null) return super.createBuffer(workingCopy);
-		return this.factory.createBuffer(workingCopy); // TODO (jerome) change to use a org.eclipse.text buffer
+		return this.factory.createBuffer(workingCopy);
 	}
 	public String toString() {
 		return "Primary owner"; //$NON-NLS-1$

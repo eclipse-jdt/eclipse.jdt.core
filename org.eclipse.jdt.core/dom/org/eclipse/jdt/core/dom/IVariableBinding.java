@@ -91,4 +91,19 @@ public interface IVariableBinding extends IBinding {
 	 * @return a small non-negative variable id
 	 */
 	public int getVariableId();
+	
+	/**
+	 * Returns this binding's constant value if it has one.
+	 * Some variables may have a value computed at compile-time. If the type of
+	 * the value is a primitive type, the result is the boxed equivalent (i.e.,
+	 * int returned as an <code>Integer</code>). If the type of the value is
+	 * <code>String</code>, the result is the string itself. If the variable has
+	 * no compile-time computed value, the result is <code>null</code>.
+	 * (Note: compile-time constant expressions cannot denote <code>null</code>;
+	 * JLS2 15.28.)
+	 * 
+	 * @return the constant value, or <code>null</code> if none
+	 * @since 3.0
+	 */
+	public Object getConstantValue();
 }

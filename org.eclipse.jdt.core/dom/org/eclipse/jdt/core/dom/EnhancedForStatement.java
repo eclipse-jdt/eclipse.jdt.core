@@ -74,7 +74,7 @@ public class EnhancedForStatement extends Statement {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
@@ -156,7 +156,7 @@ public class EnhancedForStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return ENHANCED_FOR_STATEMENT;
 	}
 
@@ -177,7 +177,7 @@ public class EnhancedForStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}

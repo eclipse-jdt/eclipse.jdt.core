@@ -566,9 +566,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) {
 		boolean defaultPackage = pkgName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		boolean seenPackageNode = false;
-		Enumeration enum = domCU.getChildren();
-		while (enum.hasMoreElements()) {
-			IDOMNode node = (IDOMNode) enum.nextElement();
+		Enumeration nodes = domCU.getChildren();
+		while (nodes.hasMoreElements()) {
+			IDOMNode node = (IDOMNode) nodes.nextElement();
 			if (node.getNodeType() == IDOMNode.PACKAGE) {
 				if (! defaultPackage) {
 					node.setName(pkgName);

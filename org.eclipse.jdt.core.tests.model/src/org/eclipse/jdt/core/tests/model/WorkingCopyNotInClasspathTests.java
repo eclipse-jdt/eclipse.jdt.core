@@ -194,7 +194,7 @@ public void testSimpleProject() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (IParent)cu.getWorkingCopy(null);
+		copy = cu.getWorkingCopy(null);
 		try {
 			copy.getChildren();
 		} catch (JavaModelException e) {

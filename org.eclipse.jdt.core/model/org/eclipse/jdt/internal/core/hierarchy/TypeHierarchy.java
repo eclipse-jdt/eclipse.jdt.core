@@ -733,7 +733,7 @@ private boolean hasSubtypeNamed(String simpleName) {
 	if (this.focusType != null && this.focusType.getElementName().equals(simpleName)) {
 		return true;
 	}
-	IType[] types = this.getAllSubtypes(this.focusType);
+	IType[] types = this.focusType == null ? getAllTypes() : getAllSubtypes(this.focusType);
 	for (int i = 0, length = types.length; i < length; i++) {
 		if (types[i].getElementName().equals(simpleName)) {
 			return true;

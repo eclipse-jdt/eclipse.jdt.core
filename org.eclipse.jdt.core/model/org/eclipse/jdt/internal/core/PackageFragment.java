@@ -219,7 +219,7 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
  */
 public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) {
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, false/*don't add primary*/);
-	if (workingCopies == null) return JavaModelManager.NoWorkingCopy;
+	if (workingCopies == null) return JavaModelManager.NO_WORKING_COPY;
 	int length = workingCopies.length;
 	ICompilationUnit[] result = new ICompilationUnit[length];
 	int index = 0;

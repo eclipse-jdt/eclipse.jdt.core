@@ -69,11 +69,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		if (true) {
 			return new Suite(FormatterRegressionTests.class);
-		} else {
-			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test482"));  //$NON-NLS-1$
-			return suite;
 		}
+		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
+		suite.addTest(new FormatterRegressionTests("test009"));  //$NON-NLS-1$
+		return suite;
 	}
 
 	public FormatterRegressionTests(String name) {
@@ -4928,7 +4927,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test414() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.remove_unnecessary_semicolon = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test414", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4940,7 +4938,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.blank_lines_between_type_declarations = 1;
-		preferences.remove_unnecessary_semicolon = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test415", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4952,7 +4949,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.blank_lines_between_type_declarations = 1;
-		preferences.remove_unnecessary_semicolon = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test416", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -5292,7 +5288,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test444() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, DefaultCodeFormatterConstants.TRUE);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test444", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
@@ -5304,7 +5299,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test445() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, DefaultCodeFormatterConstants.TRUE);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test445", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$

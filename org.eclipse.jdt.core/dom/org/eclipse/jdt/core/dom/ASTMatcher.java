@@ -1572,7 +1572,6 @@ public class ASTMatcher {
 		}
 		ParameterizedType o = (ParameterizedType) other;
 		return safeSubtreeMatch(node.getType(), o.getType())
-				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.typeArguments(), o.typeArguments());
 	}
 

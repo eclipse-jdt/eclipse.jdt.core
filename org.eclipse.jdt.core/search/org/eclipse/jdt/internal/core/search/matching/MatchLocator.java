@@ -590,7 +590,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	this.numberOfMatches = 0;
 	this.matchesToProcess = new PossibleMatch[possibleMatchSize];
 }
-protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws JavaModelException {
+protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws CoreException {
 	initialize(javaProject, length);
 
 	// create and resolve binding (equivalent to beginCompilation() in Compiler)
@@ -628,9 +628,6 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 			// problem with class path: it could not find base classes
 			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
 			bindingsWereCreated = false;
-		} catch (CoreException e) {
-			// core exception thrown by client's code: let it through
-			throw new JavaModelException(e);
 		} finally {
 			if (this.options.verbose)
 				System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
@@ -649,7 +646,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 /**
  * Locate the matches amongst the possible matches.
  */
-protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet) throws JavaModelException {
+protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet) throws CoreException {
 	PossibleMatch[] possibleMatches = matchSet.getPossibleMatches(javaProject.getPackageFragmentRoots());
 	for (int index = 0, length = possibleMatches.length; index < length;) {
 		int max = Math.min(MAX_AT_ONCE, length - index);
@@ -660,7 +657,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet)
 /**
  * Locate the matches in the given files and report them using the search requestor. 
  */
-public void locateMatches(SearchDocument[] searchDocuments) throws JavaModelException {
+public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
 	if (SearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
 		for (int i = 0, length = searchDocuments.length; i < length; i++)
@@ -713,27 +710,21 @@ public void locateMatches(SearchDocument[] searchDocuments) throws JavaModelExce
 
 			// create new parser and lookup environment if this is a new project
 			IResource resource = null;
-			try {
-				JavaProject javaProject = (JavaProject) openable.getJavaProject();
-				resource = workingCopy != null ? workingCopy.getResource() : openable.getResource();
-				if (resource == null)
-					resource = javaProject.getProject(); // case of a file in an external jar
-				if (!javaProject.equals(previousJavaProject)) {
-					// locate matches in previous project
-					if (previousJavaProject != null) {
-						try {
-							locateMatches(previousJavaProject, matchSet);
-						} catch (JavaModelException e) {
-							if (e.getException() instanceof CoreException) throw e;
-							// problem with classpath in this project -> skip it
-						}
-						matchSet.reset();
+			JavaProject javaProject = (JavaProject) openable.getJavaProject();
+			resource = workingCopy != null ? workingCopy.getResource() : openable.getResource();
+			if (resource == null)
+				resource = javaProject.getProject(); // case of a file in an external jar
+			if (!javaProject.equals(previousJavaProject)) {
+				// locate matches in previous project
+				if (previousJavaProject != null) {
+					try {
+						locateMatches(previousJavaProject, matchSet);
+					} catch (JavaModelException e) {
+						// problem with classpath in this project -> skip it
 					}
-					previousJavaProject = javaProject;
+					matchSet.reset();
 				}
-			} catch (JavaModelException e) {
-				// file doesn't exist -> skip it
-				continue;
+				previousJavaProject = javaProject;
 			}
 			matchSet.add(new PossibleMatch(this, resource, openable, searchDocument));
 
@@ -746,8 +737,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws JavaModelExce
 			try {
 				locateMatches(previousJavaProject, matchSet);
 			} catch (JavaModelException e) {
-				if (e.getException() instanceof CoreException) throw e;
-				// problem with classpath in last project -> skip it
+				// problem with classpath in last project -> ignore
 			}
 		} 
 
@@ -762,13 +752,13 @@ public void locateMatches(SearchDocument[] searchDocuments) throws JavaModelExce
 /**
  * Locates the package declarations corresponding to this locator's pattern. 
  */
-public void locatePackageDeclarations(SearchParticipant participant) throws JavaModelException {
+public void locatePackageDeclarations(SearchParticipant participant) throws CoreException {
 	locatePackageDeclarations(this.pattern, participant);
 }
 /**
  * Locates the package declarations corresponding to the search pattern. 
  */
-protected void locatePackageDeclarations(SearchPattern searchPattern, SearchParticipant participant) throws JavaModelException {
+protected void locatePackageDeclarations(SearchPattern searchPattern, SearchParticipant participant) throws CoreException {
 	if (searchPattern instanceof OrPattern) {
 		SearchPattern[] patterns = ((OrPattern) searchPattern).patterns;
 		for (int i = 0, length = patterns.length; i < length; i++)
@@ -778,19 +768,11 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			IResource resource = searchPattern.focus.getResource();
 			SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
-			try {
-				IJavaElement element = searchPattern.focus;
-				if (encloses(element)) {
-					SearchMatch match = newDeclarationMatch(element, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
-					report(match);
-				}
-			} catch (CoreException e) {
-				if (e instanceof JavaModelException) {
-					throw (JavaModelException) e;
-				} else {
-					throw new JavaModelException(e);
-				}
-			}					
+			IJavaElement element = searchPattern.focus;
+			if (encloses(element)) {
+				SearchMatch match = newDeclarationMatch(element, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
+				report(match);
+			}
 			return;
 		}
 		PackageDeclarationPattern pkgPattern = (PackageDeclarationPattern) searchPattern;

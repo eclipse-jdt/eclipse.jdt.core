@@ -326,6 +326,7 @@ public class ToolFactory {
 	 * a new 'assert' keyword.
   	 * @return a scanner
 	 * @see org.eclipse.jdt.core.compiler.IScanner
+     * @since 3.0
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel) {
 		PublicScanner scanner = null;

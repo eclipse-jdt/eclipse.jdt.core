@@ -65,20 +65,20 @@ class AddJarFileToIndex extends IndexRequest {
 			Index index = manager.getIndexForUpdate(this.containerPath, false, /*do not reuse index file*/ false /*do not create if none*/);
 			if (index != null) {
 				if (JobManager.VERBOSE)
-					JobManager.verbose("-> no indexing required (index already exists) for " + this.containerPath); //$NON-NLS-1$
+					org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index already exists) for " + this.containerPath); //$NON-NLS-1$
 				return true;
 			}
 
 			index = manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) {
 				if (JobManager.VERBOSE)
-					JobManager.verbose("-> index could not be created for " + this.containerPath); //$NON-NLS-1$
+					org.eclipse.jdt.internal.core.util.Util.verbose("-> index could not be created for " + this.containerPath); //$NON-NLS-1$
 				return true;
 			}
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) {
 				if (JobManager.VERBOSE)
-					JobManager.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
+					org.eclipse.jdt.internal.core.util.Util.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
 				return true; // index got deleted since acquired
 			}
 			ZipFile zip = null;
@@ -106,12 +106,12 @@ class AddJarFileToIndex extends IndexRequest {
 
 				if (this.isCancelled) {
 					if (JobManager.VERBOSE)
-						JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
+						org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 					return false;
 				}
 
 				if (JobManager.VERBOSE)
-					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
+					org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
 				String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
@@ -146,7 +146,7 @@ class AddJarFileToIndex extends IndexRequest {
 						}
 						if (!needToReindex) {
 							if (JobManager.VERBOSE)
-								JobManager.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
+								org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
 								+ zip.getName() + " (" //$NON-NLS-1$
 								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 							return true;
@@ -161,7 +161,7 @@ class AddJarFileToIndex extends IndexRequest {
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
-							JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
+							org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 
@@ -175,7 +175,7 @@ class AddJarFileToIndex extends IndexRequest {
 				}
 				this.manager.saveIndex(index);
 				if (JobManager.VERBOSE)
-					JobManager.verbose("-> done indexing of " //$NON-NLS-1$
+					org.eclipse.jdt.internal.core.util.Util.verbose("-> done indexing of " //$NON-NLS-1$
 						+ zip.getName() + " (" //$NON-NLS-1$
 						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
@@ -188,7 +188,7 @@ class AddJarFileToIndex extends IndexRequest {
 			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to index " + this.containerPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + this.containerPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			manager.removeIndex(this.containerPath);

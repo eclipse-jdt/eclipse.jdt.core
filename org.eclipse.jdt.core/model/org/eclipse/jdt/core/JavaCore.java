@@ -1166,17 +1166,21 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
 
-		IClasspathContainer container = JavaModelManager.containerGet(project, containerPath);
-		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+		IClasspathContainer container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
+		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 
 		if (container == null){
 			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 			if (initializer != null){
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPContainer INIT - triggering initialization of: ["+project.getElementName()+"] " + containerPath + " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-					new Exception("FAKE exception for dumping current CPContainer (["+project.getElementName()+"] "+ containerPath+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					Util.verbose("CPContainer INIT - triggering initialization"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+					Util.verbose("	initializer: " + initializer); //$NON-NLS-1$
+					Util.verbose("	invocation stack trace:"); //$NON-NLS-1$
+					new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 				}
-				JavaModelManager.containerPut(project, containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				JavaModelManager.getJavaModelManager().containerPut(project, containerPath, JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 				boolean ok = false;
 				try {
 					// wrap initializer call with Safe runnable in case initializer would be causing some grief
@@ -1190,31 +1194,34 @@ public final class JavaCore extends Plugin {
 					});
 					
 					// retrieve value (if initialization was successful)
-					container = JavaModelManager.containerGet(project, containerPath);
-					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+					container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
+					if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 					ok = true;
 				} finally {
-					if (!ok) JavaModelManager.containerPut(project, containerPath, null); // flush cache
+					if (!ok) JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
 				}
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.print("CPContainer INIT - after resolution: ["+project.getElementName()+"] " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$//$NON-NLS-3$
+					Util.verbose("CPContainer INIT - after resolution"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 					if (container != null){
-						System.out.print("container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
+						Util.verbose("	container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						if (entries != null){
 							for (int i = 0; i < entries.length; i++){
-								if (i > 0) System.out.println(", ");//$NON-NLS-1$
-								System.out.println(entries[i]);
+								Util.verbose("		" + entries[i]); //$NON-NLS-1$
 							}
 						}
-						System.out.println("}");//$NON-NLS-1$
+						Util.verbose("	}");//$NON-NLS-1$
 					} else {
-						System.out.println("{unbound}");//$NON-NLS-1$
+						Util.verbose("	container: {unbound}");//$NON-NLS-1$
 					}
 				}
 			} else {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPContainer INIT - no initializer found for: "+project.getElementName()+"] " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("CPContainer INIT - no initializer found"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 				}
 			}
 		}
@@ -1247,7 +1254,9 @@ public final class JavaCore extends Plugin {
 					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
 					if (initializerID != null && initializerID.equals(containerID)){
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							System.out.println("CPContainer INIT - found initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							Util.verbose("CPContainer INIT - found initializer"); //$NON-NLS-1$
+							Util.verbose("	container ID: " + containerID); //$NON-NLS-1$
+							Util.verbose("	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 						}						
 						try {
 							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
@@ -1257,7 +1266,9 @@ public final class JavaCore extends Plugin {
 						} catch(CoreException e) {
 							// executable extension could not be created: ignore this initializer
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								System.out.println("CPContainer INIT - failed to instanciate initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+								Util.verbose("CPContainer INIT - failed to instanciate initializer", System.err); //$NON-NLS-1$
+								Util.verbose("	container ID: " + containerID, System.err); //$NON-NLS-1$
+								Util.verbose("	class: " + configElements[j].getAttribute("class"), System.err); //$NON-NLS-1$ //$NON-NLS-2$
 								e.printStackTrace();
 							}						
 						}
@@ -1287,8 +1298,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
 	
-		IPath variablePath = JavaModelManager.variableGet(variableName);
-		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
+		IPath variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName);
+		if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 		
 		if (variablePath != null) {
 			return variablePath;
@@ -1298,10 +1309,12 @@ public final class JavaCore extends Plugin {
 		final ClasspathVariableInitializer initializer = JavaCore.getClasspathVariableInitializer(variableName);
 		if (initializer != null){
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPVariable INIT - triggering initialization of: " + variableName+ " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$
-				new Exception("FAKE exception for dumping current CPVariable ("+variableName+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$
+				Util.verbose("CPVariable INIT - triggering initialization"); //$NON-NLS-1$
+				Util.verbose("	variable: " + variableName); //$NON-NLS-1$
+				Util.verbose("	initializer: " + initializer); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
-			JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
+			JavaModelManager.getJavaModelManager().variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
 				// wrap initializer call with Safe runnable in case initializer would be causing some grief
@@ -1313,18 +1326,21 @@ public final class JavaCore extends Plugin {
 						initializer.initialize(variableName);
 					}
 				});
-				variablePath = JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
-				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle (initializer did not init or reentering call)
+				variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName); // initializer should have performed side-effect
+				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+					Util.verbose("CPVariable INIT - after initialization"); //$NON-NLS-1$
+					Util.verbose("	variable: " + variableName); //$NON-NLS-1$
+					Util.verbose("	variable path: " + variablePath); //$NON-NLS-1$
 				}
 				ok = true;
 			} finally {
-				if (!ok) JavaModelManager.variablePut(variableName, null); // flush cache
+				if (!ok) JavaModelManager.getJavaModelManager().variablePut(variableName, null); // flush cache
 			}
 		} else {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPVariable INIT - no initializer found for: " + variableName); //$NON-NLS-1$
+				Util.verbose("CPVariable INIT - no initializer found"); //$NON-NLS-1$
+				Util.verbose("	variable: " + variableName); //$NON-NLS-1$
 			}
 		}
 		return variablePath;
@@ -1355,7 +1371,9 @@ public final class JavaCore extends Plugin {
 						String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
 						if (variable.equals(varAttribute)) {
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+								Util.verbose("CPVariable INIT - found initializer"); //$NON-NLS-1$
+								Util.verbose("	variable: " + variable); //$NON-NLS-1$
+								Util.verbose("	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 							}						
 							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ClasspathVariableInitializer){
@@ -1365,7 +1383,9 @@ public final class JavaCore extends Plugin {
 					} catch(CoreException e){
 						// executable extension could not be created: ignore this initializer
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							System.out.println("CPContainer INIT - failed to instanciate initializer: "+variable +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							Util.verbose("CPContainer INIT - failed to instanciate initializer", System.err); //$NON-NLS-1$
+							Util.verbose("	variable: " + variable, System.err); //$NON-NLS-1$
+							Util.verbose("	class: " + configElements[j].getAttribute("class"), System.err); //$NON-NLS-1$ //$NON-NLS-2$
 							e.printStackTrace();
 						}						
 					}
@@ -1386,7 +1406,7 @@ public final class JavaCore extends Plugin {
 	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static String[] getClasspathVariableNames() {
-		return JavaModelManager.variableNames();
+		return JavaModelManager.getJavaModelManager().variableNames();
 	}
 
 	/**
@@ -2045,7 +2065,7 @@ public final class JavaCore extends Plugin {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
-		HashSet optionNames = JavaModelManager.OptionNames;
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// initialize preferences to their default
 		Iterator iterator = optionNames.iterator();
@@ -2111,17 +2131,9 @@ public final class JavaCore extends Plugin {
 			return ERROR;
 		}
 		String propertyName = optionName;
-		if (JavaModelManager.OptionNames.contains(propertyName)){
+		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(propertyName).trim();
-		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPlugin().getPluginPreferences();
-			return Util.getConvertedDeprecatedValue(preferences, propertyName);
-		} else if (propertyName.equals("org.eclipse.jdt.core.align_type_members_on_columns")) { //$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPlugin().getPluginPreferences();
-			return preferences.getString(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
 		}
 		return null;
 	}
@@ -2145,7 +2157,7 @@ public final class JavaCore extends Plugin {
 		Plugin plugin = getPlugin();
 		if (plugin != null) {
 			Preferences preferences = getPlugin().getPluginPreferences();
-			HashSet optionNames = JavaModelManager.OptionNames;
+			HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 			
 			// initialize preferences to their default
 			Iterator iterator = optionNames.iterator();
@@ -2160,13 +2172,6 @@ public final class JavaCore extends Plugin {
 				String value = preferences.getString(propertyName).trim();
 				if (optionNames.contains(propertyName)){
 					options.put(propertyName, value);
-				}
-				// TODO (olivier) Remove after M7
-				else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-					Util.convertFormatterDeprecatedOptions(propertyName, value, options);
-				} else if (propertyName.equals("org.eclipse.jdt.core.align_type_members_on_columns")) { //$NON-NLS-1$
-					// TODO (olivier) remove after M7
-					options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, value);
 				}
 			}
 			// get encoding through resource plugin
@@ -2342,7 +2347,7 @@ public final class JavaCore extends Plugin {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (owner == null) owner = DefaultWorkingCopyOwner.PRIMARY;
 		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
-		if (result == null) return JavaModelManager.NoWorkingCopy;
+		if (result == null) return JavaModelManager.NO_WORKING_COPY;
 		return result;
 	}
 		
@@ -2352,7 +2357,7 @@ public final class JavaCore extends Plugin {
 	protected void initializeDefaultPluginPreferences() {
 		
 		Preferences preferences = getPluginPreferences();
-		HashSet optionNames = JavaModelManager.OptionNames;
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// Compiler settings
 		Map compilerOptionsMap = new CompilerOptions().getMap(); // compiler defaults
@@ -2843,32 +2848,18 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
-	 * for the project's source folder identified by the given absolute 
-	 * workspace-relative path. This specifies that all package fragments
-	 * within the root will have children of type <code>ICompilationUnit</code>.
+	 * for all files in the project's source folder identified by the given
+	 * absolute workspace-relative path.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path. To selectively exclude
-	 * some of these source files, use the factory method 
-	 * <code>JavaCore.newSourceEntry(IPath,IPath[])</code> instead.
-	 * </p>
-	 * <p>
-	 * Note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, new IPath[] {}, null);
+	 * </pre>
 	 * </p>
 	 * 
 	 * @param path the absolute workspace-relative path of a source folder
-	 * @return a new source classpath entry with not exclusion patterns
-	 * 
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath[])
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
@@ -2879,52 +2870,19 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
 	 * workspace-relative path but excluding all source files with paths
-	 * matching any of the given patterns. This specifies that all package
-	 * fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
+	 * matching any of the given patterns.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
-	 * like <code>/Project/src/com/xyz/Foo.java</code>
-	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
-	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
-	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
-	 * </p>
-	 * <p>
-	 * Note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, exclusionPatterns, null);
+	 * </pre>
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
 	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
-	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getInclusionPatterns()
-	 * @see IClasspathEntry#getExclusionPatterns()
-	 * 
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
@@ -2938,63 +2896,19 @@ public final class JavaCore extends Plugin {
 	 * workspace-relative path but excluding all source files with paths
 	 * matching any of the given patterns, and associated with a specific output location
 	 * (that is, ".class" files are not going to the project default output location). 
-	 * All package fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
-	 * like <code>/Project/src/com/xyz/Foo.java</code>
-	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
-	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
-	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
-	 * </p>
-	 * <p>
-	 * Additionally, a source entry can be associated with a specific output location. 
-	 * By doing so, the Java builder will ensure that the generated ".class" files will 
-	 * be issued inside this output location, as opposed to be generated into the 
-	 * project default output location (when output location is <code>null</code>). 
-	 * Note that multiple source entries may target the same output location.
-	 * The output location is referred to using an absolute path relative to the 
-	 * workspace root, e.g. <code>"/Project/bin"</code>, it must be located inside 
-	 * the same project as the source folder.
-	 * </p>
-	 * <p>
-	 * Also note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, exclusionPatterns, specificOutputLocation);
+	 * </pre>
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
 	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
 	 * @param specificOutputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
-	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getInclusionPatterns()
-	 * @see IClasspathEntry#getExclusionPatterns()
-	 * @see IClasspathEntry#getOutputLocation()
-	 * 
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation) {
@@ -3002,14 +2916,12 @@ public final class JavaCore extends Plugin {
 	    return newSourceEntry(path, ClasspathEntry.INCLUDE_ALL, exclusionPatterns, specificOutputLocation);
 	}
 		
-	/** TODO (philippe) fixup spec for inclusion patterns
+	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
-	 * workspace-relative path but excluding all source files with paths
-	 * matching any of the given patterns, and associated with a specific output location
-	 * (that is, ".class" files are not going to the project default output location). 
-	 * All package fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
+	 * workspace-relative path using the given inclusion and exclusion patterns
+	 * to determine which source files are included, and the given output path
+	 * to control the output location of generated files.
 	 * <p>
 	 * The source folder is referred to using an absolute path relative to the
 	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
@@ -3018,26 +2930,33 @@ public final class JavaCore extends Plugin {
 	 * project <code>P1</code>.
 	 * </p>
 	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
+	 * The inclusion patterns determines the initial set of source files that
+	 * are to be included; the exclusion patterns are then used to reduce this
+	 * set. When no inclusion patterns are specified, the initial file set
+	 * includes all relevent files in the resource tree rooted at the source
+	 * entry's path. On the other hand, specifying one or more inclusion
+	 * patterns means that all <b>and only</b> files matching at least one of
+	 * the specified patterns are to be included. If exclusion patterns are 
+	 * specified, the initial set of files is then reduced by eliminating files
+	 * matched by at least one of the exclusion patterns. Inclusion and
+	 * exclusion patterns look like relative file paths with wildcards and are
+	 * interpreted relative to the source entry's path. File patterns are 
+	 * case-sensitive can contain '**', '*' or '?' wildcards (see
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics). The resulting set of files are included
+	 * in the corresponding package fragment root; all package fragments within
+	 * the root will have children of type <code>ICompilationUnit</code>.
+	 * </p>
+	 * <p>
+	 * For example, if the source folder path is 
+	 * <code>/Project/src</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
 	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
 	 * like <code>/Project/src/com/xyz/Foo.java</code>
 	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
 	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
 	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
+	 * excluded. 
 	 * </p>
 	 * <p>
 	 * Additionally, a source entry can be associated with a specific output location. 
@@ -3050,9 +2969,10 @@ public final class JavaCore extends Plugin {
 	 * the same project as the source folder.
 	 * </p>
 	 * <p>
-	 * Also note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * Also note that all sources/binaries inside a project are contributed as
+	 * a whole through a project entry
+	 * (see <code>JavaCore.newProjectEntry</code>). Particular source entries
+	 * cannot be selectively exported.
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
@@ -3062,11 +2982,9 @@ public final class JavaCore extends Plugin {
 	 *    represented as relative paths
 	 * @param specificOutputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
 	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
 	 * @see IClasspathEntry#getInclusionPatterns()
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @see IClasspathEntry#getOutputLocation()
-	 * 
 	 * @since 3.0
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] inclusionPatterns, IPath[] exclusionPatterns, IPath specificOutputLocation) {
@@ -3074,6 +2992,7 @@ public final class JavaCore extends Plugin {
 		if (path == null) Assert.isTrue(false, "Source path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		if (exclusionPatterns == null) Assert.isTrue(false, "Exclusion pattern set cannot be null"); //$NON-NLS-1$
+		if (inclusionPatterns == null) Assert.isTrue(false, "Inclusion pattern set cannot be null"); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -3377,17 +3296,43 @@ public final class JavaCore extends Plugin {
 		if (monitor != null && monitor.isCanceled()) return;
 	
 		if (JavaModelManager.CP_RESOLVE_VERBOSE){
-			System.out.println("CPContainer SET  - setting container: ["+containerPath+"] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
-				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(affectedProjects, 
+			Util.verbose("CPContainer SET  - setting container"); //$NON-NLS-1$
+			Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+			Util.verbose(
+				"	projects: {" //$NON-NLS-1$
+				+ org.eclipse.jdt.internal.compiler.util.Util.toString( 
+					affectedProjects, 
+					new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+						public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+					})
+				+ "}"); //$NON-NLS-1$
+			Util.verbose(
+				"	values: {\n" //$NON-NLS-1$
+				+ org.eclipse.jdt.internal.compiler.util.Util.toString(
+						respectiveContainers, 
 						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
-						}))
-				+ "} with values: " //$NON-NLS-1$
-				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(respectiveContainers, 
-						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { return ((IClasspathContainer) o).getDescription(); }
-						}))
-					);
+							public String displayString(Object o) { 
+								StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+								if (o == null) {
+									buffer.append("<null>"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+								IClasspathContainer container = (IClasspathContainer) o;
+								buffer.append(container.getDescription());
+								buffer.append(" {\n"); //$NON-NLS-1$
+								IClasspathEntry[] entries = container.getClasspathEntries();
+								if (entries != null){
+									for (int i = 0; i < entries.length; i++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(entries[i]); 
+										buffer.append('\n'); 
+									}
+								}
+								buffer.append(" 		}"); //$NON-NLS-1$
+								return buffer.toString();
+							}
+						})
+				+ "\n	}"); //$NON-NLS-1$
 		}
 
 		final int projectLength = affectedProjects.length;
@@ -3403,7 +3348,7 @@ public final class JavaCore extends Plugin {
 	
 			IJavaProject affectedProject = affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
-			if (newContainer == null) newContainer = JavaModelManager.ContainerInitializationInProgress; // 30920 - prevent infinite loop
+			if (newContainer == null) newContainer = JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS; // 30920 - prevent infinite loop
 			boolean found = false;
 			if (JavaProject.hasJavaNature(affectedProject.getProject())){
 				IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
@@ -3417,19 +3362,33 @@ public final class JavaCore extends Plugin {
 			}
 			if (!found){
 				modifiedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
-				JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
+				JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 				continue;
 			}
-			IClasspathContainer oldContainer = JavaModelManager.containerGet(affectedProject, containerPath);
-			if (oldContainer == JavaModelManager.ContainerInitializationInProgress) {
-				Map previousContainerValues = (Map)JavaModelManager.PreviousSessionContainers.get(affectedProject);
+			IClasspathContainer oldContainer = JavaModelManager.getJavaModelManager().containerGet(affectedProject, containerPath);
+			if (oldContainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+				Map previousContainerValues = (Map)JavaModelManager.getJavaModelManager().previousSessionContainers.get(affectedProject);
 				if (previousContainerValues != null){
 					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 					if (previousContainer != null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer.getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							Util.verbose("CPContainer INIT - reentering access to project container during its initialization, will see previous value"); //$NON-NLS-1$ 
+							Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+							Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+							StringBuffer buffer = new StringBuffer(previousContainer.getDescription());
+							buffer.append(" {\n"); //$NON-NLS-1$
+							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
+							if (entries != null){
+								for (int j = 0; j < entries.length; j++){
+									buffer.append(" 		"); //$NON-NLS-1$
+									buffer.append(entries[j]); 
+									buffer.append('\n'); 
+								}
+							}
+							buffer.append(" 	}"); //$NON-NLS-1$
+							Util.verbose("	previous value: " + buffer.toString()); //$NON-NLS-1$
 						}
-						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
+						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
 					}
 					oldContainer = null; //33695 - cannot filter out restored container, must update affected project to reset cached CP
 				} else {
@@ -3442,7 +3401,7 @@ public final class JavaCore extends Plugin {
 			}
 			remaining++; 
 			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
-			JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
+			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 		}
 		
 		if (remaining == 0) return;
@@ -3460,7 +3419,9 @@ public final class JavaCore extends Plugin {
 						if (affectedProject == null) continue; // was filtered out
 						
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer SET  - updating affected project: ["+affectedProject.getElementName()+"] due to setting container: " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("CPContainer SET  - updating affected project due to setting container"); //$NON-NLS-1$
+							Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+							Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 						}
 
 						// force a refresh of the affected project (will compute deltas)
@@ -3479,7 +3440,8 @@ public final class JavaCore extends Plugin {
 			monitor);
 		} catch(CoreException e) {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPContainer SET  - FAILED DUE TO EXCEPTION: "+containerPath); //$NON-NLS-1$
+				Util.verbose("CPContainer SET  - FAILED DUE TO EXCEPTION", System.err); //$NON-NLS-1$
+				Util.verbose("	container path: " + containerPath, System.err); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			if (e instanceof JavaModelException) {
@@ -3490,7 +3452,7 @@ public final class JavaCore extends Plugin {
 		} finally {
 			for (int i = 0; i < projectLength; i++) {
 				if (respectiveContainers[i] == null) {
-					JavaModelManager.containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
+					JavaModelManager.getJavaModelManager().containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
 				}
 			}
 		}
@@ -3605,7 +3567,7 @@ public final class JavaCore extends Plugin {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+			if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
 			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
 			String value = (String)newOptions.get(key);
 			preferences.setValue(key, value);
@@ -3707,14 +3669,14 @@ public final class JavaCore extends Plugin {
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
 			String variableName = variableNames[i];
-			IPath oldPath = JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
-			if (oldPath == JavaModelManager.VariableInitializationInProgress){
-				IPath previousPath = (IPath)JavaModelManager.PreviousSessionVariables.get(variableName);
+			IPath oldPath = JavaModelManager.getJavaModelManager().variableGet(variableName); // if reentering will provide previous session value 
+			if (oldPath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS){
+				IPath previousPath = (IPath)JavaModelManager.getJavaModelManager().previousSessionVariables.get(variableName);
 				if (previousPath != null){
 					if (JavaModelManager.CP_RESOLVE_VERBOSE){
 						System.out.println("CPVariable INIT - reentering access to variable: " + variableName+ " during its initialization, will see previous value: "+ previousPath); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					JavaModelManager.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
+					JavaModelManager.getJavaModelManager().variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
 				}
 				oldPath = null;  //33695 - cannot filter out restored variable, must update affected project to reset cached CP
 			}
@@ -3775,7 +3737,7 @@ public final class JavaCore extends Plugin {
 		}
 		// update variables
 		for (int i = 0; i < varLength; i++){
-			JavaModelManager.variablePut(variableNames[i], variablePaths[i]);
+			JavaModelManager.getJavaModelManager().variablePut(variableNames[i], variablePaths[i]);
 		}
 		final String[] dbgVariableNames = variableNames;
 				
@@ -3795,8 +3757,9 @@ public final class JavaCore extends Plugin {
 								JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
 
 								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPVariable SET  - updating affected project: ["+affectedProject.getElementName() //$NON-NLS-1$
-										+"] due to setting variables: "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
+									Util.verbose("CPVariable SET  - updating affected project due to setting variables"); //$NON-NLS-1$
+									Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+									Util.verbose("	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
 								}
 
 								affectedProject

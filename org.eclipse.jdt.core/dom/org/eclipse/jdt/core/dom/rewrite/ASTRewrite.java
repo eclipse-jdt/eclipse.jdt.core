@@ -73,7 +73,7 @@ public class ASTRewrite {
 	private final RewriteEventStore fEventStore;
 	private final NodeInfoStore fNodeStore;
 	
-	/* TODO (david) - You get more flexibility to evolve an API class
+	/* TODO (martin/david) - You get more flexibility to evolve an API class
 	 * by declaring a public static factory method as API and keeping
 	 * the constructor private or package-private.
 	 */
@@ -126,10 +126,10 @@ public class ASTRewrite {
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the chnages recorded by this rewriter
 	 * @throws RewriteException 
-	 * TODO (david) - eliminate RewriteException in favor of an unchecked exception
+	 * TODO (martin/david) - eliminate RewriteException in favor of an unchecked exception
 	 */
 	public TextEdit rewriteAST(IDocument document, Map options) throws RewriteException {
-		// TODO (david) - check arguments on entry to API methods
+		// TODO (martin/david) - check arguments on entry to API methods
 //		if (document == null) {
 //			throw new IllegalArgumentException();
 //		}

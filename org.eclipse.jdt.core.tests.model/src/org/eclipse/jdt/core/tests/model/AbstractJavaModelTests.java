@@ -312,6 +312,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		int length = selection.length();
 		return ((ICodeAssist)sourceReference).codeSelect(start, length);
 	}
+	protected IJavaElement[] codeSelectAt(ISourceReference sourceReference, String selectAt) throws JavaModelException {
+		String str = sourceReference.getSource();
+		int start = str.indexOf(selectAt) + selectAt.length();
+		int length = 0;
+		return ((ICodeAssist)sourceReference).codeSelect(start, length);
+	}
 	/**
 	 * Copy file from src (path to the original file) to dest (path to the destination file).
 	 */
@@ -821,7 +827,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return JavaCore.create(project);
 	}
 	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
-		ISourceReference cu = (ISourceReference)getCompilationUnit(cuPath);
+		ISourceReference cu = getCompilationUnit(cuPath);
 		IJavaElement[] elements = codeSelect(cu, selectAt, selection);
 		if (elements.length == 0) return null;
 		if (elements[0] instanceof ILocalVariable) {

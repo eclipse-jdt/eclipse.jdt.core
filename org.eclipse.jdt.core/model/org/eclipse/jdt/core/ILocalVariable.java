@@ -42,6 +42,11 @@ public interface ILocalVariable extends IJavaElement, ISourceReference {
 	
 	/**
 	 * Returns the type signature of this local variable.
+	 * <p>
+	 * The type signature may be either unresolved (for source types)
+	 * or resolved (for binary types), and either basic (for basic types)
+	 * or rich (for parameterized types). See {@link Signature} for details.
+	 * </p>
 	 *
 	 * @return the type signature of this local variable.
 	 * @see Signature

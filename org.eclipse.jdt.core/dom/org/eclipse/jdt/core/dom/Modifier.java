@@ -508,7 +508,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Method declared on ASTNode.
 	 * @since 3.0
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return MODIFIER;
 	}
 
@@ -541,7 +541,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Method declared on ASTNode.
 	 * @since 3.0
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}

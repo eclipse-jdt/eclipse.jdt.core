@@ -25,7 +25,7 @@ import java.util.List;
  *     Name
  *     MethodRef
  *     MemberRef
- *     <b>{</b> TagElement <b>}<b>
+ *     <b>{</b> TagElement <b>}</b>
  * </pre>
  * 
  * @see Javadoc
@@ -68,7 +68,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
@@ -226,7 +226,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public int getNodeType() {
+	final int getNodeType0() {
 		return TAG_ELEMENT;
 	}
 
@@ -244,7 +244,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
@@ -335,6 +335,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * of node will trigger an exception.
 	 * 
 	 * @return the live list of doc elements in this tag element
+	 * (element type: <code>ASTNode</code>)
 	 */ 
 	public List fragments() {
 		return this.fragments;

@@ -116,6 +116,42 @@ protected void tearDown() throws Exception {
 }
 
 /**
+ * When adding an anonymous type in a hierarchy on a region, we should be notified of change.
+ * (regression test for bug 51867 An anonymous type is missing in type hierarchy when editor is modified)
+ */
+public void testAddAnonymousInRegion() throws CoreException {
+	ITypeHierarchy h = null;
+	ICompilationUnit copy = null;
+	try {
+		copy = getCompilationUnit("TypeHierarchyNotification", "src", "p3", "A.java");
+		copy.becomeWorkingCopy(null, null);
+		
+		IRegion region = JavaCore.newRegion();
+		region.add(copy.getParent());
+		h = copy.getJavaProject().newTypeHierarchy(region, null);
+		h.addTypeHierarchyChangedListener(this);
+
+		// add a field initialized with a 'new B() {...}' anonymous type
+		String newSource = 
+			"package p3;\n" +
+			"public class A{\n" +
+			"  B field = new B() {};\n" +
+			"}";
+		copy.getBuffer().setContents(newSource);
+		copy.reconcile(false, false, null, null);
+		copy.commitWorkingCopy(true, null);
+
+		this.assertOneChange(h);
+	} finally {
+		if (h != null) {
+			h.removeTypeHierarchyChangedListener(this);
+		}
+		if (copy != null) {
+			copy.discardWorkingCopy();
+		}
+	}
+}
+/**
  * When a CU is added the type hierarchy should change
  * only if one of the types of the CU is part of the  
  * type hierarchy.

@@ -104,11 +104,41 @@ Incorrect highlighting for type problem in qualified type name
 [1.5] ArrayStoreException in 1.5 parser
 
 
+<a name="v_421"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M9 Build - 13th April 2004
+<br>Project org.eclipse.jdt.core v_421
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_421">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57829">57829</a>
+Should optimize assert true case
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57294">57294</a>
+Ignore serialVersionUID hiding another field
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=41395">41395</a>
+StackOverflowError when pasting code 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57414">57414</a>
+Summary: GB18030: Can not open Java Search dialog. 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57886">57886</a>
+Concurrency issue while initializing containers and variables 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57858">57858</a>
+[Compiler] Marking a field deprecated still report deprecated usage #46973
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57743">57743</a>
+[Compiler] invalid byte code produced when catching Throwable
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57235">57235</a>
+DCR: AST Name.getQualifiedName()
+
 <a name="v_420"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M9 Build - ?th April 2004
+Eclipse SDK 3.0M9 Build - 6th April 2004
 <br>Project org.eclipse.jdt.core v_420
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_420">cvs</a>).
 <h2>
@@ -116,16 +146,37 @@ What's new in this drop</h2>
 <ul>
 <li>Added inclusion patterns support. See <code>JavaCore.newSourceEntry(IPath,IPath[],IPath[],IPath)</code> 
 	 and <code>IClasspathEntry.getInclusionPatterns()</code> for details.</li>
+<li>Added API on WorkingCopyOwner to set the primary buffer provider (for internal use by the jdt-related plug-ins only).
+<pre>
+	/**
+	 * Sets the buffer provider of the primary working copy owner. Note that even if the
+	 * buffer provider is a working copy owner, only its createBuffer(ICompilationUnit)
+	 * method is used by the primary working copy owner. It doesn't replace the internal primary 
+	 * working owner.
+ 	 * 
+	 * This method is for internal use by the jdt-related plug-ins.
+	 * Clients outside of the jdt should not reference this method.
+	 * 
+	 * @param primaryBufferProvider the primary buffer provider
+	 */
+	public static void setPrimaryBufferProvider(WorkingCopyOwner primaryBufferProvider);
+</pre></li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54763">54763</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54009">54009</a>
+jardesc should be known to Team/File Content
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51867">51867</a>
+An anonymous type is missing in type hierarchy when editor is modified 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54763">54763</a>
 [Compiler] Unnecessary cast not detected
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52347">52347</a>
+NPE in LaunchingPlugin.shutdown 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=55992">55992</a>
 AssertionFailed during preference import
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29964">29964</a>
 Add inclusion filter 
->br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=55088">55088</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=55088">55088</a>
 IAE when using ICU.reconcile(GET_AST_TRUE, ...) 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=56462">56462</a>
 [formatter] java profile; array initializer before closing brace

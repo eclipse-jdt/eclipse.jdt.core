@@ -69,6 +69,7 @@ public final class NodeInfoStore {
 	 * @return Returns a place holder node.
 	 */
 	public final ASTNode newPlaceholderNode(int nodeType) {
+		// TODO (david) - use new AST.createInstance(int nodeType) method (the fact that try has no finally should not be an issue for placeholders)
 		AST ast= fAst;
 		switch (nodeType) {
 			case ASTNode.ANNOTATION_TYPE_DECLARATION :
@@ -172,7 +173,7 @@ public final class NodeInfoStore {
 			case ASTNode.PACKAGE_DECLARATION :
 				return ast.newPackageDeclaration();
 			case ASTNode.PARAMETERIZED_TYPE :
-				return ast.newParameterizedType(ast.newSimpleName("id")); //$NON-NLS-1$
+				return ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("id"))); //$NON-NLS-1$
 			case ASTNode.PARENTHESIZED_EXPRESSION :
 				return ast.newParenthesizedExpression();
 			case ASTNode.POSTFIX_EXPRESSION :

@@ -198,8 +198,7 @@ public void testCustomizedBuffer() throws JavaModelException {
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();
 	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
 	try {
-		assertTrue("Should be an IOpenable", customizedCopy instanceof IOpenable);
-		assertTrue("Unexpected buffer", ((IOpenable)customizedCopy).getBuffer() instanceof TestBuffer);
+		assertTrue("Unexpected buffer", customizedCopy.getBuffer() instanceof TestBuffer);
 	} finally {
 		customizedCopy.discardWorkingCopy();
 	}
@@ -211,11 +210,9 @@ public void testCustomizedBuffer2() throws JavaModelException {
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();
 	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
 	try {
-		assertTrue("Should be an IOpenable", customizedCopy instanceof IOpenable);
-		IOpenable openableCopy = (IOpenable)customizedCopy;
-		openableCopy.close();
-		openableCopy.open(null);
-		assertTrue("Unexpected buffer", openableCopy.getBuffer() instanceof TestBuffer);		
+		customizedCopy.close();
+		customizedCopy.open(null);
+		assertTrue("Unexpected buffer", customizedCopy.getBuffer() instanceof TestBuffer);		
 	} finally {
 		customizedCopy.discardWorkingCopy();
 	}

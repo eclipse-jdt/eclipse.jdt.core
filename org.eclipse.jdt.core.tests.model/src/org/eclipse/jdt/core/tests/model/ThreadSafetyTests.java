@@ -55,9 +55,10 @@ public void testDeadlock01() throws CoreException {
 		// simulate state on startup (flush containers, and discard their previous values)
 		waitUntilIndexesReady();
 		project.getJavaModel().close();
-		JavaModelManager.PreviousSessionContainers = new HashMap(5);
-		JavaModelManager.Containers = new HashMap(5);
-		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)project);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.previousSessionContainers = new HashMap(5);
+		manager.containers = new HashMap(5);
+		manager.removePerProjectInfo((JavaProject)project);
 
 		// use a thread to hold the lock, so as to recreate potential deadlock situation
 		final Semaphore step1 = new Semaphore("<1:permission to populate JavaModel inducing containers inits>", 0); // first acquisition will wait

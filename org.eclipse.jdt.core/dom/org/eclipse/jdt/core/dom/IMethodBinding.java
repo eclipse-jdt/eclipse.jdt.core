@@ -105,4 +105,18 @@ public interface IMethodBinding extends IBinding {
 	 *   thrown by this method or constructor
 	 */
 	public ITypeBinding[] getExceptionTypes();
+	
+	/**
+	 * Returns the type parameters of this method or constructor binding.
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return the list of binding for the type variables for the type
+	 * parameters of this method, or otherwise the empty list
+	 * @see ITypeBinding#isTypeVariable()
+	 * @since 3.0
+	 */
+	public ITypeBinding[] getTypeParameters();
 }
