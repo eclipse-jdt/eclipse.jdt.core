@@ -164,15 +164,51 @@ protected ClassFileInfo getClassFileInfo() throws JavaModelException {
  * @see IMember
  */
 public IType getDeclaringType() {
-	try {
-		char[] enclosingTypeName = ((IBinaryType) getRawInfo()).getEnclosingTypeName();
-		if (enclosingTypeName == null) {
+	IClassFile classFile = this.getClassFile();
+	if (classFile.isOpen()) {
+		try {
+			char[] enclosingTypeName = ((IBinaryType) getRawInfo()).getEnclosingTypeName();
+			if (enclosingTypeName == null) {
+				return null;
+			}
+		 	enclosingTypeName = ClassFile.unqualifiedName(enclosingTypeName);
+		 	
+			// workaround problem with class files compiled with javac 1.1.* 
+			// that return a non-null enclosing type name for local types defined in anonymous (e.g. A$1$B)
+			if (classFile.getElementName().length() > enclosingTypeName.length+1 
+					&& Character.isDigit(classFile.getElementName().charAt(enclosingTypeName.length+1))) {
+				return null;
+			} 
+			
+			return getPackageFragment().getClassFile(new String(enclosingTypeName) + ".class").getType(); //$NON-NLS-1$;
+		} catch (JavaModelException npe) {
 			return null;
 		}
-		enclosingTypeName = ClassFile.unqualifiedName(enclosingTypeName);
-		return getPackageFragment().getClassFile(new String(enclosingTypeName) + ".class").getType(); //$NON-NLS-1$
-	} catch (JavaModelException npe) {
-		return null;
+	} else {
+		// cannot access .class file without opening it 
+		// and getDeclaringType() is supposed to be a handle-only method,
+		// so default to assuming $ is an enclosing type separator
+		String classFileName = classFile.getElementName();
+		int lastDollar = -1;
+		for (int i = 0, length = classFileName.length(); i < length; i++) {
+			char c = classFileName.charAt(i);
+			if (Character.isDigit(c) && lastDollar == i-1) {
+				// anonymous or local type
+				return null;
+			} else if (c == '$') {
+				lastDollar = i;
+			}
+		}
+		if (lastDollar == -1) {
+			return null;
+		} else {
+			String enclosingName = classFileName.substring(0, lastDollar);
+			String enclosingClassFileName = enclosingName + ".class"; //$NON-NLS-1$
+			return 
+				new BinaryType(
+					this.getPackageFragment().getClassFile(enclosingClassFileName),
+					enclosingName.substring(enclosingName.lastIndexOf('$')+1));
+		}
 	}
 }
 /**
@@ -311,19 +347,22 @@ public String getTypeQualifiedName() {
  * @see IType#getTypeQualifiedName(char)
  */
 public String getTypeQualifiedName(char enclosingTypeSeparator) {
-	if (fParent.getElementType() == IJavaElement.CLASS_FILE) {
-		String name= fParent.getElementName();
-		return name.substring(0,name.lastIndexOf('.'));
-	}
-	if (fParent.getElementType() == IJavaElement.TYPE) {
-		if (Character.isDigit(fName.charAt(0))) {
-			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator);
+	IType declaringType = this.getDeclaringType();
+	if (declaringType == null) {
+		String classFileName = this.getClassFile().getElementName();
+		if (classFileName.indexOf('$') == -1) {
+			// top level class file: name of type is same as name of class file
+			return fName;
 		} else {
-			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
+			// anonymous or local class file
+			return classFileName.substring(0, classFileName.lastIndexOf('.')); // remove .class
 		}
+	} else {
+		return 
+			declaringType.getTypeQualifiedName(enclosingTypeSeparator)
+			+ enclosingTypeSeparator
+			+ fName;
 	}
-	Assert.isTrue(false); // should not be reachable
-	return null;
 }
 /**
  * @see IType

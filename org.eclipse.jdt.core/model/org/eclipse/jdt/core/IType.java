@@ -195,6 +195,21 @@ String getFullyQualifiedName();
  * including qualification for any containing types and packages.
  * This is the name of the package, followed by <code>'.'</code>,
  * followed by the type-qualified name using the <code>enclosingTypeSeparator<code>.
+ * 
+ * For example:
+ * <ul>
+ * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java in a package x.y
+ *     using the '.' separator is "x.y.A.B"</li>
+ * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java in a package x.y
+ *     using the '$' separator is "x.y.A$B"</li>
+ * <li>the fully qualified name of a binary type whose class file is x/y/A$B.class
+ *     using the '.' separator is "x.y.A.B"</li>
+ * <li>the fully qualified name of a binary type whose class file is x/y/A$B.class
+ *     using the '$' separator is "x.y.A$B"</li>
+ * <li>the fully qualified name of an anonymous binary type whose class file is x/y/A$1.class
+ *     using the '.' separator is "x.y.A$1"</li>
+ * </ul>
+ * 
  * This is a handle-only method.
  *
  * @see IType#getTypeQualifiedName(char)
@@ -286,10 +301,24 @@ String getTypeQualifiedName();
  * Returns the type-qualified name of this type, 
  * including qualification for any enclosing types,
  * but not including package qualification.
- * For source types, this consists of the simple names of
- * any enclosing types, separated by the <code>enclosingTypeSeparator</code>, 
+ * This consists of the simple names of any enclosing types, 
+ * separated by the <code>enclosingTypeSeparator</code>, 
  * followed by the simple name of this type.
- * For binary types, this is the name of the class file without the ".class" suffix.
+ * 
+ * For example:
+ * <ul>
+ * <li>the type qualified name of a class B defined as a member of a class A
+ *     using the '.' separator is "A.B"</li>
+ * <li>the type qualified name of a class B defined as a member of a class A
+ *     using the '$' separator is "A$B"</li>
+ * <li>the type qualified name of a binary type whose class file is A$B.class
+ *     using the '.' separator is "A.B"</li>
+ * <li>the type qualified name of a binary type whose class file is A$B.class
+ *     using the '$' separator is "A$B"</li>
+ * <li>the type qualified name of an anonymous binary type whose class file is A$1.class
+ *     using the '.' separator is "A$1"</li>
+ * </ul>
+ *
  * This is a handle-only method.
  * 
  * @since 2.0
