@@ -639,6 +639,8 @@ public class ClassScope extends Scope {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
 				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
+			} else if ((superclass.tagBits & TagBits.HasWildcard) != 0) {
+				problemReporter().superTypeCannotUseWildcard(sourceType, superclassRef, superclass);
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.superclass = superclass;
@@ -697,6 +699,12 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
+			if ((superInterface.tagBits & TagBits.HasWildcard) != 0) {
+				problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);
+				sourceType.tagBits |= HierarchyHasProblems;
+				noProblems = false;
+				continue nextInterface;
+			}
 			ReferenceBinding invalid = findAmbiguousInterface(superInterface, sourceType);
 			if (invalid != null) {
 				ReferenceBinding generic = null;
@@ -727,9 +735,9 @@ public class ClassScope extends Scope {
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
 			sourceType.tagBits |= BeginHierarchyCheck;
 			boolean noProblems = true;
+			noProblems &= connectTypeVariables(referenceContext.typeParameters);
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
-			noProblems &= connectTypeVariables(referenceContext.typeParameters);
 			noProblems &= connectSuperInterfaces();
 			sourceType.tagBits |= EndHierarchyCheck;
 			if (noProblems && sourceType.isHierarchyInconsistent())

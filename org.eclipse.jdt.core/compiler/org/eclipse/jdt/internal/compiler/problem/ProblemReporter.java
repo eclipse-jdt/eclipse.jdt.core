@@ -360,15 +360,15 @@ public void caseExpressionMustBeConstant(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding expectedType) {
+public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
-	String expectedFullName = new String(expectedType.readableName());
-	String expectedShortName = new String(expectedType.shortReadableName());
-	if (expectedShortName.equals(name)) expectedShortName = expectedFullName;
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
 	this.handle(
 		IProblem.ClassExtendFinalClass,
-		new String[] {expectedFullName, name},
-		new String[] {expectedShortName, name},
+		new String[] {superTypeFullName, name},
+		new String[] {superTypeShortName, name},
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
@@ -3500,6 +3500,19 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
+public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+	String name = new String(type.sourceName());
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
+	this.handle(
+		IProblem.SuperTypeUsingWildcard,
+		new String[] {superTypeFullName, name},
+		new String[] {superTypeShortName, name},
+		superclass.sourceStart,
+		superclass.sourceEnd);
+}
+
 public void task(String tag, String message, String priority, int start, int end){
 	this.handle(
 		IProblem.Task,
