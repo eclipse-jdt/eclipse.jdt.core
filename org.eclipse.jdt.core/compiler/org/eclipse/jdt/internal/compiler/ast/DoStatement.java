@@ -58,22 +58,11 @@ public class DoStatement extends Statement {
 		int previousMode = flowInfo.reachMode();
 				
 		if ((action != null) && !action.isEmptyBlock()) {
-			FlowInfo actionInfo = action.analyseCode(currentScope, loopingContext, flowInfo.copy());
+			flowInfo = action.analyseCode(currentScope, loopingContext, flowInfo);
 
 			// code generation can be optimized when no need to continue in the loop
-			if (!actionInfo.isReachable()) {
-				if (!loopingContext.initsOnContinue.isReachable()) {
-					continueLabel = null;
-					if (actionInfo != FlowInfo.DEAD_END) {
-						flowInfo = actionInfo;
-						//flowInfo.setReachMode(FlowInfo.UNREACHABLE);
-					} // else leave flowInfo intact
-
-				} else {
-					flowInfo = loopingContext.initsOnContinue; // for condition
-				}
-			} else {
-				flowInfo = actionInfo;
+			if (!flowInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
+				continueLabel = null;
 			}
 		}
 		/* Reset reach mode, to address following scenario.
