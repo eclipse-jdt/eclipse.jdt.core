@@ -16,20 +16,21 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
- * A search participant describes a particular extension to a generic search mechanism, allowing thus to 
- * perform combined search actions which will involve all required participants
+ * A search participant describes a particular extension to a generic search mechanism, permitting 
+ * combined search actions which will involve all required participants.
  * 
  * A search scope defines which participants are involved. 
  * 
  * A search participant is responsible for holding index files, and selecting the appropriate ones to feed to
  * index queries. It also can map a document path to an actual document (note that documents could live outside
- * the workspace or no exist yet, and thus aren't just resources).
+ * the workspace or not exist yet, and thus aren't just resources).
  * @since 3.0
  */
 public abstract class SearchParticipant {
 
 	public static final SearchParticipant[] NO_PARTICIPANT = {};
-	
+
+	// A service provided for participants so that they can delegate between themselves.
 	public static void addIndexEntry(char[] category, char[] key, String documentPath, String indexPath) {
 		JavaModelManager.getJavaModelManager().getIndexManager().addIndexEntry(category, key, documentPath, indexPath);
 	}
