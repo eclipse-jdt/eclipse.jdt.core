@@ -9,7 +9,8 @@ What's new in this drop
   * Indexing traces are showing fullpath of processed resources.
   * AccSuper flag is properly tagged on generated classfiles.
   * Removed unreachable empty statements.
-
+  * Cross-project incremental recompilation in presence of structural changes in produced binaries.
+  
 PRs Fixed in 1.0NL stream (since 1.0)
 ==================================================================================
   5218      AccSuper is not set properly  
