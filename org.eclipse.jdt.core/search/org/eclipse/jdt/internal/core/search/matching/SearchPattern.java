@@ -1238,6 +1238,22 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	return IMPOSSIBLE_MATCH;
 }
 /**
+ * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	int level = matchLevel(binding);
+	if (level >= SearchPattern.INACCURATE_MATCH) {
+		matchReportImportRef(
+			importRef, 
+			binding, 
+			locator.createImportHandle(importRef), 
+			level == SearchPattern.ACCURATE_MATCH
+				? IJavaSearchResultCollector.EXACT_MATCH
+				: IJavaSearchResultCollector.POTENTIAL_MATCH,
+			locator);
+	}
+}
+/**
  * Report the match of the given import reference
  */
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {

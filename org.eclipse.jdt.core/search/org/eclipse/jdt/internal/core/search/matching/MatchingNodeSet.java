@@ -260,31 +260,14 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 			int level;
 			if (node instanceof ImportReference) {
 				// special case for import refs: they don't know their binding
-				
 				// import ref cannot be in the hirarchy of a type
 				if (this.locator.hierarchyResolver != null) continue;
-				
-				ImportReference importRef = (ImportReference)node;
-				Binding binding;
-				if (importRef.onDemand) {
-					binding = unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length));
-				} else {
-					binding = unit.scope.getTypeOrPackage(importRef.tokens);
-				}
-				level = this.locator.pattern.matchLevel(binding);
 
-				if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
-					// create defining import handle
-					IJavaElement importHandle = this.locator.createImportHandle(importRef);
-					this.locator.pattern.matchReportImportRef(
-						importRef, 
-						binding, 
-						importHandle, 
-						level == SearchPattern.ACCURATE_MATCH ?
-								IJavaSearchResultCollector.EXACT_MATCH :
-								IJavaSearchResultCollector.POTENTIAL_MATCH,
-						this.locator);
-				}
+				ImportReference importRef = (ImportReference) node;
+				Binding binding = importRef.onDemand
+					? unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length))
+					: unit.scope.getTypeOrPackage(importRef.tokens);
+				this.locator.pattern.matchLevelAndReportImportRef(importRef, binding, this.locator);
 			} else {
 				level = this.locator.pattern.matchLevel(node, true);
 				if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {

@@ -2320,7 +2320,7 @@ public void testTypeOccurence2() throws CoreException {
 		scope, 
 		resultCollector);
 	assertEquals(
-		"src/r8/A.java [r8.B]",
+		"src/r8/A.java [B]",
 		resultCollector.toString());
 }
 /**

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
@@ -47,6 +48,19 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		this.patterns[leftSize] = rightPattern;
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
+}
+protected SearchPattern findClosestPattern(AstNode reference) {
+	SearchPattern closestPattern = null;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patterns.length; i < length; i++) {
+		int newLevel = this.patterns[i].matchLevel(reference, true);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return this.patterns[i];
+			closestPattern = this.patterns[i];
+			level = newLevel;
+		}
+	}
+	return closestPattern;
 }
 /**
  * see SearchPattern.findMatches
@@ -129,22 +143,18 @@ public int matchLevel(Binding binding) {
 	return level;
 }
 /**
+ * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	SearchPattern closestPattern = findClosestPattern(importRef);
+	if (closestPattern != null)
+		closestPattern.matchLevelAndReportImportRef(importRef, binding, locator);
+}
+/**
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	SearchPattern closestPattern = null;
-	int level = IMPOSSIBLE_MATCH;
-	for (int i = 0, length = this.patterns.length; i < length; i++) {
-		int newLevel = this.patterns[i].matchLevel(reference, true);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) {
-				this.patterns[i].matchReportReference(reference, element, accuracy, locator);
-				return;
-			}
-			level = newLevel;
-			closestPattern = this.patterns[i];
-		}
-	}
+	SearchPattern closestPattern = findClosestPattern(reference);
 	if (closestPattern != null)
 		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
