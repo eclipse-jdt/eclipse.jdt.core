@@ -57,11 +57,12 @@ public static Test suite() {
 	
 	if (false) {
 		TestSuite suite = new Suite(JavaProjectTests.class.getName());
-		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
+		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntryWhenDuplicate"));
 		return suite;
 	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
 	suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
+	suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntryWhenDuplicate"));
 	suite.addTest(new JavaProjectTests("testProjectGetChildren"));
 	suite.addTest(new JavaProjectTests("testProjectGetPackageFragments"));
 	suite.addTest(new JavaProjectTests("testRootGetPackageFragments"));
@@ -736,13 +737,51 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 		proj.setRawClasspath(classpath, null);
 		
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
-		assertEquals("wrong number of entries:", roots.length, length);
+		assertEquals("wrong number of entries:", length, roots.length);
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < roots.length; i++){
 			IClasspathEntry rawEntry = roots[i].getRawClasspathEntry();
 			assertEquals("unexpected root raw entry:", classpath[i], rawEntry);
 		}
 		System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
+	} finally {
+		if (libDir != null) {
+			String[] libJars = libDir.list();
+			if (libJars != null) {
+				for (int i = 0, length = libJars.length; i < length; i++) {
+					new File(libDir, libJars[i]).delete();
+				}
+			}
+			libDir.delete();
+		}
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
+	}
+}
+/**
+ * Test raw entry inference performance for package fragment root in case
+ * original classpath had duplicate entries pointing to it: first raw entry should be found
+ */
+public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException, IOException {
+	File libDir = null;
+	try {
+		String libPath = EXTERNAL_JAR_DIR_PATH + File.separator + "lib";
+		JavaCore.setClasspathVariable("MyVar", new Path(EXTERNAL_JAR_DIR_PATH), null);
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		libDir = new File(libPath);
+		libDir.mkdirs();
+		IClasspathEntry[] classpath = new IClasspathEntry[2];
+		File libJar = new File(libDir, "lib.jar");
+		libJar.createNewFile();
+		classpath[0] = JavaCore.newLibraryEntry(new Path(libPath).append("lib.jar"), null, null);
+		classpath[1] = JavaCore.newVariableEntry(new Path("/MyVar").append("lib.jar"), null, null);
+		proj.setRawClasspath(classpath, null);
+		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null); // change CP var value to cause collision
+		
+		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
+		assertEquals("wrong number of entries:", 1, roots.length);
+		IClasspathEntry rawEntry = roots[0].getRawClasspathEntry();
+		assertEquals("unexpected root raw entry:", classpath[0], rawEntry); // ensure first entry is associated to the root
 	} finally {
 		if (libDir != null) {
 			String[] libJars = libDir.list();
