@@ -530,7 +530,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, e.enclosingElement, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -556,9 +556,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	private void selectFrom(Binding binding, Binding enclosingElement, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
+	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
 		if(binding instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
+			Binding enclosingElement = typeVariableBinding.declaringElement;
 			this.noProposal = false;
 			
 			if(enclosingElement instanceof SourceTypeBinding) {
@@ -722,11 +723,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.acceptedAnswer = true;
 						} else {
 							// open on the type of the variable
-							selectFrom(((LocalVariableBinding) binding).type, null, parsedUnit, false);
+							selectFrom(((LocalVariableBinding) binding).type, parsedUnit, false);
 						}
 					} else
 						if (binding instanceof ArrayBinding) {
-							selectFrom(((ArrayBinding) binding).leafComponentType, null, parsedUnit, false);
+							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit, false);
 							// open on the type of the array
 						} else
 							if (binding instanceof PackageBinding) {
@@ -896,7 +897,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, e.enclosingElement, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}

@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class SelectionOnSingleTypeReference extends SingleTypeReference {
 public SelectionOnSingleTypeReference(char[] source, long pos) {
@@ -44,16 +43,7 @@ protected TypeBinding getTypeBinding(Scope scope) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new SelectionNodeFound();
 	}
-	
-	
-	if(binding instanceof TypeVariableBinding) {
-		Binding enclosingElement = null;
-		// TODO missing implementation
-		
-		throw new SelectionNodeFound(binding, enclosingElement);
-	} else {
-		throw new SelectionNodeFound(binding);
-	}
+	throw new SelectionNodeFound(binding);
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 

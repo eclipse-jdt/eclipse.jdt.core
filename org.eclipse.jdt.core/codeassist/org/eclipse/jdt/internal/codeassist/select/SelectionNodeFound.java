@@ -14,23 +14,15 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionNodeFound extends RuntimeException {
 	public Binding binding;
-	public Binding enclosingElement; // accurate only when necessary
 	public boolean isDeclaration;
 public SelectionNodeFound() {
-	this(null, null, false); // we found a problem in the selection node
+	this(null, false); // we found a problem in the selection node
 }
 public SelectionNodeFound(Binding binding) {
-	this(binding, null, false);
+	this(binding, false);
 }
 public SelectionNodeFound(Binding binding, boolean isDeclaration) {
-	this(binding, null, isDeclaration);
-}
-public SelectionNodeFound(Binding binding, Binding enclosingElement) {
-	this(binding, enclosingElement, false);
-}
-public SelectionNodeFound(Binding binding, Binding enclosingElement, boolean isDeclaration) {
 	this.binding = binding;
-	this.enclosingElement = enclosingElement;
 	this.isDeclaration = isDeclaration;
 }
 }
