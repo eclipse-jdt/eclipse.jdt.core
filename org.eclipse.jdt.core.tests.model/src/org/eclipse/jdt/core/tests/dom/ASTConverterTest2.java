@@ -1369,8 +1369,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a member type", typeBinding.isMember());
 		assertTrue("not a nested type", typeBinding.isNested());		
 		assertTrue("a local type", !typeBinding.isLocal());
-		
-		System.out.println(statements.get(0).getClass());
 	}	
 }
 
