@@ -43,10 +43,24 @@ Eclipse SDK 3.0M7 Build - ?th January 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added option to control whether diagnosis for unused thrown exceptions should be enabled when overriding another
+method. By default, it is disabled.
+<pre>
+* COMPILER / Reporting Unused Declared Thrown Exception in Overridind Method
+*    When disabled, the compiler will not include overriding methods in its diagnosis for unused declared
+*    thrown exceptions.
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47430">47430</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50667">50667</a>
+Deadlock on Refactor -> Extract method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47430">47430</a>
 the immutable bit is copied from the original resource to the ouput directory
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50601">50601</a>
 Blank lines before package declaration is one fewer than specified
