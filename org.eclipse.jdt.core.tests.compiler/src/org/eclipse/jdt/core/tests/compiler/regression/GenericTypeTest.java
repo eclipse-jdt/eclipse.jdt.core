@@ -15259,4 +15259,85 @@ public void test500(){
 			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
 			"----------\n");
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test539() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"		 static class B<C> {\n" + 
+				"		 		 public <T extends I1> T willBe(Class<T> c) {\n" + 
+				"		 		 		 return (T)null;\n" + 
+				"		 		 }\n" + 
+				"		 }\n" + 
+				"		 interface I1  {\n" + 
+				"		 }\n" + 
+				"		 interface I2  extends I1 {\n" + 
+				"		 }\n" + 
+				"		 \n" + 
+				"		 public static void m1(String[] args) {\n" + 
+				"		 		 B b = new B();\n" + 
+				"		 		 I2 v = b.willBe(I2.class);\n" + 
+				"		 }\n" + 
+				"		 public static void m2(String[] args) {\n" + 
+				"		 		 B<Void> b = new B<Void>();\n" + 
+				"		 		 I2 v = b.willBe(I2.class);\n" + 
+				"		 }\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return (T)null;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Unnecessary cast from null to T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	I2 v = b.willBe(I2.class);\n" + 
+			"	   ^\n" + 
+			"Type mismatch: cannot convert from X.I1 to X.I2\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	I2 v = b.willBe(I2.class);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method willBe(Class) belongs to the raw type X.B. References to generic type X.B<C> should be parameterized\n" + 
+			"----------\n");
+	}
+	// javac incorrectly rejects it
+	public void test540() {
+		this.runConformTest(
+			new String[] {
+				"Baz.java",
+				"import java.util.*;\n" + 
+				"interface Foo<X> {}\n" + 
+				"interface Bar extends Foo {\n" + 
+				"}\n" + 
+				"public class Baz<R,D>  {\n" + 
+				"    public R visit(Collection<? extends Foo<?>> trees, D d) {\n" + 
+				"	return null;\n" + 
+				"    }\n" + 
+				"    R test(Collection<Bar> c, D d) {\n" + 
+				"	return visit(c, d);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	public void test541() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"     Map m = null;\n" + 
+				"	 try {\n" + 
+				"	     Map m2 = m.getClass().newInstance();\n" + 
+				"	 } catch(Exception e) {\n" + 
+				"	 }\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }
