@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -862,6 +867,122 @@ public void test025() {
 			"}\n"
 		},
 		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89710
+public void test026() {
+
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	\n" + 
+			"	static private ResourceBundle bundle = null;\n" + 
+			"	static {\n" + 
+			"		int i = 0;\n" + 
+			"		try {\n" + 
+			"			bundle = foo();\n" + 
+			"		} catch(Throwable e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static ResourceBundle foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null); // custom requestor
+	
+	String expectedOutput =
+			"      Local variable table:\n" + 
+			"        [pc: 6, pc: 21] local: i index: 0 type: I\n" + 
+			"        [pc: 16, pc: 20] local: e index: 1 type: Ljava/lang/Throwable;\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89710 - variation
+public void test027() {
+
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	\n" + 
+			"	void bar(boolean b) {\n" + 
+			"		if (b) {\n" + 
+			"			try {\n" + 
+			"				int i = 0;\n" + 
+			"			} catch(Exception e) {\n" + 
+			"				e.printStackTrace();\n" + 
+			"			}\n" + 
+			"		} else {\n" + 
+			"			int j = 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null); // custom requestor
+	
+	String expectedOutput =
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 20] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 20] local: b index: 1 type: Z\n" + 
+			"        [pc: 6, pc: 9] local: i index: 2 type: I\n" + 
+			"        [pc: 10, pc: 14] local: e index: 2 type: Ljava/lang/Exception;\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
 }
 
 public static Class testClass() {
