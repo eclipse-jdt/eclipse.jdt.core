@@ -287,10 +287,17 @@ public class HandleFactory {
 						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
 						break;						
 					case IJavaElement.TYPE :
+						newElement = ((IType)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						break;
 					case IJavaElement.FIELD :
 					case IJavaElement.INITIALIZER :
 					case IJavaElement.METHOD :
 						newElement = ((IMember)parentElement).getType(new String(scope.enclosingSourceType().sourceName), 1);
+						// increment occurrence count if collision is detected
+						if (newElement != null) {
+							while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
+							knownScopes.put(scope, newElement);
+						}
 						break;						
 				}
 				break;
@@ -321,11 +328,6 @@ public class HandleFactory {
 				// standard block, no element per se
 				newElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				break;
-		}
-		// increment occurrence count if collision is detected
-		if (newElement != null) {
-			while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
-			knownScopes.put(scope, newElement);
 		}
 		return newElement;
 	}
