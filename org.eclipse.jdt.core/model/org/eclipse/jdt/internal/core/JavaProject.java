@@ -1101,7 +1101,6 @@ public class JavaProject
 					}
 				}
 			}			
-	
 		}
 		return true;
 	}
