@@ -1186,8 +1186,27 @@ public final class JavaCore extends Plugin {
 					container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
 					if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 					ok = true;
+				} catch (RuntimeException e) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						e.printStackTrace();
+					}
+					throw e;
+				} catch (Error e) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						e.printStackTrace();
+					}
+					throw e;
 				} finally {
-					if (!ok) JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
+					if (!ok) {
+						JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
+						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							Util.verbose(
+								"CPContainer INIT - FAILED\n" + //$NON-NLS-1$
+								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+								"	initializer: " + initializer); //$NON-NLS-1$
+						}
+					}
 				}
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					StringBuffer buffer = new StringBuffer();
