@@ -166,8 +166,8 @@ class CompilationUnitResolver extends Compiler {
 		// walk the binding keys
 		this.requestedKeys = new HashtableOfObject();
 		for (int i = 0; i < keyLength; i++) {
-			BindingKey bindingKey = new BindingKey(bindingKeys[i]);
-			CompilationUnitDeclaration parsedUnit = bindingKey.getCompilationUnitDeclaration(this.lookupEnvironment);
+			BindingKey bindingKey = new BindingKey(bindingKeys[i], this);
+			CompilationUnitDeclaration parsedUnit = bindingKey.getCompilationUnitDeclaration();
 			if (parsedUnit != null) {
 				this.requestedKeys.put(parsedUnit.compilationResult.getFileName(), bindingKey);
 			} else {
@@ -193,8 +193,8 @@ class CompilationUnitResolver extends Compiler {
 	IBinding createBinding(String key) {
 		if (this.bindingTables == null)
 			throw new RuntimeException("Cannot be called outside ASTParser#createASTs(...)"); //$NON-NLS-1$
-		BindingKey bindingKey = new BindingKey(key);
-		Binding compilerBinding = bindingKey.getCompilerBinding(this);
+		BindingKey bindingKey = new BindingKey(key, this);
+		Binding compilerBinding = bindingKey.getCompilerBinding();
 		if (compilerBinding == null) return null;
 		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
 		if (compilerBinding.bindingType() == Binding.ARRAY_TYPE) {
@@ -543,7 +543,7 @@ class CompilationUnitResolver extends Compiler {
 					
 					BindingKey bindingKey = (BindingKey) this.requestedKeys.removeKey(unit.compilationResult.getFileName());
 					if (bindingKey != null) {
-						Binding compilerBinding = bindingKey.getCompilerBinding(unit, this);
+						Binding compilerBinding = bindingKey.getCompilerBinding(unit);
 						if (compilerBinding != null) {
 							DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
 							IBinding binding = resolver.getBinding(compilerBinding);
@@ -567,7 +567,7 @@ class CompilationUnitResolver extends Compiler {
 			for (int j = 0, keysLength = keys.length; j < keysLength; j++) {
 				BindingKey key = (BindingKey) keys[j];
 				if (key == null) continue;
-				Binding compilerBinding = key.getCompilerBinding(this);
+				Binding compilerBinding = key.getCompilerBinding();
 				if (compilerBinding != null) {
 					IBinding binding = resolver.getBinding(compilerBinding);
 					if (binding != null)

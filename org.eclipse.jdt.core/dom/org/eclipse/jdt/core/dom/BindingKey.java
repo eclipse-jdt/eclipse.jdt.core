@@ -38,14 +38,14 @@ class BindingKey {
 	 char[][] compoundName;
 	 int dimension;
 	 BindingKeyScanner scanner;
+	 CompilationUnitResolver resolver;
+	 LookupEnvironment environment;
 	 
-	 BindingKey(char[] key) {
-	 	this.scanner = new BindingKeyScanner(key);
+	 BindingKey(String key, CompilationUnitResolver resolver) {
+	 	this.scanner = new BindingKeyScanner(key.toCharArray());
+	 	this.resolver = resolver;
+	 	this.environment = resolver.lookupEnvironment;
 	 	reset();
-	 }
-	 
-	 BindingKey(String key) {
-	 	this(key.toCharArray());
 	 }
 	 
 	 /*
@@ -83,10 +83,10 @@ class BindingKey {
 	  * Otherwise return the given type binding.
 	  * Returns null if the given type binding is null.
 	  */
-	 Binding getArrayBinding(int dim, TypeBinding binding, CompilationUnitResolver resolver) {
+	 Binding getArrayBinding(int dim, TypeBinding binding) {
 	 	if (binding == null) return null;
 	 	if (dim == 0) return binding;
-		return resolver.lookupEnvironment.createArrayType(binding, dim);
+		return this.environment.createArrayType(binding, dim);
 	}
 	
 	TypeBinding getBaseTypeBinding(char[] signature) {
@@ -119,9 +119,9 @@ class BindingKey {
 	 * Returns null if not found.
 	 * This key's scanner should be positioned on the token after the top level type.
 	 */
-	Binding getBinaryBinding(CompilationUnitResolver resolver) {
-		TypeBinding binding = resolver.lookupEnvironment.getType(this.compoundName);
-		return getArrayBinding(this.dimension, binding, resolver);
+	Binding getBinaryBinding() {
+		TypeBinding binding = this.environment.getType(this.compoundName);
+		return getArrayBinding(this.dimension, binding);
 	}
 	 
 	 /*
@@ -129,10 +129,10 @@ class BindingKey {
 	  * Returns null if no compilation unit declaration could be found.
 	  * This key's scanner should be positioned on the package token.
 	  */
-	 CompilationUnitDeclaration getCompilationUnitDeclaration(LookupEnvironment lookupEnvironment) {
+	 CompilationUnitDeclaration getCompilationUnitDeclaration() {
 		char[][] name = compoundName();
 		if (name.length == 0) return null;
-		ReferenceBinding binding = lookupEnvironment.getType(name);
+		ReferenceBinding binding = this.environment.getType(name);
 		if (!(binding instanceof SourceTypeBinding)) return null;
 		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
 	 }
@@ -142,34 +142,34 @@ class BindingKey {
 	  * This key's scanner should be positioned on the top level type token.
 	  * Returns null otherwise.
 	  */
-	 Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit, CompilationUnitResolver resolver) {
+	 Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit) {
 	 	switch (this.scanner.token) {
 	 		case BindingKeyScanner.PACKAGE:
-	 			return new PackageBinding(this.compoundName, null, resolver.lookupEnvironment);
+	 			return new PackageBinding(this.compoundName, null, this.environment);
 	 		case BindingKeyScanner.TYPE:
 	 			if (this.compoundName.length == 1 && this.compoundName[0].length == 1) {
 	 				// case of base type
 		 			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
 		 			if (baseTypeBinding != null) 
-	 					return getArrayBinding(this.dimension, baseTypeBinding, resolver);
+	 					return getArrayBinding(this.dimension, baseTypeBinding);
 	 			}
 	 			if (parsedUnit == null) 
-	 				return getBinaryBinding(resolver);
+	 				return getBinaryBinding();
 	 			char[] typeName = this.compoundName[this.compoundName.length-1];
 	 			int dim = this.dimension;
-	 			TypeBinding binding = getTypeBinding(parsedUnit, parsedUnit.types, typeName, resolver);
+	 			TypeBinding binding = getTypeBinding(parsedUnit, parsedUnit.types, typeName);
 	 			if (binding == null) return null;
  				TypeBinding typeBinding = null;
  				if (this.scanner.isAtParametersStart()) {
 					if (this.scanner.isAtTypeParameterStart())	 					
 	 					// generic type binding
-	 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding, resolver);
+	 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding);
 	 				else if (this.scanner.isAtTypeStart())
  						// parameterized type binding
-	 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/, resolver); 
+	 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/); 
  				} else if (binding.typeVariables().length > 0)
  					// raw type binding
- 					typeBinding = resolver.lookupEnvironment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
+ 					typeBinding = this.environment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
  				else
 					// non-generic type binding
 					typeBinding = binding;
@@ -178,10 +178,10 @@ class BindingKey {
 		 				case BindingKeyScanner.FIELD:
 		 					return getFieldBinding(((ReferenceBinding) typeBinding).fields());
 		 				case BindingKeyScanner.METHOD:
-		 					MethodBinding methodBinding = getMethodBinding(((ReferenceBinding) typeBinding).methods(), resolver);
+		 					MethodBinding methodBinding = getMethodBinding(((ReferenceBinding) typeBinding).methods());
 		 					if (this.scanner.isAtParametersStart())
 		 						// parameterized generic method binding
-		 						methodBinding = getParameterizedGenericMethodBinding(methodBinding, resolver);
+		 						methodBinding = getParameterizedGenericMethodBinding(methodBinding);
 		 					if (this.scanner.isAtLocalVariableStart()) {
 		 						MethodScope methodScope = methodBinding.sourceMethod().scope;
 		 						return getLocalVariableBinding(methodScope);
@@ -190,7 +190,7 @@ class BindingKey {
 	 				}
 	 				return null; // malformed key
 	 			} else {
-	 				return getArrayBinding(dim, typeBinding, resolver);
+	 				return getArrayBinding(dim, typeBinding);
 	 			}
 	 	}
 	 	return null;
@@ -201,15 +201,15 @@ class BindingKey {
 	  * Returns null is malformed.
 	  * This key's scanner should be positioned on the package token.
 	  */
-	 Binding getCompilerBinding(CompilationUnitResolver resolver) {
-		CompilationUnitDeclaration parsedUnit = getCompilationUnitDeclaration(resolver.lookupEnvironment);
+	 Binding getCompilerBinding() {
+		CompilationUnitDeclaration parsedUnit = getCompilationUnitDeclaration();
 		if (parsedUnit != null) {
 			char[] fileName = parsedUnit.compilationResult.getFileName();
 			// don't resolve a second time the same unit (this would create the same bindingd twice)
-			if (!resolver.requestedKeys.containsKey(fileName) && !resolver.requestedSources.containsKey(fileName))
-				resolver.process(parsedUnit, resolver.totalUnits+1);
+			if (!this.resolver.requestedKeys.containsKey(fileName) && !this.resolver.requestedSources.containsKey(fileName))
+				this.resolver.process(parsedUnit, this.resolver.totalUnits+1);
 		}
-		return getCompilerBinding(parsedUnit, resolver);
+		return getCompilerBinding(parsedUnit);
 	 }
 
 	/*
@@ -232,7 +232,7 @@ class BindingKey {
 	  * Ensures that the given generic type binding corresponds to this key.
 	  * This key's scanner should be positionned on the first type parameter name token.
 	  */
-	 SourceTypeBinding getGenericTypeBinding(SourceTypeBinding typeBinding, CompilationUnitResolver resolver) {
+	 SourceTypeBinding getGenericTypeBinding(SourceTypeBinding typeBinding) {
 	 	TypeVariableBinding[] typeVariableBindings = typeBinding.typeVariables();
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
@@ -278,7 +278,7 @@ class BindingKey {
 	 * Returns null if not found.
 	 * This key's scanner should be positioned on the selector token.
 	 */
-	 MethodBinding getMethodBinding(MethodBinding[] methods, CompilationUnitResolver resolver) {
+	 MethodBinding getMethodBinding(MethodBinding[] methods) {
 	 	if (methods == null) return null;
 	 	char[] selector = this.scanner.getTokenSource();
 	 	this.scanner.skipMethodSignature();
@@ -300,41 +300,41 @@ class BindingKey {
 	  * Finds parameterized generic method binding that corresponds to this key.
 	  * This key's scanner should be positionned on the first type argument name token.
 	  */
-	 ParameterizedGenericMethodBinding getParameterizedGenericMethodBinding(MethodBinding methodBinding, CompilationUnitResolver resolver) {
+	 ParameterizedGenericMethodBinding getParameterizedGenericMethodBinding(MethodBinding methodBinding) {
 	 	int length = methodBinding.typeVariables().length;
 	 	TypeBinding[] arguments = new TypeBinding[length];
 	 	for (int i = 0; i < length; i++) {
 			reset();
-			Binding argument = getCompilerBinding(resolver);
+			Binding argument = getCompilerBinding();
 			if (argument == null) 
 				return null;
 			arguments[i] = (TypeBinding) argument;
 		}
-	 	return new ParameterizedGenericMethodBinding(methodBinding, arguments, resolver.lookupEnvironment);
+	 	return new ParameterizedGenericMethodBinding(methodBinding, arguments, this.environment);
 	 }
 	 
 	 /*
 	  * Finds parameterized type binding that corresponds to this key.
 	  * This key's scanner should be positionned on the first type argument name token.
 	  */
-	 ParameterizedTypeBinding getParameterizedTypeBinding(ReferenceBinding genericType, ReferenceBinding enclosingType, CompilationUnitResolver resolver) {
+	 ParameterizedTypeBinding getParameterizedTypeBinding(ReferenceBinding genericType, ReferenceBinding enclosingType) {
 	 	TypeVariableBinding[] typeVariableBindings = genericType.typeVariables();
 	 	int length = typeVariableBindings.length;
 	 	TypeBinding[] arguments = new TypeBinding[length];
 	 	for (int i = 0; i < length; i++) {
 			reset();
-			Binding argument = getCompilerBinding(resolver);
+			Binding argument = getCompilerBinding();
 			if (argument == null) 
-				return resolver.lookupEnvironment.createRawType(genericType, enclosingType);
+				return this.environment.createRawType(genericType, enclosingType);
 			arguments[i] = (TypeBinding) argument;
 		}
-	 	ParameterizedTypeBinding parameterizedTypeBinding = resolver.lookupEnvironment.createParameterizedType(genericType, arguments, enclosingType);
+	 	ParameterizedTypeBinding parameterizedTypeBinding = this.environment.createParameterizedType(genericType, arguments, enclosingType);
 	 	// skip ";>"
 	 	this.scanner.index += 2;
 	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == BindingKeyScanner.TYPE) {
 	 		char[] typeName = this.scanner.getTokenSource();
 	 		ReferenceBinding memberType = genericType.getMemberType(typeName);
-	 		return getParameterizedTypeBinding(memberType, parameterizedTypeBinding, resolver);
+	 		return getParameterizedTypeBinding(memberType, parameterizedTypeBinding);
 	 	} else {
 		 	return parameterizedTypeBinding;
 	 	}
@@ -345,7 +345,7 @@ class BindingKey {
 	 * Returns null if not found.
 	 * This key's scanner should be positioned on the type name token.
 	 */
-	 TypeBinding getTypeBinding(CompilationUnitDeclaration parsedUnit, TypeDeclaration[] types, char[] typeName, CompilationUnitResolver resolver) {
+	 TypeBinding getTypeBinding(CompilationUnitDeclaration parsedUnit, TypeDeclaration[] types, char[] typeName) {
 	 	if (Character.isDigit(typeName[0])) {
 	 		// anonymous or local type
 	 		int nextToken = BindingKeyScanner.TYPE;
@@ -364,7 +364,7 @@ class BindingKey {
 				TypeDeclaration declaration = types[i];
 				if (CharOperation.equals(typeName, declaration.name)) {
 					if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == BindingKeyScanner.TYPE)
-						return getTypeBinding(parsedUnit, declaration.memberTypes, this.scanner.getTokenSource(), resolver);
+						return getTypeBinding(parsedUnit, declaration.memberTypes, this.scanner.getTokenSource());
 					else
 						return declaration.binding;
 				}
