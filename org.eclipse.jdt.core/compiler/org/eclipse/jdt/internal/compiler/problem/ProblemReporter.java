@@ -3367,12 +3367,17 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		instanceofExpression.sourceEnd);
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
+	int end = reference.sourceEnd;
+	if (reference instanceof QualifiedNameReference) {
+		QualifiedNameReference qref = (QualifiedNameReference) reference;
+		end = (int) qref.sourcePositions[0];
+	}
 	this.handle(
 		IProblem.UnqualifiedFieldAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		reference.sourceStart,
-		reference.sourceEnd);
+		end);
 }
 public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
 	this.handle(
