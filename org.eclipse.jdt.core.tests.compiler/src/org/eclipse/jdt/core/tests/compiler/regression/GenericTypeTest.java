@@ -11068,4 +11068,33 @@ class C extends B implements IDoubles {
 			},
 			"");	
 	}		
+	
+	// 78863
+	public void test421() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.HashMap;\n" +
+				"import java.util.List;\n" +
+				"import java.util.Map;\n" +
+				"\n" +
+				"public class Test\n" +
+				"{\n" +
+				"  protected Map<Class<? extends Object>, List<Object>> m_test\n" +
+				"    = new HashMap<Class<? extends Object>, List<Object>>();\n" +
+				"}\n",
+				"Test2.java",
+				"import java.util.List;\n" +
+				"import java.util.Map;\n" +
+				"\n" +
+				"public class Test2 extends Test\n" +
+				"{\n" +
+				"  public Map<Class<? extends Object>, List<Object>> test()\n" +
+				"  {\n" +
+				"    return m_test;\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"");	
+	}			
 }
