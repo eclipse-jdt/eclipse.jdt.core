@@ -71,9 +71,10 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ClassInstanceCreation)
 	 */
 	public void endVisit(ClassInstanceCreation node) {
-		node.setType(
-			node.getAST().newSimpleType(
-				node.getAST().newSimpleName("XXX"))); //$NON-NLS-1$
+		if (node.getAST().apiLevel() == AST.LEVEL_2_0) {
+			node.setName(
+					node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -232,7 +233,9 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	public void endVisit(TypeDeclaration node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
-		node.setSuperclass(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		if (node.getAST().apiLevel() == AST.LEVEL_2_0) {
+			node.setSuperclass(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		}
 		detachedListElement(node.bodyDeclarations());
 	}
 
