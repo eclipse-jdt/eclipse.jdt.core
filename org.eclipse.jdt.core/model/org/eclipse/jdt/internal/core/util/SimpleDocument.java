@@ -365,8 +365,9 @@ public class SimpleDocument implements IDocument {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.jface.text.IDocument#search(int, java.lang.String, boolean, boolean, boolean)
+	 * @deprecated
 	 */
 	public int search(
 		int startOffset,
