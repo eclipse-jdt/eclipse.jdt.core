@@ -80,11 +80,10 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			final int sourceSegmentCount = rootEntry.getPath().segmentCount();
 			final IFolder destFolder = workspaceRoot.getFolder(this.destination);
 			final IPath[] nestedFolders = getNestedFolders(root);
-			// TODO: Use IResourceProxyVisitor when bug 30268 is fixed
-			IResourceVisitor visitor = new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					if (resource.getType() == IResource.FOLDER) {
-						IPath path = resource.getFullPath();
+			IResourceProxyVisitor visitor = new IResourceProxyVisitor() {
+				public boolean visit(IResourceProxy proxy) throws CoreException {
+					if (proxy.getType() == IResource.FOLDER) {
+						IPath path = proxy.requestFullPath();
 						if (prefixesOneOf(path, nestedFolders)) {
 							if (equalsOneOf(path, nestedFolders)) {
 								// nested source folder
@@ -107,24 +106,24 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 									&& (destRes = workspaceRoot.findMember(destPath)) != null) {
 								destRes.delete(updateResourceFlags, fMonitor);
 							}
-							resource.copy(destPath, updateResourceFlags, fMonitor);
+							proxy.requestResource().copy(destPath, updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
-						IPath path = resource.getFullPath();
+						IPath path = proxy.requestFullPath();
 						IPath destPath = destination.append(path.removeFirstSegments(sourceSegmentCount));
 						IResource destRes;
 						if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 								&& (destRes = workspaceRoot.findMember(destPath)) != null) {
 							destRes.delete(updateResourceFlags, fMonitor);
 						}
-						resource.copy(destPath, updateResourceFlags, fMonitor);
+						proxy.requestResource().copy(destPath, updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
 			};
 			try {
-				rootResource.accept(visitor);
+				rootResource.accept(visitor, IResource.NONE);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}

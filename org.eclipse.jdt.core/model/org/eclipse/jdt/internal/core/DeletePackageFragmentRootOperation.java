@@ -63,27 +63,26 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 			}
 		} else {
 			final IPath[] nestedFolders = getNestedFolders(root);
-			// TODO: Use IResourceProxyVisitor when bug 30268 is fixed
-			IResourceVisitor visitor = new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					if (resource.getType() == IResource.FOLDER) {
-						IPath path = resource.getFullPath();
+			IResourceProxyVisitor visitor = new IResourceProxyVisitor() {
+				public boolean visit(IResourceProxy proxy) throws CoreException {
+					if (proxy.getType() == IResource.FOLDER) {
+						IPath path = proxy.requestFullPath();
 						if (prefixesOneOf(path, nestedFolders)) {
 							// equals if nested source folder
 							return !equalsOneOf(path, nestedFolders);
 						} else {
 							// subtree doesn't contain any nested source folders
-							resource.delete(updateResourceFlags, fMonitor);
+							proxy.requestResource().delete(updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
-						resource.delete(updateResourceFlags, fMonitor);
+						proxy.requestResource().delete(updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
 			};
 			try {
-				rootResource.accept(visitor);
+				rootResource.accept(visitor, IResource.NONE);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
