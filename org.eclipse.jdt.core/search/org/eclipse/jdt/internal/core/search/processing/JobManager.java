@@ -215,8 +215,11 @@ public abstract class JobManager implements Runnable {
 					int originalPriority = this.thread.getPriority();
 					try {
 						synchronized(this) {
-							if (this.thread != null) {
-								this.thread.setPriority(Thread.currentThread().getPriority());
+							
+							// use local variable to avoid potential NPE (see Bug 20435 NPE when searching java method)
+							Thread t = this.thread;
+							if (t != null) {
+								t.setPriority(Thread.currentThread().getPriority());
 							}
 							this.awaitingClients++;
 						}
