@@ -887,6 +887,10 @@ public class ASTMatcher {
 	 * Note that extra array dimensions are compared since they are an
 	 * important part of the method declaration.
 	 * </p>
+	 * <p>
+	 * Note that the method return types are compared even for constructor
+	 * declarations.
+	 * </p>
 	 * 
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>
@@ -903,6 +907,7 @@ public class ASTMatcher {
 			(node.getModifiers() == o.getModifiers())
 				&& (node.isConstructor() == o.isConstructor())
 				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+				// n.b. compare return type even for constructors
 				&& safeSubtreeMatch(node.getReturnType(), o.getReturnType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())

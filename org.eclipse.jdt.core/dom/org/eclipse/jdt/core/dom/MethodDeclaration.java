@@ -170,9 +170,8 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (!isConstructor) {
-				acceptChild(visitor, getReturnType());
-			}
+			// n.b. visit return type even for constructors
+			acceptChild(visitor, getReturnType());
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, parameters);
 			acceptChildren(visitor, thrownExceptions);
@@ -302,7 +301,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * This is one of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
-	 * (although it does still figure in subtree equality comparisons).
+	 * (although it does still figure in subtree equality comparisons
+	 * and visits).
 	 * </p>
 	 * 
 	 * @return the return type, possibly the void primitive type
@@ -323,7 +323,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
-	 * (although it does still figure in subtree equality comparisons).
+	 * (although it does still figure in subtree equality comparisons and visits).
 	 * </p>
 	 * 
 	 * @param type the new return type, possibly the void primitive type
