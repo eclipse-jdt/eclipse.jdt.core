@@ -956,16 +956,12 @@ public void checkAnnotation() {
 	int lastAnnotationIndex = -1;
 
 	//since jdk1.2 look only in the last java doc comment...
-	found : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; ){
+	found : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
 		//look for @deprecated into the first javadoc comment preceeding the declaration
 		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 		// javadoc only (non javadoc comment have negative end positions.)
 		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
-			if (lastAnnotationIndex-- >= 0) {
-				continue;
-			} else {
-				return;
-			}
+			continue;
 		}
 		if (scanner.commentStops[lastAnnotationIndex] < 0) {
 			break found;
@@ -1001,7 +997,6 @@ public void checkAnnotation() {
 	if (lastAnnotationIndex >= 0 && checkDeprecated) {
 		modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
 	}
-	scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
