@@ -83,7 +83,7 @@ public final class CompilationUnitSorter {
 	 * ordered list of character-based source positions within the compilation
 	 * unit's source code string. Upon return from this method, the positions in
 	 * the array reflect the corresponding new locations in the modified source
-	 * code string, Note that this operation modifies the given array in place.
+	 * code string. Note that this operation modifies the given array in place.
 	 * </p>
 	 * <p>
 	 * The <code>compare</code> method of the given comparator is passed pairs
