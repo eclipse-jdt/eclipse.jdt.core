@@ -1031,6 +1031,7 @@ protected void consumeCastExpression() {
 	
 	Expression exp, cast, castType;
 	expressionPtr--;
+	expressionLengthPtr--;
 	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr+1], castType = expressionStack[expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
