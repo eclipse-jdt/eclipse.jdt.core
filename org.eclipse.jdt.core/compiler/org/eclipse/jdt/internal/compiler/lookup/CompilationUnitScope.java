@@ -517,8 +517,12 @@ void recordTypeReference(TypeBinding type) {
 
 	if (type.isArrayType())
 		type = ((ArrayBinding) type).leafComponentType;
-	if (!type.isBaseType() && !referencedTypes.containsIdentical(type))
-		referencedTypes.add(type);
+
+	if (type.isBaseType()) return;
+	if (referencedTypes.containsIdentical(type)) return;
+	if (((ReferenceBinding) type).isLocalType()) return;
+
+	referencedTypes.add(type);
 }
 void recordTypeReferences(TypeBinding[] types) {
 	if (qualifiedReferences == null) return; // not recording dependencies
