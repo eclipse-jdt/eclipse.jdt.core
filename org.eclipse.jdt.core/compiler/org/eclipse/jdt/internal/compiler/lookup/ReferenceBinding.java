@@ -563,15 +563,15 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		return false;
 	return otherReferenceType.isSuperclassOf(this);
 }
+
 /* Answer true if the receiver has default visibility
 */
-
 public final boolean isDefault() {
 	return (modifiers & (AccPublic | AccProtected | AccPrivate)) == 0;
 }
+
 /* Answer true if the receiver is a deprecated type
 */
-
 public final boolean isDeprecated() {
 	return (modifiers & AccDeprecated) != 0;
 }
@@ -646,6 +646,24 @@ public final boolean isViewedAsDeprecated() {
 public ReferenceBinding[] memberTypes() {
 	return NoMemberTypes;
 }
+
+/**
+ * Meant to be invoked on compatible types, to figure if unchecked conversion is necessary
+ */
+public boolean needsUncheckedConversion(TypeBinding targetType) {
+	if (this == targetType) return false;
+	if (!this.isPartOfRawType()) return false;
+	if (!(targetType instanceof ReferenceBinding)) 
+		return false;
+	TypeBinding compatible = this.findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
+	do {
+		if (compatible.isRawType() && (targetType.isBoundParameterizedType() || targetType.isGenericType())) {
+			return true;
+		}
+	} while ((compatible = compatible.enclosingType()) != null && (targetType = targetType.enclosingType()) != null);
+	return false;
+}
+
 public MethodBinding[] methods() {
 	return NoMethods;
 }

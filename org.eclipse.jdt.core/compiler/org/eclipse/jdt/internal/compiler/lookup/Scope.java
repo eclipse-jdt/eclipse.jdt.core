@@ -357,7 +357,7 @@ public abstract class Scope
 		    if (leafComponentType.isGenericType())
 		        return createArrayType(environment().createRawType((ReferenceBinding) leafComponentType, null), type.dimensions());
 		} else if (type.isGenericType()) {
-	        return environment().createRawType((ReferenceBinding) type, null);
+	        return environment().createRawType((ReferenceBinding) type, type.enclosingType());
 		}
 		return type;
 	}

@@ -64,7 +64,7 @@ public class Assignment extends Expression {
 		} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType() 
 		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
-		} else if (rhsType.isRawType() && (lhsType.isBoundParameterizedType() || lhsType.isGenericType())) {
+		} else if (rhsType.needsUncheckedConversion(lhsType)) {
 		    scope.problemReporter().unsafeRawConversion(this.expression, rhsType, lhsType);
 		}		
 	}

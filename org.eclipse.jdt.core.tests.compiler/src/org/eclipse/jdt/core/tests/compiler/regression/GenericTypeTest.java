@@ -8344,10 +8344,9 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");	
 	}		
-	// 76359
-	// TODO (philippe) reenable when addressed
-	public void _test323() {
-		this.runConformTest(
+	// 76359 - also check warnings for raw conversion
+	public void test323() {
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"class G<T> {\n" + 
@@ -8355,11 +8354,28 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}\n" + 
 				"public class X {\n" + 
 				"	G<String> g = new G();\n" + 
-				"	G<String>.Member x = new G().new Member();\n" + 
-				"  Zork z;\n" +
-				"}\n"			
+				"	G<String>.Member gsm = g.new Member();\n" + 
+				"	G.Member gm = null;\n" + 
+				"	G<Thread>.Member gtm = gm;\n" + 
+				"	Zork z;\n" +
+				"}\n"		
 			},
-			"");	
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	G<String> g = new G();\n" + 
+			"	              ^^^^^^^\n" + 
+			"Type safety: The expression of raw type G is converted to G<String>. References to generic type G<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	G<Thread>.Member gtm = gm;\n" + 
+			"	                       ^^\n" + 
+			"Type safety: The expression of raw type G.Member is converted to G<Thread>.Member. References to generic type G<T>.Member should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
 	}			
 	// 72998
 	public void test324() {

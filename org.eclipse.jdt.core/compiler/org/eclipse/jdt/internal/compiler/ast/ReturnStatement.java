@@ -219,7 +219,7 @@ public class ReturnStatement extends Statement {
 		if (methodType == null) 
 			return;
 	
-		if (expressionType.isRawType() && (methodType.isBoundParameterizedType() || methodType.isGenericType())) {
+		if (expressionType.needsUncheckedConversion(methodType)) {
 		    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
 		}
 		

@@ -27,6 +27,35 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 abstract public class TypeBinding extends Binding implements BaseTypes, TagBits, TypeConstants, TypeIds {
 	public int id = NoId;
 	public int tagBits = 0; // See values in the interface TagBits below
+/**
+ * Match a well-known type id to its binding
+ */
+public static final TypeBinding wellKnownType(Scope scope, int id) {
+		switch (id) { 
+			case T_boolean :
+				return BooleanBinding;
+			case T_byte :
+				return ByteBinding;
+			case T_char :
+				return CharBinding;
+			case T_short :
+				return ShortBinding;
+			case T_double :
+				return DoubleBinding;
+			case T_float :
+				return FloatBinding;
+			case T_int :
+				return IntBinding;
+			case T_long :
+				return LongBinding;
+			case T_Object :
+				return scope.getJavaLangObject();
+			case T_String :
+				return scope.getJavaLangString();
+			default : 
+				return null;
+		}
+	}
 /* API
  * Answer the receiver's binding type from Binding.BindingID.
  */
@@ -104,6 +133,14 @@ public final boolean isArrayType() {
 public final boolean isBaseType() {
 	return (tagBits & IsBaseType) != 0;
 }
+
+	
+/**
+ *  Returns true if parameterized type AND not of the form List<?>
+ */
+public boolean isBoundParameterizedType() {
+	return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
+}
 public boolean isClass() {
 	return false;
 }
@@ -173,32 +210,58 @@ public boolean isParameterizedType() {
  */
 public boolean isProvablyDistinctFrom(TypeBinding otherType) {
 	if (this == otherType) return false;
-	if (this.isTypeVariable()) return false;
-	if (this.isWildcard()) return false;
-	if (otherType.isTypeVariable()) return false;
-	if (otherType.isWildcard()) return false;
-	if (this.isParameterizedType()) {
-		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
-		if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure())) return true;
-		if (otherType.isGenericType()) return false;
-		if (otherType.isRawType()) return false;
-		if (otherType.isParameterizedType()) {
-			TypeBinding[] arguments = parameterizedType.arguments;
-			if (arguments == null) return false;
-			ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
-			TypeBinding[] otherArguments = otherParameterizedType. arguments;
-			if (otherArguments == null) return false;
-			for (int i = 0, length = arguments.length; i < length; i++) {
-				if (arguments[i].isProvablyDistinctFrom(otherArguments[i])) return true;
-			}
+	switch (otherType.bindingType()) {
+		case Binding.TYPE_PARAMETER :
+		case Binding.WILDCARD_TYPE :
 			return false;
-		}
-	} else if (this.isRawType()) {
-		return this.erasure().isProvablyDistinctFrom(otherType.erasure());
-	} else if (this.isGenericType()) {
-		return this != otherType.erasure();
+	}
+	switch(bindingType()) {
+		
+		case Binding.TYPE_PARAMETER :
+		case Binding.WILDCARD_TYPE :
+			return false;
+			
+		case Binding.PARAMETERIZED_TYPE :
+			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
+			if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure())) return true;
+			switch (otherType.bindingType()) {
+				case Binding.GENERIC_TYPE :
+				case Binding.RAW_TYPE :
+					return false;
+				case Binding.PARAMETERIZED_TYPE :
+					TypeBinding[] arguments = parameterizedType.arguments;
+					if (arguments == null) return false;
+					ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
+					TypeBinding[] otherArguments = otherParameterizedType. arguments;
+					if (otherArguments == null) return false;
+					for (int i = 0, length = arguments.length; i < length; i++) {
+						if (arguments[i].isProvablyDistinctFrom(otherArguments[i])) return true;
+					}
+					return false;
+					
+			}
+			break;
+
+		case Binding.RAW_TYPE :
+			return this.erasure().isProvablyDistinctFrom(otherType.erasure());
+			
+		case Binding.GENERIC_TYPE :
+			return this != otherType.erasure();
 	}
 	return this != otherType;
+}
+
+public boolean isRawType() {
+    return false;
+}
+
+public boolean isPartOfRawType() {
+	TypeBinding current = this;
+	do {
+		if (current.isRawType())
+			return true;
+	} while ((current = current.enclosingType()) != null);
+    return false;
 }
 
 /**
@@ -207,20 +270,13 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType) {
 public boolean isTypeVariable() {
     return false;
 }
-
-	
-/**
- *  Returns true if parameterized type AND not of the form List<?>
- */
-public boolean isBoundParameterizedType() {
-	return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
-}
 /**
  * Returns true if wildcard type of the form '?' (no bound)
  */
 public boolean isUnboundWildcard() {
 	return false;
 }
+
 /**
  * Returns true if the type is a wildcard
  */
@@ -228,6 +284,13 @@ public boolean isWildcard() {
     return false;
 }
 	
+/**
+ * Meant to be invoked on compatible types, to figure if unchecked conversion is necessary
+ */
+public boolean needsUncheckedConversion(TypeBinding targetType) {
+	return false;
+}
+
 public TypeBinding leafComponentType(){
 	return this;
 }
@@ -253,10 +316,6 @@ public char[] qualifiedPackageName() {
 
 public abstract char[] qualifiedSourceName();
 
-public boolean isRawType() {
-    return false;
-}
-
 /**
  * Answer the receiver classfile signature.
  * Arrays & base types do not distinguish between signature() & constantPoolName().
@@ -274,33 +333,4 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 public TypeVariableBinding[] typeVariables() {
 	return NoTypeVariables;
 }
-/**
- * Match a well-known type id to its binding
- */
-public static final TypeBinding wellKnownType(Scope scope, int id) {
-		switch (id) { 
-			case T_boolean :
-				return BooleanBinding;
-			case T_byte :
-				return ByteBinding;
-			case T_char :
-				return CharBinding;
-			case T_short :
-				return ShortBinding;
-			case T_double :
-				return DoubleBinding;
-			case T_float :
-				return FloatBinding;
-			case T_int :
-				return IntBinding;
-			case T_long :
-				return LongBinding;
-			case T_Object :
-				return scope.getJavaLangObject();
-			case T_String :
-				return scope.getJavaLangString();
-			default : 
-				return null;
-		}
-	}
 }
