@@ -45,13 +45,13 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built since it is involved in a cycle or has classpath problems.", project2Path),
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path),
 				new Problem("Build path", "Missing required Java project: CP1.", project2Path)
 			}
 		);
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
-				new Problem("", "The project was not built since it is involved in a cycle or has classpath problems.", project3Path),
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project3Path),
 				new Problem("Build path", "Missing required library: /CP1/temp.jar.", project3Path)
 			}
 		);
@@ -105,7 +105,7 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built since it is involved in a cycle or has classpath problems.", project2Path),
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path),
 				new Problem("Build path", "Missing required Java project: MP1.", project2Path)
 			}
 		);
