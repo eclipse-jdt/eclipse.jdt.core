@@ -35,11 +35,6 @@ public class MatchingOpenable {
 	private char[] source;
 	private MatchSet matchSet;
 
-public MatchingOpenable(MatchLocator locator, IResource resource, Openable openable) {
-	this.locator = locator;
-	this.resource = resource;
-	this.openable = openable;
-}
 public MatchingOpenable(
 		MatchLocator locator, 
 		IResource resource, 
@@ -51,6 +46,33 @@ public MatchingOpenable(
 	this.openable = openable;
 	this.parsedUnit = parsedUnit;
 	this.matchSet = matchSet;
+}
+public static IType getTopLevelType(IType binaryType) {
+	
+	// ensure it is not a local or anoymous type (see bug 28752  J Search resports non-existent Java element)
+	String typeName = binaryType.getElementName();
+	int lastDollar = typeName.lastIndexOf('$');
+	int length = typeName.length();
+	if (lastDollar != -1 && lastDollar < length-1) {
+		if (Character.isDigit(typeName.charAt(lastDollar+1))) {
+			// local or anonymous type
+			typeName = typeName.substring(0, lastDollar);
+			IClassFile classFile = binaryType.getPackageFragment().getClassFile(typeName+".class"); //$NON-NLS-1$
+			try {
+				binaryType = classFile.getType();
+			} catch (JavaModelException e) {
+				// ignore as implementation of getType() cannot throw this exception
+			}
+		}
+	}
+	
+	// ensure it is a top level type
+	IType declaringType = binaryType.getDeclaringType();
+	while (declaringType != null) {
+		binaryType = declaringType;
+		declaringType = binaryType.getDeclaringType();
+	}
+	return binaryType;
 }
 public void buildTypeBindings() {
 	
@@ -108,15 +130,7 @@ private char[] getQualifiedName() {
 	} else {
 		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
 		try {
-			// find the outer most declaring type
-			IType type = classFile.getType();
-			IType declaringType = type.getDeclaringType();
-			while (declaringType != null) {
-				type = declaringType;
-				declaringType = type.getDeclaringType();
-			}
-			
-			// return qualified name of outer most declaring type
+			IType type = getTopLevelType(classFile.getType());
 			return type.getFullyQualifiedName().toCharArray();
 		} catch (JavaModelException e) {
 			return null; // nothing we can do here

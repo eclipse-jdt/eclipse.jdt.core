@@ -321,12 +321,7 @@ public class MatchLocator implements ITypeRequestor {
 				return null;
 			}
 			// ensure this is a top level type (see bug 20011  Searching for Inner Classes gives bad search results)
-			IType declaringType = type.getDeclaringType();
-			while (declaringType != null) {
-				type = declaringType;
-				declaringType = type.getDeclaringType();
-			}
-			return type;
+			return MatchingOpenable.getTopLevelType(type);
 		}
 	}
 	/**
@@ -520,7 +515,7 @@ public class MatchLocator implements ITypeRequestor {
 				}
 	
 				// add matching openable
-				this.addMatchingOpenable(resource, openable);
+				this.addMatchingOpenable(resource, openable, null/*no CompilationUnitDeclaration yet*/, null/*no Matchset yet*/);
 	
 				if (progressMonitor != null) {
 					progressMonitor.worked(1);
@@ -591,7 +586,7 @@ public class MatchLocator implements ITypeRequestor {
 								if (resource == null) { // case of a file in an external jar
 									resource = javaProject.getProject();
 								}
-								this.currentMatchingOpenable = new MatchingOpenable(this, resource, null);
+								this.currentMatchingOpenable = new MatchingOpenable(this, resource, null, null, null);
 								try {
 									this.report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
 								} catch (CoreException e) {
@@ -1053,21 +1048,13 @@ public IType lookupType(TypeBinding typeBinding) {
 			accuracy);
 	}
 
-private MatchingOpenable newMatchingOpenable(IResource resource, Openable openable) {
-	MatchingOpenable matchingOpenable;
-	try {
-		matchingOpenable = new MatchingOpenable(this, resource, openable);
-	} catch (AbortCompilation e) {
-		// problem with class path: ignore this matching openable
-		return null;
-	}
-	return matchingOpenable;
-}
-
-private void addMatchingOpenable(IResource resource, Openable openable)
-		throws JavaModelException {
+void addMatchingOpenable(
+		IResource resource, 
+		Openable openable,
+		CompilationUnitDeclaration parsedUnit,
+		MatchSet matchSet) {
 		
-	MatchingOpenable matchingOpenable = this.newMatchingOpenable(resource, openable);
+	MatchingOpenable matchingOpenable = new MatchingOpenable(this, resource, openable, parsedUnit, matchSet);
 	if (matchingOpenable != null) {
 		this.matchingOpenables.add(matchingOpenable);
 	}

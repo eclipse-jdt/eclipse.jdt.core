@@ -193,14 +193,7 @@ protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Matc
 					&& unit != null && file != null) {
 				// potential matches were found while initializing the search pattern
 				// from the lookup environment: add the corresponding openable in the list
-				MatchingOpenable matchingOpenable = 
-					new MatchingOpenable(
-						locator,
-						file, 
-						compilationUnit, 
-						unit,
-						this.matchSet);
-				locator.matchingOpenables.add(matchingOpenable);
+				locator.addMatchingOpenable(file, compilationUnit, unit, this.matchSet);
 			}
 			this.matchSet = null;
 		} else {
