@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
@@ -39,6 +42,42 @@ import junit.framework.Test;
  * Test indexing support.
  */
 public class SearchTests extends ModifyingResourceTests implements IJavaSearchConstants {
+	/*
+	 * Empty jar contents.
+	 * Generated using the following code:
+	 
+	 	String filePath = "d:\\temp\\empty.jar";
+		new JarOutputStream(new FileOutputStream(filePath), new Manifest()).close();
+		byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(filePath));
+		System.out.print("{");
+		for (int i = 0, length = contents.length; i < length; i++) {
+			System.out.print(contents[i]);
+			System.out.print(", ");
+		}
+		System.out.print("}");
+	 */
+	static final byte[] EMPTY_JAR = {80, 75, 3, 4, 20, 0, 8, 0, 8, 0, 106, -100, 116, 46, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 4, 0, 77, 69, 84, 65, 45, 73, 78, 70, 47, 77, 65, 78, 73, 70, 69, 83, 84, 46, 77, 70, -2, -54, 0, 0, -29, -27, 2, 0, 80, 75, 7, 8, -84, -123, -94, 20, 4, 0, 0, 0, 2, 0, 0, 0, 80, 75, 1, 2, 20, 0, 20, 0, 8, 0, 8, 0, 106, -100, 116, 46, -84, -123, -94, 20, 4, 0, 0, 0, 2, 0, 0, 0, 20, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 77, 69, 84, 65, 45, 73, 78, 70, 47, 77, 65, 78, 73, 70, 69, 83, 84, 46, 77, 70, -2, -54, 0, 0, 80, 75, 5, 6, 0, 0, 0, 0, 1, 0, 1, 0, 70, 0, 0, 0, 74, 0, 0, 0, 0, 0, };
+	class WaitUntilReadyMonitor extends WaitingJob implements IProgressMonitor {
+		public void beginTask(String name, int totalWork) {
+		}
+		public void internalWorked(double work) {
+		}
+		public void done() {
+		}
+		public boolean isCanceled() {
+			return false;
+		}
+		public void setCanceled(boolean value) {
+		}
+		public void setTaskName(String name) {
+		}
+		public void subTask(String name) {
+			// concurrent job is signaling it is working
+			this.resume();
+		}
+		public void worked(int work) {
+		}
+	}
 	class TypeNameRequestor implements ITypeNameRequestor {
 		Vector results = new Vector();
 		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
@@ -242,6 +281,88 @@ public void testChangeClasspath() throws CoreException {
 			project,
 			""
 		);
+	} finally {
+		job.resume();
+		deleteProject("P1");
+		indexManager.enable();
+	}
+}
+/*
+ * Ensure that performing a concurrent job while indexing a jar doesn't use the old index.
+ * (regression test for bug 35306 Index update request can be incorrectly handled)
+ */
+public void testConcurrentJob() throws CoreException, InterruptedException, IOException {
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	WaitingJob job = new WaitingJob();
+	try {
+		// setup: suspend indexing and create a project with one empty jar on its classpath
+		indexManager.disable();
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				createJavaProject("P1", new String[] {}, new String[] {"/P1/jclMin.jar"}, "bin");
+				createFile("/P1/jclMin.jar", EMPTY_JAR);
+			}
+		}, null);
+		
+		// add waiting job and wait for it to be executed
+		indexManager.request(job);
+		indexManager.enable();
+		job.waitForJobToStart(); // job is suspended here
+				
+		final IJavaProject project = getJavaProject("P1");
+			
+		// start concurrent job
+		final boolean[] success = new boolean[1];
+		final WaitUntilReadyMonitor monitor = new WaitUntilReadyMonitor();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					assertAllTypes(
+						"Unexpected all types",
+						project,
+						WAIT_UNTIL_READY_TO_SEARCH,
+						monitor,
+						"java.lang.Class\n" + 
+						"java.lang.CloneNotSupportedException\n" + 
+						"java.lang.Error\n" + 
+						"java.lang.Exception\n" + 
+						"java.lang.IllegalMonitorStateException\n" + 
+						"java.lang.InterruptedException\n" + 
+						"java.lang.Object\n" + 
+						"java.lang.RuntimeException\n" + 
+						"java.lang.String\n" + 
+						"java.lang.Throwable"
+					);
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+					return;
+				}
+				success[0] = true;
+			}
+		};
+		thread.setDaemon(true);
+		thread.start();
+			
+		// remove jar from classpath, change jar and add it to classpath
+		project.setRawClasspath(
+			new IClasspathEntry[0], 
+			null);
+		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
+		project.setRawClasspath(
+			new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P1/jclMin.jar"), null, null)}, 
+			null);
+			
+		// wait for concurrent job to start
+		monitor.suspend();
+
+		// resume waiting job
+		job.resume();
+		
+		// wait for concurrent job to finish
+		thread.join(10000); // 10s max
+		
+		assertTrue("Failed to get all types", success[0]);
+				
 	} finally {
 		job.resume();
 		deleteProject("P1");
