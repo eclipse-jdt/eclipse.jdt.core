@@ -1,7 +1,7 @@
 public class A {
-    public void foo() {
-        ;
-        ;
-        ;
-    }
+	public void foo() {
+		;
+		;
+		;
+	}
 }

@@ -172,7 +172,7 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
 	public static final int DEFAULT_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
 	public static final int DEFAULT_TYPE_MEMBER_ALIGNMENT = Alignment.M_NO_ALIGNMENT;
-	public static final boolean DEFAULT_USE_TAB = false;
+	public static final boolean DEFAULT_USE_TAB = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 
 	public static DefaultCodeFormatterOptions getDefaultSettings() {
 		DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions();
