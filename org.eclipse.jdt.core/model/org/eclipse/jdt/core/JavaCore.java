@@ -3725,8 +3725,8 @@ public final class JavaCore extends Plugin {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				manager.deltaState,
-				IResourceChangeEvent.PRE_AUTO_BUILD
-					| IResourceChangeEvent.POST_AUTO_BUILD
+				IResourceChangeEvent.PRE_BUILD
+					| IResourceChangeEvent.POST_BUILD
 					| IResourceChangeEvent.POST_CHANGE
 					| IResourceChangeEvent.PRE_DELETE
 					| IResourceChangeEvent.PRE_CLOSE);

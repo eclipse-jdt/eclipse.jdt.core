@@ -1885,7 +1885,7 @@ public class DeltaProcessor {
 					}
 					return;
 					
-				case IResourceChangeEvent.PRE_AUTO_BUILD :
+				case IResourceChangeEvent.PRE_BUILD :
 				    DeltaProcessingState.ProjectUpdateInfo[] updates = this.state.removeAllProjectUpdates();
 					if (updates != null) {
 					    for (int i = 0, length = updates.length; i < length; i++) {
@@ -1904,7 +1904,7 @@ public class DeltaProcessor {
 					// does not fire any deltas
 					return;
 
-				case IResourceChangeEvent.POST_AUTO_BUILD :
+				case IResourceChangeEvent.POST_BUILD :
 					JavaBuilder.buildFinished();
 					return;
 			}
