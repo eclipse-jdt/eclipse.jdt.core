@@ -67,7 +67,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Classpath containers pool
 	 */
-	public static Map Containers = new HashMap(5);
+	public static HashMap Containers = new HashMap(5);
 	public static HashMap PreviousSessionContainers = new HashMap(5);
 
 	/**

@@ -102,6 +102,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 public ClasspathInitializerTests(String name) {
 	super(name);
 }
+
 public void testContainerInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");
@@ -114,6 +115,70 @@ public void testContainerInitializer1() throws CoreException {
 				"");
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+public void testContainerInitializer2() throws CoreException {
+	try {
+		this.createProject("P1");
+		this.createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		IJavaProject p2 = this.createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+				
+		// simulate state on startup (flush containers, and preserve their previous values)
+		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
+		JavaModelManager.Containers = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		p2.close();
+		
+		startDeltas();
+		p2.getResolvedClasspath(true);
+		
+		assertDeltas(
+			"Unexpected delta on startup", 
+			""
+		);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+public void testContainerInitializer3() throws CoreException {
+	try {
+		this.createProject("P1");
+		this.createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		IJavaProject p2 = this.createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+				
+		// change value of TEST_CONTAINER
+		this.createFile("/P1/lib2.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
+
+		// simulate state on startup (flush containers, and preserve their previous values)
+		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
+		JavaModelManager.Containers = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		p2.close();
+		
+		startDeltas();
+		p2.getResolvedClasspath(true);
+		
+		assertDeltas(
+			"Unexpected delta on startup", 
+			"P2[*]: {CHILDREN}\n" + 
+			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	lib2.jar[*]: {ADDED TO CLASSPATH}"
+		);
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
