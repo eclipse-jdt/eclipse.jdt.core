@@ -59,7 +59,7 @@ public class Assignment extends Expression {
 	void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
 		
 		FieldBinding leftField = getLastField(this.lhs);
-		if (leftField != null && lhsType.isWildcard() && rhsType != NullBinding) {
+		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).kind != Wildcard.SUPER) {
 		    scope.problemReporter().unsafeWildcardAssignment(lhsType, rhsType, this.expression);
 		} else if (leftField != null && leftField.declaringClass.isRawType() 
 		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {

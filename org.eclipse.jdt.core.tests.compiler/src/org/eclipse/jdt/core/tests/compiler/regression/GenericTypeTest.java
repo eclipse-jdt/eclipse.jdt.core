@@ -6089,5 +6089,28 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe wildcard operation: The method add(? extends Integer) of type ArrayList<? extends Integer> is not applicable for the arguments (Integer). The wildcard parameter ? extends Integer has no lower bound, and may actually be more restrictive than argument Integer\n" + 
 			"----------\n");
-	}			
+	}
+	// 69141: variation
+	public void test222() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		XList<? super Integer> lx = new XList<Integer>();\n" + 
+				"		lx.slot = new Integer(1);\n" + 
+				"		Integer i = lx.slot;\n" +
+				"    }    	\n" + 
+				"}\n" + 
+				"class XList<E> {\n" + 
+				"    E slot;\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Integer i = lx.slot;\n" + 
+		"	        ^\n" + 
+		"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
+		"----------\n");
+	}	
 }
