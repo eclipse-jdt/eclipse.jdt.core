@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -105,9 +106,11 @@ public class SearchableEnvironment
 					accessRestriction = entry.getImportRestriction();
 					if (accessRestriction != null) {
 						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-						char[] typeChars = typeName.toCharArray();
-						accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'), null);
+						IPath typePath = type.getPath();
+						IPath rootPath = root.getPath();
+						IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
+						char[] path = relativePath.toString().toCharArray();
+						accessRestriction = accessRestriction.getViolatedRestriction(path, null);
 					}
 				}
 			}
@@ -130,7 +133,7 @@ public class SearchableEnvironment
 					// find all siblings (other types declared in same unit, since may be used for name resolution)
 					IType[] types = sourceType.getHandle().getCompilationUnit().getTypes();
 					ISourceType[] sourceTypes = new ISourceType[types.length];
-
+	
 					// in the resulting collection, ensure the requested type is the first one
 					sourceTypes[0] = sourceType;
 					int length = types.length;

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -17,7 +18,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -90,8 +90,6 @@ public void acceptType(IType type) {
 		if (this.unitToSkip != null && this.unitToSkip.equals(type.getCompilationUnit())){
 			return;
 		}
-		String packageName = type.getPackageFragment().getElementName();
-		String typeName = type.getElementName();
 		boolean isBinary = type instanceof BinaryType;
 		
 		// determine associated access restriction
@@ -104,9 +102,11 @@ public void acceptType(IType type) {
 				accessRestriction = entry.getImportRestriction();
 				if (accessRestriction != null) {
 					// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-					char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-					char[] typeChars = typeName.toCharArray();
-					accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'), null);
+					IPath typePath = type.getPath();
+					IPath rootPath = root.getPath();
+					IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
+					char[] path = relativePath.toString().toCharArray();
+					accessRestriction = accessRestriction.getViolatedRestriction(path, null);
 				}
 			}
 		}

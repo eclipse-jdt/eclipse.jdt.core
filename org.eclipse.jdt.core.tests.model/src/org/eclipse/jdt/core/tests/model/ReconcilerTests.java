@@ -144,8 +144,11 @@ public void setUpSuite() throws Exception {
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	String contents = this.workingCopy.getSource();
+	setUpWorkingCopy("Reconciler15/src/p1/X.java", contents);
+}
+private void setUpWorkingCopy(String path, String contents) throws JavaModelException {
 	this.workingCopy.discardWorkingCopy();
-	this.workingCopy = getCompilationUnit("Reconciler15/src/p1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.workingCopy = getCompilationUnit(path).getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 }
@@ -167,6 +170,27 @@ public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler");
 	deleteProject("Reconciler15");
 	super.tearDownSuite();
+}
+/*
+ * Ensures that no problem is created for a reference to a type that is included in a prereq project.
+ */
+public void testAccessRestriction() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[0], null, null, new boolean[0], "bin", null, new String[][] {{"**/X.java"}}, null, "1.4");
+		createFolder("/P1/src/p");
+		createFile("/P1/src/p/X.java", "package p; public class X {}");
+		
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
 }
 /**
  * Ensures that the reconciler handles duplicate members correctly.
