@@ -92,11 +92,11 @@ int getCRC32() {
  * @return a string representation of the receiver
  */
 public String toString() {
-	StringBuffer buf = new StringBuffer("TypeStructureEntry(");
+	StringBuffer buf = new StringBuffer("TypeStructureEntry("/*nonNLS*/);
 	if (fType != null) {
 		buf.append(fType.getName());
 	}
-	buf.append(")");
+	buf.append(")"/*nonNLS*/);
 	return buf.toString();
 }
 }

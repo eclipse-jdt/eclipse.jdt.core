@@ -4,12 +4,14 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Hashtable;
+
 import org.eclipse.core.resources.IProject;
-
-import org.eclipse.jdt.internal.core.builder.*;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.builder.IPackage;
 
 /** 
  * This class takes and restores snapshots of a State.
@@ -73,7 +75,7 @@ public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInput
 	int magic = in.readInt();
 	int version = in.readShort();
 	if (magic != MAGIC) { // magic = "STAT"e
-		throw new IOException("Unrecognized format");
+		throw new IOException(Util.bind("build.wrongFileFormat"/*nonNLS*/));
 	}
 
 	/* dispatch to appropriate reader */
@@ -83,7 +85,7 @@ public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInput
 		case VERSION6:
 			return new StateSnapV6().read(dc, project, in);
 		default:
-			throw new IOException("Unrecognized state format");
+			throw new IOException(Util.bind("build.unhandledVersionFormat"/*nonNLS*/));
 	}
 }
 /** 

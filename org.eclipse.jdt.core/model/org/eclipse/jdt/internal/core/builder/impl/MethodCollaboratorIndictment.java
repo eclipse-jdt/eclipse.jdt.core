@@ -57,7 +57,7 @@ protected MethodCollaboratorIndictment(IType owner, char[] name, int parmCount) 
 	 * only (NON-NLS).
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer("MethodIndictment(");
+		StringBuffer buf = new StringBuffer("MethodIndictment("/*nonNLS*/);
 		buf.append(fName);
 		buf.append('/');
 		buf.append(fParmCount);

@@ -194,7 +194,7 @@ public void add(PackageElement resultUnit, IType[] types, Vector vDependencies) 
  * For debugging only. Dump the graph in readable form.
  */
 public void dump(Dumper dumper) {
-	dumper.dumpMessage("Namespaces", ""/*nonNLS*/);
+	dumper.dumpMessage("Namespaces"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fNamespaces.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();
@@ -202,7 +202,7 @@ public void dump(Dumper dumper) {
 	}
 	dumper.outdent();
 
-	dumper.dumpMessage("JCUs", ""/*nonNLS*/);
+	dumper.dumpMessage("JCUs"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fCompilationUnits.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();
@@ -210,7 +210,7 @@ public void dump(Dumper dumper) {
 	}
 	dumper.outdent();
 
-	dumper.dumpMessage("ZIPs", ""/*nonNLS*/);
+	dumper.dumpMessage("ZIPs"/*nonNLS*/, ""/*nonNLS*/);
 	dumper.indent();
 	for (Enumeration e = fZips.elements(); e.hasMoreElements();) {
 		AbstractNode node = (AbstractNode) e.nextElement();

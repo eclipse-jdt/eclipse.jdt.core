@@ -19,6 +19,6 @@ protected TypeHierarchyIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("TypeHierarchyIndictment(").append(fName).append(")").toString();
+	return new StringBuffer("TypeHierarchyIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
 }
 }

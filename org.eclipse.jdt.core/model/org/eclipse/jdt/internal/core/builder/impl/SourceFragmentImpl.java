@@ -62,7 +62,7 @@ public String getZipEntryName() {
 	 */
 	public String toString() {
 		return 
-			"SourceFragmentImpl(" + fPath 
-				+ (fZipEntryName == null ? "" : " : " + fZipEntryName) + ")";
+			"SourceFragmentImpl("/*nonNLS*/ + fPath 
+				+ (fZipEntryName == null ? ""/*nonNLS*/ : " : "/*nonNLS*/ + fZipEntryName) + ")"/*nonNLS*/;
 	}
 }

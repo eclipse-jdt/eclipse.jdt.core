@@ -94,7 +94,7 @@ public String getPathWithZipEntryName() {
 	return s.replace('/', File.separatorChar);
 }
 	public String getZipEntryName() {
-		return fZipEntryPath == null ? fZipEntryFileName : fZipEntryPath + "/" + fZipEntryFileName;
+		return fZipEntryPath == null ? fZipEntryFileName : fZipEntryPath + "/"/*nonNLS*/ + fZipEntryFileName;
 	}
 	public int hashCode() {
 		int code = fPath.hashCode();
@@ -112,10 +112,10 @@ public String getPathWithZipEntryName() {
 	 */
 	public boolean isBinary() {
 		if (fZipEntryFileName != null) {
-			return fZipEntryFileName.endsWith(".class");
+			return fZipEntryFileName.endsWith(".class"/*nonNLS*/);
 		}
 		String extension = fPath.getFileExtension();
-		return extension != null && extension.equalsIgnoreCase("class");
+		return extension != null && extension.equalsIgnoreCase("class"/*nonNLS*/);
 	}
 	/**
 	 * Returns true if the source entry comes from a compilation unit, otherwise
@@ -123,16 +123,16 @@ public String getPathWithZipEntryName() {
 	 */
 	public boolean isSource() {
 		if (fZipEntryFileName != null) {
-			return fZipEntryFileName.endsWith(".java");
+			return fZipEntryFileName.endsWith(".java"/*nonNLS*/);
 		}
 		String extension = fPath.getFileExtension();
-		return extension != null && extension.equalsIgnoreCase("java");
+		return extension != null && extension.equalsIgnoreCase("java"/*nonNLS*/);
 	}
 /**
  * Returns a String that represents the value of this object.
  * @return a string representation of the receiver
  */
 public String toString() {
-	return fZipEntryFileName == null ? fPath.toString() : fPath.toString() + ", entry: " + this.getZipEntryName();
+	return fZipEntryFileName == null ? fPath.toString() : fPath.toString() + ", entry: "/*nonNLS*/ + this.getZipEntryName();
 }
 }

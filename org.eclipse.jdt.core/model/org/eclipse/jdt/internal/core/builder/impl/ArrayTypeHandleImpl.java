@@ -96,7 +96,7 @@ TypeImpl getElementType() {
 public String getName() {
 	String name = fElementType.getName();
 	for (int i = 0; i < fNestingDepth; i++)
-		name += "[]";
+		name += "[]"/*nonNLS*/;
 	return name;
 }
 /**
@@ -111,7 +111,7 @@ int getNestingDepth() {
 public String getSimpleName() {
 	String simpleName = fElementType.getSimpleName();
 	for (int i = 0; i < fNestingDepth; i++)
-		simpleName += "[]";
+		simpleName += "[]"/*nonNLS*/;
 	return simpleName;
 }
 /**

@@ -288,7 +288,7 @@ protected boolean outputLocationChanged(IState lastBuiltState) throws CoreExcept
 		IPath newOutputLocation = getJavaProject().getOutputLocation();
 		return !oldOutputLocation.equals(newOutputLocation);
 	} catch (JavaModelException e) {
-		throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("element.projectDoesNotExist", getProject().getFullPath().toString()), e));
+		throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("element.projectDoesNotExist"/*nonNLS*/, getProject().getFullPath().toString()), e));
 	}
 }
 protected void setLastBuiltState(IState state) {

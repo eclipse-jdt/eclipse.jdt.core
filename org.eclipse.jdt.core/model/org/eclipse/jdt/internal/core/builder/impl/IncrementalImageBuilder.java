@@ -208,7 +208,7 @@ public void applySourceDelta(Hashtable deltas) {
 	
 	try {
 		/* find out what has changed at the package level */
-		fNotifier.subTask(Util.bind("build.analyzingPackage"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.analyzingPackages"/*nonNLS*/));
 		computeAllPackages();
 		checkCancel();
 

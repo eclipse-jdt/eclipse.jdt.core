@@ -28,17 +28,17 @@ class DeltaImpl implements IDelta {
 	protected IImageContext fContext;
 
 	/* names for checklist items */
-	public static final String fgImage = "Image";
+	public static final String fgImage = "Image"/*nonNLS*/;
 	
-	public static final String fgPackageCategory = "Packages";
-	public static final String fgTypeCategory = "Types";
-	public static final String fgBinaryCategory = "Binaries";
-	public static final String fgMethodCategory = "Methods";
+	public static final String fgPackageCategory = "Packages"/*nonNLS*/;
+	public static final String fgTypeCategory = "Types"/*nonNLS*/;
+	public static final String fgBinaryCategory = "Binaries"/*nonNLS*/;
+	public static final String fgMethodCategory = "Methods"/*nonNLS*/;
 
-	public static final String fgPackage = "Package";
-	public static final String fgType = "Type";
-	public static final String fgBinary = "Binary";
-	public static final String fgMethod = "Method";
+	public static final String fgPackage = "Package"/*nonNLS*/;
+	public static final String fgType = "Type"/*nonNLS*/;
+	public static final String fgBinary = "Binary"/*nonNLS*/;
+	public static final String fgMethod = "Method"/*nonNLS*/;
 
 	/* convenience structure for delta calculation process */
 	class DeltaInfo {
@@ -99,7 +99,7 @@ class DeltaImpl implements IDelta {
 			fNewState = (StateImpl)newState;
 			fOldState = (StateImpl)oldState;
 		} catch (ClassCastException cce) {
-			Assert.isTrue(false, "Invalid states");
+			Assert.isTrue(false, Util.bind("build.invalidStates"/*nonNLS*/));
 		}
 		fStatus = CHANGED;
 		fName = fgImage;
@@ -131,16 +131,17 @@ class DeltaImpl implements IDelta {
 	 * Returns the child of this delta with the given object
 	 */
 	protected IDelta at(Object o) {
-		Assert.isNotNull(fChildren, "navigating off a leaf delta!");
-		for (int i = 0; i < fChildren.length; i++) {
-			if (o instanceof String) {
-				if (o.equals(fChildren[i].getName())) {
-					return fChildren[i];
+		if (fChildren != null){
+			for (int i = 0; i < fChildren.length; i++) {
+				if (o instanceof String) {
+					if (o.equals(fChildren[i].getName())) {
+						return fChildren[i];
+					}
 				}
-			}
-			else {
-				if (o.equals(fChildren[i].getObject())) {
-					return fChildren[i];
+				else {
+					if (o.equals(fChildren[i].getObject())) {
+						return fChildren[i];
+					}
 				}
 			}
 		}
@@ -199,7 +200,7 @@ protected int compareBuilderType(BuilderType type) {
 	 */
 	public int compareTo(IDelta anotherDelta) {
 		/* is this used? */
-		Assert.isTrue(false, "TBD");
+		Assert.isTrue(false, "TBD"/*nonNLS*/);
 		return 0;
 	}
 /**
@@ -396,7 +397,7 @@ protected int compareTypes(IType handle) {
 			pkgs.removeElement(e.nextElement());
 		}
 
-		Assert.isTrue(vInfo.size() == pkgs.size(), "sanity check");
+		Assert.isTrue(vInfo.size() == pkgs.size(), Util.bind("build.sanityCheck"/*nonNLS*/));
 		
 		/* convert info vector to array */
 		PackageInfo[] infos = new PackageInfo[vInfo.size()];
@@ -607,7 +608,7 @@ protected int compareTypes(IType handle) {
 	}
 	protected static void dump(IDelta delta, int depth) {
 		for (int i = 0; i < depth; ++i)
-			System.out.print("  ");
+			System.out.print("  "/*nonNLS*/);
 		System.out.println(delta);
 		IDelta[] children = delta.getAffectedSubdeltas();
 		for (int i = 0; i < children.length; ++i) {
@@ -894,23 +895,23 @@ public Enumeration getAffectedPackages() {
 	 * @return java.lang.String
 	 */
 	public String toString() {
-		StringBuffer sb = new StringBuffer("DeltaImpl(");
+		StringBuffer sb = new StringBuffer("DeltaImpl("/*nonNLS*/);
 		switch (fStatus) {
-			case ADDED: sb.append("+");
+			case ADDED: sb.append("+"/*nonNLS*/);
 			break;
-			case REMOVED: sb.append("-");
+			case REMOVED: sb.append("-"/*nonNLS*/);
 			break;
-			case CHANGED: sb.append("*");
+			case CHANGED: sb.append("*"/*nonNLS*/);
 			break;
-			case SAME: sb.append("=");
+			case SAME: sb.append("="/*nonNLS*/);
 			break;
-			case UNKNOWN: sb.append("?");
+			case UNKNOWN: sb.append("?"/*nonNLS*/);
 			break;
-			default: sb.append("(ERROR)");
+			default: sb.append("(ERROR)"/*nonNLS*/);
 		}
 		if (fKey.isRoot()) {
 			sb.append(fOldState);
-			sb.append("-->");
+			sb.append("-->"/*nonNLS*/);
 			sb.append(fNewState);
 		}
 		else {

@@ -4,17 +4,25 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.*;
-
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.Assert;
-import org.eclipse.jdt.internal.core.builder.*;
-import org.eclipse.jdt.internal.core.util.LookupTable;
-
-import java.io.*;
-import java.util.*;
-
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.builder.IDevelopmentContext;
+import org.eclipse.jdt.internal.core.builder.IImageContext;
+import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.IProblemReporter;
+import org.eclipse.jdt.internal.core.builder.IState;
+import org.eclipse.jdt.internal.core.builder.IType;
+import org.eclipse.jdt.internal.core.util.LookupTable;
 
 /** 
  * StateSnap for state file format version 5.
@@ -67,7 +75,7 @@ protected void addDependencyGraphToPool(StateImpl state, StateSnapConstantPool p
 				pool.add(((ZipNode)node).getZipFile());
 				break;
 			default:
-				Assert.isTrue(false, "Unexpected kind of node");
+				Assert.isTrue(false, Util.bind("build.unexpectedNode"/*nonNLS*/));
 		}
 		// Don't need to process node dependents here, since they're nodes as well
 		// and will have their info added to the pool above.
@@ -145,7 +153,7 @@ protected void addTypeStructureEntryToPool(TypeStructureEntry tsEntry, StateSnap
 	pool.add(tsEntry.getType());
 }
 protected void badFormat() throws IOException {
-	throw new IOException("Bad format");
+	throw new IOException(Util.bind("build.formatError"/*nonNLS*/));
 }
 /**
  * Check that the next section has the given name.
@@ -194,7 +202,7 @@ public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInput
  * Read the build context.
  */
 protected IImageContext readBuildContext(IDevelopmentContext dc, StateSnapConstantPool pool, DataInputStream in) throws IOException {
-	checkSection(in, "BuildContext");
+	checkSection(in, "BuildContext"/*nonNLS*/);
 	int numPkgs = in.readInt();
 	if (numPkgs == -1) {
 		return null;
@@ -210,7 +218,7 @@ protected IImageContext readBuildContext(IDevelopmentContext dc, StateSnapConsta
  * The state is needed to create CompilationUnit objects from SourceEntry objects.
  */
 protected DependencyGraph readDependencyGraph(StateSnapConstantPool pool, DataInputStream in, StateImpl state) throws IOException {
-	checkSection(in, "DependencyGraph");
+	checkSection(in, "DependencyGraph"/*nonNLS*/);
 	DependencyGraph graph = new DependencyGraph();
 	
 	// Avoid creating package elements for each node and dependency.
@@ -260,7 +268,7 @@ protected DependencyGraph readDependencyGraph(StateSnapConstantPool pool, DataIn
  * Read the package map.
  */
 protected PackageMap readPackageMap(StateSnapConstantPool pool, DataInputStream in) throws IOException {
-	checkSection(in, "PackageMap");
+	checkSection(in, "PackageMap"/*nonNLS*/);
 	PackageMap map = new PackageMap();
 	int size = in.readInt();
 	for (int i = 0; i < size; ++i) {
@@ -278,7 +286,7 @@ protected PackageMap readPackageMap(StateSnapConstantPool pool, DataInputStream 
  * Read the principal structure table.
  */
 protected Hashtable readPrincipalStructureTable(StateSnapConstantPool pool, DataInputStream in, StateImpl state) throws IOException {
-	checkSection(in, "PrincipalStructureTable");
+	checkSection(in, "PrincipalStructureTable"/*nonNLS*/);
 	int numEntries = in.readInt();
 	Hashtable table = new Hashtable(numEntries * 2 + 1);
 	for (int i = 0; i < numEntries; ++i) {
@@ -306,7 +314,7 @@ protected ProblemDetailImpl readProblem(StateSnapConstantPool pool, DataInputStr
  * Read the problem reporter.
  */
 protected IProblemReporter readProblemReporter(IProject project, StateSnapConstantPool pool, DataInputStream in) throws IOException {
-	checkSection(in, "Problems");
+	checkSection(in, "Problems"/*nonNLS*/);
 	IProblemReporter reporter = null;
 	boolean isProblemTable = in.readBoolean();
 	if (isProblemTable) {
@@ -322,14 +330,14 @@ protected IProblemReporter readProblemReporter(IProject project, StateSnapConsta
 		try {
 			clazz = Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			throw new IOException("Class " + className + " was not found.");
+			throw new IOException("Class "/*nonNLS*/ + className + " was not found."/*nonNLS*/);
 		}
 		try {
 			reporter = (IProblemReporter) clazz.newInstance();
 		} catch (InstantiationException e) {
-			throw new IOException("Could not instanciate " + clazz.getName());
+			throw new IOException("Could not instanciate "/*nonNLS*/ + clazz.getName());
 		} catch (IllegalAccessException e) {
-			throw new IOException("Could not instanciate " + clazz.getName());
+			throw new IOException("Could not instanciate "/*nonNLS*/ + clazz.getName());
 		}
 		reporter.initialize(project, JavaModelManager.getJavaModelManager().getDevelopmentContext(project));
 	}
@@ -339,7 +347,7 @@ protected IProblemReporter readProblemReporter(IProject project, StateSnapConsta
  * Read the source element table.
  */
 protected SourceElementTable readSourceElementTable(StateSnapConstantPool pool, DataInputStream in) throws IOException {
-	checkSection(in, "SourceElementTable");
+	checkSection(in, "SourceElementTable"/*nonNLS*/);
 	SourceElementTable table = new SourceElementTable();
 	int numPackages = in.readInt();
 	for (int i = 0; i < numPackages; ++i) {
@@ -468,7 +476,7 @@ protected void skipAttributes(DataInputStream in) throws IOException {
  * Write the build context.
  */
 protected void writeBuildContext(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("BuildContext");
+	out.writeUTF("BuildContext"/*nonNLS*/);
 	IImageContext ctx = state.getBuildContext();
 	if (ctx == null) {
 		out.writeInt(-1);
@@ -485,7 +493,7 @@ protected void writeBuildContext(StateImpl state, StateSnapConstantPool pool, Da
  * Write the dependency graph.
  */
 protected void writeDependencyGraph(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("DependencyGraph");
+	out.writeUTF("DependencyGraph"/*nonNLS*/);
 	DependencyGraph graph = state.getInternalDependencyGraph();
 	graph.integrityCheck();
 	/**
@@ -500,7 +508,7 @@ protected void writeDependencyGraph(StateImpl state, StateSnapConstantPool pool,
 		out.writeBoolean(true);
 		SourceEntry sEntry = state.getSourceEntry(jcu.getPackageElement());
 		if (sEntry == null) {
-			System.out.println("Warning: StatSnap: Attempt to serialize dependency graph node for missing JCU: " + jcu.getPackageElement() + ". Skipping...");
+			System.out.println("Warning: StatSnap: Attempt to serialize dependency graph node for missing JCU: "/*nonNLS*/ + jcu.getPackageElement() + ". Skipping..."/*nonNLS*/);
 		} else {
 			Assert.isNotNull(sEntry);
 			out.writeInt(pool.index(sEntry));
@@ -564,7 +572,7 @@ protected void writeEmptyAttributes(DataOutputStream out) throws IOException {
  * Write the package map.
  */
 protected void writePackageMap(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("PackageMap");
+	out.writeUTF("PackageMap"/*nonNLS*/);
 	PackageMap map = state.getPackageMap();
 	out.writeInt(map.size());
 	int count = 0;
@@ -584,7 +592,7 @@ protected void writePackageMap(StateImpl state, StateSnapConstantPool pool, Data
  * Write the principal structure table.
  */
 protected void writePrincipalStructureTable(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("PrincipalStructureTable");
+	out.writeUTF("PrincipalStructureTable"/*nonNLS*/);
 	Hashtable table = state.getPrincipalStructureTable();
 	int num = table.size();
 	out.writeInt(num);
@@ -613,7 +621,7 @@ protected void writeProblem(ProblemDetailImpl pb, StateSnapConstantPool pool, Da
  * Write the problem reporter.
  */
 protected void writeProblemReporter(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("Problems");
+	out.writeUTF("Problems"/*nonNLS*/);
 	IProblemReporter reporter = state.getProblemReporter();
 	if (reporter instanceof ProblemTable) {
 		out.writeBoolean(true);
@@ -637,7 +645,7 @@ protected void writeProblemReporter(StateImpl state, StateSnapConstantPool pool,
  * Write the source element table.
  */
 protected void writeSourceElementTable(StateImpl state, StateSnapConstantPool pool, DataOutputStream out) throws IOException {
-	out.writeUTF("SourceElementTable");
+	out.writeUTF("SourceElementTable"/*nonNLS*/);
 	SourceElementTable table = state.getSourceElementTable();
 	int num = table.numPackages();
 	out.writeInt(num);

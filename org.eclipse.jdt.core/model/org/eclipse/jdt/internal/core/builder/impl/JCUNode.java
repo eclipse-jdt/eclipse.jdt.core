@@ -86,6 +86,6 @@ public class JCUNode extends AbstractNode {
 	 * purposes only.
 	 */
 	public String toString() {
-		return "JCUNode(" + fUnit.getFileName() + ")";
+		return "JCUNode("/*nonNLS*/ + fUnit.getFileName() + ")"/*nonNLS*/;
 	}
 }

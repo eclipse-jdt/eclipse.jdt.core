@@ -31,7 +31,7 @@ public Throwable getThrowable() {
 	public void printStackTrace() {
 		if (fThrowable != null) {
 			System.err.println(this);
-			System.err.println("Stack trace of embedded throwable:");
+			System.err.println("Stack trace of embedded throwable:"/*nonNLS*/);
 			fThrowable.printStackTrace();
 		} else {
 			super.printStackTrace();
