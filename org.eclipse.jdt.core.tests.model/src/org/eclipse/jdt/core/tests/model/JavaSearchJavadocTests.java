@@ -98,6 +98,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug47968field"));
 		suite.addTest(new JavaSearchJavadocTests("testBug47968method"));
 		suite.addTest(new JavaSearchJavadocTests("testBug47968constructor"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209type"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209field"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209method"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209constructor"));
 		
 		return suite;
 	}
@@ -883,6 +887,104 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	
+	/**
+	 * Test fix for bug 47209.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47209">47209</a>
+	 * @throws CoreException
+	 */
+	public void testBug47209type() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j4", "TT47209.java").getType("TT47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "TF47209.java").getType("TF47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "TC47209.java").getType("TC47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "TT47209.java").getType("TM47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			assertSearchResults(
+				"src/j4/TT47209.java j4.TT47209 [TT47209] EXACT_MATCH\n" + 
+					"src/j4/TF47209.java j4.TF47209.f47209 [TF47209] EXACT_MATCH\n" + 
+					"src/j4/TC47209.java j4.TC47209(String) [TC47209] EXACT_MATCH\n" +
+					"src/j4/TM47209.java void j4.TM47209.m47209(int) [TM47209] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47209field() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j4", "FT47209.java").getType("FT47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "FF47209.java").getType("FF47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "FC47209.java").getType("FC47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "FT47209.java").getType("FM47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			assertSearchResults(
+				"src/j4/FT47209.java j4.FT47209 [FT47209] EXACT_MATCH\n" + 
+					"src/j4/FF47209.java j4.FF47209.f47209 [FF47209] EXACT_MATCH\n" + 
+					"src/j4/FC47209.java j4.FC47209(String) [FC47209] EXACT_MATCH\n" +
+					"src/j4/FM47209.java void j4.FM47209.m47209(int) [FM47209] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47209method() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j4", "MT47209.java").getType("MT47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "MF47209.java").getType("MF47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "MC47209.java").getType("MC47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "MT47209.java").getType("MM47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			assertSearchResults(
+				"src/j4/MT47209.java j4.MT47209 [MT47209] EXACT_MATCH\n" + 
+					"src/j4/MF47209.java j4.MF47209.f47209 [MF47209] EXACT_MATCH\n" + 
+					"src/j4/MC47209.java j4.MC47209(String) [MC47209] EXACT_MATCH\n" +
+					"src/j4/MM47209.java void j4.MM47209.m47209(int) [MM47209] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47209constructor() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j4", "CT47209.java").getType("CT47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "CF47209.java").getType("CF47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "CC47209.java").getType("CC47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			type = getCompilationUnit("JavaSearch", "src", "j4", "CT47209.java").getType("CM47209");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			assertSearchResults(
+				"src/j4/CT47209.java j4.CT47209 [CT47209] EXACT_MATCH\n" + 
+					"src/j4/CF47209.java j4.CF47209.f47209 [CF47209] EXACT_MATCH\n" + 
+					"src/j4/CC47209.java j4.CC47209(String) [CC47209] EXACT_MATCH\n" +
+					"src/j4/CM47209.java void j4.CM47209.m47209(int) [CM47209] EXACT_MATCH",
 				result);
 		} finally {
 			resetProjectOptions();
