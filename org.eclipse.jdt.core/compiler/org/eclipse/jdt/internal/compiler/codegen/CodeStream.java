@@ -1911,7 +1911,18 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBindi
 			else
 				resolvedPosition++;
 		}
-		syntheticArguments = nestedType.syntheticOuterLocalVariables();
+	}
+	for (int i = 0; i < length; i++) {
+		load(parameters[i], resolvedPosition);
+		if ((parameters[i] == DoubleBinding) || (parameters[i] == LongBinding))
+			resolvedPosition += 2;
+		else
+			resolvedPosition++;
+	}
+	
+	if (constructorBinding.declaringClass.isNestedType()) {
+		NestedTypeBinding nestedType = (NestedTypeBinding) constructorBinding.declaringClass;
+		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
 		for (int i = 0; i < (syntheticArguments == null ? 0 : syntheticArguments.length); i++) {
 			TypeBinding type;
 			load((type = syntheticArguments[i].type), resolvedPosition);
@@ -1920,13 +1931,6 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBindi
 			else
 				resolvedPosition++;
 		}
-	}
-	for (int i = 0; i < length; i++) {
-		load(parameters[i], resolvedPosition);
-		if ((parameters[i] == DoubleBinding) || (parameters[i] == LongBinding))
-			resolvedPosition += 2;
-		else
-			resolvedPosition++;
 	}
 	this.invokespecial(constructorBinding);
 	this.return_();

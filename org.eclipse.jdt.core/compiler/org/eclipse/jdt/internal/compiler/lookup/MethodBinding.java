@@ -373,22 +373,38 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 
 	StringBuffer buffer = new StringBuffer(parameters.length + 1 * 20);
 	buffer.append('(');
+	
+	TypeBinding[] targetParameters = this.parameters;
 	boolean considerSynthetics = isConstructorRelated() && declaringClass.isNestedType();
 	if (considerSynthetics) {
+		
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
 		int count = syntheticArgumentTypes == null ? 0 : syntheticArgumentTypes.length;
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++) {
 			buffer.append(syntheticArgumentTypes[i].signature());
+		}
+		
+		if (this instanceof SyntheticAccessMethodBinding) {
+			targetParameters = ((SyntheticAccessMethodBinding)this).targetMethod.parameters;
+		}
 	}
-	if (parameters != NoParameters)
-		for (int i = 0, length = parameters.length; i < length; i++)
-			buffer.append(parameters[i].signature());
+
+	if (targetParameters != NoParameters) {
+		for (int i = 0; i < targetParameters.length; i++) {
+			buffer.append(targetParameters[i].signature());
+		}
+	}
 	if (considerSynthetics) {
 		SyntheticArgumentBinding[] syntheticOuterArguments = declaringClass.syntheticOuterLocalVariables();
 		int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++) {
 			buffer.append(syntheticOuterArguments[i].type.signature());
+		}
+		// move the extra padding arguments of the synthetic constructor invocation to the end		
+		for (int i = targetParameters.length, extraLength = parameters.length; i < extraLength; i++) {
+			buffer.append(parameters[i].signature());
+		}
 	}
 	buffer.append(')');
 	buffer.append(returnType.signature());

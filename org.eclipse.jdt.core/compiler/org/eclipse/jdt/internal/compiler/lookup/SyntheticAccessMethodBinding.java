@@ -143,8 +143,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 	
 		this.targetMethod = targetConstructor;
 		this.modifiers = AccDefault | AccSynthetic;
-		SourceTypeBinding sourceType = 
-			(SourceTypeBinding) targetConstructor.declaringClass; 
+		SourceTypeBinding sourceType = (SourceTypeBinding) targetConstructor.declaringClass; 
 		SyntheticAccessMethodBinding[] knownAccessMethods = 
 			sourceType.syntheticAccessMethods(); 
 		this.index = knownAccessMethods == null ? 0 : knownAccessMethods.length;
