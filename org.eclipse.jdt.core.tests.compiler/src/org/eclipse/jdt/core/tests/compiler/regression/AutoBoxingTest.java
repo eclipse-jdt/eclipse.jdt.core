@@ -233,6 +233,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"y"
 		);
+		// int -> Integer
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -246,6 +247,132 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"	private void test(int i) { System.out.print('n'); }\n" +
 				"	void test(int... i) { System.out.print('n'); }\n" +
 				"	public void test(Integer i) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// byte -> Byte
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static byte bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(byte i) { System.out.print('n'); }\n" +
+				"	static void test(byte... i) { System.out.print('n'); }\n" +
+				"	public static void test(Byte b) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// char -> Character
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static char bar() {return 'c';}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(char i) { System.out.print('n'); }\n" +
+				"	static void test(char... i) { System.out.print('n'); }\n" +
+				"	public static void test(Character c) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// float -> Float
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static float bar() {return 0.0f;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(float f) { System.out.print('n'); }\n" +
+				"	static void test(float... f) { System.out.print('n'); }\n" +
+				"	public static void test(Float f) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// double -> Double
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static double bar() {return 0.0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(double d) { System.out.print('n'); }\n" +
+				"	static void test(double... d) { System.out.print('n'); }\n" +
+				"	public static void test(Double d) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// long -> Long
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static long bar() {return 0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(long l) { System.out.print('n'); }\n" +
+				"	static void test(long... l) { System.out.print('n'); }\n" +
+				"	public static void test(Long l) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// short -> Short
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static short bar() {return 0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(short s) { System.out.print('n'); }\n" +
+				"	static void test(short... s) { System.out.print('n'); }\n" +
+				"	public static void test(Short s) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// boolean -> Boolean
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static boolean bar() {return true;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(boolean b) { System.out.print('n'); }\n" +
+				"	static void test(boolean... b) { System.out.print('n'); }\n" +
+				"	public static void test(Boolean b) { System.out.print('y'); }\n" +
 				"}\n",
 			},
 			"y"
@@ -314,6 +441,169 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"1"
+		);
+	}
+	public void test011() { // autoboxing method is chosen over private exact match & visible varargs method
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(int i) { System.out.print('n'); }\n" +
+				"	static void test(int... i) { System.out.print('n'); }\n" +
+				"	public static void test(Integer i) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// int -> Integer
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		new Y().test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private void test(int i) { System.out.print('n'); }\n" +
+				"	void test(int... i) { System.out.print('n'); }\n" +
+				"	public void test(Integer i) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// byte -> Byte
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static byte bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(byte i) { System.out.print('n'); }\n" +
+				"	static void test(byte... i) { System.out.print('n'); }\n" +
+				"	public static void test(Byte b) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// char -> Character
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static char bar() {return 'c';}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(char i) { System.out.print('n'); }\n" +
+				"	static void test(char... i) { System.out.print('n'); }\n" +
+				"	public static void test(Character c) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// float -> Float
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static float bar() {return 0.0f;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(float f) { System.out.print('n'); }\n" +
+				"	static void test(float... f) { System.out.print('n'); }\n" +
+				"	public static void test(Float f) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// double -> Double
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static double bar() {return 0.0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(double d) { System.out.print('n'); }\n" +
+				"	static void test(double... d) { System.out.print('n'); }\n" +
+				"	public static void test(Double d) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// long -> Long
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static long bar() {return 0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(long l) { System.out.print('n'); }\n" +
+				"	static void test(long... l) { System.out.print('n'); }\n" +
+				"	public static void test(Long l) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// short -> Short
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static short bar() {return 0;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(short s) { System.out.print('n'); }\n" +
+				"	static void test(short... s) { System.out.print('n'); }\n" +
+				"	public static void test(Short s) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		// boolean -> Boolean
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static boolean bar() {return true;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(boolean b) { System.out.print('n'); }\n" +
+				"	static void test(boolean... b) { System.out.print('n'); }\n" +
+				"	public static void test(Boolean b) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
 		);
 	}
 }
