@@ -411,29 +411,40 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the unqualified name of the type represented by this binding
 	 * if it has one.
-	 * <p>
-	 * For named classes, interfaces, enums, and annotation types, this is the
-	 * simple name of the type; if the type is parameterized, the name is
-	 * followed by the simple names of the type variables surrounded
-	 * by "&lt;&gt;" and separated by "," (the type bounds are not included).
-	 * For primitive types, the name is the keyword for the primitive type. For
-	 * array types, the name is the name of the component type (as computed by
-	 * this method) followed by "[]". If this represents an
-	 * anonymous class, it returns an empty string (note that it is impossible
-	 * to have an array type with an anonymous class as element type). For the
-	 * null type, it returns "null".
-	 * For type variables, this is the name of the type variable.
-	 * For type bindings that correspond to particular instances of a generic
-	 * type arising from a parameterized type reference, this is the simple
-	 * name of the erasure type followed by the names of the type arguments
-	 * (as computed by this method) surrounded by "&lt;&gt;"
-	 * and separated by ",".
-	 * For type bindings that correspond to particular instances of a generic
-	 * type arising from a raw type reference, this is the simple name of the
-	 * erasure type.
-	 * For wildcard types, this is "?" followed by the name of the bound 
-	 * (as computed by this method) when present.
-	 * </p>
+	 * <ul>
+	 * <li>For top-level types, member types, and local types,
+	 * the name is the simple name of the type.
+	 * Example: <code>"String"</code> or <code>"Collection"</code>.
+	 * Note that the type parameters of a generic type are not included.</li>
+	 * <li>For primitive types, the name is the keyword for the primitive type.
+	 * Example: <code>"int"</code>.</li>
+	 * <li>For the null type, the name is the string "null".</li>
+	 * <li>For anonymous classes, which do not have a name,
+	 * this method returns an empty string.</li>
+	 * <li>For array types, the name is the unqualified name of the component
+	 * type (as computed by this method) followed by "[]".
+	 * Example: <code>"String[]"</code>. Note that the component type is never an
+	 * an anonymous class.</li>
+	 * <li>For type variables, the name is just the simple name of the
+	 * type variable (type bounds are not included).
+	 * Example: <code>"X"</code>.</li>
+	 * <li>For type bindings that correspond to particular instances of a generic
+	 * type arising from a parameterized type reference,
+	 * the name is the unqualified name of the erasure type (as computed by this method)
+	 * followed by the names (again, as computed by this method) of the type arguments
+	 * surrounded by "&lt;&gt;" and separated by ",".
+	 * Example: <code>"Collection&lt;String&gt;"</code>.
+	 * </li>
+	 * <li>For type bindings that correspond to particular instances of a generic
+	 * type arising from a raw type reference, the name is the unqualified name of
+	 * the erasure type (as computed by this method).
+	 * Example: <code>"Collection"</code>.</li>
+	 * <li>For wildcard types, the name is "?" optionally followed by 
+	 * the keyword "extends" and the name of the bound (as computed by this method)
+	 * when present.
+	 * Example: <code>"? extends InputStream"</code>.
+	 * </li>
+	 * </ul> 
 	 * 
 	 * @return the unqualified name of the type represented by this binding,
 	 * or the empty string if it has none
@@ -697,10 +708,11 @@ public interface ITypeBinding extends IBinding {
 	 * Returns the fully qualified name of the type represented by this 
 	 * binding if it has one.
 	 * <ul>
-	 * <li>For top-level types, the fully qualified name is the name of
-	 * the type (as computed by {@link #getName()}) preceded by the package
-	 * name (or unqualified if in a default package) and a ".".
-	 * Example: <code>"java.lang.String"</code>.</li>
+	 * <li>For top-level types, the fully qualified name is the simple name of
+	 * the type preceded by the package name (or unqualified if in a default package)
+	 * and a ".".
+	 * Example: <code>"java.lang.String"</code> or <code>"java.util.Collection"</code>.
+	 * Note that the type parameters of a generic type are not included.</li>
 	 * <li>For members of top-level types, the fully qualified name is the
 	 * simple name of the type preceded by the fully qualified name of the
 	 * enclosing type (as computed by this method) and a ".".
@@ -708,15 +720,15 @@ public interface ITypeBinding extends IBinding {
 	 * <li>For primitive types, the fully qualified name is the keyword for
 	 * the primitive type.
 	 * Example: <code>"int"</code>.</li>
-	 * <li>For array types whose component type has a fully qualified name, 
-	 * the fully qualified name is the fully qualified name of the component
-	 * type (as computed by this method) followed by "[]".
-	 * Example: <code>"java.lang.String[]"</code>.</li>
 	 * <li>For the null type, the fully qualified name is the string 
 	 * "null".</li>
 	 * <li>Local types (including anonymous classes) and members of local
 	 * types do not have a fully qualified name. For these types, and array
 	 * types thereof, this method returns an empty string.</li>
+	 * <li>For array types whose component type has a fully qualified name, 
+	 * the fully qualified name is the fully qualified name of the component
+	 * type (as computed by this method) followed by "[]".
+	 * Example: <code>"java.lang.String[]"</code>.</li>
 	 * <li>For type variables, the fully qualified name is just the name of the
 	 * type variable (type bounds are not included).
 	 * Example: <code>"X"</code>.</li>
@@ -728,13 +740,13 @@ public interface ITypeBinding extends IBinding {
 	 * </li>
 	 * <li>For type bindings that correspond to particular instances of a generic
 	 * type arising from a raw type reference,
-	 * the fully qualified name is the fully qualified name of the type but
-	 * with the type parameters omitted.
-	 * Example: <code>"java.util.Collection"</code>.</li>
-	 * <li>For wildcard types, the fully qualified name is "?" followed by the
-	 * fully qualified name of the bound (as computed by this method) when
-	 * present.
-	 * Example: <code>"? extends java.lang.Object"</code>.
+	 * the fully qualified name is the fully qualified name of the erasure type.
+	 * Example: <code>"java.util.Collection"</code>. Note that the
+	 * the type parameters are omitted.</li>
+	 * <li>For wildcard types, the fully qualified name is "?" optionally followed by 
+	 * the keyword "extends" and the fully qualified name of the bound (as computed by
+	 * this method) when present.
+	 * Example: <code>"? extends java.io.InputStream"</code>.
 	 * </li>
 	 * </ul>
 	 * 
