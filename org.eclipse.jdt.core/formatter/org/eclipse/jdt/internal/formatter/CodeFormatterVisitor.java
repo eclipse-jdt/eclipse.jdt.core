@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
@@ -829,53 +828,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return this.scribe.getRootEdit();
 	}
 	
-	private void format(AnnotationTypeDeclaration annotationTypeDeclaration) {
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(annotationTypeDeclaration.annotations, this);
-		/*
-		 * Type name
-		 */
-		this.scribe.printNextToken(TerminalTokens.TokenNameAT, this.preferences.insert_space_before_at_in_annotation_type_declaration);
-		this.scribe.printNextToken(TerminalTokens.TokenNameinterface, this.preferences.insert_space_after_at_in_annotation_type_declaration); 
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-
-		/*
-		 * Type body
-		 */
-		String annotation_type_declaration_brace = this.preferences.brace_position_for_annotation_type_declaration;
-
-        formatLeftCurlyBrace(line, annotation_type_declaration_brace);
-		formatTypeOpeningBrace(annotation_type_declaration_brace, this.preferences.insert_space_before_opening_brace_in_annotation_type_declaration, annotationTypeDeclaration);
-		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
-			this.scribe.indent();
-		}
-
-		formatTypeMembers(annotationTypeDeclaration);
-
-		this.scribe.printComment();
-		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
-			this.scribe.unIndent();
-		}
-		
-		if (this.preferences.insert_new_line_in_empty_type_declaration) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		this.scribe.printTrailingComment();
-		if (annotation_type_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-			this.scribe.unIndent();
-		}
-		if (hasComments()) {
-			this.scribe.printNewLine();
-		}
-	}
 	private void format(TypeDeclaration typeDeclaration){
         /*
          * Print comments to get proper line number
@@ -898,7 +850,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
         		break;
         	case IGenericType.ANNOTATION_TYPE :
-        		// TODO (olivier) need to be merged with format(AnnotationTypeDecl)
 				this.scribe.printNextToken(TerminalTokens.TokenNameAT, this.preferences.insert_space_before_at_in_annotation_type_declaration);
 				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, this.preferences.insert_space_after_at_in_annotation_type_declaration); 
         		break;
@@ -1017,6 +968,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				class_declaration_brace = this.preferences.brace_position_for_enum_declaration;
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_enum_declaration;
 				break;
+			case IGenericType.ANNOTATION_TYPE :
+				class_declaration_brace = this.preferences.brace_position_for_annotation_type_declaration;
+				space_before_opening_brace =  this.preferences.insert_space_before_opening_brace_in_annotation_type_declaration;
+				break;
 			default:
 				class_declaration_brace = this.preferences.brace_position_for_type_declaration;
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_type_declaration;
@@ -1029,6 +984,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		switch(typeDeclaration.getKind()) {
 			case IGenericType.ENUM :
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
+				break;
+			case IGenericType.ANNOTATION_TYPE :
+				// TODO (olivier) might want to add an option for annotation type
+				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
 				break;
 			default:
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
@@ -1077,6 +1036,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		switch(typeDeclaration.getKind()) {
 			case IGenericType.ENUM :
 				if (this.preferences.insert_new_line_in_empty_enum_declaration) {
+					this.scribe.printNewLine();
+				}
+				break;
+			case IGenericType.ANNOTATION_TYPE :
+				// TODO (olivier) might want an option for annotation type
+				if (this.preferences.insert_new_line_in_empty_type_declaration) {
 					this.scribe.printNewLine();
 				}
 				break;
@@ -2171,21 +2136,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		BlockScope scope) {
 			
 		return dumpBinaryExpression(and_and_Expression, TerminalTokens.TokenNameAND_AND, scope);
-	}
-	public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration,
-			BlockScope scope) {
-		format(annotationTypeDeclaration);
-		return false;
-	}
-	public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration,
-			ClassScope scope) {
-		format(annotationTypeDeclaration);
-		return false;
-	}
-	public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration,
-			CompilationUnitScope scope) {
-		format(annotationTypeDeclaration);
-		return false;
 	}
 	public boolean visit(
 			AnnotationMethodDeclaration annotationTypeMemberDeclaration,

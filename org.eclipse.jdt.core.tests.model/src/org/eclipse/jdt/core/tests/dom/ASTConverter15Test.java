@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0027"));
+		suite.addTest(new ASTConverter15Test("test0074"));
 		return suite;
 	}
 		
@@ -2097,5 +2097,72 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				return false;
 			}
 		});
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77806
+	 */
+	public void _test0073() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0073", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType2();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		assertNotNull("No binding", type.resolveBinding());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		Type type2 = parameterizedType.getType();
+		assertTrue("Not a simple type", type2.isSimpleType());
+		final ITypeBinding binding = type2.resolveBinding();
+		assertNotNull("No binding", binding);
+		SimpleType simpleType = (SimpleType) type2;
+		Name name = simpleType.getName();
+		assertTrue("Not a simpleName", name.isSimpleName());
+		SimpleName simpleName = (SimpleName) name;
+		ITypeBinding binding2 = simpleName.resolveTypeBinding();
+		assertNotNull("No binding", binding2);
+		assertTrue("Different binding", binding2.isEqualTo(binding));
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77806
+	 */
+	public void _test0074() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0074", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType2();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		assertNotNull("No binding", type.resolveBinding());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		Type type2 = parameterizedType.getType();
+		assertTrue("Not a simple type", type2.isSimpleType());
+		final ITypeBinding binding = type2.resolveBinding();
+		assertNotNull("No binding", binding);
+		SimpleType simpleType = (SimpleType) type2;
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.isQualifiedName());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		SimpleName simpleName = qualifiedName.getName();
+		ITypeBinding binding2 = simpleName.resolveTypeBinding();
+		assertNotNull("No binding", binding2);
+		assertTrue("Different binding", binding2.isEqualTo(binding));
+		Name name2 = qualifiedName.getQualifier();
+		assertTrue("Not a qualified name", name2.isQualifiedName());
+		QualifiedName qualifiedName2 = (QualifiedName) name2;
+		ITypeBinding binding3 = qualifiedName2.resolveTypeBinding();
+		assertNotNull("No binding", binding3);
+		assertEquals("wrong kind", IBinding.PACKAGE, binding3.getKind());
 	}
 }

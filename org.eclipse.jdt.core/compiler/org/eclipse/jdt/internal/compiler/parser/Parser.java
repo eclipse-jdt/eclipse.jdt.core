@@ -1060,7 +1060,7 @@ protected void consumeAnnotationTypeDeclaration() {
 protected void consumeAnnotationTypeDeclarationHeader() {
 	// consumeAnnotationTypeDeclarationHeader ::= Modifiers '@' PushModifiers interface Identifier
 	// consumeAnnotationTypeDeclarationHeader ::= '@' PushModifiers interface Identifier
-	AnnotationTypeDeclaration annotationTypeDeclaration = new AnnotationTypeDeclaration(this.compilationUnit.compilationResult);
+	TypeDeclaration annotationTypeDeclaration = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
 			annotationTypeDeclaration.bits |= ASTNode.IsMemberTypeMASK;

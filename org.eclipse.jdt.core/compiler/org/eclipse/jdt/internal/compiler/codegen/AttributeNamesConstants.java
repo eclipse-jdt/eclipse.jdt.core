@@ -24,4 +24,6 @@ public interface AttributeNamesConstants {
 	final char[] LocalVariableTypeTableName = "LocalVariableTypeTable".toCharArray(); //$NON-NLS-1$
 	final char[] EnclosingMethodName = "EnclosingMethod".toCharArray(); //$NON-NLS-1$
 	final char[] AnnotationDefaultName = "AnnotationDefault".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeInvisibleAnnotationsName = "RuntimeInvisibleAnnotations".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeVisibleAnnotationsName = "RuntimeVisibleAnnotations".toCharArray(); //$NON-NLS-1$
 }

@@ -69,6 +69,7 @@ public abstract class Annotation extends Expression {
 						if (expressions != null) {
 							for (int i =0, max = expressions.length; i < max; i++) {
 								if (expressions[i].constant == NotAConstant) {
+									// TODO (philippe) might want to report the error on the most specific constant instead of the whole array initializer
 									scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
 								}
 							}

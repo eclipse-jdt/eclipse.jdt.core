@@ -2706,7 +2706,7 @@ public void invalidUsageOfAnnotation(Annotation annotation) {
 		annotation.sourceStart,
 		annotation.sourceEnd);	
 }
-public void invalidUsageOfAnnotationDeclarations(AnnotationTypeDeclaration annotationTypeDeclaration) {
+public void invalidUsageOfAnnotationDeclarations(TypeDeclaration annotationTypeDeclaration) {
 	this.handle(
 		IProblem.InvalidUsageOfAnnotationDeclarations,
 		NoArgument, 

@@ -906,4 +906,27 @@ public class AnnotationTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
+	
+	// check use of binary annotation - check default value presence
+	public void test038() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"@interface Foo {\n" +
+				"	int id() default 8;\n" +
+				"	Class type();\n" +
+				"}"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@Foo(type=String.class) public class X {\r\n" + 
+				"}"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
 }

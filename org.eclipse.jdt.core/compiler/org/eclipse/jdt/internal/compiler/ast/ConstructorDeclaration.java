@@ -213,7 +213,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		
 		classFile.generateMethodInfoHeader(binding);
 		int methodAttributeOffset = classFile.contentsOffset;
-		int attributeNumber = classFile.generateMethodInfoAttribute(binding);
+		int attributeNumber = classFile.generateMethodInfoAttribute(this.binding);
 		if ((!binding.isNative()) && (!binding.isAbstract())) {
 			
 			TypeDeclaration declaringType = classScope.referenceContext;

@@ -255,4 +255,20 @@ public final boolean isVolatile() {
 public FieldBinding original() {
 	return this;
 }
+public FieldDeclaration sourceField() {
+	SourceTypeBinding sourceType;
+	try {
+		sourceType = (SourceTypeBinding) declaringClass;
+	} catch (ClassCastException e) {
+		return null;		
+	}
+
+	FieldDeclaration[] fields = sourceType.scope.referenceContext.fields;
+	if (fields != null) {
+		for (int i = fields.length; --i >= 0;)
+			if (this == fields[i].binding)
+				return fields[i];
+	}
+	return null;		
+}
 }
