@@ -115,35 +115,44 @@ public class Javadoc extends ASTNode {
 		int seeTagsNbre = references == null ? 0 : references.length;
 		boolean superRef = false;
 		for (int i = 0; i < seeTagsNbre; i++) {
-			TypeBinding binding = references[i].resolveType(methScope);
-			
-			if ((methDecl.isConstructor() || override) && !superRef && binding != null && binding.isValidBinding()) {
-				// if binding is valid then look if we have a reference to an overriden method/constructor
-				if (references[i] instanceof JavadocMessageSend) {
-					JavadocMessageSend messageSend = (JavadocMessageSend) references[i];
-					if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.qualifyingType) &&
-						CharOperation.equals(messageSend.selector, methDecl.selector) &&
-						(messageSend.binding.returnType == methDecl.binding.returnType)) {
-						if (messageSend.arguments == null && methDecl.arguments == null) {
-							superRef = true;
+			references[i].resolveType(methScope);
+			try {
+				// see whether we can have a super reference
+				if ((methDecl.isConstructor() || override) && !superRef) {
+					if (references[i] instanceof JavadocMessageSend) {
+						JavadocMessageSend messageSend = (JavadocMessageSend) references[i];
+						// if binding is valid then look if we have a reference to an overriden method/constructor
+						if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
+							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.receiverType) &&
+								CharOperation.equals(messageSend.selector, methDecl.selector) &&
+								(messageSend.binding.returnType == methDecl.binding.returnType)) {
+								if (messageSend.arguments == null && methDecl.arguments == null) {
+									superRef = true;
+								}
+								else if (messageSend.arguments != null && methDecl.arguments != null) {
+									superRef = methDecl.binding.areParametersEqual(messageSend.binding);
+								}
+							}
 						}
-						else if (messageSend.arguments != null && methDecl.arguments != null) {
-							superRef = methDecl.binding.areParametersEqual(messageSend.binding);
+					}
+					else if (references[i] instanceof JavadocAllocationExpression) {
+						JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) references[i];
+						// if binding is valid then look if we have a reference to an overriden method/constructor
+						if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
+							if (methDecl.binding.declaringClass.isCompatibleWith(allocationExpr.resolvedType)) {
+								if (allocationExpr.arguments == null && methDecl.arguments == null) {
+									superRef = true;
+								}
+								else if (allocationExpr.arguments != null && methDecl.arguments != null) {
+									superRef = methDecl.binding.areParametersEqual(allocationExpr.binding);
+								}
+							}
 						}
 					}
 				}
-				else if (references[i] instanceof JavadocAllocationExpression) {
-					JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) references[i];
-					TypeBinding constructorBinding = allocationExpr.type.resolvedType;
-					if (methDecl.binding.declaringClass.isCompatibleWith(constructorBinding)) {
-						if (allocationExpr.arguments == null && methDecl.arguments == null) {
-							superRef = true;
-						}
-						else if (allocationExpr.arguments != null && methDecl.arguments != null) {
-							superRef = methDecl.binding.areParametersEqual(allocationExpr.binding);
-						}
-					}
-				}
+			}
+			catch (Exception e) {
+				// Something wrong happen, forgot super ref...
 			}
 		}
 		
@@ -196,7 +205,7 @@ public class Javadoc extends ASTNode {
 			for (int i = 0; i < paramTagsSize; i++) {
 				JavadocSingleNameReference param = parameters[i];
 				param.resolve(methScope);
-				if (param.binding != null) {
+				if (param.binding != null && param.binding.isValidBinding()) {
 					// Verify duplicated tags
 					boolean found = false;
 					for (int j = 0; j < maxBindings && !found; j++) {
@@ -243,7 +252,7 @@ public class Javadoc extends ASTNode {
 			if (reportMissing) {
 				for (int i = 0; i < thrownExceptionSize; i++) {
 					TypeReference typeRef = md.thrownExceptions[i];
-					if (typeRef.resolvedType != null) { // flag only valid class name
+					if (typeRef.resolvedType != null && typeRef.resolvedType.isValidBinding()) { // flag only valid class name
 						methScope.problemReporter().javadocMissingThrowsTag(typeRef);
 					}
 				}
@@ -258,7 +267,7 @@ public class Javadoc extends ASTNode {
 				typeRef.resolve(methScope);
 				TypeBinding typeBinding = typeRef.resolvedType;
 
-				if (typeBinding.isValidBinding() && typeBinding.isClass()) {
+				if (typeBinding != null && typeBinding.isValidBinding() && typeBinding.isClass()) {
 					// Verify duplicated tags
 					boolean found = false;
 					for (int j = 0; j < maxRef && !found; j++) {
@@ -288,7 +297,7 @@ public class Javadoc extends ASTNode {
 						}
 					}
 					if (!found) {
-						if (exception.resolvedType != null) { // flag only valid class name
+						if (exception.resolvedType != null && exception.resolvedType.isValidBinding()) { // flag only valid class name
 							methScope.problemReporter().javadocMissingThrowsTag(exception);
 						}
 					}

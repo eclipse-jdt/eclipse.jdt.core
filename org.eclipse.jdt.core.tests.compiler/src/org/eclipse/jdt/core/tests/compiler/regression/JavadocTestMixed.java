@@ -50,7 +50,8 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug47339"));
+			ts.addTest(new JavadocTestMixed("testBug48064"));
+			ts.addTest(new JavadocTestMixed("testBug48064a"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -1410,6 +1411,69 @@ public class JavadocTestMixed extends JavadocTest {
 				"	                ^^^^^^^\n" + 
 				"Javadoc: Missing tag for parameter message\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 48064.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48064">48064</a>
+	 */
+	public void testBug48064() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	X(String str) {}\n" + 
+				"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#X(STRING)\n" + 
+				"	 */\n" + 
+				"	Y(String str) {super(str);}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	* @see X#X(STRING)\n" + 
+			"	           ^^^^^^\n" + 
+			"Javadoc: STRING cannot be resolved or is not a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 5)\n" + 
+			"	Y(String str) {super(str);}\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug48064a() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(String str) {}\n" + 
+				"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo(STRING)\n" + 
+				"	 */\n" + 
+				"	void foo(String str) {super(str);}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	* @see X#foo(STRING)\n" + 
+			"	             ^^^^^^\n" + 
+			"Javadoc: STRING cannot be resolved or is not a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 5)\n" + 
+			"	void foo(String str) {super(str);}\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"Constructor call must be the first statement in a constructor\n" + 
+			"----------\n"
 		);
 	}
 }

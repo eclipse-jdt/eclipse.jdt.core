@@ -56,7 +56,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				}
 			}
 			if (argHasError) {
-				return this.resolvedType;
+				return null;
 			}
 		}
 
