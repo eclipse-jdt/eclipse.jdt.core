@@ -1,10 +1,22 @@
 **********************************************************
 * BREAKING API CHANGES ***********************************
 **********************************************************
+  None
+  
+**********************************************************
+* NON-BREAKING API CHANGES *******************************
+**********************************************************
 
-  * CodeAssist provides variable name suggestions. 
-    (breaking) API Changes on ICompletionRequestor
-    + Added API for suggest variable name:
+  * ICodeCompletionRequestor got deprecated, should use ICompletionRequestor
+    instead to obtain:
+     (1) - local variable name suggestions
+     (2) - parameter name hints
+     (3) - method declaration suggestions.
+    
+   ICompletionRequestor is equivalent to ICodeCompletionRequestor except for
+   the following API changes:
+   
+   (1) + Added API for suggest variable name:
       void acceptVariableName(
           char[] typePackageName,
           char[] typeName,
@@ -13,23 +25,7 @@
           int completionStart,
           int completionEnd);
 
-  * CodeAssist provides parameter names on method completions. 
-    API Changes on ICompletionRequestor
-  	+ Added API for answering method declaration completions:
-      void acceptMethodDeclaration(
-          char[] declaringTypePackageName,
-          char[] declaringTypeName,
-          char[] selector,
-          char[][] parameterPackageNames,
-          char[][] parameterTypeNames,
-          char[][] parameterNames,
-          char[] returnTypePackageName,
-          char[] returnTypeName,
-          char[] completionName,
-          int modifiers,
-          int completionStart,
-          int completionEnd);
-    + Added parameterNames to normal method results API:
+    (2) + Added parameterNames to normal method results API:
       void acceptMethod(
           char[] declaringTypePackageName,
           char[] declaringTypeName,
@@ -44,9 +40,20 @@
           int completionStart,
           int completionEnd);
 
-**********************************************************
-* NON-BREAKING API CHANGES *******************************
-**********************************************************
+   (3) + Added API for answering method declaration completions:
+      void acceptMethodDeclaration(
+          char[] declaringTypePackageName,
+          char[] declaringTypeName,
+          char[] selector,
+          char[][] parameterPackageNames,
+          char[][] parameterTypeNames,
+          char[][] parameterNames,
+          char[] returnTypePackageName,
+          char[] returnTypeName,
+          char[] completionName,
+          int modifiers,
+          int completionStart,
+          int completionEnd);
 
   * SearchEngine.createJavaSearchScope(IResource[]) has been deprecated.
   	Use SearchEngine.createJavaSearchScope(IJavaElement[]) instead.

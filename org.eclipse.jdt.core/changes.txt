@@ -113,7 +113,7 @@ STREAM: 2.0
   * ICodeCompletion reverted to 1.0 version, and got deprecated. Use ICompletionRequestor instead.
   * Cross-project incremental recompilation in presence of structural changes in produced binaries.
   
-  PRs Fixed in this Release
+  27 PRs Fixed in this Release
   ================================================================================
   5525      ICodeCompletionRequestor isn't 1.0 compatible   
   5616      NPE when compiling invalid code defining a array of strings  
@@ -143,7 +143,7 @@ STREAM: 2.0
   5069      search: method reference in super missing  
   5068      search: missing method reference  
 
-  PRs Closed in this Release
+  9 PRs Closed in this Release
   ================================================================================
   5526      NullPointerException searching declarations of #close()  
   5498      Java Compile - code does not compile correctly in JDT, but does with javac
@@ -179,7 +179,7 @@ STREAM: 2.0
   * JavaModel is no longer performing smart classpath updates when Java package
   	fragment roots are either moved or removed.
 
-  PRs Fixed in this Release
+  13 PRs Fixed in this Release
   ================================================================================
   3568      no hoverhelp over constructor referrences (1GAJ0KP)
   5218      AccSuper is not set properly
@@ -195,7 +195,7 @@ STREAM: 2.0
   3439		Classfile comparator should be able to ignore synthetics (1GL2I3N) 
   3442		NPE in SourceElementParser (1GL496I)   
 
-  PRs Closed in this Release
+  8 PRs Closed in this Release
   ===============================================================================
   3369      Classpath gets out of sync (1GJU853)  
   3281      change java project binary output create new package (1GEHK07)  
@@ -247,7 +247,7 @@ STREAM: 2.0
       included.
   	
 
-  PRs Fixed in this Release
+  16 PRs Fixed in this Release
   ================================================================================
   5065      NullPointerException in Code Assist  
   4921      Serach does not find types in internal jar  
@@ -266,7 +266,7 @@ STREAM: 2.0
   4385		QualifiedAllocationExpression.sourceEnd incorrect if type is an AnonymousLocalTypeDeclaration 
   3230 		Search - Too many type references for query ending with * (1GAZVGI)
   
-  PRs Closed in this Release
+  13 PRs Closed in this Release
   ===============================================================================
   3174      Open-on-selection doesn't work on MouseAdapter (1GF69TH)  
   3337      Open on selection failed with double message (1GIFA80)  
@@ -350,7 +350,7 @@ STREAM: 2.0
     Java element (i.e. no local declaration is found), and is more tolerant of
     incorrect code.
   
-  PRs Fixed in this Release
+  48 PRs Fixed in this Release
   ================================================================================
   3430      usability: parameter hints (1GKYXK5)  
   3431      Unreachable code in JCore (1GL2V6K)  
@@ -399,7 +399,7 @@ STREAM: 2.0
   1GKM4M9: ITPJCORE:WINNT - DCR: code select should work on declarations
   1G2NZVT: ITPJUI:WIN2000 - DCR - OpenOnSelection - Code resolve doesn't work for declarations
   
-  PRs Closed in this Release
+  28 PRs Closed in this Release
   ===============================================================================
   3223      Search from editor's context menu doesn't work (1GAJCD8)    
   3433		search: missing field occurrecnces (1GKZ8J6)  
@@ -449,7 +449,7 @@ STREAM: 2.0
   * org.eclipse.jdt.core.search.IJavaSearchResultCollector now clearly states that
     the order of the search result is unspecified.
   	
-  PRs Fixed in this Release
+  19 PRs Fixed in this Release
   ================================================================================
   1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
   1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
@@ -471,7 +471,7 @@ STREAM: 2.0
   1GGNOTF: ITPJCORE:WINNT - Search doesn't find method referenced in anonymous inner class
   1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when searching references in JAR
 
-  PRs Closed in this Release
+  29 PRs Closed in this Release
   ===============================================================================
   1GJY3KG: ITPJUI:WIN2000 - NPE in jdt.internal.core.ClassFileInfo
   1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
@@ -521,7 +521,7 @@ STREAM: 2.0
   * Search for references now finds results in binaries. Indexes in old workspaces are recomputed when restarted 
      which may result in longer startup times.
 
-  PRs Fixed in this Release (since 1.0NL stream)
+  72 PRs Fixed in this Release (since 1.0NL stream)
   ================================================================================
   1GAY5TW: IVJIDT:ALL - Wrong indentation using the formatter and Opening braces begin new line sets to true
   1GEKKUO: ITPJCORE:ALL - JM - Util.readContentsAsBytes(InputStream) doesn't allow for size hint
@@ -596,7 +596,7 @@ STREAM: 2.0
   1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified 
   1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName() 
 
-  PRs Closed in this Release
+  132 PRs Closed in this Release
   ================================================================================
   1G4GDL3: ITPJUI:WINNT - Outliner, Type Hierarchy - strange members
   1GJY8MH: ITPJCORE:WINNT - No warning marker for use of deprecated members in same class
@@ -738,7 +738,7 @@ STREAM: 2.0
   * JCK1.3a compliant. 
   * All messages have been externalized. 
 
-  PRs Fixed in 1.0NL stream (since 0.9)
+  28 PRs Fixed in 1.0NL stream (since 0.9)
   ================================================================================
   1GJPBON: ITPUI:WIN2000 - Java search won't detect DBCS 
   1GJPCA9: ITPUI:WIN2000 - incorrect reversed text for search hit in Java search 
