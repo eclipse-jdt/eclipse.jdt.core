@@ -222,7 +222,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		int fieldLength = fieldName.length;
 		for (int f = fields.length; --f >= 0;) {
 			FieldBinding field = fields[f];
-			if (field.name.length == fieldLength && CharOperation.prefixEquals(field.name, fieldName)) {
+			if (field.name.length == fieldLength && CharOperation.prefixEquals(field.name, fieldName)) { // TODO (kent) why do we use prefixEquals vs. equals ?
 				return field;
 			}
 		}

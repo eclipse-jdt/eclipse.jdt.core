@@ -512,6 +512,7 @@ void recordSimpleReference(char[] simpleName) {
 	if (!simpleNameReferences.contains(simpleName))
 		simpleNameReferences.add(simpleName);
 }
+// TODO (kent) why bothering recording references onto local & anonymous types ?
 void recordTypeReference(TypeBinding type) {
 	if (referencedTypes == null) return; // not recording dependencies
 
