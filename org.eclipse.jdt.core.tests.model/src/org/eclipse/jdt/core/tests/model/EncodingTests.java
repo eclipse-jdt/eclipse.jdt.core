@@ -57,7 +57,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "testBug70598" };
+//		testsNames = new String[] { "testBug66898" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -89,7 +89,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 */
 	protected void tearDown() throws Exception {
 		this.encodingProject.setDefaultCharset(null, null);
-		this.utf8File.setCharset(null, null);
+		if (this.utf8File.exists()) this.utf8File.setCharset(null, null);
 		if (this.utf8Source != null) ((IOpenable) this.utf8Source).close();
 		this.encodingJavaProject.close();
 		super.tearDown();
@@ -674,97 +674,105 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding, null);
-		String fileName = this.utf8File.getName();
-		ICompilationUnit cu = getCompilationUnit(this.utf8File.getFullPath().toString());
+		IFile file = (IFile) this.encodingProject.findMember("src/testBug66898/Test.java");
+		file.setCharset(encoding, null);
+		String fileName = file.getName();
+		ICompilationUnit cu = getCompilationUnit(file.getFullPath().toString());
 		createFolder("/Encoding/src/tmp");
 		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "tmp");
 		
-		// Move file
-		cu.move(packFrag, null, null, false, null);
-		ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
-		IFile destFile = (IFile) destSource.getUnderlyingResource();
-		assertEquals("Moved file should keep encoding", encoding, destFile.getCharset());
-
-		// Get source and compare with file contents
-		compareContents(destSource, encoding);
-		
-		// Rename file
-		destSource.rename("TestUTF8.java", false, null);
-		ICompilationUnit renamedSource = packFrag.getCompilationUnit("TestUTF8.java");
-		IFile renamedFile = (IFile) renamedSource.getUnderlyingResource();
-		assertEquals("Moved file should keep encoding", encoding, renamedFile.getCharset());
-		
-		// Compare contents again
-		compareContents(renamedSource, encoding);
-		
-		// Move back 
-		renamedFile.move(this.utf8File.getFullPath(), false, null);
-		assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
-		deleteFolder("/Encoding/src/tmp");
+		try {
+			// Move file
+			cu.move(packFrag, null, null, false, null);
+			ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
+			IFile destFile = (IFile) destSource.getUnderlyingResource();
+			assertEquals("Moved file should keep encoding", encoding, destFile.getCharset());
+	
+			// Get source and compare with file contents
+			compareContents(destSource, encoding);
+			
+			// Rename file
+			destSource.rename("TestUTF8.java", false, null);
+			ICompilationUnit renamedSource = packFrag.getCompilationUnit("TestUTF8.java");
+			IFile renamedFile = (IFile) renamedSource.getUnderlyingResource();
+			assertEquals("Moved file should keep encoding", encoding, renamedFile.getCharset());
+			
+			// Compare contents again
+			compareContents(renamedSource, encoding);
+		}
+		finally {
+			// Delete temporary folder
+			//renamedFile.move(this.utf8File.getFullPath(), false, null);
+			//assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
+			deleteFolder("/Encoding/src/tmp");
+		}
 	}	
 	public void testBug66898b() throws JavaModelException, CoreException {
 
 		// Set file encoding
 		final String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding, null);
-		final String fileName = utf8File.getName();
-		final IPackageFragment srcFolder = getPackageFragment("Encoding", "src", "testUTF8");
+		final IFile file = (IFile) this.encodingProject.findMember("src/testBug66898b/Test.java");
+		file.setCharset(encoding, null);
+		final String fileName = file.getName();
+		final IPackageFragment srcFolder = getPackageFragment("Encoding", "src", "testBug66898b");
 		createFolder("/Encoding/src/tmp");
 		final IPackageFragment tmpFolder = getPackageFragment("Encoding", "src", "tmp");
-
-		// Copy file
-		IWorkspaceRunnable copy = new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				ICompilationUnit cu = getCompilationUnit(utf8File.getFullPath().toString());
-				cu.copy(tmpFolder, null, null, true, null);
-				cu.close(); // purge buffer contents from cache
-				ICompilationUnit dest = tmpFolder.getCompilationUnit(fileName);
-				IFile destFile = (IFile) dest.getUnderlyingResource();
-				assertEquals("Copied file should keep encoding", encoding, destFile.getCharset());
-		
-				// Get source and compare with file contents
-				compareContents(dest, encoding);
-			}
-		};
-		JavaCore.run(copy, null);
-
-		// Rename file
-		IWorkspaceRunnable rename = new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				ICompilationUnit cu = tmpFolder.getCompilationUnit(fileName);
-				cu.rename("Renamed.java", true, null);
-				cu.close(); // purge buffer contents from cache
-				ICompilationUnit ren = tmpFolder.getCompilationUnit("Renamed.java");
-				IFile renFile = (IFile) ren.getUnderlyingResource();
-				assertEquals("Renamed file should keep encoding", encoding, renFile.getCharset());
-		
-				// Get source and compare with file contents
-				compareContents(ren, encoding);
-			}
-		};
-		JavaCore.run(rename, null);
-
-		// Move file
-		IWorkspaceRunnable move = new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				ICompilationUnit cu = tmpFolder.getCompilationUnit("Renamed.java");
-				cu.move(srcFolder, null, null, true, null);
-				cu.close(); // purge buffer contents from cache
-				ICompilationUnit moved = srcFolder.getCompilationUnit("Renamed.java");
-				IFile movedFile = (IFile) moved.getUnderlyingResource();
-				assertEquals("Renamed file should keep encoding", encoding, movedFile.getCharset());
-		
-				// Get source and compare with file contents
-				compareContents(moved, encoding);
-			}
-		};
-		JavaCore.run(move, null);
-		
-		// Delete file
-		ICompilationUnit cu = srcFolder.getCompilationUnit("Renamed.java");
-		cu.delete(true, null);
-		deleteFolder("/Encoding/src/tmp");
+	
+		try {
+			// Copy file
+			IWorkspaceRunnable copy = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					ICompilationUnit cu = getCompilationUnit(file.getFullPath().toString());
+					cu.copy(tmpFolder, null, null, true, null);
+					cu.close(); // purge buffer contents from cache
+					ICompilationUnit dest = tmpFolder.getCompilationUnit(fileName);
+					IFile destFile = (IFile) dest.getUnderlyingResource();
+					assertEquals("Copied file should keep encoding", encoding, destFile.getCharset());
+			
+					// Get source and compare with file contents
+					compareContents(dest, encoding);
+				}
+			};
+			JavaCore.run(copy, null);
+	
+			// Rename file
+			IWorkspaceRunnable rename = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					ICompilationUnit cu = tmpFolder.getCompilationUnit(fileName);
+					cu.rename("Renamed.java", true, null);
+					cu.close(); // purge buffer contents from cache
+					ICompilationUnit ren = tmpFolder.getCompilationUnit("Renamed.java");
+					IFile renFile = (IFile) ren.getUnderlyingResource();
+					assertEquals("Renamed file should keep encoding", encoding, renFile.getCharset());
+			
+					// Get source and compare with file contents
+					compareContents(ren, encoding);
+				}
+			};
+			JavaCore.run(rename, null);
+	
+			// Move file
+			IWorkspaceRunnable move = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					ICompilationUnit cu = tmpFolder.getCompilationUnit("Renamed.java");
+					cu.move(srcFolder, null, null, true, null);
+					cu.close(); // purge buffer contents from cache
+					ICompilationUnit moved = srcFolder.getCompilationUnit("Renamed.java");
+					IFile movedFile = (IFile) moved.getUnderlyingResource();
+					assertEquals("Renamed file should keep encoding", encoding, movedFile.getCharset());
+			
+					// Get source and compare with file contents
+					compareContents(moved, encoding);
+				}
+			};
+			JavaCore.run(move, null);
+		}
+		finally {
+			// Delete temporary file and folder
+			ICompilationUnit cu = srcFolder.getCompilationUnit("Renamed.java");
+			if (cu.exists()) cu.delete(true, null);
+			deleteFolder("/Encoding/src/tmp");
+		}
 	}	
 
 	/**
