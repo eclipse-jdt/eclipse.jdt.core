@@ -38,6 +38,11 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		}
 		return new ParameterizedGenericMethodBinding(originalMethod, this, this.environment);
 	}
+	
+	public int bindingType() {
+		return RAW_TYPE;
+	}	
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
@@ -121,36 +126,43 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 	    
-	    if (originalType.isTypeVariable()) {
-	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-		    ParameterizedTypeBinding currentType = this;
-	        while (true) {
-		        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
-		        int length = typeVariables.length;
-		        // check this variable can be substituted given parameterized type
-		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-				    // lazy init, since cannot do so during binding creation if during supertype connection
-				    if (currentType.arguments == null)  currentType.initializeArguments();
-				    if (currentType.arguments != null)
-			           return currentType.arguments[originalVariable.rank];
+		switch (originalType.bindingType()) {
+			
+			case Binding.TYPE_PARAMETER:
+		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+			    ParameterizedTypeBinding currentType = this;
+		        while (true) {
+			        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
+			        int length = typeVariables.length;
+			        // check this variable can be substituted given parameterized type
+			        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+					    // lazy init, since cannot do so during binding creation if during supertype connection
+					    if (currentType.arguments == null)  currentType.initializeArguments();
+					    if (currentType.arguments != null)
+				           return currentType.arguments[originalVariable.rank];
+			        }
+				    // recurse on enclosing type, as it may hold more substitutions to perform
+				    ReferenceBinding enclosing = currentType.enclosingType();
+				    if (!(enclosing instanceof ParameterizedTypeBinding))
+				        break;
+				    currentType = (ParameterizedTypeBinding) enclosing;
 		        }
-			    // recurse on enclosing type, as it may hold more substitutions to perform
-			    ReferenceBinding enclosing = currentType.enclosingType();
-			    if (!(enclosing instanceof ParameterizedTypeBinding))
-			        break;
-			    currentType = (ParameterizedTypeBinding) enclosing;
-	        }
-	    } else if (originalType.isParameterizedType()) {
-	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-			return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType());
-	    } else  if (originalType.isGenericType()) {
-            return this.environment.createRawType((ReferenceBinding)originalType, null);
-	    } else if (originalType.isArrayType()) {
-			TypeBinding originalLeafComponentType = originalType.leafComponentType();
-			TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
-			if (substitute != originalLeafComponentType) {
-				return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
-			}
+		        break;
+		        
+			case Binding.PARAMETERIZED_TYPE:
+		        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+				return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType());
+				
+			case Binding.GENERIC_TYPE:
+	            return this.environment.createRawType((ReferenceBinding)originalType, null);
+	            
+			case Binding.ARRAY_TYPE:
+				TypeBinding originalLeafComponentType = originalType.leafComponentType();
+				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
+				if (substitute != originalLeafComponentType) {
+					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
+				}
+				break;
 	    }
 	    return originalType;
 	}	

@@ -450,6 +450,12 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
+
+public int bindingType() {
+	if (this.typeVariables != NoTypeVariables) return GENERIC_TYPE;
+	return TYPE;
+}	
+
 void faultInTypesForFieldsAndMethods() {
 	fields();
 	methods();
@@ -761,7 +767,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
         return otherType.erasure() == this;
 	return false;
 }
-
+	
 public boolean isGenericType() {
     return this.typeVariables != NoTypeVariables;
 }

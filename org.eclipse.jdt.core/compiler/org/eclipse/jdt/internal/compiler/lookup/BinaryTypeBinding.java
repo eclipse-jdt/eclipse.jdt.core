@@ -152,6 +152,11 @@ public MethodBinding[] availableMethods() {
 	return availableMethods;
 }
 
+public int bindingType() {
+	if (this.typeVariables != NoTypeVariables) return GENERIC_TYPE;
+	return TYPE;
+}	
+
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	
 	// default initialization for super-interfaces early, in case some aborting compilation error occurs,

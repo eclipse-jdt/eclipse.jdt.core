@@ -10,16 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+
 public abstract class Binding implements CompilerModifiers, ProblemReasons {
 
 	// binding kinds
-	public static final int FIELD = 1;
-	public static final int LOCAL = 2;
+	public static final int FIELD = ASTNode.Bit1;
+	public static final int LOCAL = ASTNode.Bit2;
 	public static final int VARIABLE = FIELD | LOCAL;
-	public static final int TYPE = 4;
-	public static final int METHOD = 8;
-	public static final int PACKAGE = 16;
-	public static final int IMPORT = 32;
+	public static final int TYPE = ASTNode.Bit3;
+	public static final int METHOD = ASTNode.Bit4;
+	public static final int PACKAGE = ASTNode.Bit5;
+	public static final int IMPORT = ASTNode.Bit6;
+	public static final int ARRAY_TYPE = TYPE | ASTNode.Bit7;
+	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit8;
+	public static final int WILDCARD_TYPE = TYPE | ASTNode.Bit9;
+	public static final int RAW_TYPE = TYPE | ASTNode.Bit10;
+	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit11;
+	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit12;
 
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.

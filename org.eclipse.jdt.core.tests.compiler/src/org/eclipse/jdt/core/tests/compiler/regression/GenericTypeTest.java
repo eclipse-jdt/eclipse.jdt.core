@@ -8347,7 +8347,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 	}			
 	// 72998
 	// TODO (philippe) reenable when addressed
-	public void _test324() {
+	public void test324() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8379,17 +8379,23 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}\n"
 			},
 			"");	
-	}				
-	// TODO (philippe) reenable once fixed
-	public void _test325() {
-		this.runConformTest(
+	}
+	public void test325() {
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X <T> {\n" + 
-				"	void foo() {\n" + 
-				"		\n" + 
+				"	void foo1() {\n" + 
 				"		X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" + 
-				"		X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + 
+				"	}\n" + 
+				"	void foo2() {\n" + 
+				"		X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + // allowed per grammar
+				"	}\n" + 
+				"	void foo3() {\n" + 
+				"		X.Item k = new X.Item();\n" + 
+				"	}\n" + 
+				"	static void foo4() {\n" + 
+				"		X.Item k = new X.Item();\n" + 
 				"	}\n" + 
 				"	class Item <E> {}\n" + 
 				"}\n"
@@ -8426,7 +8432,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}    \n" + 
 				"\n"
 			},
-			"should also report illegal construct on init of j field");
+			"");
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test327() {
@@ -8513,7 +8519,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"----------\n");
 	}	
 	// wildcard captures bound and variable superinterfaces
-	public void _test329() {
+	public void test329() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8814,4 +8820,63 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");
 	}	
+	//77052
+	public void test338() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface M<X> { }\n" + 
+				"\n" + 
+				"class N<C> { \n" + 
+				"  M<N<C>> pni = null;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<I> {\n" + 
+				"  N<I> var1 = null;\n" + 
+				"\n" + 
+				"  M<N<I>> var2 = var1.pni;\n" + 
+				"  // Above line reports as error in Eclipse. \n" + 
+				"  // \"var2\" is underlined and the error message is: \n" + 
+				"  // Type mismatch: cannot convert from M<N<C>> to M<N<I>>\n" + 
+				"}\n",
+			},
+			"");
+	}
+	//77052 - variation
+	public void test339() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Iterator;\n" + 
+				"import java.util.Set;\n" + 
+				"\n" + 
+				"class X <K, V> {\n" + 
+				"	static class Entry<K, V> {}\n" + 
+				"	void foo() {\n" + 
+				"		Iterator<Entry<K,V>> i = entrySet().iterator();\n" + 
+				"	}\n" + 
+				"	Set<Entry<K,V>> entrySet()	 { return null; }\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	//76313
+	public void test340() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	private T data;\n" + 
+				"	private X(T data){ this.data=data; }\n" + 
+				"	public static <S> X<S> createObject(S data){\n" + 
+				"		System.out.println(data);\n" + 
+				"		return new X<S>(data);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<String> res=X.createObject(\"Hallo\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"Hallo");
+	}
 }

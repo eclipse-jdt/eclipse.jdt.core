@@ -41,6 +41,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.tagBits |= HasTypeVariable;
 	}
 
+	public int bindingType() {
+		return TYPE_PARAMETER;
+	}	
+	
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */

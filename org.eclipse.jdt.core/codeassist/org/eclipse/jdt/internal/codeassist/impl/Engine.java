@@ -200,30 +200,27 @@ public abstract class Engine implements ITypeRequestor {
 	
 	public static char[] getSignature(Binding binding) {
 		char[] result = null;
-		switch(binding.bindingType()) {
-			case Binding.TYPE:
-				TypeBinding typeBinding = (TypeBinding)binding;
-				if(typeBinding.isLocalType()) {
-					LocalTypeBinding localTypeBinding = (LocalTypeBinding)typeBinding;
-					if(localTypeBinding.isAnonymousType()) {
-						typeBinding = localTypeBinding.superclass();
-					} else {
-						localTypeBinding.setConstantPoolName(typeBinding.sourceName());
-					}
+		if ((binding.bindingType() & Binding.TYPE) != 0) {
+			TypeBinding typeBinding = (TypeBinding)binding;
+			if(typeBinding.isLocalType()) {
+				LocalTypeBinding localTypeBinding = (LocalTypeBinding)typeBinding;
+				if(localTypeBinding.isAnonymousType()) {
+					typeBinding = localTypeBinding.superclass();
+				} else {
+					localTypeBinding.setConstantPoolName(typeBinding.sourceName());
 				}
-				result = typeBinding.genericTypeSignature();
-				break;
-			case Binding.METHOD:
-				MethodBinding methodBinding = (MethodBinding)binding;
-				int oldMod = methodBinding.modifiers;
-				//TODO remove the next line when method from binary type will be able to generate generic siganute
-				methodBinding.modifiers |= CompilerModifiers.AccGenericSignature;
-				result = methodBinding.genericSignature(); 
-				if(result == null) {
-					result = methodBinding.signature();
-				}
-				methodBinding.modifiers = oldMod;
-				break;
+			}
+			result = typeBinding.genericTypeSignature();
+		} else if ((binding.bindingType() & Binding.METHOD) != 0) {
+			MethodBinding methodBinding = (MethodBinding)binding;
+			int oldMod = methodBinding.modifiers;
+			//TODO remove the next line when method from binary type will be able to generate generic siganute
+			methodBinding.modifiers |= CompilerModifiers.AccGenericSignature;
+			result = methodBinding.genericSignature(); 
+			if(result == null) {
+				result = methodBinding.signature();
+			}
+			methodBinding.modifiers = oldMod;
 		}
 		result = CharOperation.replaceOnCopy(result, '/', '.');
 		return result;

@@ -36,6 +36,10 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
     	this.tagBits |= type.tagBits & (HasTypeVariable | HasWildcard);
 }
 
+public int bindingType() {
+	return ARRAY_TYPE;
+}
+
 /**
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>

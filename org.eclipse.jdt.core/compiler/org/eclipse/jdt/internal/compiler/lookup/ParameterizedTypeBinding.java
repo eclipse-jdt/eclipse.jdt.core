@@ -45,6 +45,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 	}
 
+	public int bindingType() {
+		return PARAMETERIZED_TYPE;
+	}	
+	
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
@@ -574,8 +578,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * parameterized type.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
-		if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
-			if (originalType.isTypeVariable()) {
+		
+		switch (originalType.bindingType()) {
+			
+			case Binding.TYPE_PARAMETER:
 				TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
 				ParameterizedTypeBinding currentType = this;
 				while (true) {
@@ -593,28 +599,36 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						break;
 					currentType = (ParameterizedTypeBinding) enclosing;
 				}
-			} else if (originalType.isParameterizedType()) {
+				break;
+				
+			case Binding.PARAMETERIZED_TYPE:
 				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
-				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-				if (substitutedArguments != originalArguments) {
-					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-						for (int i = 0, length = originalVariables.length; i < length; i++) {
-							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
+				if (originalArguments != null) {
+					TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
+					if (substitutedArguments != originalArguments) {
+						identicalVariables: { // if substituted with original variables, then answer the generic type itself
+							TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
+							for (int i = 0, length = originalVariables.length; i < length; i++) {
+								if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
+							}
+							return originalParameterizedType.type;
 						}
-						return originalParameterizedType.type;
-					}
-					return this.environment.createParameterizedType(
-							originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
+						return this.environment.createParameterizedType(
+								originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
+					}				
 				}
-			} else if (originalType.isArrayType()) {
+				break;
+				
+			case Binding.ARRAY_TYPE:
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();
 				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
 				if (substitute != originalLeafComponentType) {
 					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
 				}
-			} else if (originalType.isWildcard()) {
+				break;
+
+			case Binding.WILDCARD_TYPE:
 		        WildcardBinding wildcard = (WildcardBinding) originalType;
 		        if (wildcard.kind != Wildcard.UNBOUND) {
 			        TypeBinding originalBound = wildcard.bound;
@@ -623,19 +637,20 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
 			        }
 		        }
-			}
-		} else if (originalType.isGenericType()) {
-		    // treat as if parameterized with its type variables
-			ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
-			TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
-			int length = originalVariables.length;
-			TypeBinding[] originalArguments;
-			System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-			TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-			if (substitutedArguments != originalArguments) {
-				return this.environment.createParameterizedType(
-						originalGenericType, substitutedArguments, null);
-			}
+				break;
+
+			case Binding.GENERIC_TYPE:
+			    // treat as if parameterized with its type variables
+				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
+				int length = originalVariables.length;
+				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
+				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
+				if (substitutedArguments != originalArguments) {
+					return this.environment.createParameterizedType(
+							originalGenericType, substitutedArguments, null);
+				}
+				break;
 		}
 		return originalType;
 	}	

@@ -31,7 +31,7 @@ abstract public class TypeBinding extends Binding implements BaseTypes, TagBits,
  * Answer the receiver's binding type from Binding.BindingID.
  */
 
-public final int bindingType() {
+public int bindingType() {
 	return TYPE;
 }
 /* Answer true if the receiver can be instantiated

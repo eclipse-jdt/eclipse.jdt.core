@@ -49,6 +49,10 @@ public class WildcardBinding extends ReferenceBinding {
 			((UnresolvedReferenceBinding) bound).addWrapper(this);
 	}
 
+	public int bindingType() {
+		return WILDCARD_TYPE;
+	}	
+		
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
