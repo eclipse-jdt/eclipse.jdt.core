@@ -188,6 +188,7 @@ public class ArrayReference extends Reference {
 		}		
 		TypeBinding arrayType = receiver.resolveType(scope);
 		if (arrayType != null) {
+			receiver.computeConversion(scope, arrayType, arrayType);
 			if (arrayType.isArrayType()) {
 				this.resolvedType = ((ArrayBinding) arrayType).elementsType();
 			} else {

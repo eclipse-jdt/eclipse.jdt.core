@@ -7688,4 +7688,24 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// 73530
+	public void test285() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args){\n" + 
+				"    Vector<Integer[]> v = new Vector<Integer[]>();\n" + 
+				"    Integer[] array1 = new Integer[5];\n" + 
+				"    array1[0] = new Integer(17);\n" + 
+				"    array1[1] = new Integer(42);\n" + 
+				"    v.add(array1);\n" + 
+				"    Integer twentyfour = v.get(0)[1];  // responsible for the crash\n" + 
+				"    System.out.println(twentyfour);\n" + 
+				"  }\n" + 
+				"}"
+			},
+			"42");
+	}
 }
