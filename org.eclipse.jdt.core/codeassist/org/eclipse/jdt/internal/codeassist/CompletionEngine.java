@@ -514,7 +514,15 @@ public final class CompletionEngine
 									MethodScope methodScope = null;
 									if((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 										|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic)) {
-										findKeywords(completionToken, new char[][]{Keywords.THIS});
+										if(completionToken.length > 0) {
+											findKeywords(completionToken, new char[][]{Keywords.THIS});
+										} else {
+											int relevance = computeBaseRelevance();
+											relevance += computeRelevanceForInterestingProposal();
+											relevance += computeRelevanceForCaseMatching(completionToken, Keywords.THIS);
+											noProposal = false;
+											requestor.acceptKeyword(Keywords.THIS, startPosition - offset, endPosition - offset,relevance);
+										}
 									}
 	
 									findFields(
