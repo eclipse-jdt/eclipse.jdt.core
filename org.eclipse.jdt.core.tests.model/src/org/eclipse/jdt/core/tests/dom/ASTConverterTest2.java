@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0542"));
+		suite.addTest(new ASTConverterTest2("test0546"));
 		return suite;
 	}
 	/**
@@ -1269,6 +1269,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No body", methodDeclaration.getBody());
 		assertNotNull("No binding", methodDeclaration.resolveBinding());
 		assertTrue("Not an abstract method", Modifier.isAbstract(methodDeclaration.getModifiers())); 
+		assertTrue("Not malformed", isMalformed(methodDeclaration)); 
 	}
 
 	/**
@@ -4605,5 +4606,122 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "Integer.MAX_VALUE", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=58436
+	 */
+	public void _test0543() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0543", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		unit.accept(new GetKeyVisitor());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51500
+	 */
+	public void test0544() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0544", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not an abstract method", (methodDeclaration.getModifiers() & Modifier.ABSTRACT) != 0);
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not an abstract method binding", (methodBinding.getModifiers() & Modifier.ABSTRACT) != 0);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59843
+	 */
+	public void test0545() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0545", "First.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong key", "test0545/First$Test", typeBinding.getKey());
+		
+		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Second.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		result = runConversion(sourceUnit, true);
+		unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		node = getASTNode(unit, 0, 0);
+		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		typeDeclaration = (TypeDeclaration) node;
+		typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong key", "test0545/Second$Test", typeBinding.getKey());
+		
+		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Third.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		result = runConversion(sourceUnit, true);
+		unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		node = getASTNode(unit, 0, 0);
+		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		typeDeclaration = (TypeDeclaration) node;
+		typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong key", "test0545/Third$Test", typeBinding.getKey());
+
+	
+		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		result = runConversion(sourceUnit, true);
+		unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		node = getASTNode(unit, 0);
+		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		typeDeclaration = (TypeDeclaration) node;
+		typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong key", "test0545/Test", typeBinding.getKey());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59848
+	 */
+	public void test0546() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0546", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		ITypeBinding typeBinding = variableBinding.getType();
+		assertTrue("An anonymous type binding", !typeBinding.isAnonymous());
+		Expression initializer = fragment.getInitializer();
+		assertEquals("not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, initializer.getNodeType()); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) initializer;
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		ITypeBinding typeBinding2 = anonymousClassDeclaration.resolveBinding();
+		assertTrue("Not an anonymous type binding", typeBinding2.isAnonymous());
+		ITypeBinding typeBinding3 = classInstanceCreation.resolveTypeBinding();
+		assertTrue("Not an anonymous type binding", typeBinding3.isAnonymous());
+		node = getASTNode(unit, 1, 0, 1);
+		assertEquals("not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType()); //$NON-NLS-1$
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		assertEquals("not a simple name", ASTNode.SIMPLE_NAME, expression2.getNodeType()); //$NON-NLS-1$
+		SimpleName simpleName = (SimpleName) expression2;
+		ITypeBinding typeBinding4 = simpleName.resolveTypeBinding();
+		assertTrue("An anonymous type binding", !typeBinding4.isAnonymous());		
+		Name name = classInstanceCreation.getName();
+		IBinding binding = name.resolveBinding();
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding5 = (ITypeBinding) binding;
+		assertTrue("An anonymous type binding", !typeBinding5.isAnonymous());		
 	}
 }
