@@ -43,7 +43,7 @@ public CodeSnippetClassFile(
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
-	if (((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK == CompilerOptions.JDK1_2) {
+	if (((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK >= CompilerOptions.JDK1_2) {
 		// Compatible with JDK 1.2
 		header[headerOffset++] = 0;
 		// minorVersion = 0 means we just need to offset the current offset by 2

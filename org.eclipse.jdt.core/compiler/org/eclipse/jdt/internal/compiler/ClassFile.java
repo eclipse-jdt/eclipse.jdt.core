@@ -91,7 +91,7 @@ public class ClassFile
 			.environment()
 			.options
 			.targetJDK
-			== CompilerOptions.JDK1_2) {
+			>= CompilerOptions.JDK1_2) {
 			// Compatible with JDK 1.2
 			header[headerOffset++] = 0;
 			// minorVersion = 0 means we just need to offset the current offset by 2
