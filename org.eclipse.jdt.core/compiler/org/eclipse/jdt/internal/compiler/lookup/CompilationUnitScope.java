@@ -462,12 +462,13 @@ void recordTypeReference(TypeBinding type) {
 		type = ((ArrayBinding) type).leafComponentType;
 	if (!type.isBaseType()) {
 		ReferenceBinding actualType = (ReferenceBinding) type;
-		if (actualType.isLocalType()) return; // no need to add references to a local type
-		recordReference(actualType.isMemberType()
-			? CharOperation.splitOn('.', actualType.readableName())
-			: actualType.compoundName);
-		if (actualType.enclosingType() != null)
-			recordTypeReference(actualType.enclosingType());
+		if (!actualType.isLocalType()) {
+			recordReference(actualType.isMemberType()
+				? CharOperation.splitOn('.', actualType.readableName())
+				: actualType.compoundName);
+			if (actualType.enclosingType() != null)
+				recordTypeReference(actualType.enclosingType());
+		}
 		if (actualType.superclass() != null)
 			recordTypeReference(actualType.superclass());
 		ReferenceBinding[] interfaces = actualType.superInterfaces();
