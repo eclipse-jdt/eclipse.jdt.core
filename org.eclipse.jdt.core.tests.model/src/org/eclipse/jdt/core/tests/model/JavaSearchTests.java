@@ -34,6 +34,9 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
  */
 public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
 
+	public static List testSuites = null;
+	protected static IJavaProject javaProject;
+
 /**
  * Collects results as a string.
  */
@@ -296,7 +299,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	}
 }
 	
-	protected IJavaProject javaProject;
+//	protected IJavaProject javaProject;
 	protected JavaSearchResultCollector resultCollector;
 	
 public JavaSearchTests(String name) {
@@ -309,6 +312,8 @@ public static Test suite() {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
+	// Prefix for tests names to be run
+	testsPrefix =  "testEnum";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	testsNames = new String[] { "testPackageReference9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
@@ -379,14 +384,25 @@ protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, S
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	this.javaProject = setUpJavaProject("JavaSearch");
-	setUpJavaProject("JavaSearch15", "1.5");
-	setUpJavaProject("JavaSearchBugs");
+	if (javaProject == null) {
+		javaProject = setUpJavaProject("JavaSearch");
+		setUpJavaProject("JavaSearch15", "1.5");
+		setUpJavaProject("JavaSearchBugs");
+	}
 }
 public void tearDownSuite() throws Exception {
-	deleteProject("JavaSearch");
-	deleteProject("JavaSearch15");
-	deleteProject("JavaSearchBugs");
+	if (testSuites == null) {
+		deleteProject("JavaSearch");
+		deleteProject("JavaSearch15");
+		deleteProject("JavaSearchBugs");
+	} else {
+		testSuites.remove(getClass());
+		if (testSuites.size() == 0) {
+			deleteProject("JavaSearch");
+			deleteProject("JavaSearch15");
+			deleteProject("JavaSearchBugs");
+		}
+	}
 
 	super.tearDownSuite();
 }
@@ -3587,6 +3603,65 @@ public void testTypeReference40() throws CoreException {
 	assertSearchResults(
 		"src/s1/E.java [s1.j.l.S.Member]\n" + 
 		"src/s1/E.java s1.E.m [Member]",
+		this.resultCollector);
+}
+/**
+ * Search in enumeration
+ */
+public void testEnum01() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/X.java [e1.T]\n" + 
+		"src/e1/X.java void e1.X.main(String[]) [T]\n" + 
+		"src/e1/X.java void e1.X.main(String[]) [T]\n" + 
+		"src/e1/X.java Location e1.X.location(T) [T]",
+		this.resultCollector);
+}
+public void testEnum02() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	IMethod method = type.getMethod("T", new String[0]);
+	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/T.java e1.T.FREDERIC [FREDERIC]",
+		this.resultCollector);
+}
+public void testEnum03() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	IMethod method = type.getMethod("T", new String[] { "I" });
+	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/T.java e1.T.PHILIPPE [PHILIPPE]\n" + 
+		"src/e1/T.java e1.T.DAVID [DAVID]\n" + 
+		"src/e1/T.java e1.T.JEROME [JEROME]\n" + 
+		"src/e1/T.java e1.T.OLIVIER [OLIVIER]\n" + 
+		"src/e1/T.java e1.T.KENT [KENT]",
+		this.resultCollector);
+}
+public void testEnum04() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	IMethod method = type.getMethod("age", new String[0]);
+	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/X.java void e1.X.main(String[]) [age()]",
+		this.resultCollector);
+}
+public void testEnum05() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	IMethod method = type.getMethod("isManager", new String[0]);
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/T.java e1.T.PHILIPPE [isManager()]\n" + 
+		"src/e1/T.java boolean e1.T.isManager() [isManager]\n" + 
+		"src/e1/X.java void e1.X.main(String[]) [isManager()]",
+		this.resultCollector);
+}
+public void testEnum06() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
+	IMethod method = type.getMethod("setRole", new String[] { "Z" });
+	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/e1/X.java void e1.X.main(String[]) [setRole(t.isManager())]",
 		this.resultCollector);
 }
 }
