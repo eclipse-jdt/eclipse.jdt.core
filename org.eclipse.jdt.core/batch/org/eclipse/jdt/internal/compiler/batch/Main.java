@@ -198,6 +198,7 @@ public class Main implements ProblemSeverities {
 			if (systemExitWhenFinished) {
 				System.exit(-1);
 			}
+			return false;
 		} catch (ThreadDeath e) { // do not stop this one
 			throw e;
 		} catch (Throwable e) { // internal compiler error
@@ -209,6 +210,7 @@ public class Main implements ProblemSeverities {
 				}
 				System.exit(-1);
 			}
+			return false;
 			//e.printStackTrace();
 		} finally {
 			out.flush();
