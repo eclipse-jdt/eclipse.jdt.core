@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import junit.framework.*;
 
 public class CompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
-
+ICompilationUnit wc = null;
 public CompletionTests(String name) {
 	super(name);
 }
@@ -35,7 +35,12 @@ public void tearDownSuite() throws Exception {
 	
 	super.tearDownSuite();
 }
-
+protected void tearDown() throws Exception {
+	if(this.wc != null) {
+		this.wc.discardWorkingCopy();
+	}
+	super.tearDown();
+}
 protected static void assertResults(String expected, String actual) {
 	try {
 		assertEquals(expected, actual);
@@ -182,6 +187,7 @@ public static Test suite() {
 		suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
 		suite.addTest(new CompletionTests("testCompletionInsideStaticMethod"));
 		suite.addTest(new CompletionTests("testCompletionSameClass"));
+		suite.addTest(new CompletionTests("testCompletionInsideGenericClass"));
 		
 		// completion expectedTypes tests
 		suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8870,6 +8876,27 @@ public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelExc
 
 	assertResults(
 			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82740
+public void testCompletionInsideGenericClass() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideGenericClass.java",
+			"package test;\n" +
+			"public class CompletionInsideGenericClass <CompletionInsideGenericClassParameter> {\n" +
+			"  CompletionInsideGenericClas" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "CompletionInsideGenericClas";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideGenericClas[POTENTIAL_METHOD_DECLARATION]{CompletionInsideGenericClas, Ltest.CompletionInsideGenericClass;, ()V, CompletionInsideGenericClas, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideGenericClass[TYPE_REF]{CompletionInsideGenericClass, test, Ltest.CompletionInsideGenericClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }

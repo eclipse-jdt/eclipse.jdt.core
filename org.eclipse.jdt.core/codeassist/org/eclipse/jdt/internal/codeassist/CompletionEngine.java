@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -3407,6 +3408,8 @@ public final class CompletionEngine
 	}
 
 	private void findTypeParameters(char[] token, Scope scope) {
+		if (this.compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) return;
+		
 		TypeParameter[] typeParameters = null;
 		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
 			typeParameters = null;
@@ -3432,6 +3435,8 @@ public final class CompletionEngine
 				for (int i = 0; i < typeParameters.length; i++) {
 					int typeLength = token.length;
 					TypeParameter typeParameter = typeParameters[i];
+					
+					if(typeParameter.binding == null) continue;
 					
 					if (typeLength > typeParameter.name.length) continue;
 					
