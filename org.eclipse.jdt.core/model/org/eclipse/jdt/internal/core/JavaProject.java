@@ -88,6 +88,8 @@ public class JavaProject
 	 * Value of the project's raw classpath if the .classpath file contains invalid entries.	 */
 	public static final IClasspathEntry[] INVALID_CLASSPATH = new IClasspathEntry[0];
 
+	private static final String CUSTOM_DEFAULT_OPTION_VALUE = "#\r\n\r#custom-non-empty-default-value#\r\n\r#"; //$NON-NLS-1$
+	
 	/**
 	 * Returns a canonicalized path from the given external path.
 	 * Note that the return path contains the same number of segments
@@ -1009,11 +1011,10 @@ public class JavaProject
 		if (JavaModelManager.OptionNames.contains(optionName)){
 			
 			Preferences preferences = getPreferences();
-			String value = preferences.getString(optionName).trim();
-			if (value == Preferences.STRING_DEFAULT_DEFAULT){
-				value = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
+			if (preferences.isDefault(optionName)){
+				return inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
 			}
-			return value;
+			return preferences.getString(optionName).trim();
 		}
 		return null;
 	}
@@ -1980,6 +1981,7 @@ public class JavaProject
 				if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
 				// no filtering for encoding (custom encoding for project is allowed)
 				String value = (String)newOptions.get(key);
+				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
 				preferences.setValue(key, value);
 			}
 		}

@@ -362,4 +362,51 @@ public void test07() throws CoreException {
 	} finally {
 		this.deleteProject("A");
 	}
-}}
+}
+/**
+ * Empty custom option must not be ignored
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26251
+ */
+public void test08() throws CoreException {
+	try {
+		IJavaProject projectA = 
+			this.createJavaProject(
+				"A", 
+				new String[] {}, // source folders
+				new String[] {}, // lib folders
+				new String[] {}, // projects
+				"");
+
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.COMPILER_TASK_TAGS, "TODO:");
+		JavaCore.setOptions(options);
+		
+
+		// check project A custom options		
+		assertEquals("1#projA:unexpected custom value for task tags option", null, projectA.getOption(JavaCore.COMPILER_TASK_TAGS, false));
+		assertEquals("1#projA:unexpected custom value for inherited task tags option", "TODO:", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, true));
+		assertEquals("1#workspace:unexpected custom value for task tags option", "TODO:", JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
+		
+		// change custom options to have one less
+		options.clear();
+		options.put(JavaCore.COMPILER_TASK_TAGS, "");
+		projectA.setOptions(options);
+		assertEquals("2#projA:unexpected custom value for task tags option", "", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, false));
+		assertEquals("2#projA:unexpected custom value for inherited task tags option", "", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, true));
+		assertEquals("2#workspace:unexpected custom value for task tags option", "TODO:", JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
+
+		// change custom options to have one less
+		options.clear();
+		options.put(JavaCore.COMPILER_TASK_TAGS, "@TODO");
+		JavaCore.setOptions(options);
+		assertEquals("3#projA:unexpected custom value for task tags option", "", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, false));
+		assertEquals("3#projA:unexpected custom value for inherited task tags option", "", projectA.getOption(JavaCore.COMPILER_TASK_TAGS, true));
+		assertEquals("3#workspace:unexpected custom value for task tags option", "@TODO", JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
+
+	} finally {
+		this.deleteProject("A");
+	}
+}
+
+
+}
