@@ -1386,6 +1386,16 @@ public class JavaProject
 									false,
 									false);
 						}
+						// if container is exported, then its nested entries must in turn be exported  (21749)
+						if (rawEntry.isExported()){
+							containerRawEntry = new ClasspathEntry(
+								containerRawEntry.getContentKind(),
+								containerRawEntry.getEntryKind(), 
+								containerRawEntry.getPath(),
+								containerRawEntry.getSourceAttachmentPath(),
+								containerRawEntry.getSourceAttachmentRootPath(),
+								true); // duplicate container entry for tagging it as exported
+						}
 						resolvedEntries.add(containerRawEntry);
 					}
 					break;
