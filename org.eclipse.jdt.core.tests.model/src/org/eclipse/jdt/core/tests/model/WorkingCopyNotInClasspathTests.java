@@ -34,7 +34,7 @@ public WorkingCopyNotInClasspathTests(String name) {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(WorkingCopyNotInClasspathTests.class.getName());
-		suite.addTest(new WorkingCopyNotInClasspathTests("testCommit3"));
+		suite.addTest(new WorkingCopyNotInClasspathTests("testReconcileAndCommit1"));
 		return suite;
 	}
 	return new Suite(WorkingCopyNotInClasspathTests.class);
@@ -216,7 +216,7 @@ public void testIsOnClasspath() throws CoreException {
 }
 
 // 42281
-public void testCommit2() throws CoreException {
+public void testReconcileAndCommit1() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("JavaProject", new String[] {"src"}, "bin");
@@ -254,7 +254,7 @@ public void testCommit2() throws CoreException {
 }
 
 // 41583
-public void testCommit3() throws CoreException {
+public void testReconcileAndCommit2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
 		this.createProject("SimpleProject");
