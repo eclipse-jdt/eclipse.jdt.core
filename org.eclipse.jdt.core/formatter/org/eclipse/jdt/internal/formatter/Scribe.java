@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
-//import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
+import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 import org.eclipse.text.edits.MultiTextEdit;
@@ -31,20 +31,21 @@ import org.eclipse.text.edits.TextEdit;
  * @since 2.1
  */
 public class Scribe {
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
 	private static final int INITIAL_SIZE = 100;
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	
 	private boolean checkLineWrapping;
 	public int column;
+	private int[][] commentPositions;
 		
 	// Most specific alignment. 
 	public Alignment currentAlignment;
 	public int currentToken;
 	
 	// edits management
-	public int editsIndex;
 	private OptimizedReplaceEdit[] edits;
+	public int editsIndex;
 	
 	// TODO to remove when the testing is done
 	private char fillingSpace;
@@ -52,9 +53,13 @@ public class Scribe {
 	public int indentationLevel;	
 	public int lastNumberOfNewLines;
 	public int line;
+	
+	private int[] lineEnds;
 	private String lineSeparator;
 	public Alignment memberAlignment;
 	public boolean needSpace = false;
+	
+	public int nlsTagCounter;
 	public int pageWidth;
 	public boolean pendingSpace = false;
 
@@ -64,9 +69,6 @@ public class Scribe {
 	private int textRegionEnd;
 	private int textRegionStart;
 	public boolean useTab;
-	
-//	private int[] lineEnds;
-//	private int[][] commentPositions;
 
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
@@ -87,14 +89,13 @@ public class Scribe {
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
 		this.textRegionEnd = offset + length - 1;
-// TODO (olivier) lineEnds and commentPositions are not used, thus codeSnippetParsingUtil is unused
-//		if (codeSnippetParsingUtil != null) {
-//			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
-//			if (information != null) {
-//				this.lineEnds = information.lineEnds;
-//				this.commentPositions = information.commentPositions;
-//			}
-//		}
+		if (codeSnippetParsingUtil != null) {
+			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
+			if (information != null) {
+				this.lineEnds = information.lineEnds;
+				this.commentPositions = information.commentPositions;
+			}
+		}
 		reset();
 	}
 	
@@ -189,6 +190,11 @@ public class Scribe {
 		alignment.performFragmentEffect();
 	}
 	
+	public void checkNLSTag(int sourceStart) {
+		if (hasNLSTag(sourceStart)) {
+			this.nlsTagCounter++;
+		}
+	}
 	public void consumeNextToken() {
 		printComment();
 		try {
@@ -205,13 +211,13 @@ public class Scribe {
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, boolean adjust){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
-
-	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
-		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
-	}
 	
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
 		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
+	}
+
+	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
 	}
 
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
@@ -340,8 +346,37 @@ public class Scribe {
 			return this.column - 1;
 		}
 	}	
+	
+	public final int getCommentIndex(int position) {
+		if (this.commentPositions == null)
+			return -1;
+		int length = this.commentPositions.length;
+		if (length == 0) {
+			return -1;
+		}
+		int g = 0, d = length - 1;
+		int m = 0;
+		while (g <= d) {
+			m = (g + d) / 2;
+			int bound = this.commentPositions[m][1];
+			if (bound < 0) {
+				bound = -bound;
+			}
+			if (bound < position) {
+				g = m + 1;
+			} else if (bound > position) {
+				d = m - 1;
+			} else {
+				return m;
+			}
+		}
+		return -(g + 1);
+	}
 
 	public String getEmptyLines(int linesNumber) {
+		if (this.nlsTagCounter > 0) {
+			return EMPTY_STRING;
+		}
 		StringBuffer buffer = new StringBuffer();
 		if (lastNumberOfNewLines == 0) {
 			linesNumber++; // add an extra line breaks
@@ -396,8 +431,33 @@ public class Scribe {
 		return null;
 	}
 	
+	public final int getLineEnd(int lineNumber) {
+		if (this.lineEnds == null) 
+			return -1;
+		if (lineNumber >= this.lineEnds.length + 1) 
+			return this.scannerEndPosition;
+		if (lineNumber <= 0) 
+			return -1;
+		return this.lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line	
+	}
+	
 	Alignment getMemberAlignment() {
 		return this.memberAlignment;
+	}
+	
+	public String getNewLine() {
+		if (this.nlsTagCounter > 0) {
+			return EMPTY_STRING;
+		}
+		if (lastNumberOfNewLines >= 1) {
+			column = 1; // ensure that the scribe is at the beginning of a new line
+			return EMPTY_STRING;
+		}
+		line++;
+		lastNumberOfNewLines = 1;
+		column = 1;
+		needSpace = false;
+		return this.lineSeparator;
 	}
 
 	/** 
@@ -426,18 +486,6 @@ public class Scribe {
 		return EMPTY_STRING;
 	}
 	
-	public String getNewLine() {
-		if (lastNumberOfNewLines >= 1) {
-			column = 1; // ensure that the scribe is at the beginning of a new line
-			return EMPTY_STRING;
-		}
-		line++;
-		lastNumberOfNewLines = 1;
-		column = 1;
-		needSpace = false;
-		return this.lineSeparator;
-	}
-	
 	public TextEdit getRootEdit() {
 		MultiTextEdit edit = null;
 		int length = this.textRegionEnd - this.textRegionStart + 1;
@@ -461,9 +509,7 @@ public class Scribe {
 	}
 	
 	public void handleLineTooLong() {
-		
 		// search for closest breakable alignment, using tiebreak rules
-		
 		// look for outermost breakable one
 		int relativeDepth = 0, outerMostDepth = -1;
 		Alignment targetAlignment = this.currentAlignment;
@@ -489,6 +535,33 @@ public class Scribe {
 		}
 		// did not find any breakable location - proceed
 	}
+
+	/*
+	 * Check if there is a NLS tag on this line. If yes, return true, returns false otherwise.
+	 */
+	private boolean hasNLSTag(int sourceStart) {
+		// search the last comment where commentEnd < current lineEnd
+		int index = Arrays.binarySearch(this.lineEnds, sourceStart);
+		int currentLineEnd = this.getLineEnd(-index);
+		if (currentLineEnd != -1) {
+			int commentIndex = getCommentIndex(currentLineEnd);
+			if (commentIndex < 0) {
+				commentIndex = -commentIndex - 2;
+			}
+			if (commentIndex >= 0 && commentIndex < this.commentPositions.length) {
+				int start = this.commentPositions[commentIndex][0];
+				if (start < 0) {
+					start = -start;
+					// check that we are on the same line
+					int lineIndexForComment = Arrays.binarySearch(this.lineEnds, start);
+					if (lineIndexForComment == index) {
+						return indexOf(Scanner.TAG_PREFIX.toCharArray(), this.scanner.source, start, currentLineEnd) != -1;
+					}
+				}
+			}
+		}
+		return false;
+	}
 	
 	public void indent() {
 		if (this.useTab) {
@@ -498,6 +571,33 @@ public class Scribe {
 		}
 	}	
 
+	private int indexOf(char[] toBeFound, char[] source, int start, int end) {
+		if (toBeFound == null || source == null) {
+			throw new IllegalArgumentException();
+		}
+		int toBeFoundLength = toBeFound.length;
+		if (end < start || (end - start + 1) < toBeFoundLength) {
+			return -1;
+		}
+		int indexInSource = 0;
+		for (int i = start; i < end; i++) {
+			if (source[i] == toBeFound[indexInSource]) {
+				int j = i + 1;
+				indexInSource++;
+				loop: for (; j < end && indexInSource < toBeFoundLength; j++) {
+					if (toBeFound[indexInSource] != source[j]) {
+						break loop;
+					}
+					indexInSource++;
+				}
+				if (j == i + toBeFoundLength) {
+					return i;
+				}
+				indexInSource = 0;
+			}
+		}
+		return -1;
+	}
 	/**
 	 * @param compilationUnitSource
 	 */
@@ -756,7 +856,9 @@ public class Scribe {
 	private void printCommentLine(char[] s) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-
+		if (indexOf(Scanner.TAG_PREFIX.toCharArray(), this.scanner.source, currentTokenStartPosition, currentTokenEndPosition) != -1) {
+			this.nlsTagCounter = 0;
+		}
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 		int currentCharacter;
 		int start = currentTokenStartPosition;
@@ -808,7 +910,10 @@ public class Scribe {
 		this.printEmptyLines(linesNumber, this.scanner.getCurrentTokenEndPosition() + 1);
 	}
 
-	public void printEmptyLines(int linesNumber, int insertPosition) {
+	private void printEmptyLines(int linesNumber, int insertPosition) {
+		if (this.nlsTagCounter > 0) {
+			return;
+		}
 		StringBuffer buffer = new StringBuffer();
 		if (lastNumberOfNewLines == 0) {
 			linesNumber++; // add an extra line breaks
@@ -949,6 +1054,9 @@ public class Scribe {
 	}
 	
 	public void printNewLine() {
+		if (this.nlsTagCounter > 0) {
+			return;
+		}
 		if (lastNumberOfNewLines >= 1) {
 			column = 1; // ensure that the scribe is at the beginning of a new line
 			return;
@@ -961,6 +1069,9 @@ public class Scribe {
 	}
 
 	public void printNewLine(int insertPosition) {
+		if (this.nlsTagCounter > 0) {
+			return;
+		}
 		if (lastNumberOfNewLines >= 1) {
 			column = 1; // ensure that the scribe is at the beginning of a new line
 			return;
@@ -1202,6 +1313,7 @@ public class Scribe {
 		this.line = 0;
 		this.column = 1;
 		this.editsIndex = 0;
+		this.nlsTagCounter = 0;
 	}
 		
 	private void resetAt(Location location) {
@@ -1212,6 +1324,7 @@ public class Scribe {
 		this.needSpace = location.needSpace;
 		this.pendingSpace = location.pendingSpace;
 		this.editsIndex = location.editsIndex;
+		this.nlsTagCounter = location.nlsTagCounter;
 		if (this.editsIndex > 0) {
 			this.edits[this.editsIndex - 1] = location.textEdit;
 		}

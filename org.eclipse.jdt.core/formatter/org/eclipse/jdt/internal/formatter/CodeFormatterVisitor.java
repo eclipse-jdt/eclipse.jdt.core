@@ -1275,6 +1275,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						for (int i = 0; i < argumentsLength; i++) {
 							if (i > 0) {
 								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+								this.scribe.printTrailingComment();
 							}
 							this.scribe.alignFragment(argumentsAlignment, i);
 							if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
@@ -1292,6 +1293,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				for (int i = 0; i < argumentsLength; i++) {
 					if (i > 0) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+						this.scribe.printTrailingComment();
 					}
 					if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
 						this.scribe.space();
@@ -3704,11 +3706,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.StringLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
-
 		final int numberOfParens = (stringLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
 		}
+		this.scribe.checkNLSTag(stringLiteral.sourceStart);
 		this.scribe.printNextToken(TerminalTokens.TokenNameStringLiteral);
 		this.scribe.printTrailingComment();
 		if (numberOfParens > 0) {
