@@ -556,7 +556,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		try {
 			if (operation.isReadOnly()
-					|| JavaModelManager.isResourceTreeLocked()) { // TODO: remove workaround bug http://bugs.eclipse.org/bugs/show_bug.cgi?id=29624
+					|| JavaModelManager.isResourceTreeLocked()) {
 				operation.run(monitor);
 			} else {
 				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode

@@ -2600,7 +2600,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @exception CoreException if the operation failed.
 	 */
 	public static void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
-		if (JavaModelManager.isResourceTreeLocked()) { // TODO: remove workaround bug http://bugs.eclipse.org/bugs/show_bug.cgi?id=29624
+		if (JavaModelManager.isResourceTreeLocked()) {
 			new BatchOperation(action).run(monitor);
 		} else {
 			// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
