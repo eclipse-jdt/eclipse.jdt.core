@@ -247,7 +247,6 @@ public void testConstructorDeclaration() throws JavaModelException {
 		elements
 	);
 }
-
 /**
  * Resolve empty selection
  */
@@ -480,6 +479,78 @@ public void testLocalClass6() throws JavaModelException {
 	);
 }
 /**
+ * Resolve a local constructor
+ */
+public void testLocalConstructor() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalConstructor.java");
+	IJavaElement[] elements = codeSelect(cu, "Y(\"", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y(String) [in Y [in foo() [in ResolveLocalConstructor [in ResolveLocalConstructor.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve local constructor declaration
+ */
+public void testLocalConstructorDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalConstructorDeclaration.java");
+	IJavaElement[] elements = codeSelect(cu, "Y(i", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y(int) [in Y [in foo() [in ResolveLocalConstructorDeclaration [in ResolveLocalConstructorDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local field "fred"
+ */
+public void testLocalField() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalField.java");
+	IJavaElement[] elements = codeSelect(cu, "fred =", "fred");
+	assertElementsEqual(
+		"Unexpected elements",
+		"fred [in Y [in foo() [in ResolveLocalField [in ResolveLocalField.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve local field declaration
+ */
+public void testLocalFieldDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalFieldDeclaration.java");
+	IJavaElement[] elements = codeSelect(cu, "fred", "fred");
+	assertElementsEqual(
+		"Unexpected elements",
+		"fred [in Y [in foo() [in ResolveLocalFieldDeclaration [in ResolveLocalFieldDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve local member type declaration
+ */
+public void testLocalMemberTypeDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMemberTypeDeclaration1.java");
+	IJavaElement[] elements = codeSelect(cu, "Member {", "Member");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Member [in Y [in foo() [in ResolveLocalMemberTypeDeclaration1 [in ResolveLocalMemberTypeDeclaration1.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve member type declaration
+ */
+public void testLocalMemberTypeDeclaration2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMemberTypeDeclaration2.java");
+	IJavaElement[] elements = codeSelect(cu, "MemberOfMember", "MemberOfMember");
+	assertElementsEqual(
+		"Unexpected elements",
+		"MemberOfMember [in Member [in Y [in foo() [in ResolveLocalMemberTypeDeclaration2 [in ResolveLocalMemberTypeDeclaration2.java [in <default> [in src [in Resolve]]]]]]]]",
+		elements
+	);
+}
+/**
  * Resolve a local declaration name
  */
 public void testLocalName1() throws JavaModelException {
@@ -488,6 +559,30 @@ public void testLocalName1() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the method "foo"
+ */
+public void testLocalMethod() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethod.java");
+	IJavaElement[] elements = codeSelect(cu, "foo(\"", "foo");
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(String) [in Y [in bar() [in ResolveLocalMethod [in ResolveLocalMethod.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve method declaration
+ */
+public void testLocalMethodDeclaration() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethodDeclaration.java");
+	IJavaElement[] elements = codeSelect(cu, "foo(i", "foo");
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in Y [in bar() [in ResolveLocalMethodDeclaration [in ResolveLocalMethodDeclaration.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }

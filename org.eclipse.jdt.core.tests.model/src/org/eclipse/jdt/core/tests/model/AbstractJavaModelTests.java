@@ -91,7 +91,8 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 		buffer.append("<null>");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.println(",");
 	}
 	assertEquals(
 		message,
