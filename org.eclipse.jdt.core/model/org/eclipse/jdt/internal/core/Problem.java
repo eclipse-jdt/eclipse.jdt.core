@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core;
-
+
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -9,7 +10,8 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
-
+
+
 public class Problem implements IProblem, ProblemSeverities, ProblemIrritants {
 	private char[] fileName;
 	private int id;
@@ -133,7 +135,8 @@ public void setSourceStart(int sourceStart) {
 	startPosition = sourceStart;
 }
 public String toString() {
-
+
+
 	String s = "Pb("/*nonNLS*/ + (id & IgnoreCategoriesMask) + ") "/*nonNLS*/;
 	if (message != null) {
 		s += message;

@@ -1419,33 +1419,37 @@ public final boolean jumpOverUnicodeWhiteSpace()
 	//On false, the currentCharacter is filled up with a potential
 	//correct char
 
-	int c1, c2, c3, c4;
-	int unicodeSize = 6;
-	currentPosition++;
-	while (source[currentPosition] == 'u') {
+	try {
+		int c1, c2, c3, c4;
+		int unicodeSize = 6;
 		currentPosition++;
-		unicodeSize++;
-	}
+		while (source[currentPosition] == 'u') {
+			currentPosition++;
+			unicodeSize++;
+		}
 
-	if (((c1 = Character.getNumericValue(source[currentPosition++])) > 15
-		|| c1 < 0)
-		|| ((c2 = Character.getNumericValue(source[currentPosition++])) > 15 || c2 < 0)
-		|| ((c3 = Character.getNumericValue(source[currentPosition++])) > 15 || c3 < 0)
-		|| ((c4 = Character.getNumericValue(source[currentPosition++])) > 15 || c4 < 0)) {
+		if (((c1 = Character.getNumericValue(source[currentPosition++])) > 15
+			|| c1 < 0)
+			|| ((c2 = Character.getNumericValue(source[currentPosition++])) > 15 || c2 < 0)
+			|| ((c3 = Character.getNumericValue(source[currentPosition++])) > 15 || c3 < 0)
+			|| ((c4 = Character.getNumericValue(source[currentPosition++])) > 15 || c4 < 0)) {
+			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+		}
+
+		currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+		if (recordLineSeparator
+			&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
+			pushLineSeparator();
+		if (Character.isWhitespace(currentCharacter))
+			return true;
+
+		//buffer the new char which is not a white space
+		withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+		//withoutUnicodePtr == 1 is true here
+		return false;
+	} catch (IndexOutOfBoundsException e){
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
-
-	currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-	if (recordLineSeparator
-		&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-		pushLineSeparator();
-	if (Character.isWhitespace(currentCharacter))
-		return true;
-
-	//buffer the new char which is not a white space
-	withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
-	//withoutUnicodePtr == 1 is true here
-	return false;
 }
 public final int[] lineEnds() {
 	//return a bounded copy of this.lineEnds 

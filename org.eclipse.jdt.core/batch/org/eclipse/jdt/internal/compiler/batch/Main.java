@@ -110,7 +110,7 @@ protected void compile(String[] argv) {
 				} else {
 					out.print(Main.bind("compile.severalProblems"/*nonNLS*/,String.valueOf(globalProblemsCount)));
 				}
-				out.println(" ("/*nonNLS*/);
+				out.print(" ("/*nonNLS*/);
 				if (globalErrorsCount > 0) {
 					if (globalErrorsCount == 1) {
 						out.print(Main.bind("compile.oneError"/*nonNLS*/));

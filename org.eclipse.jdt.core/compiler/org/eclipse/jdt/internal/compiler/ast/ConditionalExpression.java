@@ -26,17 +26,18 @@ public ConditionalExpression(Expression condition, Expression valueIfTrue, Expre
 	sourceEnd = valueIfFalse.sourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	Constant inlinedCondition;
-	if ((inlinedCondition = condition.constant) != NotAConstant) {
-		if (inlinedCondition.booleanValue()) {
+	Constant inlinedCondition = condition.constant;
+	if (inlinedCondition == NotAConstant) inlinedCondition = condition.conditionalConstant();
+	if (inlinedCondition != NotAConstant) {
+		if (inlinedCondition.booleanValue() == true) {
 			FlowInfo resultInfo = valueIfTrue.analyseCode(currentScope, flowContext, flowInfo);
 			// analyse valueIfFalse, but do not take into account any of its infos
-			valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.copy());
+			valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.copy().markAsFakeReachable(true));
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(resultInfo);
 			return resultInfo;
 		} else {
 			// analyse valueIfTrue, but do not take into account any of its infos			
-			valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.copy());
+			valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.copy().markAsFakeReachable(true));
 			FlowInfo mergeInfo = valueIfFalse.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergeInfo);
 			return mergeInfo;

@@ -829,4 +829,30 @@ void verifyMethods(MethodVerifier verifier) {
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
 }
+
+/* Answer the synthetic field for <targetEnclosingType>
+*	or null if one does not exist.
+*/
+
+public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
+	if (synthetics == null)
+		return null;
+
+	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
+	if (field != null) return field;
+
+	// type compatibility : to handle cases such as
+	// class T { class M{}}
+	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
+	if (!onlyExactMatch){
+		Enumeration enum = synthetics[FIELD].elements();
+		while (enum.hasMoreElements()) {
+			field = (FieldBinding) enum.nextElement();
+			if (CharOperation.startsWith(field.name, SyntheticArgumentBinding.EnclosingInstancePrefix)
+				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
+					return field;
+		}
+	}
+	return null;
+}
 }

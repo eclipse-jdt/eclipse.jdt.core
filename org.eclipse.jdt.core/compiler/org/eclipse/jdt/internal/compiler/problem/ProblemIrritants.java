@@ -58,7 +58,7 @@ public interface ProblemIrritants { // max: 500
 	final int BytecodeExceeds64KLimitForClinit = Internal + 64;
 	final int TooManyArgumentSlots = Internal + 65;
 	final int TooManyLocalVariableSlots = Internal + 66;
-        
+
 	// fields
 	final int UndefinedField = FieldRelated + 70;
 	final int NotVisibleField = FieldRelated + 71;
@@ -273,4 +273,7 @@ public interface ProblemIrritants { // max: 500
 	final int CodeSnippetMissingClass = Internal + 420;
 	final int CodeSnippetMissingMethod = Internal + 421;
 	final int NonExternalizedStringLiteral = Internal + 261;
+
+	//constant pool
+	final int TooManyConstantsInConstantPool = Internal + 430;
 }

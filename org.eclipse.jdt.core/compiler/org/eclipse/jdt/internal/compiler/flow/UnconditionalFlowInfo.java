@@ -187,8 +187,9 @@ final private boolean isDefinitelyAssigned(int position) {
  * Check status of definite assignment for a field.
  */
 final public boolean isDefinitelyAssigned(FieldBinding field) {
+	// Dependant of CodeStream.isDefinitelyAssigned(..)
 	// We do not want to complain in unreachable code
-	if (this == DeadEnd)
+	if ((this == DeadEnd) || (this.isFakeReachable))
 		return true;
 	return isDefinitelyAssigned(field.id); 
 }

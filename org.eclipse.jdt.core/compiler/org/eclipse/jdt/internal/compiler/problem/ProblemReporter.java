@@ -1901,8 +1901,9 @@ public void scannerError(Parser parser, String errorTokenName) {
 						if (errorTokenName.equals(Scanner.INVALID_UNICODE_ESCAPE)){
 							flag = INVALID_UNICODE_ESCAPE;
 							// better locate the error message
-							int checkPos = scanner.currentPosition - 1;
 							char[] source = scanner.source;
+							int checkPos = scanner.currentPosition - 1;
+							if (checkPos >= source.length) checkPos = source.length - 1;
 							while (checkPos >= startPos){
 								if (source[checkPos] == '\\') break;
 								checkPos --;
@@ -2201,5 +2202,14 @@ public void nonExternalizedStringLiteral(AstNode location) {
 		new String[] {},
 		location.sourceStart,
 		location.sourceEnd);
+}
+
+public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {
+	this.handle(
+		TooManyConstantsInConstantPool,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart(),
+		typeDeclaration.sourceEnd());
 }
 }

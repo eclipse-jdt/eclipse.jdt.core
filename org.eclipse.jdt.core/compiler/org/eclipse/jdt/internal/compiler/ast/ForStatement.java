@@ -50,11 +50,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	preCondInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 	
 	// process the condition
+	LoopingFlowContext condLoopContext = null;
 	if (condition != null) {
 		if ((condition.constant == NotAConstant) || (condition.constant.booleanValue() != true)) {
-			LoopingFlowContext condLoopContext;
 			flowInfo = condition.analyseCode(scope, (condLoopContext = new LoopingFlowContext(flowContext, this, null, null, scope)), flowInfo);
-			condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 		}
 	}
 
@@ -62,6 +61,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	LoopingFlowContext loopingContext;
 	FlowInfo actionInfo;
 	if ((action == null) || action.isEmptyBlock()) {
+		if (condLoopContext != null) condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 		if ((condition == null) || ((condition.constant != NotAConstant) && (condition.constant.booleanValue() == true))) {
 			return FlowInfo.DeadEnd;
 		} else {
@@ -80,13 +80,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				initsWhenTrue.copy());
 
 		// code generation can be optimized when no need to continue in the loop
-		if ((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable()){
-			if ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable()){
+		if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
+			&& ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable())){
 				continueLabel = null;
-			} else {
-				loopingContext.complainOnFinalAssignmentsInLoop(scope, loopingContext.initsOnContinue);				
-			}
 		} else {
+			if (condLoopContext != null) condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 			loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
 			actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits()); // for increments
 		}

@@ -168,6 +168,9 @@ public void resolve(BlockScope scope) {
 
 		// qualification should be from the type of the enclosingType
 		if (qualification != null) {
+			if (accessMode != Super){
+				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(qualification, receiverType);
+			}
 			ReferenceBinding enclosingType = receiverType.enclosingType();
 			if (enclosingType == null) {
 				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(qualification, receiverType);
