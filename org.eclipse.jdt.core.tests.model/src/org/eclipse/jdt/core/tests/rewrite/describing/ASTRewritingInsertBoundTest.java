@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -26,13 +31,18 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	private static final Class THIS= ASTRewritingInsertBoundTest.class;
 	
+	private IJavaProject fJProject1;
+	private IPackageFragmentRoot fSourceFolder;
+	
+	
+
 	public ASTRewritingInsertBoundTest(String name) {
 		super(name);
 	}
@@ -45,7 +55,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		if (true) {
 			return allTests();
 		} else {
-			TestSuite suite= new Suite("one test");
+			TestSuite suite= new TestSuite();
 			suite.addTest(new ASTRewritingInsertBoundTest("testRemove3"));
 			return suite;
 		}
@@ -133,7 +143,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 	
 	public void testInsert3() throws Exception {
-		// insert 2 x beween 
+		// insert 2 x before 
 		
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -166,10 +176,11 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		MethodDeclaration decl2= newMethodDeclaration(ast, "new2");
 		
 		ASTNode middleDecl= (ASTNode) decls.get(1);
+		ASTNode lastDecl= (ASTNode) decls.get(2);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 		listRewrite.insertBefore(decl1, middleDecl, null);
-		listRewrite.insertAfter(decl2, middleDecl, null);
+		listRewrite.insertBefore(decl2, lastDecl, null);
 				
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -201,7 +212,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	
 	
 	public void testInsert2() throws Exception {
-		// insert first and last
+		// insert 2 x first and 2 x last
 		
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -273,7 +284,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}	
 
 	public void testInsert1Before() throws Exception {
-		// insert 2x first and 2xlast
+		// insert first and last
 		
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -409,7 +420,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}	
 	
 	public void testInsert3Before() throws Exception {
-		// insert 2 x beween 
+		// insert 2 x after 
 		
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -441,10 +452,11 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		FieldDeclaration decl1= newFieldDeclaration(ast, "new1");
 		FieldDeclaration decl2= newFieldDeclaration(ast, "new2");
 
+		ASTNode firstDecl= (ASTNode) decls.get(0);
 		ASTNode middleDecl= (ASTNode) decls.get(1);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		listRewrite.insertBefore(decl1, middleDecl, null);
+		listRewrite.insertAfter(decl1, firstDecl, null);
 		listRewrite.insertAfter(decl2, middleDecl, null);
 				
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1033,8 +1045,6 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
 		List decls= type.bodyDeclarations();
-
-		rewrite.remove((ASTNode) decls.get(1), null);
 		
 		FieldDeclaration decl1= newFieldDeclaration(ast, "new1");
 		FieldDeclaration decl2= newFieldDeclaration(ast, "new2");
@@ -1042,6 +1052,8 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTNode middleDecl= (ASTNode) decls.get(1);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		listRewrite.remove(middleDecl, null);
+		
 		listRewrite.insertBefore(decl1, middleDecl, null);
 		listRewrite.insertAfter(decl2, middleDecl, null);
 			
@@ -1054,9 +1066,9 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    public int x1;\n");
 		buf.append("\n");
-		buf.append("    int new1;\n");
-		buf.append("\n");
 		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("    int new1;\n");
 		buf.append("\n");
 		buf.append("    int new2;\n");
 		buf.append("\n");
@@ -1098,18 +1110,20 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
 		List decls= type.bodyDeclarations();
-
-		rewrite.remove((ASTNode) decls.get(0), null);
-		rewrite.remove((ASTNode) decls.get(2), null);
 		
 		MethodDeclaration decl1= newMethodDeclaration(ast, "new1");
 		MethodDeclaration decl2= newMethodDeclaration(ast, "new2");
 
-		ASTNode middleDecl= (ASTNode) decls.get(1);
+		ASTNode firstDecl= (ASTNode) decls.get(0);
+		ASTNode lastDecl= (ASTNode) decls.get(2);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		listRewrite.insertBefore(decl1, middleDecl, null);
-		listRewrite.insertAfter(decl2, middleDecl, null);	   
+		
+		listRewrite.remove(firstDecl, null);
+		listRewrite.remove(lastDecl, null);
+		
+		listRewrite.insertAfter(decl1, firstDecl, null);
+		listRewrite.insertBefore(decl2, lastDecl, null);	   
 			
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -1162,18 +1176,19 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
 		List decls= type.bodyDeclarations();
-
-		rewrite.remove((ASTNode) decls.get(0), null);
-		rewrite.remove((ASTNode) decls.get(2), null);
 		
 		FieldDeclaration decl1= newFieldDeclaration(ast, "new1");
 		FieldDeclaration decl2= newFieldDeclaration(ast, "new2");
 
-		ASTNode middleDecl= (ASTNode) decls.get(1);
+		ASTNode firstDecl= (ASTNode) decls.get(0);
+		ASTNode lastDecl= (ASTNode) decls.get(2);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		listRewrite.insertBefore(decl1, middleDecl, null);
-		listRewrite.insertAfter(decl2, middleDecl, null);	
+		listRewrite.remove(firstDecl, null);
+		listRewrite.remove(lastDecl, null);
+		
+		listRewrite.insertAfter(decl1, firstDecl, null);
+		listRewrite.insertBefore(decl2, lastDecl, null);	   
 			
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -1185,6 +1200,8 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("    int new1;\n");
 		buf.append("\n");
 		buf.append("    public int x2;\n");
+		buf.append("\n");
+		buf.append("//c3\n");
 		buf.append("\n");
 		buf.append("    int new2;\n");
 		buf.append("\n");
@@ -1224,9 +1241,6 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
 		List decls= type.bodyDeclarations();
-
-		rewrite.remove((ASTNode) decls.get(0), null);
-		rewrite.remove((ASTNode) decls.get(2), null);
 		
 		MethodDeclaration decl1= newMethodDeclaration(ast, "new1");
 		MethodDeclaration decl2= newMethodDeclaration(ast, "new2");
@@ -1237,6 +1251,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTNode lastDecl= (ASTNode) decls.get(2);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		
+		rewrite.remove(firstDecl, null);
+		rewrite.remove(lastDecl, null);
+		
 		listRewrite.insertBefore(decl1, firstDecl, null);
 		listRewrite.insertAfter(decl2, firstDecl, null);
 		listRewrite.insertBefore(decl3, lastDecl, null);
@@ -1298,9 +1316,6 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
 		List decls= type.bodyDeclarations();
-
-		rewrite.remove((ASTNode) decls.get(0), null);
-		rewrite.remove((ASTNode) decls.get(2), null);
 		
 		FieldDeclaration decl1= newFieldDeclaration(ast, "new1");
 		FieldDeclaration decl2= newFieldDeclaration(ast, "new2");
@@ -1311,6 +1326,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		ASTNode lastDecl= (ASTNode) decls.get(2);
 		
 		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		
+		rewrite.remove(firstDecl, null);
+		rewrite.remove(lastDecl, null);
+		
 		listRewrite.insertBefore(decl1, firstDecl, null);
 		listRewrite.insertAfter(decl2, firstDecl, null);
 		listRewrite.insertBefore(decl3, lastDecl, null);
@@ -1329,9 +1348,9 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
-		buf.append("    int new3;\n");
-		buf.append("\n");
 		buf.append("//c3\n");
+		buf.append("\n");
+		buf.append("    int new3;\n");
 		buf.append("\n");
 		buf.append("    int new4;\n");
 		buf.append("\n");
