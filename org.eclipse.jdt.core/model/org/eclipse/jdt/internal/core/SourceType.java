@@ -162,15 +162,22 @@ public IField[] getFields() throws JavaModelException {
 	return array;
 }
 /**
- * @see IType
+ * @see IType#getFullyQualifiedName
  */
 public String getFullyQualifiedName() {
+	return this.getFullyQualifiedName('$');
+}
+/**
+ * @see IType#getFullyQualifiedName(char)
+ */
+public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	String packageName = getPackageFragment().getElementName();
 	if (packageName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-		return getTypeQualifiedName();
+		return getTypeQualifiedName(enclosingTypeSeparator);
 	}
-	return packageName + '.' + getTypeQualifiedName();
+	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
+
 /**
  * @see IType
  */
@@ -250,15 +257,22 @@ public IType getType(String name) {
 	return new SourceType(this, name);
 }
 /**
- * @see IType
+ * @see IType#getTypeQualifiedName
  */
 public String getTypeQualifiedName() {
+	return this.getTypeQualifiedName('$');
+}
+/**
+ * @see IType#getTypeQualifiedName(char)
+ */
+public String getTypeQualifiedName(char enclosingTypeSeparator) {
 	if (fParent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return fName;
 	} else {
-		return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+		return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
 	}
 }
+
 /**
  * @see IType
  */

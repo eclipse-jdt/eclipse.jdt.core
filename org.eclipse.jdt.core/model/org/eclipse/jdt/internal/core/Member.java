@@ -21,6 +21,29 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 protected Member(int type, IJavaElement parent, String name) {
 	super(type, parent, name);
 }
+protected boolean areSimilarMethods(
+	String name1, String[] params1, 
+	String name2, String[] params2,
+	String[] simpleNames1) {
+		
+	if (name1.equals(name2)) {
+		int params1Length = params1.length;
+		if (params1Length == params2.length) {
+			for (int i = 0; i < params1Length; i++) {
+				String simpleName1 = 
+					simpleNames1 == null ? 
+						Signature.getSimpleName(Signature.toString(params1[i])) :
+						simpleNames1[i];
+				String simpleName2 = Signature.getSimpleName(Signature.toString(params2[i]));
+				if (!simpleName1.equals(simpleName2)) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
 /**
  * Converts a field constant from the compiler's representation
  * to the Java Model constant representation (Number or String).
@@ -76,18 +99,13 @@ protected IMethod[] findMethods(IMethod method, IMethod[] methods) {
 	ArrayList list = new ArrayList();
 	next: for (int i = 0, length = methods.length; i < length; i++) {
 		IMethod existingMethod = methods[i];
-		if (existingMethod.getElementName().equals(elementName)) {
-			String[] existingParams = existingMethod.getParameterTypes();
-			int existingParamLength = existingParams.length;
-			if (existingParamLength == paramLength) {
-				for (int j = 0; j < paramLength; j++) {
-					String simpleName = Signature.getSimpleName(Signature.toString(existingParams[j]));
-					if (!simpleNames[j].equals(simpleName)) {
-						continue next;
-					}
-				}
-				list.add(existingMethod);
-			}
+		if (this.areSimilarMethods(
+				elementName,
+				parameters,
+				existingMethod.getElementName(),
+				existingMethod.getParameterTypes(),
+				simpleNames)) {
+			list.add(existingMethod);
 		}
 	}
 	int size = list.size();
@@ -139,6 +157,19 @@ public ISourceRange getNameRange() throws JavaModelException {
  * @see IMember
  */
 public boolean isBinary() {
+	return false;
+}
+protected boolean isMainMethod(IMethod method) throws JavaModelException {
+	if ("main".equals(method.getElementName()) && Signature.SIG_VOID.equals(method.getReturnType())) { //$NON-NLS-1$
+		int flags= method.getFlags();
+		if (Flags.isStatic(flags) && Flags.isPublic(flags)) {
+			String[] paramTypes= method.getParameterTypes();
+			if (paramTypes.length == 1) {
+				String name=  Signature.toString(paramTypes[0]);
+				return "String[]".equals(Signature.getSimpleName(name)); //$NON-NLS-1$
+			}
+		}
+	}
 	return false;
 }
 /**

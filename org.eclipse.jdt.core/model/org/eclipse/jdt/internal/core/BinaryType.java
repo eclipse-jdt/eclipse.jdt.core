@@ -206,11 +206,17 @@ public int getFlags() throws JavaModelException {
  * @see IType
  */
 public String getFullyQualifiedName() {
+	return this.getFullyQualifiedName('$');
+}
+/**
+ * @see IType(char)
+ */
+public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	String packageName = getPackageFragment().getElementName();
 	if (packageName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-		return getTypeQualifiedName();
+		return getTypeQualifiedName(enclosingTypeSeparator);
 	}
-	return packageName + '.' + getTypeQualifiedName();
+	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
 /**
  * @see IType
@@ -299,15 +305,21 @@ public IType getType(String name) {
  * @see IType#getTypeQualifiedName
  */
 public String getTypeQualifiedName() {
+	return this.getTypeQualifiedName('$');
+}
+/**
+ * @see IType#getTypeQualifiedName(char)
+ */
+public String getTypeQualifiedName(char enclosingTypeSeparator) {
 	if (fParent.getElementType() == IJavaElement.CLASS_FILE) {
 		String name= fParent.getElementName();
 		return name.substring(0,name.lastIndexOf('.'));
 	}
 	if (fParent.getElementType() == IJavaElement.TYPE) {
 		if (Character.isDigit(fName.charAt(0))) {
-			return ((IType) fParent).getTypeQualifiedName();
+			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator);
 		} else {
-			return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
 		}
 	}
 	Assert.isTrue(false); // should not be reachable

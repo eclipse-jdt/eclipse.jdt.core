@@ -15,6 +15,14 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li>Java model API additions:
+		<ul>
+			<li><code>IMethod.isMainMethod()</code></li>
+			<li><code>IMethod.isSimilar(IMethod)</code></li>
+			<li><code>IType.getFullyQualifiedName(char)</code></li>
+			<li><code>IType.getTypeQualifiedName(char)</code></li>
+		</ul>
+	</li>
 	<li> JavaModelOperations now guarantee the JavaModel is up to date when notifying the Java model change listeners. In particular,
 	a builder running after the Java builder will be able to query the Java model with respect to the changes introduced through Java model
 	operations (except for index queries). This was never guaranteed in 1.0, but indirectly occurred due to the fact that the previous Java

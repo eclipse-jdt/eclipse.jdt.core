@@ -191,6 +191,17 @@ IField[] getFields() throws JavaModelException;
  */
 String getFullyQualifiedName();
 /**
+ * Returns the fully qualified name of this type, 
+ * including qualification for any containing types and packages.
+ * This is the name of the package, followed by <code>'.'</code>,
+ * followed by the type-qualified name using the <code>enclosingTypeSeparator<code>.
+ * This is a handle-only method.
+ *
+ * @see IType#getTypeQualifiedName(char)
+ * @since 2.0
+ */
+String getFullyQualifiedName(char enclosingTypeSeparator);
+/**
  * Returns the Initializer with the specified position relative to
  * the order they are defined in the source.
  * Numbering starts at 1 (i.e. the first occurrence is occurrence 1, not occurrence 0).
@@ -271,6 +282,19 @@ IType getType(String name) ;
  * This is a handle-only method.
  */
 String getTypeQualifiedName();
+/**
+ * Returns the type-qualified name of this type, 
+ * including qualification for any enclosing types,
+ * but not including package qualification.
+ * For source types, this consists of the simple names of
+ * any enclosing types, separated by the <code>enclosingTypeSeparator</code>, 
+ * followed by the simple name of this type.
+ * For binary types, this is the name of the class file without the ".class" suffix.
+ * This is a handle-only method.
+ * 
+ * @since 2.0
+ */
+String getTypeQualifiedName(char enclosingTypeSeparator);
 /**
  * Returns the immediate member types declared by this type.
  * The results are listed in the order in which they appear in the source or class file.

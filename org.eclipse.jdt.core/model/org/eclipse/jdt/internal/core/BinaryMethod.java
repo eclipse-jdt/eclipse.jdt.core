@@ -226,6 +226,24 @@ public boolean isConstructor() throws JavaModelException {
 	return info.isConstructor();
 }
 /**
+ * @see IMethod#isMainMethod()
+ */
+public boolean isMainMethod() throws JavaModelException {
+	return this.isMainMethod(this);
+}
+
+/**
+ * @see IMethod#isSimilar(IMethod)
+ */
+public boolean isSimilar(IMethod method) {
+	return 
+		this.areSimilarMethods(
+			this.getElementName(), this.getParameterTypes(),
+			method.getElementName(), method.getParameterTypes(),
+			null);
+}
+
+/**
  */
 public String readableName() {
 
