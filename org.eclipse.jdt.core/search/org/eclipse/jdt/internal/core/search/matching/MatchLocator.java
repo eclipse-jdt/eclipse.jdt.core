@@ -123,11 +123,8 @@ public class MatchLocator implements ITypeRequestor {
 			// get source
 			SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
 			IType type = elementInfo.getHandle();
-			try {
-				this.buildBindings(type.getCompilationUnit());
-			} catch (JavaModelException e) {
-				// nothing we can do here: ignore
-			}
+			ICompilationUnit sourceUnit = (ICompilationUnit)type.getCompilationUnit();
+			this.accept(sourceUnit);
 		} else {
 			CompilationResult result =
 				new CompilationResult(sourceType.getFileName(), 0, 0, 0);
@@ -145,56 +142,7 @@ public class MatchLocator implements ITypeRequestor {
 		}
 	}
 
-/*
- * Parse the given compiation unit and build its type bindings.
- * Remember the parsed unit.
- */
-public void buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
-	final IFile file = 
-		compilationUnit.isWorkingCopy() ?
-			(IFile)compilationUnit.getOriginalElement().getResource() :
-			(IFile)compilationUnit.getResource();
-	CompilationUnitDeclaration unit = null;
-	
-	// get main type name
-	final String fileName = file.getFullPath().lastSegment();
-	final char[] mainTypeName =
-		fileName.substring(0, fileName.length() - 5).toCharArray();
-	
-	// find out if unit is already known
-	char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
-	unit = (CompilationUnitDeclaration)this.parsedUnits.get(qualifiedName);
-	if (unit != null) return;
 
-	// source unit
-	IBuffer buffer;
-	final char[] source = 
-		compilationUnit.isWorkingCopy() ?
-			(buffer = compilationUnit.getBuffer()) == null ? null : buffer.getCharacters() :
-			Util.getResourceContentsAsCharArray(file);
-	ICompilationUnit sourceUnit = new ICompilationUnit() {
-		public char[] getContents() {
-			return source;
-		}
-		public char[] getFileName() {
-			return fileName.toCharArray();
-		}
-		public char[] getMainTypeName() {
-			return mainTypeName;
-		}
-		public char[][] getPackageName() {
-			return null;
-		}
-	};
-	
-	// diet parse
-	unit = this.parser.dietParse(sourceUnit, this, file, (CompilationUnit)compilationUnit);
-	if (unit != null) {
-		this.lookupEnvironment.buildTypeBindings(unit);
-		this.lookupEnvironment.completeTypeBindings(unit, true);
-		this.parsedUnits.put(qualifiedName, unit);
-	}
-}
 
 	/**
 	 * Creates an IField from the given field declaration and type. 

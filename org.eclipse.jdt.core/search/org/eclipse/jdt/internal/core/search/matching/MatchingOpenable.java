@@ -295,7 +295,7 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 			this.parsedUnit = this.locator.dietParse(source);
 		}
 	}
-	if (this.parsedUnit != null) {
+	if (this.parsedUnit != null && this.parsedUnit != ALREADY_RESOLVED) {
 		try {
 			this.locator.parser.matchSet = this.matchSet;
 			this.locator.parser.scanner.setSource(source);
