@@ -1031,7 +1031,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
-	 * of open ZipFiles. The location must be a absolute path.
+	 * of open ZipFiles. The path must be absolute.
 	 *
 	 * @exception CoreException If unable to create/open the ZipFile
 	 */
@@ -1049,27 +1049,15 @@ public class JavaModelManager implements ISaveParticipant {
 			String fileSystemPath= null;
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IResource file = root.findMember(path);
-			if (path.isAbsolute() && file != null) {
-				if (file == null) { // external file
-					fileSystemPath= path.toOSString();
-				} else { // internal resource (not an IFile or not existing)
-					IPath location;
-					if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
-						throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
-					}
-					fileSystemPath= location.toOSString();
-				}
-			} else if (!path.isAbsolute()) {
-				file= root.getFile(path);
-				if (file == null || file.getType() != IResource.FILE) {
-					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
-				}
-				IPath location = file.getLocation();
-				if (location == null) {
+			if (file != null) {
+				// internal resource
+				IPath location;
+				if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
 					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
 				}
 				fileSystemPath= location.toOSString();
 			} else {
+				// external resource
 				fileSystemPath= path.toOSString();
 			}
 	
