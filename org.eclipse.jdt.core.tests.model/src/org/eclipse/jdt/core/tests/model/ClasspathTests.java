@@ -754,7 +754,7 @@ public void testClasspathValidation08() throws CoreException {
 	}
 }
 /**
- * Should not allow a nested output folder in a source folder on the classpath.
+ * Should not allow a nested source folder in the project's output folder.
  */ 
 public void testClasspathValidation09() throws CoreException {
 	try {
@@ -768,7 +768,7 @@ public void testClasspathValidation09() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"should not allow nested binary folder in source folder", 
+			"should not allow nested source folder in putput folder", 
 			"Cannot nest entry /P/bin/src inside output location /P/bin.",
 			status.getMessage());
 	} finally {
@@ -776,7 +776,7 @@ public void testClasspathValidation09() throws CoreException {
 	}
 }
 /**
- * Should not allow a nested source folder in the project's output folder.
+ * Should not allow a nested output folder in a source folder on the classpath.
  */ 
 public void testClasspathValidation10() throws CoreException {
 	try {
@@ -786,7 +786,7 @@ public void testClasspathValidation10() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, originalCP, new Path("/P/src/bin"));
 		
 		assertEquals(
-			"should not allow nested binary folder in source folder", 
+			"should not allow nested output folder in source folder", 
 			"Cannot nest output location /P/src/bin inside entry /P/src.",
 			status.getMessage());
 	} finally {
@@ -811,6 +811,58 @@ public void testClasspathValidation11() throws CoreException {
 		assertEquals(
 			"should not allow nested library folder in output folder", 
 			"Cannot nest entry /P/lib inside output location /P.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should not allow a nested source folder in an output folder.
+ */ 
+public void testClasspathValidation12() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin1");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = 
+			JavaCore.newSourceEntry(
+				new Path("/P/bin2/src"), 
+				new IPath[] {}, 
+				new Path("/P/bin2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should not allow nested source folder in output folder", 
+			"Cannot nest entry /P/bin2/src inside output location /P/bin2.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should not allow a nested output folder in a source folder on the classpath.
+ */ 
+public void testClasspathValidation13() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin1");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = 
+			JavaCore.newSourceEntry(
+				new Path("/P/src"), 
+				new IPath[] {}, 
+				new Path("/P/src/bin2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should not allow nested output folder in source folder", 
+			"Cannot nest output location /P/src/bin2 inside entry /P/src.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
