@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
@@ -88,7 +87,7 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
 		position,
 		this.project.getSearchableNameEnvironment(),
 		new CompletionRequestorWrapper(requestor,this.project.getNameLookup()),
-		JavaCore.getOptions()
+		this.project.getOptions(true)
 	);
 }
 /**
@@ -102,7 +101,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 		offset + length - 1,
 		this.project.getSearchableNameEnvironment(),
 		requestor,
-		JavaCore.getOptions()
+		this.project.getOptions(true)
 	);
 	return requestor.getElements();
 }
@@ -183,7 +182,7 @@ public void evaluateCodeSnippet(
 			isStatic,
 			isConstructorCall,
 			environment = getBuildNameEnvironment(), 
-			JavaCore.getOptions(), 
+			this.project.getOptions(true), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -203,7 +202,7 @@ public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor reques
 		this.context.evaluate(
 			codeSnippet.toCharArray(), 
 			environment = getBuildNameEnvironment(), 
-			JavaCore.getOptions(), 
+			this.project.getOptions(true), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -223,7 +222,7 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
 		this.context.evaluateVariable(
 			((GlobalVariableWrapper)variable).variable, 
 			environment = getBuildNameEnvironment(), 
-			JavaCore.getOptions(), 
+			this.project.getOptions(true), 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {

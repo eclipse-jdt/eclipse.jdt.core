@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.IWorkingCopy;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -37,16 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.core.ClassFile;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.HandleFactory;
-import org.eclipse.jdt.internal.core.IPathRequestor;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.SearchableEnvironment;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.WorkingCopy;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
 import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
@@ -216,7 +206,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 			}
 			try {
 				this.hierarchyResolver = 
-					new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
+					new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
 				if (focusType != null) {
 					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
 					ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));

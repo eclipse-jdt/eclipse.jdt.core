@@ -39,7 +39,8 @@ Eclipse SDK 2.1 Build - ? September 2002
 What's new in this drop</h2>
 <ul>
 <li> New APIs added onto IJavaProject to enable project custom options. Project custom options are persisted into a file ".jprefs" 
-located inside the project (next to the .classpath file). Project can be specified custom options, and inherit global ones from JavaCore.
+located inside the project metadata JDT/Core plugin location. Project can be specified custom options, and inherit global ones from JavaCore.
+At this point, it is unclear whether we will attempt to share these custom properties (like .classpath file).
 	<ul>
 		<li>
 <pre>

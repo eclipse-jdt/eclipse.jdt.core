@@ -140,17 +140,18 @@ class CompilationUnitResolver extends Compiler {
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
+		IJavaProject project = unitElement.getJavaProject();
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
-				JavaCore.getOptions(),
+				project.getOptions(true),
 				getRequestor(),
 				getProblemFactory(fileName, visitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;
@@ -174,11 +175,11 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 	
-	public static CompilationUnitDeclaration parse(char[] source) {
+	public static CompilationUnitDeclaration parse(char[] source, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		CompilerOptions compilerOptions = new CompilerOptions(JavaCore.getOptions());
+		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		Parser parser =
 			new Parser(
 				new ProblemReporter(
@@ -254,13 +255,13 @@ class CompilationUnitResolver extends Compiler {
 			new CompilationUnitResolver(
 				getNameEnvironment(javaProject),
 				getHandlingPolicy(),
-				JavaCore.getOptions(),
+				javaProject.getOptions(true),
 				getRequestor(),
 				getProblemFactory(unitName.toCharArray(), visitor));
 	
 		CompilationUnitDeclaration unit = null;
 		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 			char[][] expectedPackageName = null;
 	
 			unit =

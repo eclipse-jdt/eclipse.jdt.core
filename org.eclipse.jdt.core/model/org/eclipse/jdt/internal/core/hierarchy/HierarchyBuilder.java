@@ -82,7 +82,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		this.hierarchyResolver =
 			new HierarchyResolver(
 				this.searchableEnvironment,
-				JavaCore.getOptions(),
+				project.getOptions(true),
 				this,
 				new DefaultProblemFactory());
 		this.infoToHandle = new HashMap(5);
@@ -297,7 +297,7 @@ protected IWorkingCopy[] getWokingCopies() {
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) throws JavaModelException {
-	String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+	String encoding = handle.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 	return 
 		new BasicCompilationUnit(
 			null,

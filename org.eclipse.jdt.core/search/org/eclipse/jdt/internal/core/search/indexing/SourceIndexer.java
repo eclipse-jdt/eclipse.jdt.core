@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -37,7 +38,12 @@ public class SourceIndexer extends AbstractIndexer {
 	
 	public static final String[] FILE_TYPES= new String[] {"java"}; //$NON-NLS-1$
 	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
+	IFile resourceFile;
 	
+SourceIndexer(IFile resourceFile)	{
+	this.resourceFile = resourceFile;
+}
+
 /**
  * Returns the file types the <code>IIndexer</code> handles.
  */
@@ -52,7 +58,11 @@ protected void indexFile(IDocument document) throws IOException {
 
 	// Create a new Parser
 	SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
-	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, new CompilerOptions(JavaCore.getOptions()), true); // index local declarations
+	SourceElementParser parser = new SourceElementParser(
+		requestor, 
+		problemFactory, 
+		new CompilerOptions(JavaCore.create(this.resourceFile.getProject()).getOptions(true)), 
+		true); // index local declarations
 
 	// Launch the parser
 	char[] source = null;

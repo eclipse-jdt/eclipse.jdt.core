@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
@@ -62,7 +63,15 @@ public class IFileDocument extends PropertyDocument {
 		if (charContents != null) return charContents;
 		IPath location = file.getLocation();
 		if (location == null) return CharOperation.NO_CHAR;
-		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
+		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(
+					location.toFile(), 
+					getEncoding());
+	}
+	/**
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getEncoding()
+	 */
+	public String getEncoding() {
+		return JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()

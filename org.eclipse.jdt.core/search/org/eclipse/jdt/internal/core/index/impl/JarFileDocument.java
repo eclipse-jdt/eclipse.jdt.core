@@ -41,6 +41,13 @@ public class JarFileDocument extends PropertyDocument {
 	public char[] getCharContent() throws IOException {
 		return null;
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getEncoding()
+	 */
+	public String getEncoding() {
+		return null;
+	}
+
 	public File getFile() {
 		return file.getLocation().toFile();
 	}

@@ -1363,9 +1363,7 @@ private JavaModelException newInvalidElementType() {
 				// not identical, create delta and reset cached preferences
 				project.setPreferences(null);
 				// create delta
-				fCurrentDelta.changed(project, IJavaElementDelta.F_OPTIONS_CHANGED);				
-System.out.println("DETECTED .jprefs CHANGE");
-System.out.println(new org.eclipse.jdt.internal.compiler.impl.CompilerOptions(project.getOptions(true)));				
+				//fCurrentDelta.changed(project, IJavaElementDelta.F_OPTIONS_CHANGED);				
 		}
 	}
 

@@ -725,7 +725,7 @@ public final class CompletionEngine
 		char[] fakeSource = CharOperation.concat(prefix.toString().toCharArray(), snippet, "}}".toCharArray());//$NON-NLS-1$ 
 		offset = prefix.length();
 		
-		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+		String encoding = this.compilerOptions.defaultEncoding;
 		BasicCompilationUnit fakeUnit = new BasicCompilationUnit(
 			fakeSource, 
 			null,

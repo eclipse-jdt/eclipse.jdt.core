@@ -32,6 +32,10 @@ public interface IDocument {
 	 */
 	char[] getCharContent() throws IOException;
 	/**
+	 * Returns the encoding for this document
+	 */
+	String getEncoding();
+	/**
 	 * returns the name of the document (e.g. its path for a <code>File</code>, or its relative path
 	 * in the workbench for an <code>IFile</code>).
 	 */

@@ -52,7 +52,7 @@ class AddCompilationUnitToIndex extends IndexRequest {
 				char[] contents = this.getContents();
 				if (contents == null)
 					return FAILED;
-				index.add(new IFileDocument(resource, contents), new SourceIndexer());
+				index.add(new IFileDocument(resource, contents), new SourceIndexer(resource));
 			} finally {
 				monitor.exitWrite(); // free write lock
 			}

@@ -382,7 +382,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		CompilationUnitDeclaration compilationUnitDeclaration = 
-			CompilationUnitResolver.parse(source);
+			CompilationUnitResolver.parse(source, JavaCore.getOptions()); // no better custom options
 
 		ASTConverter converter = new ASTConverter(false);
 		AST ast = new AST();
