@@ -115,15 +115,16 @@ public interface IJavaElement extends IAdaptable {
 	 * <p>
 	 * Java elements are handle objects that may or may not be backed by an
 	 * actual element. Java elements that are backed by an actual element are
-	 * said to "exist", and this method returns <code>true</code>. 
-	 * It is always the case that if a given Java element exists, then its
-	 * parent also exists (provided it has one). All Java elements that exist
-	 * can be navigated to from the root of the Java model along a chain of
-	 * existing Java elements.
-	 * TODO: The above is not true for working copies: A working copy on a .java
-	 * file that is not on the classpath exists but its parent (a package fragment) does
-	 * not exist. Also a working copy (even on the classpath) cannot be navigated to
-	 * from the root of the Java model.
+	 * said to "exist", and this method returns <code>true</code>. For Java
+	 * elements that are not working copies, it is always the case that if the
+	 * element exists, then its parent also exists (provided it has one) and
+	 * includes the element as one of its children. It is therefore possible
+	 * to navigated to an existing Java element from the root of the Java model
+	 * along a chain of existing Java elements. On the other hand, working
+	 * copies are said to exist until they are destroyed (with
+	 * <code>IWorkingCopy.destory</code>). And unlike regular Java elements, a
+	 * working copy never shows up among the children of its parent element
+	 * (which may or may not exist).
 	 * </p>
 	 *
 	 * @return <code>true</code> if this element exists in the Java model, and
