@@ -61,6 +61,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 						case IConstantPoolConstant.CONSTANT_Double :
 						case IConstantPoolConstant.CONSTANT_Integer :
 						case IConstantPoolConstant.CONSTANT_String :
+						case IConstantPoolConstant.CONSTANT_Utf8 : //TODO should be Constant_String
 							break;
 						default :
 							throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
