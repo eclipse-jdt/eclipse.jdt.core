@@ -397,7 +397,7 @@ public abstract class Scope
 		ReferenceBinding currentType = receiverType;
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector();
-		boolean relyOnDefaultAbstractMethods = environment().options.targetJDK < CompilerOptions.JDK1_2;
+		//boolean relyOnDefaultAbstractMethods = environment().options.targetJDK < CompilerOptions.JDK1_2;
 
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
@@ -425,7 +425,9 @@ public abstract class Scope
 				for (int f = 0; f < currentLength; f++)
 					found.add(currentMethods[f]);
 			}
-			if (!relyOnDefaultAbstractMethods && currentType.isAbstract())
+
+			//if (!relyOnDefaultAbstractMethods && currentType.isAbstract())
+			if (currentType.isAbstract())
 				matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
 			currentType = currentType.superclass();
 		}
