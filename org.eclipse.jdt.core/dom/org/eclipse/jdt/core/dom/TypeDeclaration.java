@@ -62,12 +62,6 @@ public class TypeDeclaration extends BodyDeclaration {
 	private boolean isInterface = false;
 	
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
-	 */
-	private int modifiers = Modifier.NONE;
-	
-	/**
 	 * The type name; lazily initialized; defaults to a unspecified,
 	 * legal Java class identifier.
 	 */
@@ -190,37 +184,31 @@ public class TypeDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * Note that deprecated is not included.
+	 * The following modifiers are valid for types: public, private, protected,
+	 * static, final, abstract, and strictfp. Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of Modifier constants
-	 * @see Modifier
+	 * @since 2.0
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// method needed only for javadoc
+		return super.getModifiers();
 	}
 	
 	/**
 	 * Sets the modifiers explicitly specified on this declaration.
 	 * <p>
 	 * The following modifiers are valid for types: public, private, protected,
-	 * static, final, abstract, and strictfp.
-	 * </p>
-	 * <p>
-	 * Only a subset of modifiers are legal in any given situation.
-	 * Note that deprecated is not included.
+	 * static, final, abstract, and strictfp. Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @param modifiers the bit-wise or of Modifier constants
-	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
-		this.modifiers = modifiers;
+		super.setModifiers(modifiers);
 	}
 
 	/**
@@ -506,7 +494,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 6 * 4;
+		return super.memSize() + 5 * 4;
 	}
 	
 	/* (omit javadoc for this method)

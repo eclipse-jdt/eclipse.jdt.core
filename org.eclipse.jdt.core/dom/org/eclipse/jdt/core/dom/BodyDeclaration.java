@@ -31,9 +31,10 @@ package org.eclipse.jdt.core.dom;
  * </pre>
  * </p>
  * <p>
- * Most types of body declarations can carry a Javadoc comment; Initializer
- * is the only ones that does not. The source range for body declarations
- * always includes the Javadoc comment if present.
+ * All types of body declarations carry modifiers, although they differ in
+ * which modifiers are allowed. Most types of body declarations can carry a
+ * Javadoc comment; Initializer is the only ones that does not. The source range
+ * for body declarations always includes the Javadoc comment if present.
  * </p>
  * 
  * @since 2.0
@@ -46,6 +47,14 @@ public abstract class BodyDeclaration extends ASTNode {
 	 */
 	private Javadoc optionalJavadoc = null;
 
+	/**
+	 * The modifiers; bit-wise or of Modifier flags.
+	 * Defaults to none.
+	 * 
+	 * @since 3.0
+	 */
+	private int modifiers = Modifier.NONE;
+	
 	/**
 	 * Creates a new AST node for a body declaration node owned by the 
 	 * given AST.
@@ -79,11 +88,37 @@ public abstract class BodyDeclaration extends ASTNode {
 		this.optionalJavadoc = javadoc;
 	}
 
+	/**
+	 * Returns the modifiers explicitly specified on this declaration.
+	 * The allowable modifiers differ for each type of body declaration.
+	 * 
+	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @see Modifier
+	 * @since 3.0
+	 */ 
+	public int getModifiers() {
+		return modifiers;
+	}
+
+	/**
+	 * Sets the modifiers explicitly specified on this declaration.
+	 * The allowable modifiers differ for each type of body declaration.
+	 * 
+	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @see Modifier
+	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * @since 3.0
+	 */ 
+	public void setModifiers(int modifiers) {
+		modifying();
+		this.modifiers = modifiers;
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 }
 

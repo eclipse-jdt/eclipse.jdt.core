@@ -46,12 +46,6 @@ public class FieldDeclaration extends BodyDeclaration {
 		| Modifier.TRANSIENT;
 
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
-	 */
-	private int modifiers = Modifier.NONE;
-		
-	/**
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
@@ -127,33 +121,30 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
 	 * The following modifiers are valid for fields: public, private, protected,
-	 * static, final, volatile, and transient.
+	 * static, final, volatile, and transient. Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see Modifier
+	 * @since 2.0
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// method needed only for javadoc
+		return super.getModifiers();
 	}
 
 	/**
 	 * Sets the modifiers explicitly specified on this declaration.
 	 * <p>
 	 * The following modifiers are valid for fields: public, private, protected,
-	 * static, final, volatile, and transient.
+	 * static, final, volatile, and transient. Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
-		this.modifiers = modifiers;
+		super.setModifiers(modifiers);
 	}
 
 	/**
@@ -230,7 +221,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 3 * 4;
+		return super.memSize() + 2 * 4;
 	}
 	
 	/* (omit javadoc for this method)
