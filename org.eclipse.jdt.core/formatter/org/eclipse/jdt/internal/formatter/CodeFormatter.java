@@ -950,7 +950,13 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 	 * @return the formatted ouput.
 	 */
 	public String format(String string, int indentationLevel, int[] positions) {
-		// XXX temporary inefficient implementation to meet API
+		return this.format(string, indentationLevel, positions, null);
+	}
+	
+	public String format(String string, int indentationLevel, int[] positions, String lineSeparator) {
+		if (lineSeparator != null){
+			this.options.setLineSeparator(lineSeparator);
+		}
 		if (positions != null) {
 			this.setPositionsToMap(positions);
 			this.setInitialIndentationLevel(indentationLevel);

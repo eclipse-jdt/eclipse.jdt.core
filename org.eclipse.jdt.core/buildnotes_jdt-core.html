@@ -26,11 +26,11 @@ What's new in this drop</h2>
 <li> Code formatter API
 	<ul>
 		<li>defined code formatter API (see <code>org.eclipse.jdt.core.ICodeFormatter</code>). </li>
-		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createFormatter</code>), allowing to obtain
+		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createCodeFormatter</code>), allowing to obtain
 			a code formatter (implementing <code>ICodeFormatter</code> API). Note that an extension point was also added
 			to allow client code to contribute a code formatter implementation. The code formatter extension point is named
-			<code>org.eclipse.jdt.core.codeFormatter</code>.</li>
-		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createDefaultFormatter</code>), allowing to obtain
+			<code>org.eclipse.jdt.core.codeFormatter</code>, also see associate comment in plugin.xml.</li>
+		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createDefaultCodeFormatter</code>), allowing to obtain
 			a default code formatter (implementing <code>ICodeFormatter</code> API). </li>
 	</ul>
 </li>
