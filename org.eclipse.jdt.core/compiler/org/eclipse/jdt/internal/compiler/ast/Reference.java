@@ -25,9 +25,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 public FieldBinding fieldBinding() {
-	//this method should be sent ONLY after a check against isFieldReference()
-	//check its use doing senders.........
-
+	//this method should be sent one FIELD-tagged references
+	//  (ref.bits & BindingIds.FIELD != 0)()
 	return null ;
 }
 public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodBinding syntheticWriteAccessor, boolean valueRequired) {
@@ -68,9 +67,5 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	throw new ShouldNotImplement(Util.bind("ast.postIncrShouldProvide")); //$NON-NLS-1$
-}
-public boolean isFieldReference() {
-
-	return false ;
 }
 }
