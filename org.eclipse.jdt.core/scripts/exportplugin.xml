@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from ${plugin} -->
-<project name="${plugin}" default="export plug-in [_2.2.0]" basedir="..">
+<project name="${plugin}" default="export plug-in [_2.1.0]" basedir="..">
 
 
 <target name="export plug-in [_2.2.0]">

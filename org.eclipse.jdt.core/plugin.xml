@@ -7,7 +7,7 @@
 <plugin
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
-    version = "2.2.0"
+    version = "2.1.0"
     provider-name = "%providerName"
     class="org.eclipse.jdt.core.JavaCore">
 
