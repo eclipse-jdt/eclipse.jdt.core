@@ -413,6 +413,8 @@ class DefaultBindingResolver extends BindingResolver {
 					return (ITypeBinding) binding;
 				case IBinding.VARIABLE :
 					return ((IVariableBinding) binding).getType();
+				case IBinding.METHOD :
+					return ((IMethodBinding) binding).getReturnType();
 			}
 		} else if (expression instanceof ArrayInitializer) {
 			org.eclipse.jdt.internal.compiler.ast.ArrayInitializer oldAst = (org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) this.newAstToOldAst.get(expression);
@@ -517,6 +519,15 @@ class DefaultBindingResolver extends BindingResolver {
 			if (type != null) {
 				return type.resolveBinding();
 			}
+		} else if (expression instanceof MarkerAnnotation) {
+			org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation markerAnnotation = (org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(markerAnnotation.resolvedType);
+		} else if (expression instanceof NormalAnnotation) {
+			org.eclipse.jdt.internal.compiler.ast.NormalAnnotation normalAnnotation = (org.eclipse.jdt.internal.compiler.ast.NormalAnnotation) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(normalAnnotation.resolvedType);
+		} else if (expression instanceof SingleMemberAnnotation) {
+			org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation singleMemberAnnotation = (org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(singleMemberAnnotation.resolvedType);
 		}
 		return null;
 	}
@@ -904,6 +915,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
 			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
 			return this.getTypeBinding(typeParameter.binding);
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.MemberValuePair) {
+			org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair = (org.eclipse.jdt.internal.compiler.ast.MemberValuePair) node;
+			return getMethodBinding(memberValuePair.binding);
 		}
 		return null;
 	}

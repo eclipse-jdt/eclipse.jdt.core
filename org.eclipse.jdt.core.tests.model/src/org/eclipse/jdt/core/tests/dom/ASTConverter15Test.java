@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0098"));
+		suite.addTest(new ASTConverter15Test("test0099"));
 		return suite;
 	}
 		
@@ -3024,6 +3024,73 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 			List modifiers = typeDeclaration.modifiers();
 			assertEquals("Wrong size", 0, modifiers.size());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82141
+	 */
+	public void test0099() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	@Override @Annot(value=\"Hello\") public String toString() {\n" +
+				"		return super.toString();\n" +
+				"	}\n" +
+				"	@Annot(\"Hello\") void bar() {\n" +
+				"	}\n" +
+				"	@interface Annot {\n" +
+				"		String value();\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List modifiers = methodDeclaration.modifiers();
+			assertEquals("Wrong size", 3, modifiers.size());
+			IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Wrong type", modifier instanceof Annotation);
+			Annotation annotation = (Annotation) modifier;
+			ITypeBinding binding = annotation.resolveTypeBinding();
+			assertNotNull("No binding", binding);
+
+			modifier = (IExtendedModifier) modifiers.get(1);
+			assertTrue("Wrong type", modifier instanceof Annotation);
+			annotation = (Annotation) modifier;
+			binding = annotation.resolveTypeBinding();
+			assertNotNull("No binding", binding);
+			assertEquals("Wrong type", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+			NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+			List values = normalAnnotation.values();
+			assertEquals("wrong size", 1, values.size());
+			MemberValuePair valuePair = (MemberValuePair) values.get(0);
+			SimpleName name = valuePair.getName();
+			IBinding binding2 = name.resolveBinding();
+			assertNotNull("No binding", binding2);
+			ITypeBinding typeBinding = name.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+
+			node = getASTNode(compilationUnit, 0, 1);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			methodDeclaration = (MethodDeclaration) node;
+			modifiers = methodDeclaration.modifiers();
+			assertEquals("Wrong size", 1, modifiers.size());
+			modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Wrong type", modifier instanceof Annotation);
+			annotation = (Annotation) modifier;
+			binding = annotation.resolveTypeBinding();
+			assertNotNull("No binding", binding);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
