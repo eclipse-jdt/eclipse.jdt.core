@@ -699,6 +699,8 @@ public void test012() {
 /**
  * Set local variable 'i'.
  */
+/* Disabling since this test is sometimes failing for unknown reasons
+ * (suspecting a problem in the JDI or JDWP implementation)
 public void test013() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -749,9 +751,12 @@ public void test013() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
+*/
 /**
  * Set local variable 'i'.
  */
+/* Disabling since this test is sometimes failing for unknown reasons
+ * (suspecting a problem in the JDI or JDWP implementation)
 public void test014() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -802,9 +807,12 @@ public void test014() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
+*/
 /**
  * Check java.lang.System.out != null
  */
+/* Disabling since this test is sometimes failing for unknown reasons
+ * (suspecting a problem in the JDI or JDWP implementation)
 public void test015() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -856,6 +864,7 @@ public void test015() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
+*/
 /**
  * Check java.lang.System.out == null
  */

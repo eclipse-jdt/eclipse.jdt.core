@@ -210,7 +210,7 @@ public String toString() {
 			break;
 	}
 	buffer.append(": "); //$NON-NLS-1$
-	buffer.append(this.evaluationID);
+	buffer.append(this.evaluationID == null ? "<unknown>".toCharArray() : this.evaluationID);  //$NON-NLS-1$
 	buffer.append("\n"); //$NON-NLS-1$
 	if (hasProblems()) {
 		buffer.append("Problems:\n"); //$NON-NLS-1$
