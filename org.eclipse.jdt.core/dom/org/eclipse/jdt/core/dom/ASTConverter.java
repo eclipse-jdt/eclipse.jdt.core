@@ -2151,35 +2151,15 @@ class ASTConverter {
 	}
 	
 	private void propagateErrors(CompilationUnit unit, IProblem[] problems, int problemLength) {
-		for (int n = 0; n < problemLength; n++) {
-			int position = problems[n].getSourceStart();
-				//check the package declaration
-			PackageDeclaration packageDeclaration = unit.getPackage();
-			if (packageDeclaration != null && checkAndTagAsMalformed(packageDeclaration, position)) {
-				return;
-			}
-			List imports = unit.imports();
-			for (int i = 0, length = imports.size(); i < length; i++) {
-				if (checkAndTagAsMalformed((ASTNode) imports.get(i), position)) {
-					return;
-				}
-			}
-			for (int i = 0, max = unit.types().size(); i < max; i++) {
-				TypeDeclaration typeDeclaration = (TypeDeclaration) unit.types().get(0);
-				for (int j = 0, max2 = typeDeclaration.bodyDeclarations().size();
-					j < max2;
-					j++) {
-					if (checkAndTagAsMalformed((ASTNode) typeDeclaration.bodyDeclarations().get(j), position)) {
-						return;
-					}
-				}
-				if (checkAndTagAsMalformed(typeDeclaration, position)) {
-					return;
-				}
-			}
+		// resize the problem array to the proper size
+		IProblem[] resizeProblems = null;
+		if (problems.length == problemLength) {
+			resizeProblems = problems;
+		} else {
+			System.arraycopy(problems, 0, (resizeProblems = new IProblem[problemLength]), 0, problemLength);
 		}
-		// if we get there, then we cannot do better than tag the compilation unit as being malformed
-		unit.setFlags(ASTNode.MALFORMED);
+		ASTErrorPropagator errorPropagator = new ASTErrorPropagator(resizeProblems);
+		unit.accept(errorPropagator);
 	}
 	
 	private boolean checkAndTagAsMalformed(ASTNode node, int position) {
