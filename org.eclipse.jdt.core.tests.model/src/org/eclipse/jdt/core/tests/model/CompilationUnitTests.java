@@ -630,8 +630,7 @@ private ICompilationUnit workingCopy(String source) throws JavaModelException {
  * Verify fix for bug 78275: [recovery] NPE in GoToNextPreviousMemberAction with syntax error
  * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=78275)
  */
-// TODO (david) activate test when bug will be fixed
-public void _testBug78275() throws CoreException {
+public void testBug78275() throws CoreException {
 	try {
 		String cuSource = 
 			"public class X {\n" + 

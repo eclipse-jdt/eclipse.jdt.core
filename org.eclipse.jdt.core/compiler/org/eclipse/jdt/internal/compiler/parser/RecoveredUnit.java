@@ -48,12 +48,12 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
 		
-		if(start < end) {
+		if(start > 0 && start < end) {
 			Initializer initializer = new Initializer(new Block(0), 0);
 			initializer.bodyStart = end;
 			initializer.bodyEnd = end;
 			initializer.declarationSourceStart = end;
-			initializer.declarationSourceEnd = start;
+			initializer.declarationSourceEnd = end;
 			type.add(initializer, bracketBalanceValue);
 		}
 		

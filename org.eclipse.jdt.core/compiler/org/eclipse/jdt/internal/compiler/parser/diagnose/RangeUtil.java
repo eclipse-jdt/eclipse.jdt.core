@@ -158,7 +158,7 @@ public class RangeUtil {
 				for (int i = 0; i < length; i++) {
 					if (fields[i] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[i];
-						if(initializer.declarationSourceEnd == initializer.bodyEnd){
+						if(initializer.declarationSourceEnd == initializer.bodyEnd && initializer.declarationSourceStart != initializer.declarationSourceEnd){
 							initializer.errorInSignature = true;
 							result.addInterval(initializer.declarationSourceStart, initializer.declarationSourceEnd, IGNORE);
 						} else {

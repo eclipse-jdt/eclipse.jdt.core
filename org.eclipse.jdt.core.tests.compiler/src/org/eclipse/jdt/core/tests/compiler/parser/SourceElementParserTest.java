@@ -1796,7 +1796,7 @@ public void test19() {
 	assertEquals(" invalid fields length ", 2, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field y", 181, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field y", 186, fields[1].getDeclarationSourceEnd());
@@ -1872,7 +1872,7 @@ public void test20() {
 	assertEquals(" invalid fields length ", 3, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
@@ -1950,7 +1950,7 @@ public void test21() {
 	assertEquals(" invalid fields length ", 3, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
@@ -4596,7 +4596,7 @@ public void test65() {
 	assertEquals(" invalid fields length ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 47, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 46, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 47, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4655,7 +4655,7 @@ public void test66() {
 	assertEquals(" invalid fields length ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 51, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 50, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 51, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
