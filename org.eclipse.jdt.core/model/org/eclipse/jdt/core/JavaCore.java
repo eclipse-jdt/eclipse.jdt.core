@@ -187,6 +187,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_NO_EFFECT_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.noEffectAssignment"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_MAX_PER_UNIT = PLUGIN_ID + ".compiler.maxProblemPerUnit"; //$NON-NLS-1$
@@ -1055,6 +1061,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
+	 * COMPILER / Reporting Assignment with no effect
+	 *    When enabled, the compiler will issue an error or a warning whenever an assignment
+	 *    has no effect (e.g 'x = x').
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
@@ -1571,6 +1584,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_STATIC_ACCESS_RECEIVER, WARNING); 
 		optionNames.add(COMPILER_PB_STATIC_ACCESS_RECEIVER);
+
+		preferences.setDefault(COMPILER_PB_NO_EFFECT_ASSIGNMENT, WARNING); 
+		optionNames.add(COMPILER_PB_NO_EFFECT_ASSIGNMENT);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 		optionNames.add(COMPILER_TASK_TAGS);

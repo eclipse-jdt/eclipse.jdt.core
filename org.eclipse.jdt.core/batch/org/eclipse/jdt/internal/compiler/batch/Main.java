@@ -659,6 +659,9 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.OPTION_ReportStaticAccessReceiver,
 					CompilerOptions.IGNORE);
 				options.put(
+					CompilerOptions.OPTION_ReportNoEffectAssignment,
+					CompilerOptions.IGNORE);
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -714,6 +717,10 @@ public class Main implements ProblemSeverities {
 					} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportStaticAccessReceiver,
+							CompilerOptions.WARNING);
+					} else if (token.equals("noOpAssign")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportNoEffectAssignment,
 							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$

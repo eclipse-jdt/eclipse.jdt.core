@@ -92,10 +92,25 @@ the output folder or not (default is to clean). Also, "scrubbing" output folder 
 *     - possible values: { "clean", "ignore" }
 *     - default:         "clean"
 </pre>
+</li>
+<li>Integrated patch from Genady Beriozkin for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25092">25092</a>.
+The compiler will now optionally diagnose assignments having no effect (e.g. x = x).
+Added the following option to control this behavior.
+<pre>
+* COMPILER / Reporting Assignment with no effect
+*    When enabled, the compiler will issue an error or a warning whenever an assignment
+*    has no effect (e.g 'x = x').
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25894">25894</a>  
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25092">25092</a>  
+Detect/Warn on possible user typos
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25894">25894</a>  
 Memory leak - Global ThisReference is leaking bindings
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25885">25885</a>  
 Code Assist - exact expected type should be more relevant than subtype

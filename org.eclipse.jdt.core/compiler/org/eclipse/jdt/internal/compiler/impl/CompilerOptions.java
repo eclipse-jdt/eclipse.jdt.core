@@ -41,6 +41,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedImport = "org.eclipse.jdt.core.compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
+	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
@@ -90,13 +91,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int UnusedImport = 0x400000;
 	public static final int StaticAccessReceiver = 0x800000;
 	public static final int Task = 0x1000000;
+	public static final int NoEffectAssignment = 0x2000000;
 	
 	// Default severity level for handlers
-	public int errorThreshold = UnreachableCode | ImportProblem;
+	public int errorThreshold = 
+		UnreachableCode 
+		| ImportProblem;
+		
 	public int warningThreshold = 
-		MethodWithConstructorName | OverriddenPackageDefaultMethod
-		| UsingDeprecatedAPI | MaskedCatchBlock 
-		| AssertUsedAsAnIdentifier | NoImplicitStringConversion;
+		MethodWithConstructorName 
+		| OverriddenPackageDefaultMethod
+		| UsingDeprecatedAPI 
+		| MaskedCatchBlock 
+		| AssertUsedAsAnIdentifier 
+		| NoImplicitStringConversion;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -105,7 +113,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
-
 
 	// JDK 1.1, 1.2, 1.3 or 1.4
 	public static final int JDK1_1 = 0;
@@ -480,6 +487,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			} 
+			// Report no-op assignments
+			if(optionID.equals(OPTION_ReportNoEffectAssignment)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= NoEffectAssignment;
+					this.warningThreshold &= ~NoEffectAssignment;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~NoEffectAssignment;
+					this.warningThreshold |= NoEffectAssignment;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~NoEffectAssignment;
+					this.warningThreshold &= ~NoEffectAssignment;
+				}
+				continue;
+			}
 			if(optionID.equals(OPTION_TaskPriorities)){
 				if (optionValue.length() == 0) {
 					this.taskPriorites = null;
@@ -621,7 +642,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-synthetic access emulation: IGNORE"); //$NON-NLS-1$
 			}
 		}
-		if ((errorThreshold & NonExternalizedString) != 0){
+		if ((errorThreshold & NoEffectAssignment) != 0){
+			buf.append("\n-assignment with no effect: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & NoEffectAssignment) != 0){
+				buf.append("\n-assignment with no effect: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-assignment with no effect: IGNORE"); //$NON-NLS-1$
+			}
+		}		if ((errorThreshold & NonExternalizedString) != 0){
 			buf.append("\n-non externalized string: ERROR"); //$NON-NLS-1$
 		} else {
 			if ((warningThreshold & NonExternalizedString) != 0){

@@ -173,6 +173,15 @@ public void arrayConstantsOnlyInArrayInitializers(int sourceStart, int sourceEnd
 		sourceStart,
 		sourceEnd);
 }
+public void assignmentHasNoEffect(Assignment assignment, char[] name){
+	String[] arguments = new String[] { new String(name) };	
+	this.handle(
+			IProblem.AssignmentHasNoEffect,
+			arguments,
+			arguments,
+			assignment.sourceStart,
+			assignment.sourceEnd);
+}
 public void attemptToReturnNonVoidExpression(ReturnStatement returnStatement, TypeBinding expectedType) {
 	this.handle(
 		IProblem.VoidMethodReturnsValue,
@@ -547,6 +556,14 @@ public int computeSeverity(int problemId){
 				return Error;
 			}
 			if ((warningThreshold & CompilerOptions.StaticAccessReceiver) != 0){
+				return Warning;
+			}
+			return Ignore;		
+		case IProblem.AssignmentHasNoEffect:
+			if ((errorThreshold & CompilerOptions.NoEffectAssignment) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.NoEffectAssignment) != 0){
 				return Warning;
 			}
 			return Ignore;		

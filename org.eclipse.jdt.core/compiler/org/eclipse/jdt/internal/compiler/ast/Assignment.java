@@ -19,7 +19,8 @@ public class Assignment extends Expression {
 
 	public Reference lhs;
 	public Expression expression;
-	
+	public boolean hasNoEffect; // TODO: should collapse into a bit
+		
 	public Assignment(Expression lhs, Expression expression, int sourceEnd) {
 		//lhs is always a reference by construction ,
 		//but is build as an expression ==> the checkcast cannot fail
@@ -44,6 +45,15 @@ public class Assignment extends Expression {
 			.unconditionalInits();
 	}
 
+	void checkAssignmentEffect(BlockScope scope) {
+		
+		Binding left = getDirectBinding(this.lhs);
+		if (left != null && left == getDirectBinding(this.expression)) {
+			scope.problemReporter().assignmentHasNoEffect(this, left.shortReadableName());
+			this.hasNoEffect = true;
+		}
+	}
+
 	public void generateCode(
 		BlockScope currentScope,
 		CodeStream codeStream,
@@ -54,10 +64,28 @@ public class Assignment extends Expression {
 		// just a local variable.
 
 		int pc = codeStream.position;
-		lhs.generateAssignment(currentScope, codeStream, this, valueRequired);
-		// variable may have been optimized out
-		// the lhs is responsible to perform the implicitConversion generation for the assignment since optimized for unused local assignment.
+		if (this.hasNoEffect) {
+			if (valueRequired) {
+				this.expression.generateCode(currentScope, codeStream, true);
+			}
+		} else {
+			lhs.generateAssignment(currentScope, codeStream, this, valueRequired);
+			// variable may have been optimized out
+			// the lhs is responsible to perform the implicitConversion generation for the assignment since optimized for unused local assignment.
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	Binding getDirectBinding(Expression someExpression) {
+		if (someExpression instanceof SingleNameReference) {
+			return ((SingleNameReference)someExpression).binding;
+		} else if (someExpression instanceof FieldReference) {
+			FieldReference fieldRef = (FieldReference)someExpression;
+			if (fieldRef.receiver.isThis()) {
+				return fieldRef.binding;
+			}			
+		}
+		return null;
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
@@ -69,6 +97,8 @@ public class Assignment extends Expression {
 		if (this.resolvedType == null || rhsType == null)
 			return null;
 
+		checkAssignmentEffect(scope);
+				
 		// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 		// may require to widen the rhs expression at runtime
 		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, this.resolvedType)
