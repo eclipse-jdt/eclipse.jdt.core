@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.Util;
 
 public class JavaProjectTests extends ModifyingResourceTests {
@@ -103,6 +104,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources3"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources4"));
 	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
+	suite.addTest(new JavaProjectTests("testJdkLevelRoot"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -916,5 +918,13 @@ public void testSourceMethodCorrespondingResource() throws JavaModelException {
 	assertTrue("missing methods", methods.length > 0);
 	IResource corr= methods[0].getCorrespondingResource();
 	assertTrue("incorrect corresponding resource", corr == null);
+}
+/**
+ * Test the jdklevel of the package fragment root
+ */
+public void testJdkLevelRoot() throws JavaModelException {
+	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectLibTests", "lib/");
+	assertEquals("wrong type", IPackageFragmentRoot.K_BINARY, root.getKind());
+	assertEquals("Wrong jdk level", JavaCore.JDK1_1, ((PackageFragmentRoot) root).getJdkLevel());
 }
 }

@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 
 /**
  * TO DO:
@@ -544,7 +545,10 @@ public void testRootPath11() throws JavaModelException {
 		"package P1.p2;\n" +
 		"\n" +
 		"public class A {}",
-		cf.getSource());		
+		cf.getSource());	
+
+	assertTrue("Not a binary root", root.getKind() == IPackageFragmentRoot.K_BINARY);
+	assertEquals("wrong jdk level", JavaCore.JDK1_2, ((PackageFragmentRoot) root).getJdkLevel());
 	this.attachSource(root, null, null); // detach source
 	root.close();
 }
