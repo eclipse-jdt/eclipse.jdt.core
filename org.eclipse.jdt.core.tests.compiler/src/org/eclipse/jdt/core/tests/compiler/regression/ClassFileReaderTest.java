@@ -13,9 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import junit.framework.Test;
 import java.io.*;
 
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -108,7 +106,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"};";
 			compileAndDeploy(sourceA001, "A001");
 			try {
-				ClassFileReader classFileReader = ClassFileReader.read(EVAL_DIRECTORY + File.separator + "A001.class");
+				org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(EVAL_DIRECTORY + File.separator + "A001.class");
 				IBinaryMethod[] methods = classFileReader.getMethods();
 				assertEquals("wrong size", 3, methods.length);
 				MethodInfo methodInfo = (MethodInfo) methods[2];
@@ -123,4 +121,39 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			removeTempClass("A001");
 		}
 	}			
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
+	 */
+	public void test002() {
+		try {
+			String sourceA002 =
+				"public class A002 {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(); /* \\u000d: CARRIAGE RETURN */\n" +
+				"		System.out.println();\n" +
+				"	}\n" +
+				"}";
+			compileAndDeploy(sourceA002, "A002");
+			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A002.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
+			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			assertEquals("wrong size", 2, methodInfos.length);
+			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			assertEquals("wrong name", "main", new String(methodInfo.getName()));
+			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			assertNotNull("No code attribute", codeAttribute);
+			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			assertNotNull("No code line number attribute", lineNumberAttribute);
+			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
+			assertEquals("wrong size", 3, lineNumberTable.length);
+			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
+			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
+			assertEquals("wrong pc[1]", 6, lineNumberTable[1][0]);
+			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
+			assertEquals("wrong pc[2]", 12, lineNumberTable[2][0]);
+			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
+		} finally {
+			removeTempClass("A002");
+		}
+	}
 }
