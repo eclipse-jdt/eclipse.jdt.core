@@ -14,8 +14,8 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-//TODO: (olivier) for consistency, should be renamed as Util ?
-public class Messages {
+
+public class Util {
 
 	private static final String BUNDLE_NAME = "org.eclipse.jdt.internal.antadapter.messages"; //$NON-NLS-1$
 
@@ -30,7 +30,7 @@ public class Messages {
 		}
 	}
 
-	private Messages() {
+	private Util() {
 	}
 
 	public static String getString(String key) {

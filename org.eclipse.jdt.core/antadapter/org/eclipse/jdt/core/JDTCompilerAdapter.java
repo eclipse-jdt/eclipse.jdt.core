@@ -24,7 +24,7 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.JavaEnvUtils;
-import org.eclipse.jdt.internal.antadapter.Messages;
+import org.eclipse.jdt.internal.antadapter.Util;
 
 /**
  * Ant 1.5 compiler adapter for the Eclipse Java compiler. This adapter permits the
@@ -47,7 +47,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	 * Performs a compile using the JDT batch compiler 
 	 */
 	public boolean execute() throws BuildException {
-		attributes.log(Messages.getString("ant.jdtadapter.info.usingJDTCompiler"), Project.MSG_VERBOSE); //$NON-NLS-1$
+		attributes.log(Util.getString("ant.jdtadapter.info.usingJDTCompiler"), Project.MSG_VERBOSE); //$NON-NLS-1$
 		Commandline cmd = setupJavacCommand();
 
 		try {
@@ -58,11 +58,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
 			if (!resultValue && verbose) {
-				System.out.println(Messages.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
+				System.out.println(Util.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
 			}
 			return resultValue;
 		} catch (ClassNotFoundException cnfe) {
-			throw new BuildException(Messages.getString("ant.jdtadapter.error.cannotFindJDTCompiler")); //$NON-NLS-1$
+			throw new BuildException(Util.getString("ant.jdtadapter.error.cannotFindJDTCompiler")); //$NON-NLS-1$
 		} catch (Exception ex) {
 			throw new BuildException(ex);
 		}
@@ -89,7 +89,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
              */
             String javaHome = System.getProperty("java.home");//$NON-NLS-1$
             if (javaHome == null) {
-				throw new BuildException(Messages.getString("ant.jdtadapter.error.noBootclasspath"));  //$NON-NLS-1$
+				throw new BuildException(Util.getString("ant.jdtadapter.error.noBootclasspath"));  //$NON-NLS-1$
             } else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)
             		|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_3)
             		|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_2)) {
@@ -97,10 +97,10 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	        	if (f.exists()) {
 					cmd.createArgument().setPath(new Path(null, f.getAbsolutePath()));        	
         		} else {
-					throw new BuildException(Messages.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
+					throw new BuildException(Util.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
 	        	}
            	} else {
-				throw new BuildException(Messages.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
+				throw new BuildException(Util.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
            	}
         }
 
@@ -155,7 +155,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         String memoryParameterPrefix = JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
         if (memoryInitialSize != null) {
             if (!attributes.isForkedJavac()) {
-                attributes.log(Messages.getString("ant.jdtadapter.info.ignoringMemoryInitialSize"), Project.MSG_WARN); //$NON-NLS-1$
+                attributes.log(Util.getString("ant.jdtadapter.info.ignoringMemoryInitialSize"), Project.MSG_WARN); //$NON-NLS-1$
             } else {
                 cmd.createArgument().setValue(memoryParameterPrefix
                                               + "ms" + memoryInitialSize); //$NON-NLS-1$
@@ -164,7 +164,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
         if (memoryMaximumSize != null) {
             if (!attributes.isForkedJavac()) {
-                attributes.log(Messages.getString("ant.jdtadapter.info.ignoringMemoryMaximumSize"), Project.MSG_WARN); //$NON-NLS-1$
+                attributes.log(Util.getString("ant.jdtadapter.info.ignoringMemoryMaximumSize"), Project.MSG_WARN); //$NON-NLS-1$
             } else {
                 cmd.createArgument().setValue(memoryParameterPrefix
                                               + "mx" + memoryMaximumSize); //$NON-NLS-1$
