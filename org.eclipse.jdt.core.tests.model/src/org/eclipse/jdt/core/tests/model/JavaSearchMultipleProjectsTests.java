@@ -54,7 +54,7 @@ public void testHierarchyScope1() throws CoreException {
 			"/P2/Y.java",
 			"import p.X;\n" +
 			"public class Y extends X {\n" +
-			"	void foo() {\n" +
+			"	protected void foo() {\n" +
 			"	}\n" +
 			"}" 
 		);
@@ -102,14 +102,14 @@ public void testHierarchyScope2() throws CoreException {
 			"/P2/Y.java",
 			"import p.X;\n" +
 			"public class Y extends X {\n" +
-			"	void foo() {\n" +
+			"	protected void foo() {\n" +
 			"	}\n" +
 			"}" 
 		);
 		createFile(
 			"/P2/Z.java",
 			"public class Z extends Y {\n" +
-			"	void foo() {\n" +
+			"	protected void foo() {\n" +
 			"	}\n" +
 			"}" 
 		);
@@ -132,6 +132,133 @@ public void testHierarchyScope2() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+/**
+ * Search for references in a hierarchy should find matches in super type.
+ * (regression test for bug 35755 Search in hierarchy misses dependent projects )
+ */
+public void testHierarchyScope3() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"	protected void foo() {\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFolder("/P2/q");
+		createFile(
+			"/P2/q/Y.java",
+			"package q;\n" +
+			"import p.X;\n" +
+			"public class Y extends X {\n" +
+			"	void bar() {\n" +
+			"		foo();\n" +
+			"	}\n" +
+			"}" 
+		);
+
+		ICompilationUnit cu = getCompilationUnit("/P1/p/X.java");
+		IType type = cu.getType("X");
+		IMethod method = type.getMethod("foo", new String[] {});
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			method, 
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"q/Y.java [in P2] q.Y.bar() -> void [foo()]", 
+			resultCollector.toString());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * Search for references in a hierarchy should not find inaccurate match if reference is indirect.
+ * (regression test for bug 35755 Search in hierarchy misses dependent projects )
+ */
+public void testHierarchyScope4() throws CoreException {
+	try {
+		createJavaProject("P0");
+		createFolder("/P0/p0");
+		createFile(
+			"/P0/p0/X.java",
+			"package p0;\n" +
+			"public class X {\n" +
+			"  public static X TheX;\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0"}, "");
+		createFolder("/P1/p1");
+		createFile(
+			"/P1/p1/T.java",
+			"package p1;\n" +
+			"import p0.X;\n" +
+			"public class T {\n" +
+			"	public X zork() {\n" +
+			"		return X.TheX;\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P1"}, "");
+		createFolder("/P2/p2");
+		createFile(
+			"/P2/p2/Y.java",
+			"package p2;\n" +
+			"import p0.X;\n" +
+			"import p1.T;\n" +
+			"public class Y extends X {\n" +
+			"	public void bar() {\n" +
+			"		new T().zork().foo();\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P2"}, "");
+		createFolder("/P3/p3");
+		createFile(
+			"/P3/p3/Z.java",
+			"package p3;\n" +
+			"import p0.X;\n" +
+			"import p2.Y;\n" +
+			"public class Z extends Y {\n" +
+			"	static {\n" +
+			"		X.TheX = new Z(); // zork() will actually answer an instance of Z\n" +
+			"	}\n" +
+			"	public void foo() {\n" +
+			"	} // refs should find one in Y.bar()\n" +
+			"}" 
+		);
+
+		ICompilationUnit cu = getCompilationUnit("/P3/p3/Z.java");
+		IType type = cu.getType("Z");
+		IMethod method = type.getMethod("foo", new String[] {});
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showAccuracy = true;
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			method, 
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"p2/Y.java [in P2] p2.Y.bar() -> void [foo()] EXACT_MATCH", 
+			resultCollector.toString());
+	} finally {
+		deleteProjects(new String[] {"P0", "P1", "P2", "P3"});
 	}
 }
 /**

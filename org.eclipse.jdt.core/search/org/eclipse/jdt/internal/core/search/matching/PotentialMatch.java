@@ -217,8 +217,7 @@ public class PotentialMatch implements ICompilationUnit {
 				binding = this.locator.cacheBinaryType(binaryType);
 				if (binding != null) {
 					// filter out element not in hierarchy scope
-					if (this.locator.hierarchyResolver != null 
-							&& !this.locator.hierarchyResolver.subOrSuperOfFocus(binding)) {
+					if (!this.locator.typeInHierarchy(binding)) {
 						return;
 					}
 		

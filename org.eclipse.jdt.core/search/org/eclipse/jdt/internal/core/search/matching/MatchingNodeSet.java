@@ -390,10 +390,7 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
 public void reportMatching(TypeDeclaration type, IJavaElement parent) throws CoreException {
 	
 	// filter out element not in hierarchy scope
-	boolean typeInHierarchy = 
-		this.locator.hierarchyResolver == null 
-			|| type.binding == null
-			|| this.locator.hierarchyResolver.subOrSuperOfFocus(type.binding);
+	boolean typeInHierarchy = type.binding == null || this.locator.typeInHierarchy(type.binding);
 	
 	// create type handle
 	IJavaElement enclosingElement;

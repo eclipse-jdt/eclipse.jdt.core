@@ -56,6 +56,9 @@ public class MatchLocator implements ITypeRequestor {
 	public IWorkingCopy[] workingCopies;
 	public HandleFactory handleFactory;
 
+	// cache of all super type names if scope is hierarchy scope
+	public char[][][] allSuperTypeNames;
+
 	// the following is valid for the current project
 	public MatchLocatorParser parser;
 	public INameEnvironment nameEnvironment;
@@ -263,6 +266,34 @@ public class MatchLocator implements ITypeRequestor {
 			}
 		}
 	}
+	/*
+	 * Computes the super type names of the focus type if any.
+	 */
+	private void computeSuperTypeNames() {
+		if (this.allSuperTypeNames != null) 
+			return; // all super types have already been computed
+		
+		IType focusType = getFocusType();
+		if (focusType == null) return;
+
+		String fullyQualifiedName = focusType.getFullyQualifiedName();
+		int lastDot = fullyQualifiedName.lastIndexOf('.');
+		char[] qualification = lastDot == -1 ? CharOperation.NO_CHAR : fullyQualifiedName.substring(0, lastDot).toCharArray();
+		char[] simpleName = focusType.getElementName().toCharArray();
+
+		SuperTypeNamesCollector superTypeNamesCollector = 
+			new SuperTypeNamesCollector(
+				this.pattern, 
+				simpleName,
+				qualification,
+				new MatchLocator(this.pattern, this.detailLevel, this.collector, this.scope, this.progressMonitor), // clone MatchLocator so that it has no side effect
+				focusType, 
+				this.progressMonitor);
+		try {
+			this.allSuperTypeNames = superTypeNamesCollector.collect();
+		} catch (JavaModelException e) {
+		}
+	}
 	/**
 	 * Add the initial set of compilation units into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
@@ -354,7 +385,8 @@ public class MatchLocator implements ITypeRequestor {
 			
 			// resolve focus type
 			this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
-			if (this.hierarchyResolver.setFocusType(compoundName) == null) {
+			ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(compoundName);
+			if (focusTypeBinding == null || !focusTypeBinding.isValidBinding() || (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0) {
 				// focus type is not visible from this project
 				return false;
 			}
@@ -620,11 +652,7 @@ public class MatchLocator implements ITypeRequestor {
 	 * Locate the matches amongst the potential matches.
 	 */
 	private void locateMatches(JavaProject javaProject) throws JavaModelException {
-		PotentialMatch[] potentialMatches = 
-			this.matchSet.getPotentialMatches(
-				getFocusType() == null ?
-				javaProject.getPackageFragmentRoots() :
-				javaProject.getAllPackageFragmentRoots()); // all potential matches are resolved in the focus' project context
+		PotentialMatch[] potentialMatches = this.matchSet.getPotentialMatches(javaProject.getPackageFragmentRoots());
 		
 		int length = potentialMatches.length;
 		int index = 0;
@@ -653,7 +681,9 @@ public class MatchLocator implements ITypeRequestor {
 		// create hierarchy resolver if needed
 		try {
 			if (!this.compilationAborted && !this.createHierarchyResolver(copy)) {
-				return;
+				// focus type is not visible, use the super type names instead of the bindings
+				computeSuperTypeNames();
+				if (this.allSuperTypeNames == null) return;
 			}
 		} catch (AbortCompilation e) {
 			this.compilationAborted = true;
@@ -778,8 +808,7 @@ public class MatchLocator implements ITypeRequestor {
 			this.matchSet = new PotentialMatchSet();
 			this.pattern.initializePolymorphicSearch(this, progressMonitor);
 			
-			IType focusType = getFocusType();
-			JavaProject previousJavaProject = focusType == null ? null : (JavaProject)focusType.getJavaProject();
+			JavaProject previousJavaProject = null;
 			for (int i = 0; i < length; i++) {
 				if (progressMonitor != null && progressMonitor.isCanceled()) {
 					throw new OperationCanceledException();
@@ -812,8 +841,7 @@ public class MatchLocator implements ITypeRequestor {
 					if (resource == null) { // case of a file in an external jar
 						resource = javaProject.getProject();
 					}
-					if (focusType == null // when searching in hierarchy, all potential matches are resolved in the focus project context
-							&& !javaProject.equals(previousJavaProject)) {
+					if (!javaProject.equals(previousJavaProject)) {
 						// locate matches in previous project
 						if (previousJavaProject != null) {
 							try {
@@ -1427,5 +1455,20 @@ public class MatchLocator implements ITypeRequestor {
 					this.createTypeHandle((IType)parent, typeDeclaration.name) :
 					parent,
 			accuracy);
+	}
+	public boolean typeInHierarchy(ReferenceBinding binding) {
+		if (this.hierarchyResolver == null) return true; // not a hierarchy scope
+		if (this.hierarchyResolver.subOrSuperOfFocus(binding)) {
+			return true;
+		} else if (this.allSuperTypeNames != null) {
+			char[][] compoundName = binding.compoundName;
+			for (int i = 0, length = this.allSuperTypeNames.length; i < length; i++) {
+				if (CharOperation.equals(compoundName, this.allSuperTypeNames[i])) 
+					return true;
+			}
+			return false;
+		} else {
+			return false;
+		}	
 	}
 }
