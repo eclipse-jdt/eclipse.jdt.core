@@ -749,39 +749,6 @@ public class JavaModelManager implements ISaveParticipant {
 		
 	}
 	
-	/**
- 	 * Retrieve the registered classpath container initializer for a given container ID
- 	 */
-	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID){
-		
-		Plugin jdtCorePlugin = JavaCore.getPlugin();
-		if (jdtCorePlugin == null) return null;
-
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPCONTAINER_INITIALIZER_EXTPOINT_ID);
-		if (extension != null) {
-			IExtension[] extensions =  extension.getExtensions();
-			for(int i = 0; i < extensions.length; i++){
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0; j < configElements.length; j++){
-					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
-					if (initializerID != null && initializerID.equals(containerID)){
-						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							System.out.println("CPContainer INIT - found initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
-						}						
-						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
-							if (execExt instanceof ClasspathContainerInitializer){
-								return (ClasspathContainerInitializer)execExt;
-							}
-						} catch(CoreException e) {
-						}
-					}
-				}
-			}	
-		}
-		return null;
-	}	
-	
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
