@@ -606,7 +606,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		int previousDeltaCount = manager.javaModelDeltas.size();
 		try {
-			fMonitor = monitor instanceof NullProgressMonitor ? null/*workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=25529*/ : monitor;
+			fMonitor = monitor;
 			pushOperation(this);
 			try {
 				this.execute();
