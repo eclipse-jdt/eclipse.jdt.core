@@ -43,7 +43,7 @@ public class RegionBasedTypeHierarchy extends TypeHierarchy {
  * contain the branch including the specified type.
  */
 public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, IType type, boolean computeSubtypes) throws JavaModelException {
-	super(type, (IJavaSearchScope)null, computeSubtypes);
+	super(type, (IJavaSearchScope)null, computeSubtypes, null/*no working copies*/);
 	fRegion = region;
 	fProject = project;
 }

@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.core.Util;
  * @see ITypeHierarchy
  */
 public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
+
 	public static boolean DEBUG = false;
 	
 	static final byte VERSION = 0x0000;
@@ -88,6 +89,11 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	 * possibly null.
 	 */
 	protected IType focusType;
+	
+	/*
+	 * The working copies that take precedence on original compilation units
+	 */
+	protected ICompilationUnit[] workingCopies;
 
 	protected Map classToSuperclass;
 	protected Map typeToSuperInterfaces;
@@ -165,17 +171,18 @@ public TypeHierarchy() throws JavaModelException {
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
-	this(type, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes);
+public TypeHierarchy(IType type, IJavaProject project, boolean computeSubtypes, ICompilationUnit[] workingCopies) throws JavaModelException {
+	this(type, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes, workingCopies);
 	this.project = project;
 }
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
+public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes, ICompilationUnit[] workingCopies) throws JavaModelException {
 	this.focusType = type;
 	this.computeSubtypes = computeSubtypes;
 	this.scope = scope;
+	this.workingCopies = workingCopies;
 }
 /**
  * Activates this hierarchy for change listeners

@@ -244,7 +244,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 	// substitute compilation units with working copies
 	HashMap wcPaths = new HashMap(); // a map from path to working copies
 	int wcLength;
-	IWorkingCopy[] workingCopies = this.getWokingCopies();
+	IWorkingCopy[] workingCopies = this.hierarchy.workingCopies;
 	if (workingCopies != null && (wcLength = workingCopies.length) > 0) {
 		String[] newPaths = new String[wcLength];
 		for (int i = 0; i < wcLength; i++) {

@@ -475,10 +475,21 @@ public IType findPrimaryType() {
 	}
 
 	/**
-	 * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
+	 * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
 	 */
 	public void reconcile(
 		boolean forceProblemDetection,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/**
+	 * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public void reconcile(
+		boolean forceProblemDetection,
+		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));

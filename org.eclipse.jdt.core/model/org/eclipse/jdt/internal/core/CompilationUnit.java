@@ -1007,14 +1007,39 @@ public IMarker[] reconcile() throws JavaModelException {
 	reconcile(false, null);
 	return null;
 }
-/*
- * @see ICompilationUnit
- */ 
+/**
+ * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
+ */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
+	reconcile(forceProblemDetection, DefaultWorkingCopyOwner.PRIMARY, monitor);
+}
+/**
+ * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
+ */
+public void reconcile(
+	boolean forceProblemDetection,
+	WorkingCopyOwner workingCopyOwner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
 	if (!isWorkingCopy()) return; // Reconciling is not supported on non working copies
 	
-	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
-	runOperation(op, monitor);
+	NameLookup lookup = null;
+	try {
+		// set the units to look inside
+		lookup = ((JavaProject)getJavaProject()).getNameLookup();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
+		lookup.setUnitsToLookInside(workingCopies);
+			
+		// reconcile
+		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
+		runOperation(op, monitor);
+	} finally {
+		if (lookup != null) {
+			lookup.setUnitsToLookInside(null);
+		}
+	}
 }
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)

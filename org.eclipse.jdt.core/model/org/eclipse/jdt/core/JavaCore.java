@@ -768,7 +768,33 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * with a Java element
 	 */
 	public static IJavaElement create(IFile file) {
-		return JavaModelManager.create(file, null);
+		return create(file, DefaultWorkingCopyOwner.PRIMARY);
+	}
+	/**
+	 * Returns the Java element corresponding to the given file, or
+	 * <code>null</code> if unable to associate the given file
+	 * with a Java element.
+	 *
+	 * <p>The file must be one of:<ul>
+	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code>.
+	 *       In this case, the owner of the compilation unit is the given owner.
+	 *</li>
+	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	</ul>
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 * 
+	 * @param the given file
+	 * @param the owner of the returned compilation unit, ignored if this is not a compilation unit
+	 * @return the Java element corresponding to the given file, or
+	 * <code>null</code> if unable to associate the given file
+	 * with a Java element
+	 * @since 3.0
+	 */
+	public static IJavaElement create(IFile file, WorkingCopyOwner owner) {
+		return JavaModelManager.create(file, null/*unknown java project*/, owner);
 	}
 	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder, or
@@ -784,7 +810,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <code>null</code> if unable to associate the given folder with a Java element
 	 */
 	public static IJavaElement create(IFolder folder) {
-		return JavaModelManager.create(folder, null);
+		return JavaModelManager.create(folder, null/*unknown java project*/);
 	}
 	/**
 	 * Returns the Java project corresponding to the given project.
@@ -828,7 +854,37 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * with a Java element
 	 */
 	public static IJavaElement create(IResource resource) {
-		return JavaModelManager.create(resource, null);
+		return create(resource, DefaultWorkingCopyOwner.PRIMARY);
+	}
+	/**
+	 * Returns the Java element corresponding to the given resource, or
+	 * <code>null</code> if unable to associate the given resource
+	 * with a Java element.
+	 * <p>
+	 * The resource must be one of:<ul>
+	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
+	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code>.
+	 *       In this case, the owner of the compilation unit is the given owner.
+	 *</li>
+	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
+	 *    	or <code>IPackageFragment</code></li>
+	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
+	 *	</ul>
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 * 
+	 * @param resource the given resource
+	 * @param the owner of the returned compilation unit, ignored if this is not a compilation unit
+	 * @return the Java element corresponding to the given resource, or
+	 * <code>null</code> if unable to associate the given resource
+	 * with a Java element
+	 * @since 3.0
+	 */
+	public static IJavaElement create(IResource resource, WorkingCopyOwner owner) {
+		return JavaModelManager.create(resource, null/*unknown java project*/, owner);
 	}
 	/**
 	 * Returns the Java model.
@@ -864,7 +920,22 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * to recognize the compilation unit
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {
-		return JavaModelManager.createCompilationUnitFrom(file, null);
+		return createCompilationUnitFrom(file, DefaultWorkingCopyOwner.PRIMARY);
+	}
+	/**
+	 * Creates and returns a compilation unit element for
+	 * the given <code>.java</code> file and owned by the given owner. 
+	 * Returns <code>null</code> if unable
+	 * to recognize the compilation unit.
+	 * 
+	 * @param file the given <code>.java</code> file
+	 * @param owner the owner of the returned compilation unit
+	 * @return a compilation unit element for the given <code>.java</code> file, or <code>null</code> if unable
+	 * to recognize the compilation unit
+	 * @since 3.0
+	 */
+	public static ICompilationUnit createCompilationUnitFrom(IFile file, WorkingCopyOwner owner) {
+		return JavaModelManager.createCompilationUnitFrom(file, null/*unknown java project*/, owner);
 	}
 	/**
 	 * Creates and returns a handle for the given JAR file.
@@ -876,7 +947,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * (for example, if the JAR file represents a non-Java resource)
 	 */
 	public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file) {
-		return JavaModelManager.createJarPackageFragmentRootFrom(file, null);
+		return JavaModelManager.createJarPackageFragmentRootFrom(file, null/*unknown java project*/);
 	}
 
 	/** 

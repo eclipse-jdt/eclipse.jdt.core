@@ -383,17 +383,7 @@ public ITypeHierarchy newSupertypeHierarchy(
  * @see IType
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
-	}
-	
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
-		this, 
-		(IWorkingCopy[])null, // no working copies
-		project,
-		true);
-	runOperation(op, monitor);
-	return op.getResult();
+	return newTypeHierarchy(project, DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /**
  * @see IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)

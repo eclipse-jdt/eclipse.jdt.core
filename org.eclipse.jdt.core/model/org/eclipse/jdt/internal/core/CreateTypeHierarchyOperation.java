@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -17,7 +18,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.hierarchy.RegionBasedTypeHierarchy;
@@ -41,8 +41,6 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
 	 */
 	protected TypeHierarchy typeHierarchy;
 	
-	public IWorkingCopy[] workingCopies;
-	
 /**
  * Constructs an operation to create a type hierarchy for the
  * given type within the specified region, in the context of
@@ -58,8 +56,15 @@ public CreateTypeHierarchyOperation(IType element, IRegion region, IJavaProject 
  */
 public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
 	super(element);
-	this.typeHierarchy = new TypeHierarchy(element, scope, computeSubtypes);
-	this.workingCopies = workingCopies;
+	ICompilationUnit[] copies;
+	if (workingCopies != null) {
+		int length = workingCopies.length;
+		copies = new ICompilationUnit[length];
+		System.arraycopy(workingCopies, 0, copies, 0, length);
+	} else {
+		copies = null;
+	}
+	this.typeHierarchy = new TypeHierarchy(element, scope, computeSubtypes, copies);
 }
 /**
  * Constructs an operation to create a type hierarchy for the
@@ -67,8 +72,15 @@ public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies,
  */
 public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
 	super(element);
-	this.typeHierarchy = new TypeHierarchy(element, project, computeSubtypes);
-	this.workingCopies = workingCopies;
+	ICompilationUnit[] copies;
+	if (workingCopies != null) {
+		int length = workingCopies.length;
+		copies = new ICompilationUnit[length];
+		System.arraycopy(workingCopies, 0, copies, 0, length);
+	} else {
+		copies = null;
+	}
+	this.typeHierarchy = new TypeHierarchy(element, project, computeSubtypes, copies);
 }
 /**
  * Performs the operation - creates the type hierarchy

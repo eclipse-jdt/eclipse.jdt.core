@@ -32,6 +32,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 
 	public IType focusType;
 	private String focusPath;
+	private WorkingCopyOwner owner;
 	
 	private ITypeHierarchy hierarchy;
 	private IType[] types;
@@ -61,8 +62,9 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	/* (non-Javadoc)
 	 * Creates a new hiearchy scope for the given type.
 	 */
-	public HierarchyScope(IType type) throws JavaModelException {
+	public HierarchyScope(IType type, WorkingCopyOwner owner) throws JavaModelException {
 		this.focusType = type;
+		this.owner = owner;
 		
 		this.enclosingProjectsAndJars = this.computeProjectsAndJars(type);
 
@@ -326,7 +328,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		this.elementCount = 0;
 		this.needsRefresh = false;
 		if (this.hierarchy == null) {
-			this.hierarchy = this.focusType.newTypeHierarchy(null);
+			this.hierarchy = this.focusType.newTypeHierarchy(this.owner, null);
 		} else {
 			this.hierarchy.refresh(null);
 		}

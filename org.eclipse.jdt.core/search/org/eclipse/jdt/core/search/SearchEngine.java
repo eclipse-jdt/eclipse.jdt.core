@@ -133,7 +133,23 @@ private ICompilationUnit[] filterWorkingCopies(ICompilationUnit[] copies, IJavaE
  * @exception JavaModelException if the hierarchy could not be computed on the given type
  */
 public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModelException {
-	return new HierarchyScope(type);
+	return createHierarchyScope(type, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * Returns a java search scope limited to the hierarchy of the given type.
+ * When the hierarchy is computed, the types defined in the working copies owned
+ * by the given owner take precedence on the original compilation units.
+ * The java elements resulting from a search with this scope will
+ * be types in this hierarchy, or members of the types in this hierarchy.
+ *
+ * @param type the focus of the hierarchy scope
+ * @param the owner of working copies that take precedence of original compilation units
+ * @return a new hierarchy scope
+ * @exception JavaModelException if the hierarchy could not be computed on the given type
+ * @since 3.0
+ */
+public static IJavaSearchScope createHierarchyScope(IType type, WorkingCopyOwner owner) throws JavaModelException {
+	return new HierarchyScope(type, owner);
 }
 /**
  * Returns a java search scope limited to the given resources.

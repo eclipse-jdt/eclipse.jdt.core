@@ -426,7 +426,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 	IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
-		
+	
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
 	runOperation(op, monitor);
 	return op.getResult();
@@ -448,16 +448,7 @@ public ITypeHierarchy newSupertypeHierarchy(
  * @see IType#newTypeHierarchy(IJavaProject, IProgressMonitor)
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
-	}
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
-		this, 
-		(IWorkingCopy[])null, // no working copies
-		project, 
-		true);
-	runOperation(op, monitor);
-	return op.getResult();
+	return newTypeHierarchy(project, DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /**
  * @see IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)

@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.CreateTypeHierarchyOperation;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -111,7 +110,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		//    a sub or super type of the focus type.
 		org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
 		if (nameLookup != null) {
-			IWorkingCopy[] workingCopies = this.getWokingCopies();
+			IWorkingCopy[] workingCopies = this.hierarchy.workingCopies;
 			IWorkingCopy[] unitsToLookInside;
 			if (unitToLookInside != null) {
 				int wcLength = workingCopies == null ? 0 : workingCopies.length;
@@ -259,13 +258,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected IType getType() {
 		return this.hierarchy.getType();
 	}
-protected IWorkingCopy[] getWokingCopies() {
-	if (this.hierarchy.progressMonitor instanceof CreateTypeHierarchyOperation) {
-		return ((CreateTypeHierarchyOperation)this.hierarchy.progressMonitor).workingCopies;
-	} else {
-		return null;
-	}
-}
 	/**
 	 * Looks up and returns a handle for the given binary info.
 	 */
