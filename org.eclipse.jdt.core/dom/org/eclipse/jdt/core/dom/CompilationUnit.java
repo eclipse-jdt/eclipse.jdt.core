@@ -379,6 +379,7 @@ public class CompilationUnit extends ASTNode {
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
      * <li>enum type - an <code>EnumDeclaration</code></li>
      * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
+	 * <li>type variable - a <code>TypeParameter</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
@@ -427,6 +428,7 @@ public class CompilationUnit extends ASTNode {
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
      * <li>enum type - an <code>EnumDeclaration</code></li>
      * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
+	 * <li>type variable - a <code>TypeParameter</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
