@@ -10,13 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.*;
 
 class ClasspathJar extends ClasspathLocation {
 

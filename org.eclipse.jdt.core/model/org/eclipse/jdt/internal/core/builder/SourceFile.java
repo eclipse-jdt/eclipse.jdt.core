@@ -10,15 +10,11 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
+import java.io.*;
 
 public class SourceFile implements ICompilationUnit {
 

@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.File;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+
+import java.io.*;
 
 class ClasspathDirectory extends ClasspathLocation {
 

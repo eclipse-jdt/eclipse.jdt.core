@@ -10,14 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.util.ArrayList;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.Util;
+
+import java.util.*;
 
 public class BatchImageBuilder extends AbstractImageBuilder {
 

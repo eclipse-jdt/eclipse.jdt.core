@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
+import java.util.*;
 
 public class ReferenceCollection {
 

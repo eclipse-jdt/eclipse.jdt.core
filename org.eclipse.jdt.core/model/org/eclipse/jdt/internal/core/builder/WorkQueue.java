@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class WorkQueue {
 
