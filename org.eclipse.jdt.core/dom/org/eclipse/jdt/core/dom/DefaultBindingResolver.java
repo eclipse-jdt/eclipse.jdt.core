@@ -303,23 +303,22 @@ class DefaultBindingResolver extends BindingResolver {
 			} else if (node instanceof ArrayAllocationExpression) {
 				binding = ((ArrayAllocationExpression) node).arrayTb;
 			}
-			if (binding == null || !binding.isValidBinding()) {
-				return null;
-			}
-			if (type.isArrayType()) {
-				ArrayType arrayType = (ArrayType) type;
-				if (binding.isArrayType()) {
-					ArrayBinding arrayBinding = (ArrayBinding) binding;
-					return getTypeBinding(this.scope.createArray(arrayBinding.leafComponentType, arrayType.getDimensions()));
+			if (binding != null) {
+				if (type.isArrayType()) {
+					ArrayType arrayType = (ArrayType) type;
+					if (binding.isArrayType()) {
+						ArrayBinding arrayBinding = (ArrayBinding) binding;
+						return getTypeBinding(this.scope.createArray(arrayBinding.leafComponentType, arrayType.getDimensions()));
+					} else {
+						return getTypeBinding(this.scope.createArray(binding, arrayType.getDimensions()));
+					}
 				} else {
-					return getTypeBinding(this.scope.createArray(binding, arrayType.getDimensions()));
-				}
-			} else {
-				if (binding.isArrayType()) {
-					ArrayBinding arrayBinding = (ArrayBinding) binding;
-					return getTypeBinding(arrayBinding.leafComponentType);
-				} else {
-					return getTypeBinding(binding);
+					if (binding.isArrayType()) {
+						ArrayBinding arrayBinding = (ArrayBinding) binding;
+						return getTypeBinding(arrayBinding.leafComponentType);
+					} else {
+						return getTypeBinding(binding);
+					}
 				}
 			}
 		}
