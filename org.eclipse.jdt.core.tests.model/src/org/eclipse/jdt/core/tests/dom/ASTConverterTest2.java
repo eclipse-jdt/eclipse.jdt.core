@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -3382,7 +3383,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3413,7 +3419,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3442,7 +3453,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3472,7 +3488,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		ASTNode statement = node;
-		ASTNode result2 = AST.parse(AST.K_STATEMENTS, source, statement.getStartPosition(), statement.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_STATEMENTS);
+		parser.setSource(source);
+		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
 		Block block = (Block) result2;
@@ -3504,7 +3525,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		ASTNode result2 = AST.parse(AST.K_EXPRESSION, source, expression.getStartPosition(), expression.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_EXPRESSION);
+		parser.setSource(source);
+		parser.setSourceRange(expression.getStartPosition(), expression.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a method invocation", result2.getNodeType() == ASTNode.METHOD_INVOCATION);
 		assertTrue(expression.subtreeMatch(new ASTMatcher(), result2));
@@ -3539,7 +3565,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			public void worked(int work) {}
 		}
 		Counter counter = new Counter();
-		AST.parseCompilationUnit(sourceUnit, true, owner, counter);
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(sourceUnit);
+		parser.setResolveBindings(true);
+		parser.setWorkingCopyOwner(owner);
+		parser.createAST(counter);
 		
 		// throw an OperatonCanceledException at each point isCanceled() is called
 		class Canceler implements IProgressMonitor {
@@ -3561,7 +3591,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		for (int i = 0; i < counter.count; i++) {
 			boolean gotException = false;
 			try {
-				AST.parseCompilationUnit(sourceUnit, true, owner, new Canceler(i));
+				parser = ASTParser.newParser(AST.LEVEL_2_0);
+				parser.setSource(sourceUnit);
+				parser.setResolveBindings(true);
+				parser.setWorkingCopyOwner(owner);
+				parser.createAST(new Canceler(i));
 			} catch (OperationCanceledException e) {
 				gotException = true;
 			}
@@ -3569,7 +3603,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 		
 		// last should not throw an OperationCanceledException
-		AST.parseCompilationUnit(sourceUnit, true, owner, new Canceler(counter.count));
+		parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(sourceUnit);
+		parser.setResolveBindings(true);
+		parser.setWorkingCopyOwner(owner);
+		parser.createAST(new Canceler(counter.count));
 	}
 	
 	/**
@@ -4060,7 +4098,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result2;
@@ -4079,7 +4122,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result2;
@@ -4098,7 +4146,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result2;
