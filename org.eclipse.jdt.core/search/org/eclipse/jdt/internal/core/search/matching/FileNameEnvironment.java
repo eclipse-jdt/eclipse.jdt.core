@@ -20,6 +20,16 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class FileNameEnvironment extends FileSystem {
 	
+public class JavaModelClasspathJar extends ClasspathJar {
+	public JavaModelClasspathJar(ZipFile zipFile) throws IOException {
+		super(zipFile);
+	}
+	public void reset() {
+		this.directoryCache = new Hashtable(101);
+		// NB: Leave the jar open: closing is done while flushing the zip cache
+	}
+}
+	
 public FileNameEnvironment(String[] classpathNames, String encoding) {
 	super(classpathNames, new String[0], encoding);
 }
@@ -27,9 +37,10 @@ public FileNameEnvironment(String[] classpathNames, String encoding) {
 public ClasspathJar getClasspathJar(File file) throws IOException {
 	try {
 		ZipFile zipFile = JavaModelManager.getJavaModelManager().getZipFile(new Path(file.getPath()));
-		return new ClasspathJar(zipFile, false);
+		return new JavaModelClasspathJar(zipFile);
 	} catch (CoreException e) {
 		return super.getClasspathJar(file);
 	}
 }
+
 }
