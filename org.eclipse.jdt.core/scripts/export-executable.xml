@@ -28,14 +28,15 @@
 		</copy>
 	
         <echo message='compiling sources      -> .o'/>
-        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='true'>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
             <arg value='--classpath=${work}'/>
-            <arg line=' -d ${work}' />
             <arg value='--verbose'/>
             <arg value='-O2'/>
             <arg value='-g'/>
             <arg value='-c'/>
             <srcfile/>
+            <arg value='-o'/>
+            <targetfile/>
             <fileset dir='${work}' includes='**/*.java'/>
             <mapper type='glob' from='*.java' to='*.o'/>
         </apply>
