@@ -3185,38 +3185,38 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int methodsCount = typeDeclaration.methods == null ? 0 : typeDeclaration.methods.length;
 			int membersCount = typeDeclaration.memberTypes == null ? 0 : typeDeclaration.memberTypes.length;
 			
+			/*
+			 * Type body
+			 */
+			String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
+	
+	        formatLeftCurlyBrace(line, enum_constant_brace);
+			formatTypeOpeningBrace(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
+			
+			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
+				this.scribe.indent();
+			}
+	
 			if (fieldsCount != 0 || methodsCount != 0 || membersCount != 0) {
-				/*
-				 * Type body
-				 */
-				String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
-		
-		        formatLeftCurlyBrace(line, enum_constant_brace);
-				formatTypeOpeningBrace(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
-				
-				if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
-					this.scribe.indent();
-				}
-		
 				formatTypeMembers(typeDeclaration);
-		
-				this.scribe.printComment();
-				
-				if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
-					this.scribe.unIndent();
-				}
-				
-				if (this.preferences.insert_new_line_in_empty_enum_constant) {
-					this.scribe.printNewLine();
-				}
-				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-				this.scribe.printTrailingComment();
-				if (enum_constant_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-					this.scribe.unIndent();
-				}
-				if (hasComments()) {
-					this.scribe.printNewLine();
-				}
+			}
+	
+			this.scribe.printComment();
+			
+			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
+				this.scribe.unIndent();
+			}
+			
+			if (this.preferences.insert_new_line_in_empty_enum_constant) {
+				this.scribe.printNewLine();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
+			this.scribe.printTrailingComment();
+			if (enum_constant_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+				this.scribe.unIndent();
+			}
+			if (hasComments()) {
+				this.scribe.printNewLine();
 			}
 		}
 		return false;
