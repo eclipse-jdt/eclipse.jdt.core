@@ -552,7 +552,7 @@ public void testClasspathReordering() throws CoreException {
 /**
  * Should detect duplicate entries on the classpath
  */ 
-public void testClasspathValidation1() throws CoreException {
+public void testClasspathValidation01() throws CoreException {
 	try {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -572,7 +572,7 @@ public void testClasspathValidation1() throws CoreException {
 /**
  * Should detect nested source folders on the classpath
  */ 
-public void testClasspathValidation2() throws CoreException {
+public void testClasspathValidation02() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -592,7 +592,7 @@ public void testClasspathValidation2() throws CoreException {
 /**
  * Should detect library folder nested inside source folder on the classpath
  */ 
-public void testClasspathValidation3() throws CoreException {
+public void testClasspathValidation03() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -609,7 +609,7 @@ public void testClasspathValidation3() throws CoreException {
 	}
 }
 
-public void testClasspathValidation4() throws CoreException {
+public void testClasspathValidation04() throws CoreException {
 	
 	IJavaProject[] p = null;
 	try {
@@ -639,7 +639,7 @@ public void testClasspathValidation4() throws CoreException {
 	}
 }
 
-public void testClasspathValidation5() throws CoreException {
+public void testClasspathValidation05() throws CoreException {
 	
 	IJavaProject[] p = null;
 	try {
@@ -682,7 +682,7 @@ public void testClasspathValidation5() throws CoreException {
 	}
 }
 
-public void testClasspathValidation6() throws CoreException {
+public void testClasspathValidation06() throws CoreException {
 	
 	IJavaProject[] p = null;
 	try {
@@ -711,7 +711,7 @@ public void testClasspathValidation6() throws CoreException {
  * Should allow nested source folders on the classpath as long as the outer
  * folder excludes the inner one.
  */ 
-public void testClasspathValidation7() throws CoreException {
+public void testClasspathValidation07() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -734,7 +734,7 @@ public void testClasspathValidation7() throws CoreException {
  * Should allow a nested binary folder in a source folder on the classpath as
  * long as the outer folder excludes the inner one.
  */ 
-public void testClasspathValidation8() throws CoreException {
+public void testClasspathValidation08() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, new String[] {"lib"}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -756,7 +756,7 @@ public void testClasspathValidation8() throws CoreException {
 /**
  * Should not allow a nested output folder in a source folder on the classpath.
  */ 
-public void testClasspathValidation9() throws CoreException {
+public void testClasspathValidation09() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
@@ -776,7 +776,7 @@ public void testClasspathValidation9() throws CoreException {
 	}
 }
 /**
- * Should not allow a nested srource folder in the output folder.
+ * Should not allow a nested srource folder in the project's output folder.
  */ 
 public void testClasspathValidation10() throws CoreException {
 	try {

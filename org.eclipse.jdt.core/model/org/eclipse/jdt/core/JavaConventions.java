@@ -534,12 +534,12 @@ public final class JavaConventions {
 			
 			// prevent nesting output location inside entry
 			if (!entryPath.equals(outputLocation) && entryPath.isPrefixOf(outputLocation)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
 			}
 	
 			// prevent nesting entry inside output location - when distinct from project or a source folder
 			if (!allowNestingInOutput && outputLocation.isPrefixOf(entryPath)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
 			}
 		}
 		return JavaModelStatus.VERIFIED_OK;	
