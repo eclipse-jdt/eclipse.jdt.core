@@ -221,6 +221,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReference1"));
 	suite.addTest(new JavaSearchTests("testTypeReference2"));
 	suite.addTest(new JavaSearchTests("testTypeReference3"));
+	suite.addTest(new JavaSearchTests("testTypeReference4"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -2441,6 +2442,23 @@ public void testTypeReference3() throws JavaModelException, CoreException {
 	assertEquals(
 		"src/e3/X31985.java e3.X31985.CONSTANT [X31985] EXACT_MATCH\n" +
 		"src/e3/Y31985.java e3.Y31985.foo() -> Object [X31985] EXACT_MATCH",
+		resultCollector.toString());
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 31997 Refactoring d.n. work for projects with brackets in name.)
+ */
+public void testTypeReference4() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "otherSrc()", "", "X31997.java").getType("X31997");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"otherSrc()/Y31997.java Y31997 [X31997]",
 		resultCollector.toString());
 }
 /**
