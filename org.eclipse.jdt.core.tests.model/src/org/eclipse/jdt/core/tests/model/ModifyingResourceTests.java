@@ -18,14 +18,7 @@ import java.io.InputStream;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -103,25 +96,13 @@ protected IFile createFile(String path, String content, String charsetName) thro
 	return createFile(path, content.getBytes(charsetName));
 }
 protected IFolder createFolder(String path) throws CoreException {
-	final IFolder folder = this.getFolder(path);
-	getWorkspace().run(new IWorkspaceRunnable() {
-		public void run(IProgressMonitor monitor) throws CoreException {
-			IContainer parent = folder.getParent();
-			if (parent instanceof IFolder && !parent.exists()) {
-				createFolder(parent.getFullPath().toString());
-			} 
-			folder.create(true, true, null);
-		}
-	},
-	null);
-
-	return folder;
+	return createFolder(new Path(path));
 }
 protected void deleteFile(String filePath) throws CoreException {
 	deleteResource(this.getFile(filePath));
 }
 protected void deleteFolder(String folderPath) throws CoreException {
-	deleteResource(this.getFolder(folderPath));
+	deleteFolder(new Path(folderPath));
 }
 protected IFile editFile(String path, String content) throws CoreException {
 	IFile file = this.getFile(path);
@@ -160,7 +141,7 @@ protected IClassFile getClassFile(String path) {
 	return (IClassFile)JavaCore.create(getFile(path));
 }
 protected IFolder getFolder(String path) {
-	return getWorkspaceRoot().getFolder(new Path(path));
+	return getFolder(new Path(path));
 }
 protected IPackageFragment getPackage(String path) {
 	if (path.indexOf('/', 1) != -1) { // if path as more than one segment

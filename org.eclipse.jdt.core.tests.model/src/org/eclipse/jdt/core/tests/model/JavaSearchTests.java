@@ -38,6 +38,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 
 	public static List TEST_SUITES = null;
 	protected static IJavaProject JAVA_PROJECT;
+	protected static boolean COPY_DIRS = true;
 
 	/**
 	 * Collects results as a string.
@@ -337,10 +338,30 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	// All specified tests which do not belong to the class are skipped...
 	static {
 	//	TESTS_PREFIX =  "testVarargs";
-//		TESTS_NAMES = new String[] { "testTypeReferenceBug80918" };
+//		TESTS_NAMES = new String[] { "testAutoBoxing01" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
+	 */
+	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
+		if (COPY_DIRS) {
+			super.copyDirectory(sourceDir, targetDir);
+		} else {
+			targetDir.mkdirs();
+			File sourceFile = new File(sourceDir, ".project");
+			File targetFile = new File(targetDir, ".project");
+			targetFile.createNewFile();
+			copy(sourceFile, targetFile);
+			sourceFile = new File(sourceDir, ".classpath");
+			targetFile = new File(targetDir, ".classpath");
+			targetFile.createNewFile();
+			copy(sourceFile, targetFile);
+		}
+	}
+
 	IJavaSearchScope getJavaSearchScope() {
 		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 	}
@@ -392,6 +413,17 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		ICompilationUnit cu = getCompilationUnit(projectName, "src", packageName, cuName);
 		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { cu });
 	}
+	/*
+	 * Overrides super method to create parent folders if necessary
+	 */
+	public ICompilationUnit getWorkingCopy(String fileName, String source) throws JavaModelException {
+		try {
+			createFolder(new Path(fileName).removeLastSegments(1));
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		return super.getWorkingCopy(fileName, source);
+	}	
 	protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		new SearchEngine().search(
 			searchPattern, 
@@ -4116,5 +4148,35 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		assertSearchResults(
 			"src/a1/Author.java a1.Author [Author]",
 			this.resultCollector);
+	}
+	/**
+	 * Search for auto-boxing
+	 */
+	public void testAutoBoxing01() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/JavaSearch15/src/p/X.java",
+				"package p;\n" + 
+				"public class Test {\n" + 
+				"	void foo(int x) {}\n" + 
+				"	void bar() {\n" + 
+				"		foo(new Integer(0));\n" + 
+				"	}\n" + 
+				"}\n"
+				);
+			workingCopy.commitWorkingCopy(true, null);	// need to commit to index file
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new ICompilationUnit[] { workingCopy });
+			IMethod method = workingCopy.getType("Test").getMethod("foo", new String[] { "I" });
+			search(method, REFERENCES, scope, this.resultCollector);
+			assertSearchResults(
+				"src/p/X.java void p.Test.bar() [foo(new Integer(0))]",
+				this.resultCollector);
+		} catch (JavaModelException jme) {
+			jme.printStackTrace();
+		}
+		finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

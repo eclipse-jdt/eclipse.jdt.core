@@ -472,7 +472,21 @@ protected void assertDeltas(String message, String expected) {
 			}
 		}
 	}
+	protected IFolder createFolder(IPath path) throws CoreException {
+		final IFolder folder = getWorkspaceRoot().getFolder(path);
+		getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				IContainer parent = folder.getParent();
+				if (parent instanceof IFolder && !parent.exists()) {
+					createFolder(parent.getFullPath());
+				} 
+				folder.create(true, true, null);
+			}
+		},
+		null);
 	
+		return folder;
+	}
 	/*
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
 	 */
@@ -889,6 +903,9 @@ protected void assertDeltas(String message, String expected) {
 		if (success) return;
 		System.err.println("Failed to delete " + file.getPath());
 	}
+	protected void deleteFolder(IPath folderPath) throws CoreException {
+		deleteResource(getFolder(folderPath));
+	}
 	protected void deleteProject(String projectName) throws CoreException {
 		IProject project = this.getProject(projectName);
 		if (project.exists() && !project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
@@ -1149,6 +1166,9 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));
+	}
+	protected IFolder getFolder(IPath path) {
+		return getWorkspaceRoot().getFolder(path);
 	}
 	/**
 	 * Returns the Java Model this test suite is running on.
