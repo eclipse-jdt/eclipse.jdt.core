@@ -71,7 +71,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test475"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test477"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -5814,5 +5814,98 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test475", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51768 
+	 */
+	public void test476() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, "1");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_IF, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_IF, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_IF, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_FOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_FOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_FOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test476", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51603
+	 */
+	public void test477() {
+		String option = 
+			DefaultCodeFormatterConstants.createAlignmentValue(
+				true,
+				DefaultCodeFormatterConstants.WRAP_NO_SPLIT,
+				DefaultCodeFormatterConstants.INDENT_BY_ONE);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_BY_ONE, DefaultCodeFormatterConstants.getIndentStyle(option));
 
+		option = DefaultCodeFormatterConstants.setForceWrapping(option, false);
+		assertFalse("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_BY_ONE, DefaultCodeFormatterConstants.getIndentStyle(option));
+	
+		option = DefaultCodeFormatterConstants.setIndentStyle(option, DefaultCodeFormatterConstants.INDENT_ON_COLUMN);
+		assertFalse("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_ON_COLUMN, DefaultCodeFormatterConstants.getIndentStyle(option));
+
+	
+		option = DefaultCodeFormatterConstants.setIndentStyle(option, DefaultCodeFormatterConstants.INDENT_DEFAULT);
+		assertFalse("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+
+	
+		option = DefaultCodeFormatterConstants.setForceWrapping(option, true);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+
+	
+		option = DefaultCodeFormatterConstants.setWrappingStyle(option, DefaultCodeFormatterConstants.WRAP_COMPACT);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+
+	
+		option = DefaultCodeFormatterConstants.setWrappingStyle(option, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+		
+		option = DefaultCodeFormatterConstants.setWrappingStyle(option, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+		
+		option = DefaultCodeFormatterConstants.setWrappingStyle(option, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+		
+		option = DefaultCodeFormatterConstants.setWrappingStyle(option, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE);
+		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
+		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(option));
+		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+	}
 }

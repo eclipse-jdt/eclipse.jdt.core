@@ -2294,8 +2294,6 @@ public class DefaultCodeFormatterConstants {
 						return WRAP_NEXT_PER_LINE;
 					case Alignment.M_NEXT_SHIFTED_SPLIT :
 						return WRAP_NEXT_SHIFTED;
-					case Alignment.M_NO_ALIGNMENT :
-						return WRAP_NO_SPLIT;
 					case Alignment.M_ONE_PER_LINE_SPLIT :
 						return WRAP_ONE_PER_LINE;
 				}
@@ -2333,12 +2331,11 @@ public class DefaultCodeFormatterConstants {
 					return WRAP_NEXT_PER_LINE;
 				case Alignment.M_NEXT_SHIFTED_SPLIT :
 					return WRAP_NEXT_SHIFTED;
-				case Alignment.M_NO_ALIGNMENT :
-					return WRAP_NO_SPLIT;
 				case Alignment.M_ONE_PER_LINE_SPLIT :
 					return WRAP_ONE_PER_LINE;
+				default:
+					return WRAP_NO_SPLIT;
 			}
-			throw WRONG_ARGUMENT;
 		} catch (NumberFormatException e) {
 			throw WRONG_ARGUMENT;
 		}
@@ -2495,9 +2492,6 @@ public class DefaultCodeFormatterConstants {
 					case WRAP_NEXT_SHIFTED :
 						existingValue |= Alignment.M_NEXT_SHIFTED_SPLIT;
 						break;
-					case WRAP_NO_SPLIT :
-						existingValue = Alignment.M_NO_ALIGNMENT;
-						break;
 					case WRAP_ONE_PER_LINE :
 						existingValue |= Alignment.M_ONE_PER_LINE_SPLIT;
 						break;
@@ -2561,9 +2555,6 @@ public class DefaultCodeFormatterConstants {
 				case WRAP_NEXT_SHIFTED :
 					existingValue |= Alignment.M_NEXT_SHIFTED_SPLIT;
 					break;
-				case WRAP_NO_SPLIT :
-					existingValue = Alignment.M_NO_ALIGNMENT;
-					break;
 				case WRAP_ONE_PER_LINE :
 					existingValue |= Alignment.M_ONE_PER_LINE_SPLIT;
 					break;
@@ -2588,9 +2579,6 @@ public class DefaultCodeFormatterConstants {
 				break;
 			case WRAP_NEXT_SHIFTED :
 				alignmentValue |= Alignment.M_NEXT_SHIFTED_SPLIT;
-				break;
-			case WRAP_NO_SPLIT :
-				alignmentValue = Alignment.M_NO_ALIGNMENT;
 				break;
 			case WRAP_ONE_PER_LINE :
 				alignmentValue |= Alignment.M_ONE_PER_LINE_SPLIT;

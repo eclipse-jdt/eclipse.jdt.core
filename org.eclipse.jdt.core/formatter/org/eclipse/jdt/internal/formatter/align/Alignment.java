@@ -190,11 +190,6 @@ public class Alignment {
 	}
 
 	public void checkColumn() {
-		
-		if ((this.mode & M_NO_ALIGNMENT) != 0) {
-			return;
-		}
-	
 		if ((this.mode & M_MULTICOLUMN) != 0) {
 			int currentIndentation = this.scribe.getNextIndentationLevel(this.scribe.column+(this.scribe.needSpace ? 1 : 0));
 			int fragmentIndentation = this.fragmentIndentations[this.fragmentIndex];
@@ -229,10 +224,6 @@ public class Alignment {
 	}
 		
 	public boolean couldBreak(){
-
-		if ((this.mode & M_NO_ALIGNMENT) != 0) {
-			return false;
-		}
 		int i;
 		switch(mode & SPLIT_MASK){
 
@@ -337,8 +328,17 @@ public class Alignment {
 		
 	// perform alignment effect for current fragment
 	public void performFragmentEffect(){
-		if ((this.mode & M_NO_ALIGNMENT) != 0) {
-			return;
+		if ((this.mode & M_MULTICOLUMN) == 0) {
+			switch(this.mode & SPLIT_MASK) {
+				case Alignment.M_COMPACT_SPLIT :
+				case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
+				case Alignment.M_NEXT_PER_LINE_SPLIT :
+				case Alignment.M_NEXT_SHIFTED_SPLIT :
+				case Alignment.M_ONE_PER_LINE_SPLIT :
+					break;
+				default:
+					return;
+			}
 		}
 		
 		if (this.fragmentBreaks[this.fragmentIndex] == BREAK) {
