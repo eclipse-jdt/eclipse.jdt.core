@@ -4442,28 +4442,28 @@ public void newArray(Scope scope, ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case T_int :
-			this.newarray(10);
+			this.newarray(INT_ARRAY);
 			break;
 		case T_byte :
-			this.newarray(8);
+			this.newarray(BYTE_ARRAY);
 			break;
 		case T_boolean :
-			this.newarray(4);
+			this.newarray(BOOLEAN_ARRAY);
 			break;
 		case T_short :
-			this.newarray(9);
+			this.newarray(SHORT_ARRAY);
 			break;
 		case T_char :
-			this.newarray(5);
+			this.newarray(CHAR_ARRAY);
 			break;
 		case T_long :
-			this.newarray(11);
+			this.newarray(LONG_ARRAY);
 			break;
 		case T_float :
-			this.newarray(6);
+			this.newarray(FLOAT_ARRAY);
 			break;
 		case T_double :
-			this.newarray(7);
+			this.newarray(DOUBLE_ARRAY);
 			break;
 		default :
 			this.anewarray(component);

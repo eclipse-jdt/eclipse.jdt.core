@@ -59,5 +59,14 @@ public interface ClassFileConstants extends IConstants {
 	
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.
-	long JDK_DEFERRED = Long.MAX_VALUE; 
+	long JDK_DEFERRED = Long.MAX_VALUE;
+	
+	int INT_ARRAY = 10;
+	int BYTE_ARRAY = 8;
+	int BOOLEAN_ARRAY = 4;
+	int SHORT_ARRAY = 9;
+	int CHAR_ARRAY = 5;
+	int LONG_ARRAY = 11;
+	int FLOAT_ARRAY = 6;
+	int DOUBLE_ARRAY = 7;
 }
