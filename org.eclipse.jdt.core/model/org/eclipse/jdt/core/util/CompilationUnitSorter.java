@@ -17,8 +17,9 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
@@ -406,22 +407,15 @@ public class CompilationUnitSorter {
 	 * <li> A <code>CoreException</code> occurred while updating the underlying
 	 * resource
 	 * </ul>
-	 * @exception CoreException a Core exception is thrown if the supplied compilation unit is <code>null</code></li>,
-	 * the supplied compilation unit is not an instance of IWorkingCopy
+	 * @exception JavaModelException this exception is thrown if the supplied compilation unit is not an instance of IWorkingCopy
+	 * @exception IllegalArgumentException this exception is thrown if either the supplied compilation unit is null or the comparator is null
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
 	 * @see #RELATIVE_ORDER
 	 * @see #DefaultJavaElementComparator
 	 * @since 2.1
-	 * TODO: (olivier) Should throw JavaModelException rather than CoreException
 	 */
-	public static void sort(ICompilationUnit compilationUnit, int[] positions, Comparator comparator, IProgressMonitor monitor) throws CoreException {
-	    // TODO: (olivier) Should throw IllegalArgumentException if compilationUnit == null
-	    // TODO: (olivier) Should throw IllegalArgumentException if comparator == null
-		if (comparator == null || compilationUnit == null) {
-			return;
-		}
-		SortElementsOperation operation = new SortElementsOperation(new ICompilationUnit[] { compilationUnit }, new int[][] {positions}, comparator);
-		JavaCore.run(operation, monitor);
+	public static void sort(IJavaElement workingCopy, int[] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		sort(new IJavaElement[] { workingCopy }, new int[][] {positions}, comparator, monitor);
 	}
 
 	/**
@@ -435,17 +429,24 @@ public class CompilationUnitSorter {
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
 	 * 
-	 * @exception CoreException a Core exception is thrown if one of the supplied compilation units is <code>null</code></li>,
-	 * one of the supplied elements are not an instance of IWorkingCopy, or the size of the given positions and of the given
-	 * compilationUnits arrays are not equal.
+	 * @exception JavaModelException this exception is thrown if one of the supplied elements are not an instance of IWorkingCopy
+	 * @exception IllegalArgumentException this exception is thrown if the positions and the compilationUnits arrays don't have the
+	 * same size, the compilationUnits array is null or the comparator is null.
 	 * 
 	 * @since 2.1
 	 */
-	public static void sort(ICompilationUnit[] compilationUnits, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws CoreException {
-		if (comparator == null || compilationUnits == null) {
-			return;
+	public static void sort(IJavaElement[] workingCopies, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		if (comparator == null || workingCopies == null) {
+			throw new IllegalArgumentException();
 		}
-		SortElementsOperation operation = new SortElementsOperation(compilationUnits , positions, comparator);
-		JavaCore.run(operation, monitor);
+		if (positions != null && positions.length != workingCopies.length) {
+			throw new IllegalArgumentException();
+		}
+		SortElementsOperation operation = new SortElementsOperation(workingCopies , positions, comparator);
+		try {
+			JavaCore.run(operation, monitor);
+		} catch(CoreException e) {
+			throw new JavaModelException(e);
+		}
 	}	
 }
