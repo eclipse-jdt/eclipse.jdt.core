@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -35,7 +36,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in Expli
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	if (!(node instanceof ExplicitConstructorCall)) return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null && this.pattern.shouldCountParameter()) {
+	if (this.pattern.parameterSimpleNames != null && (this.pattern.shouldCountParameter() || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = ((ExplicitConstructorCall) node).arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -60,7 +61,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, typeName[typeName.length-1]))
 		return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null && this.pattern.shouldCountParameter()) {
+	if (this.pattern.parameterSimpleNames != null && (this.pattern.shouldCountParameter() || ((node.bits & ASTNode.InsideJavadoc) != 0))) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -90,7 +91,17 @@ public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 	return nodeSet.addMatch(field, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
-//public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
+/**
+ * Special case for message send in javadoc comment. They can be in fact bound to a contructor.
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83285"
+ */
+public int match(MessageSend msgSend, MatchingNodeSet nodeSet)  {
+	if ((msgSend.bits & ASTNode.InsideJavadoc) == 0) return IMPOSSIBLE_MATCH;
+	if (this.pattern.declaringSimpleName == null || CharOperation.equals(msgSend.selector, this.pattern.declaringSimpleName)) {
+		return nodeSet.addMatch(msgSend, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	}
+	return IMPOSSIBLE_MATCH;
+}
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -285,6 +296,9 @@ public int resolveLevel(ASTNode node) {
 			return resolveLevel((TypeDeclaration) node);
 		if (node instanceof FieldDeclaration)
 			return resolveLevel((FieldDeclaration) node);
+		if (node instanceof JavadocMessageSend) {
+			return resolveLevel(((JavadocMessageSend)node).binding);
+		}
 	}
 	if (node instanceof ConstructorDeclaration)
 		return resolveLevel((ConstructorDeclaration) node, true);

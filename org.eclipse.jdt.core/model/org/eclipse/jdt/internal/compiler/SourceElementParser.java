@@ -180,6 +180,7 @@ public void checkComment() {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+				this.requestor.acceptConstructorReference(messageSend.selector, argCount, messageSend.sourceStart);
 				if (messageSend.receiver != null && !messageSend.receiver.isThis()) {
 					acceptJavadocTypeReference(messageSend.receiver);
 				}

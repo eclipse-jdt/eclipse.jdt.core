@@ -36,7 +36,7 @@ public class JavadocBugsTest extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] { "testBug47339" };
-//		TESTS_NUMBERS = new int[] { 47339 };
+//		TESTS_NUMBERS = new int[] { 83285 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -73,7 +73,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45596.
+	 * Bug 45596.
 	 * When this bug happened, compiler wrongly complained on missing parameter javadoc
 	 * entries for method declaration in anonymous class.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
@@ -203,7 +203,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45592.
+	 * Bug 45592.
 	 * When this bug happened, a NullPointerException occured during the compilation.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
 	 */
@@ -252,7 +252,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45737.
+	 * Bug 45737.
 	 * When this bug happened, compiler complains on return type and argument of method bar.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45737">45737</a>
 	 */
@@ -284,7 +284,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45669.
+	 * Bug 45669.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45669">45669</a>
 	 */
 	public void testBug45669() {
@@ -353,7 +353,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45958.
+	 * Bug 45958.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45958">45958</a>
 	 */
 	public void testBug45958() {
@@ -454,7 +454,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 46901.
+	 * Bug 46901.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46901">46901</a>
 	 */
 	public void testBug46901() {
@@ -476,7 +476,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 47215.
+	 * Bug 47215.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47215">47215</a>
 	 */
 	public void testBug47215() {
@@ -528,7 +528,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 47341.
+	 * Bug 47341.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47341">47341</a>
 	 */
 	public void testBug47341() {
@@ -567,7 +567,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 47132.
+	 * Bug 47132.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47132">47132</a>
 	 */
 	public void testBug47132() {
@@ -590,7 +590,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 47339.
+	 * Bug 47339.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47339">47339</a>
 	 */
 	public void testBug47339() {
@@ -694,7 +694,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 48064.
+	 * Bug 48064.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48064">48064</a>
 	 */
 	public void testBug48064() {
@@ -757,7 +757,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 48523.
+	 * Bug 48523.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
 	 */
 	public void testBug48523() {
@@ -782,7 +782,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 48711.
+	 * Bug 48711.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48711">48711</a>
 	 */
 	public void testBug48711() {
@@ -804,7 +804,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 45782.
+	 * Bug 45782.
 	 * When this bug happened, compiler wrongly complained on missing parameters declaration
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>
 	 */
@@ -871,7 +871,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 49260.
+	 * Bug 49260.
 	 * When this bug happened, compiler wrongly complained on Invalid parameters declaration
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49260">49260</a>
 	 */
@@ -894,7 +894,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 48385.
+	 * Bug 48385.
 	 * When this bug happened, compiler does not complain on CharOperation references in @link tags
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>
 	 */
@@ -1054,7 +1054,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 49491.
+	 * Bug 49491.
 	 * When this bug happened, compiler complained on duplicated throws tag
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
 	 */
@@ -1101,7 +1101,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 48376.
+	 * Bug 48376.
 	 * When this bug happened, compiler complained on duplicated throws tag
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48376">48376</a>
 	 */
@@ -1189,7 +1189,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 50644.
+	 * Bug 50644.
 	 * When this bug happened, compiler complained on duplicated throws tag
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50644">50644</a>
 	 */
@@ -1218,7 +1218,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 50695.
+	 * Bug 50695.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50695">50695</a>
 	 */
 	public void testBug50695() {
@@ -1255,7 +1255,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 51626.
+	 * Bug 51626.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51626">51626</a>
 	 */
 	public void testBug51626() {
@@ -1283,7 +1283,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 52216.
+	 * Bug 52216.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52216">52216</a>
 	 */
 	public void testBug52216() {
@@ -1339,7 +1339,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 51529.
+	 * Bug 51529.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51529">51529</a>
 	 */
 	public void testBug51529() {
@@ -1394,7 +1394,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 51911.
+	 * Bug 51911.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911">51911</a>
 	 */
 	public void testBug51911() {
@@ -1465,7 +1465,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 53279: [Javadoc] Compiler should complain when inline tag is not terminated
+	 * Bug 53279: [Javadoc] Compiler should complain when inline tag is not terminated
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53279">53279</a>
 	 */
 	public void testBug53279() {
@@ -1562,7 +1562,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 53290: [Javadoc] Compiler should complain when tag name is not correct
+	 * Bug 53290: [Javadoc] Compiler should complain when tag name is not correct
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53290">53290</a>
 	 */
 	public void testBug53290() {
@@ -1595,7 +1595,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 62812: Some malformed javadoc tags are not reported as malformed
+	 * Bug 62812: Some malformed javadoc tags are not reported as malformed
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62812">62812</a>
 	 */
 	public void testBug62812() {
@@ -1667,7 +1667,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 51606: [Javadoc] Compiler should complain when tag name is not correct
+	 * Bug 51606: [Javadoc] Compiler should complain when tag name is not correct
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51606">51606</a>
 	 */
 	public void testBug51606() {
@@ -1776,7 +1776,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 65174: Spurious "Javadoc: Missing reference" error
+	 * Bug 65174: Spurious "Javadoc: Missing reference" error
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
 	 */
 	public void testBug65174() {
@@ -1876,7 +1876,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
+	 * Bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180">65180</a>
 	 */
 	public void testBug65180() {
@@ -2052,7 +2052,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+	 * Bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253">65253</a>
 	 */
 	public void testBug65253() {
@@ -2085,7 +2085,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 66551: Error in org.eclipse.swt project on class PrinterData
+	 * Bug 66551: Error in org.eclipse.swt project on class PrinterData
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66551">66551</a>
 	 */
 	public void testBug66551() {
@@ -2154,7 +2154,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}	
 
 	/**
-	 * Test fix for bug 66573: Shouldn't bind to local constructs
+	 * Bug 66573: Shouldn't bind to local constructs
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66573">66573</a>
 	 */
 	public void testBug66573() {
@@ -2182,7 +2182,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 68017: Javadoc processing does not detect missing argument to @return
+	 * Bug 68017: Javadoc processing does not detect missing argument to @return
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017">68017</a>
 	 */
 	public void testBug68017conform() {
@@ -2287,7 +2287,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 68025: Javadoc processing does not detect some wrong links
+	 * Bug 68025: Javadoc processing does not detect some wrong links
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025">68025</a>
 	 */
 	public void testBug68025conform() {
@@ -2367,7 +2367,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 69272: [Javadoc] Invalid malformed reference (missing separator)
+	 * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
 	 */
 	public void testBug69272classValid() {
@@ -2530,7 +2530,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 69275: [Javadoc] Invalid warning on @see link
+	 * Bug 69275: [Javadoc] Invalid warning on @see link
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275">69275</a>
 	 */
 	public void testBug69275conform() {
@@ -2582,7 +2582,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
+	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
 	 */
 	public void testBug69302conform1() {
@@ -2645,7 +2645,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 68726: [Javadoc] Target attribute in @see link triggers warning
+	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
 	 */
 	public void testBug68726conform1() {
@@ -2835,7 +2835,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+	 * Bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
 	 * These two tests should pass whatever the source level...
 	 */
@@ -2867,7 +2867,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 73348: [Javadoc] Missing description for return tag is not always warned
+	 * Bug 73348: [Javadoc] Missing description for return tag is not always warned
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
 	 */
 	public void testBug73348conform() {
@@ -2922,7 +2922,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Test fix for bug 73479: [Javadoc] Improve error message for invalid link in @see tags
+	 * Bug 73479: [Javadoc] Improve error message for invalid link in @see tags
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73479">73479</a>
 	 */
 	public void testBug73479() {
@@ -2946,7 +2946,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Test fix for bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
+	 * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
 	 */
 	public void testBug73995() {
@@ -2971,7 +2971,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Test fix for bug 74369: [Javadoc] incorrect javadoc in local class
+	 * Bug 74369: [Javadoc] incorrect javadoc in local class
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74369">74369</a>
 	 */
 	public void testBug74369() {
@@ -3033,7 +3033,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Test fix for bug 76324: [Javadoc] Wrongly reports invalid link format in @see and @link
+	 * Bug 76324: [Javadoc] Wrongly reports invalid link format in @see and @link
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76324">76324</a>
 	 */
 	public void testBug76324() {
@@ -3210,7 +3210,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 77510: [javadoc] compiler wrongly report deprecation when option "process javadoc comments" is not set
+	 * Bug 77510: [javadoc] compiler wrongly report deprecation when option "process javadoc comments" is not set
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77510">77510</a>
 	 */
 	public void testBug77510enabled() {
@@ -3501,7 +3501,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
+	 * Bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
 	 */
 	public void testBug77602public() {
 		Map options = getCompilerOptions();
@@ -3554,7 +3554,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 78091: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param
+	 * Bug 78091: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78091">78091</a>
 	 */
 	public void testBug78091() {
@@ -3596,7 +3596,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 80910: [javadoc] Invalid missing reference warning on @see or @link tags
+	 * Bug 80910: [javadoc] Invalid missing reference warning on @see or @link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80910"
 	 */
 	public void testBug80910() {
@@ -3624,7 +3624,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Test fix for bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
+	 * Bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
 	 */
 	public void testBug82088() {
@@ -3647,6 +3647,106 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @param key\'s toto\n" + 
 			"	         ^^^^^\n" + 
 			"Javadoc: Invalid param tag name\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83285: [javadoc] Javadoc reference to constructor of secondary type has no binding / not found by search
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83285"
+	 */
+	public void testBug83285a() {
+		runConformTest(
+			new String[] {
+				"p/A.java",
+				"package p;\n" + 
+				"class A { }\n" + 
+				"class C {\n" + 
+				"    /**\n" + 
+				"     * Link {@link #C(String)} was also wrongly warned...\n" + 
+				"     */\n" + 
+				"    private String fGerman;\n" + 
+				"    public C(String german) {\n" + 
+				"        fGerman = german;\n" + 
+				"    }\n" + 
+				"}"
+			}
+		);
+	}
+	public void testBug83285b() {
+		runConformTest(
+			new String[] {
+				"p/A.java",
+				"package p;\n" + 
+				"class A {\n" + 
+				"	A(char c) {}\n" + 
+				"}\n" + 
+				"class B {\n" + 
+				"	B(Exception ex) {}\n" + 
+				"	void foo() {} \n" + 
+				"	class C { \n" + 
+				"	    /**\n" + 
+				"	     * Link {@link #B(Exception)} OK\n" + 
+				"	     * Link {@link #C(String)} OK\n" + 
+				"	     * Link {@link #foo()} OK\n" + 
+				"	     * Link {@link #bar()} OK\n" + 
+				"	     */\n" + 
+				"	    public C(String str) {}\n" + 
+				"		void bar() {}\n" + 
+				"	}\n" + 
+				"}"
+			}
+		);
+	}
+	public void testBug83285c() {
+		runNegativeTest(
+			new String[] {
+				"p/A.java",
+				"package p;\n" + 
+				"class A {\n" + 
+				"	A(char c) {}\n" + 
+				"}\n" + 
+				"class B {\n" + 
+				"	B(Exception ex) {}\n" + 
+				"	void foo() {}\n" + 
+				"	class C { \n" + 
+				"	    /**\n" + 
+				"	     * Link {@link #A(char)} KO\n" + 
+				"	     * Link {@link #B(char)}  KO\n" + 
+				"	     * Link {@link #C(char)} KO\n" + 
+				"	     * Link {@link #foo(int)} KO\n" + 
+				"	     * Link {@link #bar(int)} KO\n" + 
+				"	     */\n" + 
+				"	    public C(String str) {}\n" + 
+				"		void bar() {}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\A.java (at line 10)\n" + 
+			"	* Link {@link #A(char)} KO\n" + 
+			"	               ^\n" + 
+			"Javadoc: The method A(char) is undefined for the type B.C\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\A.java (at line 11)\n" + 
+			"	* Link {@link #B(char)}  KO\n" + 
+			"	               ^\n" + 
+			"Javadoc: The method B(char) is undefined for the type B.C\n" + 
+			"----------\n" + 
+			"3. ERROR in p\\A.java (at line 12)\n" + 
+			"	* Link {@link #C(char)} KO\n" + 
+			"	               ^\n" + 
+			"Javadoc: The constructor B.C(char) is undefined\n" + 
+			"----------\n" + 
+			"4. ERROR in p\\A.java (at line 13)\n" + 
+			"	* Link {@link #foo(int)} KO\n" + 
+			"	               ^^^\n" + 
+			"Javadoc: The method foo(int) is undefined for the type B.C\n" + 
+			"----------\n" + 
+			"5. ERROR in p\\A.java (at line 14)\n" + 
+			"	* Link {@link #bar(int)} KO\n" + 
+			"	               ^^^\n" + 
+			"Javadoc: The method bar() in the type B.C is not applicable for the arguments (int)\n" + 
 			"----------\n"
 		);
 	}
