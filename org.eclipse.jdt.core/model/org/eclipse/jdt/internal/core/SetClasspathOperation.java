@@ -199,9 +199,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		worked(1);
 		this.hasModifiedResource = project.saveClasspath(false);
 		worked(1);
-	
-		// loose all built state - next build will be a full one
-		JavaModelManager.getJavaModelManager().setLastBuiltState(project.getProject(), null);
 	}
 	
 	/**
@@ -368,8 +365,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 			} catch (JavaModelException e) {
 			}
 			this.addDelta(delta);
-			// loose all built state - next build will be a full one
-			manager.setLastBuiltState(project.getProject(), null);
 
 			if (hasChangedContentForDependents){
 				updateAffectedProjects(project.getProject().getFullPath());

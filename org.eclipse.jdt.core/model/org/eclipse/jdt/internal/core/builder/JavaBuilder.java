@@ -276,14 +276,43 @@ private IProject[] getRequiredProjects() {
 
 private boolean hasClasspathChanged() {
 	ClasspathLocation[] oldClasspathLocations = lastState.classpathLocations;
-	if (classpath.length == oldClasspathLocations.length) {
-		for (int i = 0, length = classpath.length; i < length; i++) {
+	int newLength = classpath.length;
+	int oldLength = oldClasspathLocations.length;
+	int diff = newLength - oldLength;
+	if (diff == 0) {
+		for (int i = 0; i < newLength; i++) {
 			if (classpath[i].equals(oldClasspathLocations[i])) continue;
 			if (DEBUG)
 				System.out.println(classpath[i] + " != " + oldClasspathLocations[i]); //$NON-NLS-1$
 			return true;
 		}
 		return false;
+	} else if (diff == 1) {
+		ClasspathMultiDirectory newSourceDirectory = null;
+		int n = 0, o = 0;
+		for (; n < newLength && o < oldLength; n++, o++) {
+			if (classpath[n].equals(oldClasspathLocations[o])) continue;
+			if (diff == 1 && classpath[n] instanceof ClasspathMultiDirectory) { // added a new source folder
+				newSourceDirectory = (ClasspathMultiDirectory) classpath[n];
+				o--;
+				diff = 0; // found new element
+				continue;
+			}
+			if (DEBUG)
+				System.out.println(classpath[n] + " != " + oldClasspathLocations[o]); //$NON-NLS-1$
+			return true;
+		}
+
+		if (diff == 1 && classpath[n] instanceof ClasspathMultiDirectory) // added a new source folder at the end
+			newSourceDirectory = (ClasspathMultiDirectory) classpath[n];
+		if (newSourceDirectory != null) {
+			IContainer sourceFolder = workspaceRoot.getContainerForLocation(new Path(newSourceDirectory.sourcePath));
+			if (sourceFolder != null && sourceFolder.exists()) {
+				try {
+					if (sourceFolder.members().length == 0) return false; // added a new empty source folder
+				} catch (CoreException ignore) {}
+			}
+		}
 	}
 
 	if (DEBUG)
