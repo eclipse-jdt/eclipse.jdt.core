@@ -192,4 +192,6 @@ public interface QualifiedNamesConstants {
 	char[] LONGVALUE_LONG_METHOD_SIGNATURE = "()J".toCharArray(); //$NON-NLS-1$
 	char[] GETDECLAREDCONSTRUCTOR_NAME = "getDeclaredConstructor".toCharArray(); //$NON-NLS-1$
 	char[] GETDECLAREDCONSTRUCTOR_SIGNATURE = "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;".toCharArray(); //$NON-NLS-1$
+	char[] Name = "name".toCharArray(); //$NON-NLS-1$
+	char[] NameSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
 }

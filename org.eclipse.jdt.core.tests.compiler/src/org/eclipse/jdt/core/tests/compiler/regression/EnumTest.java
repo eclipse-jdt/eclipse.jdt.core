@@ -695,6 +695,21 @@ public class EnumTest extends AbstractComparisonTest {
 			"Cannot qualify the name of the enum constant ROUGE in a case label\n" + 
 			"----------\n");
 	}
+	
+	// 77212 
+	public void test023() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public enum RuleType{ SUCCESS, FAILURE }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(RuleType.valueOf(RuleType.SUCCESS.name()));\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"SUCCESS");
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

@@ -1862,59 +1862,60 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	this.getstatic(enumValuesSyntheticfield);
 	this.invokevirtual(
 		new UpdatedMethodBinding(
-										enumArray,
-										AccPublic,
-										CLONE,
-										object,
-										NoParameters,
-										NoExceptions,
-										object));
+			enumArray,
+			AccPublic,
+			CLONE,
+			object,
+			NoParameters,
+			NoExceptions,
+			object));
 	this.checkcast(enumArray);
 	this.areturn();
 }
-//	static X valueOf(String name) {
-//		X[] values;
-//		for (int i = (values = $VALUES).length; i > 0; i--) {
-//			X value;
-//			if (name.equals(value = values[i])) return value;
-//		}
-//		throw new IllegalArgumentException(name);
-//	}			
+//static X valueOf(String name) {
+// X[] values;
+// for (int i = (values = $VALUES).length; --i >= 0;) {
+// 		 X value;
+// 		 if (name.equals(value = values[i].name())) return value;
+// }
+// throw new IllegalArgumentException(name);
+//}		
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
-		initializeMaxLocals(methodBinding);
-		Label loopCond = new Label(this);
-		Label loopStart = new Label(this);
-		Label wrongConstant = new Label(this);
-		
-		this.getstatic(enumValuesSyntheticfield);
-		this.dup();
-		this.astore_1();
-		this.arraylength();
-		this.istore_2();
-		this.goto_(loopCond);
-		loopStart.place();
-		this.aload_0();
-		this.aload_1();
-		this.iload_2();
-		this.aaload();
-		this.dup();
-		this.astore_3();
-		this.invokeStringEquals();
-		this.ifeq(wrongConstant);
-		this.aload_3();
-		this.areturn();
-		wrongConstant.place();
-		this.iinc(2, -1);
-		loopCond.place();
-		this.iload_2();
-		this.ifgt(loopStart);
-		this.newJavaLangIllegalArgumentException();
-		this.dup();
-		this.aload_0();
-		this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
-		this.athrow();
+	initializeMaxLocals(methodBinding);
+	Label loopCond = new Label(this);
+	Label loopStart = new Label(this);
+	Label wrongConstant = new Label(this);
+
+	this.getstatic(enumValuesSyntheticfield);
+	this.dup();
+	this.astore_1();
+	this.arraylength();
+	this.istore_2();
+	this.goto_(loopCond);
+	loopStart.place();
+	this.aload_0();
+	this.aload_1();
+	this.iload_2();
+	this.aaload();
+	this.dup();
+	this.astore_3();
+	this.invokeJavaLangEnumname(this.classFile.referenceBinding);
+	this.invokeStringEquals();
+	this.ifeq(wrongConstant);
+	this.aload_3();
+	this.areturn();
+	wrongConstant.place();
+	loopCond.place();
+	this.iinc(2, -1);		
+	this.iload_2();
+	this.ifge(loopStart);
+	this.newJavaLangIllegalArgumentException();
+	this.dup();
+	this.aload_0();
+	this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
+	this.athrow();
 }
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
@@ -3307,7 +3308,17 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 			QualifiedNamesConstants.Init,
 			QualifiedNamesConstants.DefaultConstructorSignature);
 }
-
+public void invokeJavaLangEnumname(TypeBinding typeBinding) {
+	// invokevirtual: java.lang.Enum.name()String
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.name()Ljava/lang/String;"); //$NON-NLS-1$
+	this.invoke(
+			OPC_invokevirtual,
+			0,
+			1,
+			typeBinding.constantPoolName(),
+			QualifiedNamesConstants.Name,
+			QualifiedNamesConstants.NameSignature);
+}
 public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
 	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.IllegalArgumentException.<init>(java.lang.String)V"); //$NON-NLS-1$
