@@ -3554,9 +3554,9 @@ public class ASTTest extends TestCase {
 		
 		// check that end-of-line comment is allowed
 		previousCount = ast.modificationCount();
-		x.setLeadingComment("// X"); //$NON-NLS-1$
+		x.setLeadingComment("// X\n"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue(x.getLeadingComment() == "// X"); //$NON-NLS-1$
+		assertTrue(x.getLeadingComment() == "// X\n"); //$NON-NLS-1$
 		
 		// check that end-of-line comment with embedded end of line 
 		// not allowed
