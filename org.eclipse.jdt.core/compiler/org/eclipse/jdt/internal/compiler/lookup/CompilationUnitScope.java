@@ -27,6 +27,7 @@ public class CompilationUnitScope extends Scope {
 	public char[][] currentPackageName;
 	public PackageBinding fPackage;
 	public ImportBinding[] imports;
+	
 	public SourceTypeBinding[] topLevelTypes;
 
 	private CompoundNameVector qualifiedReferences;
@@ -128,7 +129,7 @@ void checkAndSetImports() {
 		if (importBinding == null || !importBinding.isValidBinding())
 			problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
 
-		environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding)};
+		environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
 	}
 	if (referenceContext.imports == null) {
 		imports = environment.defaultImports;
@@ -166,9 +167,9 @@ void checkAndSetImports() {
 			Binding importBinding = findOnDemandImport(compoundName);
 			if (!importBinding.isValidBinding())
 				continue nextImport;	// we report all problems in faultInImports()
-			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding);
+			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
-			resolvedImports[index++] = new ImportBinding(compoundName, false, null);
+			resolvedImports[index++] = new ImportBinding(compoundName, false, null, importReference);
 		}
 	}
 
@@ -217,19 +218,20 @@ void faultInImports() {
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++)
 			if (resolvedImports[j].onDemand == importReference.onDemand)
-				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName))
+				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName)) {
 					continue nextImport;
+				}
 		if (importReference.onDemand == true)
-			if (CharOperation.equals(compoundName, currentPackageName))
+			if (CharOperation.equals(compoundName, currentPackageName)) {
 				continue nextImport;
-
+			}
 		if (importReference.onDemand) {
 			Binding importBinding = findOnDemandImport(compoundName);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);
 				continue nextImport;
 			}
-			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding);
+			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
 			Binding typeBinding = findSingleTypeImport(compoundName);
 			if (!typeBinding.isValidBinding()) {
@@ -243,9 +245,9 @@ void faultInImports() {
 			ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
 			if (existingType != null) {
 				// duplicate test above should have caught this case, but make sure
-				if (existingType == typeBinding)
+				if (existingType == typeBinding) {
 					continue nextImport;
-
+				}
 				// either the type collides with a top level type or another imported type
 				for (int j = 0, length = topLevelTypes.length; j < length; j++) {
 					if (CharOperation.equals(topLevelTypes[j].sourceName, existingType.sourceName)) {
@@ -256,7 +258,7 @@ void faultInImports() {
 				problemReporter().duplicateImport(importReference);
 				continue nextImport;
 			}
-			resolvedImports[index++] = new ImportBinding(compoundName, false, typeBinding);
+			resolvedImports[index++] = new ImportBinding(compoundName, false, typeBinding, importReference);
 			typesBySimpleNames.put(compoundName[compoundName.length - 1], (ReferenceBinding) typeBinding);
 		}
 	}
@@ -450,9 +452,10 @@ Binding resolveSingleTypeImport(ImportBinding importBinding) {
 		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
 			ImportBinding[] newImports = new ImportBinding[imports.length - 1];
 			for (int i = 0, n = 0, max = imports.length; i < max; i++)
-				if (imports[i] != importBinding)
+				if (imports[i] != importBinding){
 					newImports[n++] = imports[i];
-			imports = newImports;
+				}
+			this.imports = newImports;
 			return null;
 		}
 	}

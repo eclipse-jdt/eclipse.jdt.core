@@ -10,17 +10,21 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class ImportBinding extends Binding {
 	public char[][] compoundName;
 	public boolean onDemand;
+	public ImportReference reference;
 
 	Binding resolvedImport; // must ensure the import is resolved
-public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding) {
+	
+public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding, ImportReference reference) {
 	this.compoundName = compoundName;
 	this.onDemand = isOnDemand;
 	this.resolvedImport = binding;
+	this.reference = reference;
 }
 /* API
 * Answer the receiver's binding type from Binding.BindingID.

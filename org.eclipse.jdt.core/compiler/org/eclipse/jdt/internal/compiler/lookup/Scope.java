@@ -1047,8 +1047,10 @@ public abstract class Scope
 				ImportBinding typeImport = imports[i];
 				if (!typeImport.onDemand)
 					if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name))
-						if (unitScope.resolveSingleTypeImport(typeImport) != null)
+						if (unitScope.resolveSingleTypeImport(typeImport) != null) {
+							if (typeImport.reference != null) typeImport.reference.used = true;
 							return typeImport.resolvedImport; // already know its visible
+						}
 			}
 			// check if the name is in the current package (answer the problem binding unless its not found in which case continue to look)
 			ReferenceBinding type = findType(name, unitScope.fPackage, unitScope.fPackage); // is always visible
@@ -1057,13 +1059,15 @@ public abstract class Scope
 			// check on demand imports
 			boolean foundInImport = false;
 			for (int i = 0, length = unitScope.imports.length; i < length; i++) {
-				if (unitScope.imports[i].onDemand) {
-					Binding resolvedImport = unitScope.imports[i].resolvedImport;
+				ImportBinding someImport = unitScope.imports[i];
+				if (someImport.onDemand) {
+					Binding resolvedImport = someImport.resolvedImport;
 					ReferenceBinding temp =
 						(resolvedImport instanceof PackageBinding)
 							? findType(name, (PackageBinding) resolvedImport, unitScope.fPackage)
 							: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
 					if (temp != null && temp.isValidBinding()) {
+						if (someImport.reference != null) someImport.reference.used = true;
 						if (foundInImport)
 							// Answer error binding -- import on demand conflict; name found in two import on demand packages.
 							return new ProblemReferenceBinding(name, Ambiguous);

@@ -104,10 +104,23 @@ public class CompilationUnitDeclaration
 		}
 	}
 
+	public void checkUnusedImports(){
+		
+		if (this.scope.imports != null){
+			for (int i = 0, max = this.scope.imports.length; i < max; i++){
+				ImportBinding importBinding = this.scope.imports[i];
+				ImportReference importReference = importBinding.reference;
+				if (importReference != null && !importReference.used){
+					scope.problemReporter().unusedImport(importReference);
+				}
+			}
+		}
+	}
+	
 	public CompilationResult compilationResult() {
 		return compilationResult;
 	}
-
+	
 	/*
 	 * Finds the matching type amoung this compilation unit types.
 	 * Returns null if no type with this name is found.
@@ -218,9 +231,12 @@ public class CompilationUnitDeclaration
 	public void resolve() {
 
 		try {
-			if (types != null)
-				for (int i = 0, count = types.length; i < count; i++)
+			if (types != null) {
+				for (int i = 0, count = types.length; i < count; i++) {
 					types[i].resolve(scope);
+				}
+			}
+			checkUnusedImports();
 		} catch (AbortCompilationUnit e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

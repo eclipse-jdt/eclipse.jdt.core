@@ -620,11 +620,15 @@ public class Main implements ProblemSeverities {
 				options.put(
 					CompilerOptions.OPTION_ReportMethodWithConstructorName,
 					CompilerOptions.IGNORE);
-				options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportDeprecation, 
+					CompilerOptions.IGNORE);
 				options.put(
 					CompilerOptions.OPTION_ReportHiddenCatchBlock,
 					CompilerOptions.IGNORE);
-				options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedLocal, 
+					CompilerOptions.IGNORE);
 				options.put(
 					CompilerOptions.OPTION_ReportUnusedParameter,
 					CompilerOptions.IGNORE);
@@ -636,6 +640,9 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.IGNORE);
 				options.put(
 					CompilerOptions.OPTION_ReportAssertIdentifier,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedImport,
 					CompilerOptions.IGNORE);
 
 				while (tokenizer.hasMoreTokens()) {
@@ -654,12 +661,20 @@ public class Main implements ProblemSeverities {
 							CompilerOptions.OPTION_ReportHiddenCatchBlock,
 							CompilerOptions.WARNING);
 					} else if (token.equals("deprecation")) { //$NON-NLS-1$
-						options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+						options.put(
+							CompilerOptions.OPTION_ReportDeprecation, 
+							CompilerOptions.WARNING);
 					} else if (token.equals("unusedLocals")) { //$NON-NLS-1$
-						options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+						options.put(
+							CompilerOptions.OPTION_ReportUnusedLocal, 
+							CompilerOptions.WARNING);
 					} else if (token.equals("unusedArguments")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedParameter,
+							CompilerOptions.WARNING);
+					} else if (token.equals("unusedImports")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportUnusedImport,
 							CompilerOptions.WARNING);
 					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
 						options.put(
