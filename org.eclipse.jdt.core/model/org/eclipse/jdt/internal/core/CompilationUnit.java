@@ -19,8 +19,6 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.util.Util;
-
 /**
  * @see ICompilationUnit
  */
@@ -37,7 +35,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 protected CompilationUnit(IPackageFragment parent, String name) {
 	super(COMPILATION_UNIT, parent, name);
 	if (!Util.isJavaFileName(name)) {
-		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
 }
 /**
@@ -126,7 +124,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		String source = ""; //$NON-NLS-1$
 		if (pkg.getElementName().length() > 0) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";"  + Util.LINE_SEPARATOR + Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, fName, source, force);
 		runOperation(op, monitor);
