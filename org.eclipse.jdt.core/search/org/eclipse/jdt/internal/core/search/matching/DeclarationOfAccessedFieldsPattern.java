@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -75,6 +76,9 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	}
 }
 private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) throws CoreException {
+	// ignore length field
+	if (fieldBinding == ArrayBinding.LengthField) return;
+	
 	ReferenceBinding declaringClass = fieldBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
 	if (type == null) return; // case of a secondary type
