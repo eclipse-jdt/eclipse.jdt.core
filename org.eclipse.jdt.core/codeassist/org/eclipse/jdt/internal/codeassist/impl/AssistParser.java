@@ -753,6 +753,9 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 
 	initialize();
 	
+	// necessary for proper completions inside explicit constructor call - need to investigate
+	cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+	
 	// simulate goForConstructorBody except that we don't want to balance brackets because they are not going to be balanced
 	goForConstructorBlockStatementsopt();
 

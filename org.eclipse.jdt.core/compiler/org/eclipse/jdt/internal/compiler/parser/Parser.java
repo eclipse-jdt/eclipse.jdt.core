@@ -1420,7 +1420,7 @@ protected void consumeClassDeclaration() {
 	
 	//add the default constructor when needed (interface don't have it)
 	if (!hasConstructor) {
-		typeDecl.createsInternalConstructor(true, true);
+		typeDecl.createsInternalConstructor((!diet || typeDecl instanceof LocalTypeDeclaration), true);
 	}
 
 	//always add <clinit> (will be remove at code gen time if empty)
@@ -1622,7 +1622,10 @@ protected void consumeConstructorDeclaration() {
 			constructorCall = SuperReference.implicitSuperConstructorCall();
 		}
 	} else {
-		constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!diet){
+			// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
+			constructorCall = SuperReference.implicitSuperConstructorCall();
+		}
 	}
 
 	// now we know that the top of stack is a constructorDeclaration
@@ -1631,7 +1634,7 @@ protected void consumeConstructorDeclaration() {
 	cd.statements = statements;
 
 	//highlight of the implicit call on the method name
-	if (cd.constructorCall.sourceEnd == 0) {
+	if (constructorCall != null && cd.constructorCall.sourceEnd == 0) {
 		cd.constructorCall.sourceEnd = cd.sourceEnd;
 		cd.constructorCall.sourceStart = cd.sourceStart;
 	}

@@ -350,7 +350,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 		typeDeclaration.methods = methodDeclarations;
 	} else {
 		if (!hasConstructor) {// if was already reduced, then constructor
-			typeDeclaration.createsInternalConstructor(true, true);
+			typeDeclaration.createsInternalConstructor(!parser().diet, true);
 		} 
 	}
 	/* might need to cast itself into a MemberTypeDeclaration or a LocalTypeDeclaration */

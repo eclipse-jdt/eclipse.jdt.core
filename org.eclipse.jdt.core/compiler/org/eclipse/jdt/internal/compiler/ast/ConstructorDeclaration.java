@@ -308,8 +308,13 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		//fill up the constructor body with its statements
 		if (ignoreFurtherInvestigation)
 			return;
-		if (isDefaultConstructor)
+		if (isDefaultConstructor){
+			constructorCall =
+				new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+			constructorCall.sourceStart = sourceStart;
+			constructorCall.sourceEnd = sourceEnd; 
 			return;
+		}
 		parser.parse(this, unit);
 
 	}
@@ -322,7 +327,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 		if (binding == null) {
 			ignoreFurtherInvestigation = true;
-			//return;
 		}
 
 		super.resolve(upperScope);
@@ -334,11 +338,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				if (constructorCall.binding != null
 					&& !constructorCall.isSuperAccess()
 					&& constructorCall.binding.isValidBinding()) {
-					(
-						(ConstructorDeclaration)
-							(
-								upperScope.referenceContext.declarationOf(
-									constructorCall.binding))).referenceCount++;
+					((ConstructorDeclaration)
+							(upperScope.referenceContext.declarationOf(constructorCall.binding))).referenceCount++;
 				}
 			}
 		} catch (AbortMethod e) {
