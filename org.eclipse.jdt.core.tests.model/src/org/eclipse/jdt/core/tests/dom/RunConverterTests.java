@@ -15,21 +15,18 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RunAllTests extends TestCase {
-public RunAllTests(String name) {
+public class RunConverterTests extends TestCase {
+public RunConverterTests(String name) {
 	super(name);
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
 		org.eclipse.jdt.core.tests.dom.ASTConverterTest.class,		
-		org.eclipse.jdt.core.tests.dom.ASTConverterTest2.class,
-		org.eclipse.jdt.core.tests.dom.ASTTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTVisitorTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTMatcherTest.class
+		org.eclipse.jdt.core.tests.dom.ASTConverterTest2.class
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunAllTests.class.getName());
+	TestSuite ts = new TestSuite(RunConverterTests.class.getName());
 
 	Class[] testClasses = getAllTestClasses();
 	for (int i = 0; i < testClasses.length; i++) {
