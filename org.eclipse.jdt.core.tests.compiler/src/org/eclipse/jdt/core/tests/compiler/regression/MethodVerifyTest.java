@@ -1019,4 +1019,53 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"Visited base: AbstractBase+Visited derived: Derived+Visited derived: Derived"
 		);
 	}
+
+	// TODO (philippe) Binary case is busted
+	public void _test021() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+				"	public void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"}\n",
+				"B.java",
+				"class B extends A {\n" + 
+				"	void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in B.java (at line 2)\r\n" + 
+			"	void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot reduce the visibility of the inherited method from A\n" + 
+			"----------\n"
+		);
+		// now save A & pick it up as a binary type
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+				"	public void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"B.java",
+				"class B extends A {\n" + 
+				"	void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in B.java (at line 2)\r\n" + 
+			"	void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot reduce the visibility of the inherited method from A\n" + 
+			"----------\n",
+			null,
+			false,
+			null
+		);
+	}
 }
