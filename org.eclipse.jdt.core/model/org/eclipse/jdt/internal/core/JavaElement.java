@@ -48,7 +48,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * them.  The occurrence count starts at 1 (thus the first 
 	 * occurrence is occurrence 1, not occurrence 0).
 	 */
-	protected int occurrenceCount = 1;
+	public int occurrenceCount = 1;
 
 	/**
 	 * This element's parent, or <code>null</code> if this
@@ -322,12 +322,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} while ((current = current.getParent()) != null);
 		return null;
 	}
-	/**
-	 * Returns the occurrence count of the handle.
-	 */
-	protected int getOccurrenceCount() {
-		return this.occurrenceCount;
-	}
 	/*
 	 * @see IJavaElement
 	 */
@@ -513,12 +507,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				throw new JavaModelException(ce);
 			}
 		}
-	}
-	/**
-	 * Sets the occurrence count of the handle.
-	 */
-	protected void setOccurrenceCount(int count) {
-		this.occurrenceCount = count;
 	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();

@@ -541,7 +541,7 @@ public void exitMethod(int declarationEnd) {
 protected void resolveDuplicates(IJavaElement handle) {
 	while (newElements.containsKey(handle)) {
 		JavaElement h = (JavaElement) handle;
-		h.setOccurrenceCount(h.getOccurrenceCount() + 1);
+		h.occurrenceCount++;
 	}
 }
 }
