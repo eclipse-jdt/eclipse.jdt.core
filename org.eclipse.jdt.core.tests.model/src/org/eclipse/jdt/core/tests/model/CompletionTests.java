@@ -167,6 +167,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionLocalType1"));
 	suite.addTest(new CompletionTests("testCompletionType1"));
 	suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
+	suite.addTest(new CompletionTests("testCompletionClassLiteralAfterAnonymousType1"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8289,6 +8290,19 @@ public void testCompletionQualifiedAllocationType1() throws JavaModelException {
 
 	assertEquals(
 		"element:CompletionQualifiedAllocationType1.YYY    completion:YYY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+		requestor.getResults());
+}
+public void testCompletionClassLiteralAfterAnonymousType1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionClassLiteralAfterAnonymousType1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "double.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 }
