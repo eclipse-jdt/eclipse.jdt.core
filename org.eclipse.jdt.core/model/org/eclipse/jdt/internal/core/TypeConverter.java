@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Converter from a type to an AST type declaration.
+ * (The converted type can be a binary or a source type)
  */
 public class TypeConverter {
 	

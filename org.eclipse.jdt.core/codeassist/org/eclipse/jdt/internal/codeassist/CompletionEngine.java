@@ -806,7 +806,8 @@ public final class CompletionEngine
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
 	
 		try {
-			//TODO (david) should be instead be using SourceTypeConverter?
+			// TypeConverter is used instead of SourceTypeConverter because the type
+			// to convert can be a binary type or a source type
 			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
 		
 			if(typeDeclaration != null) {	
