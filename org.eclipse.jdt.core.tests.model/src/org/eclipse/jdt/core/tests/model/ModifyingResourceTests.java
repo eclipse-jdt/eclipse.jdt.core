@@ -154,10 +154,10 @@ protected IFolder createFolder(String path) throws CoreException {
 	return folder;
 }
 protected void deleteFile(String filePath) throws CoreException {
-	this.getFile(filePath).delete(true, null);
+	deleteResource(this.getFile(filePath));
 }
 protected void deleteFolder(String folderPath) throws CoreException {
-	this.getFolder(folderPath).delete(true, null);
+	deleteResource(this.getFolder(folderPath));
 }
 protected IFile editFile(String path, String content) throws CoreException {
 	IFile file = this.getFile(path);
