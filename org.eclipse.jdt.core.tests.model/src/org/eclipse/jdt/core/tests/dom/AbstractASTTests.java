@@ -118,23 +118,29 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
 	 * by "*start*" and "*end*".
 	 */
-	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
+	protected ASTNode buildAST(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
 		MarkerInfo markerInfo = new MarkerInfo(contents);
 		contents = markerInfo.source;
 
 		cu.getBuffer().setContents(contents);
 		CompilationUnit unit = cu.reconcile(AST.JLS3, false, null, null);
 		
-		StringBuffer buffer = new StringBuffer();
-		IProblem[] problems = unit.getProblems();
-		for (int i = 0, length = problems.length; i < length; i++)
-			Util.appendProblem(buffer, problems[i], contents.toCharArray(), i+1);
-		if (buffer.length() > 0)
-			System.err.println(buffer.toString());
+		if (reportErrors) {
+			StringBuffer buffer = new StringBuffer();
+			IProblem[] problems = unit.getProblems();
+			for (int i = 0, length = problems.length; i < length; i++)
+				Util.appendProblem(buffer, problems[i], contents.toCharArray(), i+1);
+			if (buffer.length() > 0)
+				System.err.println(buffer.toString());
+		}
 
 		return findNode(unit, markerInfo);
 	}
-	
+
+	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
+		return buildAST(contents, cu, true);
+	}
+
 	protected MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
 		MarkerInfo[] markerInfos = new MarkerInfo[pathAndSources.length / 2];
 		int index = 0;

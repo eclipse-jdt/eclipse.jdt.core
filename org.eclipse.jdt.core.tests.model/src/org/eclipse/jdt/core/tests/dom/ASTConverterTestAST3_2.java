@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0582"));
+		suite.addTest(new ASTConverterTestAST3_2("test0580"));
 		return suite;
 	}
 	/**
@@ -5445,19 +5445,30 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79953
 	 */
-	public void _test0580() throws JavaModelException {
+	public void test0580() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			String source = "package p;\n" +
+			"public class X {\n" +
+			"	d String[][]tab;\n" +
+			"}";
 			ASTNode node = buildAST(
-				"package p;\n" +
-				"public class X {\n" +
-				"	d\n" +
-				"	\n" +
-				"	String[][]tab;\n" +
-				"}",
-				workingCopy);
+				source,
+				workingCopy,
+				false);
 			assertEquals("wrong type", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			checkSourceRange(fieldDeclaration, "d String[][]", source.toCharArray());
+			Type type = fieldDeclaration.getType();
+			assertTrue("Not a simple type", type.isSimpleType());
+			List fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			assertEquals("Wrong extended dimensions", 2, fragment.getExtraDimensions());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
