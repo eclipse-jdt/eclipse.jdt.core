@@ -329,8 +329,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		} catch (InvalidInputException e) {
 			this.err.println(e.getMessage());
-			this.err.flush();
 			if (this.systemExitWhenFinished) {
+    			this.out.flush();
+				this.err.flush();
+				if (this.log != null) {
+					this.err.close();
+				}			
 				System.exit(-1);
 			}
 			return false;
