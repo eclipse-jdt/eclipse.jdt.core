@@ -664,6 +664,8 @@ public class BlockScope extends Scope {
 			// inside Constructor call or inside static context
 			Scope scope = parent;
 			int depth = 0;
+			int foundDepth = 0;
+			ReferenceBinding foundActualReceiverType = null;
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
@@ -749,10 +751,8 @@ public class BlockScope extends Scope {
 								|| (foundField.problemId() == NotVisible
 									&& fieldBinding.problemId() != NotVisible)) {
 								// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
-								if (depth > 0) {
-									invocationSite.setDepth(depth);
-									invocationSite.setActualReceiverType(enclosingType);
-								}
+								foundDepth = depth;
+								foundActualReceiverType = enclosingType;
 								foundInsideProblem = insideProblem;
 								foundField = fieldBinding;
 							}
@@ -772,11 +772,17 @@ public class BlockScope extends Scope {
 				scope = scope.parent;
 			}
 
-			if (foundInsideProblem != null)
+			if (foundInsideProblem != null){
 				return foundInsideProblem;
+			}
 			if (foundField != null) {
-				if (foundField.isValidBinding())
+				if (foundField.isValidBinding()){
+					if (foundDepth > 0){
+						invocationSite.setDepth(foundDepth);
+						invocationSite.setActualReceiverType(foundActualReceiverType);
+					}
 					return foundField;
+				}
 				problemField = foundField;
 			}
 		}
