@@ -530,7 +530,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, e.enclosingType, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -556,8 +556,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
-		if (binding instanceof ReferenceBinding) {
+	private void selectFrom(Binding binding, SourceTypeBinding enclosingType, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
+		if(binding instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
+			this.noProposal = false;
+			this.requestor.acceptTypeParameter(
+				enclosingType.qualifiedPackageName(),
+				enclosingType.qualifiedSourceName(),
+				typeVariableBinding.sourceName(),
+				false,
+				this.actualSelectionStart,
+				this.actualSelectionEnd);
+			this.acceptedAnswer = true;
+		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			if (qualifiedSelection != null
 				&& !CharOperation.equals(qualifiedSelection, typeBinding.readableName())) {
@@ -684,11 +695,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.acceptedAnswer = true;
 						} else {
 							// open on the type of the variable
-							selectFrom(((LocalVariableBinding) binding).type, parsedUnit, false);
+							selectFrom(((LocalVariableBinding) binding).type, null, parsedUnit, false);
 						}
 					} else
 						if (binding instanceof ArrayBinding) {
-							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit, false);
+							selectFrom(((ArrayBinding) binding).leafComponentType, null, parsedUnit, false);
 							// open on the type of the array
 						} else
 							if (binding instanceof PackageBinding) {
@@ -858,7 +869,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, e.enclosingType, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -991,6 +1002,32 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				return true;
 			}
 		}
+		
+		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		for (int i = 0, length = typeParameters == null ? 0 : typeParameters.length; i < length; i++){
+			TypeParameter typeParameter = typeParameters[i];
+			if(typeParameter.name == assistIdentifier) {
+				char[] qualifiedSourceName = null;
+				
+				TypeDeclaration enclosingType = typeDeclaration;
+				while(enclosingType != null) {
+					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+					enclosingType = enclosingType.enclosingType;
+				}
+				
+				this.requestor.acceptTypeParameter(
+					packageName,
+					qualifiedSourceName,
+					typeParameter.name,
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+				
+				this.noProposal = false;
+				return true;
+			}
+		}
+		
 		return false;
 	}
 }

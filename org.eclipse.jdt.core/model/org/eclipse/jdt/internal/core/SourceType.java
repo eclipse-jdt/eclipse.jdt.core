@@ -743,6 +743,9 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 		public void acceptPackage(char[] packageName){
 			// ignore
 		}
+		public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+			// ignore
+		}
 
 	}
 	TypeResolveRequestor requestor = new TypeResolveRequestor();

@@ -137,4 +137,64 @@ public void test0005() throws JavaModelException {
 		elements
 	);
 }
+public void test0006() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0006", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0006";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0007() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0007", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0007";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0008() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0008", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0008";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0009() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0009", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0009";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
 }
