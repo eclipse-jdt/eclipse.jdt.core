@@ -10,7 +10,7 @@ public class Test {
 	 *  1) {@link String} tag description not empty
 	 *  2) {@link CharOperation Unknown class} tag description not empty
 	 * @param str
-	 * @param var tag description not empty
+	 * @param VAR Unknown parameter
 	 * @param list third param with embedded tag: {@link Vector}
 	 * @param array fourth param with several embedded tags on several lines:
 	 *  1) {@link String} tag description not empty

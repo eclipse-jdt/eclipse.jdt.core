@@ -3067,44 +3067,38 @@ class ASTConverter {
 					// resolve member and method references binding
 					Iterator tags = docComment.tags().listIterator();
 					while (tags.hasNext()) {
-						TagElement tagElement = (TagElement) tags.next();
-						Iterator fragments = tagElement.fragments().listIterator();
-						while (fragments.hasNext()) {
-							ASTNode node = (ASTNode) fragments.next();
-							if (node.getNodeType() == ASTNode.MEMBER_REF) {
-								int start = node.getStartPosition();
-								Name name = ((MemberRef)node).getName();
-								if (name != null) start = name.getStartPosition();
-								org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
-								if (compilerNode != null) {
-									recordNodes(node, compilerNode);
-								}
-							} else if (node.getNodeType() == ASTNode.METHOD_REF) {
-								org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
-								if (compilerNode != null) {
-									recordNodes(node, compilerNode);
-								}
-							} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
-								// resolve member and method references binding
-								TagElement inlineTag = (TagElement) node;
-								Iterator inlineFragments = inlineTag.fragments().listIterator();
-								while (inlineFragments.hasNext()) {
-									ASTNode inlineNode = (ASTNode) inlineFragments.next();
-									if (inlineNode.getNodeType() == ASTNode.MEMBER_REF || inlineNode.getNodeType() == ASTNode.METHOD_REF) {
-										org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(inlineNode.getStartPosition());
-										if (compilerNode != null) {
-											recordNodes(inlineNode, compilerNode);
-										}
-									}
-								}
-							}
-						}
+						recordNodes(javadoc, (TagElement) tags.next());
 					}
 				}
 				return docComment;
 			}
 		}
 		return null;
+	}
+	
+	private void recordNodes(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, TagElement tagElement) {
+		Iterator fragments = tagElement.fragments().listIterator();
+		while (fragments.hasNext()) {
+			ASTNode node = (ASTNode) fragments.next();
+			if (node.getNodeType() == ASTNode.MEMBER_REF) {
+				Name name = ((MemberRef)node).getName();
+				int start = name.getStartPosition();
+				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
+				if (compilerNode != null) {
+					recordNodes(node, compilerNode);
+				}
+			} else if (node.getNodeType() == ASTNode.METHOD_REF ||
+					node.getNodeType() == ASTNode.SIMPLE_NAME ||
+					node.getNodeType() == ASTNode.QUALIFIED_NAME) {
+				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
+				if (compilerNode != null) {
+					recordNodes(node, compilerNode);
+				}
+			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
+				// resolve member and method references binding
+				recordNodes(javadoc, (TagElement) node);
+			}
+		}
 	}
 
 

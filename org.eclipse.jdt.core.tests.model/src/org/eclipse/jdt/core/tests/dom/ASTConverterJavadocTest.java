@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 
@@ -43,7 +44,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());		
 
-		if (false) {
+		if (true) {
 			Class c = ASTConverterJavadocTest.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {
@@ -64,7 +65,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		List comments = new ArrayList();
 		List numbers = new ArrayList();
 		StringBuffer buffer = new StringBuffer(source.length);
-		boolean store = false;
 		boolean javadoc = false;
 		boolean star = false;
 		boolean firstTag = true;
@@ -328,6 +328,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				assertMatchBindings((TagElement) fragment);
 				previousBinding = null;
 				resolvedBinding = false;
+			} else if (fragment.getNodeType() == ASTNode.SIMPLE_NAME || fragment.getNodeType() == ASTNode.QUALIFIED_NAME) {
+				previousBinding = ((Name)fragment).resolveBinding();
+				resolvedBinding = true;
 			} else if (fragment.getNodeType() == ASTNode.MEMBER_REF) {
 				previousBinding = ((MemberRef)fragment).resolveBinding();
 				resolvedBinding = true;
@@ -337,6 +340,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			previousFragment = fragment;
 		}
+		assertTrue("Reference in '"+previousFragment+"' should be bound!", (!resolvedBinding || previousBinding != null));
 	}
 
 	/**
@@ -365,8 +369,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testJavadoc01() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "testJ01", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		String sourceStr = sourceUnit.getSource();
-		char[] source = sourceStr.toCharArray();
+//		String sourceStr = sourceUnit.getSource();
+//		char[] source = sourceStr.toCharArray();
 		CompilationUnit unit = (CompilationUnit) runConversion(sourceUnit, true); // resolve bindings
 		assertTrue("Wrong number of comments", unit.getCommentTable().length == 2);
 	}
