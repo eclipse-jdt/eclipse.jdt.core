@@ -74,7 +74,6 @@ public class ConditionalExpression extends OperatorExpression {
 		} else if (isConditionOptimizedFalse) {
 			mergedInfo = falseFlowInfo.addPotentialInitializationsFrom(trueFlowInfo);
 		} else {
-			// merge using a conditional info -  1GK2BLM
 			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
 			cst = this.optimizedIfTrueConstant;
 			boolean isValueIfTrueOptimizedTrue = cst != null && cst != NotAConstant && cst.booleanValue() == true;
