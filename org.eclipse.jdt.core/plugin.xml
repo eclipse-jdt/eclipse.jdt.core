@@ -186,4 +186,16 @@
 	</extraClasspathEntry>
 </extension> 
    
+<!-- =================================================================================== -->
+<!-- Extension: Java file types                                                        -->
+<!-- =================================================================================== -->
+<extension point="org.eclipse.team.core.fileTypes">
+  <fileTypes extension="java" type="text"/>
+  <fileTypes extension="classpath" type="text"/>
+  <fileTypes extension="properties" type="text"/>
+  <fileTypes extension="class" type="binary"/>
+  <fileTypes extension="jar" type="binary"/>
+  <fileTypes extension="zip" type="binary"/>
+</extension>
+
 </plugin>
