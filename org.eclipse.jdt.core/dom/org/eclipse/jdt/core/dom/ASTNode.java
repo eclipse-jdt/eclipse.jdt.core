@@ -1504,9 +1504,9 @@ public abstract class ASTNode {
 	 * method uses object identity (==). Use <code>subtreeMatch</code> to
 	 * compare two subtrees for equality.
 	 * 
+	 * @param obj {@inheritdoc}
+	 * @return {@inheritdoc}
 	 * @see #subtreeMatch(ASTMatcher matcher, Object other)
-	 * @param obj the given object
-	 * @return true if the receiver is identical to the given object, false otherwise
 	 */
 	public final boolean equals(Object obj) {
 		return this == obj; // equivalent to Object.equals
