@@ -338,33 +338,27 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
 		IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
 		if (mode == DETAILED || mode == SYSTEM) {
-			buffer
-				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.methoddescriptor")) //$NON-NLS-1$
-				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
-				.append(methodInfo.getDescriptorIndex())
-				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
-				.append(methodDescriptor);
+			buffer.append(Util.bind("classfileformat.methoddescriptor", //$NON-NLS-1$
+				new String[] {
+					Integer.toString(methodInfo.getDescriptorIndex()),
+					new String(methodDescriptor)
+				}));
 			if (methodInfo.isDeprecated()) {
 				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
 			}			
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
+				buffer.append(Util.bind(
+					"disassembler.signatureattributeheader", //$NON-NLS-1$
+					new String(signatureAttribute.getSignature())));
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 			if (codeAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
-					.append(Util.bind("classfileformat.maxStack")) //$NON-NLS-1$
-					.append(codeAttribute.getMaxStack())
-					.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
-					.append(Util.bind("disassembler.space"))//$NON-NLS-1$
-					.append(Util.bind("classfileformat.maxLocals")) //$NON-NLS-1$
-					.append(codeAttribute.getMaxLocals());
+				buffer.append(Util.bind("classfileformat.stacksAndLocals",//$NON-NLS-1$
+					new String[] {
+						Integer.toString(codeAttribute.getMaxStack()),
+						Integer.toString(codeAttribute.getMaxLocals())
+					})); //$NON-NLS-1$
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
@@ -525,10 +519,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
 			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
+				buffer.append(Util.bind(
+					"disassembler.signatureattributeheader", //$NON-NLS-1$
+					new String(signatureAttribute.getSignature()))); //$NON-NLS-1$
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 		}
@@ -959,22 +952,19 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		if (mode == DETAILED || mode == SYSTEM) {
-			buffer
-				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.fieldddescriptor")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.fielddescriptorindex")) //$NON-NLS-1$
-				.append(fieldInfo.getDescriptorIndex())
-				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
-				.append(fieldDescriptor);
+			buffer.append(Util.bind("classfileformat.fieldddescriptor", //$NON-NLS-1$
+					new String[] {
+						Integer.toString(fieldInfo.getDescriptorIndex()),
+						new String(fieldDescriptor)
+					}));
 			if (fieldInfo.isDeprecated()) {
 				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
 			}
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
+				buffer.append(Util.bind(
+					"disassembler.signatureattributeheader", //$NON-NLS-1$
+					new String(signatureAttribute.getSignature()))); //$NON-NLS-1$
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}

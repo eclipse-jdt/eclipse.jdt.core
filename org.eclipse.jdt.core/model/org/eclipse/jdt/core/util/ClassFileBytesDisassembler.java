@@ -34,7 +34,13 @@ public abstract class ClassFileBytesDisassembler {
 	 * any further information that would be useful for debugging purpose.
 	 * @since 3.1
 	 */
-	public final static int SYSTEM = 3;
+	public final static int SYSTEM = 4;
+	
+	/**
+	 * This mode is used to compact the class name to a simple name instead of a qualified name.
+	 * @since 3.1
+	 */
+	public final static int COMPACT = 8;
 
 	/**
 	 * Answers back the disassembled string of the classfile bytes using the default
