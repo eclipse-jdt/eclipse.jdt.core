@@ -568,8 +568,10 @@ public class ClassScope extends Scope {
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & AccJustFlag;
 		int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccFinal | AccStatic | AccTransient | AccVolatile);
-		if ((realModifiers & unexpectedModifiers) != 0)
+		if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForField(declaringClass, fieldDecl);
+			modifiers &= ~AccJustFlag | ~unexpectedModifiers;
+		}
 
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
 		if ((accessorBits & (accessorBits - 1)) > 1) {

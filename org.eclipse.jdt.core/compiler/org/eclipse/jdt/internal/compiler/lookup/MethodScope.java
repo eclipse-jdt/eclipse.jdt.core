@@ -88,12 +88,14 @@ public class MethodScope extends BlockScope {
 			unexpectedModifiers = ~(AccPrivate | AccStrictfp);
 			if ((realModifiers & unexpectedModifiers) != 0) {
 				problemReporter().illegalModifierForEnumConstructor((AbstractMethodDeclaration) referenceContext);
+				modifiers &= ~AccJustFlag | ~unexpectedModifiers;
 			} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0) {
 				// must check the parse node explicitly
 				problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 			}
 		} else if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
+			modifiers &= ~AccJustFlag | ~unexpectedModifiers;
 		} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0) {
 			// must check the parse node explicitly
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
@@ -148,8 +150,10 @@ public class MethodScope extends BlockScope {
 		// check for abnormal modifiers
 		int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected
 			| AccAbstract | AccStatic | AccFinal | AccSynchronized | AccNative | AccStrictfp);
-		if ((realModifiers & unexpectedModifiers) != 0)
+		if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
+			modifiers &= ~AccJustFlag | ~unexpectedModifiers;
+		}
 
 		// check for incompatible modifiers in the visibility bits, isolate the visibility bits
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);

@@ -1031,5 +1031,24 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"2[a, b]done");
-	}	
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87900
+	public void test027() { // ensure AccVarargs does not collide
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	transient private X() {}\n" + 
+				"	void test() { X x = new X(); }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	transient private X() {}\r\n" + 
+			"	                  ^^^\n" + 
+			"Illegal modifier for the method X.X()\n" + 
+			"----------\n"
+		);
+	}
 }
