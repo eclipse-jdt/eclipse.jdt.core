@@ -709,17 +709,14 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperclass() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		switch (sourceType.id) { //handle the case of redefining root types up front
-			case T_JavaLangObject :
-				sourceType.superclass = null;
-				sourceType.superInterfaces = NoSuperInterfaces;
-				if (!sourceType.isClass())
-					problemReporter().objectMustBeClass(sourceType);
-				if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
-					problemReporter().objectCannotHaveSuperTypes(sourceType);
-				return true; // do not propagate Object's hierarchy problems down to every subtype
-			case T_JavaLangEnum :
-				// TODO (kent) need to check is generic class with exactly one unbound parameter, and defines constructor Enum(String,int)
+		if (sourceType.id == T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
+			sourceType.superclass = null;
+			sourceType.superInterfaces = NoSuperInterfaces;
+			if (!sourceType.isClass())
+				problemReporter().objectMustBeClass(sourceType);
+			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
+				problemReporter().objectCannotHaveSuperTypes(sourceType);
+			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (referenceContext.superclass == null) {
 			if (sourceType.isEnum())
