@@ -293,6 +293,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						this,
 						binaryField.getConstant());
 				field.id = i; // ordinal
+				field.tagBits |= binaryField.getTagBits();
 				this.fields[i] = field;
 
 			}
@@ -409,9 +410,11 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
+	result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
+	// fixup the declaring element of the type variable
 	for (int i = 0, length = typeVars.length; i < length; i++) {
-		typeVars[i].declaringElement = result; // fixup the declaring element of the type variable
+		typeVars[i].declaringElement = result;
 	}
 	return result;
 }
