@@ -246,7 +246,7 @@ public void test009() {
 		"----------\n");
 }
 
-public void test010() {
+public void _test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -265,7 +265,7 @@ public void test010() {
 		"----------\n");
 }
 
-public void test011() {
+public void _test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

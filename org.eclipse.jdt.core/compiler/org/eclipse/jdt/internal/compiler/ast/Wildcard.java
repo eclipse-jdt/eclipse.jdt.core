@@ -11,8 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * Node to represent Wildcard
@@ -42,7 +41,9 @@ public class Wildcard extends SingleTypeReference {
 		}
 		return output;
 	}	
-
+	public TypeBinding resolveType(ClassScope classScope) {
+		return null;
+	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		if (this.type != null) {
