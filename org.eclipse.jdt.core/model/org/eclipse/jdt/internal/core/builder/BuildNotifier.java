@@ -129,7 +129,7 @@ protected String problemsMessage() {
 		'(' + (numFixed == 1
 			? Util.bind("build.oneProblemFixed", String.valueOf(numFixed)) //$NON-NLS-1$
 			: Util.bind("build.problemsFixed", String.valueOf(numFixed))) //$NON-NLS-1$
-		+ ' '
+		+ ", " //$NON-NLS-1$
 		+ (numNew == 1
 			? Util.bind("build.oneProblemFound", String.valueOf(numNew)) //$NON-NLS-1$
 			: Util.bind("build.problemsFound", String.valueOf(numNew))) + ')'; //$NON-NLS-1$
