@@ -244,6 +244,19 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 	
 	/**
+	 * Answers an ID which is used to distinguish entries during package
+	 * fragment root computations
+	 */
+	public String rootID(){
+		StringBuffer buffer = new StringBuffer(10);
+		buffer.append('[');
+		buffer.append(JavaProject.kindToString(this.entryKind));
+		buffer.append(']');
+		buffer.append(this.path);
+		return buffer.toString();
+	}
+	
+	/**
 	 * @see IClasspathEntry
 	 * @deprecated
 	 */

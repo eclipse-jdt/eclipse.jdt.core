@@ -258,7 +258,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
 					JavaProject project = (JavaProject) projects[i];
-					IClasspathEntry[] classpath = project.getRawClasspath();
+					IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
