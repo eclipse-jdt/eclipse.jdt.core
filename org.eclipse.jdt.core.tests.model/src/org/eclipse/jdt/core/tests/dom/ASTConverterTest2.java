@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest2("test0412"));
+//		suite.addTest(new ASTConverterTest2("test0413"));
 		return suite;
 	}
 	/**
@@ -412,6 +412,26 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		declaringNode = unit.findDeclaringNode(typeBinding);
 		assertNotNull("No declaring node", declaringNode);
 		assertEquals("Wrong node", typeDeclaration, declaringNode);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=20881
+	 */
+	public void test0413() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0413", "A.java");
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length);
+		ASTNode node = getASTNode(unit, 1, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List throwsException = methodDeclaration.thrownExceptions();
+		assertEquals("wrong size", 2, throwsException.size());
+		Name name = (Name) throwsException.get(0);
+		IBinding binding = name.resolveBinding();
+		assertNull("Got a binding", binding);
 	}
 
 }
