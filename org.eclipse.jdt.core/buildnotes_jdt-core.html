@@ -42,30 +42,6 @@ What's new in this drop</h2>
 		copies for a given buffer factory. </li>
 	<li> JavaBuilder no longer build projects for which prerequisite projects aborted the build process. This considerably
 		reduces the number of secondary errors when dealing with workspace setup problems.</li>
-</ul>
-
-<h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15416">15416</a>
-Classpath container - need to set value even if not referenced
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15418">15418</a>
-Classpath container - may get the init-in-progress value back
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15334">15334</a>
-ast: Message should have length 
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15364">15364</a>
-search for references of DebugUIPlugin.setAttributes(...) fails  
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15175">15175</a>
-Need API to retrieve all shared working copies for a buffer factory
-
-<h3>Problem Reports Closed</h3>
-
-<h1>
-Eclipse Platform Build Notes&nbsp;<br>
-Java Development Tooling Core</h1>
-Eclipse SDK Build 20020506 - 6th May 2002
-<br>Project org.eclipse.jdt.core v_244b
-<h2>
-What's new in this drop</h2>
-<ul>
 	<li> Added <code>IWorkingCopy#reconcile(boolean forceProblemDetection, IProgressMonitor monitor)</code> allowing to force
 		problem refresh even if working copy was already consistent.
     <li> Added <code>IClasspathContainer</code> new kind constant <code>K_DEFAULT_SYSTEM</code> to denote system libraries implicitely contributed
@@ -87,7 +63,17 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15254">15254</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15416">15416</a>
+Classpath container - need to set value even if not referenced
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15418">15418</a>
+Classpath container - may get the init-in-progress value back
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15334">15334</a>
+ast: Message should have length 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15364">15364</a>
+search for references of DebugUIPlugin.setAttributes(...) fails  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15175">15175</a>
+Need API to retrieve all shared working copies for a buffer factory
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15254">15254</a>
 JavaModelManager thinks JavaProject is closed when it is open  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3356">3356</a>
 API - should provide API for running batch compiler (1GJIWDP)
