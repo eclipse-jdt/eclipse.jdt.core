@@ -780,6 +780,19 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace
 		for (int i = 0, length = patterns.length; i < length; i++)
 			locatePackageDeclarations(patterns[i], workspace);
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
+		if (searchPattern.focus != null) {
+			this.currentPossibleMatch = new PossibleMatch(this, searchPattern.focus.getResource(), null);
+			try {
+				this.report(-1, -2, searchPattern.focus, IJavaSearchResultCollector.EXACT_MATCH);
+			} catch (CoreException e) {
+				if (e instanceof JavaModelException) {
+					throw (JavaModelException) e;
+				} else {
+					throw new JavaModelException(e);
+				}
+			}					
+			return;
+		}
 		PackageDeclarationPattern pkgPattern = (PackageDeclarationPattern) searchPattern;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {

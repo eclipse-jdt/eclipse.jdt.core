@@ -18,6 +18,9 @@ public class A {
 		new Object() {
 		};
 		class B {
+			int field;
+			void bar() {
+			}
 		}
 		new Object() {
 		};

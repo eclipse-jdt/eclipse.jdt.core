@@ -128,6 +128,7 @@ class VariableBinding implements IVariableBinding {
 				StringBuffer buffer = new StringBuffer();
 				if (this.getDeclaringClass() != null) {
 					buffer.append(this.getDeclaringClass().getKey());
+					buffer.append('/');
 				}
 				buffer.append(this.getName());
 				this.key = buffer.toString();

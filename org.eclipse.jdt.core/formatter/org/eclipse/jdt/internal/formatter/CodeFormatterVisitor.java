@@ -2337,6 +2337,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (constructorDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
 			this.scribe.scanner.resetTo(constructorDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
+			this.scribe.printTrailingComment();
 			return false;
 		}
 		this.scribe.printModifiers();
@@ -3079,6 +3080,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (methodDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
 			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
+			this.scribe.printTrailingComment();
 			return false;
 		}
 		this.scribe.printModifiers();
@@ -3524,7 +3526,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.space();
 		}
 		
-		switchStatement.testExpression.traverse(this, scope);
+		switchStatement.expression.traverse(this, scope);
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_switch_condition);
 		/*
 		 * Type body

@@ -85,8 +85,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public int repetitions;
 	public boolean showProgress = false;
 	public boolean systemExitWhenFinished = true;
-	public long time = 0;
-	public boolean timer = false;
+	public long startTime;
+	public boolean timing = false;
 
 	public boolean verbose = false;
 
@@ -303,64 +303,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								String.valueOf(i + 1),
 								String.valueOf(this.repetitions)));
 					} 
-					long startTime = System.currentTimeMillis();
 					// request compilation
 					performCompilation();
-					if (this.timer) {
-
-						this.time = System.currentTimeMillis() - startTime;
-						if (this.lineCount != 0) {
-							this.out.println(
-								Main.bind(
-									"compile.instantTime", 	//$NON-NLS-1$
-									new String[] {
-										String.valueOf(this.lineCount),
-										String.valueOf(this.time),
-										String.valueOf(((int)(this.lineCount * 10000.0 / this.time)) / 10.0)}));
-						} else {
-							this.out.println(Main.bind("compile.totalTime", String.valueOf(this.time))); //$NON-NLS-1$
-						}
-					}
-					if (this.globalProblemsCount > 0) {
-						if (this.globalProblemsCount == 1) {
-							this.err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
-						} else {
-							this.err.print(
-								Main.bind("compile.severalProblems", String.valueOf(this.globalProblemsCount))); 	//$NON-NLS-1$
-						}
-						this.err.print(" ("); //$NON-NLS-1$
-						if (this.globalErrorsCount > 0) {
-							if (this.globalErrorsCount == 1) {
-								this.err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
-							} else {
-								this.err.print(
-									Main.bind("compile.severalErrors", String.valueOf(this.globalErrorsCount))); 	//$NON-NLS-1$
-							}
-						}
-						if (this.globalWarningsCount > 0) {
-							if (this.globalErrorsCount > 0) {
-								this.err.print(", "); //$NON-NLS-1$
-							}
-							if (this.globalWarningsCount == 1) {
-								this.err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
-							} else {
-								this.err.print(
-									Main.bind("compile.severalWarnings", String.valueOf(this.globalWarningsCount))); 	//$NON-NLS-1$
-							}
-						}
-						this.err.println(")"); //$NON-NLS-1$
-					}
-					if (this.exportedClassFilesCounter != 0
-						&& (this.showProgress || this.timer || this.verbose)) {
-						if (this.exportedClassFilesCounter == 1) {
-							this.out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
-						} else {
-							this.out.println(
-								Main.bind(
-									"compile.severalClassFilesGenerated", //$NON-NLS-1$
-									String.valueOf(this.exportedClassFilesCounter)));
-						}
-					}
 				}
 				if (this.showProgress)
 					this.out.println();
@@ -621,7 +565,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-time")) { //$NON-NLS-1$
 				mode = Default;
-				this.timer = true;
+				this.timing = true;
 				continue;
 			}
 			if (currentArg.equals("-version") //$NON-NLS-1$
@@ -1344,6 +1288,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 					// exit?
 					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
+						Main.this.printStats();
 						Main.this.err.flush();
 						Main.this.out.flush();
 						System.exit(-1);
@@ -1483,6 +1428,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	 */
 	public void performCompilation() throws InvalidInputException {
 
+		this.startTime = System.currentTimeMillis();
+
 		INameEnvironment environment = getLibraryAccess();
 		Compiler batchCompiler =
 			new Compiler(
@@ -1498,8 +1445,68 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		compilerOptions.produceReferenceInfo(this.produceRefInfo);
 		batchCompiler.compile(getCompilationUnits());
 
+		printStats();
+		
 		// cleanup
 		environment.cleanup();
+	}
+	
+	public void printStats() {
+		if (this.timing) {
+
+			long time = System.currentTimeMillis() - startTime;
+			if (this.lineCount != 0) {
+				this.out.println(
+					Main.bind(
+						"compile.instantTime", 	//$NON-NLS-1$
+						new String[] {
+							String.valueOf(this.lineCount),
+							String.valueOf(time),
+							String.valueOf(((int)(this.lineCount * 10000.0 / time)) / 10.0)}));
+			} else {
+				this.out.println(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+			}
+		}
+		if (this.globalProblemsCount > 0) {
+			if (this.globalProblemsCount == 1) {
+				this.err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+			} else {
+				this.err.print(
+					Main.bind("compile.severalProblems", String.valueOf(this.globalProblemsCount))); 	//$NON-NLS-1$
+			}
+			this.err.print(" ("); //$NON-NLS-1$
+			if (this.globalErrorsCount > 0) {
+				if (this.globalErrorsCount == 1) {
+					this.err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
+				} else {
+					this.err.print(
+						Main.bind("compile.severalErrors", String.valueOf(this.globalErrorsCount))); 	//$NON-NLS-1$
+				}
+			}
+			if (this.globalWarningsCount > 0) {
+				if (this.globalErrorsCount > 0) {
+					this.err.print(", "); //$NON-NLS-1$
+				}
+				if (this.globalWarningsCount == 1) {
+					this.err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
+				} else {
+					this.err.print(
+						Main.bind("compile.severalWarnings", String.valueOf(this.globalWarningsCount))); 	//$NON-NLS-1$
+				}
+			}
+			this.err.println(")"); //$NON-NLS-1$
+		}
+		if (this.exportedClassFilesCounter != 0
+			&& (this.showProgress || this.timing || this.verbose)) {
+			if (this.exportedClassFilesCounter == 1) {
+				this.out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+			} else {
+				this.out.println(
+					Main.bind(
+						"compile.severalClassFilesGenerated", //$NON-NLS-1$
+						String.valueOf(this.exportedClassFilesCounter)));
+			}
+		}
 	}
 	public void printUsage() {
 		this.out.println(Main.bind("misc.usage"));  //$NON-NLS-1$
