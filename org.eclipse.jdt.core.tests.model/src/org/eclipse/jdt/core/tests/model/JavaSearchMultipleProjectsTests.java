@@ -14,9 +14,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -31,6 +29,110 @@ public JavaSearchMultipleProjectsTests(String name) {
 }
 public static Test suite() {
 	return new Suite(JavaSearchMultipleProjectsTests.class);
+}
+/**
+ * Search for references in a hierarchy should find matches in super type.
+ * (regression test for bug 31748 [search] search for reference is broken 2.1 M5)
+ */
+public void testHierarchyScope1() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"	protected void foo() {\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		foo();\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P2/Y.java",
+			"import p.X;\n" +
+			"public class Y extends X {\n" +
+			"	void foo() {\n" +
+			"	}\n" +
+			"}" 
+		);
+		ICompilationUnit cu = getCompilationUnit("/P2/Y.java");
+		IType type = cu.getType("Y");
+		IMethod method = type.getMethod("foo", new String[] {});
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			method, 
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"p/X.java [in P1] p.X.bar() -> void [foo()]", 
+			resultCollector.toString());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * Search for references in a hierarchy should find matches in super type.
+ * (regression test for bug 31748 [search] search for reference is broken 2.1 M5)
+ */
+public void testHierarchyScope2() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"	protected void foo() {\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		foo();\n" +
+			"	}\n" +
+			"}" 
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P2/Y.java",
+			"import p.X;\n" +
+			"public class Y extends X {\n" +
+			"	void foo() {\n" +
+			"	}\n" +
+			"}" 
+		);
+		createFile(
+			"/P2/Z.java",
+			"public class Z extends Y {\n" +
+			"	void foo() {\n" +
+			"	}\n" +
+			"}" 
+		);
+
+		ICompilationUnit cu = getCompilationUnit("/P2/Z.java");
+		IType type = cu.getType("Z");
+		IMethod method = type.getMethod("foo", new String[] {});
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			method, 
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"p/X.java [in P1] p.X.bar() -> void [foo()]", 
+			resultCollector.toString());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
 }
 /**
  * Method occurences with 2 unrelated projects that contain the same source.
@@ -77,8 +179,8 @@ public void testMethodOccurences() throws CoreException {
 			"p/I.java [in P1] p.I.method(Object) -> void [method]", 
 			resultCollector.toString());
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /**
@@ -119,9 +221,9 @@ public void testTypeDeclarationInJar() throws CoreException {
 			"Unexpected result in scope of P2",
 			getExternalJCLPathString() + " [in P2] java.lang.Object", 
 			resultCollector.toString());
-		} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 }

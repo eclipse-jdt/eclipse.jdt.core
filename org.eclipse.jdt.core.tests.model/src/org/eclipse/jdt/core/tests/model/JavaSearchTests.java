@@ -179,11 +179,9 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
 	setUpJavaProject("JavaSearch");
-	setUpJavaProject("JavaSearchDependent");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearch");
-	deleteProject("JavaSearchDependent");
 	
 	super.tearDownSuite();
 }
@@ -345,8 +343,6 @@ public static Test suite() {
 	
 	// search scopes
 	suite.addTest(new JavaSearchTests("testHierarchyScope"));
-	suite.addTest(new JavaSearchTests("testHierarchyScope2"));
-	suite.addTest(new JavaSearchTests("testHierarchyScope3"));
 	suite.addTest(new JavaSearchTests("testSubCUSearchScope1"));
 	suite.addTest(new JavaSearchTests("testSubCUSearchScope2"));
 	suite.addTest(new JavaSearchTests("testSubCUSearchScope3"));
@@ -1074,50 +1070,6 @@ public void testHierarchyScope() throws JavaModelException, CoreException {
 	assertTrue("a9.A should be included in hierarchy scope", scope.encloses(cu.getType("A")));
 	assertTrue("a9.B should be included in hierarchy scope", scope.encloses(cu.getType("B")));
 	assertTrue("a9/A.java should be included in hierarchy scope", scope.encloses(cu.getUnderlyingResource().getFullPath().toString()));
-}
-/**
- * Search for references in a hierarchy should find matches in super type.
- * (regression test for bug 31748 [search] search for reference is broken 2.1 M5)
- */
-public void testHierarchyScope2() throws JavaModelException, CoreException {
-	ICompilationUnit cu = this. getCompilationUnit("JavaSearchDependent", "", "", "Y.java");
-	IType type = cu.getType("Y");
-	IMethod method = type.getMethod("foo", new String[] {});
-	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	resultCollector.showProject = true;
-	new SearchEngine().search(
-		getWorkspace(), 
-		method, 
-		REFERENCES, 
-		scope, 
-		resultCollector);
-	assertEquals(
-		"src/e2/X.java [in JavaSearch] e2.X.bar() -> void [foo()]", 
-		resultCollector.toString());
-	
-}
-/**
- * Search for references in a hierarchy should find matches in super type.
- * (regression test for bug 31748 [search] search for reference is broken 2.1 M5)
- */
-public void testHierarchyScope3() throws JavaModelException, CoreException {
-	ICompilationUnit cu = this. getCompilationUnit("JavaSearchDependent", "", "", "Z.java");
-	IType type = cu.getType("Z");
-	IMethod method = type.getMethod("foo", new String[] {});
-	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	resultCollector.showProject = true;
-	new SearchEngine().search(
-		getWorkspace(), 
-		method, 
-		REFERENCES, 
-		scope, 
-		resultCollector);
-	assertEquals(
-		"src/e2/X.java [in JavaSearch] e2.X.bar() -> void [foo()]", 
-		resultCollector.toString());
-	
 }
 /**
  * Type reference test.
