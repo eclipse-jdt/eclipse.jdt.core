@@ -7114,4 +7114,39 @@ public void test0126(){
 		expectedReplacedSource,
 		"full ast");
 }
+public void test0127(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    if (zzz() == null) bar = null;\n" +
+		"  }\n" +
+		"  Object o = new O();\n" +
+		"}\n";
+
+	String completeBehind = "O";
+	int cursorLocation = str.lastIndexOf("O") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnType:O>";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:O>()";
+	String completionIdentifier = "O";
+	String expectedReplacedSource = "O";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  Object o = new <CompleteOnType:O>();\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+}
 }
