@@ -226,7 +226,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			interfaceHandles = this.hierarchy.NO_TYPE;
 		}
 		this.hierarchy.cacheSuperInterfaces(typeHandle, interfaceHandles);
-		
+		 
 		// record flags
 		this.hierarchy.cacheFlags(typeHandle, suppliedType.getModifiers());
 	}
