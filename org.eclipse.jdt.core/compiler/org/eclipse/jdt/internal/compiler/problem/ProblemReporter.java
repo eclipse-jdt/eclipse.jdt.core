@@ -1932,13 +1932,13 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void incorrectLocationForEmptyDimension(ArrayAllocationExpression expression, int index) {
+public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
 		IProblem.IllegalDimension,
 		NoArgument,
 		NoArgument,
-		expression.dimensions[index + 1].sourceStart,
-		expression.dimensions[index + 1].sourceEnd);
+		expression.dimensions[index].sourceStart,
+		expression.dimensions[index].sourceEnd);
 }
 public void incorrectSwitchType(Expression expression, TypeBinding testType) {
 	this.handle(

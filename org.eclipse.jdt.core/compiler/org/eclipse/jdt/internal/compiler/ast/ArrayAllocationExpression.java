@@ -124,12 +124,13 @@ public class ArrayAllocationExpression extends Expression {
 
 		// check the validity of the dimension syntax (and test for all null dimensions)
 		int explicitDimIndex = -1;
-		for (int i = dimensions.length; --i >= 0;) {
+		loop: for (int i = dimensions.length; --i >= 0;) {
 			if (dimensions[i] != null) {
 				if (explicitDimIndex < 0) explicitDimIndex = i;
-			} else if (explicitDimIndex> 0) {
+			} else if (explicitDimIndex > 0) {
 				// should not have an empty dimension before an non-empty one
-				scope.problemReporter().incorrectLocationForEmptyDimension(this, i);
+				scope.problemReporter().incorrectLocationForNonEmptyDimension(this, explicitDimIndex);
+				break loop;
 			}
 		}
 
