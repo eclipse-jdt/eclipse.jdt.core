@@ -15,6 +15,7 @@ Eclipse SDK Build ?? - ??th December 2001
 <br>Project org.eclipse.jdt.core v_???
 <h2>
 What's new in this drop</h2>
+
 <ul>
 <li>
 Added new compiler option to toggle JCK compliance level (can be either
@@ -24,16 +25,17 @@ one). Option is located on <tt>JavaCore#getOptions()</tt> and named <tt>"org.ecl
 Accordingly, the batch compiler accepts an extra command line argument
 "-jck 1.3" or "-jck 1.4" (1.3 compliance being the default).</li>
 </ul>
+
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3235">3235</a>
-PackageFragmentRoot existency check need to be revisited (1GCUNO7)
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3235">3235</a> PackageFragmentRoot
+existency check need to be revisited (1GCUNO7)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6865">6865</a>
-open on selection in BuildNotifier only finds contents of rt.jar  
+open on selection in BuildNotifier only finds contents of rt.jar
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6037">6037</a>
 JarPackageFragmentRoot.getUnderlyingResource() always returns null
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6750">6750</a>
-Batch compiler - Classpath handling is too strict  
+Batch compiler - Classpath handling is too strict
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3409">3409</a>
 JCK 1.4 - STMT - null literal in throw statement (1GK7MEQ)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4915">4915</a>
@@ -41,103 +43,144 @@ JCK 1.4 - need a major compiler switch for 1.3 / 1.4 mode
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6678">6678</a>
 Incorrect output after Add Unimplemented Method
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3361">3361</a>
-JCK 1.4 - ICLS - field from outer class and inherited public field in nested class (1GK7LAA) 
+JCK 1.4 - ICLS - field from outer class and inherited public field in nested
+class (1GK7LAA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3350">3350</a>
-JCK 1.4 - ICLS - static class from outer and class from superclass in top-level nested class (1GK7DVJ)  
+JCK 1.4 - ICLS - static class from outer and class from superclass in top-level
+nested class (1GK7DVJ)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3351">3351</a>
-JCK 1.4 - ICLS - static class from outer and protected static class from superclass in nested class (1GK7DZV)  
+JCK 1.4 - ICLS - static class from outer and protected static class from
+superclass in nested class (1GK7DZV)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3352">3352</a>
-JCK 1.4 - ICLS - static class from outer and public static class from superclass in nested class (1GK7EB9) 
+JCK 1.4 - ICLS - static class from outer and public static class from superclass
+in nested class (1GK7EB9)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3362">3362</a>
-JCK 1.4 - ICLS - field from outer class and inherited field in nested class (1GK7LCX)   
+JCK 1.4 - ICLS - field from outer class and inherited field in nested class
+(1GK7LCX)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3363">3363</a>
-JCK 1.4 - ICLS - An inherited variable that shadows a name from an enclosing non-package scope (1GK7LHR)  
+JCK 1.4 - ICLS - An inherited variable that shadows a name from an enclosing
+non-package scope (1GK7LHR)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3364">3364</a>
-JCK 1.4 - ICLS - An inherited method that shadows a name from an enclosing non-package scope (1GK7LKV)  
+JCK 1.4 - ICLS - An inherited method that shadows a name from an enclosing
+non-package scope (1GK7LKV)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3365">3365</a>
-JCK 1.4 - ICLS - An inherited class that shadows a name from an enclosing non-package scope (1GK7LTA)  
+JCK 1.4 - ICLS - An inherited class that shadows a name from an enclosing
+non-package scope (1GK7LTA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3366">3366</a>
-JCK 1.4 - ICLS - An inherited interface that shadows a name from an enclosing non-package scope (1GK7LW2)
+JCK 1.4 - ICLS - An inherited interface that shadows a name from an enclosing
+non-package scope (1GK7LW2)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3375">3375</a>
-JCK 1.4 - ICLS - class from outer and protected class from superclass in top-level nested class (1GK7FLC)
+JCK 1.4 - ICLS - class from outer and protected class from superclass in
+top-level nested class (1GK7FLC)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3376">3376</a>
-JCK 1.4 - ICLS - class from outer and public class from superclass in top-level nested class (1GK7FOT)
+JCK 1.4 - ICLS - class from outer and public class from superclass in top-level
+nested class (1GK7FOT)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3377">3377</a>
-JCK 1.4 - ICLS - class from outer and class from superclass in top-level nested class (1GK7FTA)
+JCK 1.4 - ICLS - class from outer and class from superclass in top-level
+nested class (1GK7FTA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3378">3378</a>
-JCK 1.4 - ICLS - class from outer and protected static class from superclass in nested class (1GK7FX7)
+JCK 1.4 - ICLS - class from outer and protected static class from superclass
+in nested class (1GK7FX7)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3379">3379</a>
-JCK 1.4 - ICLS - class from outer and public static class from superclass in nested class (1GK7G2A)
+JCK 1.4 - ICLS - class from outer and public static class from superclass
+in nested class (1GK7G2A)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3380">3380</a>
-JCK 1.4 - ICLS - class from outer and static class from superclass in nested class (1GK7G5A)
+JCK 1.4 - ICLS - class from outer and static class from superclass in nested
+class (1GK7G5A)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3381">3381</a>
-JCK 1.4 - ICLS - class from outer and protected class from superclass in nested class (1GK7G8E)
+JCK 1.4 - ICLS - class from outer and protected class from superclass in
+nested class (1GK7G8E)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3382">3382</a>
-JCK 1.4 - ICLS - class from outer and public class from superclass in nested class (1GK7GC1)
+JCK 1.4 - ICLS - class from outer and public class from superclass in nested
+class (1GK7GC1)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3383">3383</a>
-JCK 1.4 - ICLS - class from outer and class from superclass in nested class (1GK7GQA)
+JCK 1.4 - ICLS - class from outer and class from superclass in nested class
+(1GK7GQA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3384">3384</a>
-JCK 1.4 - ICLS - static class from outer and public static class from superclass in top-level nested class. (1GK7CTV)
+JCK 1.4 - ICLS - static class from outer and public static class from superclass
+in top-level nested class. (1GK7CTV)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3387">3387</a>
-JCK 1.4 - ICLS - static field from outer class and inherited public field in top-level nested class (1GK7H0B)
+JCK 1.4 - ICLS - static field from outer class and inherited public field
+in top-level nested class (1GK7H0B)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3388">3388</a>
-JCK 1.4 - ICLS - static class from outer and protected static class from superclass in top-level nested class (1GK7BGP)
+JCK 1.4 - ICLS - static class from outer and protected static class from
+superclass in top-level nested class (1GK7BGP)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3389">3389</a>
-JCK 1.4 - ICLS - static class from outer and static class from superclass in top-level nested class (1GK7D2P)
+JCK 1.4 - ICLS - static class from outer and static class from superclass
+in top-level nested class (1GK7D2P)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3390">3390</a>
-JCK 1.4 - ICLS - static class from outer and protected class from superclass in top-level nested class (1GK7D7Q) 
+JCK 1.4 - ICLS - static class from outer and protected class from superclass
+in top-level nested class (1GK7D7Q)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3391">3391</a>
-JCK 1.4 - ICLS - static class from outer and public class from superclass in top-level nested class (1GK7DBD)
+JCK 1.4 - ICLS - static class from outer and public class from superclass
+in top-level nested class (1GK7DBD)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3392">3392</a>
-JCK 1.4 - ICLS - static class from outer and static class from superclass in nested class (1GK7ERE)
+JCK 1.4 - ICLS - static class from outer and static class from superclass
+in nested class (1GK7ERE)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3393">3393</a>
-JCK 1.4 - ICLS - static class from outer and protected class from superclass in nested class (1GK7EVB)
+JCK 1.4 - ICLS - static class from outer and protected class from superclass
+in nested class (1GK7EVB)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3394">3394</a>
-JCK 1.4 - ICLS - static class from outer and public class from superclass in nested class (1GK7EZB)
+JCK 1.4 - ICLS - static class from outer and public class from superclass
+in nested class (1GK7EZB)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3395">3395</a>
-JCK 1.4 - ICLS - static class from outer and class from superclass in nested class (1GK7F4S)
+JCK 1.4 - ICLS - static class from outer and class from superclass in nested
+class (1GK7F4S)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3396">3396</a>
-JCK 1.4 - ICLS - class from outer and protected static class from superclass in top-level nested class (1GK7F8L)
+JCK 1.4 - ICLS - class from outer and protected static class from superclass
+in top-level nested class (1GK7F8L)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3397">3397</a>
-JCK 1.4 - ICLS - class from outer and public static class from superclass in top-level nested class (1GK7FCN)
+JCK 1.4 - ICLS - class from outer and public static class from superclass
+in top-level nested class (1GK7FCN)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3398">3398</a>
-JCK 1.4 - ICLS - class from outer and static class from superclass in top-level nested class (1GK7FHB)
+JCK 1.4 - ICLS - class from outer and static class from superclass in top-level
+nested class (1GK7FHB)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3399">3399</a>
-JCK 1.4 - ICLS - static field from outer class and inherited field in top-level nested class (1GK7H2Z)
+JCK 1.4 - ICLS - static field from outer class and inherited field in top-level
+nested class (1GK7H2Z)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3400">3400</a>
-JCK 1.4 - ICLS - static field from outer class and inherited protected field in top-level nested class (1GK7GW6)
+JCK 1.4 - ICLS - static field from outer class and inherited protected
+field in top-level nested class (1GK7GW6)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3401">3401</a>
-JCK 1.4 - ICLS - field from outer class and inherited field in top-level nested class (1GK7HEF)
+JCK 1.4 - ICLS - field from outer class and inherited field in top-level
+nested class (1GK7HEF)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3402">3402</a>
-JCK 1.4 - ICLS - static field from outer class and inherited protected field in nested class (1GK7HH1)
+JCK 1.4 - ICLS - static field from outer class and inherited protected
+field in nested class (1GK7HH1)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3403">3403</a>
-JCK 1.4 - ICLS - field from outer class and inherited protected field in top-level nested class (1GK7H5X)
+JCK 1.4 - ICLS - field from outer class and inherited protected field in
+top-level nested class (1GK7H5X)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3404">3404</a>
-JCK 1.4 - ICLS - field from outer class and inherited public field in top-level nested class (1GK7HBJ)
+JCK 1.4 - ICLS - field from outer class and inherited public field in top-level
+nested class (1GK7HBJ)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3405">3405</a>
-JCK 1.4 - ICLS - static field from outer class and inherited public field in nested class (1GK7HKE)
+JCK 1.4 - ICLS - static field from outer class and inherited public field
+in nested class (1GK7HKE)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3406">3406</a>
-JCK 1.4 - ICLS - static field from outer class and inherited field in nested class (1GK7HMN)
+JCK 1.4 - ICLS - static field from outer class and inherited field in nested
+class (1GK7HMN)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3407">3407</a>
-JCK 1.4 - ICLS - field from outer class and inherited protected field in nested class (1GK7L79)
+JCK 1.4 - ICLS - field from outer class and inherited protected field in
+nested class (1GK7L79)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6061">6061</a>
-unreachable code/unused temp ? 
+unreachable code/unused temp ?
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6443">6443</a>
 Incremental java builder doesn't handle folder create/delete nicely
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5317">5317</a>
-Reparenting class should refresh hierarchy  
+Reparenting class should refresh hierarchy
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6740">6740</a>
 Problems with deleting project
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6491">6491</a>
-Non-java resource folder doesn't appear under pkg fragment root  
+Non-java resource folder doesn't appear under pkg fragment root
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3245">3245</a>
-sub folders with dot not visible in packages view (1GCOH17)  
+sub folders with dot not visible in packages view (1GCOH17)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6806">6806</a>
-NullPointerException moving enpty cu out of default package  
-
+NullPointerException moving enpty cu out of default package
 <h3>
 Problem Reports Closed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4382">4382</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3216">3216</a> Code
+generation should add empty line afer methods (1G83TS3)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4382">4382</a>
 NullPointerException in JavaBuilder
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3199">3199</a>
 Missing classpath variables
@@ -149,7 +192,6 @@ null argument in IncrementalImageBuilder.getBuilderType
 package names truncated in compilation dialog
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3295">3295</a>
 Errors from missing reference to a jar do not go away
-
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -159,21 +201,23 @@ Eclipse SDK Build 20011211 - 11th December 2001
 What's new in this drop</h2>
 
 <ul>
-<li> Java element deltas are batched. If the java model operation modifies
-	 a resource, then the java element deltas are merged and fired during 
-	 the resource delta processing. If the java model operation doesn't 
-	 modify any resource (e.g. IWorkingCopy.reconcile()), then the java
-	 element delta is fired right away.
+<li>
+Java element deltas are batched. If the java model operation modifies a
+resource, then the java element deltas are merged and fired during the
+resource delta processing. If the java model operation doesn't modify any
+resource (e.g. IWorkingCopy.reconcile()), then the java element delta is
+fired right away.</li>
 </ul>
+
 <h3>
 Problem Reports Fixed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3215">3215</a>
-JM - Creating a new class sends out many notifications (1GD2GT0)  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3215">3215</a> JM
+- Creating a new class sends out many notifications (1GD2GT0)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6695">6695</a>
-Changing Java preference in build 20011206 throws a NullPointerException in org.eclipse.jdt.internal.core.DeltaProcessor.initializeRoots  
+Changing Java preference in build 20011206 throws a NullPointerException
+in org.eclipse.jdt.internal.core.DeltaProcessor.initializeRoots
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6761">6761</a>
-NullPointerException during replace  
+NullPointerException during replace
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3290">3290</a>
 JavaBuilder - Old class files remain after change of output location
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3185">3185</a>
@@ -189,7 +233,8 @@ Discarding rt.jar from build path triggers too many recompilation
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3232">3232</a>
 Incremental builder unable to handle efficiently missing rt.jar scenario
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3234">3234</a>
-Incremental builder does not notice addition of java.lang.Object inside same project
+Incremental builder does not notice addition of java.lang.Object inside
+same project
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3241">3241</a>
 Build doesn't honor cancel
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3260">3260</a>
@@ -229,13 +274,15 @@ NPE during catchup
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5641">5641</a>
 NPE on rebuild when replacing internal jar
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6538">6538</a>
-searchDeclarationsOf* incorrect 
+searchDeclarationsOf* incorrect
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6690">6690</a>
-CodeAssist finds types outside the classpath 
+CodeAssist finds types outside the classpath
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6687">6687</a>
-Wrong JavaModel refresh after drag and drop outside folder with dot in name  
+Wrong JavaModel refresh after drag and drop outside folder with dot in
+name
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6693">6693</a>
-AbstractImageBuilder.compile throws an ArrayIndexOutOfBoundsException on line 166 in build 20011206
+AbstractImageBuilder.compile throws an ArrayIndexOutOfBoundsException on
+line 166 in build 20011206
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6670">6670</a>
 Code Assist: Cannot resolve in method body
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6674">6674</a>
@@ -243,37 +290,38 @@ Cannot add unimplemented methods
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6629">6629</a>
 Open On Selection does not work on Linux
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5542">5542</a>
-Too many deltas are fired on each JavaModel operation  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3269">3269</a> 
-Updating the Java packages view on project creation (1GDW0U9)  
+Too many deltas are fired on each JavaModel operation
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3269">3269</a>
+Updating the Java packages view on project creation (1GDW0U9)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3202">3202</a>
-DCR - JM - Merge Java Element Deltas with Resource Deltas (1G2B60Z)  
+DCR - JM - Merge Java Element Deltas with Resource Deltas (1G2B60Z)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6621">6621</a>
-NPE in Delta Processor  
+NPE in Delta Processor
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3368">3368</a>
-JCK 1.4 - INTF - The field of protected interface is used in other package (1GK7M25)  
+JCK 1.4 - INTF - The field of protected interface is used in other package
+(1GK7M25)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6596">6596</a>
 Java compiler can generate invalid bytecode
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6586">6586</a>
-NullPointerException when resource modification done before java model is open
+NullPointerException when resource modification done before java model
+is open
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6542">6542</a>
-extract method: incorrect error message  
-
+extract method: incorrect error message
 <h3>
 Problem Reports Closed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6669">6669</a>
-Search doesn't find reference to a field that is only used in an initialization  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6669">6669</a> Search
+doesn't find reference to a field that is only used in an initialization
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5385">5385</a>
-search: name searchDeclarationsOfSentMessages is not good  
+search: name searchDeclarationsOfSentMessages is not good
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3183">3183</a>
-JM - Builders and nested operations using Java model can get inconsistent results (1FUBV90)  
+JM - Builders and nested operations using Java model can get inconsistent
+results (1FUBV90)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3250">3250</a>
-JavaProject.retrieveResource picks first removed child delta (1GCV7PQ)  
+JavaProject.retrieveResource picks first removed child delta (1GCV7PQ)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6378">6378</a>
-ClassCastException in inner class emulation  
+ClassCastException in inner class emulation
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6677">6677</a>
 \u in comment gives Invalid unicode error
-   
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -284,16 +332,14 @@ What's new in this drop</h2>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6564">6564</a>
-New builder - Incremental recompilation detected package problems incorrectly  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6564">6564</a> New
+builder - Incremental recompilation detected package problems incorrectly
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6563">6563</a>
-Package view does not refresh ok when adding both package and unit at once  
-
+Package view does not refresh ok when adding both package and unit at once
 <h3>
 Problem Reports Closed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3242">3242</a>
-TypeRef.getType does not work for inner types (1GCFUNT)
-
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3242">3242</a> TypeRef.getType
+does not work for inner types (1GCFUNT)
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -301,37 +347,58 @@ Eclipse SDK Build 20011204 - 4th December 2001
 <br>Project org.eclipse.jdt.core v_216c
 <h2>
 What's new in this drop</h2>
+
 <ul>
-<li> New incremental builder implementation enabled by default (can reenable the 
-old implementation by changing the builder extension in the plugin.xml)
-<li> Delta processing improvement:
-	<ul>
-	<li> No longer creates unnecessary Java elements when traversing the resource delta.
-	<li> Handles changes in binary folder libraries.
-	<li> Projects that share libraries are notified individually.
-	<li> Doesn't notify empty deltas any longer.
-	</ul>
-<li> Source folder resource copying no longer perfom any copies as soon as
-one source folder coincidates with the output location.
-<li> Open on selection is more fault-tolerant: will now try to locate a
-selected method for which argument types are incorrect.
-<li> Compiler no longer rejects correct code with respect to access to protected
-members defined in enclosing types (was only accepting a subset of correct scenarii).
+<li>
+New incremental builder implementation enabled by default (can reenable
+the old implementation by changing the builder extension in the plugin.xml)</li>
+
+<li>
+Delta processing improvement:</li>
+
+<ul>
+<li>
+No longer creates unnecessary Java elements when traversing the resource
+delta.</li>
+
+<li>
+Handles changes in binary folder libraries.</li>
+
+<li>
+Projects that share libraries are notified individually.</li>
+
+<li>
+Doesn't notify empty deltas any longer.</li>
 </ul>
+
+<li>
+Source folder resource copying no longer perfom any copies as soon as one
+source folder coincidates with the output location.</li>
+
+<li>
+Open on selection is more fault-tolerant: will now try to locate a selected
+method for which argument types are incorrect.</li>
+
+<li>
+Compiler no longer rejects correct code with respect to access to protected
+members defined in enclosing types (was only accepting a subset of correct
+scenarii).</li>
+</ul>
+
 <h3>
 Problem Reports Fixed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6528">6528</a>:
-InvocationTargetException trying to search 
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6528">6528</a>: InvocationTargetException
+trying to search
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6494">6494</a>:
-New builder: Invalid error found (The declared package does not match the expected package) 
+New builder: Invalid error found (The declared package does not match the
+expected package)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6461">6461</a>:
-NewBuilder - doesn't detect incorrectly located compilation units  
+NewBuilder - doesn't detect incorrectly located compilation units
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6456">6456</a>:
-Invalid error when compiling access to protected member inside innerclass 
+Invalid error when compiling access to protected member inside innerclass
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3358">3358</a>:
-Performance: indexer doing too much work? (1GJLDN7)  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: 
+Performance: indexer doing too much work? (1GJLDN7)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>:
 CodeFormatter mapped positions broken for multi-line comments
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6431">6431</a>:
 ArrayIndexOutOfBoundsException in the SourceIndexer requestor
@@ -344,9 +411,9 @@ Code resolve doesn't work on message send when parameters are not correct
 Wrong positions for ClassCastLiteral
 <h3>
 Problem Reports Closed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6423">6423</a>:  
-Search - does not find declarations of method "to*String"  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3246">3246</a>: 
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6423">6423</a>: Search
+- does not find declarations of method "to*String"
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3246">3246</a>:
 CodeCompletion - No completion on member access on anonymous class (1GD3OGA)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5454">5454</a>:
 Code Assist adds qualified code inside inner classes
@@ -905,7 +972,8 @@ index computation
 <br>&nbsp; 1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an
 unexpected exception
 <br>&nbsp; 1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open
-<br>&nbsp; 5268&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ITPJCORE:ALL - VerifyError when running app (1GL4QKI)
+<br>&nbsp; 5268&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ITPJCORE:ALL - VerifyError
+when running app (1GL4QKI)
 <br>&nbsp; 1GLBP65: ITPJCORE:WIN2000 - search: type refs - incorrect match
 <br>&nbsp; 1GKXCOM: ITPJCORE:WIN2000 - ClassCastException during inner
 class emulation
