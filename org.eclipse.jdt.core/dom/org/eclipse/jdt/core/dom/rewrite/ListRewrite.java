@@ -329,6 +329,30 @@ public final class ListRewrite {
 		}
 	}
 	
+	/**
+	 * Creates and returns a placeholder node for a move of a range of nodes of the
+	 * current list.
+	 * The placeholder node can either be inserted as new or used to replace an
+	 * existing node. When the document is rewritten, a copy of the source code 
+	 * for the given node range is inserted into the output document at the position
+	 * corresponding to the placeholder (indentation is adjusted).
+	 * 
+	 * @param first the node that starts the range
+	 * @param last the node that ends the range
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException if the node is null, or if the node
+	 * is not part of this rewriter's AST
+	 * 
+	 * @since 3.1
+	 */
+	public final ASTNode createMoveTarget(ASTNode first, ASTNode last) {
+		if (first == last) {
+			return this.rewriter.createMoveTarget(first);
+		} else {
+			return createTargetNode(first, last, true);
+		}
+	}
+	
 	/*
 	 * Heuristic to decide if a inserted node is bound to previous or the next sibling. 
 	 */

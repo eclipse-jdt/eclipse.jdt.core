@@ -554,7 +554,38 @@ public final class RewriteEventStore {
 	
 	
 	private void assertNoOverlap(CopySourceInfo copySource) {
-		// todo
+		ASTNode parent= copySource.parent;
+		StructuralPropertyDescriptor childProperty= copySource.childProperty;
+		ASTNode first= copySource.getStartNode();
+		ASTNode last= copySource.getEndNode();
+		
+		ListRewriteEvent listEvent= getListEvent(parent, childProperty, true);
+		
+		int indexFirst= listEvent.getIndex(first, ListRewriteEvent.OLD);
+		if (indexFirst == -1) {
+			throw new IllegalArgumentException("Start node is not a original child of the given list"); //$NON-NLS-1$
+		}
+		int indexLast= listEvent.getIndex(last, ListRewriteEvent.OLD);
+		if (indexLast == -1) {
+			throw new IllegalArgumentException("End node is not a original child of the given list"); //$NON-NLS-1$
+		}
+
+		if (indexFirst > indexLast) {
+			throw new IllegalArgumentException("Start node must be before end node"); //$NON-NLS-1$
+		}
+		if (this.rangeCopySources != null) {
+			for (Iterator iter= this.rangeCopySources.iterator(); iter.hasNext();) {
+				CopySourceInfo info= (CopySourceInfo) iter.next();
+				if (info.parent == parent && info.childProperty == childProperty) {
+					int currStart= listEvent.getIndex(first, ListRewriteEvent.BOTH);
+					int currEnd= listEvent.getIndex(first, ListRewriteEvent.BOTH);
+					if (currStart < indexFirst && currEnd < indexLast && currEnd >= indexFirst
+							|| currStart > indexFirst && currStart <= currEnd && currEnd > indexLast) {
+						throw new IllegalArgumentException("Range overlapps with an existing copy or move range"); //$NON-NLS-1$ 
+					}
+				}
+			}
+		}
 	}
 	
 	/**

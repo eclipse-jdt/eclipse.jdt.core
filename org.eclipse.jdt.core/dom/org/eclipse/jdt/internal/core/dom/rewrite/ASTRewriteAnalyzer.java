@@ -462,6 +462,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword) {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
+			
 			initCopyRangeChecks(parent, property);
 			
 			int total= this.list.length;
@@ -473,9 +474,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			
 			int lastNonInsert= -1;
 			int lastNonDelete= -1;
-		
+					
 			for (int i= 0; i < total; i++) {
 				int currMark= this.list[i].getChangeKind();
+				
 				if (currMark != RewriteEvent.INSERTED) {
 					lastNonInsert= i;
 					if (currPos == -1) {
