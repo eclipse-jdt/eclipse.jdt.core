@@ -90,7 +90,21 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(binaryLocation + qualifiedBinaryFileName);
 		if (reader != null) return new NameEnvironmentAnswer(reader);
-	} catch (Exception e) {} // treat as if class file is missing
+	} catch (Exception e) {
+		// handle the case when the project is the output folder and the top-level package is a linked folder
+		if (binaryFolder instanceof IProject) {
+			IResource file = binaryFolder.findMember(qualifiedBinaryFileName);
+			if (file instanceof IFile) {
+				IPath location = file.getLocation();
+				if (location != null) {
+					try {
+						ClassFileReader reader = ClassFileReader.read(location.toString());
+						if (reader != null) return new NameEnvironmentAnswer(reader);
+					} catch (Exception ignored) {} // treat as if class file is missing
+				}
+			}
+		}
+	}
 	return null;
 }
 
