@@ -115,7 +115,8 @@ STREAM: 2.0
   ================================================================================
   1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an unexpected exception
   1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open  
-
+  1GL4QKI: ITPJCORE:ALL - VerifyError when running app
+  
   PRs Closed in this Release
   ===============================================================================
   1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types

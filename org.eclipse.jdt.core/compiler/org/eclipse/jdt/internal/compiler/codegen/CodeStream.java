@@ -5572,25 +5572,25 @@ public final void writeSignedWord(int pos, int value) {
 		bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) ((value & 0xFF000000) >> 24);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF000000) >> 24);
 	}
 	try {
 		bCodeStream[currentOffset++] = (byte) ((value & 0xFF0000) >> 16);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) ((value & 0xFF0000) >> 16);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF0000) >> 16);
 	}
 	try {
 		bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) ((value & 0xFF00) >> 8);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF00) >> 8);
 	}
 	try {
 		bCodeStream[currentOffset++] = (byte) (value & 0xFF);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) (value & 0xFF);
+		bCodeStream[currentOffset-1] = (byte) (value & 0xFF);
 	}
 }
 /**
