@@ -161,7 +161,7 @@ public abstract class AbstractCommentParser {
 					case '@' :
 						boolean valid = false;
 						// Start tag parsing only if we have a java identifier start character and if we are on line beginning or at inline tag beginning
-						if (Character.isJavaIdentifierStart(peekChar()) && (!this.lineStarted || previousChar == '{')) {
+						if ((!this.lineStarted || previousChar == '{') && Character.isJavaIdentifierStart(peekChar())) {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
@@ -199,7 +199,7 @@ public abstract class AbstractCommentParser {
 									int tk = token;
 									int le = this.lineEnd;
 									char pc = peekChar();
-									tagNameToken: while (tk != TerminalTokens.TokenNameERROR && tk != TerminalTokens.TokenNameEOF) {
+									tagNameToken: while (tk != TerminalTokens.TokenNameEOF) {
 										this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 										token = tk;
 										// !, ", #, %, &, ', -, :, <, >
