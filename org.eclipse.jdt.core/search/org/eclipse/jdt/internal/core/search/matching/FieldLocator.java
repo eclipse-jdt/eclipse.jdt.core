@@ -91,10 +91,9 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 	if (node instanceof FieldReference) {
 		if (matchesName(this.pattern.name, ((FieldReference) node).token))
 			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-	} else {
-		return super.matchReference(node, nodeSet, writeOnlyAccess);
+		return IMPOSSIBLE_MATCH;
 	}
-	return IMPOSSIBLE_MATCH;
+	return super.matchReference(node, nodeSet, writeOnlyAccess);
 }
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
