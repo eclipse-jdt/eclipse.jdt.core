@@ -552,30 +552,53 @@ public class JavaProject
 	 * </li>
 	 * @deprecated - old builder related
 	 */
-	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta)
-		throws JavaModelException {
+	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta) throws JavaModelException {
+		
+		boolean rememberToDiscard = JavaModelManager.USING_NEW_BUILDER;
 
 		ArrayList builderRoots = new ArrayList();
+		HashSet rootIDs = new HashSet();
+		rootIDs.add(this.rootID());
+		computeBuilderRoots(delta, builderRoots, rootIDs, true);
+		IPackageFragmentRoot[] result = new IPackageFragmentRoot[builderRoots.size()];
+		builderRoots.toArray(result);
+		return result;
+	}
+	
+	public void computeBuilderRoots(IResourceDelta delta, ArrayList builderRoots, HashSet rootIDs, boolean insideInitialProject)
+		throws JavaModelException {
+
+		boolean rememberToDiscard = JavaModelManager.USING_NEW_BUILDER;
+		
 		IClasspathEntry[] classpath;
-		classpath = getExpandedClasspath(true);
+		classpath = getResolvedClasspath(true);
 		IResource res;
-		IJavaProject project;
+		JavaProject project;
 
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
+			String rootID = ((ClasspathEntry)entry).rootID();
+			if (rootIDs.contains(rootID)){
+				continue; // skip current entry already found
+			}
+			if (!insideInitialProject && !entry.isExported()){
+				continue; // non-visible entry
+			}
 			switch (entry.getEntryKind()) {
 
 				case IClasspathEntry.CPE_LIBRARY :
 					IPackageFragmentRoot[] roots = this.getPackageFragmentRoots(entry);
-					if (roots.length > 0)
+					if (roots.length > 0){
 						builderRoots.add(roots[0]);
+						rootIDs.add(rootID);
+					}
 					break;
 
 				case IClasspathEntry.CPE_PROJECT :
 					// other project contributions are restrained to their binary output
 					res = retrieveResource(entry.getPath(), delta);
 					if (res != null) {
-						project = (IJavaProject) JavaCore.create(res);
+						project = (JavaProject) JavaCore.create(res);
 						if (project.isOpen()) {
 							res = retrieveResource(project.getOutputLocation(), delta);
 							if (res != null) {
@@ -587,6 +610,8 @@ public class JavaProject
 								root.refreshChildren();
 								builderRoots.add(root);
 							}
+							rootIDs.add(rootID);
+							project.computeBuilderRoots(delta, builderRoots, rootIDs, false);
 						}
 					}
 					break;
@@ -596,9 +621,10 @@ public class JavaProject
 						res = retrieveResource(entry.getPath(), delta);
 						if (res != null)
 							builderRoots.add(getPackageFragmentRoot(res));
+							rootIDs.add(rootID);
 					} else {
 						IProject proj = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
-						project = (IJavaProject) JavaCore.create(proj);
+						project = (JavaProject) JavaCore.create(proj);
 						if (proj.isOpen()) {
 							res = retrieveResource(project.getOutputLocation(), delta);
 							PackageFragmentRoot root =
@@ -608,14 +634,12 @@ public class JavaProject
 								IPackageFragmentRoot.K_BINARY);
 							root.refreshChildren();
 							builderRoots.add(root);
+							rootIDs.add(rootID);
 						}
 					}
 					break;
 			}
 		}
-		IPackageFragmentRoot[] result = new IPackageFragmentRoot[builderRoots.size()];
-		builderRoots.toArray(result);
-		return result;
 	}
 
 	/**
