@@ -512,7 +512,7 @@ public String getJdkLevel() {
 					} finally {
 						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
-				} else if (hasChildren()) {
+				} else if (hasChildren()) { // TODO: (olivier) should not populate the model, but rather walk the filesystem/resources directly
 					IJavaElement[] javaElements = getChildren();
 					for (int i = 0, max = javaElements.length; i < max; i++) {
 						IPackageFragment fragment = (IPackageFragment) javaElements[i];

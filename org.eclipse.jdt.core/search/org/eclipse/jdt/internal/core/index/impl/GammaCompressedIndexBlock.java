@@ -40,9 +40,9 @@ public class GammaCompressedIndexBlock extends IndexBlock {
 		prevWord= entry.getWord();
 		return true;
 	}
-	protected void encodeEntry(WordEntry entry, char[] prevWord, CodeByteStream codeStream) {
+	protected void encodeEntry(WordEntry entry, char[] previousWord, CodeByteStream codeStream) {
 		char[] word= entry.getWord();
-		int prefixLen= prevWord == null ? 0 : Util.prefixLength(prevWord, word);
+		int prefixLen= previousWord == null ? 0 : Util.prefixLength(previousWord, word);
 		codeStream.writeByte(prefixLen);
 		codeStream.writeUTF(word, prefixLen, word.length);
 		int n= entry.getNumRefs();
