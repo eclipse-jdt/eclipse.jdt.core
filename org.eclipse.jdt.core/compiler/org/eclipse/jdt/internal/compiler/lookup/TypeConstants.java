@@ -14,6 +14,7 @@ public interface TypeConstants {
 	final char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
 	final char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	final char[] IO = "io".toCharArray(); //$NON-NLS-1$
+	final char[] ANNOTATION = "annotation".toCharArray(); //$NON-NLS-1$
 	final char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
 	final char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
 	final char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
@@ -55,6 +56,7 @@ public interface TypeConstants {
 	// Constant compound names
 	final char[][] JAVA_LANG = {JAVA, LANG};
 	final char[][] JAVA_IO = {JAVA, IO};
+	final char[][] JAVA_LANG_ANNOTATION_ANNOTATION = {JAVA, LANG, ANNOTATION, "Annotation".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_ASSERTIONERROR = {JAVA, LANG, "AssertionError".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_CLASS = {JAVA, LANG, "Class".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = {JAVA, LANG, "ClassNotFoundException".toCharArray()}; //$NON-NLS-1$

@@ -193,106 +193,126 @@ public final boolean canBeSeenBy(Scope scope) {
 	return invocationType.fPackage == fPackage;
 }
 public void computeId() {
-	if (compoundName.length != 3) {
-		if (compoundName.length == 4 && CharOperation.equals(JAVA_LANG_REFLECT_CONSTRUCTOR, compoundName))
-			id = T_JavaLangReflectConstructor;
-		return;
-	}
+	
+	switch (compoundName.length) {
 
-	if (!CharOperation.equals(JAVA, compoundName[0]))
-		return;
-
-	// remaining types MUST be in java.*.*
-	if (!CharOperation.equals(LANG, compoundName[1])) {
-		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
-			id = T_JavaIoPrintStream;
-		else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
-			id = T_JavaUtilIterator;
-		else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
-		    id = T_JavaIoSerializable;
-		return;
-	}
-
-	// remaining types MUST be in java.lang.*
-	char[] typeName = compoundName[2];
-	if (typeName.length == 0) return; // just to be safe
-	switch (typeName[0]) {
-		case 'A' :
-			if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
-				id = T_JavaLangAssertionError;
-			return;
-		case 'B' :
-			if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
-				id = T_JavaLangBoolean;
-			else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
-				id = T_JavaLangByte;
-			return;
-		case 'C' :
-			if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
-				id = T_JavaLangCharacter;
-			else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
-				id = T_JavaLangClass;
-			else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
-				id = T_JavaLangClassNotFoundException;
-			else if (CharOperation.equals(typeName, JAVA_LANG_CLONEABLE[2]))
-			    id = T_JavaLangCloneable;
-			return;
-		case 'D' :
-			if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
-				id = T_JavaLangDouble;
-			return;
-		case 'E' :
-			if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
-				id = T_JavaLangError;
-			else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
-				id = T_JavaLangException;
-			else if (CharOperation.equals(typeName, JAVA_LANG_ENUM[2]))
-				id = T_JavaLangEnum;
-			return;
-		case 'F' :
-			if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
-				id = T_JavaLangFloat;
-			return;
-		case 'I' :
-			if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
-				id = T_JavaLangInteger;
-			else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
-				id = T_JavaLangIterable;
-			else if (CharOperation.equals(typeName, JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
-				id = T_JavaLangIllegalArgumentException;
-			return;
-		case 'L' :
-			if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
-				id = T_JavaLangLong;
-			return;
-		case 'N' :
-			if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
-				id = T_JavaLangNoClassDefError;
-			return;
-		case 'O' :
-			if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
-				id = T_JavaLangObject;
-			return;
-		case 'S' :
-			if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
-				id = T_JavaLangString;
-			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
-				id = T_JavaLangStringBuffer;
-			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUILDER[2])) 
-				id = T_JavaLangStringBuilder;
-			else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
-				id = T_JavaLangSystem;
-			else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
-				id = T_JavaLangShort;
-			return;
-		case 'T' :
-			if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
-				id = T_JavaLangThrowable;
-			return;
-		case 'V' :
-			if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
-				id = T_JavaLangVoid;
-			return;
+		case 3 :
+			if (!CharOperation.equals(JAVA, compoundName[0]))
+				return;
+		
+			// remaining types MUST be in java.*.*
+			if (!CharOperation.equals(LANG, compoundName[1])) {
+				if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
+					id = T_JavaIoPrintStream;
+				else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
+					id = T_JavaUtilIterator;
+				else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
+				    id = T_JavaIoSerializable;
+				return;
+			}
+		
+			// remaining types MUST be in java.lang.*
+			char[] typeName = compoundName[2];
+			if (typeName.length == 0) return; // just to be safe
+			switch (typeName[0]) {
+				case 'A' :
+					if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
+						id = T_JavaLangAssertionError;
+					return;
+				case 'B' :
+					if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
+						id = T_JavaLangBoolean;
+					else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
+						id = T_JavaLangByte;
+					return;
+				case 'C' :
+					if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
+						id = T_JavaLangCharacter;
+					else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
+						id = T_JavaLangClass;
+					else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
+						id = T_JavaLangClassNotFoundException;
+					else if (CharOperation.equals(typeName, JAVA_LANG_CLONEABLE[2]))
+					    id = T_JavaLangCloneable;
+					return;
+				case 'D' :
+					if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
+						id = T_JavaLangDouble;
+					return;
+				case 'E' :
+					if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
+						id = T_JavaLangError;
+					else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
+						id = T_JavaLangException;
+					else if (CharOperation.equals(typeName, JAVA_LANG_ENUM[2]))
+						id = T_JavaLangEnum;
+					return;
+				case 'F' :
+					if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
+						id = T_JavaLangFloat;
+					return;
+				case 'I' :
+					if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
+						id = T_JavaLangInteger;
+					else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
+						id = T_JavaLangIterable;
+					else if (CharOperation.equals(typeName, JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
+						id = T_JavaLangIllegalArgumentException;
+					return;
+				case 'L' :
+					if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
+						id = T_JavaLangLong;
+					return;
+				case 'N' :
+					if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
+						id = T_JavaLangNoClassDefError;
+					return;
+				case 'O' :
+					if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
+						id = T_JavaLangObject;
+					return;
+				case 'S' :
+					if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
+						id = T_JavaLangString;
+					else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
+						id = T_JavaLangStringBuffer;
+					else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUILDER[2])) 
+						id = T_JavaLangStringBuilder;
+					else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
+						id = T_JavaLangSystem;
+					else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
+						id = T_JavaLangShort;
+					return;
+				case 'T' :
+					if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
+						id = T_JavaLangThrowable;
+					return;
+				case 'V' :
+					if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
+						id = T_JavaLangVoid;
+					return;
+			}
+		break;
+			
+		case 4:
+			if (!CharOperation.equals(JAVA, compoundName[0]))
+				return;
+			if (!CharOperation.equals(LANG, compoundName[1]))
+				return;
+			char[] packageName = compoundName[2];
+			if (packageName.length == 0) return; // just to be safe			
+			typeName = compoundName[3];
+			if (typeName.length == 0) return; // just to be safe			
+			if (CharOperation.equals(packageName, REFLECT)) {
+				if (CharOperation.equals(typeName, JAVA_LANG_REFLECT_CONSTRUCTOR[3]))
+					id = T_JavaLangReflectConstructor;
+				return;
+			} else if (CharOperation.equals(packageName, ANNOTATION)) {
+				if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ANNOTATION[3]))
+					id = T_JavaLangAnnotationAnnotation;
+				return;
+			}
+			break;
 	}
 }
 /* Answer the receiver's constant pool name.

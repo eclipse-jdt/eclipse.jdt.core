@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
  */
 public class AnnotationTypeDeclaration extends TypeDeclaration {
 
-	public AnnotationTypeMemberDeclaration[] annotationTypeMemberDeclarations;
+	public AnnotationMethodDeclaration[] annotationTypeMemberDeclarations;
 
 	/**
 	 * @param compilationResult

@@ -1860,7 +1860,16 @@ public abstract class Scope
 		problemReporter().isClassPathCorrect(JAVA_IO_SERIALIZABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-
+	
+	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
+		ReferenceBinding type = environment().getType(JAVA_LANG_ANNOTATION_ANNOTATION);
+		if (type != null) return type;
+	
+		problemReporter().isClassPathCorrect(JAVA_LANG_ANNOTATION_ANNOTATION, referenceCompilationUnit());
+		return null; // will not get here since the above error aborts the compilation
+	}
+	
 	public final ReferenceBinding getJavaLangAssertionError() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ASSERTIONERROR);

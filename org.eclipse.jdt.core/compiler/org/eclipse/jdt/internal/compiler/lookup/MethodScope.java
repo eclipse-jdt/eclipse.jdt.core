@@ -85,15 +85,11 @@ public class MethodScope extends BlockScope {
 		int unexpectedModifiers =
 			~(AccPublic | AccPrivate | AccProtected | AccStrictfp);
 		if ((realModifiers & unexpectedModifiers) != 0)
-			problemReporter().illegalModifierForMethod(
-				methodBinding.declaringClass,
-				(AbstractMethodDeclaration) referenceContext);
+			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 		else if (
 			(((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0)
 			// must check the parse node explicitly
-			problemReporter().illegalModifierForMethod(
-				methodBinding.declaringClass,
-				(AbstractMethodDeclaration) referenceContext);
+			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 
 		// check for incompatible modifiers in the visibility bits, isolate the visibility bits
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
@@ -137,10 +133,13 @@ public class MethodScope extends BlockScope {
 
 		// set the requested modifiers for a method in an interface/annotation
 		if ((methodBinding.declaringClass.modifiers & AccInterface) != 0) {
-			if ((realModifiers & ~(AccPublic | AccAbstract)) != 0)
-				problemReporter().illegalModifierForInterfaceMethod(
-					methodBinding.declaringClass,
-					(AbstractMethodDeclaration) referenceContext);
+			if ((realModifiers & ~(AccPublic | AccAbstract)) != 0) {
+				if ((methodBinding.declaringClass.modifiers & AccAnnotation) != 0) {
+					problemReporter().illegalModifierForAnnotationMethod((AbstractMethodDeclaration) referenceContext);
+				} else {
+					problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) referenceContext);
+				}
+			}
 			return;
 		}
 
@@ -157,9 +156,7 @@ public class MethodScope extends BlockScope {
 					| AccNative
 					| AccStrictfp);
 		if ((realModifiers & unexpectedModifiers) != 0)
-			problemReporter().illegalModifierForMethod(
-				methodBinding.declaringClass,
-				(AbstractMethodDeclaration) referenceContext);
+			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 
 		// check for incompatible modifiers in the visibility bits, isolate the visibility bits
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);

@@ -119,14 +119,6 @@ public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void annotationTypeMemberDeclarationWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
-	this.handle(
-		IProblem.AnnotationButConstructorName,
-		NoArgument,
-		NoArgument,
-		annotationTypeMemberDeclaration.sourceStart,
-		annotationTypeMemberDeclaration.sourceEnd);
-}
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,
@@ -1282,7 +1274,7 @@ public void illegalClassLiteralForTypeVariable(TypeVariableBinding variable, AST
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void illegalExtendedDimensions(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+public void illegalExtendedDimensions(AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
 	this.handle(
 		IProblem.IllegalExtendedDimensions,
 		NoArgument, 
@@ -1415,12 +1407,19 @@ public void illegalModifierForInterfaceField(ReferenceBinding type, FieldDeclara
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void illegalModifierForInterfaceMethod(ReferenceBinding type, AbstractMethodDeclaration methodDecl) {
-	String[] arguments = new String[] {new String(type.sourceName()), new String(methodDecl.selector)};
+public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.IllegalModifierForInterfaceMethod,
-		arguments,
-		arguments,
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
+			new String(methodDecl.binding.declaringClass.readableName()),
+		},		
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
+			new String(methodDecl.binding.declaringClass.shortReadableName()),
+		},	
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
@@ -1460,21 +1459,44 @@ public void illegalModifierForAnnotationType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalModifierForMemberAnnotationType(SourceTypeBinding type) {
+public void illegalModifierForAnnotationMemberType(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
-		IProblem.IllegalModifierForMemberAnnotationType,
+		IProblem.IllegalModifierForAnnotationMemberType,
 		arguments,
 		arguments,
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalModifierForMethod(ReferenceBinding type, AbstractMethodDeclaration methodDecl) {
-	String[] arguments = new String[] {new String(type.sourceName()), new String(methodDecl.selector)};
+public void illegalModifierForAnnotationMethod(AbstractMethodDeclaration methodDecl) {
+	this.handle(
+		IProblem.IllegalModifierForAnnotationMethod,
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
+			new String(methodDecl.binding.declaringClass.readableName()),
+		},		
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
+			new String(methodDecl.binding.declaringClass.shortReadableName()),
+		},		
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.IllegalModifierForMethod,
-		arguments,
-		arguments,
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
+			new String(methodDecl.binding.declaringClass.readableName()),
+		},		
+		new String[] {
+			new String(methodDecl.selector),
+			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
+			new String(methodDecl.binding.declaringClass.shortReadableName()),
+		},	
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
@@ -1851,6 +1873,25 @@ public void interfaceCannotHaveInitializers(SourceTypeBinding type, FieldDeclara
 		arguments,
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
+}
+public void invalidAnnotationMethodType(MethodDeclaration methodDecl) {
+	this.handle(
+		IProblem.InvalidAnnotationMethodType,
+		new String[] {
+			new String(methodDecl.binding.returnType.readableName()),
+			new String(methodDecl.selector),
+			typesAsString(false, methodDecl.binding.parameters, false),
+			new String(methodDecl.binding.declaringClass.readableName()),
+		},
+		new String[] {
+			new String(methodDecl.binding.returnType.shortReadableName()),
+			new String(methodDecl.selector),
+			typesAsString(false, methodDecl.binding.parameters, true),
+			new String(methodDecl.binding.declaringClass.shortReadableName()),
+		},
+		methodDecl.returnType.sourceStart,
+		methodDecl.returnType.sourceEnd);
+	
 }
 public void invalidBreak(ASTNode location) {
 	this.handle(
@@ -3185,6 +3226,7 @@ public void methodNameClash(MethodBinding currentMethod, MethodBinding inherited
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }	
+
 public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,

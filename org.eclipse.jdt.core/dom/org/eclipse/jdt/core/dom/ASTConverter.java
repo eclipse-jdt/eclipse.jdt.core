@@ -552,8 +552,8 @@ class ASTConverter {
 		
 	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
 		checkCanceled();
-		if (methodDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) methodDeclaration);
+		if (methodDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration) methodDeclaration);
 		}
 		MethodDeclaration methodDecl = this.ast.newMethodDeclaration();
 		if ((methodDeclaration.modifiers & CompilerModifiers.AccJustFlag) != 0) {
@@ -769,7 +769,7 @@ class ASTConverter {
 		return typeDecl;
 	}
 	
-	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
 		checkCanceled();
 		if (this.ast.apiLevel == AST.JLS2) {
 			return null;
@@ -793,7 +793,7 @@ class ASTConverter {
 		annotationTypeMemberDeclaration2.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
 		// The javadoc comment is now got from list store in compilation unit declaration
 		convert(annotationTypeMemberDeclaration.javadoc, annotationTypeMemberDeclaration2);
-		org.eclipse.jdt.internal.compiler.ast.Expression memberValue = annotationTypeMemberDeclaration.memberValue;
+		org.eclipse.jdt.internal.compiler.ast.Expression memberValue = annotationTypeMemberDeclaration.defaultValue;
 		if (memberValue != null) {
 			annotationTypeMemberDeclaration2.setDefault(convert(memberValue));
 		}
@@ -4150,7 +4150,7 @@ class ASTConverter {
 		this.setModifiers(typeDecl, typeDeclaration.annotations);
 	}
 	
-	protected void setModifiers(AnnotationTypeMemberDeclaration annotationTypeMemberDecl, org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	protected void setModifiers(AnnotationTypeMemberDeclaration annotationTypeMemberDecl, org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
 		this.scanner.resetTo(annotationTypeMemberDeclaration.declarationSourceStart, annotationTypeMemberDeclaration.sourceStart);
 		this.setModifiers(annotationTypeMemberDecl, annotationTypeMemberDeclaration.annotations);
 	}

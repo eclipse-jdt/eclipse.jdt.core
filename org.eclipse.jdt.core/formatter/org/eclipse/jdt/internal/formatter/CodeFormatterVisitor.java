@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
@@ -2188,7 +2188,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(
-			AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration,
+			AnnotationMethodDeclaration annotationTypeMemberDeclaration,
 			ClassScope scope) {        
         /*
          * Print comments to get proper line number
@@ -2223,7 +2223,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 }
 		}
 
-		Expression defaultValue = annotationTypeMemberDeclaration.memberValue;
+		Expression defaultValue = annotationTypeMemberDeclaration.defaultValue;
 		if (defaultValue != null) {
 			this.scribe.printNextToken(TerminalTokens.TokenNamedefault, true);
 			this.scribe.space();

@@ -1113,7 +1113,7 @@ protected void consumeAnnotationTypeDeclarationHeader() {
 }
 protected void consumeAnnotationTypeMemberDeclarationHeader() {
 	// AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
-	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = new AnnotationTypeMemberDeclaration(this.compilationUnit.compilationResult);
+	AnnotationMethodDeclaration annotationTypeMemberDeclaration = new AnnotationMethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	annotationTypeMemberDeclaration.selector = this.identifierStack[this.identifierPtr];
@@ -1147,7 +1147,7 @@ protected void consumeAnnotationTypeMemberDeclarationHeader() {
 }
 protected void consumeAnnotationTypeMemberHeaderExtendedDims() {
 	// AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt
-	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) this.astStack[this.astPtr];
+	AnnotationMethodDeclaration annotationTypeMemberDeclaration = (AnnotationMethodDeclaration) this.astStack[this.astPtr];
 	int extendedDims = this.intStack[this.intPtr--];
 	annotationTypeMemberDeclaration.extendedDimensions = extendedDims;
 	if (extendedDims != 0) {
@@ -1173,13 +1173,13 @@ protected void consumeAnnotationTypeMemberHeaderExtendedDims() {
 }
 protected void consumeAnnotationTypeMemberDeclaration() {
 	// AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader AnnotationTypeMemberHeaderExtendedDims DefaultValueopt ';'
-	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) this.astStack[this.astPtr];
+	AnnotationMethodDeclaration annotationTypeMemberDeclaration = (AnnotationMethodDeclaration) this.astStack[this.astPtr];
 
 	int length = this.expressionLengthStack[this.expressionLengthPtr--];
 	if (length == 1) {
 		intPtr--; // we get rid of the position of the default keyword
 		intPtr--; // we get rid of the position of the default keyword
-		annotationTypeMemberDeclaration.memberValue = this.expressionStack[this.expressionPtr--];
+		annotationTypeMemberDeclaration.defaultValue = this.expressionStack[this.expressionPtr--];
 	}
 
 	// store the this.endPosition (position just before the '}') in case there is

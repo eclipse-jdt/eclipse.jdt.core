@@ -976,12 +976,19 @@ public interface IProblem {
     /**
      * Annotation
      */
-    /** @since 3.0 */
-    int AnnotationButConstructorName = MethodRelated + 600;
-    /** @since 3.0 */
+	/** @since 3.1 */
+	int IllegalModifierForAnnotationMethod = MethodRelated + 600;
+    /** @since 3.1 */
     int IllegalExtendedDimensions = MethodRelated + 601;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int InvalidFileNameForPackageAnnotations = Syntax + Internal + 602;
+    /** @since 3.1 */
+	int IllegalModifierForAnnotationType = TypeRelated + 603;
+    /** @since 3.1 */
+	int IllegalModifierForAnnotationMemberType = TypeRelated + 604;
+    /** @since 3.1 */
+	int InvalidAnnotationMethodType = TypeRelated + 605;	
+	
 	
 	/**
 	 * Corrupted binaries
@@ -1016,11 +1023,4 @@ public interface IProblem {
 	int MethodVarargsArgumentNeedCast = MethodRelated + 801;
 	/** @since 3.1 */
 	int ConstructorVarargsArgumentNeedCast = ConstructorRelated + 802;
-		
-	/**
-	 * Annotation
-	 */
-	int IllegalModifierForAnnotationType = TypeRelated + 851;
-	int IllegalModifierForMemberAnnotationType = TypeRelated + 851;
-	
 }

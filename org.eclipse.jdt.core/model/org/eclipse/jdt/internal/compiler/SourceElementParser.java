@@ -1090,7 +1090,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		TypeReference returnType = methodDeclaration instanceof MethodDeclaration
 			? ((MethodDeclaration) methodDeclaration).returnType
-			: ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
+			: ((AnnotationMethodDeclaration) methodDeclaration).returnType;
 		ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 		methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
 		methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;

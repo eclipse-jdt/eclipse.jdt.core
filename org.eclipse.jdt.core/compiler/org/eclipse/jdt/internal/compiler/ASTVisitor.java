@@ -46,7 +46,7 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(
-			AnnotationTypeMemberDeclaration annotationTypeDeclaration,
+			AnnotationMethodDeclaration annotationTypeDeclaration,
 			ClassScope classScope) {
 			// do nothing by default
 	}	
@@ -481,7 +481,7 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
-			AnnotationTypeMemberDeclaration annotationTypeDeclaration,
+			AnnotationMethodDeclaration annotationTypeDeclaration,
 			ClassScope classScope) {
 		return true; // do nothing by default, keep traversing
 	}	

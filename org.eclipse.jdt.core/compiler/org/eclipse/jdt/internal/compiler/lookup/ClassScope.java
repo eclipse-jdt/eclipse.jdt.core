@@ -426,7 +426,7 @@ public class ClassScope extends Scope {
 					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
 				if ((realModifiers & unexpectedModifiers) != 0) {
 					if ((realModifiers & AccAnnotation) != 0) {
-						problemReporter().illegalModifierForMemberAnnotationType(sourceType);
+						problemReporter().illegalModifierForAnnotationMemberType(sourceType);
 					} else {
 						problemReporter().illegalModifierForMemberInterface(sourceType);
 					}
@@ -774,8 +774,12 @@ public class ClassScope extends Scope {
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.superInterfaces = NoSuperInterfaces;
-		if (referenceContext.superInterfaces == null)
+		if (referenceContext.superInterfaces == null) {
+			if (sourceType.isAnnotationType()) {
+				sourceType.superInterfaces = new ReferenceBinding[] { getJavaLangAnnotationAnnotation() };
+			}
 			return true;
+		}
 		if (sourceType.id == T_Object) // already handled the case of redefining java.lang.Object
 			return true;
 
