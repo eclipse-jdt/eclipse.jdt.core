@@ -1992,7 +1992,7 @@ public class JavaProject
 		boolean canChangeResource,
 		boolean forceSave,
 		IClasspathEntry[] oldResolvedPath,
-		boolean mayChangeProjectDependencies)
+		boolean needCycleCheck)
 		throws JavaModelException {
 
 		JavaModelManager manager =
@@ -2010,7 +2010,7 @@ public class JavaProject
 					newOutputLocation,
 					canChangeResource, 
 					forceSave,
-					mayChangeProjectDependencies);
+					needCycleCheck);
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
@@ -2079,11 +2079,6 @@ public class JavaProject
 		} else {
 			rscFile.create(input, true, null);
 		}
-	}
-
-	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource, boolean mayChangeProjectDependencies) throws JavaModelException {
-
-		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getResolvedClasspath(true), mayChangeProjectDependencies);
 	}
 
 	/**

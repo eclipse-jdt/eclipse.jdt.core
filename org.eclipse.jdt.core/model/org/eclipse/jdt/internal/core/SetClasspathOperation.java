@@ -24,7 +24,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	IClasspathEntry[] oldResolvedPath;
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
-	boolean mayChangeProjectDependencies;
+	boolean needCycleCheck;
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
@@ -40,14 +40,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IPath newOutputLocation,
 		boolean canChangeResource,
 		boolean forceSave,
-		boolean mayChangeProjectDependencies) {
+		boolean needCycleCheck) {
 
 		super(new IJavaElement[] { project });
 		this.oldResolvedPath = oldResolvedPath;
 		this.newRawPath = newRawPath;
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
-		this.mayChangeProjectDependencies = mayChangeProjectDependencies;
+		this.needCycleCheck = needCycleCheck;
 	}
 
 	/**
@@ -436,7 +436,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		
-		if (this.mayChangeProjectDependencies){
+		if (this.needCycleCheck){
 			updateCycleMarkers(newResolvedPath);
 		}
 	}
@@ -464,7 +464,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							project.updateClassPath(this.fMonitor, this.canChangeResource, this.mayChangeProjectDependencies);
+							project.setRawClasspath(
+								project.getRawClasspath(), 
+								SetClasspathOperation.ReuseOutputLocation, 
+								this.fMonitor, 
+								this.canChangeResource, 
+								false, 
+								project.getResolvedClasspath(true), 
+								false);
 							break;
 						}
 					}
@@ -545,7 +552,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void updateProjectReferencesIfNecessary() throws JavaModelException {
 		
 		if (!this.canChangeResource) return;
-		if (this.newRawPath == ReuseClasspath || !this.mayChangeProjectDependencies) return;
+		if (this.newRawPath == ReuseClasspath || !this.needCycleCheck) return;
 
 		JavaProject jproject = getProject();
 		String[] oldRequired = jproject.getRequiredProjectNames();

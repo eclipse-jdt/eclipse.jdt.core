@@ -1395,7 +1395,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		if (monitor != null && monitor.isCanceled()) return;
 		
-		boolean mayChangeProjectDependencies = false;
+		boolean needCycleCheck = false;
 		int varLength = variableNames.length;
 		
 		// gather classpath information for updating
@@ -1450,14 +1450,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
 								
 								// also check whether it will be necessary to update proj references and cycle markers
-								if (!mayChangeProjectDependencies && entry.getPath().segmentCount() ==  1){
+								if (!needCycleCheck && entry.getPath().segmentCount() ==  1){
 									IPath oldPath = (IPath)JavaModelManager.Variables.get(variableName);
 									if (oldPath != null && oldPath.segmentCount() == 1) {
-										mayChangeProjectDependencies = true;
+										needCycleCheck = true;
 									} else {
 										IPath newPath = variablePaths[k];
 										if (newPath != null && newPath.segmentCount() == 1) {
-											mayChangeProjectDependencies = true;
+											needCycleCheck = true;
 										}
 									}
 								}
@@ -1517,9 +1517,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							project.getWorkspace().isAutoBuilding(),
 							// force build if in auto build mode
 							(IClasspathEntry[]) affectedProjects.get(project),
-							size == 1 && mayChangeProjectDependencies); // no individual check if more than 1 project to update
+							size == 1 && needCycleCheck); // no individual check if more than 1 project to update
 				}
-				if (size > 1 && mayChangeProjectDependencies){
+				if (size > 1 && needCycleCheck){
 					try {
 						// use workspace runnable for protecting marker manipulation
 //						ResourcesPlugin.getWorkspace().run(
