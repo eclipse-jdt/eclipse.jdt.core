@@ -346,7 +346,13 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	// set the buffer source if needed
 	if (buffer.getCharacters() == null){
 		ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
-		buffer.setContents((char[])original.getBuffer().getCharacters().clone());
+		IBuffer originalBuffer = original.getBuffer();
+		if (originalBuffer != null) {
+			char[] originalContents = originalBuffer.getCharacters();
+			if (originalContents != null) {
+				buffer.setContents((char[])originalContents.clone());
+			}
+		}
 	}
 
 	// add buffer to buffer cache
@@ -426,7 +432,9 @@ public void restore() throws JavaModelException {
 	if (this.useCount == 0) throw newNotPresentException(); //was destroyed
 
 	CompilationUnit original = (CompilationUnit) getOriginalElement();
-	getBuffer().setContents(original.getContents());
+	IBuffer buffer = this.getBuffer();
+	if (buffer == null) return;
+	buffer.setContents(original.getContents());
 	updateTimeStamp(original);
 	makeConsistent(null);
 }

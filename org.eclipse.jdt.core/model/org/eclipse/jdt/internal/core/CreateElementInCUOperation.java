@@ -126,44 +126,49 @@ public void createBefore(IJavaElement sibling) {
  * @exception JavaModelException if the operation is unable to complete
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(getMainTaskName(), getMainAmountOfWork());
-	JavaElementDelta delta = newJavaElementDelta();
-	ICompilationUnit unit = getCompilationUnit();
-	generateNewCompilationUnitDOM(unit);
-	if (fCreationOccurred) {
-		//a change has really occurred
-		IBuffer buffer = unit.getBuffer();
-		char[] bufferContents = buffer.getCharacters();
-		char[] elementContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(fCreatedElement.getCharacters(), bufferContents);
-		switch (fReplacementLength) {
-			case -1 : 
-				// element is append at the end
-				buffer.append(elementContents);
-				break;
-			case 0 :
-				// element is inserted
-				buffer.replace(fInsertionPosition, 0, elementContents);
-				break;
-			default :
-				// element is replacing the previous one
-				buffer.replace(fInsertionPosition, fReplacementLength, elementContents);
+	try {
+		beginTask(getMainTaskName(), getMainAmountOfWork());
+		JavaElementDelta delta = newJavaElementDelta();
+		ICompilationUnit unit = getCompilationUnit();
+		generateNewCompilationUnitDOM(unit);
+		if (fCreationOccurred) {
+			//a change has really occurred
+			IBuffer buffer = unit.getBuffer();
+			if (buffer  == null) return;
+			char[] bufferContents = buffer.getCharacters();
+			if (bufferContents == null) return;
+			char[] elementContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(fCreatedElement.getCharacters(), bufferContents);
+			switch (fReplacementLength) {
+				case -1 : 
+					// element is append at the end
+					buffer.append(elementContents);
+					break;
+				case 0 :
+					// element is inserted
+					buffer.replace(fInsertionPosition, 0, elementContents);
+					break;
+				default :
+					// element is replacing the previous one
+					buffer.replace(fInsertionPosition, fReplacementLength, elementContents);
+			}
+			unit.save(null, false);
+			boolean isWorkingCopy = unit.isWorkingCopy();
+			this.hasModifiedResource = !isWorkingCopy;
+			worked(1);
+			fResultElements = generateResultHandles();
+			if (!isWorkingCopy) { // if unit is working copy, then save will have already fired the delta
+				if (unit.getParent().exists()) {
+					for (int i = 0; i < fResultElements.length; i++) {
+						delta.added(fResultElements[i]);
+					}
+					addDelta(delta);
+				} // else unit is created outside classpath
+				  // non-java resource delta will be notified by delta processor
+			}
 		}
-		unit.save(null, false);
-		boolean isWorkingCopy = unit.isWorkingCopy();
-		this.hasModifiedResource = !isWorkingCopy;
-		worked(1);
-		fResultElements = generateResultHandles();
-		if (!isWorkingCopy) { // if unit is working copy, then save will have already fired the delta
-			if (unit.getParent().exists()) {
-				for (int i = 0; i < fResultElements.length; i++) {
-					delta.added(fResultElements[i]);
-				}
-				addDelta(delta);
-			} // else unit is created outside classpath
-			  // non-java resource delta will be notified by delta processor
-		}
+	} finally {
+		done();
 	}
-	done();
 }
 /**
  * Returns a JDOM document fragment for the element being created.
@@ -173,7 +178,10 @@ protected abstract IDOMNode generateElementDOM() throws JavaModelException;
  * Returns the DOM with the new source to use for the given compilation unit.
  */
 protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaModelException {
-	char[] prevSource = cu.getBuffer().getCharacters();
+	IBuffer buffer = cu.getBuffer();
+	if (buffer == null) return;
+	char[] prevSource = buffer.getCharacters();
+	if (prevSource == null) return;
 
 	// create a JDOM for the compilation unit
 	fCUDOM = (new DOMFactory()).createCompilationUnit(prevSource, cu.getElementName());

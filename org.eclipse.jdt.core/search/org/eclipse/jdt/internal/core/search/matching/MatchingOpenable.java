@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -135,7 +136,9 @@ private char[] getQualifiedName() {
 public char[] getSource() {
 	try {
 		if (this.openable instanceof WorkingCopy) {
-			return this.openable.getBuffer().getCharacters();
+			IBuffer buffer = this.openable.getBuffer();
+			if (buffer == null) return null;
+			return buffer.getCharacters();
 		} else if (this.openable instanceof CompilationUnit) {
 			return Util.getResourceContentsAsCharArray((IFile)this.resource);
 		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -54,7 +55,10 @@ public CreateTypeMemberOperation(IJavaElement parentElement, String source, bool
  * @see CreateElementInCUOperation#generateNewCompilationUnitDOM
  */
 protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaModelException {
-	char[] prevSource = cu.getBuffer().getCharacters();
+	IBuffer buffer = cu.getBuffer();
+	if (buffer == null) return;
+	char[] prevSource = buffer.getCharacters();
+	if (prevSource == null) return;
 
 	// create a JDOM for the compilation unit
 	fCUDOM = (new DOMFactory()).createCompilationUnit(prevSource, cu.getElementName());

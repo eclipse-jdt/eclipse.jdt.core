@@ -327,9 +327,11 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		// use a platform operation to update the resource contents
 		try {
 			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String contents = this.getContents();
+			if (contents == null) return;
 			byte[] bytes = encoding == null 
-				? getContents().getBytes() 
-				: getContents().getBytes(encoding);
+				? contents.getBytes() 
+				: contents.getBytes(encoding);
 			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
 			this.file.setContents(
@@ -397,25 +399,29 @@ public String toString() {
 	buffer.append("\nIs closed: " + this.isClosed()); //$NON-NLS-1$
 	buffer.append("\nContents:\n"); //$NON-NLS-1$
 	char[] contents = this.getCharacters();
-	int length = contents.length;
-	for (int i = 0; i < length; i++) {
-		char car = contents[i];
-		switch (car) {
-			case '\n': 
-				buffer.append("\\n\n"); //$NON-NLS-1$
-				break;
-			case '\r':
-				if (i < length-1 && this.contents[i+1] == '\n') {
-					buffer.append("\\r\\n\n"); //$NON-NLS-1$
-					i++;
-				} else {
-					buffer.append("\\r\n"); //$NON-NLS-1$
-				}
-				break;
-			default:
-				buffer.append(car);
-				break;
-		}		
+	if (contents == null) {
+		buffer.append("<null>"); //$NON-NLS-1$
+	} else {
+		int length = contents.length;
+		for (int i = 0; i < length; i++) {
+			char car = contents[i];
+			switch (car) {
+				case '\n': 
+					buffer.append("\\n\n"); //$NON-NLS-1$
+					break;
+				case '\r':
+					if (i < length-1 && this.contents[i+1] == '\n') {
+						buffer.append("\\r\\n\n"); //$NON-NLS-1$
+						i++;
+					} else {
+						buffer.append("\\r\n"); //$NON-NLS-1$
+					}
+					break;
+				default:
+					buffer.append(car);
+					break;
+			}
+		}
 	}
 	return buffer.toString();
 }

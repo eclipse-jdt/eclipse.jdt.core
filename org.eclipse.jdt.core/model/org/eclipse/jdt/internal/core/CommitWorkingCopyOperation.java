@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -90,48 +91,53 @@ private void checkPackageDeclaration(ICompilationUnit cu)
  * 	of the original compilation unit fails
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
-	WorkingCopy copy = (WorkingCopy)getCompilationUnit();
-	ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
-
-	
-	// creates the delta builder (this remembers the content of the cu)	
-	if (!original.isOpen()) {
-		// force opening so that the delta builder can get the old info
-		original.open(null);
-	}
-	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
-
-	// save the cu
-	char[] originalContents = original.getBuffer().getCharacters();
-	boolean hasSaved = false;
 	try {
-		original.getBuffer().setContents(copy.getBuffer().getCharacters());
-		original.save(fMonitor, fForce);
-		this.hasModifiedResource = true;
-		hasSaved = true;
-	} finally {
-		if (!hasSaved){
-			// restore original buffer contents since something went wrong
-			original.getBuffer().setContents(originalContents);
-		}
-	}
-	// make sure working copy is in sync
-	copy.updateTimeStamp((CompilationUnit)original);
-	copy.makeConsistent(this);
-	worked(1);
-
-	// build the deltas
-	deltaBuilder.buildDeltas();
-
-	// add the deltas to the list of deltas created during this operation
-	if (deltaBuilder.delta != null) {
-		addDelta(deltaBuilder.delta);
-	}
-	worked(1);
+		beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
+		WorkingCopy copy = (WorkingCopy)getCompilationUnit();
+		ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
 	
-	done();
-//	checkPackageDeclaration(original);
+		
+		// creates the delta builder (this remembers the content of the cu)	
+		if (!original.isOpen()) {
+			// force opening so that the delta builder can get the old info
+			original.open(null);
+		}
+		JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
+	
+		// save the cu
+		IBuffer originalBuffer = original.getBuffer();
+		if (originalBuffer == null) return;
+		char[] originalContents = originalBuffer.getCharacters();
+		boolean hasSaved = false;
+		try {
+			IBuffer copyBuffer = copy.getBuffer();
+			if (copyBuffer == null) return;
+			originalBuffer.setContents(copyBuffer.getCharacters());
+			original.save(fMonitor, fForce);
+			this.hasModifiedResource = true;
+			hasSaved = true;
+		} finally {
+			if (!hasSaved){
+				// restore original buffer contents since something went wrong
+				originalBuffer.setContents(originalContents);
+			}
+		}
+		// make sure working copy is in sync
+		copy.updateTimeStamp((CompilationUnit)original);
+		copy.makeConsistent(this);
+		worked(1);
+	
+		// build the deltas
+		deltaBuilder.buildDeltas();
+	
+		// add the deltas to the list of deltas created during this operation
+		if (deltaBuilder.delta != null) {
+			addDelta(deltaBuilder.delta);
+		}
+		worked(1);
+	} finally {	
+		done();
+	}
 }
 /**
  * Returns the compilation unit this operation is working on.

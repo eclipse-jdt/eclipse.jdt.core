@@ -107,12 +107,15 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	int numberOfImports = cu.getImports().length;
 
 	IBuffer buffer = cu.getBuffer();
+	if (buffer == null) return;
 	JavaElementDelta delta = new JavaElementDelta(cu);
 	IJavaElement[] cuElements = ((IRegion) fChildrenToRemove.get(cu)).getElements();
 	for (int i = 0, length = cuElements.length; i < length; i++) {
 		IJavaElement e = cuElements[i];
 		if (e.exists()) {
-			IDOMCompilationUnit cuDOM = fFactory.createCompilationUnit(buffer.getCharacters(), cu.getElementName());
+			char[] contents = buffer.getCharacters();
+			if (contents == null) continue;
+			IDOMCompilationUnit cuDOM = fFactory.createCompilationUnit(contents, cu.getElementName());
 			DOMNode node = (DOMNode)((JavaElement) e).findNode(cuDOM);
 			// TBD
 			Assert.isTrue(node != null, Util.bind("element.cannotLocate", e.getElementName(), cuDOM.getName())); //$NON-NLS-1$

@@ -412,7 +412,9 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 						if (domCU != null) {
 							updatePackageStatement(domCU, newFragName);
 							IBuffer buffer = cu.getBuffer();
+							if (buffer == null) continue;
 							String bufferContents = buffer.getContents();
+							if (bufferContents == null) continue;
 							String domCUContents = domCU.getContents();
 							String cuContents = null;
 							if (domCUContents != null) {
@@ -473,7 +475,11 @@ private String updatedContent(ICompilationUnit cu, IPackageFragment dest, String
 		String typeName = cu.getElementName();
 		typeName = typeName.substring(0, typeName.length() - 5);
 		IDOMCompilationUnit cuDOM = null;
-		cuDOM = fFactory.createCompilationUnit(cu.getBuffer().getCharacters(), typeName);
+		IBuffer buffer = cu.getBuffer();
+		if (buffer == null) return null;
+		char[] contents = buffer.getCharacters();
+		if (contents == null) return null;
+		cuDOM = fFactory.createCompilationUnit(contents, typeName);
 		updateTypeName(cu, cuDOM, cu.getElementName(), newName);
 		updatePackageStatement(cuDOM, destPackageName);
 		return cuDOM.getContents();

@@ -291,7 +291,8 @@ public boolean hasUnsavedChanges() throws JavaModelException{
 	if (isReadOnly() || !isOpen()) {
 		return false;
 	}
-	if (getBuffer() != null && getBuffer().hasUnsavedChanges()) {
+	IBuffer buf = this.getBuffer();
+	if (buf != null && buf.hasUnsavedChanges()) {
 		return true;
 	}
 	// for package fragments, package fragment roots, and projects must check open buffers

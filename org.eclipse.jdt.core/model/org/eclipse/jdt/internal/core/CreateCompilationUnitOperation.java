@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -72,46 +73,51 @@ public CreateCompilationUnitOperation(IPackageFragment parentElement, String nam
  * @exception JavaModelException if unable to create the compilation unit.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("operation.createUnitProgress"), 2); //$NON-NLS-1$
-	JavaElementDelta delta = newJavaElementDelta();
-	ICompilationUnit unit = getCompilationUnit();
-	IPackageFragment pkg = (IPackageFragment) getParentElement();
-	IContainer folder = (IContainer) pkg.getUnderlyingResource();
-	worked(1);
-	IFile compilationUnitFile = folder.getFile(new Path(fName));
-	if (compilationUnitFile.exists()) {
-		// update the contents of the existing unit if fForce is true
-		if (fForce) {
-			unit.getBuffer().setContents(fSource);
-			unit.save(new NullProgressMonitor(), false);
-			fResultElements = new IJavaElement[] {unit};
-			if (unit.getParent().exists()) {
-				for (int i = 0; i < fResultElements.length; i++) {
-					delta.changed(fResultElements[i], IJavaElementDelta.F_CONTENT);
+	try {
+		beginTask(Util.bind("operation.createUnitProgress"), 2); //$NON-NLS-1$
+		JavaElementDelta delta = newJavaElementDelta();
+		ICompilationUnit unit = getCompilationUnit();
+		IPackageFragment pkg = (IPackageFragment) getParentElement();
+		IContainer folder = (IContainer) pkg.getUnderlyingResource();
+		worked(1);
+		IFile compilationUnitFile = folder.getFile(new Path(fName));
+		if (compilationUnitFile.exists()) {
+			// update the contents of the existing unit if fForce is true
+			if (fForce) {
+				IBuffer buffer = unit.getBuffer();
+				if (buffer == null) return;
+				buffer.setContents(fSource);
+				unit.save(new NullProgressMonitor(), false);
+				fResultElements = new IJavaElement[] {unit};
+				if (unit.getParent().exists()) {
+					for (int i = 0; i < fResultElements.length; i++) {
+						delta.changed(fResultElements[i], IJavaElementDelta.F_CONTENT);
+					}
+					addDelta(delta);
 				}
-				addDelta(delta);
+			} else {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 			}
 		} else {
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
-		}
-	} else {
-		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
-			InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
-			createFile(folder, unit.getElementName(), stream, false);
-			fResultElements = new IJavaElement[] {unit};
-			if (unit.getParent().exists()) {
-				for (int i = 0; i < fResultElements.length; i++) {
-					delta.added(fResultElements[i]);
+			try {
+				String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+				InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
+				createFile(folder, unit.getElementName(), stream, false);
+				fResultElements = new IJavaElement[] {unit};
+				if (unit.getParent().exists()) {
+					for (int i = 0; i < fResultElements.length; i++) {
+						delta.added(fResultElements[i]);
+					}
+					addDelta(delta);
 				}
-				addDelta(delta);
+			} catch (IOException e) {
+				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
-	} 
-	worked(1);
-	done();
+		} 
+		worked(1);
+	} finally {
+		done();
+	}
 }
 /**
  * @see CreateElementInCUOperation#getCompilationUnit()

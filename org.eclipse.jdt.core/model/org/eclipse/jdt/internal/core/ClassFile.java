@@ -85,10 +85,8 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
  */
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
 	IBuffer buffer = getBuffer();
-	if (buffer != null) {
-		char[] contents = null;
-		contents = buffer.getCharacters();
-
+	char[] contents;
+	if (buffer != null && (contents = buffer.getCharacters()) != null) {
 		IType current = this.getType();
 		IType parent;
 		while ((parent = current.getDeclaringType()) != null){
@@ -290,7 +288,9 @@ public String getSource() throws JavaModelException {
 public ISourceRange getSourceRange() throws JavaModelException {
 	IBuffer buffer = getBuffer();
 	if (buffer != null) {
-		return new SourceRange(0, buffer.getContents().toString().length());
+		String contents = buffer.getContents();
+		if (contents == null) return null;
+		return new SourceRange(0, contents.length());
 	} else {
 		return null;
 	}
@@ -389,11 +389,12 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		if (contents != null) {
 			// create buffer
 			IBuffer buffer = getBufferFactory().createBuffer(this);
+			if (buffer == null) return null;
 			BufferManager bufManager = getBufferManager();
 			bufManager.addBuffer(buffer);
 			
 			// set the buffer source
-			if (buffer != null && buffer.getCharacters() == null){
+			if (buffer.getCharacters() == null){
 				buffer.setContents(contents);
 			}
 			

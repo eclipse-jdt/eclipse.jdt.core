@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
@@ -214,9 +215,10 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	if (unit != null) return unit;
 
 	// source unit
+	IBuffer buffer;
 	final char[] source = 
 		compilationUnit.isWorkingCopy() ?
-			compilationUnit.getBuffer().getCharacters() :
+			(buffer = compilationUnit.getBuffer()) == null ? null : buffer.getCharacters() :
 			Util.getResourceContentsAsCharArray(file);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getContents() {

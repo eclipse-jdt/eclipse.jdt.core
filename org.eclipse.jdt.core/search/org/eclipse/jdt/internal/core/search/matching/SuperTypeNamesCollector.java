@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -147,9 +148,10 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 		fileName.substring(0, fileName.length() - 5).toCharArray();
 	
 	// source unit
+	IBuffer buffer;
 	final char[] source = 
 		compilationUnit.isWorkingCopy() ?
-			compilationUnit.getBuffer().getCharacters() :
+			(buffer = compilationUnit.getBuffer()) == null ? null : buffer.getCharacters() :
 			Util.getResourceContentsAsCharArray(file);
 	org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 		new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {

@@ -406,7 +406,8 @@ public ICompilationUnit getCompilationUnit() {
  */
 public char[] getContents() {
 	try {
-		return getBuffer().getCharacters();
+		IBuffer buffer = this.getBuffer();
+		return buffer == null ? null : buffer.getCharacters();
 	} catch (NullPointerException e) { // buffer could be null
 		return new char[0];
 	} catch (JavaModelException e) {
@@ -765,9 +766,10 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	// create buffer -  compilation units only use default buffer factory
 	BufferManager bufManager = getBufferManager();
 	IBuffer buffer = getBufferFactory().createBuffer(this);
+	if (buffer == null) return null;
 	
 	// set the buffer source
-	if (buffer != null && buffer.getCharacters() == null){
+	if (buffer.getCharacters() == null){
 		buffer.setContents(Util.getResourceContentsAsCharArray((IFile)this.getResource()));
 	}
 
