@@ -135,6 +135,7 @@ public void testContainerInitializer1() throws CoreException {
 		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
 	} finally {
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 	}
@@ -164,6 +165,7 @@ public void testContainerInitializer2() throws CoreException {
 			""
 		);
 	} finally {
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 	}
@@ -199,6 +201,7 @@ public void testContainerInitializer3() throws CoreException {
 			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
 	} finally {
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 	}
@@ -237,6 +240,7 @@ public void testContainerInitializer4() throws CoreException {
 			"			X.java[+]: {}"
 		);
 	} finally {
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 	}
@@ -288,6 +292,7 @@ public void testContainerInitializer5() throws CoreException {
 			"	[project root][*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}\n" + 
+			"\n" + 
 			"P1[*]: {CONTENT}\n" + 
 			"	ResourceDelta(/P1/lib.jar)[+]"
 		);
@@ -296,6 +301,7 @@ public void testContainerInitializer5() throws CoreException {
 		e.printStackTrace();
 		assertTrue("stack overflow assigning container", false);
 	} finally {
+		stopDeltas();
 		this.deleteProject("P1");
 	}
 }
@@ -372,7 +378,7 @@ public void testVariableInitializer3() throws CoreException {
 		);
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
-		this.startDeltas();
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		VariablesInitializer.reset();
@@ -489,7 +495,7 @@ public void testVariableInitializer7() throws CoreException {
 		);
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
-		this.startDeltas();
+		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		VariablesInitializer.reset();

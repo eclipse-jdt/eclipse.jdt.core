@@ -95,35 +95,49 @@ public static String displayString(String inputString){
 public static String displayString(String inputString, int indent) {
 	int length = inputString.length();
 	StringBuffer buffer = new StringBuffer(length);
-	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r");
+	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
 	int count = 0;
 	for (int i = 0; i < indent; i++) buffer.append("\t");
 	buffer.append("\"");
+	boolean wasACr = false;
+	boolean newLine = false;
 	while (tokenizer.hasMoreTokens()){
-		if (count++ != 0) {
+
+		String token = tokenizer.nextToken();
+		if (token.equals("\r")) {
+			wasACr = true;
+			newLine = true;
+		} else if (token.equals("\n")) {
+			if (!wasACr) { // \r\n --> \n
+				newLine = true;
+			}
+		}	
+		if (newLine) {
+			newLine = false;
 			buffer.append("\\n\" + \n");
 			for (int i = 0; i < indent; i++) buffer.append("\t");
 			buffer.append("\"");
+			continue;
 		}
-		String token = tokenizer.nextToken();
+		wasACr = false;
 		StringBuffer tokenBuffer = new StringBuffer();
 		for (int i = 0; i < token.length(); i++){ 
 			char c = token.charAt(i);
 			switch (c) {
+				case '\r' :
+					tokenBuffer.append("\\r");
+					break;
+				case '\n' :
+					tokenBuffer.append("\\n");
+					break;
 				case '\b' :
 					tokenBuffer.append("\\b");
 					break;
 				case '\t' :
 					tokenBuffer.append("\t");
 					break;
-				case '\n' :
-					tokenBuffer.append("\\n");
-					break;
 				case '\f' :
 					tokenBuffer.append("\\f");
-					break;
-				case '\r' :
-					tokenBuffer.append("\\r");
 					break;
 				case '\"' :
 					tokenBuffer.append("\\\"");
