@@ -11,6 +11,9 @@
  *                       container for generic container operations.
  * 						 - canUpdateClasspathContainer(IPath, IJavaProject)
  * 						 - requestClasspathContainerUpdate(IPath, IJavaProject, IClasspathContainer)
+ *     IBM Corporation - allow initializers to provide a readable description
+ *                       of a container reference, ahead of actual resolution.
+ * 						 - getDescription(IPath)
  ******************************************************************************/
 
 package org.eclipse.jdt.core;
