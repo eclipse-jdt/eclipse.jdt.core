@@ -101,13 +101,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length) {
-		long time = System.currentTimeMillis();
+		//long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
 		if (edit == null) return null;
 		String result = org.eclipse.jdt.internal.core.Util.editedString(source, edit);
 
 		if (length == source.length()) {
-			time = System.currentTimeMillis();
+			//time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
 			if (edit == null) return null;
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
@@ -677,7 +677,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.type_member_alignment = Alignment.M_NO_ALIGNMENT;
 		preferences.use_tab = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		long time = System.currentTimeMillis();
+		//long time = System.currentTimeMillis();
 		runTest(codeFormatter, "test060", "Parser.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}		
 
@@ -1338,6 +1338,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test134", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test135() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -1880,6 +1883,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test192", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test193() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -1889,6 +1895,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test193", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test194() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -1898,6 +1907,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test194", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test195() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -1907,6 +1919,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test195", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test196() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -1917,6 +1932,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test196", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test197() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -1927,6 +1945,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test197", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test198() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -1937,6 +1958,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test198", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test199() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -1947,6 +1971,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test199", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test201() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -1957,9 +1984,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test201", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/*
+	/**
 	 * TODO Fix multi local declaration alignment
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44909
+	 * 
+	 * @deprecated (uses old formatter options)
 	 */
 	public void _test202() {
 		Hashtable options = new Hashtable();
@@ -1971,9 +2000,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test202", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/*
+	/**
 	 * TODO Fix multi local declaration alignment
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44909
+	 * 
+	 * @deprecated (uses old formatter options)
 	 */
 	public void _test203() {
 		Hashtable options = new Hashtable();
@@ -1985,6 +2016,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test203", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test204() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -1995,6 +2029,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test204", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test205() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2006,6 +2043,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test205", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test206() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2016,6 +2056,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test206", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test207() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2026,6 +2069,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test207", "A.java", CodeFormatter.K_STATEMENTS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test208() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2036,6 +2082,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test208", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test209() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2047,6 +2096,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test209", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test210() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2058,6 +2110,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test210", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test211() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2069,6 +2124,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test211", "A.java", CodeFormatter.K_COMPILATION_UNIT, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test212() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2079,6 +2137,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test212", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test213() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2089,6 +2150,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test213", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test214() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2099,6 +2163,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test214", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test215() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2109,6 +2176,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test215", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test216() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2119,6 +2189,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test216", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test217() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2129,6 +2202,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test217", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test218() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2139,6 +2215,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test218", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test219() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2149,6 +2228,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test219", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test220() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2159,6 +2241,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test220", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test221() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2169,6 +2254,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test221", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test222() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2179,6 +2267,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test222", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test223() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2189,6 +2280,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test223", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test224() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2199,6 +2293,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test224", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test225() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2209,6 +2306,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test225", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test226() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2218,6 +2318,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test226", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test227() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2228,6 +2332,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test227", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test228() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2238,6 +2345,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test228", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test229() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2248,6 +2358,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test229", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test230() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2258,6 +2371,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test230", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test231() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2268,6 +2384,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test231", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test232() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2278,6 +2397,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test232", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test233() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2288,6 +2410,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test233", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test234() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2298,6 +2423,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test234", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test235() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2308,6 +2436,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test235", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test236() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2318,6 +2449,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test236", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test237() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2328,6 +2462,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test237", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test238() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2338,6 +2475,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test238", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test239() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2348,6 +2488,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test239", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test240() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2358,6 +2501,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test240", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test241() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2368,6 +2514,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test241", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test242() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2378,6 +2527,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test242", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test243() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2388,6 +2540,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test243", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test244() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2398,6 +2553,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test244", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test245() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2408,6 +2566,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test245", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test246() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2418,6 +2579,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test246", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test247() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2428,6 +2592,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test247", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test248() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2438,6 +2605,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test248", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test249() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2448,6 +2618,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test249", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test250() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2458,6 +2631,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test250", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test251() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2468,6 +2644,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test251", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test252() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2478,6 +2657,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test252", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test253() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2488,6 +2670,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test253", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test254() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2498,6 +2683,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test254", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test255() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2508,6 +2696,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test255", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test256() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2518,6 +2709,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test256", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test257() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2528,6 +2722,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test257", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test258() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2538,6 +2735,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test258", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test259() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2548,6 +2748,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test259", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test260() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2558,6 +2761,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test260", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test261() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2568,6 +2774,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test261", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test262() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2578,6 +2787,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test262", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test263() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2588,6 +2800,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test263", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test264() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2598,6 +2813,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test264", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test265() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2608,6 +2826,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test265", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test266() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2618,6 +2839,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test266", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test267() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2628,6 +2852,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test267", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test268() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2638,6 +2865,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test268", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test269() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2648,6 +2878,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test269", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test270() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2658,6 +2891,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test270", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test271() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2668,6 +2904,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test271", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test272() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2678,6 +2917,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test272", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test273() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2688,6 +2930,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test273", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test274() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2698,6 +2943,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test274", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test275() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2708,6 +2956,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test275", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test276() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2718,6 +2969,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test276", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test277() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2728,6 +2982,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test277", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test278() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2738,6 +2995,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test278", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test279() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2748,6 +3008,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test279", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test280() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2758,6 +3021,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test280", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test281() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2768,6 +3034,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test281", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test282() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2778,6 +3047,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test282", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test283() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2788,6 +3060,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test283", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test284() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2798,6 +3073,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test284", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test285() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2808,6 +3086,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test285", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test286() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2818,6 +3099,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test286", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test287() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2828,6 +3112,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test287", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test288() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2838,6 +3125,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test288", "A.java", CodeFormatter.K_STATEMENTS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test289() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2848,6 +3138,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test289", "A.java", CodeFormatter.K_STATEMENTS, 1);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test290() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2858,6 +3151,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test290", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test291() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2868,6 +3164,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test291", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test292() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2878,6 +3177,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test292", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test293() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2888,6 +3190,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test293", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test294() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2898,6 +3203,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test294", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test295() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2908,6 +3216,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test295", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test296() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2918,6 +3229,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test296", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test297() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2930,6 +3244,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test297", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test298() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -2941,6 +3258,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test298", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test299() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2952,6 +3272,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test299", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test300() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2962,6 +3285,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test300", "A.java", CodeFormatter.K_EXPRESSION, 2);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test301() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -2973,6 +3299,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test301", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test302() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
@@ -3074,6 +3403,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test312", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test313() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
@@ -3084,6 +3416,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test313", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * @deprecated (uses old formatter options)
+	 */
 	public void test314() {
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);

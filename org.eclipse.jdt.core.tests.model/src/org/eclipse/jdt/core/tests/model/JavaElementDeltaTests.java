@@ -198,6 +198,7 @@ public JavaElementDeltaTests(String name) {
  * Ensures that adding a comment to a working copy and commiting it triggers an empty fine grained
  * delta with the kind set for PRE_AUTO_BUILD listeners.
  * (regression test for bug 32937 Kind not set for empty fine-grained delta)
+ * @deprecated
  */
 public void _testAddCommentAndCommit() throws CoreException { // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
 	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
@@ -991,9 +992,10 @@ public void testDestroyWorkingCopy() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-/*
+/**
  * Ensures that a delta listener that asks for PRE_AUTO_BUILD events gets those events 
  * and no others.
+ * @deprecated
  */
 public void _testListenerAutoBuild() throws CoreException {  // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
 	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
