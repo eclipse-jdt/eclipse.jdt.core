@@ -2879,4 +2879,22 @@ public class AnnotationTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
+	
+	// check no interaction between Retention and Target (switch fall-thru)
+	public void test095() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface Ann {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@Ann\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+			},
+			"");
+	}
 }

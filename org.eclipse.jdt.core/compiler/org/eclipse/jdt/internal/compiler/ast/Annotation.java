@@ -100,6 +100,7 @@ public abstract class Annotation extends Expression {
 						}
 					}
 				}
+				break;
 			// target annotation
 			case TypeIds.T_JavaLangAnnotationTarget :		
 				tagBits |= TagBits.AnnotationTarget; // target specified (could be empty)
@@ -131,6 +132,7 @@ public abstract class Annotation extends Expression {
 						}
 					}
 				}
+				break;
 			// marker annotations
 			case TypeIds.T_JavaLangDeprecated :
 				tagBits |= TagBits.AnnotationDeprecated;

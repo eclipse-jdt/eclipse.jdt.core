@@ -64,7 +64,7 @@ public interface TagBits {
 	long EndAnnotationCheck = ASTNode.Bit33L;
 	
 	// standard annotations
-	// 8-bits for targets
+	// 9-bits for targets
 	long AnnotationTarget = ASTNode.Bit34L; // @Target({}) only sets this bit
 	long AnnotationForType = ASTNode.Bit35L;
 	long AnnotationForField = ASTNode.Bit36L;
