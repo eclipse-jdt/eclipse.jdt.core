@@ -743,9 +743,6 @@ public void test023() {
  */
 public void test024() {
 	
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportUnreachableCode, CompilerOptions.IGNORE);
-	
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -775,12 +772,7 @@ public void test024() {
 		"	} catch(LookupException le) {	\n" + 
 		"	        ^^^^^^^^^^^^^^^\n" + 
 		"Unreachable catch block for LookupException. It is already handled by the catch block for DataException\n" + 
-		"----------\n",
-		null, // custom libs
-		true, // should flush bin output
-		//null, // vm arguments
-		customOptions // custom options
-	);
+		"----------\n");
 }
 
 public static Class testClass() {

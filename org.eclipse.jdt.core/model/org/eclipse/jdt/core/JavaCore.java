@@ -1388,13 +1388,6 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
 	 *     - default:           "1.1"
 	 *
-	 * COMPILER / Reporting Unreachable Code
-	 *    Unreachable code can optionally be reported as an error, warning or simply 
-	 *    ignored. The bytecode generation will always optimized it out.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unreachableCode"
-	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "error"
-	 *
 	 * COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
 	 *    cannot be overridden. When enabling this option, the compiler will signal 
