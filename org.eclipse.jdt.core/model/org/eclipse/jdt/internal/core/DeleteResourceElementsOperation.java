@@ -126,5 +126,11 @@ protected void verify(IJavaElement element) throws JavaModelException {
 		error(JavaModelStatus.INVALID_ELEMENT_TYPES, element);
 	else if (type == IJavaElement.PACKAGE_FRAGMENT && element instanceof JarPackageFragment)
 		error(JavaModelStatus.INVALID_ELEMENT_TYPES, element);
+	IResource resource = element.getResource();
+	if (resource instanceof IFolder) {
+		if (resource.isLinked()) {
+			error(JavaModelStatus.INVALID_RESOURCE, element);
+		}
+	}
 }
 }
