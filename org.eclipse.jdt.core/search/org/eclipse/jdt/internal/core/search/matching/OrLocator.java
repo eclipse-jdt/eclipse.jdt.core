@@ -74,7 +74,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
-		int newLevel = this.patternLocators[i].matchLevel(importRef);
+		int newLevel = this.patternLocators[i].resolveLevel(binding);
 		if (newLevel > level) {
 			closestPattern = this.patternLocators[i];
 			if (newLevel == ACCURATE_MATCH) break;
@@ -83,6 +83,20 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 	}
 	if (closestPattern != null)
 		closestPattern.matchLevelAndReportImportRef(importRef, binding, locator);
+}
+protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	PatternLocator closestPattern = null;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].matchLevel(importRef);
+		if (newLevel > level) {
+			closestPattern = this.patternLocators[i];
+			if (newLevel == ACCURATE_MATCH) break;
+			level = newLevel;
+		}
+	}
+	if (closestPattern != null)
+		closestPattern.matchReportImportRef(importRef, binding, element, accuracy, locator);
 }
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	PatternLocator closestPattern = null;

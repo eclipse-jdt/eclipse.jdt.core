@@ -105,10 +105,6 @@ protected int matchContainer() {
 	// override if the pattern can be more specific
 	return ALL_CONTAINER;
 }
-protected int matchLevel(ImportReference importRef) {
-	// override if interested in import references which are caught by the generic version of match(AstNode, MatchingNodeSet)
-	return IMPOSSIBLE_MATCH;
-}
 /**
  * Returns whether the given name matches the given pattern.
  */
@@ -152,7 +148,14 @@ protected boolean matchesTypeReference(char[] pattern, TypeReference type) {
 	return matchesName(pattern, simpleName);
 }
 /**
- * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
+ * Returns the match level for the given importRef.
+ */
+protected int matchLevel(ImportReference importRef) {
+	// override if interested in import references which are caught by the generic version of match(AstNode, MatchingNodeSet)
+	return IMPOSSIBLE_MATCH;
+}
+/**
+ * Reports the match of the given import reference if the resolveLevel is high enough.
  */
 protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
 	int level = resolveLevel(binding);
@@ -168,7 +171,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 	}
 }
 /**
- * Report the match of the given import reference
+ * Reports the match of the given import reference.
  */
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	// default is to report a match as a regular ref.
@@ -198,7 +201,7 @@ public int resolveLevel(AstNode potentialMatchingNode) {
  * Finds out whether the given binding matches this search pattern.
  * Returns ACCURATE_MATCH if it does.
  * Returns INACCURATE_MATCH if resolve failed but match is still possible.
- * Retunrs IMPOSSIBLE_MATCH otherwise.
+ * Returns IMPOSSIBLE_MATCH otherwise.
  * Default is to return INACCURATE_MATCH.
  */
 public int resolveLevel(Binding binding) {
