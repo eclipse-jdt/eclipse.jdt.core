@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
@@ -136,7 +135,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IVariableBinding[] getDeclaredFields() {
 		try {
-			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+			if (isClass() || isInterface() || isEnum()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				FieldBinding[] fields = referenceBinding.fields();
 				int length = fields.length;
@@ -161,7 +160,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IMethodBinding[] getDeclaredMethods() {
 		try {
-			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+			if (isClass() || isInterface() || isEnum()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
 				int length = methods.length;
@@ -200,7 +199,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding[] getDeclaredTypes() {
 		try {
-			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+			if (isClass() || isInterface() || isEnum()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				ReferenceBinding[] members = referenceBinding.memberTypes();
 				int length = members.length;
@@ -221,10 +220,32 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	/*
+	 * @see ITypeBinding#getDeclaringMethod()
+	 */
+	public IMethodBinding getDeclaringMethod() {
+		if (this.binding.isTypeVariable()) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			Binding declaringElement = typeVariableBinding.declaringElement;
+			if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+				try {
+					return this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)declaringElement);
+				} catch (RuntimeException e) {
+					/* in case a method cannot be resolvable due to missing jars on the classpath
+					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+					 */
+				}				
+			}
+		}
+		return null;
+	}
+
+	/*
 	 * @see ITypeBinding#getDeclaringClass()
 	 */
 	public ITypeBinding getDeclaringClass() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isNestedType()) {
 				try {
@@ -236,6 +257,20 @@ class TypeBinding implements ITypeBinding {
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 					 */
 				}
+			}
+		} else if (this.binding.isTypeVariable()) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			Binding declaringElement = typeVariableBinding.declaringElement;
+			if (declaringElement instanceof ReferenceBinding) {
+				try {
+					return this.resolver.getTypeBinding((ReferenceBinding)declaringElement);
+				} catch (RuntimeException e) {
+					/* in case a method cannot be resolvable due to missing jars on the classpath
+					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+					 */
+				}				
 			}
 		}
 		return null;
@@ -341,8 +376,8 @@ class TypeBinding implements ITypeBinding {
 			final String typeVariableName = new String(referenceBinding.sourceName());
 			Binding declaringElement = ((TypeVariableBinding) referenceBinding).declaringElement;
 			IBinding declaringTypeBinding = null;
-			if (declaringElement instanceof MethodBinding) {
-				declaringTypeBinding = this.resolver.getMethodBinding((MethodBinding) declaringElement);
+			if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+				declaringTypeBinding = this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement);
 				IMethod declaringMethod = (IMethod) declaringTypeBinding.getJavaElement();
 				return declaringMethod.getTypeParameter(typeVariableName);
 			} else {
@@ -749,7 +784,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isAnonymous()
 	 */
 	public boolean isAnonymous() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isAnonymousType();
 		}
@@ -799,7 +834,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isDeprecated();
 		}
@@ -838,7 +873,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isFromSource()
 	 */
 	public boolean isFromSource() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isRawType()) {
 				return !((RawTypeBinding) referenceBinding).type.isBinaryBinding();
@@ -867,7 +902,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isLocal()
 	 */
 	public boolean isLocal() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isLocalType() && !referenceBinding.isMemberType();
 		}
@@ -878,7 +913,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isMember()
 	 */
 	public boolean isMember() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isMemberType();
 		}
@@ -889,7 +924,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isNested()
 	 */
 	public boolean isNested() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isNestedType();
 		}
@@ -946,7 +981,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isTopLevel()
 	 */
 	public boolean isTopLevel() {
-		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return !referenceBinding.isNestedType();
 		}

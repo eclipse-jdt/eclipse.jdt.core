@@ -459,8 +459,13 @@ public interface ITypeBinding extends IBinding {
 	 * type is the class, interface, or enum type of which it is a member.
 	 * The declaring class of a local class or interface (including anonymous
 	 * classes) is the innermost class or interface containing the expression
-	 * or statement in which this type is declared. Array types,
-	 * primitive types, the null type, top-level types, type variables,
+	 * or statement in which this type is declared.
+	 * </p>
+	 * <p>The declaring class of a type variable is the class in which the type variable
+	 * is declared if it is declared on a type. It returns null otherwise. In this case, the
+	 * resulting binding cannot be an enum type binding.
+	 * </p>
+	 * <p>Array types, primitive types, the null type, top-level types,
 	 * and wildcard types have no declaring class.
 	 * </p>
 	 * 
@@ -468,7 +473,18 @@ public interface ITypeBinding extends IBinding {
 	 * <code>null</code> if none
 	 */
 	public ITypeBinding getDeclaringClass();
-	
+
+	/**
+	 * Returns the method binding representing the method in which this binding is 
+	 * defined.
+	 * <p>It returns null if this binding is not a type variable or a local type.
+	 * </p>
+	 * 
+	 * @return the binding of the method that declares this type, or
+	 * <code>null</code> if none
+	 */
+	public IMethodBinding getDeclaringMethod();
+
 	/**
 	 * Returns the type binding for the superclass of the type represented
 	 * by this class binding.
