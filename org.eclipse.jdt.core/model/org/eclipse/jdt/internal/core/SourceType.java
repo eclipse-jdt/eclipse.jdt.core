@@ -412,7 +412,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	SelectionEngine engine = 
 		new SelectionEngine(environment, requestor, JavaCore.getOptions());
 		
-	engine.selectType(info, typeName.toCharArray());
+	engine.selectType(info, typeName.toCharArray(), false);
 	return requestor.answers;
 }
 /**

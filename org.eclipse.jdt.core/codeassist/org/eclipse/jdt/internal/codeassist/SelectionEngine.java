@@ -575,8 +575,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *  @param typeName char[]
 	 *      a type name which is to be resolved in the context of a compilation unit.
 	 *		NOTE: the type name is supposed to be correctly reduced (no whitespaces, no unicodes left)
+	 * 
+	 *  @param searchInEnvironment
+	 * 	if <code>true</code> and no selection could be found in context then search type in environment.
 	 */
-	public void selectType(ISourceType sourceType, char[] typeName) {
+	public void selectType(ISourceType sourceType, char[] typeName, boolean searchInEnvironment) {
 		try {
 			acceptedAnswer = false;
 
@@ -668,7 +671,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			// only reaches here if no selection could be derived from the parsed tree
 			// thus use the selected source and perform a textual type search
-			if (!acceptedAnswer) {
+			if (!acceptedAnswer && searchInEnvironment) {
 				if (this.selectedIdentifier != null) {
 					nameEnvironment.findTypes(typeName, this);
 					
