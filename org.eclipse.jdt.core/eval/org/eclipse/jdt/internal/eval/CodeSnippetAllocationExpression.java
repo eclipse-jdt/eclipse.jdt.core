@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -116,12 +115,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		if (!flowInfo.isReachable()) return;
 
 		// if constructor from parameterized type got found, use the original constructor at codegen time
-		if (this.binding instanceof ParameterizedMethodBinding) {
-		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
-		    this.codegenBinding = parameterizedMethod.originalMethod;
-		} else {
-		    this.codegenBinding = this.binding;
-		}
+		this.codegenBinding = this.binding.original();
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -164,18 +163,17 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	if (!flowInfo.isReachable()) return;
 
-	if (this.binding instanceof ParameterizedMethodBinding) {
-	    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
-	    this.codegenBinding = parameterizedMethod.originalMethod;
-	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
+	// if method from parameterized type got found, use the original method at codegen time
+	this.codegenBinding = this.binding.original();
+	if (this.codegenBinding != this.binding) {
+	    // extra cast needed if method return type was type variable
+	    if (this.codegenBinding.returnType.isTypeVariable()) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != parameterizedMethod.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = parameterizedMethod.returnType;
+	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = this.binding.returnType;
 	        }
 	    }
-	} else {
-	    this.codegenBinding = this.binding;
-	}
+	} 
 	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding

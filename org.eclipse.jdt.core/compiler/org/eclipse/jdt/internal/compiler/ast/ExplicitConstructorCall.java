@@ -186,12 +186,7 @@ public class ExplicitConstructorCall
 
 		if (!flowInfo.isReachable()) return;
 		// if constructor from parameterized type got found, use the original constructor at codegen time
-		if (this.binding instanceof ParameterizedMethodBinding) {
-		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
-		    this.codegenBinding = parameterizedMethod.originalMethod;
-		} else {
-		    this.codegenBinding = this.binding;
-		}
+		this.codegenBinding = this.binding.original();
 		
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (binding.isPrivate() && accessMode != This) {

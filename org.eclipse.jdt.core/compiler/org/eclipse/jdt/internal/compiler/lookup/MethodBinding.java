@@ -415,6 +415,13 @@ public final boolean isViewedAsDeprecated() {
 		(modifiers & AccDeprecatedImplicitly) != 0;
 }
 
+/**
+ * Returns the original method (as opposed to parameterized instances)
+ */
+public MethodBinding original() {
+    return this;
+}
+
 public char[] readableName() /* foo(int, Thread) */ {
 	StringBuffer buffer = new StringBuffer(parameters.length + 1 * 20);
 	if (isConstructor())

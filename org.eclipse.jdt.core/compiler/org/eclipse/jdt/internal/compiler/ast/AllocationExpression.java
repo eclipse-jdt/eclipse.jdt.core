@@ -176,12 +176,8 @@ public class AllocationExpression
 		if (!flowInfo.isReachable()) return;
 
 		// if constructor from parameterized type got found, use the original constructor at codegen time
-		if (this.binding instanceof ParameterizedMethodBinding) {
-		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
-		    this.codegenBinding = parameterizedMethod.originalMethod;
-		} else {
-		    this.codegenBinding = this.binding;
-		}
+		this.codegenBinding = this.binding.original();
+
 		if (binding.isPrivate()
 			&& (currentScope.enclosingSourceType() != binding.declaringClass)) {
 

@@ -1544,6 +1544,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
 	int id = IProblem.UndefinedConstructor; //default...
+    MethodBinding shownConstructor = targetConstructor;
 	switch (targetConstructor.problemId()) {
 		case NotFound :
 			if (insideDefaultConstructor){
@@ -1562,6 +1563,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			} else {
 				id = IProblem.NotVisibleConstructor;
 			}
+			ProblemMethodBinding problemConstructor = (ProblemMethodBinding) targetConstructor;
+			if (problemConstructor.closestMatch != null) {
+			    shownConstructor = problemConstructor.closestMatch.original();
+		    }					
 			break;
 		case Ambiguous :
 			if (insideDefaultConstructor){
@@ -1580,8 +1585,8 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 
 	this.handle(
 		id,
-		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(targetConstructor.parameters, false)},
-		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsString(targetConstructor.parameters, true)},
+		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(shownConstructor.parameters, false)},
+		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsString(shownConstructor.parameters, true)},
 		statement.sourceStart,
 		statement.sourceEnd);
 }
@@ -1803,22 +1808,47 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 		(int) nameRef.sourcePositions[index]);
 }
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
-	// CODE should be UPDATED according to error coding in the different method binding errors
-	// The different targetted errors should be :
-	// 	UndefinedMethod
-	//	NotVisibleMethod
-	//	AmbiguousMethod
-	//  InheritedNameHidesEnclosingName
-	//	InstanceMethodDuringConstructorInvocation
-	// StaticMethodRequested
-
 	int id = IProblem.UndefinedMethod; //default...
+    MethodBinding shownMethod = method;
 	switch (method.problemId()) {
 		case NotFound :
 			id = IProblem.UndefinedMethod;
+			ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
+			if (problemMethod.closestMatch != null) {
+			    	shownMethod = problemMethod.closestMatch;
+					String closestParameterTypeNames = parametersAsString(shownMethod.parameters, false);
+					String parameterTypeNames = parametersAsString(method.parameters, false);
+					String closestParameterTypeShortNames = parametersAsString(shownMethod.parameters, true);
+					String parameterTypeShortNames = parametersAsString(method.parameters, true);
+					if (closestParameterTypeShortNames.equals(parameterTypeShortNames)){
+						closestParameterTypeShortNames = closestParameterTypeNames;
+						parameterTypeShortNames = parameterTypeNames;
+					}
+					this.handle(
+						IProblem.ParameterMismatch,
+						new String[] {
+							new String(shownMethod.declaringClass.readableName()),
+							new String(shownMethod.selector),
+							closestParameterTypeNames,
+							parameterTypeNames 
+						},
+						new String[] {
+							new String(shownMethod.declaringClass.shortReadableName()),
+							new String(shownMethod.selector),
+							closestParameterTypeShortNames,
+							parameterTypeShortNames
+						},
+						(int) (messageSend.nameSourcePosition >>> 32),
+						(int) messageSend.nameSourcePosition);
+					return;
+			}			
 			break;
 		case NotVisible :
 			id = IProblem.NotVisibleMethod;
+			problemMethod = (ProblemMethodBinding) method;
+			if (problemMethod.closestMatch != null) {
+			    shownMethod = problemMethod.closestMatch.original();
+		    }			
 			break;
 		case Ambiguous :
 			id = IProblem.AmbiguousMethod;
@@ -1847,46 +1877,14 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			break;
 	}
 
-	if (id == IProblem.UndefinedMethod) {
-		ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
-		if (problemMethod.closestMatch != null) {
-				String closestParameterTypeNames = parametersAsString(problemMethod.closestMatch.parameters, false);
-				String parameterTypeNames = parametersAsString(method.parameters, false);
-				String closestParameterTypeShortNames = parametersAsString(problemMethod.closestMatch.parameters, true);
-				String parameterTypeShortNames = parametersAsString(method.parameters, true);
-				if (closestParameterTypeShortNames.equals(parameterTypeShortNames)){
-					closestParameterTypeShortNames = closestParameterTypeNames;
-					parameterTypeShortNames = parameterTypeNames;
-				}
-				id = IProblem.ParameterMismatch;
-				this.handle(
-					id,
-					new String[] {
-						new String(problemMethod.closestMatch.declaringClass.readableName()),
-						new String(problemMethod.closestMatch.selector),
-						closestParameterTypeNames,
-						parameterTypeNames 
-					},
-					new String[] {
-						new String(problemMethod.closestMatch.declaringClass.shortReadableName()),
-						new String(problemMethod.closestMatch.selector),
-						closestParameterTypeShortNames,
-						parameterTypeShortNames
-					},
-					(int) (messageSend.nameSourcePosition >>> 32),
-					(int) messageSend.nameSourcePosition);
-				return;
-		}
-	}
-
 	this.handle(
 		id,
 		new String[] {
 			new String(method.declaringClass.readableName()),
-			new String(method.selector), parametersAsString(method.parameters, false)},
+			new String(shownMethod.selector), parametersAsString(shownMethod.parameters, false)},
 		new String[] {
 			new String(method.declaringClass.shortReadableName()),
-			new String(method.selector), parametersAsString(method.parameters, true)},
+			new String(shownMethod.selector), parametersAsString(shownMethod.parameters, true)},
 		(int) (messageSend.nameSourcePosition >>> 32),
 		(int) messageSend.nameSourcePosition);
 }
@@ -3375,18 +3373,17 @@ public void unsafeRawAssignment(Expression expression, TypeBinding expressionTyp
 		expression.sourceEnd);    
 }
 public void unsafeRawInvocation(ASTNode location, ReferenceBinding receiverType, MethodBinding method) {
-    method = ((ParameterizedMethodBinding) method).originalMethod;
     if (method.isConstructor()) {
 		this.handle(
 			IProblem.UnsafeRawConstructorInvocation,
 			new String[] {
 				new String(receiverType.readableName()),
-				parametersAsString(method.parameters, false),
+				parametersAsString(method.original().parameters, false),
 				new String(receiverType.erasure().readableName()),
 			 }, 
 			new String[] {
 				new String(receiverType.shortReadableName()),
-				parametersAsString(method.parameters, true),
+				parametersAsString(method.original().parameters, true),
 				new String(receiverType.erasure().shortReadableName()),
 			 }, 
 			location.sourceStart,
@@ -3396,13 +3393,13 @@ public void unsafeRawInvocation(ASTNode location, ReferenceBinding receiverType,
 			IProblem.UnsafeRawMethodInvocation,
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.parameters, false),
+				parametersAsString(method.original().parameters, false),
 				new String(receiverType.readableName()),
 				new String(receiverType.erasure().readableName()),
 			 }, 
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.parameters, true),
+				parametersAsString(method.original().parameters, true),
 				new String(receiverType.shortReadableName()),
 				new String(receiverType.erasure().shortReadableName()),
 			 }, 

@@ -38,4 +38,11 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	public boolean hasSubstitutedParameters() {
 	    return this.parameters != originalMethod.parameters;
 	}
+	
+	/**
+	 * Returns the original method (as opposed to parameterized instances)
+	 */
+	public MethodBinding original() {
+	    return this.originalMethod;
+	}	
 }

@@ -126,19 +126,16 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (!flowInfo.isReachable()) return;
 
 	// if method from parameterized type got found, use the original method at codegen time
-	if (this.binding instanceof ParameterizedMethodBinding) {
-	    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
-	    this.codegenBinding = parameterizedMethod.originalMethod;
+	this.codegenBinding = this.binding.original();
+	if (this.codegenBinding != this.binding) {
 	    // extra cast needed if method return type was type variable
 	    if (this.codegenBinding.returnType.isTypeVariable()) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != parameterizedMethod.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = parameterizedMethod.returnType;
+	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = this.binding.returnType;
 	        }
 	    }
-	} else {
-	    this.codegenBinding = this.binding;
-	}
+	} 
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
