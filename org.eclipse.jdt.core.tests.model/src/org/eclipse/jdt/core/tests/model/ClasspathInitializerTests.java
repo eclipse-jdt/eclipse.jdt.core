@@ -31,7 +31,7 @@ import junit.framework.Test;
  */
 public class ClasspathInitializerTests extends ModifyingResourceTests {
 	
-public class DefaultVariableInitializer implements VariablesInitializer.ITestInitializer {
+public static class DefaultVariableInitializer implements VariablesInitializer.ITestInitializer {
 	Map variableValues;
 	
 	/*
@@ -53,7 +53,7 @@ public class DefaultVariableInitializer implements VariablesInitializer.ITestIni
 	}
 }
 
-public class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
+public static class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
 	
 	Map containerValues;
 	CoreException exception;
