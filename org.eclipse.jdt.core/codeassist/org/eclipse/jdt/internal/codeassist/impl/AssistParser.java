@@ -646,10 +646,6 @@ public void goForBlockStatementsopt() {
 	super.goForBlockStatementsopt();
 	isFirst = true;
 }
-public void goForConstructorBlockStatementsopt() {
-	super.goForConstructorBlockStatementsopt();
-	isFirst = true;
-}
 public void goForHeaders(){
 	super.goForHeaders();
 	isFirst = true;
@@ -811,7 +807,7 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 	initialize();
 	
 	// simulate goForConstructorBody except that we don't want to balance brackets because they are not going to be balanced
-	goForConstructorBlockStatementsopt();
+	goForBlockStatementsopt();
 
 	referenceContext = cd;
 	compilationUnit = unit;
