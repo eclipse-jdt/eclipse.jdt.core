@@ -88,7 +88,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	JEROME(33),\n" + 
 					"	OLIVIER(35),\n" + 
 					"	KENT(40),\n" + 
-					"	FREDERIC;\n" + 
+					"	FREDERIC(41);\n" + 
 					"\n" + 
 					"   enum Role { M, D }\n" + 
 					"\n" + 
