@@ -152,7 +152,7 @@ public void subTask(String message) {
 
 protected void updateProblemCounts(IProblem[] newProblems) {
 	for (int i = 0, l = newProblems.length; i < l; i++)
-		if (newProblems[i].getID() != IProblem.Task)
+		if (newProblems[i].getID() != IProblem.Task)//TODO: (kent) aren't tasks filtered out from problems here?
 			if (newProblems[i].isError()) newErrorCount++; else newWarningCount++;
 }
 
