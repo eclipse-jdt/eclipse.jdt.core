@@ -32,8 +32,7 @@ public class A {
 				if (size > 0) {
 					for (int i = 0; i < size; i++) {
 						AstNode node = this.astStack[astPtr--];
-						this.sourceParser
-								.problemReporter()
+						this.sourceParser.problemReporter()
 								.annotationUnexpectedTag(node.sourceStart,
 										node.sourceEnd);
 					}

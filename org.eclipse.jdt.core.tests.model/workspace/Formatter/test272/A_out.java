@@ -27,9 +27,9 @@ public class firstClass {
 						}
 					default :
 						System.out.println();
-					}
 				}
-				lastThing();
 			}
+			lastThing();
 		}
+	}
 }
