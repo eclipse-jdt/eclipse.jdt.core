@@ -349,6 +349,11 @@ public static IJavaElement determineIfOnClasspath(
 	 * (map from IPath to java.io.ZipFile
 	 */
 	public HashMap zipFiles;
+	
+	/**
+	 * The number of clients of the zip file cache.
+	 */
+	private int zipFilesClientCount = 0;
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
@@ -368,11 +373,14 @@ public static IJavaElement determineIfOnClasspath(
 		}
 	}
 	/**
-	 * Start caching ZipFiles
+	 * Starts caching ZipFiles.
+	 * Ignores if there are already clients.
 	 */
-	public void cacheZipFiles() {
-		if (this.zipFiles != null) return;
-		this.zipFiles = new HashMap();
+	public synchronized void cacheZipFiles() {
+		if (this.zipFilesClientCount == 0) {
+			this.zipFiles = new HashMap();
+		}
+		this.zipFilesClientCount++;
 	}
 /*
  * Checks that the delta contains an added project. In this case,
@@ -472,10 +480,12 @@ public void doneSaving(ISaveContext context){
 		fJavaModelDeltas= new ArrayList();
 	}
 	/**
-	 * Flush ZipFiles cache.
+	 * Flushes ZipFiles cache if there are no more clients.
 	 */
-	public void flushZipFiles() {
-		if (this.zipFiles == null) return;
+	public synchronized void flushZipFiles() {
+		if (this.zipFilesClientCount == 0) return;
+		this.zipFilesClientCount--;
+		if (this.zipFilesClientCount > 0) return;
 		Iterator iterator = this.zipFiles.values().iterator();
 		while (iterator.hasNext()) {
 			try {
