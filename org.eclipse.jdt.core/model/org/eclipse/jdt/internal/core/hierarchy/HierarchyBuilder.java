@@ -222,7 +222,14 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected IType getHandle(IGenericType genericType) {
 		if (genericType == null)
 			return null;
-		if (genericType.isBinaryType()) {
+		if (genericType instanceof HierarchyType) {
+			IType handle = (IType)this.infoToHandle.get(genericType);
+			if (handle == null) {
+				handle = ((HierarchyType)genericType).typeHandle;
+				this.infoToHandle.put(genericType, handle);
+			}
+			return handle;
+		} else if (genericType.isBinaryType()) {
 			IClassFile classFile = (IClassFile) this.infoToHandle.get(genericType);
 			// if it's null, it's from outside the region, so do lookup
 			if (classFile == null) {

@@ -187,7 +187,8 @@ protected void assertTypesEqual(String message, String expected, IType[] types) 
 		buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.println(",");
 	}
 	assertEquals(
 		message,

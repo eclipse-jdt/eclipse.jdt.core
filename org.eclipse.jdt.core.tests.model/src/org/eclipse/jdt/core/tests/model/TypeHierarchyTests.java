@@ -457,6 +457,25 @@ public void testRegion2() throws JavaModelException {
 		h.getAllTypes()
 	);
 }
+public void testRegion3() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "p9");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"p9.X\n" + 
+		"p9.X$1\n" + 
+		"p9.X$Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains anonymous/local types in this region
+ * (regression test for bug 48395 Hierarchy on region misses local classes)
+ */
+
 /**
  * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
  */

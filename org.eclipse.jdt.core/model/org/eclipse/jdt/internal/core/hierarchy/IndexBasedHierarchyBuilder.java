@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -375,20 +374,6 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 		result[count++] = (String) iter.next();
 	} 
 	return result;
-}
-/**
- * Returns a handle for the given generic type or null if not found.
- */
-protected IType getHandle(IGenericType genericType) {
-	if (genericType instanceof HierarchyType) {
-		IType type = (IType)this.infoToHandle.get(genericType);
-		if (type == null) {
-			type = ((HierarchyType)genericType).typeHandle;
-			this.infoToHandle.put(genericType, type);
-		}
-		return type;
-	} else
-		return super.getHandle(genericType);
 }
 /**
  * Find the set of candidate subtypes of a given type.

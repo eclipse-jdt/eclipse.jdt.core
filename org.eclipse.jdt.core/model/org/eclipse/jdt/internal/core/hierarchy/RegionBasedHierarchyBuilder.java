@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -49,13 +48,13 @@ public void build(boolean computeSubtypes) {
 				this.hierarchy.progressMonitor == null ? 
 					null : 
 					new SubProgressMonitor(this.hierarchy.progressMonitor, 30);
-			ArrayList allTypesInRegion = determineTypesInRegion(typeInRegionMonitor);
-			this.hierarchy.initialize(allTypesInRegion.size());
+			ArrayList allOpenablesInRegion = determineOpenablesInRegion(typeInRegionMonitor);
+			this.hierarchy.initialize(allOpenablesInRegion.size());
 			IProgressMonitor buildMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 
 					new SubProgressMonitor(this.hierarchy.progressMonitor, 70);
-			createTypeHierarchyBasedOnRegion(allTypesInRegion, buildMonitor);
+			createTypeHierarchyBasedOnRegion(allOpenablesInRegion, buildMonitor);
 			((RegionBasedTypeHierarchy)this.hierarchy).pruneDeadBranches();
 		} else {
 			this.hierarchy.initialize(1);
@@ -68,35 +67,19 @@ public void build(boolean computeSubtypes) {
 /**
  * Configure this type hierarchy that is based on a region.
  */
-private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgressMonitor monitor) {
+private void createTypeHierarchyBasedOnRegion(ArrayList allOpenablesInRegion, IProgressMonitor monitor) {
 	
-	int size = allTypesInRegion.size();
+	int size = allOpenablesInRegion.size();
 	if (size != 0) {
 		this.infoToHandle = new HashMap(size);
 	}
-	HashSet existingOpenables = new HashSet(size);
 	Openable[] openables = new Openable[size];
-	int openableIndex = 0;
-	for (int i = 0; i < size; i++) {
-		IType type = (IType)allTypesInRegion.get(i);
-		Openable openable;
-		if (type.isBinary()) {
-			openable = (Openable)type.getClassFile();
-		} else {
-			openable = (Openable)type.getCompilationUnit();
-		}
-		if (existingOpenables.add(openable)) {
-			openables[openableIndex++] = openable;
-		}
-	}
-	if (openableIndex < size) {
-		System.arraycopy(openables, 0, openables = new Openable[openableIndex], 0, openableIndex);
-	}
+	allOpenablesInRegion.toArray(openables);
 
 	try {
 		// resolve
-		if (monitor != null) monitor.beginTask("", openableIndex * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-		if (openableIndex > 0) {
+		if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		if (size > 0) {
 			IType focusType = this.getType();
 			CompilationUnit unitToLookInside = null;
 			if (focusType != null) {
@@ -119,62 +102,58 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 }
 	
 	/**
-	 * Returns all of the types defined in the region of this type hierarchy.
+	 * Returns all of the openables defined in the region of this type hierarchy.
 	 */
-	private ArrayList determineTypesInRegion(IProgressMonitor monitor) {
+	private ArrayList determineOpenablesInRegion(IProgressMonitor monitor) {
 
 		try {
-			ArrayList types = new ArrayList();
+			ArrayList openables = new ArrayList();
 			IJavaElement[] roots =
 				((RegionBasedTypeHierarchy) this.hierarchy).region.getElements();
 			int length = roots.length;
 			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
 			for (int i = 0; i <length; i++) {
-				try {
-					IJavaElement root = roots[i];
-					switch (root.getElementType()) {
-						case IJavaElement.JAVA_PROJECT :
-							injectAllTypesForJavaProject((IJavaProject) root, types);
-							break;
-						case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-							injectAllTypesForPackageFragmentRoot((IPackageFragmentRoot) root, types);
-							break;
-						case IJavaElement.PACKAGE_FRAGMENT :
-							injectAllTypesForPackageFragment((IPackageFragment) root, types);
-							break;
-						case IJavaElement.CLASS_FILE :
-							types.add(((IClassFile) root).getType());
-							break;
-						case IJavaElement.COMPILATION_UNIT :
-							IType[] cuTypes = ((ICompilationUnit) root).getAllTypes();
-							for (int j = 0; j < cuTypes.length; j++) {
-								types.add(cuTypes[j]);
-							}
-							break;
-						case IJavaElement.TYPE :
-							types.add(root);
-							break;
-						default :
-							break;
-					}
-				} catch (JavaModelException e) {
-					// just continue
+				IJavaElement root = roots[i];
+				switch (root.getElementType()) {
+					case IJavaElement.JAVA_PROJECT :
+						injectAllOpenablesForJavaProject((IJavaProject) root, openables);
+						break;
+					case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+						injectAllOpenablesForPackageFragmentRoot((IPackageFragmentRoot) root, openables);
+						break;
+					case IJavaElement.PACKAGE_FRAGMENT :
+						injectAllOpenablesForPackageFragment((IPackageFragment) root, openables);
+						break;
+					case IJavaElement.CLASS_FILE :
+					case IJavaElement.COMPILATION_UNIT :
+						openables.add(root);
+						break;
+					case IJavaElement.TYPE :
+						IType type = (IType)root;
+						if (type.isBinary()) {
+							openables.add(type.getClassFile());
+						} else {
+							openables.add(type.getCompilationUnit());
+						}
+						break;
+					default :
+						break;
 				}
 				worked(monitor, 1);
 			}
-			return types;
+			return openables;
 		} finally {
 			if (monitor != null) monitor.done();
 		}
 	}
 	
 	/**
-	 * Adds all of the types defined within this java project to the
+	 * Adds all of the openables defined within this java project to the
 	 * list.
 	 */
-	private void injectAllTypesForJavaProject(
+	private void injectAllOpenablesForJavaProject(
 		IJavaProject project,
-		ArrayList types) {
+		ArrayList openables) {
 		try {
 			IPackageFragmentRoot[] devPathRoots =
 				((JavaProject) project).getPackageFragmentRoots();
@@ -183,7 +162,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 			}
 			for (int j = 0; j < devPathRoots.length; j++) {
 				IPackageFragmentRoot root = devPathRoots[j];
-				injectAllTypesForPackageFragmentRoot(root, types);
+				injectAllOpenablesForPackageFragmentRoot(root, openables);
 			}
 		} catch (JavaModelException e) {
 			// ignore
@@ -191,12 +170,12 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 	}
 	
 	/**
-	 * Adds all of the types defined within this package fragment to the
+	 * Adds all of the openables defined within this package fragment to the
 	 * list.
 	 */
-	private void injectAllTypesForPackageFragment(
+	private void injectAllOpenablesForPackageFragment(
 		IPackageFragment packFrag,
-		ArrayList types) {
+		ArrayList openables) {
 			
 		try {
 			IPackageFragmentRoot root = (IPackageFragmentRoot) packFrag.getParent();
@@ -204,11 +183,15 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 			if (kind != 0) {
 				boolean isSourcePackageFragment = (kind == IPackageFragmentRoot.K_SOURCE);
 				if (isSourcePackageFragment) {
-					ICompilationUnit[] typeContainers = packFrag.getCompilationUnits();
-					injectAllTypesForTypeContainers(typeContainers, types);
+					ICompilationUnit[] cus = packFrag.getCompilationUnits();
+					for (int i = 0, length = cus.length; i < length; i++) {
+						openables.add(cus[i]);
+					}
 				} else {
-					IClassFile[] typeContainers = packFrag.getClassFiles();
-					injectAllTypesForTypeContainers(typeContainers, types);
+					IClassFile[] classFiles = packFrag.getClassFiles();
+					for (int i = 0, length = classFiles.length; i < length; i++) {
+						openables.add(classFiles[i]);
+					}
 				}
 			}
 		} catch (JavaModelException e) {
@@ -217,57 +200,21 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 	}
 	
 	/**
-	 * Adds all of the types defined within this package fragment root to the
+	 * Adds all of the openables defined within this package fragment root to the
 	 * list.
 	 */
-	private void injectAllTypesForPackageFragmentRoot(
+	private void injectAllOpenablesForPackageFragmentRoot(
 		IPackageFragmentRoot root,
-		ArrayList types) {
+		ArrayList openables) {
 		try {
 			IJavaElement[] packFrags = root.getChildren();
 			for (int k = 0; k < packFrags.length; k++) {
 				IPackageFragment packFrag = (IPackageFragment) packFrags[k];
-				injectAllTypesForPackageFragment(packFrag, types);
+				injectAllOpenablesForPackageFragment(packFrag, openables);
 			}
 		} catch (JavaModelException e) {
 			return;
 		}
 	}
 	
-	/**
-	 * Adds all of the types defined within the type containers (IClassFile).
-	 */
-	private void injectAllTypesForTypeContainers(
-		IClassFile[] containers,
-		ArrayList types) {
-			
-		try {
-			for (int i = 0; i < containers.length; i++) {
-				IClassFile cf = containers[i];
-				types.add(cf.getType());
-			}
-		} catch (JavaModelException e) {
-			// ignore
-		}
-	}
-	
-	/**
-	 * Adds all of the types defined within the type containers (ICompilationUnit).
-	 */
-	private void injectAllTypesForTypeContainers(
-		ICompilationUnit[] containers,
-		ArrayList types) {
-			
-		try {
-			for (int i = 0; i < containers.length; i++) {
-				ICompilationUnit cu = containers[i];
-				IType[] cuTypes = cu.getAllTypes();
-				for (int j = 0; j < cuTypes.length; j++) {
-					types.add(cuTypes[j]);
-				}
-			}
-		} catch (JavaModelException e) {
-			// ignore
-		}
-	}
 }

@@ -540,7 +540,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				// contains a potential subtype as a local or anonymous type?
 				boolean containsLocalType = false;
 				if (localTypes == null) { // case of hierarchy on region
-					containsLocalType = false;
+					containsLocalType = true;
 				} else {
 					IPath path = cu.getPath();
 					containsLocalType = localTypes.contains(path.toString());

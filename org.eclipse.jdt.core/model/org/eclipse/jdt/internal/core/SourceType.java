@@ -404,13 +404,15 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 		case IJavaElement.COMPILATION_UNIT:
 			return this.name;
 		case IJavaElement.TYPE:
-			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + this.name;
+			String simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
+			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + simpleName;
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
+			simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
 			return 
 				((IMember) this.parent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
-				+ enclosingTypeSeparator + this.name;
+				+ enclosingTypeSeparator + simpleName;
 	}
 	return null;
 }
