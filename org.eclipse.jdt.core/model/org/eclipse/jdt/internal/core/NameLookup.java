@@ -218,7 +218,7 @@ public class NameLookup implements SuffixConstants {
 			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
 		}
 /*
- * this code should rather use the package fragment map to find the candidate package, then
+ * TODO (jerome) this code should rather use the package fragment map to find the candidate package, then
  * check if the respective enclosing root maps to the one on this given IPath.
  */		
 		IResource possibleFragment = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
