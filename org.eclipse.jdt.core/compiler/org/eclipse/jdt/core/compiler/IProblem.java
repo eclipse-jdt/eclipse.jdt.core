@@ -289,12 +289,6 @@ public interface IProblem {
 	 */
 	int ArgumentHidingField = Internal + 95;		
 
-	/**
-	 * The constructor argument {0} is hiding the field {2}.{3}
-	 * @since 2.2 
-	 */
-	int ConstructorArgumentHidingField = Internal + 96;	
-	
 	// methods
 	int UndefinedMethod = MethodRelated + 100;
 	int NotVisibleMethod = MethodRelated + 101;

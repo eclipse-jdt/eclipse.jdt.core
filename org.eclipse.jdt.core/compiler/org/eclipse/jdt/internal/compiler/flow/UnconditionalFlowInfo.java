@@ -540,12 +540,12 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return this.reachMode;
 	}
 	
-	public FlowInfo setReachMode(int someReachMode) {
+	public FlowInfo setReachMode(int reachMode) {
 		
 		if (this == DEAD_END) return this; // cannot modify DEAD_END
 	
 		// reset optional inits when becoming unreachable
-		if ((this.reachMode & UNREACHABLE) == 0 && (someReachMode & UNREACHABLE) != 0) {
+		if ((this.reachMode & UNREACHABLE) == 0 && (reachMode & UNREACHABLE) != 0) {
 			this.potentialInits = 0;
 			if (this.extraPotentialInits != null){
 				for (int i = 0, length = this.extraPotentialInits.length; i < length; i++){
@@ -553,7 +553,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				}
 			}
 		}				
-		this.reachMode = someReachMode;
+		this.reachMode = reachMode;
 	
 		return this;
 	}

@@ -423,8 +423,8 @@ public int computeSeverity(int problemId){
 //	}
 
 	// if not then check whether it is a configurable problem
-	int errorThreshold = options.errorThreshold;
-	int warningThreshold = options.warningThreshold;
+	int errorThreshold = this.options.errorThreshold;
+	int warningThreshold = this.options.warningThreshold;
 	
 	switch(problemId){
 
@@ -620,14 +620,6 @@ public int computeSeverity(int problemId){
 				return Error;
 			}
 			if ((warningThreshold & CompilerOptions.LocalVariableHiding) != 0){
-				return Warning;
-			}
-			return Ignore;		
-		case IProblem.ConstructorArgumentHidingField:
-			if ((errorThreshold & CompilerOptions.ConstructorParameterHidingField) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.ConstructorParameterHidingField) != 0){
 				return Warning;
 			}
 			return Ignore;		
@@ -2099,7 +2091,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
 		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
 }
-public void localVariableHiding(LocalDeclaration local, Binding otherVariable, boolean  isConstructorArgHidingField) {
+public void localVariableHiding(LocalDeclaration local, Binding otherVariable, boolean  isSpecialArgHidingField) {
 	if (otherVariable instanceof LocalVariableBinding) {
 		String[] arguments = new String[] {new String(local.name)  };
 		this.handle(
@@ -2111,10 +2103,13 @@ public void localVariableHiding(LocalDeclaration local, Binding otherVariable, b
 			local.sourceStart,
 			local.sourceEnd);
 	} else if (otherVariable instanceof FieldBinding) {
+		if (isSpecialArgHidingField && !this.options.reportSpecialParameterHidingField){
+			return;
+		}
 		FieldBinding field = (FieldBinding) otherVariable;
 		this.handle(
 			(local instanceof Argument)
-				? (isConstructorArgHidingField ? IProblem.ConstructorArgumentHidingField : IProblem.ArgumentHidingField) 
+				? IProblem.ArgumentHidingField
 				: IProblem.LocalVariableHidingField,
 			new String[] {new String(local.name) , new String(field.declaringClass.readableName()) },
 			new String[] {new String(local.name), new String(field.declaringClass.shortReadableName()) },

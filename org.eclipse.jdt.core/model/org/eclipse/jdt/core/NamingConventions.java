@@ -800,7 +800,7 @@ public final class NamingConventions {
 	 * and possible prefixes or suffixes are removed.
 	 * <p>
 	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
-	 * the suffix for field is <code>suf</code> then the prosposed name is <code>setFieldName</code>.
+	 * the suffix for field is <code>suf</code> then the proposed name is <code>setFieldName</code>.
 	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.
 	 * </p>
 	 * <p>
@@ -856,7 +856,7 @@ public final class NamingConventions {
 	 * and possible prefixes or suffixes are removed.
 	 * <p>
 	 * If the field name is <code>preFieldNamesuf</code> and the prefix for field is <code>pre</code> and
-	 * the suffix for field is <code>suf</code> then the prosposed name is <code>setFieldName</code>.
+	 * the suffix for field is <code>suf</code> then the proposed name is <code>setFieldName</code>.
 	 * If there is no prefix and suffix the proposal is <code>setPreFieldNamesuf</code>.
 	 * </p>
 	 * <p>

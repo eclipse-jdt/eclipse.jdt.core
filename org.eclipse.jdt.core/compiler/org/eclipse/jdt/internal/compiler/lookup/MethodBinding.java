@@ -395,8 +395,8 @@ public char[] shortReadableName() {
 	return buffer.toString().toCharArray();
 }
 
-protected final void setSelector(char[] someSelector) {
-	this.selector = someSelector;
+protected final void setSelector(char[] selector) {
+	this.selector = selector;
 	this.signature = null;
 }
 

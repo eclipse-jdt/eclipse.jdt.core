@@ -46,7 +46,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportLocalVariableHiding = "org.eclipse.jdt.core.compiler.problem.localVariableHiding"; //$NON-NLS-1$
-	public static final String OPTION_ReportConstructorParameterHidingField = "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"; //$NON-NLS-1$
+	public static final String OPTION_ReportSpecialParameterHidingField = "org.eclipse.jdt.core.compiler.problem.specialParameterHidingField"; //$NON-NLS-1$
 	public static final String OPTION_ReportFieldHiding = "org.eclipse.jdt.core.compiler.problem.fieldHiding"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompatibleNonInheritedInterfaceMethod = "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
@@ -107,7 +107,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int UnusedPrivateMember = 0x8000000;
 	public static final int LocalVariableHiding = 0x10000000;
 	public static final int FieldHiding = 0x20000000;
-	public static final int ConstructorParameterHidingField = 0x40000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = 
@@ -184,6 +183,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// unused parameters report
 	public boolean reportUnusedParameterWhenImplementingAbstract = false;
 	public boolean reportUnusedParameterWhenOverridingConcrete = false;
+
+	// constructor/setter parameter hiding
+	public boolean reportSpecialParameterHidingField = false;
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -491,17 +493,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			}
-			// Report constructor parameter hiding another variable
-			if(optionID.equals(OPTION_ReportConstructorParameterHidingField)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= ConstructorParameterHidingField;
-					this.warningThreshold &= ~ConstructorParameterHidingField;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~ConstructorParameterHidingField;
-					this.warningThreshold |= ConstructorParameterHidingField;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~ConstructorParameterHidingField;
-					this.warningThreshold &= ~ConstructorParameterHidingField;
+			// Report constructor/setter parameter hiding another field
+			if(optionID.equals(OPTION_ReportSpecialParameterHidingField)){
+				if (optionValue.equals(ENABLED)) {
+					this.reportSpecialParameterHidingField = true;
+				} else if (optionValue.equals(DISABLED)) {
+					this.reportSpecialParameterHidingField = false;
 				}
 				continue;
 			}			// Report non-externalized string literals
@@ -831,15 +828,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-field hiding another variable: IGNORE"); //$NON-NLS-1$
 			}
 		}
-		if ((errorThreshold & ConstructorParameterHidingField) != 0){
-			buf.append("\n-constructor parameter hiding field: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & ConstructorParameterHidingField) != 0){
-				buf.append("\n-constructor parameter hiding field: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-constructor parameter hiding field: IGNORE"); //$NON-NLS-1$
-			}
-		}
 		switch(complianceLevel){
 			case JDK1_1 :
 				buf.append("\n-compliance JDK: 1.1"); //$NON-NLS-1$
@@ -906,6 +894,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-report unused parameter when implementing abstract method : " + (reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-report unused parameter when overriding concrete method : " + (reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report constructor/setter parameter hiding existing field : " + (reportSpecialParameterHidingField ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 }

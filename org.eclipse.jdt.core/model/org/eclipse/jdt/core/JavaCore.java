@@ -236,7 +236,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.2
 	 */
-	public static final String COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD = PLUGIN_ID + ".compiler.problem.constructorParameterHidingField"; //$NON-NLS-1$
+	public static final String COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD = PLUGIN_ID + ".compiler.problem.specialParameterHidingField"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1319,12 +1319,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
-	 * COMPILER / Reporting Constructor Parameter Hiding another Field
-	 *    When enabled, the compiler will issue an error or a warning whenever a constructor parameter
-	 *    declaration is hiding some field (either locally, inherited or defined in enclosing type).
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"
-	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 * COMPILER / Reporting Special Parameter Hiding another Field
+	 *    When enabled, the compiler will signal cases where a constructor or setter method parameter declaration 
+	 *    is hiding some field (either locally, inherited or defined in enclosing type).
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.localVariableHiding".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.specialParameterHidingField"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
 	 *
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
@@ -1928,8 +1929,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_FIELD_HIDING, WARNING);
 		optionNames.add(COMPILER_PB_FIELD_HIDING);
 
-		preferences.setDefault(COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD, IGNORE);
-		optionNames.add(COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD);
+		preferences.setDefault(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD, DISABLED);
+		optionNames.add(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 
 		optionNames.add(COMPILER_TASK_TAGS);
@@ -2882,10 +2883,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// trigger model refresh
 		try {
 			JavaCore.run(new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
+				public void run(IProgressMonitor progressMonitor) throws CoreException {
 					for(int i = 0; i < projectLength; i++){
 		
-						if (monitor != null && monitor.isCanceled()) return;
+						if (progressMonitor != null && progressMonitor.isCanceled()) return;
 		
 						JavaProject affectedProject = (JavaProject)modifiedProjects[i];
 						if (affectedProject == null) continue; // was filtered out
@@ -2898,7 +2899,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						affectedProject.setRawClasspath(
 								affectedProject.getRawClasspath(),
 								SetClasspathOperation.ReuseOutputLocation,
-								monitor,
+								progressMonitor,
 								!ResourcesPlugin.getWorkspace().isTreeLocked(), // can save resources
 								oldResolvedPaths[i],
 								false, // updating - no need for early validation
@@ -3218,12 +3219,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			try {
 				JavaCore.run(
 					new IWorkspaceRunnable() {
-						public void run(IProgressMonitor monitor) throws CoreException {
+						public void run(IProgressMonitor progressMonitor) throws CoreException {
 							// propagate classpath change
 							Iterator projectsToUpdate = affectedProjects.keySet().iterator();
 							while (projectsToUpdate.hasNext()) {
 			
-								if (monitor != null && monitor.isCanceled()) return;
+								if (progressMonitor != null && progressMonitor.isCanceled()) return;
 			
 								JavaProject project = (JavaProject) projectsToUpdate.next();
 

@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Argument extends LocalDeclaration {
 	
+	// prefix for setter method (to recognize special hiding argument)
+	private final static char[] SET = "set".toCharArray(); //$NON-NLS-1$
+
 	public Argument(char[] name, long posNom, TypeReference tr, int modifiers) {
 
 		super(null, name, (int) (posNom >>> 32), (int) posNom);
@@ -37,7 +41,18 @@ public class Argument extends LocalDeclaration {
 				scope.problemReporter().redefineArgument(this);
 				return;
 			} else {
-				scope.problemReporter().localVariableHiding(this, existingVariable, scope.isInsideConstructor() && existingVariable instanceof FieldBinding);
+				boolean isSpecialArgument = false;
+				if (existingVariable instanceof FieldBinding) {
+					if (scope.isInsideConstructor()) {
+						isSpecialArgument = true; // constructor argument
+					} else {
+						AbstractMethodDeclaration methodDecl = scope.referenceMethod();
+						if (methodDecl != null && CharOperation.prefixEquals(SET, methodDecl.selector)) {
+							isSpecialArgument = true; // setter argument
+						}
+					}
+				}
+				scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 			}
 		}
 
