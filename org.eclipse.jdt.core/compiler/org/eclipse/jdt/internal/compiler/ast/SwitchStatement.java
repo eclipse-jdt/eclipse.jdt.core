@@ -227,13 +227,6 @@ public class SwitchStatement extends Statement {
 		return printIndent(indent, output).append('}');
 	}
 
-	public void resetStateForCodeGeneration() {
-
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
-	}
-
 	public void resolve(BlockScope upperScope) {
 	
 	    try {

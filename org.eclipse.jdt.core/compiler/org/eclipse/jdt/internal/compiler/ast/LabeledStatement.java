@@ -127,10 +127,4 @@ public class LabeledStatement extends Statement {
 		}
 		visitor.endVisit(this, blockScope);
 	}
-
-	public void resetStateForCodeGeneration() {
-		if (this.targetLabel != null) {	
-			this.targetLabel.resetStateForCodeGeneration();
-		}
-	}
 }

@@ -153,16 +153,6 @@ public class DoStatement extends Statement {
 		output.append("while ("); //$NON-NLS-1$
 		return condition.printExpression(0, output).append(");"); //$NON-NLS-1$
 	}
-
-	public void resetStateForCodeGeneration() {
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
-		if (this.continueLabel != null) {
-			this.continueLabel.resetStateForCodeGeneration();
-		}
-	}
-
 	public void resolve(BlockScope scope) {
 
 		TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);

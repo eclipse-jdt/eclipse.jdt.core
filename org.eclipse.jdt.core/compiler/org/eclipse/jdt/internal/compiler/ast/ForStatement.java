@@ -282,15 +282,6 @@ public class ForStatement extends Statement {
 		return output.append(';');
 	}
 
-	public void resetStateForCodeGeneration() {
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
-		if (this.continueLabel != null) {
-			this.continueLabel.resetStateForCodeGeneration();
-		}
-	}
-
 	public void resolve(BlockScope upperScope) {
 
 		// use the scope that will hold the init declarations

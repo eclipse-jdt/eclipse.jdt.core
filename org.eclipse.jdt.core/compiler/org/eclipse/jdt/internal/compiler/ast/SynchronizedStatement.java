@@ -73,6 +73,12 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
+		// in case the labels needs to be reinitialized
+		// when the code generation is restarted in wide mode
+		if (this.anyExceptionLabelsCount > 0) {
+			this.anyExceptionLabels = NO_EXCEPTION_HANDLER;
+			this.anyExceptionLabelsCount = 0;
+		}
 		int pc = codeStream.position;
 
 		// generate the synchronization expression

@@ -133,8 +133,7 @@ public void inlineForwardReferencesFromLabelsTargeting(int gotoLocation) {
 public void initialize(CodeStream stream) {
     this.codeStream = stream;
    	this.position = POS_NOT_SET;
-	this.forwardReferenceCount = 0;
-	this.isWide = false;    
+	this.forwardReferenceCount = 0; 
 }
 public boolean isStandardLabel(){
 	return true;
@@ -259,10 +258,5 @@ public String toString() {
 		buffer.append(forwardReferences[forwardReferenceCount-1]);
 	buffer.append("] )"); //$NON-NLS-1$
 	return buffer.toString();
-}
-
-public void resetStateForCodeGeneration() {
-	this.position = POS_NOT_SET;
-	this.forwardReferenceCount = 0;
 }
 }
