@@ -22,14 +22,15 @@ public final class HashtableOfObject {
 		this(13);
 	}
 
-	// size represents the expected number of elements
 	public HashtableOfObject(int size) {
 
-		this(
-			0, 
-			new char[(size = (int) (size * 1.75f)) == size ? ++size : size][],
-			new Object[size],
-			size);
+		this.elementSize = 0;
+		this.threshold = size; // size represents the expected number of elements
+		int extraRoom = (int) (size * 1.75f);
+		if (this.threshold == extraRoom)
+			extraRoom++;
+		this.keyTable = new char[extraRoom][];
+		this.valueTable = new Object[extraRoom];
 	}
 
 	private HashtableOfObject(int elementSize, char[][] keyTable, Object[] valueTable, int threshold){
