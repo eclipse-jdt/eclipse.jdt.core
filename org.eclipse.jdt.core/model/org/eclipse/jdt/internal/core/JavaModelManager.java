@@ -469,19 +469,18 @@ public void doneSaving(ISaveContext context){
 	public Object getLastBuiltState2(IProject project, IProgressMonitor monitor) {
 		PerProjectInfo info= getPerProjectInfo(project);
 		Object state= info.savedState;
-//		if (state == null && JavaBuilder.SAVE_ENABLED && !info.triedRead) {
-//			info.triedRead= true;
-//			try {
-//				if (monitor != null) monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
-//				state= readState(info);
-//				info.setLastBuiltState(state);
-//			} catch (CoreException e) {
-//				e.printStackTrace();
-//			}
-//		}
+		if (state == null && !info.triedRead) {
+			info.triedRead= true;
+			try {
+				if (monitor != null)
+					monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
+				state = readState2(project);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return state;
 	}
-
 	/**
 	 * Returns the last built state for the given project, or null if there is none.
 	 * Deserializes the state if necessary.
@@ -725,6 +724,30 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 		}
 		return null;
 	}
+	protected Object readState2(IProject project) throws CoreException {
+		File file = getSerializationFile(project);
+		if (file != null && file.exists()) {
+			try {
+				DataInputStream in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+				try {
+					String pluginID= in.readUTF();
+					if (!pluginID.equals(JavaCore.PLUGIN_ID))
+						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+					String kind= in.readUTF();
+					if (!kind.equals("STATE")) //$NON-NLS-1$
+						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+					if (in.readBoolean())
+						return org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.readState(in);
+				} finally {
+					in.close();
+				}
+			} catch (Exception e) {
+				//e.printStackTrace(); - silent failure
+				//throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ info.project.getFullPath(), e));
+			}
+		}
+		return null;
+	}
 	public void readVariables(String xmlString) throws IOException {
 		
 		StringReader reader = new StringReader(xmlString);
@@ -897,13 +920,15 @@ public void rollback(ISaveContext context){
 		}
 	}
 	private void saveBuildState() throws CoreException {
-		if (!JavaBuilder.SAVE_ENABLED)
-			return;
+		if (!JavaBuilder.SAVE_ENABLED) return; // REMOVE?
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
 			PerProjectInfo info= (PerProjectInfo) iter.next();
 			try {
-				saveStateIfNecessary(info);
+				if (USING_NEW_BUILDER)
+					saveState2(info);
+				else
+					saveStateIfNecessary(info);
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();
@@ -956,6 +981,40 @@ public void rollback(ISaveContext context){
 		}
 		t= System.currentTimeMillis() - t;
 		if (VERBOSE) System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
+	}
+	private void saveState2(PerProjectInfo info) throws CoreException {
+		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
+		File file = getSerializationFile(info.project);
+		if (file == null) return;
+		long t = System.currentTimeMillis();
+		try {
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+			try {
+				out.writeUTF(JavaCore.PLUGIN_ID);
+				out.writeUTF("STATE"); //$NON-NLS-1$
+				if (info.savedState == null) {
+					out.writeBoolean(false);
+				} else {
+					out.writeBoolean(true);
+					org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.writeState(info.savedState, out);
+				}
+			} finally {
+				out.close();
+			}
+		} catch (RuntimeException e) {
+			try {file.delete();} catch(SecurityException se) {}
+			throw new CoreException(
+				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
+					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+		} catch (IOException e) {
+			try {file.delete();} catch(SecurityException se) {}
+			throw new CoreException(
+				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
+					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+		}
+		t= System.currentTimeMillis() - t;
+		if (VERBOSE)
+			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
 	}
 	/**
 	 * Saves the built state for the project if it has been changed since last save.

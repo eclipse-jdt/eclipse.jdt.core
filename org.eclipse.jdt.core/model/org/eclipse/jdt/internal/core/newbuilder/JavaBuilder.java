@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Util;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 public class JavaBuilder extends IncrementalProjectBuilder {
@@ -36,6 +36,14 @@ public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
+public static State readState(DataInputStream in) throws IOException {
+	return State.read(in);
+}
+
+public static void writeState(Object state, DataOutputStream out) throws IOException {
+	((State) state).write(out);
+}
+
 public JavaBuilder() {
 }
 
@@ -52,6 +60,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		if (kind == FULL_BUILD) {
 			buildAll();
 		} else {
+			this.lastState = getLastState(currentProject);
 			if (lastState == null || hasClasspathChanged() || hasOutputLocationChanged()) {
 				// if the output location changes, do not delete the binary files from old location
 				// the user may be trying something
@@ -215,7 +224,6 @@ private void initializeBuilder() throws CoreException {
 		this.outputFolder = workspaceRoot.getFolder(javaProject.getOutputLocation());
 		createFolder(this.outputFolder);
 	}
-	this.lastState = getLastState(currentProject);
 
 	ArrayList sourceList = new ArrayList();
 	this.prereqOutputFolders = new SimpleLookupTable();

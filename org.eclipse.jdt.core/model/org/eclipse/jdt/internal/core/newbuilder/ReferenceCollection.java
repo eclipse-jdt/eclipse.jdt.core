@@ -12,11 +12,11 @@ import java.util.*;
 
 public class ReferenceCollection {
 
-char[][][] qualifiedReferences; // contains no simple names as in just 'a' which is kept in simpleNameReferences instead
+char[][][] qualifiedNameReferences; // contains no simple names as in just 'a' which is kept in simpleNameReferences instead
 char[][] simpleNameReferences;
 
-protected ReferenceCollection(char[][][] qualifiedReferences, char[][] simpleNameReferences) {
-	this.qualifiedReferences = internQualifiedNames(qualifiedReferences);
+protected ReferenceCollection(char[][][] qualifiedNameReferences, char[][] simpleNameReferences) {
+	this.qualifiedNameReferences = internQualifiedNames(qualifiedNameReferences);
 	this.simpleNameReferences = internSimpleNames(simpleNameReferences, true);
 }
 
@@ -27,8 +27,8 @@ boolean includes(char[] simpleName) {
 }
 
 boolean includes(char[][] qualifiedName) {
-	for (int i = 0, l = qualifiedReferences.length; i < l; i++)
-		if (qualifiedName == qualifiedReferences[i]) return true;
+	for (int i = 0, l = qualifiedNameReferences.length; i < l; i++)
+		if (qualifiedName == qualifiedNameReferences[i]) return true;
 	return false;
 }
 

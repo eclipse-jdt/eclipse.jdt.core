@@ -9,11 +9,14 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 
-import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Util;
+
+import java.io.*;
+import java.util.*;
 
 public class State {
 
-IJavaProject javaProject;
+String javaProjectName;
 ClasspathLocation[] classpathLocations;
 String outputLocationString;
 // keyed by location (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
@@ -23,8 +26,13 @@ int buildNumber;
 int lastStructuralBuildNumber;
 SimpleLookupTable structuralBuildNumbers;
 
+static final byte VERSION = 0x0001;
+
+State() {
+}
+
 protected State(JavaBuilder javaBuilder) {
-	this.javaProject = javaBuilder.javaProject;
+	this.javaProjectName = javaBuilder.currentProject.getName();
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
 	this.references = new SimpleLookupTable(13);
@@ -91,14 +99,203 @@ void remove(IPath filePath) {
 }
 
 void removePackage(IResourceDelta sourceDelta) {
-	IPath location = sourceDelta.getResource().getLocation();
-	String extension = location.getFileExtension();
-	if (extension == null) { // no extension indicates a folder
-		IResourceDelta[] children = sourceDelta.getAffectedChildren();
-		for (int i = 0, length = children.length; i < length; ++i)
-			removePackage(children[i]);
-	} else if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
-		remove(location);
+	IResource resource = sourceDelta.getResource();
+	switch(resource.getType()) {
+		case IResource.FOLDER :
+			IResourceDelta[] children = sourceDelta.getAffectedChildren();
+			for (int i = 0, length = children.length; i < length; ++i)
+				removePackage(children[i]);
+			return;
+		case IResource.FILE :
+			IPath location = resource.getLocation();
+			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(location.getFileExtension()))
+				remove(location);
+	}
+}
+
+static State read(DataInputStream in) throws IOException {
+	if (VERSION != in.readByte())
+		throw new IOException(Util.bind("build.unhandledVersionFormat")); //$NON-NLS-1$
+
+	State newState = new State();
+	newState.javaProjectName = in.readUTF();
+	newState.buildNumber = in.readInt();
+	newState.lastStructuralBuildNumber = in.readInt();
+	newState.outputLocationString = in.readUTF();
+
+	int length = in.readInt();
+	newState.classpathLocations = new ClasspathLocation[length];
+	for (int i = 0; i < length; ++i) {
+		switch (in.readByte()) {
+			case 1 :
+				newState.classpathLocations[i] = ClasspathLocation.forSourceFolder(in.readUTF(), in.readUTF());
+				break;
+			case 2 :
+				newState.classpathLocations[i] = ClasspathLocation.forBinaryFolder(in.readUTF());
+				break;
+			case 3 :
+				newState.classpathLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
+		}
+	}
+
+	length = in.readInt();
+	newState.structuralBuildNumbers = new SimpleLookupTable(length);
+	for (int i = 0; i < length; i++)
+		newState.structuralBuildNumbers.put(in.readUTF(), new Integer(in.readInt()));
+
+	length = in.readInt();
+	char[][][] internedQualifiedNames = new char[length][][];
+	for (int i = 0; i < length; i++)
+		internedQualifiedNames[i] = readNames(in);
+	internedQualifiedNames = ReferenceCollection.internQualifiedNames(internedQualifiedNames);
+	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
+
+	length = in.readInt();
+	newState.references = new SimpleLookupTable(length);
+	for (int i = 0; i < length; i++) {
+		String location = in.readUTF();
+		ReferenceCollection collection = null;
+		switch (in.readByte()) {
+			case 1 :
+				char[][] additionalTypeNames = readNames(in);
+				char[][][] qualifiedNames = new char[in.readInt()][][];
+				for (int j = 0, qLength = qualifiedNames.length; j < qLength; j++)
+					qualifiedNames[j] = internedQualifiedNames[in.readInt()];
+				char[][] simpleNames = new char[in.readInt()][];
+				for (int j = 0, sLength = simpleNames.length; j < sLength; j++)
+					simpleNames[j] = internedSimpleNames[in.readInt()];
+				collection = new AdditionalTypeCollection(additionalTypeNames, qualifiedNames, simpleNames);
+				break;
+			case 2 :
+				char[][][] qNames = new char[in.readInt()][][];
+				for (int j = 0, qLength = qNames.length; j < qLength; j++)
+					qNames[j] = internedQualifiedNames[in.readInt()];
+				char[][] sNames = new char[in.readInt()][];
+				for (int j = 0, sLength = sNames.length; j < sLength; j++)
+					sNames[j] = internedSimpleNames[in.readInt()];
+				collection = new ReferenceCollection(qNames, sNames);
+		}
+		newState.references.put(location, collection);
+	}
+	return newState;
+}
+
+private static char[][] readNames(DataInputStream in) throws IOException {
+	int length = in.readInt();
+	char[][] names = new char[length][];
+	for (int i = 0; i < length; i++) {
+		int nLength = in.readInt();
+		char[] name = new char[nLength];
+		for (int j = 0; j < nLength; j++)
+			name[j] = in.readChar();
+		names[i] = name;
+	}
+	return names;
+}
+
+void write(DataOutputStream out) throws IOException {
+	out.writeByte(VERSION);
+	out.writeUTF(javaProjectName);
+	out.writeInt(buildNumber);
+	out.writeInt(lastStructuralBuildNumber);
+	out.writeUTF(outputLocationString);
+
+	int length = classpathLocations.length;
+	out.writeInt(length);
+	for (int i = 0; i < length; ++i) {
+		ClasspathLocation c = classpathLocations[i];
+		if (c instanceof ClasspathMultiDirectory) {
+			out.writeByte(1);
+			ClasspathMultiDirectory md = (ClasspathMultiDirectory) c;
+			out.writeUTF(md.sourcePath);
+			out.writeUTF(md.binaryPath);
+		} else if (c instanceof ClasspathDirectory) {
+			out.writeByte(2);
+			out.writeUTF(((ClasspathDirectory) c).binaryPath);
+		} else if (c instanceof ClasspathJar) {
+			out.writeByte(3);
+			out.writeUTF(((ClasspathJar) c).zipFilename);
+		}
+	}
+
+	length = structuralBuildNumbers.size();
+	out.writeInt(length);
+	if (length > 0) {
+		Object[] keyTable = structuralBuildNumbers.keyTable;
+		Object[] valueTable = structuralBuildNumbers.valueTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			if (keyTable[i] != null) {
+				out.writeUTF((String) keyTable[i]);
+				out.writeInt(((Integer) valueTable[i]).intValue());
+			}
+		}
+	}
+
+	ArrayList internedQualifiedNames = new ArrayList(31);
+	ArrayList internedSimpleNames = new ArrayList(31);
+	Object[] valueTable = references.valueTable;
+	for (int i = 0, l = valueTable.length; i < l; i++) {
+		if (valueTable[i] != null) {
+			ReferenceCollection collection = (ReferenceCollection) valueTable[i];
+			char[][][] qNames = collection.qualifiedNameReferences;
+			for (int j = 0, qLength = qNames.length; j < qLength; j++) {
+				char[][] qName = qNames[j];
+				if (!internedQualifiedNames.contains(qName)) // remember the names have been interned
+					internedQualifiedNames.add(qName);
+			}
+			char[][] sNames = collection.simpleNameReferences;
+			for (int j = 0, sLength = sNames.length; j < sLength; j++) {
+				char[] sName = sNames[j];
+				if (!internedSimpleNames.contains(sName)) // remember the names have been interned
+					internedSimpleNames.add(sName);
+			}
+		}
+	}
+	length = internedQualifiedNames.size();
+	out.writeInt(length);
+	for (int i = 0; i < length; i++)
+		writeNames((char[][]) internedQualifiedNames.get(i), out);
+	char[][] internedArray = new char[internedSimpleNames.size()][];
+	internedSimpleNames.toArray(internedArray);
+	writeNames(internedArray, out);
+
+	length = references.size();
+	out.writeInt(length);
+	Object[] keyTable = references.keyTable;
+	for (int i = 0, l = keyTable.length; i < l; i++) {
+		if (keyTable[i] != null) {
+			out.writeUTF((String) keyTable[i]);
+			ReferenceCollection collection = (ReferenceCollection) valueTable[i];
+			if (collection instanceof AdditionalTypeCollection) {
+				out.writeByte(1);
+				AdditionalTypeCollection atc = (AdditionalTypeCollection) collection;
+				writeNames(atc.additionalTypeNames, out);
+			} else {
+				out.writeByte(2);
+			}
+			char[][][] qNames = collection.qualifiedNameReferences;
+			int qLength = qNames.length;
+			out.writeInt(qLength);
+			for (int j = 0; j < qLength; j++)
+				out.writeInt(internedQualifiedNames.indexOf(qNames[j]));
+			char[][] sNames = collection.simpleNameReferences;
+			int sLength = sNames.length;
+			out.writeInt(sLength);
+			for (int j = 0; j < sLength; j++)
+				out.writeInt(internedSimpleNames.indexOf(sNames[j]));
+		}
+	}
+}
+
+private void writeNames(char[][] names, DataOutputStream out) throws IOException {
+	int length = names.length;
+	out.writeInt(length);
+	for (int i = 0; i < length; i++) {
+		char[] name = names[i];
+		int nLength = name.length;
+		out.writeInt(nLength);
+		for (int j = 0; j < nLength; j++)
+			out.writeChar(name[j]);
 	}
 }
 
@@ -106,7 +303,7 @@ void removePackage(IResourceDelta sourceDelta) {
  * Returns a string representation of the receiver.
  */
 public String toString() {
-	return "State for " + javaProject.getElementName() //$NON-NLS-1$
+	return "State for " + javaProjectName //$NON-NLS-1$
 		+ " (" + buildNumber //$NON-NLS-1$
 			+ " : " + lastStructuralBuildNumber //$NON-NLS-1$
 				+ ")"; //$NON-NLS-1$
@@ -114,7 +311,7 @@ public String toString() {
 
 /* Debug helper
 void dump() {
-	System.out.println("State for " + javaProject.getElementName() + " (" + buildNumber + " : " + lastStructuralBuildNumber + ")");
+	System.out.println("State for " + javaProjectName + " (" + buildNumber + " : " + lastStructuralBuildNumber + ")");
 	System.out.println("\tClass path locations:");
 	for (int i = 0, length = classpathLocations.length; i < length; ++i)
 		System.out.println("\t\t" + classpathLocations[i]);
