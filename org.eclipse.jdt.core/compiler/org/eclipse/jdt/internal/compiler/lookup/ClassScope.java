@@ -654,6 +654,13 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
+			if (isJavaLangObject(sourceType)) {
+				problemReporter().hierarchyCircularity(sourceType, superInterface, referenceContext.superInterfaces[i]);
+				sourceType.tagBits |= HierarchyHasProblems;
+				superInterface.tagBits |= HierarchyHasProblems;
+				return false;
+			}
+
 			referenceContext.superInterfaces[i].resolvedType = superInterface;
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
