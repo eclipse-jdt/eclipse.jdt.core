@@ -988,6 +988,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 	}
+	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		new SearchEngine().search(
+			SearchPattern.createPattern(element, limitTo), 
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			scope,
+			requestor,
+			null
+		);
+	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH

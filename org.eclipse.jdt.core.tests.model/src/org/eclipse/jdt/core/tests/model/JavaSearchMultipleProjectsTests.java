@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -103,12 +104,13 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IField field = wc1.getType("X").getField("BAR");
+		SearchPattern pattern = SearchPattern.createPattern(field, ALL_OCCURRENCES);
 		new SearchEngine(new ICompilationUnit[] {wc1, wc2}).search(
-			getWorkspace(), 
-			field,
-			ALL_OCCURRENCES, 
+			pattern, 
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope, 
-			resultCollector);
+			resultCollector,
+			null);
 		assertEquals(
 			"Unexpected occurences of field p1.X.BAR",
 			"p1/X.java [in P1] p1.X.BAR [BAR]\n" +
@@ -159,8 +161,7 @@ public void testHierarchyScope1() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
+		search(
 			method, 
 			REFERENCES, 
 			scope, 
@@ -215,8 +216,7 @@ public void testHierarchyScope2() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
+		search(
 			method, 
 			REFERENCES, 
 			scope, 
@@ -264,8 +264,7 @@ public void testHierarchyScope3() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
+		search(
 			method, 
 			REFERENCES, 
 			scope, 
@@ -343,8 +342,7 @@ public void testHierarchyScope4() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showAccuracy = true;
 		resultCollector.showProject = true;
-		new SearchEngine().search(
-			getWorkspace(), 
+		search(
 			method, 
 			REFERENCES, 
 			scope, 
@@ -545,10 +543,9 @@ public void testMethodOccurences() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IMethod method = getCompilationUnit("/P1/p/I.java").getType("I").getMethod("method", new String[] {"QObject;"});
-		new SearchEngine().search(
-			getWorkspace(), 
-			method,
-			ALL_OCCURRENCES, 
+		search(
+			method, 
+			ALL_OCCURRENCES,
 			scope, 
 			resultCollector);
 		assertSearchResults(
@@ -585,10 +582,9 @@ public void testPackageDeclaration() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IPackageFragment pkg = getPackage("/P1/p");
-		new SearchEngine().search(
-			getWorkspace(), 
-			pkg,
-			DECLARATIONS, 
+		search(
+			pkg, 
+			DECLARATIONS,
 			scope, 
 			resultCollector);
 		assertSearchResults(
@@ -651,10 +647,9 @@ public void testPackageReference1() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		IPackageFragment pkg = getPackage("/P1/p");
-		new SearchEngine().search(
-			getWorkspace(), 
-			pkg,
-			REFERENCES, 
+		search(
+			pkg, 
+			REFERENCES,
 			scope, 
 			resultCollector);
 		assertSearchResults(
@@ -683,10 +678,9 @@ public void testPackageReference2() throws CoreException, IOException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		IPackageFragment pkg = getPackage("/JavaSearchMultipleProjects1/lib/p");
-		new SearchEngine().search(
-			getWorkspace(), 
-			pkg,
-			REFERENCES, 
+		search(
+			pkg, 
+			REFERENCES,
 			scope, 
 			resultCollector);
 		assertSearchResults(

@@ -513,15 +513,6 @@ public static Test suite() {
 	
 	return suite;
 }
-protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-	new SearchEngine().search(
-		SearchPattern.createPattern(element, limitTo), 
-		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-		scope,
-		requestor,
-		null
-	);
-}
 protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 	new SearchEngine().search(
 		searchPattern, 

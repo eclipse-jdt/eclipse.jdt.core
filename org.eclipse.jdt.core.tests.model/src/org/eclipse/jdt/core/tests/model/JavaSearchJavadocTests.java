@@ -18,7 +18,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.SearchEngine;
 
 /**
  * Tests the Java search engine in Javadoc comment.
@@ -178,10 +177,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				type,
-				DECLARATIONS, 
+		search(
+				type, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);
@@ -209,10 +207,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
-			new SearchEngine().search(
-					getWorkspace(), 
-					type,
-					DECLARATIONS, 
+			search(
+					type, 
+					DECLARATIONS,
 					getJavaSearchScope(), 
 					result
 					);
@@ -233,10 +230,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IField field = type.getField("javadocSearchedVar");
 		JavaSearchResultCollector result = new JavaSearchResultCollector();
 		result.showAccuracy = true;
-		new SearchEngine().search(
-				getWorkspace(), 
-				field,
-				DECLARATIONS, 
+		search(
+				field, 
+				DECLARATIONS,
 				getJavaSearchScope(), 
 				result
 				);

@@ -656,6 +656,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
 	 */
 	public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		search(workspace, createSearchPattern(element, limitTo), scope, resultCollector);
