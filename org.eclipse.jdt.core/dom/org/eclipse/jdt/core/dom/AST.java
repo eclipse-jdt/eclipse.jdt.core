@@ -231,6 +231,7 @@ public final class AST {
 	 * @param options compiler options
 	 * @param monitor the progress monitor used to report progress and request cancelation,
 	 *     or <code>null</code> if none
+	 * @param isResolved whether the given compilation unit declaration is resolved
 	 * @return the compilation unit node
 	 */
 	public static CompilationUnit convertCompilationUnit(
@@ -238,13 +239,14 @@ public final class AST {
 		org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
 		char[] source,
 		Map options,
+		boolean isResolved,
 		IProgressMonitor monitor) {
 		
-		ASTConverter converter = new ASTConverter(options, true, monitor);
+		ASTConverter converter = new ASTConverter(options, isResolved, monitor);
 		AST ast = AST.newAST(level);
 		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+		BindingResolver resolver = isResolved ? new DefaultBindingResolver(compilationUnitDeclaration.scope) : new BindingResolver();
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 	

@@ -4352,6 +4352,32 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
+	/*
+	 * Ensures that asking for well known type doesn't throw a NPE if the problem requestor is not active.
+	 * (regression test for bug 64750 NPE in Java AST Creation - editing some random file)
+	 */
+	public void test0538h() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor() {
+                public boolean isActive() {
+                    return false;
+                }
+			};
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  Object field;\n" +
+				"}"
+			);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
+			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=53477
 	 */
