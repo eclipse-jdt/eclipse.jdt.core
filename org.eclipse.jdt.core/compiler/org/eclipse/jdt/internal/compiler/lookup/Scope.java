@@ -1159,6 +1159,20 @@ public abstract class Scope
 		return false;
 	}
 
+	/* Answer whether the type is defined in the same compilation unit as the receiver
+	*/
+	public final boolean isDefinedInType(ReferenceBinding type) {
+		Scope scope = this;
+		do {
+			if (scope instanceof ClassScope)
+				if (((ClassScope) scope).referenceContext.binding == type){
+					return true;
+				}
+			scope = scope.parent;
+		} while (scope != null);
+		return false;
+	}
+	
 	public boolean isInsideDeprecatedCode(){
 		switch(kind){
 			case Scope.BLOCK_SCOPE :

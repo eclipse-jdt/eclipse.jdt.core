@@ -33,7 +33,8 @@ public class AllocationExpression
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		// must verify that exceptions potentially thrown by this expression are caught in the method
+		// check captured variables are initialized in current context (26134)
+		checkCapturedLocalInitializationIfNecessary(this.binding.declaringClass, currentScope, flowInfo);
 
 		// process arguments
 		if (arguments != null) {
@@ -46,7 +47,7 @@ public class AllocationExpression
 		}
 		// record some dependency information for exception types
 		ReferenceBinding[] thrownExceptions;
-		if (((thrownExceptions = binding.thrownExceptions).length) != 0) {
+		if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
 			// check exception handling
 			flowContext.checkExceptionHandlers(
 				thrownExceptions,
@@ -56,9 +57,30 @@ public class AllocationExpression
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope);
 		manageSyntheticAccessIfNecessary(currentScope);
+		
 		return flowInfo;
 	}
 
+	public void checkCapturedLocalInitializationIfNecessary(ReferenceBinding checkedType, BlockScope currentScope, FlowInfo flowInfo) {
+
+		if (checkedType.isLocalType() 
+				&& !checkedType.isAnonymousType()
+				&& !currentScope.isDefinedInType(checkedType)) { // only check external allocations
+			NestedTypeBinding nestedType = (NestedTypeBinding) checkedType;
+			SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
+			if (syntheticArguments != null) 
+				for (int i = 0, count = syntheticArguments.length; i < count; i++){
+					SyntheticArgumentBinding syntheticArgument = syntheticArguments[i];
+					LocalVariableBinding targetLocal;
+					if ((targetLocal = syntheticArgument.actualOuterLocalVariable) == null) continue;
+					if (targetLocal.declaration != null && !flowInfo.isDefinitelyAssigned(targetLocal)){
+						currentScope.problemReporter().uninitializedLocalVariable(targetLocal, this);
+					}
+				}
+						
+		}
+	}
+	
 	public Expression enclosingInstance() {
 		return null;
 	}

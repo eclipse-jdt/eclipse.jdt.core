@@ -15,12 +15,16 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
+/**
+ * Variation on allocation, where can be specified an enclosing instance and an anonymous type
+ */
 public class QualifiedAllocationExpression extends AllocationExpression {
 	
 	//qualification may be on both side
 	public Expression enclosingInstance;
 	public AnonymousLocalTypeDeclaration anonymousType;
-
+	public ReferenceBinding superTypeBinding;
+	
 	public QualifiedAllocationExpression() {
 	}
 
@@ -33,12 +37,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		// variation on allocation, where can be specified an enclosing instance and an anonymous type
-
 		// analyse the enclosing instance
 		if (enclosingInstance != null) {
 			flowInfo = enclosingInstance.analyseCode(currentScope, flowContext, flowInfo);
 		}
+		
+		// check captured variables are initialized in current context (26134)
+		checkCapturedLocalInitializationIfNecessary(
+			this.superTypeBinding == null ? this.binding.declaringClass : this.superTypeBinding, 
+			currentScope, 
+			flowInfo);
+		
 		// process arguments
 		if (arguments != null) {
 			for (int i = 0, count = arguments.length; i < count; i++) {
@@ -211,48 +220,46 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					}
 			}
 			// limit of fault-tolerance
-			if (hasError) {
-					return receiverType;
-			}
+			if (hasError) return receiverType;
+
 			if (!receiverType.canBeInstantiated()) {
 				scope.problemReporter().cannotInstantiate(type, receiverType);
 				return receiverType;
 			}
-			if ((binding =
-				scope.getConstructor((ReferenceBinding) receiverType, argumentTypes, this))
-				.isValidBinding()) {
+			if ((this.binding = scope.getConstructor((ReferenceBinding) receiverType, argumentTypes, this))
+					.isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))
-					scope.problemReporter().deprecatedMethod(binding, this);
+					scope.problemReporter().deprecatedMethod(this.binding, this);
 
 				if (arguments != null)
 					for (int i = 0; i < arguments.length; i++)
-						arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+						arguments[i].implicitWidening(this.binding.parameters[i], argumentTypes[i]);
 			} else {
-				if (binding.declaringClass == null)
-					binding.declaringClass = (ReferenceBinding) receiverType;
-				scope.problemReporter().invalidConstructor(this, binding);
+				if (this.binding.declaringClass == null)
+					this.binding.declaringClass = (ReferenceBinding) receiverType;
+				scope.problemReporter().invalidConstructor(this, this.binding);
 				return receiverType;
 			}
 
 			// The enclosing instance must be compatible with the innermost enclosing type
-			ReferenceBinding expectedType = binding.declaringClass.enclosingType();
+			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
 			if (Scope.areTypesCompatible(enclosingInstanceType, expectedType))
 				return receiverType;
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-				enclosingInstance,
+				this.enclosingInstance,
 				enclosingInstanceType,
 				expectedType);
 			return receiverType;
 		}
 
 		//--------------there is an anonymous type declaration-----------------
-		if (enclosingInstance != null) {
-			if ((enclosingInstanceType = enclosingInstance.resolveType(scope)) == null) {
+		if (this.enclosingInstance != null) {
+			if ((enclosingInstanceType = this.enclosingInstance.resolveType(scope)) == null) {
 				hasError = true;
 			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
 				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
 					enclosingInstanceType,
-					enclosingInstance);
+					this.enclosingInstance);
 				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
@@ -283,13 +290,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
-		ReferenceBinding superBinding =
+		this.superTypeBinding =
 			receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;
 		MethodBinding inheritedBinding =
-			scope.getConstructor(superBinding, argumentTypes, this);
+			scope.getConstructor(this.superTypeBinding, argumentTypes, this);
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null)
-				inheritedBinding.declaringClass = superBinding;
+				inheritedBinding.declaringClass = this.superTypeBinding;
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return null;
 		}
