@@ -32,11 +32,8 @@ public interface IJob {
 	 * can take an undertermined amount of time.
 	 */
 	public void cancel();
-	
 	/**
-	 * Execute the current job, answering:
-	 *      RESCHEDULE if the job should be rescheduled later on
-	 *      COMPLETE if the job is over
+	 * Execute the current job, answer whether it was successful.
 	 */
 	public boolean execute(IProgressMonitor progress);
 }
