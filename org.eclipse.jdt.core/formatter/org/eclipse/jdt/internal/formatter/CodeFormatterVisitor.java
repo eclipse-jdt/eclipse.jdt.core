@@ -455,6 +455,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 			System.out.println(this.scribe);
 		}
+		int[] positions = this.scribe.positionsToMap;
+		if (positions != null) {
+			System.arraycopy(positions, 0, this.scribe.mappedPositions, 0, positions.length);
+		}
 		return new String(compilationUnitSource);
 	}
 
@@ -1542,6 +1546,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							}
 							this.scribe.alignFragment(expressionsAlignment, i);
 							expressions[i].traverse(this, scope);
+							if (i == expressionsLength - 1) {
+								if (isComma()) {
+									this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+								}
+							}
 						}
 						ok = true;
 					} catch (AlignmentException e) {
@@ -1561,10 +1570,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.space();
 					}
 					expressions[i].traverse(this, scope);
+					if (i == expressionsLength - 1) {
+						if (isComma()) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+						}
+					}
 				}
-			}
-			if (isComma()) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 			}
 			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
 				this.scribe.printNewLine();
