@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.text.*;
 import java.util.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
@@ -13,6 +14,8 @@ public class DefaultProblemFactory implements IProblemFactory {
 	public String[] messageTemplates;
 	private Locale locale;
 	private static String[] DEFAULT_LOCALE_TEMPLATES;
+	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
+	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
 /**
  * @param loc the locale used to get the right message
@@ -74,6 +77,11 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 			+ id
 			+ ". Check compiler resources.";  //$NON-NLS-1$
 	}
+
+	// for compatibility with MessageFormat which eliminates double quotes in original message
+	char[] messageWithNoDoubleQuotes =
+		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
+	message = new String(messageWithNoDoubleQuotes);
 
 	int length = message.length();
 	int start = -1, end = length;
