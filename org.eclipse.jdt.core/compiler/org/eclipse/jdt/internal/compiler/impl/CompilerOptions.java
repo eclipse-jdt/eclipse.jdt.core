@@ -70,6 +70,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
+	public static final String OPTION_GenerateBytecode_jsr = "org.eclipse.jdt.core.compiler.codegen.jsr"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -198,6 +199,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// check javadoc annotations
 	public boolean checkAnnotation = false; 
 	
+	// generate jsr bytecode (1.5 vms do not allow it on files >= 49.0)
+	public boolean generate_jsr = true; // TODO (philippe) add support for non generating jsr bytecode
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -253,6 +256,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
+		optionsMap.put(OPTION_GenerateBytecode_jsr, generate_jsr ? ENABLED : DISABLED);
 		if (defaultEncoding != null) {
 			optionsMap.put(OPTION_Encoding, defaultEncoding); 
 		}
@@ -374,6 +378,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.reportSpecialParameterHidingField = false;
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_GenerateBytecode_jsr)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.generate_jsr = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.generate_jsr = false;
+			}
+		}
 		if ((optionValue = optionsMap.get(OPTION_MaxProblemPerUnit)) != null) {
 			if (optionValue instanceof String) {
 				String stringValue = (String) optionValue;
@@ -485,6 +496,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- generate jsr bytecode: ").append(generate_jsr ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 
