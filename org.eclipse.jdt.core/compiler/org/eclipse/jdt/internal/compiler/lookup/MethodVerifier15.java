@@ -30,6 +30,34 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			continue nextMethod;
 		}
 
+		// curentMethod is always resolved as its defined by the source type BUT the inheritedMethod may not be
+		// so now with generics, the inheritedMethod should be resolved since we don't want to waste time dealing
+		// with Unresolved types over & over
+		if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
+			((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
+
+		// must check each parameter pair to see if you have raw to parameterized conversions
+		TypeBinding[] currentArgs = currentMethod.parameters;
+		TypeBinding[] inheritedArgs = inheritedMethod.parameters;
+		if (currentArgs != inheritedArgs) {
+			for (int j = 0, k = currentArgs.length; j < k; j++) {
+				TypeBinding currentArg = currentArgs[j];
+				TypeBinding inheritedArg = inheritedArgs[j];
+				if (currentArg != inheritedArg) {
+					if (inheritedArg.isArrayType()) {
+						inheritedArg = inheritedArg.leafComponentType();
+						currentArg = currentArg.leafComponentType();
+					}
+					if (inheritedArg.isRawType()) {
+						if (currentArg.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) currentArg)) {
+							this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
+							continue nextMethod;
+						}
+					}
+				}
+			}
+		}
+
 		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
 			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
 				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
@@ -38,15 +66,29 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		}
 
 		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType();
-		if (!super.areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
+		if (currentMethod.returnType != inheritedMethod.returnType) {
 			// can be [] of Class#RAW vs. Class<T>
 			if (!isReturnTypeSubstituable(currentMethod, inheritedMethod)) {
 				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 				continue nextMethod;
-			} else if (inheritedMethod.typeVariables.length != currentMethod.typeVariables.length) {
-				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-//				this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
-				continue nextMethod;
+			}
+
+			TypeBinding inheritedReturnType = inheritedMethod.returnType;
+			TypeBinding returnType = currentMethod.returnType;
+			if (inheritedReturnType.isArrayType()) {
+				inheritedReturnType = inheritedReturnType.leafComponentType();
+				returnType = returnType.leafComponentType();
+			}
+			if (inheritedReturnType.isRawType()) {
+				if (returnType.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) returnType)) {
+					this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
+					continue nextMethod;
+				}
+			} else if (inheritedReturnType.isParameterizedType()) {
+				if (!returnType.isParameterizedType())
+					this.problemReporter(currentMethod).returnTypeUncheckedConversion(currentMethod, inheritedMethod);
+			} else if (inheritedReturnType.isTypeVariable()) {
+				this.problemReporter(currentMethod).returnTypeUncheckedConversion(currentMethod, inheritedMethod);
 			}
 			addBridgeMethod = true;
 		}
@@ -79,6 +121,19 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 }
 boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	return areParametersEqual(method, inheritedMethod) && isReturnTypeSubstituable(method, inheritedMethod);
+}
+boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
+	TypeBinding[] arguments = parameterizedType.arguments;
+	nextArg : for (int i = 0, l = arguments.length; i < l; i++) {
+		if (arguments[i].isWildcard())
+			if (((WildcardBinding) arguments[i]).kind == org.eclipse.jdt.internal.compiler.ast.Wildcard.UNBOUND)
+				continue nextArg;
+		if (arguments[i].isTypeVariable())
+			if (((TypeVariableBinding) arguments[i]).firstBound == null)
+				continue nextArg;
+		return true;
+	}
+	return false;
 }
 boolean isReturnTypeSubstituable(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;

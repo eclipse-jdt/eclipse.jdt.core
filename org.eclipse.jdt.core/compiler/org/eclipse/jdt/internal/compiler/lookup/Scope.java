@@ -28,9 +28,17 @@ public abstract class Scope
 	implements BaseTypes, BindingIds, CompilerModifiers, ProblemReasons, TagBits, TypeConstants, TypeIds {
 
 	public final static int BLOCK_SCOPE = 1;
+	public final static int METHOD_SCOPE = 2;
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
-	public final static int METHOD_SCOPE = 2;
+
+	public int kind;
+	public Scope parent;
+
+	protected Scope(int kind, Scope parent) {
+		this.kind = kind;
+		this.parent = parent;
+	}
 
 	/* Answer an int describing the relationship between the given types.
 	*
@@ -45,7 +53,7 @@ public abstract class Scope
 			return MoreGeneric;
 		return NotRelated;
 	}
-	
+
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
@@ -66,7 +74,7 @@ public abstract class Scope
 	    }
 	    return substitutedTypes;
 	}
-	
+
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
@@ -88,14 +96,6 @@ public abstract class Scope
 	    return substitutedTypes;
 	}
 
-	public int kind;
-	public Scope parent;
-
-	protected Scope(int kind, Scope parent) {
-		this.kind = kind;
-		this.parent = parent;
-	}
-	
 	public final ClassScope classScope() {
 		Scope scope = this;
 		do {
@@ -368,28 +368,6 @@ public abstract class Scope
 		return ((CompilationUnitScope) unitScope).environment;
 	}
 
-	protected void faultInReceiverType(TypeBinding type) {
-		if (type.isArrayType())
-			type = ((ArrayBinding) type).leafComponentType;
-
-        // check on Begin bit, so as to be resilient with potential illformed binaries containing cycles (67769)
-		if (type instanceof BinaryTypeBinding && (type.tagBits & BeginHierarchyCheck) == 0) {
-		    type.tagBits |= BeginHierarchyCheck;
-			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
-			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
-			ReferenceBinding enclosingType = binaryType.enclosingType();
-			if (enclosingType != null)
-				faultInReceiverType(enclosingType);
-			ReferenceBinding superclass = binaryType.superclass();
-			if (superclass != null)
-				faultInReceiverType(superclass);
-			ReferenceBinding[] interfaces = binaryType.superInterfaces();
-			for (int i = 0, l = interfaces.length; i < l; i++)
-				faultInReceiverType(interfaces[i]);
-			type.tagBits |= EndHierarchyCheck;
-		}
-	}
-
 	// abstract method lookup lookup (since maybe missing default abstract methods)
 	public MethodBinding findDefaultAbstractMethod(
 		ReferenceBinding receiverType, 
@@ -461,7 +439,7 @@ public abstract class Scope
 		compilationUnitScope().recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
+			compilationUnitScope().recordTypeReference(memberType);
 			if (enclosingSourceType == null
 					? memberType.canBeSeenBy(getCurrentPackage())
 					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -478,10 +456,8 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-		faultInReceiverType(receiverType);
-		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
-		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
+		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, compilationUnitScope());
 		if (exactMethod != null) {
 			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
@@ -524,7 +500,6 @@ public abstract class Scope
 			return null;
 		}
 
-		faultInReceiverType(receiverType);
 		compilationUnitScope().recordTypeReference(receiverType);
 
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
@@ -561,6 +536,7 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
+			compilationUnitScope().recordTypeReference(currentType);
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -584,6 +560,7 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
+						compilationUnitScope().recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
 								visibleField = field;
@@ -635,7 +612,7 @@ public abstract class Scope
 		compilationUnitScope().recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
+			compilationUnitScope().recordTypeReference(memberType);
 			if (enclosingSourceType == null
 					? memberType.canBeSeenBy(currentPackage)
 					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -670,7 +647,7 @@ public abstract class Scope
 
 			compilationUnitScope().recordReference(currentType, typeName);
 			if ((memberType = currentType.getMemberType(typeName)) != null) {
-				compilationUnitScope().recordTypeReference(memberType); // to record supertypes
+				compilationUnitScope().recordTypeReference(memberType);
 				keepLooking = false;
 				if (enclosingSourceType == null
 					? memberType.canBeSeenBy(currentPackage)
@@ -696,7 +673,7 @@ public abstract class Scope
 						anInterface.tagBits |= InterfaceVisited;
 						compilationUnitScope().recordReference(anInterface, typeName);
 						if ((memberType = anInterface.getMemberType(typeName)) != null) {
-							compilationUnitScope().recordTypeReference(memberType); // to record supertypes
+							compilationUnitScope().recordTypeReference(memberType);
 							if (visibleMemberType == null) {
 								visibleMemberType = memberType;
 							} else {
@@ -747,11 +724,10 @@ public abstract class Scope
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector(); //TODO (kent) should rewrite to remove #matchingMethod since found is allocated anyway
 
-		faultInReceiverType(receiverType);
-		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
 
 		if (currentType.isInterface()) {
+			compilationUnitScope().recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			if (currentLength == 1) {
@@ -767,9 +743,10 @@ public abstract class Scope
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		while (currentType != null) {
+			compilationUnitScope().recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
-			
+
 			/*
 			 * if 1.4 compliant, must filter out redundant protected methods from superclasses
 			 */
@@ -1032,6 +1009,7 @@ public abstract class Scope
 						// if interface as not already been visited
 						currentType.tagBits |= InterfaceVisited;
 
+						compilationUnitScope().recordTypeReference(currentType);
 						MethodBinding[] currentMethods = currentType.getMethods(selector);
 						int currentLength = currentMethods.length;
 						if (currentLength == 1 && matchingMethod == null && found.size == 0) {
@@ -1334,7 +1312,6 @@ public abstract class Scope
 
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
-			faultInReceiverType(receiverType);
 			compilationUnitScope().recordTypeReference(receiverType);
 			compilationUnitScope().recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
@@ -1549,7 +1526,7 @@ public abstract class Scope
 											NonStaticReferenceInStaticContext);
 								}
 							}
-							
+
 							if (receiverType == methodBinding.declaringClass
 								|| (receiverType.getMethods(selector)) != NoMethods
 								|| ((fuzzyProblem == null || fuzzyProblem.problemId() != NotVisible) && environment().options.complianceLevel >= ClassFileConstants.JDK1_4)){
@@ -1820,7 +1797,7 @@ public abstract class Scope
 
 		// binding is now a ReferenceBinding
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-		compilationUnitScope().recordTypeReference(typeBinding); // to record supertypes
+		compilationUnitScope().recordTypeReference(typeBinding);
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
@@ -2316,7 +2293,7 @@ public abstract class Scope
 		} while (scope != null);
 		return null;
 	}
-	
+
 	/**
 	 * Returns the most specific type compatible with all given types.
 	 * (i.e. most specific common super type)

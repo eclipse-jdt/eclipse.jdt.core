@@ -4241,11 +4241,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Object[] toArray(Object[] a) {\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with Collection<Object>.toArray(T[])\n" + 
-// TODO (kent) name clash: toArray(java.lang.Object[]) in X and <T>toArray(T[]) in java.util.Collection<java.lang.Object> have the same erasure, yet neither overrides the other
+			"return type needs unchecked conversion from Collection<Object>.toArray(T[])\n" + 
 			"----------\n");
 	}			
 	public void test150() {
@@ -7427,8 +7426,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"");
 	}
 	// 71241
-	// TODO (kent) reenable once fixed
-	public void _test274() {
+	public void test274() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7446,22 +7444,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n"
 			},
-
 			"----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	l.add(\"asdf\");\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the method add(E) of raw type List. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" +
+			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	public List<String> useList(List<String> l) {\n" + 
-			"	       ^^^^^^^^^^^^^\n" + 
-			"name clash: useList(java.util.List<java.lang.String>) in Y and useList(java.util.List) in X have the same erasure, yet neither overrides the other\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"name clash : has the same erasure as X.useList(List) but does not override it\n" + 
 			"----------\n");
 	}
 	// 71241 - variation
-	// TODO (kent) reenable once fixed
-	public void _test275() {
+	public void test275() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7479,17 +7475,97 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n"
 			},
-
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
-			"	^^^^^^^^^^^^^\n" + 
-			"useList(java.util.List) in Y overrides useList(java.util.List<java.lang.String>) in X; return type requires unchecked conversion\n" + 
-			"----------\n" +
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"return type needs unchecked conversion from X.useList(List<String>)\n" + 
+			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	l.add(\"asdf\");\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the method add(E) of raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+	}
+	// 71241 - variation
+	public void test276() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"    public void useList(List l) {}\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"    public void useList(List<String> l) {\n" + 
+				"		super.useList(l);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	public void useList(List<String> l) {\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"name clash : has the same erasure as X.useList(List) but does not override it\n" + 
+			"----------\n");
+	}
+	// 71241 - variation
+	public void test277() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"    public void useList(List<String> l) {}\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"    public void useList(List l) {\n" + 
+				"		super.useList(l);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	super.useList(l);\n" + 
+			"	              ^\n" +
+			"Unsafe type operation: Should not convert expression of raw type List to type List<String>. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+	}
+	// 71241 - variation
+	public void test278() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> implements I {\n" + 
+				"    public Class<T> getDeclaringClass() { return null; }\n" + 
+				"}\n" +
+				"class Y implements I {\n" + 
+				"    public Class<?> getDeclaringClass() { return null; }\n" + 
+				"}\n" +
+				"interface I {\n" + 
+				"	public Class getDeclaringClass();\n" + 
+				"}\n"
+			},
+			"");
+	}
+	// 69901
+	public void test279() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements ISomething {\n" + 
+				"    public Class getSomething() { return null; }\n" + 
+				"}\n" + 
+				"class Y {}\n" + 
+				"interface ISomething {\n" + 
+				"    public Class<? extends Y> getSomething();\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public Class getSomething() { return null; }\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"return type needs unchecked conversion from ISomething.getSomething()\n" + 
 			"----------\n");
 	}
 }

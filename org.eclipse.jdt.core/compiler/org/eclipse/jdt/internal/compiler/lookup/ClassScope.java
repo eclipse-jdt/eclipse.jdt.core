@@ -925,7 +925,7 @@ public class ClassScope extends Scope {
 			this.superTypeReference = null;
 			if (superType == null) return null;
 	
-			compilationUnitScope().recordTypeReference(superType); // to record supertypes
+			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
 			if (superType.isParameterizedType())
 				return superType; // already checked cycle before resolving its type variables
 
