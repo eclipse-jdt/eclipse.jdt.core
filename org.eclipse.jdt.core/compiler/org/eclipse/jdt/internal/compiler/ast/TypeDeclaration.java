@@ -135,8 +135,8 @@ public class TypeDeclaration
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
-					if (field.isField()){
-						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+					if (field.isField() && !this.binding.isAnonymousType()){
+						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2, except for anonymous
 					} else {
 						initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
 					}

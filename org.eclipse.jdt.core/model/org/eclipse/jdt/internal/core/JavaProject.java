@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.eval.EvaluationContext;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -275,6 +276,70 @@ public class JavaProject
 		super.closing(info);
 	}
 	
+	/**
+	 * Matrix saturation implementation of cycle participants.
+	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
+	 * no cycle if the set is empty (and started empty)
+	 */
+	private static void computeCycleParticipants(IJavaProject[] projects, HashSet cycleParticipants){
+
+		int length = projects.length;
+		int[][] references = new int[length][length];
+		boolean[] changed = new boolean[length];
+		HashMap offsets = new HashMap(length);
+		
+		// initialize offset cache
+		for (int i = 0; i < length; i++){
+			offsets.put(projects[i].getElementName(), new Integer(i));
+		}
+		// initialize references with direct prerequisites
+		for (int i = 0; i < length; i++){
+			try {
+				IClasspathEntry[] classpath = projects[i].getResolvedClasspath(true);
+				int cpLength = classpath.length;
+				for (int j = 0; j < cpLength; j++){
+					IClasspathEntry entry = classpath[j];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+						String projectName = entry.getPath().lastSegment();
+						Integer offset = (Integer)offsets.get(projectName);
+						if (offset != null) {
+							references[i][offset.intValue()] = 1;
+							changed[i] = true;
+						}
+					}
+				}
+			} catch(JavaModelException e){
+			}
+		}
+
+		// saturation
+		boolean hasChanged;
+		do {
+			hasChanged = false;
+			// iterate over references matrix
+			for (int i = 0; i < length; i++){
+				changed[i] = false;
+				for (int j = 0; j < length; j++){
+					if (i == j) continue;
+					// copy respective references of prereq[j] into ref[i] (if not already there)
+					if (references[i][j] != 0 && changed[j]){
+						for (int k = 0; k < length; k++){
+							if (references[j][k] != 0 && references[i][k] == 0){
+								changed[i] = true;
+								references[i][k] = 1;
+							}
+						}
+					}
+				}
+				if (changed[i]) hasChanged = true;
+			}
+		} while (hasChanged);
+		// projects in cycle have a references to themselves (i.e. ref[i][i] != 0)
+		for (int i = 0; i < length; i++){
+			if (references[i][i] != 0) cycleParticipants.add(projects[i]);
+		}
+	}
+
 	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
 	 * of exported classpath entries to avoid possible side-effects ever after.
@@ -1509,7 +1574,7 @@ public class JavaProject
 		visited.add(getElementName());
 		return hasClasspathCycle(preferredClasspath, visited, ResourcesPlugin.getWorkspace().getRoot());
 	}
-
+	
 	private boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath, HashSet visited, IWorkspaceRoot workspaceRoot) {
 		try {
 			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
@@ -2093,8 +2158,14 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
-		ArrayList visited = new ArrayList();
 		int length = projects.length;
+		
+		/* alternate implementation for cycle participants computation
+		computeCycleParticipants(projects, cycleParticipants);
+		*/
+
+		// compute cycle participants
+		ArrayList visited = new ArrayList();
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
 			if (!cycleParticipants.contains(project)){
@@ -2102,7 +2173,7 @@ public class JavaProject
 				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
 			}
 		}
-
+		
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
 			
@@ -2133,7 +2204,7 @@ public class JavaProject
 			}			
 		}
 	}
-	
+
 	/**
 	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
 	 * no cycle if the set is empty (and started empty)
@@ -2163,7 +2234,7 @@ public class JavaProject
 		}
 		visited.remove(this);
 	}
-	
+		
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.
 	 * Need to check *all* package fragment roots in order to reset NameLookup
