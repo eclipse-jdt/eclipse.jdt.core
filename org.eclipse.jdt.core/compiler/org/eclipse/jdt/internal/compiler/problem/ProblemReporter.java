@@ -2115,11 +2115,7 @@ public void unexpectedStaticModifierForMethod(ReferenceBinding type, AbstractMet
 }
 public void unhandledException(TypeBinding exceptionType, AstNode location, Scope scope) {
 	this.handle(
-		scope.methodScope().isInsideInitializer()
-			? CannotThrowCheckedExceptionInInitializer
-			: (location instanceof AnonymousLocalTypeDeclaration
-				? NoExceptionInAnonymousTypeConstructor
-				: UnhandledException),
+		UnhandledException,
 		new String[] {new String(exceptionType.readableName())},
 		location.sourceStart,
 		location.sourceEnd);

@@ -37,7 +37,6 @@ public interface ProblemIrritants { // max: 500
 	final int OuterLocalMustBeFinal = Internal + 25;
 	final int CannotDefineInterfaceInLocalType = Internal + 26;
 	final int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
-	final int NoExceptionInAnonymousTypeConstructor = ConstructorRelated + 28;
 	final int AnonymousClassCannotExtendFinalClass = TypeRelated + 29;
 
 	// variables
@@ -120,7 +119,6 @@ public interface ProblemIrritants { // max: 500
 	final int CodeCannotBeReached = Internal + 161;
 	final int CannotReturnInInitializer = Internal + 162;
 	final int InitializerMustCompleteNormally = Internal + 163;
-	final int CannotThrowCheckedExceptionInInitializer = TypeRelated + 164;
 	
 	// try
 	final int MaskedCatch = TypeRelated + 165;
