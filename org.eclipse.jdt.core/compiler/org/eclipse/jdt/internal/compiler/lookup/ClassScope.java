@@ -722,7 +722,7 @@ public class ClassScope extends Scope {
 				}
 			}
 			if (superInterface.isClass()) {
-				problemReporter().superinterfaceMustBeAnInterface(sourceType, referenceContext, superInterface);
+				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;

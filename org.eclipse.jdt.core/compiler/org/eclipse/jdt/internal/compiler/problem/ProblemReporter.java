@@ -3572,13 +3572,13 @@ public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDe
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclaration typeDecl, ReferenceBinding superType) {
+public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReference superInterfaceRef, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SuperInterfaceMustBeAnInterface,
 		new String[] {new String(superType.readableName()), new String(type.sourceName())},
 		new String[] {new String(superType.shortReadableName()), new String(type.sourceName())},
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
+		superInterfaceRef.sourceStart,
+		superInterfaceRef.sourceEnd);
 }
 public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
