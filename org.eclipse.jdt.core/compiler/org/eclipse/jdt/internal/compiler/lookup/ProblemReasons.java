@@ -25,4 +25,5 @@ public interface ProblemReasons {
 	final int TypeParameterArityMismatch = 11; // for generic method
 	final int ParameterizedMethodTypeMismatch = 12; // for generic method
 	final int TypeArgumentsForRawGenericMethod = 13; // for generic method
+	final int InvalidTypeForStaticImport = 14;
 }

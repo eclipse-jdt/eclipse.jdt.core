@@ -457,6 +457,8 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	} else {
 		type = (ReferenceBinding) binding;
 	}
+	if (i == length) // must resolve to a member type or field, not a top level type
+		return new ProblemReferenceBinding(compoundName, InvalidTypeForStaticImport);
 
 	while (i < length) {
 		if (!type.canBeSeenBy(fPackage))

@@ -286,4 +286,20 @@ public class StaticImportTest extends AbstractComparisonTest {
 			},
 			"");
 	}
+
+	public void test008() { // test static top level types
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static java.lang.System;\n" +
+				"public class X {}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\n" + 
+			"	import static java.lang.System;\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"The static import java.lang.System must be a field or member type\n" + 
+			"----------\n");
+	}
 }

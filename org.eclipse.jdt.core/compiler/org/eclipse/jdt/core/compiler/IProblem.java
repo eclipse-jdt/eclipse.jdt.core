@@ -678,6 +678,9 @@ public interface IProblem {
 	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 
+	/** @since 3.1 */
+	int InvalidTypeForStaticImport =  ImportRelated + 391;
+
 	// local variable related problems
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;

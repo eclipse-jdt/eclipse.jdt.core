@@ -1476,6 +1476,17 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 		        (int) importRef.sourcePositions[tokens.length - 1]);
 		return;
 	}
+	if (expectedImport.problemId() == InvalidTypeForStaticImport) {
+		char[][] tokens = importRef.tokens;
+		String[] arguments = new String[]{CharOperation.toString(tokens)};
+		this.handle(
+		        IProblem.InvalidTypeForStaticImport, 
+		        arguments, 
+		        arguments, 
+		        importRef.sourceStart, 
+		        (int) importRef.sourcePositions[tokens.length - 1]);
+		return;
+	}
 	invalidType(importRef, (TypeBinding)expectedImport);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
