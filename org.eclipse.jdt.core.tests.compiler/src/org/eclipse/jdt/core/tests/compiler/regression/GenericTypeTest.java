@@ -78,18 +78,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 78, -1 };
-//		testsNumbers = new int[] { 65 };
+//		testsNumbers = new int[] { 58, 79 };
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
 			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
-			if (true) {
+			// To run a specific test, just uncomment line with testNumbers in static initializer above
+			// and put numbers of tests you want to perform
+//			if (true) {
 				return setupSuite(testClass());
-			}
-			TestSuite suite = new TestSuite(testClass().getName());
-			suite.addTest(new GenericTypeTest("test006"));
-			return suite;
+//			}
+//			TestSuite suite = new TestSuite(testClass().getName());
+//			suite.addTest(new GenericTypeTest("test006"));
+//			return suite;
 		}
 	}
 
@@ -141,24 +143,25 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		// Compute and create specific dir
 		IPath outDir = new Path(Util.getOutputDirectory());
 		this.dirPath =  outDir.append(shortTestName());
-		IPath dirFilePath = this.dirPath;
-		File dir = dirFilePath.toFile();
+		File dir = this.dirPath.toFile();
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
 
 		// For each given test files
+		IPath dirFilePath = null;
 		for (int i=0, length=testFiles.length; i<length; i++) {
-			dirFilePath = (IPath) this.dirPath.clone();
 			String contents = testFiles[i+1];
 			String fileName = testFiles[i++];
-			IPath filePath = dirFilePath.append(fileName);
+			IPath filePath = this.dirPath.append(fileName);
 			if (fileName.lastIndexOf('/') >= 0) {
-				dirFilePath = filePath.removeLastSegments(1);
-				dir = dirFilePath.toFile();
+				dir = filePath.removeLastSegments(1).toFile();
 				if (!dir.exists()) {
 					dir.mkdirs();
 				}
+			}
+			if (dirFilePath == null|| (filePath.segmentCount()-1) < dirFilePath.segmentCount()) {
+				dirFilePath = filePath.removeLastSegments(1);
 			}
 			Util.writeToFile(contents, filePath.toString());
 		}
@@ -1540,7 +1543,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	// TODO javac finds no error/warning on this test
 	public void test054() {
 		this.runNegativeTest(
 			new String[] {
@@ -1611,7 +1613,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	
-	// TODO javac finds no error/warning on this test
 	public void test056() {
 		this.runNegativeTest(
 			new String[] {
@@ -1813,7 +1814,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			""
 		);
 	}
-	// TODO javac finds no error/warning on this test
 	public void test063() {
 		this.runNegativeTest(
 			new String[] {
@@ -2194,7 +2194,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		);
 	}
 	// unsafe type operation: only for constructors with signature change
-	// TODO javac finds no error/warning on this test
 	public void test077() {
 		this.runNegativeTest(
 			new String[] {
@@ -2247,7 +2246,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The constructor X<String>(String[]) is undefined\n" + 
 			"----------\n");
 	}	
-	// TODO javac finds no error/warning on this test
 	public void test078() {
 		this.runNegativeTest(
 			new String[] {
