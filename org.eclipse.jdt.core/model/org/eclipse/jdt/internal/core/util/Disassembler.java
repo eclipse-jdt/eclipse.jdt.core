@@ -386,6 +386,8 @@ public class Disassembler implements IClassFileDisassembler {
 	 * Disassemble a method info header
 	 */
 	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags);
@@ -394,13 +396,13 @@ public class Disassembler implements IClassFileDisassembler {
 		char[] methodName = null;
 		if (methodInfo.isConstructor()) {
 			methodName = classFileReader.getClassName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor) , true, false));
+			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , true, false));
 		} else if (methodInfo.isClinit()) {
 			methodName = Util.bind("classfileformat.clinitname").toCharArray(); //$NON-NLS-1$
 			buffer.append(methodName);
 		} else {
 			methodName = methodInfo.getName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor) , false, true));
+			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor, codeAttribute, accessFlags) , false, true));
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
@@ -433,7 +435,6 @@ public class Disassembler implements IClassFileDisassembler {
 				.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
-		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		IClassFileAttribute[] attributes = methodInfo.getAttributes();
 		int length = attributes.length;
 		if (length != 0) {
@@ -568,13 +569,52 @@ public class Disassembler implements IClassFileDisassembler {
 		} 
 	}
 
-	private char[][] getParameterNames(char[] methodDescriptor) {
+	private char[][] getParameterNames(char[] methodDescriptor, ICodeAttribute codeAttribute, int accessFlags) {
 		int paramCount = Signature.getParameterCount(methodDescriptor);
 		char[][] parameterNames = new char[paramCount][];
-		for (int i = 0; i < paramCount; i++) {
-			parameterNames[i] = Util.bind("disassembler.parametername").toCharArray(); //$NON-NLS-1$
+		// check if the code attribute has debug info for this method
+		if (codeAttribute != null) {
+			ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
+			if (localVariableAttribute != null) {
+				ILocalVariableTableEntry[] entries = localVariableAttribute.getLocalVariableTable();
+				int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
+				for (int i = 0; i < paramCount; i++) {
+					ILocalVariableTableEntry searchedEntry = getEntryFor(startingIndex + i, entries);
+					if (searchedEntry != null) {
+						parameterNames[i] = searchedEntry.getName();
+					} else {
+						parameterNames[i] = Util.bind("disassembler.parametername").toCharArray(); //$NON-NLS-1$
+					}
+				}
+			} else {
+				for (int i = 0; i < paramCount; i++) {
+					parameterNames[i] = Util.bind("disassembler.parametername").toCharArray(); //$NON-NLS-1$
+				}
+			}
+		} else {
+			for (int i = 0; i < paramCount; i++) {
+				parameterNames[i] = Util.bind("disassembler.parametername").toCharArray(); //$NON-NLS-1$
+			}
 		}
 		return parameterNames;
+	}
+	/**
+	 * Method getEntryFor.
+	 * @param localIndex
+	 * @param entries
+	 * @return ILocalVariableTableEntry
+	 */
+	private ILocalVariableTableEntry getEntryFor(
+		int localIndex,
+		ILocalVariableTableEntry[] entries) {
+			
+			for (int i = 0, max = entries.length; i < max; i++) {
+				ILocalVariableTableEntry entry = entries[i];
+				if (localIndex == entry.getIndex()) {
+					return entry;
+				}
+			}
+			return null;
 	}
 	
 	private final void decodeModifiersForType(StringBuffer buffer, int accessFlags) {
