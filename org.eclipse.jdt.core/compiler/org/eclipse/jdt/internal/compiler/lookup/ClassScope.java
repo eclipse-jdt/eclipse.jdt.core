@@ -313,7 +313,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextParameter : for (int i = 0; i < length; i++) {
 				TypeParameter typeParameter = referenceContext.typeParameters[i];
-				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
+				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter, i);
 				typeParameter.binding = parameterBinding;
 				
 				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
@@ -754,7 +754,7 @@ public class ClassScope extends Scope {
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
 			boolean noProblems = true;
 			sourceType.tagBits |= BeginHierarchyCheck;
-			connectTypeVariables();
+			noProblems &= connectTypeVariables();
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
 			noProblems &= connectSuperInterfaces();
@@ -793,21 +793,41 @@ public class ClassScope extends Scope {
 	
 	private boolean connectTypeVariables() {
 	    // TODO connect type parameter bounds
-//		SourceTypeBinding sourceType = referenceContext.binding;
-//		sourceType.typeVariables = NoTypeVariables;
-//		if (referenceContext.typeParameters == null)
-//			return true;
-	    TypeVariableBinding[] typeVariables = referenceContext.binding.typeVariables;
-	    for (int i = 0, length = typeVariables.length; i < length; i++) {
-	        TypeVariableBinding typeVariable = typeVariables[i];
-	        
-	        //TODO ignore parameter bounds for now
-	        typeVariable.superclass = getJavaLangObject();
-	        typeVariable.superInterfaces = NoSuperInterfaces;
-	        // set firstBound to the binding of the first explicit bound in parameter declaration
-	       	typeVariable.firstBound = null; // first bound used to compute erasure
-	    }
-	    return true;
+		boolean noProblems = true;
+		TypeVariableBinding[] typeVariables = referenceContext.binding.typeVariables;
+		nextVariable : for (int i = 0, length = typeVariables.length; i < length; i++) {
+			TypeVariableBinding typeVariable = typeVariables[i];
+			
+			typeVariable.superclass = getJavaLangObject();
+			typeVariable.superInterfaces = NoSuperInterfaces;
+			//TODO ignore parameter bounds for now
+			// set firstBound to the binding of the first explicit bound in parameter declaration
+			typeVariable.firstBound = null; // first bound used to compute erasure
+
+			TypeReference typeRef = typeVariable.typeParameter.type;
+			if (typeRef == null)
+				continue nextVariable;
+			typeRef.bits |= ASTNode.SuperTypeReference;
+			ReferenceBinding superType = findSupertype(typeRef);
+			if (superType != null) { // is null if a cycle was detected cycle
+				typeRef.resolvedType = superType; // hold onto the problem type
+				if (!superType.isValidBinding()) {
+					problemReporter().invalidType(typeRef, superType);
+				} else {
+					// only want to reach here when no errors are reported
+					if (superType.isClass())
+						typeVariable.superclass = superType;
+					else
+						typeVariable.superInterfaces = new ReferenceBinding[] {superType};
+					continue nextVariable;
+				}
+			}
+			noProblems = false;
+			typeVariable.tagBits |= HierarchyHasProblems;
+//			if ((typeVariable.superclass.tagBits & BeginHierarchyCheck) == 0)
+//				detectCycle(typeVariable, typeVariable.superclass, null);
+		}
+		return noProblems;
 	}
 	
 	// Answer whether a cycle was found between the sourceType & the superType

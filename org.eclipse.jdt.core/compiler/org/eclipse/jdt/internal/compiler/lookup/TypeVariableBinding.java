@@ -10,13 +10,14 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Binding for a type parameter, held by source or binary type..
  */
 public class TypeVariableBinding extends ReferenceBinding {
-	
+
 	public int rank; // declaration rank, can be used to match variable in parameterized type
 
 	/**
@@ -24,25 +25,25 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * If no superclass was specified, then it denotes the first superinterface, or null if none was specified.
 	 */
 	public ReferenceBinding firstBound; 
-	
+
 	// actual resolved variable supertypes (if no superclass bound, then associated to Object)
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces; 
 	public char[] genericTypeSignature;
+
+	public TypeParameter typeParameter;
 	
-	public TypeVariableBinding(char[] sourceName, int rank){
-
-		this.sourceName = sourceName;
-		this.rank = rank; 
+	public TypeVariableBinding(TypeParameter typeParameter, int rank) {
+		this.rank = rank;
+		this.sourceName = typeParameter.name;
+		this.typeParameter = typeParameter;
 	}
-
 	public char[] constantPoolName() { /* java/lang/Object */ 
 	    if (this.firstBound != null) {
 			return this.firstBound.constantPoolName();
 	    }
 	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
-
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
@@ -68,21 +69,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}	
-	
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */
 	public boolean isTypeVariable() {
 	    return true;
 	}
-
 	public ReferenceBinding superclass() {
 		return superclass;
 	}
 	public ReferenceBinding[] superInterfaces() {
 		return superInterfaces;
 	}	
-
 	/**
 	 * @see java.lang.Object#toString()
 	 */
