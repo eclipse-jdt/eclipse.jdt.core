@@ -39,201 +39,6 @@ Binding creation is responsible for reporting all problems with types:
 		- shadowing an enclosing type's source name
 		- defining a static class or interface inside a non-static nested class
 		- defining an interface as a local type (local types can only be classes)
-
-verifyTypeStructure
-
-	| hasHierarchyProblem superclass current names interfaces interfacesByIndentity duplicateExists invalidType |
-
-	(type basicModifiers anyMask: AccModifierProblem | AccAlternateModifierProblem) ifTrue: [
-		self reportModifierProblemsOnType: type].
-
-	type controller isJavaDefaultPackage ifFalse: [
-		(nameEnvironment class doesPackageExistNamed: type javaQualifiedName) ifTrue: [
-			problemSummary
-				reportVerificationProblem: #CollidesWithPackage
-				args: (Array with: type javaQualifiedName)
-				severity: nil
-				forType: type]].
-
-	hasHierarchyProblem := false.
-
-	type isJavaClass
-		ifTrue: [
-			(superclass := self superclassFor: type) ~~ nil ifTrue: [
-				superclass isBuilderClass ifTrue: [
-					superclass := superclass newClass].
-				superclass isJavaMissing
-					ifTrue: [
-						hasHierarchyProblem := true.
-						type javaSuperclassIsMissing ifTrue: [
-							problemSummary
-								reportVerificationProblem: #MissingSuperclass
-								args: (Array with: superclass javaQualifiedName with: superclass unmatchedDescriptor)
-								severity: nil
-								forType: type].
-						type javaSuperclassCreatesCycle ifTrue: [
-							problemSummary
-								reportVerificationProblem: #CyclicSuperclass
-								args: (Array with: superclass javaQualifiedName)
-								severity: nil
-								forType: type].
-						type javaSuperclassIsInterface ifTrue: [
-							problemSummary
-								reportVerificationProblem: #ClassCannotExtendAnInterface
-								args: (Array with: superclass javaQualifiedName)
-								severity: nil
-								forType: type]]
-					ifFalse: [
-						"NOTE:  If type is a Java class and its superclass is
-						a valid descriptor then it should NEVER be an interface."
-
-						superclass isJavaFinal ifTrue: [
-							problemSummary
-								reportVerificationProblem: #ClassCannotExtendFinalClass
-								args: nil
-								severity: nil
-								forType: type]]]]
-		ifFalse: [
-			type isJavaLocalType ifTrue: [
-				problemSummary
-					reportVerificationProblem: #CannotDefineLocalInterface
-					args: nil
-					severity: nil
-					forType: type]].
-
-	type isJavaNestedType ifTrue: [
-		(current := type) sourceName notEmpty ifTrue: [
-			names := Set new.
-			[(current := current enclosingType) ~~ nil] whileTrue: [
-				names add: current sourceName].
-
-			(names includes: type sourceName) ifTrue: [
-				problemSummary
-					reportVerificationProblem: #NestedTypeCannotShadowTypeName
-					args: nil
-					severity: nil
-					forType: type]].
-
-		(type enclosingType isJavaNestedType and: [type enclosingType isJavaClass]) ifTrue: [
-			type enclosingType isJavaStatic ifFalse: [
-				type isJavaClass
-					ifTrue: [
-						type isJavaStatic ifTrue: [
-							problemSummary
-								reportVerificationProblem: #StaticClassCannotExistInNestedClass
-								args: nil
-								severity: nil
-								forType: type]]
-					ifFalse: [
-						problemSummary
-							reportVerificationProblem: #InterfaceCannotExistInNestedClass
-							args: nil
-							severity: nil
-							forType: type]]]].
-
-	(interfaces := newClass superinterfaces) notEmpty ifTrue: [
-		interfacesByIndentity := interfaces asSet.
-		duplicateExists := interfaces size ~~ interfacesByIndentity size.
-
-		interfacesByIndentity do: [:interface |
-			duplicateExists ifTrue: [
-				(interfaces occurrencesOf: interface) > 1 ifTrue: [
-					problemSummary
-						reportVerificationProblem: #InterfaceIsSpecifiedMoreThanOnce
-						args: (Array with: interface javaQualifiedName)
-						severity: nil
-						forType: type]].
-
-			interface isJavaMissing ifTrue: [
-				hasHierarchyProblem := true.
-				interface basicClass == JavaInterfaceIsClass basicClass
-					ifTrue: [
-						problemSummary
-							reportVerificationProblem: #UsingClassWhereInterfaceIsRequired
-							args: (Array with: interface javaQualifiedName)
-							severity: nil
-							forType: type]
-					ifFalse: [
-						interface basicClass == JavaMissingInterface basicClass
-							ifTrue: [
-								problemSummary
-									reportVerificationProblem: #MissingInterface
-									args: (Array with: interface javaQualifiedName with: interface unmatchedDescriptor)
-									severity: nil
-									forType: type]
-							ifFalse: [
-								problemSummary
-									reportVerificationProblem: #CyclicSuperinterface
-									args: (Array with: interface javaQualifiedName)
-									severity: nil
-									forType: type]]]]].
-
-	hasHierarchyProblem ifFalse: [
-		"Search up the type's hierarchy for
-			1. missing superclass,
-			2. superclass cycle, or
-			3. superclass is interface."
-		(invalidType := newClass findFirstInvalidSupertypeSkipping: EsIdentitySet new) ~~ nil ifTrue: [
-			problemSummary
-				reportVerificationProblem: #HasHierarchyProblem
-				args: (Array with: invalidType javaReadableName)
-				severity: nil
-				forType: type]]
-
-reportModifierProblemsOnType: aType
-
-	(type basicModifiers anyMask: AccAlternateModifierProblem) ifTrue: [
-		(type basicModifiers anyMask: AccModifierProblem)
-			ifTrue: [
-				^problemSummary
-					reportVerificationProblem: #OnlyOneVisibilityModifierAllowed
-					args: nil
-					severity: nil
-					forType: aType]
-			ifFalse: [
-				^problemSummary
-					reportVerificationProblem: #DuplicateModifier
-					args: nil
-					severity: nil
-					forType: aType]].
-
-	type isJavaInterface ifTrue: [
-		^problemSummary
-			reportVerificationProblem: #IllegalModifierForInterface
-			args: nil
-			severity: nil
-			forType: aType].
-
-	(type basicModifiers allMask: AccAbstract | AccFinal) ifTrue: [
-		^problemSummary
-			reportVerificationProblem: #IllegalModifierCombinationAbstractFinal
-			args: nil
-			severity: nil
-			forType: aType].
-
-	^problemSummary
-		reportVerificationProblem: #IllegalModifierForClass
-		args: nil
-		severity: nil
-		forType: aType
-
-void reportModifierProblems() {
-	if (this.type.isAbstract() && this.type.isFinal())
-		this.problemReporter.illegalModifierCombinationAbstractFinal(this.type);
-
-	// Should be able to detect all 3 problems NOT just 1
-	if ((type.modifiers() & Modifiers.AccAlternateModifierProblem) == 0) {
-		if (this.type.isInterface())
-			this.problemReporter.illegalModifierForInterface(this.type);
-		else
-			this.problemReporter.illegalModifier(this.type);
-	} else {
-		if ((type.modifiers() & Modifiers.AccModifierProblem) != 0)
-			this.problemReporter.onlyOneVisibilityModifierAllowed(this.type);
-		else
-			this.problemReporter.duplicateModifier(this.type);
-	}
-}
 */
 public MethodVerifier(LookupEnvironment environment) {
 	this.type = null;		// Initialized with the public method verify(SourceTypeBinding)
@@ -243,9 +48,9 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 }
-private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] inheritedMethods, int length) {
+private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	for (int i = length; --i >= 0;) {
-		MethodBinding inheritedMethod = inheritedMethods[i];
+		MethodBinding inheritedMethod = methods[i];
 		if (currentMethod.returnType != inheritedMethod.returnType) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 		} else if (currentMethod.isStatic() != inheritedMethod.isStatic())	 {	// Cannot override a static method or hide an instance method
@@ -270,6 +75,7 @@ private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 	do {
 		if (!superType.isValidBinding()) return;
 		if (!superType.isAbstract()) return; // closer non abstract super type will be flagged instead
+
 		MethodBinding[] methods = superType.getMethods(selector);
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
@@ -280,6 +86,7 @@ private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 			if (superType.fPackage == abstractMethod.declaringClass.fPackage) return; // found concrete implementation of abstract method in same package
 		}
 	} while ((superType = superType.superclass()) != abstractMethod.declaringClass);
+
 	// non visible abstract methods cannot be overridden so the type must be defined abstract
 	this.problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
 }
@@ -443,12 +250,9 @@ private void computeInheritedMethods() {
 	int lastPosition = 0;
 	interfacesToVisit[lastPosition] = type.superInterfaces();
 
-	ReferenceBinding superType;
-	if (this.type.isClass()) {
-		superType = this.type.superclass();
-	} else { // check interface methods against Object
-		superType = this.type.scope.getJavaLangObject();
-	}
+	ReferenceBinding superType = this.type.isClass()
+		? this.type.superclass()
+		: this.type.scope.getJavaLangObject(); // check interface methods against Object
 	MethodBinding[] nonVisibleDefaultMethods = null;
 	int nonVisibleCount = 0;
 
@@ -468,8 +272,7 @@ private void computeInheritedMethods() {
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 					if (existingMethods != null) {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
-							if (method.returnType == existingMethods[i].returnType
-									&& method.areParametersEqual(existingMethods[i])) {
+							if (method.returnType == existingMethods[i].returnType && method.areParametersEqual(existingMethods[i])) {
 								if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
 									checkPackagePrivateAbstractMethod(method);
 								continue nextMethod;
@@ -479,9 +282,9 @@ private void computeInheritedMethods() {
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
 							if (method.returnType == nonVisibleDefaultMethods[i].returnType
-									&& CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
-									&& method.areParametersEqual(nonVisibleDefaultMethods[i])) 
-								continue nextMethod;
+								&& CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
+								&& method.areParametersEqual(nonVisibleDefaultMethods[i])) 
+									continue nextMethod;
 
 					if (!(method.isDefault() && method.declaringClass.fPackage != type.fPackage)) { // ignore methods which have default visibility and are NOT defined in another package
 						if (existingMethods == null)
@@ -505,8 +308,7 @@ private void computeInheritedMethods() {
 						MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
 						if (current != null) { // non visible methods cannot be overridden so a warning is issued
 							foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-								if (method.returnType == current[i].returnType
-										&& method.areParametersEqual(current[i])) {
+								if (method.returnType == current[i].returnType && method.areParametersEqual(current[i])) {
 									this.problemReporter().overridesPackageDefaultMethod(current[i], method);
 									break foundMatch;
 								}
@@ -557,50 +359,6 @@ private void computeInheritedMethods() {
 			interfaces[j].tagBits &= ~InterfaceVisited;
 	}
 }
-/*
-computeInheritedMethodMembers
-
-	"8.4.6.4"
-	"Compute all of the members for the type that are inherited from its supertypes.
-		This includes:
-			All of the methods implemented in the supertype hierarchy that are not overridden.
-			PROBLEM:  Currently we do not remove overridden methods in the interface hierarchy.
-			This could cause a non-existent exception error to be detected."
-
-	| supertype allSuperinterfaces methodsSeen interfacesSeen |
-	inheritedMethodMembers := LookupTable new: 50.
-	allSuperinterfaces := OrderedCollection new.
-
-	type isJavaClass ifTrue: [
-		supertype := type.
-		methodsSeen := EsIdentitySet new: 20.
-		[(supertype := self superclassFor: supertype) == nil] whileFalse: [
-			(supertype isBuilderClass or: [supertype isValidDescriptor]) ifTrue: [
-				allSuperinterfaces addAll: (self superinterfacesFor: supertype).
-				supertype javaUserDefinedMethodsDo: [:method |
-					(method isJavaPrivate or: [method isJavaConstructor]) ifFalse: [
-						(method isJavaDefault and: [method declaringClass package symbol ~= type package symbol]) ifFalse: [
-							(methodsSeen includes: method selector) ifFalse: [
-								methodsSeen add: method selector.
-								(inheritedMethodMembers
-									at: (self methodSignatureFor: method selector)
-									ifAbsentPut: [OrderedCollection new: 3])
-										add: method]]]]]]].
-
-	allSuperinterfaces addAll: (self superinterfacesFor: type).
-	interfacesSeen := EsIdentitySet new: allSuperinterfaces size * 2.
-	[allSuperinterfaces notEmpty] whileTrue: [
-		supertype := allSuperinterfaces removeFirst.
-		(interfacesSeen includes: supertype) ifFalse: [
-			interfacesSeen add: supertype.
-			(supertype isBuilderClass or: [supertype isValidDescriptor]) ifTrue: [
-				allSuperinterfaces addAll: (self superinterfacesFor: supertype).
-				supertype javaUserDefinedMethodsDo: [:method |		"Interface methods are all abstract public."
-					(inheritedMethodMembers
-						at: (self methodSignatureFor: method selector)
-						ifAbsentPut: [OrderedCollection new: 3])
-							add: method]]]]
-*/
 private void computeMethods() {
 	MethodBinding[] methods = type.methods();
 	int size = methods.length;
@@ -688,6 +446,5 @@ public String toString() {
 	buffer.append("\t-inherited methods: "); //$NON-NLS-1$
 	buffer.append(this.inheritedMethods);
 	return buffer.toString();
-	
 }
 }
