@@ -1855,12 +1855,12 @@ public class JavaProject
 	/**
 	 * Open project if resource isn't closed
 	 */
-	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 
 		if (!this.fProject.isOpen()) {
 			throw newNotPresentException();
 		} else {
-			super.openWhenClosed(pm);
+			return super.openWhenClosed(pm);
 		}
 	}
 

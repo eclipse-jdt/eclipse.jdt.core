@@ -1009,11 +1009,11 @@ public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	int start, 
 	int end, 
-	boolean needReferenceInfo) {
+	boolean fullParse) {
 
-	reportReferenceInfo = needReferenceInfo;
+	this.reportReferenceInfo = fullParse;
 	boolean old = diet;
-	if (needReferenceInfo) {
+	if (fullParse) {
 		unknownRefs = new NameReference[10];
 		unknownRefsCounter = 0;
 	}
@@ -1025,7 +1025,7 @@ public void parseCompilationUnit(
 		if (scanner.recordLineSeparator) {
 			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 		}
-		if (this.localDeclarationVisitor != null || needReferenceInfo){
+		if (this.localDeclarationVisitor != null || fullParse){
 			diet = false;
 			this.getMethodBodies(parsedUnit);
 		}		
@@ -1035,19 +1035,19 @@ public void parseCompilationUnit(
 	} finally {
 		diet = old;
 	}
-}
-public void parseCompilationUnit(
+}public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit, 
-	boolean needReferenceInfo) {
+	boolean fullParse) {
+		
 	boolean old = diet;
-	if (needReferenceInfo) {
+	if (fullParse) {
 		unknownRefs = new NameReference[10];
 		unknownRefsCounter = 0;
 	}
 
 	try {
 		diet = true;
-		reportReferenceInfo = needReferenceInfo;
+		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
 		if (scanner.recordLineSeparator) {
@@ -1055,16 +1055,18 @@ public void parseCompilationUnit(
 		}
 		int initialStart = this.scanner.initialPosition;
 		int initialEnd = this.scanner.eofPosition;
-		if (this.localDeclarationVisitor != null || needReferenceInfo){
+		if (this.localDeclarationVisitor != null || fullParse){
 			diet = false;
 			this.getMethodBodies(parsedUnit);
 		}
 		this.scanner.resetTo(initialStart, initialEnd);
 		notifySourceElementRequestor(parsedUnit);
+		return parsedUnit;
 	} catch (AbortCompilation e) {
 	} finally {
 		diet = old;
 	}
+	return null;
 }
 public void parseTypeMemberDeclarations(
 	ISourceType sourceType, 

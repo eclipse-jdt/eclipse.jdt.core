@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.core;
 import java.io.*;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -20,6 +23,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 /**
  * Implementation of a working copy compilation unit. A working
@@ -33,6 +42,11 @@ public class WorkingCopy extends CompilationUnit {
 	 * If set, this is the factory that will be used to create the buffer.
 	 */
 	protected IBufferFactory bufferFactory;
+	
+	/*
+	 * Whether problems should be computed for this working copy.
+	 */
+	protected boolean computeProblems;
 
 	/**
 	 * If set, this is the problem requestor which will be used to notify problems
@@ -130,6 +144,38 @@ public boolean exists() {
 	// working copy always exists in the model until it is detroyed
 	return this.useCount != 0;
 }
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+
+	if (getParent() instanceof JarPackageFragment) {
+		// ignore .java files in jar
+		throw newNotPresentException();
+	} else {
+		// put the info now, because getting the contents requires it
+		JavaModelManager.getJavaModelManager().putInfo(this, info);
+		WorkingCopyElementInfo unitInfo = (WorkingCopyElementInfo) info;
+
+		// generate structure and compute syntax problems if needed
+		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
+		IProblemFactory factory = this.computeProblems ?  CompilationUnitProblemFinder.getProblemFactory(getElementName().toCharArray(), unitInfo, pm) : new DefaultProblemFactory();
+		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
+		requestor.parser = parser;
+		if (this.computeProblems){
+			unitInfo.problems = new ArrayList();
+		}
+		CompilationUnitDeclaration unit = parser.parseCompilationUnit(this, this.computeProblems /*full parse if compute problems*/);
+		
+		// update timestamp
+		CompilationUnit original = (CompilationUnit) getOriginalElement();
+		// might be IResource.NULL_STAMP if original does not exist
+		unitInfo.fTimestamp = ((IFile) original.getResource()).getModificationStamp();
+		
+		// compute other problems if needed
+		if (this.computeProblems){
+			CompilationUnitProblemFinder.process(unit, this, unitInfo, pm); 
+		}		
+		return unitInfo.isStructureKnown();
+	}
+}
 
 
 /**
@@ -158,23 +204,30 @@ public boolean equals(Object o) {
 	 */
 	public Object getElementInfo() throws JavaModelException {
 
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		boolean shouldPerformProblemDetection = false;
-		synchronized(manager){
-			Object info = manager.getInfo(this);
-			if (info == null) {
-				shouldPerformProblemDetection = true;
-			}
-		}
-		Object info = super.getElementInfo(); // will populate if necessary
+		this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
 
-		// perform problem detection outside the JavaModelManager lock
-		if (this.problemRequestor != null && shouldPerformProblemDetection && this.problemRequestor.isActive()){
-			this.problemRequestor.beginReporting();
-			CompilationUnitProblemFinder.process(this, this.problemRequestor, null); 
-			this.problemRequestor.endReporting();
-		}		
+		WorkingCopyElementInfo info = null;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		synchronized(manager){
+			info = (WorkingCopyElementInfo)super.getElementInfo(); // will populate if necessary
+		}
+
+		// report problems outside the JavaModelManager lock
+		reportProblemsIfNeeded(info);
+		
 		return info;
+	}
+	private void reportProblemsIfNeeded(WorkingCopyElementInfo info) {
+		if (info.problems != null) {
+			this.problemRequestor.beginReporting();
+			Iterator iterator = info.problems.iterator();
+			while (iterator.hasNext()) {
+				this.problemRequestor.acceptProblem((IProblem)iterator.next());
+			} 
+			this.problemRequestor.endReporting();
+			info.problems = null;
+			this.computeProblems = false;
+		}		
 	}
 /**
  * @see IWorkingCopy
@@ -336,16 +389,22 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (!isConsistent()) { // TODO: (jerome) this code isn't synchronized with regular opening of a working copy (should use getElementInfo)
-		super.makeConsistent(monitor);
 
-		if (monitor != null && monitor.isCanceled()) return;
-		if (this.problemRequestor != null && this.problemRequestor.isActive()){
-			this.problemRequestor.beginReporting();
-			CompilationUnitProblemFinder.process(this, this.problemRequestor, monitor); 
-			this.problemRequestor.endReporting();
-		}		
+	this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
+
+	WorkingCopyElementInfo info = null;
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	synchronized(manager){
+		if (isConsistent()) return;
+
+		// create a new info and make it the current info
+		info = (WorkingCopyElementInfo)createElementInfo();
+		buildStructure(info, monitor);
 	}
+	
+	// report problems outside the JavaModelManager lock
+	if (monitor != null && monitor.isCanceled()) return;
+	reportProblemsIfNeeded(info);
 }
 
 /**
@@ -359,14 +418,21 @@ public void open(IProgressMonitor monitor) throws JavaModelException {
 	if (this.useCount == 0) { // was destroyed
 		throw newNotPresentException();
 	} else {
-		super.open(monitor);
-		
-		if (monitor != null && monitor.isCanceled()) return;
-		if (this.problemRequestor != null && this.problemRequestor.isActive()){
-			this.problemRequestor.beginReporting();
-			CompilationUnitProblemFinder.process(this, this.problemRequestor, monitor); 
-			this.problemRequestor.endReporting();
+		this.computeProblems = this.problemRequestor != null && this.problemRequestor.isActive();
+
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		Object info = null;
+		synchronized(manager) {
+			if (!isOpen()) {
+				info = openWhenClosed(monitor);
+			} else {
+				info = manager.getInfo(this);
+			}
 		}		
+
+		// report problems outside the JavaModelManager lock
+		if (monitor != null && monitor.isCanceled()) return;
+		reportProblemsIfNeeded((WorkingCopyElementInfo)info);
 	}
 }
 /**

@@ -103,7 +103,7 @@ public class SortElementsOperation extends JavaModelOperation {
 					expectedPackageName,
 					unit.getElementName(),
 					null),
-				false);
+				false/*diet parse*/);
 		} else {
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(
@@ -111,7 +111,7 @@ public class SortElementsOperation extends JavaModelOperation {
 					null,
 					"",//$NON-NLS-1$
 					null),
-				false);
+				false/*diet parse*/);
 		}
 		return builder.getSource();
 	}

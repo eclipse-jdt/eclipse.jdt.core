@@ -58,7 +58,7 @@ public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name)
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	initializeBuild(compilationUnit.getContents(), true, true);
-	getParser(JavaCore.getOptions()).parseCompilationUnit(compilationUnit, false);
+	getParser(JavaCore.getOptions()).parseCompilationUnit(compilationUnit, false/*diet parse*/);
 	return super.createCompilationUnit(compilationUnit);
 }
 /**

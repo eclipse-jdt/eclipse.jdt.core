@@ -10,8 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.compiler.IProblem;
 
-public class WorkingCopyElementInfo extends CompilationUnitElementInfo {
-	IProblem[] problems;
+public class WorkingCopyElementInfo extends CompilationUnitElementInfo implements IProblemRequestor {
+	ArrayList problems;
+	public void endReporting() {
+	}
+	public void acceptProblem(IProblem problem) {
+		if (this.problems != null) {
+			this.problems.add(problem);
+		}
+	}
+	public void beginReporting() {
+	}
+	public boolean isActive() {
+		return true;
+	}
+
 }

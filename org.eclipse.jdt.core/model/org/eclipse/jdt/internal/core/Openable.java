@@ -376,8 +376,9 @@ protected void openParent(IProgressMonitor pm) throws JavaModelException {
 
 /**
  * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
+ * Returns the created element info.
  */
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	try {
 		
 		if (JavaModelManager.VERBOSE){
@@ -403,11 +404,12 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
 			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
-
+		
+		return info;
+	} catch (JavaModelException e) {
 		// if any problems occuring openning the element, ensure that it's info
 		// does not remain in the cache	(some elements, pre-cache their info
 		// as they are being opened).
-	} catch (JavaModelException e) {
 		JavaModelManager.getJavaModelManager().removeInfo(this);
 		throw e;
 	}

@@ -145,9 +145,11 @@ public boolean isReadOnly() {
 /**
  * @see Openable#openWhenClosed()
  */
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	// Open my jar
 	getOpenableParent().open(pm);
+	
+	return (OpenableElementInfo)JavaModelManager.getJavaModelManager().getInfo(this);
 }
 /**
  * A package fragment in an archive cannot refresh its children.

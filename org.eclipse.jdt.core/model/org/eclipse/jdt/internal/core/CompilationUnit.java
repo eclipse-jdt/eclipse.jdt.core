@@ -307,12 +307,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
 		requestor.parser = parser;
-		parser.parseCompilationUnit(this, false);
-		if (isWorkingCopy()) {
-			CompilationUnit original = (CompilationUnit) getOriginalElement();
-			// might be IResource.NULL_STAMP if original does not exist
-			unitInfo.fTimestamp = ((IFile) original.getResource()).getModificationStamp();
-		}
+		parser.parseCompilationUnit(this, false/*diet parse*/);
 		return unitInfo.isStructureKnown();
 	}
 }
@@ -620,7 +615,10 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (!isConsistent()) { // TODO: (jerome) this code isn't synchronized with regular opening of a working copy
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	synchronized(manager){
+		if (isConsistent()) return;
+		
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
 		buildStructure(info, monitor);

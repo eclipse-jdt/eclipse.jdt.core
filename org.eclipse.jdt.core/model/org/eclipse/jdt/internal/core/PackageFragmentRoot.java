@@ -753,12 +753,12 @@ public void move(
 }
 
 
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	if (!this.resourceExists() 
 			|| !this.isOnClasspath()) {
 		throw newNotPresentException();
 	}
-	super.openWhenClosed(pm);
+	return super.openWhenClosed(pm);
 }
 
 /**

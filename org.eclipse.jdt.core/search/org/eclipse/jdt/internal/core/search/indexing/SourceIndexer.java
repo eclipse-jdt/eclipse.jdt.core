@@ -75,7 +75,7 @@ protected void indexFile(IDocument document) throws IOException {
 	if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
 	CompilationUnit compilationUnit = new CompilationUnit(source, name);
 	try {
-		parser.parseCompilationUnit(compilationUnit, true);
+		parser.parseCompilationUnit(compilationUnit, true/*full parse*/);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}

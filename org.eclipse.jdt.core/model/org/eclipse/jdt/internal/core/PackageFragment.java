@@ -309,9 +309,9 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
 }
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	if (!this.resourceExists()) throw newNotPresentException();
-	super.openWhenClosed(pm);
+	return super.openWhenClosed(pm);
 }
 /**
  * Recomputes the children of this element, based on the current state

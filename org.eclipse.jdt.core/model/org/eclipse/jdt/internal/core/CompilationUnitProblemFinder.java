@@ -180,6 +180,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	public static CompilationUnitDeclaration process(
+		CompilationUnitDeclaration unit,
 		ICompilationUnit unitElement, 
 		IProblemRequestor problemRequestor,
 		IProgressMonitor monitor)
@@ -196,7 +197,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 				getRequestor(),
 				getProblemFactory(fileName, problemRequestor, monitor));
 
-		CompilationUnitDeclaration unit = null;
 		try {
 			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 			
@@ -205,7 +205,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 			if (packageFragment != null){
 				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
 			}
-			unit = problemFinder.resolve(
+			if (unit == null) {
+				unit = problemFinder.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
 						expectedPackageName,
@@ -214,6 +215,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 					true, // verify methods
 					true, // analyze code
 					true); // generate code
+			} else {
+				problemFinder.resolve(
+					unit,
+					null, // no need for source
+					true, // verify methods
+					true, // analyze code
+					true); // generate code
+			}
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -221,6 +230,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 			}
 			problemFinder.lookupEnvironment.reset();			
 		}
+	}
+	public static CompilationUnitDeclaration process(
+		ICompilationUnit unitElement, 
+		IProblemRequestor problemRequestor,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+			
+		return process(null, unitElement, problemRequestor, monitor);
 	}
 }	
 

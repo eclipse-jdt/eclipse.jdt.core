@@ -561,19 +561,27 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit, 
 			ICompilationUnit sourceUnit, 
 			boolean verifyMethods,
 			boolean analyzeCode,
 			boolean generateCode) {
 				
-		CompilationUnitDeclaration unit = null;
 		try {
-			// build and record parsed units
-			parseThreshold = 0; // will request a full parse
-			beginToCompile(new ICompilationUnit[] { sourceUnit });
-			// process all units (some more could be injected in the loop by the lookup environment)
-			unit = unitsToProcess[0];
-			getMethodBodies(unit, 0);
+			if (unit == null) {
+				// build and record parsed units
+				parseThreshold = 0; // will request a full parse
+				beginToCompile(new ICompilationUnit[] { sourceUnit });
+				// process all units (some more could be injected in the loop by the lookup environment)
+				unit = unitsToProcess[0];
+				getMethodBodies(unit, 0);
+			} else {
+				// initial type binding creation
+				lookupEnvironment.buildTypeBindings(unit);
+
+				// binding resolution
+				lookupEnvironment.completeTypeBindings();
+			}
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
@@ -591,7 +599,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// code generation
 				if (generateCode) unit.generateCode();
 			}
-			unitsToProcess[0] = null; // release reference to processed unit declaration
+			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
 			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			return unit;
 		} catch (AbortCompilation e) {
@@ -612,5 +620,21 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// environment.
 			// this.reset();
 		}
+	}
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
+		return resolve(
+			null,
+			sourceUnit,
+			verifyMethods,
+			analyzeCode,
+			generateCode);
 	}
 }
