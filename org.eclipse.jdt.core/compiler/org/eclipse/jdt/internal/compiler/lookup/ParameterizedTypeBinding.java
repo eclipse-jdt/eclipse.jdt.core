@@ -124,15 +124,21 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public char[] genericTypeSignature() {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 	    StringBuffer sig = new StringBuffer(10);
-	    char[] typeSig = this.type.genericTypeSignature();
-	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
-	    	sig.append(typeSig[i]);
-	    }
-	    sig.append('<');
-	    for (int i = 0, length = this.arguments.length; i < length; i++) {
-	        sig.append(this.arguments[i].genericTypeSignature());
-	    }
-	    sig.append(">;"); //$NON-NLS-1$
+		if (this.isMemberType()) {
+		    char[] typeSig = this.enclosingType().genericTypeSignature();
+		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append('.').append(this.sourceName());
+		} else {
+		    char[] typeSig = this.type.genericTypeSignature();
+		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		}	   	    
+		if (this.arguments != null) {
+		    sig.append('<');
+		    for (int i = 0, length = this.arguments.length; i < length; i++) {
+		        sig.append(this.arguments[i].genericTypeSignature());
+		    }
+		    sig.append(">;"); //$NON-NLS-1$
+		}
 		return this.genericTypeSignature = sig.toString().toCharArray();
 	}	
 
@@ -328,25 +334,30 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (this == otherType) 
 		    return true;
+	    if (otherType == null) 
+	        return false;
         if (otherType.isRawType())
             return erasure() == otherType.erasure();
-        if ((otherType.tagBits & HasWildcard) != 0) {
-            if (otherType.isParameterizedType()) {
-                ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-                if (this.type != otherParamType.type) 
-                    return false;
-                int length = this.arguments == null ? 0 : this.arguments.length;
-                int otherLength = otherParamType.arguments == null ? 0 : otherParamType.arguments.length;
-                if (otherLength != length) 
-                    return false;
-                for (int i = 0; i < length; i++) {
-                    if (!this.arguments[i].isEquivalentTo(otherParamType.arguments[i]))
-                            return false;
-                }
-                return true;
-            } else { // wildcard
-                return ((WildcardBinding) otherType).boundCheck(this);
+        if (otherType.isParameterizedType()) {
+            if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+            	return false; // should have been identical
+            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+            if (this.type != otherParamType.type) 
+                return false;
+            ReferenceBinding enclosing = enclosingType();
+            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
+                return false;
+            int length = this.arguments == null ? 0 : this.arguments.length;
+            int otherLength = otherParamType.arguments == null ? 0 : otherParamType.arguments.length;
+            if (otherLength != length) 
+                return false;
+            for (int i = 0; i < length; i++) {
+                if (!this.arguments[i].isEquivalentTo(otherParamType.arguments[i]))
+                        return false;
             }
+            return true;
+        } else if (otherType.isWildcard()){ // wildcard
+                return ((WildcardBinding) otherType).boundCheck(this);
         }
         return false;
 	}

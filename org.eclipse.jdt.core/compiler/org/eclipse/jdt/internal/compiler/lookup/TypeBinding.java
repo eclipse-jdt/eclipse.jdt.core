@@ -97,6 +97,17 @@ public final boolean isHierarchyInconsistent() {
 public boolean isInterface() {
 	return false;
 }
+public final boolean isLocalType() {
+	return (tagBits & IsLocalType) != 0;
+}
+
+public final boolean isMemberType() {
+	return (tagBits & IsMemberType) != 0;
+}
+
+public final boolean isNestedType() {
+	return (tagBits & IsNestedType) != 0;
+}
 public final boolean isNumericType() {
 	switch (id) {
 		case T_int :
@@ -111,6 +122,7 @@ public final boolean isNumericType() {
 			return false;
 	}
 }
+
 /**
  * Returns true if the type is parameterized, e.g. List<String>
  */

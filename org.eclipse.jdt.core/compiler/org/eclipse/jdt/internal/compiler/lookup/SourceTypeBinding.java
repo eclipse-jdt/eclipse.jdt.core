@@ -598,6 +598,7 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
  */
 public boolean isEquivalentTo(TypeBinding otherType) {
     if (this == otherType) return true;
+    if (otherType == null) return false;
     if (this.typeVariables == NoTypeVariables) return false;
     return otherType.isRawType() && otherType.erasure() == this;
 }

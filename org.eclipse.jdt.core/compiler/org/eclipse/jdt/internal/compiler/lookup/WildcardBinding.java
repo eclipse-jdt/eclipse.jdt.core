@@ -98,6 +98,7 @@ public class WildcardBinding extends ReferenceBinding {
 	 */
 	public boolean isEquivalentTo(TypeBinding otherType) {
 	    if (this == otherType) return true;
+        if (otherType == null) return false;
         return otherType.erasure() == this.erasure();
 	}
 

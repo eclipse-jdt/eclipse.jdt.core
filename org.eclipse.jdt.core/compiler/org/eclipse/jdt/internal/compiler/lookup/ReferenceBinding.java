@@ -483,15 +483,6 @@ public final boolean isFinal() {
 public final boolean isInterface() {
 	return (modifiers & AccInterface) != 0;
 }
-public final boolean isLocalType() {
-	return (tagBits & IsLocalType) != 0;
-}
-public final boolean isMemberType() {
-	return (tagBits & IsMemberType) != 0;
-}
-public final boolean isNestedType() {
-	return (tagBits & IsNestedType) != 0;
-}
 
 /* Answer true if the receiver has private visibility
 */
