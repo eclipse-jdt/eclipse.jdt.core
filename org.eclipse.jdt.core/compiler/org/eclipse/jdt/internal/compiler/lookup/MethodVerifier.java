@@ -149,15 +149,17 @@ private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	}
 	if (concreteMethod == null) {
 		if (this.type.isClass() && !this.type.isAbstract()) {
-			for (int i = length; --i >= 0;)
-				if (!mustImplementAbstractMethod(methods[i])) return;  // have already reported problem against the concrete superclass
-
-			TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-			if (typeDeclaration != null) {
-				MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
-				missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
-			} else {
-				this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+			for (int i = length; --i >= 0;) {
+				if (mustImplementAbstractMethod(methods[i])) {
+					TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+					if (typeDeclaration != null) {
+						MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
+						missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+					} else {
+						this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+					}
+					return;
+				}
 			}
 		}
 		return;
