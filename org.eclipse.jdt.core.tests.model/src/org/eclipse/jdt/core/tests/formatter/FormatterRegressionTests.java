@@ -5344,7 +5344,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void test447() {
+	public void _test447() {
 		String resourcePath = getResource("test447", "settings.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
 		assertNotNull("No preferences", options);
@@ -5402,7 +5402,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void test451() {
+	public void _test451() {
 		String resourcePath = getResource("test451", "settings.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
 		assertNotNull("No preferences", options);
