@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -53,7 +53,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (type != null) {
 				type.traverse(visitor, scope);
@@ -68,7 +68,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		visitor.endVisit(this, scope);
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope scope) {
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (type != null) {
 				type.traverse(visitor, scope);

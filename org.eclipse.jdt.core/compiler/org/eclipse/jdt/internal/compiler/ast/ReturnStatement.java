@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -60,7 +60,7 @@ public class ReturnStatement extends Statement {
 			}
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 	
-			AstNode node;
+			ASTNode node;
 			if ((node = traversedContext.associatedNode) instanceof SynchronizedStatement) {
 				isSynchronized = true;
 	
@@ -228,7 +228,7 @@ public class ReturnStatement extends Statement {
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
 		}
 	}
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (expression != null)
 				expression.traverse(visitor, scope);

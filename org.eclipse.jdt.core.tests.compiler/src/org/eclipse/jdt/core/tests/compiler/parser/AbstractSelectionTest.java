@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.codeassist.select.SelectionScanner;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -145,11 +145,11 @@ public void checkMethodParse(
 
 	CompilationUnitDeclaration unit = parser.dietParse(sourceUnit, compilationResult, selectionStart, selectionEnd);
 
-	AstNode foundMethod = null;
+	ASTNode foundMethod = null;
 	if (unit.types != null) {
 		for (int i = 0; i < unit.types.length; i++) {
 			TypeDeclaration type = unit.types[i];
-			AstNode method = findMethod(type, selectionStart);
+			ASTNode method = findMethod(type, selectionStart);
 			if (method != null) {
 				foundMethod = method;
 				break;
@@ -265,7 +265,7 @@ public void checkMethodParse(
  * at the cursor location in the given type.
  * Returns null if not found.
  */
-protected AstNode findMethod(TypeDeclaration type, int cursorLocation) {
+protected ASTNode findMethod(TypeDeclaration type, int cursorLocation) {
 	if (type.methods != null) {
 		for (int i = 0; i < type.methods.length; i++) {
 			AbstractMethodDeclaration method = type.methods[i];
@@ -277,7 +277,7 @@ protected AstNode findMethod(TypeDeclaration type, int cursorLocation) {
 	if (type.memberTypes != null) {
 		for (int i = 0; i < type.memberTypes.length; i++) {
 			TypeDeclaration memberType = type.memberTypes[i];
-			AstNode method = findMethod(memberType, cursorLocation);
+			ASTNode method = findMethod(memberType, cursorLocation);
 			if (method != null) {
 				return method;
 			}

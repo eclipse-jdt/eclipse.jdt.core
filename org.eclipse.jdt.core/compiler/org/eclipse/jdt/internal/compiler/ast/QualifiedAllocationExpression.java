@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -22,14 +22,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	
 	//qualification may be on both side
 	public Expression enclosingInstance;
-	public AnonymousLocalTypeDeclaration anonymousType;
+	public TypeDeclaration anonymousType;
 	public ReferenceBinding superTypeBinding;
 	
 	public QualifiedAllocationExpression() {
 		// for subtypes
 	}
 
-	public QualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymousType) {
+	public QualifiedAllocationExpression(TypeDeclaration anonymousType) {
 		this.anonymousType = anonymousType;
 	}
 
@@ -327,7 +327,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		return this.resolvedType = anonymousType.binding; // 1.2 change
 	}
 	
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
 			if (enclosingInstance != null)

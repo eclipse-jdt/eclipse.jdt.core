@@ -38,7 +38,7 @@ public void abortDueToInternalError(String errorMessage) {
 		0,
 		0);
 }
-public void abortDueToInternalError(String errorMessage, AstNode location) {
+public void abortDueToInternalError(String errorMessage, ASTNode location) {
 	String[] arguments = new String[] {errorMessage};
 	this.handle(
 		IProblem.Unclassified,
@@ -110,7 +110,7 @@ public void abstractMethodNeedingNoBody(AbstractMethodDeclaration method) {
 		method,
 		method.compilationResult());
 }
-public void alreadyDefinedLabel(char[] labelName, AstNode location) {
+public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 	String[] arguments = new String[] {new String(labelName)};
 	this.handle(
 		IProblem.DuplicateLabel,
@@ -246,7 +246,7 @@ public void cannotAllocateVoidArray(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void cannotAssignToFinalField(FieldBinding field, AstNode location) {
+public void cannotAssignToFinalField(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.FinalFieldAssignment,
 		new String[] {
@@ -258,7 +258,7 @@ public void cannotAssignToFinalField(FieldBinding field, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotAssignToFinalLocal(LocalVariableBinding local, AstNode location) {
+public void cannotAssignToFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
 		IProblem.NonBlankFinalLocalAssignment,
@@ -267,7 +267,7 @@ public void cannotAssignToFinalLocal(LocalVariableBinding local, AstNode locatio
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, AstNode location) {
+public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] {new String(local.readableName())};
 	this.handle(
 		IProblem.FinalOuterLocalAssignment,
@@ -318,7 +318,7 @@ public void cannotInstantiate(TypeReference typeRef, TypeBinding type) {
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, AstNode location) {
+public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments =new String[]{ new String(local.readableName())};
 	this.handle(
 		IProblem.OuterLocalMustBeFinal,
@@ -327,7 +327,7 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, AstNode 
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotReturnInInitializer(AstNode location) {
+public void cannotReturnInInitializer(ASTNode location) {
 	this.handle(
 		IProblem.CannotReturnInInitializer,
 		NoArgument,
@@ -351,7 +351,7 @@ public void cannotThrowType(SourceTypeBinding type, AbstractMethodDeclaration me
 		exceptionType.sourceStart,
 		exceptionType.sourceEnd);
 }
-public void cannotUseSuperInJavaLangObject(AstNode reference) {
+public void cannotUseSuperInJavaLangObject(ASTNode reference) {
 	this.handle(
 		IProblem.ObjectHasNoSuperclass,
 		NoArgument,
@@ -645,9 +645,9 @@ public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 		literal.sourceStart,
 		literal.sourceEnd);
 }
-public void deprecatedField(FieldBinding field, AstNode location) {
+public void deprecatedField(FieldBinding field, ASTNode location) {
 	int id = IProblem.UsingDeprecatedField;
-	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+	if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -657,10 +657,10 @@ public void deprecatedField(FieldBinding field, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void deprecatedMethod(MethodBinding method, AstNode location) {
+public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	if (method.isConstructor()) {
 		int id = IProblem.UsingDeprecatedConstructor;
-		if ((location.bits & AstNode.InsideJavadoc) != 0) {
+		if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 			id |= IProblem.Javadoc;
 		}
 		this.handle(
@@ -671,7 +671,7 @@ public void deprecatedMethod(MethodBinding method, AstNode location) {
 			location.sourceEnd);
 	} else {
 		int id = IProblem.UsingDeprecatedMethod;
-		if ((location.bits & AstNode.InsideJavadoc) != 0) {
+		if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 			id |= IProblem.Javadoc;
 		}
 		this.handle(
@@ -682,10 +682,10 @@ public void deprecatedMethod(MethodBinding method, AstNode location) {
 			location.sourceEnd);
 	}
 }
-public void deprecatedType(TypeBinding type, AstNode location) {
+public void deprecatedType(TypeBinding type, ASTNode location) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	int id = IProblem.UsingDeprecatedType;
-	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+	if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -703,7 +703,7 @@ public void duplicateCase(CaseStatement caseStatement) {
 		caseStatement.sourceStart,
 		caseStatement.sourceEnd);
 }
-public void duplicateDefaultCase(AstNode statement) {
+public void duplicateDefaultCase(ASTNode statement) {
 	this.handle(
 		IProblem.DuplicateDefaultCase,
 		NoArgument,
@@ -737,7 +737,7 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, AstNode location) {
+public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
 		IProblem.DuplicateFinalLocalInitialization,
@@ -845,7 +845,7 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 	}
 
 	int id = recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType;
-	if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+	if ((messageSend.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -855,7 +855,7 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
 }
-public void errorThisSuperInStatic(AstNode reference) {
+public void errorThisSuperInStatic(ASTNode reference) {
 	String[] arguments = new String[] {reference.isSuper() ? "super" : "this"}; //$NON-NLS-2$ //$NON-NLS-1$
 	this.handle(
 		IProblem.ThisInStaticContext,
@@ -1053,7 +1053,7 @@ private void handle(
 			unitResult); 
 	referenceContext = null;
 }
-public void hiddenCatchBlock(ReferenceBinding exceptionType, AstNode location) {
+public void hiddenCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
 		IProblem.MaskedCatch,
 		new String[] {
@@ -1238,7 +1238,7 @@ public void illegalModifierForVariable(LocalDeclaration localDecl, boolean compl
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
-public void illegalPrimitiveOrArrayTypeForEnclosingInstance(TypeBinding enclosingType, AstNode location) {
+public void illegalPrimitiveOrArrayTypeForEnclosingInstance(TypeBinding enclosingType, ASTNode location) {
 	this.handle(
 		IProblem.IllegalPrimitiveOrArrayTypeForEnclosingInstance,
 		new String[] {new String(enclosingType.readableName())},
@@ -1291,7 +1291,7 @@ public void illegalVisibilityModifierForInterfaceMemberType(SourceTypeBinding ty
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalVoidExpression(AstNode location) {
+public void illegalVoidExpression(ASTNode location) {
 	this.handle(
 		IProblem.InvalidVoidExpression,
 		NoArgument,
@@ -1425,7 +1425,7 @@ public void incorrectLocationForEmptyDimension(ArrayAllocationExpression express
 		expression.dimensions[index + 1].sourceStart,
 		expression.dimensions[index + 1].sourceEnd);
 }
-public void indirectAccessToStaticField(AstNode location, FieldBinding field){
+public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 	this.handle(
 		IProblem.IndirectAccessToStaticField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -1446,7 +1446,7 @@ public void indirectAccessToStaticField(QualifiedNameReference qualifiedNameRefe
 		sourceStart,
 		sourceEnd);
 }
-public void indirectAccessToStaticMethod(AstNode location, MethodBinding method) {
+public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
 		IProblem.IndirectAccessToStaticMethod,
 		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
@@ -1454,7 +1454,7 @@ public void indirectAccessToStaticMethod(AstNode location, MethodBinding method)
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void indirectAccessToStaticType(AstNode location, ReferenceBinding type) {
+public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) {
 	this.handle(
 		IProblem.IndirectAccessToStaticMethod,
 		new String[] {new String(type.enclosingType().readableName()), new String(type.sourceName) },
@@ -1528,7 +1528,7 @@ public void initializerMustCompleteNormally(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void innerTypesCannotDeclareStaticInitializers(ReferenceBinding innerType, AstNode location) {
+public void innerTypesCannotDeclareStaticInitializers(ReferenceBinding innerType, ASTNode location) {
 	this.handle(
 		IProblem.CannotDefineStaticInitializerInLocalType,
 		new String[] {new String(innerType.readableName())},
@@ -1556,7 +1556,7 @@ public void interfaceCannotHaveInitializers(SourceTypeBinding type, FieldDeclara
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void invalidBreak(AstNode location) {
+public void invalidBreak(ASTNode location) {
 	this.handle(
 		IProblem.InvalidBreak,
 		NoArgument,
@@ -1608,7 +1608,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			break;
 	}
 
-	if ((statement.bits & AstNode.InsideJavadoc) != 0) {
+	if ((statement.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -1619,7 +1619,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		statement.sourceEnd);
 }
 
-public void invalidExplicitConstructorCall(AstNode location) {
+public void invalidExplicitConstructorCall(ASTNode location) {
 	
 	this.handle(
 		IProblem.InvalidExplicitConstructorCall,
@@ -1628,7 +1628,7 @@ public void invalidExplicitConstructorCall(AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void invalidContinue(AstNode location) {
+public void invalidContinue(ASTNode location) {
 	this.handle(
 		IProblem.InvalidContinue,
 		NoArgument,
@@ -1716,7 +1716,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 	}
 
 	String[] arguments = new String[] {new String(field.readableName())};
-	if ((fieldRef.bits & AstNode.InsideJavadoc) != 0) {
+	if ((fieldRef.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -1895,7 +1895,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					parameterTypeShortNames = parameterTypeNames;
 				}
 				id = IProblem.ParameterMismatch;
-				if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+				if ((messageSend.bits & ASTNode.InsideJavadoc) != 0) {
 					id |= IProblem.Javadoc;
 				}
 				this.handle(
@@ -1918,7 +1918,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		}
 	}
 
-	if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+	if ((messageSend.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -1988,7 +1988,7 @@ public void invalidOperator(UnaryExpression expression, TypeBinding type) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void invalidParenthesizedExpression(AstNode reference) {
+public void invalidParenthesizedExpression(ASTNode reference) {
 	this.handle(
 		IProblem.InvalidParenthesizedExpression,
 		NoArgument,
@@ -2058,7 +2058,7 @@ public void invalidSuperinterface(SourceTypeBinding type, TypeReference superint
 			superinterfaceRef.sourceStart,
 			superinterfaceRef.sourceEnd);
 }
-public void invalidType(AstNode location, TypeBinding type) {
+public void invalidType(ASTNode location, TypeBinding type) {
 	int id = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case NotFound :
@@ -2082,7 +2082,7 @@ public void invalidType(AstNode location, TypeBinding type) {
 			break;
 	}
 
-	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+	if ((location.bits & ASTNode.InsideJavadoc) != 0) {
 		id |= IProblem.Javadoc;
 	}
 	this.handle(
@@ -2297,7 +2297,7 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 public void needImplementation() {
 	this.abortDueToInternalError(Util.bind("abort.missingCode")); //$NON-NLS-1$
 }
-public void needToEmulateFieldReadAccess(FieldBinding field, AstNode location) {
+public void needToEmulateFieldReadAccess(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.NeedToEmulateFieldReadAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -2305,7 +2305,7 @@ public void needToEmulateFieldReadAccess(FieldBinding field, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void needToEmulateFieldWriteAccess(FieldBinding field, AstNode location) {
+public void needToEmulateFieldWriteAccess(FieldBinding field, ASTNode location) {
 	this.handle(
 		IProblem.NeedToEmulateFieldWriteAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -2315,7 +2315,7 @@ public void needToEmulateFieldWriteAccess(FieldBinding field, AstNode location) 
 }
 public void needToEmulateMethodAccess(
 	MethodBinding method, 
-	AstNode location) {
+	ASTNode location) {
 
 	if (method.isConstructor())
 		this.handle(
@@ -2355,7 +2355,7 @@ public void nestedClassCannotDeclareInterface(TypeDeclaration typeDecl) {
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, AstNode location) {
+public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[]{ new String(local.name) };
 	this.handle(
 		local instanceof SyntheticArgumentBinding
@@ -2367,7 +2367,7 @@ public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, AstNode 
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, AstNode location) {
+public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[]{ new String(local.name) };
 	this.handle(
 		IProblem.TooManyLocalVariableSlots,
@@ -2377,7 +2377,7 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, AstNode loc
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void nonStaticAccessToStaticMethod(AstNode location, MethodBinding method) {
+public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
 		IProblem.NonStaticAccessToStaticMethod,
 		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
@@ -2385,7 +2385,7 @@ public void nonStaticAccessToStaticMethod(AstNode location, MethodBinding method
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void nonStaticAccessToStaticField(AstNode location, FieldBinding field) {
+public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 	this.handle(
 		IProblem.NonStaticAccessToStaticField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -2393,7 +2393,7 @@ public void nonStaticAccessToStaticField(AstNode location, FieldBinding field) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void noSuchEnclosingInstance(TypeBinding targetType, AstNode location, boolean isConstructorCall) {
+public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, boolean isConstructorCall) {
 
 	int id;
 
@@ -2784,7 +2784,7 @@ public void scannerError(Parser parser, String errorTokenName) {
 		scanner.currentPosition - 1,
 		parser.compilationUnit.compilationResult);
 }
-public void shouldReturn(TypeBinding returnType, AstNode location) {
+public void shouldReturn(TypeBinding returnType, ASTNode location) {
 	this.handle(
 		IProblem.ShouldReturnValue,
 		new String[] { new String (returnType.readableName())},
@@ -2820,7 +2820,7 @@ public void staticAndInstanceConflict(MethodBinding currentMethod, MethodBinding
 			currentMethod.sourceStart(),
 			currentMethod.sourceEnd());
 }
-public void staticFieldAccessToNonStaticVariable(AstNode location, FieldBinding field) {
+public void staticFieldAccessToNonStaticVariable(ASTNode location, FieldBinding field) {
 	String[] arguments = new String[] {new String(field.readableName())};
 	this.handle(
 		IProblem.NonStaticFieldFromStaticInvocation,
@@ -2843,7 +2843,7 @@ public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void stringConstantIsExceedingUtf8Limit(AstNode location) {
+public void stringConstantIsExceedingUtf8Limit(ASTNode location) {
 	this.handle(
 		IProblem.StringConstantIsExceedingUtf8Limit,
 		NoArgument,
@@ -2883,7 +2883,7 @@ public void task(String tag, String message, String priority, int start, int end
 		start,
 		end);
 }
-public void tooManyDimensions(AstNode expression) {
+public void tooManyDimensions(ASTNode expression) {
 	this.handle(
 		IProblem.TooManyArrayDimensions,
 		NoArgument,
@@ -2936,7 +2936,7 @@ public void typeCollidesWithPackage(CompilationUnitDeclaration compUnitDecl, Typ
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
 }
-public void typeMismatchError(TypeBinding resultType, TypeBinding expectedType, AstNode location) {
+public void typeMismatchError(TypeBinding resultType, TypeBinding expectedType, ASTNode location) {
 	String resultTypeName = new String(resultType.readableName());
 	String expectedTypeName = new String(expectedType.readableName());
 	String resultTypeShortName = new String(resultType.shortReadableName());
@@ -3004,7 +3004,7 @@ public void unexpectedStaticModifierForMethod(ReferenceBinding type, AbstractMet
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void unhandledException(TypeBinding exceptionType, AstNode location) {
+public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 
 	boolean insideDefaultConstructor = 
 		(referenceContext instanceof ConstructorDeclaration)
@@ -3024,7 +3024,7 @@ public void unhandledException(TypeBinding exceptionType, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void uninitializedBlankFinalField(FieldBinding binding, AstNode location) {
+public void uninitializedBlankFinalField(FieldBinding binding, ASTNode location) {
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(
 		IProblem.UninitializedBlankFinalField,
@@ -3033,7 +3033,7 @@ public void uninitializedBlankFinalField(FieldBinding binding, AstNode location)
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void uninitializedLocalVariable(LocalVariableBinding binding, AstNode location) {
+public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location) {
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(
 		IProblem.UninitializedLocalVariable,
@@ -3095,7 +3095,7 @@ public void unnecessaryEnclosingInstanceSpecification(Expression expression, Ref
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void unreachableCatchBlock(ReferenceBinding exceptionType, AstNode location) {
+public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
 		IProblem.UnreachableCatch,
 		new String[] {
@@ -3143,7 +3143,7 @@ public void unusedArgument(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
-public void unusedDeclaredThrownException(ReferenceBinding exceptionType, AbstractMethodDeclaration method, AstNode location) {
+public void unusedDeclaredThrownException(ReferenceBinding exceptionType, AbstractMethodDeclaration method, ASTNode location) {
 	if (method.isConstructor()) {
 		this.handle(
 			IProblem.UnusedConstructorDeclaredThrownException,
@@ -3349,7 +3349,7 @@ public void visibilityConflict(MethodBinding currentMethod, MethodBinding inheri
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void nonExternalizedStringLiteral(AstNode location) {
+public void nonExternalizedStringLiteral(ASTNode location) {
 	this.handle(
 		IProblem.NonExternalizedStringLiteral,
 		NoArgument,

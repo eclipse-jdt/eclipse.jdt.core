@@ -6,43 +6,43 @@
 
 <target name="export plug-in [_3.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="3.0.0"/>
+		<param name="jdt_core_version" value="3.0.0"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_2.1.1]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="2.1.1"/>
+		<param name="jdt_core_version" value="2.1.1"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_2.1.0]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="2.1.0"/>
+		<param name="jdt_core_version" value="2.1.0"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_2.1.0] (directory structure)">
 	<antcall target="zz_internal_export_structure">
-		<param name="version" value="2.1.0"/>
+		<param name="jdt_core_version" value="2.1.0"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_2.0.1]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="2.0.1"/>
+		<param name="jdt_core_version" value="2.0.1"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_2.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="2.0.0"/>
+		<param name="jdt_core_version" value="2.0.0"/>
 	</antcall>
 </target>
 
 <target name="export plug-in [_1.9.0]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="1.9.0"/>
+		<param name="jdt_core_version" value="1.9.0"/>
 	</antcall>
 </target>
 
@@ -51,7 +51,7 @@
 	<tstamp/>
 	<property name="export-dir" value="../../plugin-export" />
 	<property name="plugin" value="org.eclipse.jdt.core" />
-	<property name="plugin-dir" value="${export-dir}/${plugin}_${version}"/>
+	<property name="plugin-dir" value="${export-dir}/${plugin}_${jdt_core_version}"/>
 
 	<echo message="TARGET: ${export-dir}" />
 	<mkdir dir="${export-dir}" />
@@ -96,10 +96,10 @@
 		<fileset dir="antadapter" />
 	</zip>	    
 
-	<echo message="UPDATE ${export-dir}/../${plugin}_${version}.zip" />
-	<zip zipfile="${export-dir}/../${plugin}_${version}.zip"
+	<echo message="UPDATE ${export-dir}/../${plugin}_${jdt_core_version}.zip" />
+	<zip zipfile="${export-dir}/../${plugin}_${jdt_core_version}.zip"
 	    basedir="${export-dir}" 
-	    includes="${plugin}_${version}/**"	/>		
+	    includes="${plugin}_${jdt_core_version}/**"	/>		
 </target>
 
 <target name="zz_internal_export_structure">
@@ -107,8 +107,8 @@
 	<tstamp/>
 	<property name="export-dir" value="../../plugin-export" />
 	<property name="plugin" value="org.eclipse.jdt.core" />
-	<property name="bin_dest" value="${export-dir}/eclipse/plugins/${plugin}_${version}"/>
-	<property name="src_dest" value="${export-dir}/eclipse/plugins/org.eclipse.jdt.source_${version}/src/${plugin}_${version}"/>
+	<property name="bin_dest" value="${export-dir}/eclipse/plugins/${plugin}_${jdt_core_version}"/>
+	<property name="src_dest" value="${export-dir}/eclipse/plugins/org.eclipse.jdt.source_${jdt_core_version}/src/${plugin}_${jdt_core_version}"/>
 
 	<echo message="TARGET: ${export-dir}" />
 	<mkdir dir="${export-dir}" />

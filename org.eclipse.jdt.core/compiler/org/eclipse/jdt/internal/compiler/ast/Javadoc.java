@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 /**
  * Node representing a structured Javadoc comment
  */
-public class Javadoc extends AstNode {
+public class Javadoc extends ASTNode {
 
 	public JavadocSingleNameReference[] parameters; // @param
 	public TypeReference[] thrownExceptions; // @throws, @exception
@@ -27,7 +27,7 @@ public class Javadoc extends AstNode {
 	}
 	
 	/*
-	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$

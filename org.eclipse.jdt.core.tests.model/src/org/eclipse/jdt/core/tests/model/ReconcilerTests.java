@@ -81,7 +81,7 @@ public void setUp() throws Exception {
 	super.setUp();
 	this.cu = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor =  new ProblemRequestor();
-	this.workingCopy = (ICompilationUnit)cu.getWorkingCopy(null, null, this.problemRequestor);
+	this.workingCopy = cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 	this.problemRequestor.initialize();
 	this.startDeltas();
 }
@@ -571,7 +571,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 	this.workingCopy.discardWorkingCopy();
 	ICompilationUnit x = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor = myPbRequestor;
-	this.workingCopy = (ICompilationUnit) x.getWorkingCopy(null, null,this.problemRequestor);
+	this.workingCopy = x.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 													
 	this.workingCopy.getBuffer().setContents(
 		"package p1;\n" +
@@ -649,7 +649,7 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 	
 		ICompilationUnit compilationUnit = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
 		ProblemRequestor pbReq =  new ProblemRequestor();
-		ICompilationUnit wc = (ICompilationUnit)compilationUnit.getWorkingCopy(null, null, pbReq);
+		ICompilationUnit wc = compilationUnit.getWorkingCopy(new WorkingCopyOwner() {}, pbReq, null);
 		pbReq.initialize();
 		this.startDeltas();
 		wc.reconcile(true, null);
@@ -691,7 +691,7 @@ public void testMethodWithError6() throws JavaModelException, CoreException {
 		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize();
-		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -723,7 +723,7 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
 		);
 		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 
 		// Close working copy
 		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
@@ -769,7 +769,7 @@ public void testMethodWithError8() throws JavaModelException, CoreException {
 		);
 		this.cu = getCompilationUnit("Reconciler", "src", "p2", "X01.java");
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 
 		// Close working copy
 		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed

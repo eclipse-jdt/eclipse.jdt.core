@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
 /**
- * @author oliviert
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * Node to represent Wildcard
  */
 public class Wildcard extends SingleTypeReference {
 
@@ -46,7 +43,7 @@ public class Wildcard extends SingleTypeReference {
 		return output;
 	}	
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		if (this.type != null) {
 			this.type.traverse(visitor, scope);
@@ -54,7 +51,7 @@ public class Wildcard extends SingleTypeReference {
 		visitor.endVisit(this, scope);
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope scope) {
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		visitor.visit(this, scope);
 		if (this.type != null) {
 			this.type.traverse(visitor, scope);

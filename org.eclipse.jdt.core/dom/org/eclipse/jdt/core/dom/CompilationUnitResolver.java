@@ -213,7 +213,8 @@ class CompilationUnitResolver extends Compiler {
 	}	
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
-		boolean cleanUp)
+		boolean cleanUp,
+		char[] source)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
@@ -239,7 +240,7 @@ class CompilationUnitResolver extends Compiler {
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
-						unitElement.getSource().toCharArray(),
+						source,
 						expectedPackageName,
 						new String(fileName),
 						encoding),
@@ -319,7 +320,7 @@ class CompilationUnitResolver extends Compiler {
 	
 		compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
 		
-		AstNode node = nodeSearcher.found;
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
  		if (node == null) {
  			return compilationUnitDeclaration;
  		}
@@ -378,7 +379,8 @@ class CompilationUnitResolver extends Compiler {
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
 		NodeSearcher nodeSearcher,
-		boolean cleanUp)
+		boolean cleanUp,
+		char[] source)
 		throws JavaModelException {
 
 		CompilationUnitDeclaration unit = null;
@@ -403,7 +405,7 @@ class CompilationUnitResolver extends Compiler {
 		
 			unit = compilationUnitVisitor.resolve(
 				new BasicCompilationUnit(
-					unitElement.getSource().toCharArray(),
+					source,
 					expectedPackageName,
 					new String(fileName),
 					encoding),
@@ -469,7 +471,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 	private void removeUnresolvedBindings(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type) {
-		final MemberTypeDeclaration[] memberTypes = type.memberTypes;
+		final org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] memberTypes = type.memberTypes;
 		if (memberTypes != null) {
 			for (int i = 0, max = memberTypes.length; i < max; i++){
 				removeUnresolvedBindings(memberTypes[i]);
@@ -520,7 +522,7 @@ class CompilationUnitResolver extends Compiler {
 			if (searchPosition >= 0 && searchPosition <= compilationUnit.getContents().length) {
 				unit.traverse(nodeSearcher, unit.scope);
 				
-				AstNode node = nodeSearcher.found;
+				org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
 				
 	 			if (node != null) {
 					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;

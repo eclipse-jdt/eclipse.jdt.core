@@ -237,6 +237,7 @@ public IBuffer getBuffer() throws JavaModelException {
 }
 /**
  * Answers the buffer factory to use for creating new buffers
+ * @deprecated
  */
 public IBufferFactory getBufferFactory(){
 	return getBufferManager().getDefaultBufferFactory();

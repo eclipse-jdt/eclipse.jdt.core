@@ -23,7 +23,7 @@ public ConstructorLocator(ConstructorPattern pattern) {
 
 	this.pattern = pattern;
 }
-public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ExplicitConstructorCall
+public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ExplicitConstructorCall
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	if (!(node instanceof ExplicitConstructorCall)) return IMPOSSIBLE_MATCH;
 
@@ -114,7 +114,7 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 
 	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	if (this.pattern.findReferences) {
 		if (node instanceof AllocationExpression)
 			return resolveLevel((AllocationExpression) node);

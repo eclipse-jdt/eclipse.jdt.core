@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 
 /**
@@ -23,7 +23,7 @@ public class SwitchFlowContext extends FlowContext {
 	
 	public SwitchFlowContext(
 		FlowContext parent,
-		AstNode associatedNode,
+		ASTNode associatedNode,
 		Label breakLabel) {
 		super(parent, associatedNode);
 		this.breakLabel = breakLabel;

@@ -118,7 +118,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 						&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
 						scope.problemReporter().uninitializedBlankFinalField(
 							field,
-							isDefaultConstructor ? (AstNode) scope.referenceType() : this);
+							isDefaultConstructor ? (ASTNode) scope.referenceType() : this);
 					}
 				}
 			}
@@ -429,7 +429,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	}
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		ClassScope classScope) {
 
 		if (visitor.visit(this, classScope)) {

@@ -32,7 +32,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 	for (int i = 0, length = this.patternLocators.length; i < length; i++)
 		this.patternLocators[i].initializePolymorphicSearch(locator);
 }
-public int match(AstNode node, MatchingNodeSet nodeSet) {
+public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
 		int newLevel = this.patternLocators[i].match(node, nodeSet);
@@ -176,7 +176,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	if (closestPattern != null)
 		closestPattern.matchReportImportRef(importRef, binding, element, accuracy, locator);
 }
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
@@ -190,7 +190,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	if (closestPattern != null)
 		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
 		int newLevel = this.patternLocators[i].resolveLevel(node);

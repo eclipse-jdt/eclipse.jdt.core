@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class CompilationUnitDeclaration
-	extends AstNode
+	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
 		
 	public ImportReference currentPackage;
@@ -283,7 +283,7 @@ public class CompilationUnitDeclaration
 	}
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		CompilationUnitScope unitScope) {
 
 		if (ignoreFurtherInvestigation)

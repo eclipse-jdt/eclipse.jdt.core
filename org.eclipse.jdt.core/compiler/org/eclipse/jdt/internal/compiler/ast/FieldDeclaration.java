@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -229,7 +229,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		}
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
+	public void traverse(ASTVisitor visitor, MethodScope scope) {
 
 		if (visitor.visit(this, scope)) {
 			type.traverse(visitor, scope);

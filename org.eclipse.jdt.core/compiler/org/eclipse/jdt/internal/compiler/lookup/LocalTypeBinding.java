@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public final class LocalTypeBinding extends NestedTypeBinding {
@@ -26,7 +26,7 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType) {
 		scope,
 		enclosingType);
 
-	if (this.sourceName == AnonymousLocalTypeDeclaration.ANONYMOUS_EMPTY_NAME)
+	if (this.sourceName == TypeDeclaration.ANONYMOUS_EMPTY_NAME)
 		this.tagBits |= AnonymousTypeMask;
 	else
 		this.tagBits |= LocalTypeMask;

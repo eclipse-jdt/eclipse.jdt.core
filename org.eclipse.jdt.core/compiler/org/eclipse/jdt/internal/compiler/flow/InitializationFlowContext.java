@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -23,12 +23,12 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 
 	public int exceptionCount;
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
-	public AstNode[] exceptionThrowers = new AstNode[5];
+	public ASTNode[] exceptionThrowers = new ASTNode[5];
 	public FlowInfo[] exceptionThrowerFlowInfos = new FlowInfo[5];
 	
 	public InitializationFlowContext(
 		FlowContext parent,
-		AstNode associatedNode,
+		ASTNode associatedNode,
 		BlockScope scope) {
 		super(
 			parent,
@@ -65,7 +65,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
 		TypeBinding raisedException,
-		AstNode invocationSite,
+		ASTNode invocationSite,
 		boolean wasMasked) {
 			
 		// even if unreachable code, need to perform unhandled exception diagnosis
@@ -80,7 +80,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 			System.arraycopy(
 				exceptionThrowers,
 				0,
-				(exceptionThrowers = new AstNode[size * 2]),
+				(exceptionThrowers = new ASTNode[size * 2]),
 				0,
 				size);
 			System.arraycopy(

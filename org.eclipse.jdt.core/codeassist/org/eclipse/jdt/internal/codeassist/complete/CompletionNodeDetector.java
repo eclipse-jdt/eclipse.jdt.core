@@ -17,12 +17,12 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 /**
  * Detect the presence of a node in expression
  */
-public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
-	private AstNode searchedNode;
-	private AstNode parent;
+public class CompletionNodeDetector extends ASTVisitor {
+	private ASTNode searchedNode;
+	private ASTNode parent;
 	private boolean result;
 	
-	public CompletionNodeDetector(AstNode searchedNode, AstNode visitedAst){
+	public CompletionNodeDetector(ASTNode searchedNode, ASTNode visitedAst){
 		this.searchedNode = searchedNode;
 		this.result = false;
 		
@@ -35,7 +35,7 @@ public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
 		return result;
 	}
 	
-	public AstNode getCompletionNodeParent() {
+	public ASTNode getCompletionNodeParent() {
 		return parent;
 	}
 	public void endVisit(AllocationExpression allocationExpression, BlockScope scope) {
@@ -243,7 +243,7 @@ public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
 		return this.visit(unaryExpression);
 	}
 	
-	private void endVisit(AstNode astNode) {
+	private void endVisit(ASTNode astNode) {
 		if(result && parent == null && astNode != searchedNode) {
 			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == searchedNode)
 				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == searchedNode)
@@ -252,7 +252,7 @@ public class CompletionNodeDetector extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		}
 	}
-	private boolean visit(AstNode astNode) {
+	private boolean visit(ASTNode astNode) {
 		if(astNode == searchedNode) {
 			result = true;
 		}

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -787,7 +788,7 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
 		this.startDeltas();
-		copy = (ICompilationUnit)unit.getSharedWorkingCopy(null, null, null);
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -955,7 +956,7 @@ public void testDestroySharedWorkingCopy() throws CoreException {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getSharedWorkingCopy(null, null, null);
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
 		this.startDeltas();
 		copy.discardWorkingCopy();
 		assertDeltas(
@@ -1155,7 +1156,7 @@ public void testListenerPostChange() throws CoreException {
 		listener.flush();
 		
 		// shared working copy creation
-		wc = (ICompilationUnit)cu.getSharedWorkingCopy(null, null, null);
+		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"P[*]: {CHILDREN}\n" +
@@ -1258,7 +1259,7 @@ public void testListenerReconcile() throws CoreException {
 		listener.flush();
 		
 		// shared working copy creation
-		wc = (ICompilationUnit)cu.getSharedWorkingCopy(null, null, null);
+		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"",

@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -82,7 +82,7 @@ public class EnumDeclaration extends TypeDeclaration {
 		return printIndent(indent, output).append('}');
 	}	
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope unitScope) {
+	public void traverse(ASTVisitor visitor, BlockScope unitScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;
@@ -140,7 +140,7 @@ public class EnumDeclaration extends TypeDeclaration {
 			// silent abort
 		}
 	}
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {
+	public void traverse(ASTVisitor visitor, ClassScope classScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;
@@ -199,7 +199,7 @@ public class EnumDeclaration extends TypeDeclaration {
 		}
 	}	
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope unitScope) {
+	public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;

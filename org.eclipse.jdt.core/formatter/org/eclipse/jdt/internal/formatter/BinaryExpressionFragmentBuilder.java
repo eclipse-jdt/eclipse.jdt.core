@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.formatter;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
@@ -58,7 +58,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 class BinaryExpressionFragmentBuilder
-	extends AbstractSyntaxTreeVisitorAdapter {
+	extends ASTVisitor {
 		
 	ArrayList fragmentsList;
 	ArrayList operatorsList;
@@ -69,7 +69,7 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	private boolean buildFragments(Expression expression) {
-		if (((expression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT) != 0) {
+		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 			this.fragmentsList.add(expression);
 			return false;
 		} else {
@@ -77,8 +77,8 @@ class BinaryExpressionFragmentBuilder
 		}
 	}
 
-	public AstNode[] fragments() {
-		AstNode[] fragments = new AstNode[this.fragmentsList.size()];
+	public ASTNode[] fragments() {
+		ASTNode[] fragments = new ASTNode[this.fragmentsList.size()];
 		this.fragmentsList.toArray(fragments);
 		return fragments;
 	}
@@ -165,11 +165,11 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
-		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		final int numberOfParens = (binaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			this.fragmentsList.add(binaryExpression);
 		} else {
-			switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+			switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 				case OperatorIds.PLUS :
 					if (buildFragments(binaryExpression)) {
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
@@ -323,7 +323,7 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 			QualifiedSuperReference qualifiedSuperReference,
@@ -333,7 +333,7 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
 			QualifiedThisReference qualifiedThisReference,
@@ -355,7 +355,7 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SuperReference superReference, BlockScope scope) {
 		this.fragmentsList.add(superReference);

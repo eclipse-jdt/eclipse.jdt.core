@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -24,14 +24,16 @@ public class TypeDeclaration
 	extends Statement
 	implements ProblemSeverities, ReferenceContext {
 
-	public int modifiers;
+	public static final char[] ANONYMOUS_EMPTY_NAME = new char[] {};
+
+	public int modifiers = AccDefault;
 	public int modifiersSourceStart;
 	public char[] name;
 	public TypeReference superclass;
 	public TypeReference[] superInterfaces;
 	public FieldDeclaration[] fields;
 	public AbstractMethodDeclaration[] methods;
-	public MemberTypeDeclaration[] memberTypes;
+	public TypeDeclaration[] memberTypes;
 	public EnumDeclaration[] enumDeclarations;
 	public SourceTypeBinding binding;
 	public ClassScope scope;
@@ -47,6 +49,9 @@ public class TypeDeclaration
 	public CompilationResult compilationResult;
 	private MethodDeclaration[] missingAbstractMethods;
 	public Javadoc javadoc;
+	
+	public QualifiedAllocationExpression allocation; // for anonymous only
+	public TypeDeclaration enclosingType; // for member types only
 	
 	public TypeParameter[] typeParameters;
 
@@ -313,7 +318,7 @@ public class TypeDeclaration
 		constructor.selector = name;
 		if (modifiers != AccDefault) {
 			constructor.modifiers =
-				((this instanceof MemberTypeDeclaration) && (modifiers & AccPrivate) != 0)
+				(((this.bits & ASTNode.IsMemberTypeMASK) != 0) && (modifiers & AccPrivate) != 0)
 					? AccDefault
 					: modifiers & AccVisibilityMASK;
 		}
@@ -350,6 +355,86 @@ public class TypeDeclaration
 		return constructor;
 	}
 	
+	// anonymous type constructor creation
+	public MethodBinding createsInternalConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
+
+		//Add to method'set, the default constuctor that just recall the
+		//super constructor with the same arguments
+		String baseName = "$anonymous"; //$NON-NLS-1$
+		TypeBinding[] argumentTypes = inheritedConstructorBinding.parameters;
+		int argumentsLength = argumentTypes.length;
+		//the constructor
+		ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationResult);
+		cd.selector = new char[] { 'x' }; //no maining
+		cd.sourceStart = sourceStart;
+		cd.sourceEnd = sourceEnd;
+		cd.modifiers = modifiers & AccVisibilityMASK;
+		cd.isDefaultConstructor = true;
+
+		if (argumentsLength > 0) {
+			Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
+			for (int i = argumentsLength; --i >= 0;) {
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false);
+			}
+		}
+
+		//the super call inside the constructor
+		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		cd.constructorCall.sourceStart = sourceStart;
+		cd.constructorCall.sourceEnd = sourceEnd;
+
+		if (argumentsLength > 0) {
+			Expression[] args;
+			args = cd.constructorCall.arguments = new Expression[argumentsLength];
+			for (int i = argumentsLength; --i >= 0;) {
+				args[i] = new SingleNameReference((baseName + i).toCharArray(), 0L);
+			}
+		}
+
+		//adding the constructor in the methods list
+		if (methods == null) {
+			methods = new AbstractMethodDeclaration[] { cd };
+		} else {
+			AbstractMethodDeclaration[] newMethods;
+			System.arraycopy(
+				methods,
+				0,
+				newMethods = new AbstractMethodDeclaration[methods.length + 1],
+				1,
+				methods.length);
+			newMethods[0] = cd;
+			methods = newMethods;
+		}
+
+		//============BINDING UPDATE==========================
+		cd.binding = new MethodBinding(
+				cd.modifiers, //methodDeclaration
+				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
+				inheritedConstructorBinding.thrownExceptions, //exceptions
+				binding); //declaringClass
+				
+		cd.scope = new MethodScope(scope, cd, true);
+		cd.bindArguments();
+		cd.constructorCall.resolve(cd.scope);
+
+		if (binding.methods == null) {
+			binding.methods = new MethodBinding[] { cd.binding };
+		} else {
+			MethodBinding[] newMethods;
+			System.arraycopy(
+				binding.methods,
+				0,
+				newMethods = new MethodBinding[binding.methods.length + 1],
+				1,
+				binding.methods.length);
+			newMethods[0] = cd.binding;
+			binding.methods = newMethods;
+		}
+		//===================================================
+
+		return cd.binding;
+	}
+
 	/*
 	 * Find the matching parse node, answers null if nothing found
 	 */
@@ -724,11 +809,13 @@ public class TypeDeclaration
 		}
 	}
 
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuffer print(int indent, StringBuffer output) {
 
-		printIndent(tab, output);
-		printHeader(0, output);
-		return printBody(tab, output);
+		if ((this.bits & IsAnonymousTypeMASK) == 0) {
+			printIndent(indent, output);
+			printHeader(0, output);
+		}
+		return printBody(indent, output);
 	}
 
 	public StringBuffer printBody(int indent, StringBuffer output) {
@@ -869,9 +956,8 @@ public class TypeDeclaration
 		// local type declaration
 
 		// need to build its scope first and proceed with binding's creation
-		blockScope.addLocalType(this);
+		if ((this.bits & IsAnonymousTypeMASK) == 0) blockScope.addLocalType(this);
 
-		// and TC....
 		if (binding != null) {
 			// remember local types binding for innerclass emulation propagation
 			blockScope.referenceCompilationUnit().record((LocalTypeBinding)binding);
@@ -911,7 +997,7 @@ public class TypeDeclaration
 	 *
 	 */
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		CompilationUnitScope unitScope) {
 
 		if (ignoreFurtherInvestigation)
@@ -960,6 +1046,93 @@ public class TypeDeclaration
 				}
 			}
 			visitor.endVisit(this, unitScope);
+		} catch (AbortType e) {
+			// silent abort
+		}
+	}
+	/**
+	 *	Iteration for a local innertype
+	 *
+	 */
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
+		if (ignoreFurtherInvestigation)
+			return;
+		try {
+			if (visitor.visit(this, blockScope)) {
+				if (superclass != null)
+					superclass.traverse(visitor, scope);
+				if (superInterfaces != null) {
+					int superInterfaceLength = superInterfaces.length;
+					for (int i = 0; i < superInterfaceLength; i++)
+						superInterfaces[i].traverse(visitor, scope);
+				}
+				if (memberTypes != null) {
+					int memberTypesLength = memberTypes.length;
+					for (int i = 0; i < memberTypesLength; i++)
+						memberTypes[i].traverse(visitor, scope);
+				}
+				if (fields != null) {
+					int fieldsLength = fields.length;
+					for (int i = 0; i < fieldsLength; i++) {
+						FieldDeclaration field;
+						if ((field = fields[i]).isStatic()) {
+							// local type cannot have static fields
+						} else {
+							field.traverse(visitor, initializerScope);
+						}
+					}
+				}
+				if (methods != null) {
+					int methodsLength = methods.length;
+					for (int i = 0; i < methodsLength; i++)
+						methods[i].traverse(visitor, scope);
+				}
+			}
+			visitor.endVisit(this, blockScope);
+		} catch (AbortType e) {
+			// silent abort
+		}
+	}
+
+	/**
+	 *	Iteration for a member innertype
+	 *
+	 */
+	public void traverse(ASTVisitor visitor, ClassScope classScope) {
+		if (ignoreFurtherInvestigation)
+			return;
+		try {
+			if (visitor.visit(this, classScope)) {
+				if (superclass != null)
+					superclass.traverse(visitor, scope);
+				if (superInterfaces != null) {
+					int superInterfaceLength = superInterfaces.length;
+					for (int i = 0; i < superInterfaceLength; i++)
+						superInterfaces[i].traverse(visitor, scope);
+				}
+				if (memberTypes != null) {
+					int memberTypesLength = memberTypes.length;
+					for (int i = 0; i < memberTypesLength; i++)
+						memberTypes[i].traverse(visitor, scope);
+				}
+				if (fields != null) {
+					int fieldsLength = fields.length;
+					for (int i = 0; i < fieldsLength; i++) {
+						FieldDeclaration field;
+						if ((field = fields[i]).isStatic()) {
+							field.traverse(visitor, staticInitializerScope);
+						} else {
+							field.traverse(visitor, initializerScope);
+						}
+					}
+				}
+				if (methods != null) {
+					int methodsLength = methods.length;
+					for (int i = 0; i < methodsLength; i++)
+						methods[i].traverse(visitor, scope);
+				}
+			}
+			visitor.endVisit(this, classScope);
 		} catch (AbortType e) {
 			// silent abort
 		}

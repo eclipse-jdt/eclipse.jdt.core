@@ -193,27 +193,10 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
-	return  getCompilationUnit(cuName, DefaultWorkingCopyOwner.PRIMARY);
-}
-/**
- * @see IPackageFragment#getCompilationUnit(String, WorkingCopyOwner)
- * @exception IllegalArgumentExcpetion if the name does not end with ".java"
- */
-public ICompilationUnit getCompilationUnit(String cuName, WorkingCopyOwner owner) {
 	if (!Util.isJavaFileName(cuName)) {
 		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
-	CompilationUnit cu = new CompilationUnit(this, cuName, owner);
-	if (owner == DefaultWorkingCopyOwner.PRIMARY) {
-		return cu;
-	} else {
-		// must be a working copy
-		if (cu.getPerWorkingCopyInfo() != null) {
-			return cu;
-		} else {
-			return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
-		}
-	}
+	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see IPackageFragment#getCompilationUnits()
@@ -267,7 +250,7 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
 			return classFile.getHandleFromMemento(memento, owner);
 		case JEM_COMPILATIONUNIT:
 			String cuName = memento.nextToken();
-			JavaElement cu = (JavaElement)getCompilationUnit(cuName, owner);
+			JavaElement cu = new CompilationUnit(this, cuName, owner);
 			return cu.getHandleFromMemento(memento, owner);
 	}
 	return null;

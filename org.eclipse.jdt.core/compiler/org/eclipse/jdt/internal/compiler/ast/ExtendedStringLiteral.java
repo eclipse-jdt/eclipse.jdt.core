@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ExtendedStringLiteral extends StringLiteral {
@@ -71,7 +71,7 @@ public class ExtendedStringLiteral extends StringLiteral {
 		return output.append("ExtendedStringLiteral{").append(source).append('}'); //$NON-NLS-1$
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);

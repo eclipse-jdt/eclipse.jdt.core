@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * This is still subject to changes before 3.0.
  * @since 3.0
  */
-public interface DefaultCodeFormatterConstants {
+public class DefaultCodeFormatterConstants {
 
 	public static final String END_OF_LINE = "end_of_line";						//$NON-NLS-1$
 	public static final String NEXT_LINE = "next_line";							//$NON-NLS-1$
@@ -221,4 +224,24 @@ public interface DefaultCodeFormatterConstants {
 	 * </table>
 	 */
 	public static final String FORMATTER_MULTICOLUMN = "256"; //$NON-NLS-1$
+
+	/**
+	 * <p>Returns the default settings.</p>
+	 * 
+	 * <p>This is subject to change before 3.0.</p>
+	 * @since 3.0
+	 */
+	public static Map getDefaultSettings() {
+		return DefaultCodeFormatterOptions.getDefaultSettings().getMap();
+	}
+
+	/**
+	 * <p>Returns the settings according to the Java conventions.</p>
+	 * 
+	 * <p>This is subject to change before 3.0.</p>
+	 * @since 3.0
+	 */
+	public static Map getJavaConventionsSetttings() {
+		return DefaultCodeFormatterOptions.getJavaConventionsSettings().getMap();
+	}
 }

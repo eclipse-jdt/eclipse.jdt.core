@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.BranchStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ResetStateForCodeGenerationVisitor
-	extends AbstractSyntaxTreeVisitorAdapter {
+	extends ASTVisitor {
 
 	public boolean visit(SwitchStatement statement, BlockScope scope) {
 		statement.resetStateForCodeGeneration();

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -21,12 +21,12 @@ public class JavadocArgumentExpression extends Expression {
 	public char[] token;
 	public Argument argument;
 
-	public JavadocArgumentExpression(char[] name, int startPos, int endPos, TypeReference typeRef, boolean isVarArgs) {
+	public JavadocArgumentExpression(char[] name, int startPos, int endPos, TypeReference typeRef) {
 		this.token = name;
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, isVarArgs);
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, false);
 		this.bits |= InsideJavadoc;
 	}
 
@@ -88,9 +88,9 @@ public class JavadocArgumentExpression extends Expression {
 	
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
-	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
 			if (this.argument != null) {
 				argument.traverse(visitor, blockScope);

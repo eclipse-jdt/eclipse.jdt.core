@@ -38,9 +38,6 @@
  *                                 CORE_INCOMPATIBLE_JDK_LEVEL
  *                                 VERSION_1_5
  *                                 COMPILER_PB_SUPERFLUOUS_SEMICOLON
- *     IBM Corporation - added create(IFile file, WorkingCopyOwner owner)
- *     IBM Corporation - added create(IResource resource, WorkingCopyOwner owner)
- *     IBM Corporation - added createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
@@ -55,10 +52,10 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -342,9 +339,8 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #COMPILER_PB_MISSING_JAVADOC
 	 * @deprecated
-	 * TODO (frederic) replace the value with COMPILER_PB_MISSING_JAVADOC when bug 45112 will be fixed
 	 */
-	public static final String COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	public static final String COMPILER_PB_MISSING_ANNOTATION = COMPILER_PB_MISSING_JAVADOC;
 	public static final String OLD_COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -904,35 +900,7 @@ public final class JavaCore extends Plugin {
 	 * with a Java element
 	 */
 	public static IJavaElement create(IFile file) {
-		return create(file, DefaultWorkingCopyOwner.PRIMARY);
-	}
-	/**
-	 * Returns the Java element corresponding to the given file, or
-	 * <code>null</code> if unable to associate the given file
-	 * with a Java element.
-	 *
-	 * <p>The file must be one of:<ul>
-	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code>.
-	 *       In this case, the owner of the returned compilation unit is the given owner
-	 *       if such a working copy exists, otherwise the compilation unit is a 
-	 *       primary compilation unit.
-	 *</li>
-	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
-	 *	</ul>
-	 * <p>
-	 * Creating a Java element has the side effect of creating and opening all of the
-	 * element's parents if they are not yet open.
-	 * 
-	 * @param file the given file
-	 * @param owner the owner of the returned compilation unit, ignored if this is not a compilation unit
-	 * @return the Java element corresponding to the given file, or
-	 * <code>null</code> if unable to associate the given file
-	 * with a Java element
-	 * @since 3.0
-	 */
-	public static IJavaElement create(IFile file, WorkingCopyOwner owner) {
-		return JavaModelManager.create(file, null/*unknown java project*/, owner);
+		return JavaModelManager.create(file, null/*unknown java project*/);
 	}
 	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder, or
@@ -992,39 +960,7 @@ public final class JavaCore extends Plugin {
 	 * with a Java element
 	 */
 	public static IJavaElement create(IResource resource) {
-		return create(resource, DefaultWorkingCopyOwner.PRIMARY);
-	}
-	/**
-	 * Returns the Java element corresponding to the given resource, or
-	 * <code>null</code> if unable to associate the given resource
-	 * with a Java element.
-	 * <p>
-	 * The resource must be one of:<ul>
-	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
-	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code>.
-	 *       In this case, the owner of the returned compilation unit is the given owner
-	 *       if such a working copy exists, otherwise the compilation unit is a 
-	 *       primary compilation unit.
-	 *</li>
-	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
-	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
-	 *    	or <code>IPackageFragment</code></li>
-	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
-	 *	</ul>
-	 * <p>
-	 * Creating a Java element has the side effect of creating and opening all of the
-	 * element's parents if they are not yet open.
-	 * 
-	 * @param resource the given resource
-	 * @param owner the owner of the returned compilation unit, ignored if this is not a compilation unit
-	 * @return the Java element corresponding to the given resource, or
-	 * <code>null</code> if unable to associate the given resource
-	 * with a Java element
-	 * @since 3.0
-	 */
-	public static IJavaElement create(IResource resource, WorkingCopyOwner owner) {
-		return JavaModelManager.create(resource, null/*unknown java project*/, owner);
+		return JavaModelManager.create(resource, null/*unknown java project*/);
 	}
 	/**
 	 * Returns the Java model.
@@ -1060,25 +996,7 @@ public final class JavaCore extends Plugin {
 	 * to recognize the compilation unit
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {
-		return createCompilationUnitFrom(file, DefaultWorkingCopyOwner.PRIMARY);
-	}
-	/**
-	 * Creates and returns a compilation unit element for
-	 * the given <code>.java</code> file. 
-	 * The owner of the returned compilation unit is the given owner
-	 * if such a working copy exists, otherwise the compilation unit is a 
-	 * primary compilation unit.
-	 * Returns <code>null</code> if unable
-	 * to recognize the compilation unit.
-	 * 
-	 * @param file the given <code>.java</code> file
-	 * @param owner the owner of the returned compilation unit
-	 * @return a compilation unit element for the given <code>.java</code> file, or <code>null</code> if unable
-	 * to recognize the compilation unit
-	 * @since 3.0
-	 */
-	public static ICompilationUnit createCompilationUnitFrom(IFile file, WorkingCopyOwner owner) {
-		return JavaModelManager.createCompilationUnitFrom(file, null/*unknown java project*/, owner);
+		return JavaModelManager.createCompilationUnitFrom(file, null/*unknown java project*/);
 	}
 	/**
 	 * Creates and returns a handle for the given JAR file.
@@ -2009,26 +1927,18 @@ public final class JavaCore extends Plugin {
 				String value = preferences.getString(propertyName).trim();
 				if (optionNames.contains(propertyName)){
 					options.put(propertyName, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					if (COMPILER_PB_INVALID_JAVADOC.equals(propertyName)) {
-						options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, value);
-					}
-					if (COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
-						options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
-					}
-					// end to do
 				}
 				// bug 45112 backward compatibility.
 				// TODO (frederic) remove for 3.0
 				else if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
 					options.put(COMPILER_PB_INVALID_JAVADOC, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, value);
+					preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
+					preferences.setValue(COMPILER_PB_INVALID_JAVADOC, value);
 				}
 				else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
 					options.put(COMPILER_PB_MISSING_JAVADOC, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+					preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
+					preferences.setValue(COMPILER_PB_MISSING_JAVADOC, value);
 				}
 				// end bug 45112
 			}
@@ -2037,15 +1947,6 @@ public final class JavaCore extends Plugin {
 			// backward compatibility
 			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
-
-			// TODO (frederic) remove when jdt-ui will change to new values
-			if (!options.containsKey(OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-				options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, IGNORE);
-			}
-			if (!options.containsKey(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-				options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, DISABLED);
-			}
-			// end to do
 		}
 		return options;
 	}
@@ -2275,7 +2176,7 @@ public final class JavaCore extends Plugin {
 		optionNames.add(CORE_ENCODING);
 		
 		// Formatter settings
-		Map codeFormatterOptionsMap = new DefaultCodeFormatterOptions().getMap(); // code formatter defaults
+		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getDefaultSettings(); // code formatter defaults
 		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();
@@ -3357,18 +3258,10 @@ public final class JavaCore extends Plugin {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			// TODO (frederic) remove when jdt-ui will change to new values
-			String newKey = key;
-			if (key.equals(OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-				newKey = COMPILER_PB_INVALID_JAVADOC;
-			}
-			if (key.equals(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-				newKey = COMPILER_PB_MISSING_JAVADOC;
-			}
-			// end to do
-			if (!JavaModelManager.OptionNames.contains(newKey)) continue; // unrecognized option
-			if (newKey.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
-			preferences.setValue(newKey, (String)newOptions.get(key));
+			if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+			String value = (String)newOptions.get(key);
+			preferences.setValue(key, value);
 		}
 		
 		// persist options

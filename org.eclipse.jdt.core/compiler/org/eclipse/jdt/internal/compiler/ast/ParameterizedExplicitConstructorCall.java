@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ParameterizedExplicitConstructorCall extends ExplicitConstructorCall {
@@ -55,7 +55,7 @@ public class ParameterizedExplicitConstructorCall extends ExplicitConstructorCal
 		return output.append(");"); //$NON-NLS-1$
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.qualification != null) {
 				this.qualification.traverse(visitor, scope);

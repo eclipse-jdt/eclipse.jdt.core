@@ -246,7 +246,7 @@ public class MethodScope extends BlockScope {
 			// do not report fake used variable
 			if (isReportingUnusedArgument
 					&& local.useFlag == LocalVariableBinding.UNUSED
-					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
 				this.problemReporter().unusedArgument(local.declaration);
 			}
 
@@ -279,7 +279,7 @@ public class MethodScope extends BlockScope {
 					this.offset++;
 				}
 				if (this.offset > 0xFF) { // no more than 255 words of arguments
-					this.problemReporter().noMoreAvailableSpaceForArgument(argument, (AstNode)this.referenceContext); 
+					this.problemReporter().noMoreAvailableSpaceForArgument(argument, (ASTNode)this.referenceContext); 
 				}
 			}
 		}

@@ -13,13 +13,12 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -206,7 +205,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			return this.parent.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
-	if (typeDeclaration instanceof LocalTypeDeclaration){
+	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
 		if (methodBody == null){
 			Block block = new Block(0);
 			block.sourceStart = methodDeclaration.bodyStart;
@@ -243,7 +242,7 @@ public boolean bodyStartsAtHeaderEnd(){
 /* 
  * Answer the associated parsed structure
  */
-public AstNode parseTree(){
+public ASTNode parseTree(){
 	return methodDeclaration;
 }
 /*
@@ -302,7 +301,7 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 			}
 		}
 	}
-	if (localTypeCount > 0) methodDeclaration.bits |= AstNode.HasLocalTypeMASK;
+	if (localTypeCount > 0) methodDeclaration.bits |= ASTNode.HasLocalTypeMASK;
 	return methodDeclaration;
 }
 /*

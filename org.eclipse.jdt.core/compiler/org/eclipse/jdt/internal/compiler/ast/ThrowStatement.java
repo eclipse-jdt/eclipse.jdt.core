@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -71,7 +71,7 @@ public class ThrowStatement extends Statement {
 		exception.implicitWidening(exceptionType, exceptionType);
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope))
 			exception.traverse(visitor, blockScope);
 		visitor.endVisit(this, blockScope);

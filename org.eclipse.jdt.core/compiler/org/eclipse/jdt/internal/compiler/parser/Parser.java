@@ -100,7 +100,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int astLengthPtr;
 	protected int[] astLengthStack;
 	protected int astPtr;
-	protected AstNode[] astStack = new AstNode[AstStackIncrement];
+	protected ASTNode[] astStack = new ASTNode[AstStackIncrement];
 	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
 	protected RecoveredElement currentElement;
 	public int currentToken;
@@ -120,7 +120,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int genericsLengthPtr;
 	protected int[] genericsLengthStack = new int[GenericsStackIncrement];
 	protected int genericsPtr;
-	protected AstNode[] genericsStack = new AstNode[GenericsStackIncrement];
+	protected ASTNode[] genericsStack = new ASTNode[GenericsStackIncrement];
 	
 	protected boolean hasError;
 	protected boolean hasReportedError;
@@ -148,7 +148,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int modifiersSourceStart;
 	protected int[] nestedMethod; //the ptr is nestedType
 	protected int nestedType, dimensions;
-	AstNode [] noAstNodes = new AstNode[AstStackIncrement];
+	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
 	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
 	//modifiers dimensions nestedType etc.......
 	protected boolean optimizeStringLiterals =true;
@@ -695,7 +695,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	if (element == null) return element;
 	
 	for(int i = 0; i <= astPtr; i++){
-		AstNode node = astStack[i];
+		ASTNode node = astStack[i];
 		if (node instanceof AbstractMethodDeclaration){
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) node;
 			if (method.declarationSourceEnd == 0){
@@ -860,14 +860,14 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		pushOnExpressionStack(alloc);
 	} else {
 		dispatchDeclarationInto(length);
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
 		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 		astPtr--;
 		astLengthPtr--;
@@ -920,7 +920,9 @@ protected void consumeAllocationHeader() {
 	}
 	if (currentToken == TokenNameLBRACE){
 		// beginning of an anonymous type
-		AnonymousLocalTypeDeclaration anonymousType = new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult);
+		TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
+		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
 		anonymousType.sourceStart = intStack[intPtr--];
 		anonymousType.sourceEnd = rParenPos; // closing parenthesis
 		lastCheckPoint = anonymousType.bodyStart = scanner.currentPosition;
@@ -1212,7 +1214,7 @@ protected void consumeBlock() {
 		block.sourceEnd = endStatementPosition;
 		// check whether this block at least contains some comment in it
 		if (!containsComment(block.sourceStart, block.sourceEnd)) {
-			block.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 		realBlockPtr--; // still need to pop the block variable counter
 	} else {
@@ -1468,7 +1470,7 @@ protected void consumeClassBodyDeclaration() {
 	//optimize the push/pop
 	nestedMethod[nestedType]--;
 	Block block = (Block) astStack[astPtr];
-	if (diet) block.bits &= ~AstNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
+	if (diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
 	Initializer initializer = new Initializer(block, 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	initializer.bodyStart = intStack[intPtr--];
@@ -1529,12 +1531,12 @@ protected void consumeClassDeclaration() {
 
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= AstNode.AddAssertionMASK;
+		typeDecl.bits |= ASTNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
 
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
@@ -1587,16 +1589,14 @@ protected void consumeClassHeaderImplements() {
 }
 protected void consumeClassHeaderName() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
-	TypeDeclaration typeDecl;
+	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
-		} else {
-			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -1637,16 +1637,14 @@ protected void consumeClassHeaderName() {
 protected void consumeClassHeaderNameWithTypeParameters() {
 
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier' TypeParameters
-	TypeDeclaration typeDecl;
+	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
-		} else {
-			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -1745,11 +1743,11 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		pushOnExpressionStack(alloc);
 	} else {
 		dispatchDeclarationInto(length);
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 		astPtr--;
 		astLengthPtr--;
@@ -1807,11 +1805,11 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		pushOnExpressionStack(alloc);
 	} else {
 		dispatchDeclarationInto(length);
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 		astPtr--;
 		astLengthPtr--;
@@ -1961,7 +1959,7 @@ protected void consumeConstructorDeclaration() {
 
 	if (!diet && (statements == null && constructorCall.isImplicitSuper())) {
 		if (!containsComment(cd.bodyStart, endPosition)) {
-			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 
@@ -2267,10 +2265,10 @@ protected void consumeEnterAnonymousClassBody() {
 	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
-	AnonymousLocalTypeDeclaration anonymousType = 
-		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
-	alloc = 
-		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
+	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
+	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	alloc = anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
@@ -2310,10 +2308,10 @@ protected void consumeEnterAnonymousClassBodySimpleName() {
 	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
-	AnonymousLocalTypeDeclaration anonymousType = 
-		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
-	alloc = 
-		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
+	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
+	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	alloc = anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
@@ -2538,12 +2536,12 @@ protected void consumeEnumDeclaration() {
 
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		enumDeclaration.bits |= AstNode.AddAssertionMASK;
+		enumDeclaration.bits |= ASTNode.AddAssertionMASK;
 	}
 	enumDeclaration.addClinit();
 	enumDeclaration.bodyEnd = endStatementPosition;
 	if (length == 0 && !containsComment(enumDeclaration.bodyStart, enumDeclaration.bodyEnd)) {
-		enumDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		enumDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
 
 	enumDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
@@ -2959,12 +2957,12 @@ protected void consumeInterfaceDeclaration() {
 	
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= AstNode.AddAssertionMASK;
+		typeDecl.bits |= ASTNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
 }
@@ -3002,19 +3000,19 @@ protected void consumeInterfaceHeaderExtends() {
 }
 protected void consumeInterfaceHeaderName() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
-	TypeDeclaration typeDecl;
+	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
-		} else {
-			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
+
 
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
@@ -3049,16 +3047,15 @@ protected void consumeInterfaceHeaderName() {
 }
 protected void consumeInterfaceHeaderNameWithTypeParameters() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier' TypeParameters
-	TypeDeclaration typeDecl;
+	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
-		} else {
-			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -3245,7 +3242,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	} else {
 		if (!diet && statements == null) {
 			if (!containsComment(md.bodyStart, endPosition)) {
-				md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+				md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 			}
 		}
 	}
@@ -3670,9 +3667,9 @@ protected void consumePrimaryNoNewArray() {
 	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
 	final Expression parenthesizedExpression = expressionStack[expressionPtr];
 	updateSourcePosition(parenthesizedExpression);
-	int numberOfParenthesis = (parenthesizedExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-	parenthesizedExpression.bits &= ~AstNode.ParenthesizedMASK;
-	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << AstNode.ParenthesizedSHIFT;
+	int numberOfParenthesis = (parenthesizedExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+	parenthesizedExpression.bits &= ~ASTNode.ParenthesizedMASK;
+	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << ASTNode.ParenthesizedSHIFT;
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= Name Dims '.' 'class'
@@ -3744,9 +3741,9 @@ protected void consumePrimaryNoNewArrayWithName() {
 	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 	final Expression parenthesizedExpression = expressionStack[expressionPtr];
 	updateSourcePosition(parenthesizedExpression);
-	int numberOfParenthesis = (parenthesizedExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-	parenthesizedExpression.bits &= ~AstNode.ParenthesizedMASK;
-	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << AstNode.ParenthesizedSHIFT;
+	int numberOfParenthesis = (parenthesizedExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+	parenthesizedExpression.bits &= ~ASTNode.ParenthesizedMASK;
+	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << ASTNode.ParenthesizedSHIFT;
 }
 protected void consumePrimitiveArrayType() {
 }
@@ -5594,7 +5591,7 @@ protected void consumeStatementSwitch() {
 	switchStatement.sourceStart = intStack[intPtr--];
 	switchStatement.sourceEnd = endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
-		switchStatement.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		switchStatement.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
 }
 protected void consumeStatementSynchronized() {
@@ -5712,7 +5709,7 @@ protected void consumeStaticInitializer() {
 	//push an Initializer
 	//optimize the push/pop
 	Block block = (Block) astStack[astPtr];
-	if (diet) block.bits &= ~AstNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
+	if (diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
 	Initializer initializer = new Initializer(block, AccStatic);
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;	
@@ -6422,7 +6419,7 @@ protected void dispatchDeclarationInto(int length) {
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0, size4 = 0;
 	for (int i = length - 1; i >= 0; i--) {
-		AstNode astNode = astStack[astPtr--];
+		ASTNode astNode = astStack[astPtr--];
 		if (astNode instanceof AbstractMethodDeclaration) {
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 3;
@@ -6449,7 +6446,7 @@ protected void dispatchDeclarationInto(int length) {
 		typeDecl.methods = new AbstractMethodDeclaration[size2];
 	}
 	if (size3 != 0) {
-		typeDecl.memberTypes = new MemberTypeDeclaration[size3];
+		typeDecl.memberTypes = new TypeDeclaration[size3];
 	}
 	if (size4 != 0) {
 		typeDecl.enumDeclarations = new EnumDeclaration[size4];
@@ -6525,7 +6522,7 @@ protected void dispatchDeclarationInto(EnumConstant enumConstant, int length) {
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0, size4 = 0;
 	for (int i = length - 1; i >= 0; i--) {
-		AstNode astNode = astStack[astPtr--];
+		ASTNode astNode = astStack[astPtr--];
 		if (astNode instanceof AbstractMethodDeclaration) {
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 3;
@@ -6551,7 +6548,7 @@ protected void dispatchDeclarationInto(EnumConstant enumConstant, int length) {
 		enumConstant.methods = new AbstractMethodDeclaration[size2];
 	}
 	if (size3 != 0) {
-		enumConstant.memberTypes = new MemberTypeDeclaration[size3];
+		enumConstant.memberTypes = new TypeDeclaration[size3];
 	}
 	if (size4 != 0) {
 		enumConstant.enumDeclarations = new EnumDeclaration[size4];
@@ -6619,7 +6616,7 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0, size4 = 0;
 	for (int i = length - 1; i >= 0; i--) {
-		AstNode astNode = astStack[astPtr--];
+		ASTNode astNode = astStack[astPtr--];
 		if (astNode instanceof AbstractMethodDeclaration) {
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 3;
@@ -6646,7 +6643,7 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 		enumDeclaration.methods = new AbstractMethodDeclaration[size2];
 	}
 	if (size3 != 0) {
-		enumDeclaration.memberTypes = new MemberTypeDeclaration[size3];
+		enumDeclaration.memberTypes = new TypeDeclaration[size3];
 	}
 	if (size4 != 0) {
 		enumDeclaration.enumConstants = new EnumConstant[size4];
@@ -6865,13 +6862,22 @@ public int[] getJavaDocPositions() {
 			// if initial diet parse did not work, no need to dig into method bodies.
 		}
 
-		if ((unit.bits & AstNode.HasAllMethodBodies) != 0)
+		if ((unit.bits & ASTNode.HasAllMethodBodies) != 0)
 			return; //work already done ...
 
 		//real parse of the method....
 		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.scanner.setSource(contents);
-		this.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
+		
+		// save existing values to restore them at the end of the parsing process
+		// see bug 47079 for more details
+		int[] oldLineEnds = this.scanner.lineEnds;
+		int oldLinePtr = this.scanner.linePtr;
+
+		final int[] lineSeparatorPositions = unit.compilationResult.lineSeparatorPositions;
+		this.scanner.lineEnds = lineSeparatorPositions;
+		this.scanner.linePtr = lineSeparatorPositions.length - 1;
+
 		if (this.javadocParser.checkJavadoc) {
 			this.javadocParser.scanner.setSource(contents);
 		}
@@ -6881,7 +6887,12 @@ public int[] getJavaDocPositions() {
 		}
 		
 		// tag unit has having read bodies
-		unit.bits |= AstNode.HasAllMethodBodies;
+		unit.bits |= ASTNode.HasAllMethodBodies;
+
+		// this is done to prevent any side effects on the compilation unit result
+		// line separator positions array.
+		this.scanner.lineEnds = oldLineEnds;
+		this.scanner.linePtr = oldLinePtr;
 	}
 protected char getNextCharacter(char[] comment, int[] index) {
 	char nextCharacter = comment[index[0]++];
@@ -6903,7 +6914,7 @@ protected char getNextCharacter(char[] comment, int[] index) {
 }
 protected Expression getTypeReference(Expression exp) {
 	
-	exp.bits &= ~AstNode.RestrictiveFlagMASK;
+	exp.bits &= ~ASTNode.RestrictiveFlagMASK;
 	exp.bits |= TYPE;
 	return exp;
 }
@@ -7048,7 +7059,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			new SingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
-		ref.bits &= ~AstNode.RestrictiveFlagMASK;
+		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
 	}
@@ -7069,7 +7080,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			positions, 
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 			(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	ref.bits &= ~AstNode.RestrictiveFlagMASK;
+	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	return ref;
 }
@@ -7277,7 +7288,7 @@ public void initialize() {
 	
 	int astLength = astStack.length;
 	if (noAstNodes.length < astLength){
-		noAstNodes = new AstNode[astLength];
+		noAstNodes = new ASTNode[astLength];
 		//System.out.println("Resized AST stacks : "+ astLength);
 		
 	}
@@ -7332,26 +7343,26 @@ public final void jumpOverMethodBody() {
 protected void markEnclosingMemberWithLocalType() {
 	if (this.currentElement != null) return; // this is already done in the recovery code
 	for (int i = this.astPtr; i >= 0; i--) {
-		AstNode node = this.astStack[i];
+		ASTNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration 
 				|| node instanceof FieldDeclaration
 				|| node instanceof TypeDeclaration) { // mark type for now: all initializers will be marked when added to this type
-			node.bits |= AstNode.HasLocalTypeMASK;
+			node.bits |= ASTNode.HasLocalTypeMASK;
 			return;
 		}
 	}
 	// default to reference context (case of parse method body)
 	if (this.referenceContext instanceof AbstractMethodDeclaration
 			|| this.referenceContext instanceof TypeDeclaration) {
-		((AstNode)this.referenceContext).bits |= AstNode.HasLocalTypeMASK;
+		((ASTNode)this.referenceContext).bits |= ASTNode.HasLocalTypeMASK;
 	}
 }
 protected void markInitializersWithLocalType(TypeDeclaration type) {
-	if (type.fields == null || (type.bits & AstNode.HasLocalTypeMASK) == 0) return;
+	if (type.fields == null || (type.bits & ASTNode.HasLocalTypeMASK) == 0) return;
 	for (int i = 0, length = type.fields.length; i < length; i++) {
 		FieldDeclaration field = type.fields[i];
 		if (field instanceof Initializer) {
-			field.bits |= AstNode.HasLocalTypeMASK;
+			field.bits |= ASTNode.HasLocalTypeMASK;
 		}
 	}
 }
@@ -7682,7 +7693,7 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 	} else {
 		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
 		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}		
 	}
 
@@ -7726,8 +7737,8 @@ public void parse(
 	field.initialization = expressionStack[expressionPtr];
 	
 	// mark field with local type if one was found during parsing
-	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
-		field.bits |= AstNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		field.bits |= ASTNode.HasLocalTypeMASK;
 	}	
 }
 // A P I
@@ -7777,7 +7788,7 @@ public CompilationUnitDeclaration parse(
 		unit = compilationUnit;
 		compilationUnit = null; // reset parser
 		// tag unit has having read bodies
-		if (!this.diet) unit.bits |= AstNode.HasAllMethodBodies;		
+		if (!this.diet) unit.bits |= ASTNode.HasAllMethodBodies;		
 	}
 	return unit;
 }
@@ -7823,13 +7834,13 @@ public void parse(
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
-			initializer.block.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			initializer.block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 	
 	// mark initializer with local type if one was found during parsing
-	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
-		initializer.bits |= AstNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		initializer.bits |= ASTNode.HasLocalTypeMASK;
 	}	
 }
 // A P I
@@ -7883,7 +7894,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 			length); 
 	} else {
 		if (!containsComment(md.bodyStart, md.bodyEnd)) {
-			md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
 }
@@ -7956,7 +7967,7 @@ protected void pushOnAstLengthStack(int pos) {
 		astLengthStack[astLengthPtr] = pos;
 	}
 }
-protected void pushOnAstStack(AstNode node) {
+protected void pushOnAstStack(ASTNode node) {
 	/*add a new obj on top of the ast stack
 	astPtr points on the top*/
 
@@ -7964,7 +7975,7 @@ protected void pushOnAstStack(AstNode node) {
 		astStack[++astPtr] = node;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = astStack.length;
-		System.arraycopy(astStack, 0, astStack = new AstNode[oldStackLength + AstStackIncrement], 0, oldStackLength);
+		System.arraycopy(astStack, 0, astStack = new ASTNode[oldStackLength + AstStackIncrement], 0, oldStackLength);
 		astPtr = oldStackLength;
 		astStack[astPtr] = node;
 	}
@@ -8005,7 +8016,7 @@ protected void pushOnExpressionStackLengthStack(int pos) {
 		expressionLengthStack[expressionLengthPtr] = pos;
 	}
 }
-protected void pushOnGenericsStack(AstNode node) {
+protected void pushOnGenericsStack(ASTNode node) {
 	/*add a new obj on top of the generics stack
 	genericsPtr points on the top*/
 
@@ -8013,7 +8024,7 @@ protected void pushOnGenericsStack(AstNode node) {
 		genericsStack[++genericsPtr] = node;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = genericsStack.length;
-		System.arraycopy(genericsStack, 0, genericsStack = new AstNode[oldStackLength + GenericsStackIncrement], 0, oldStackLength);
+		System.arraycopy(genericsStack, 0, genericsStack = new ASTNode[oldStackLength + GenericsStackIncrement], 0, oldStackLength);
 		genericsPtr = oldStackLength;
 		genericsStack[genericsPtr] = node;
 	}

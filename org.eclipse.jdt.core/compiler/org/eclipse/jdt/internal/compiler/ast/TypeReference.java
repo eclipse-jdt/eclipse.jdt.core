@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -123,5 +123,5 @@ public TypeBinding resolveType(ClassScope classScope) {
 	}
 	return this.resolvedType;
 }
-public abstract void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope);
+public abstract void traverse(ASTVisitor visitor, ClassScope classScope);
 }

@@ -62,7 +62,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Member;
-import org.eclipse.jdt.internal.core.util.AstNodeFinder;
+import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.ElementInfoConverter;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
@@ -339,8 +339,8 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 		// simple super class name
 		char[] superclassName = null;
 		TypeReference superclass;
-		if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
-			superclass = ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type;
+		if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+			superclass = typeDeclaration.allocation.type;
 		} else {
 			superclass = typeDeclaration.superclass;
 		}
@@ -425,7 +425,7 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 			} else {
 				// anonymous or local type
 				if (parsedUnit != null) {
-					TypeDeclaration typeDecl = new AstNodeFinder(parsedUnit).findType(focus);
+					TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(focus);
 					if (typeDecl != null) {
 						this.focusType = typeDecl.binding;
 					}
@@ -578,7 +578,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 								true, // need local types
 								this.lookupEnvironment.problemReporter, 
 								result);
-						parsedUnit.bits |= AstNode.HasAllMethodBodies;
+						parsedUnit.bits |= ASTNode.HasAllMethodBodies;
 					}
 				} else {
 					// create parsed unit from file

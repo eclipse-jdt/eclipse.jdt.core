@@ -1512,10 +1512,16 @@ public abstract class ASTNode {
 	/**
 	 * Returns the character index into the original source file indicating
 	 * where the source fragment corresponding to this node begins.
+	 * <p>
+	 * The parser supplies useful well-defined source ranges to the nodes it creates.
+	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * on precisely where source ranges begin and end.
+	 * </p>
 	 * 
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getLength
+	 * @see AST#parseCompilationUnit
 	 */
 	public int getStartPosition() {
 		return startPosition;
@@ -1524,10 +1530,16 @@ public abstract class ASTNode {
 	/**
 	 * Returns the length in characters of the original source file indicating
 	 * where the source fragment corresponding to this node ends.
+	 * <p>
+	 * The parser supplies useful well-defined source ranges to the nodes it creates.
+	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * on precisely where source ranges begin and end.
+	 * </p>
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getStartPosition()
+	 * @see AST#parseCompilationUnit
 	 */
 	public int getLength() {
 		return length;
@@ -1536,6 +1548,10 @@ public abstract class ASTNode {
 	/**
 	 * Sets the source range of the original source file where the source
 	 * fragment corresponding to this node was found.
+	 * <p>
+	 * See {@link AST#parseCompilationUnit AST.parseCompilationUnit} for details
+	 * on precisely where source ranges begin and end.
+	 * </p>
 	 * 
 	 * @param startPosition a 0-based character index, 
 	 *    or <code>-1</code> if no source position information is 
@@ -1545,6 +1561,7 @@ public abstract class ASTNode {
 	 *    for this node
 	 * @see #getStartPosition
 	 * @see #getLength
+	 * @see AST#parseCompilationUnit
 	 */
 	public void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {

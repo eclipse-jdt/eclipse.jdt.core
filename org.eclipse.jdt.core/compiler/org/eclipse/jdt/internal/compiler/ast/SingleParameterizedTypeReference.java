@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -71,7 +71,7 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(IAbstractSyntaxTreeVisitor, ClassScope)
 	 */
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {
+	public void traverse(ASTVisitor visitor, ClassScope classScope) {
 		super.traverse(visitor, classScope);
 	}
 

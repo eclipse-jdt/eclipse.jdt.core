@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -136,7 +136,7 @@ public class CompilationUnitVisitor extends Compiler {
 
 	public static void visit(
 		ICompilationUnit unitElement,
-		IAbstractSyntaxTreeVisitor visitor)
+		ASTVisitor visitor)
 		throws JavaModelException {
 
 		IJavaProject project = unitElement.getJavaProject();
@@ -177,7 +177,7 @@ public class CompilationUnitVisitor extends Compiler {
 		}
 	}
 
-	protected static IProblemFactory getProblemFactory(final IAbstractSyntaxTreeVisitor visitor) {
+	protected static IProblemFactory getProblemFactory(final ASTVisitor visitor) {
 
 		return new DefaultProblemFactory(Locale.getDefault()) {
 			public IProblem createProblem(

@@ -1421,7 +1421,7 @@ public class ClassFile
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
-								(AstNode) localVariable.declaringScope.methodScope().referenceContext);
+								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 							System.arraycopy(
@@ -1670,7 +1670,7 @@ public class ClassFile
 							if (endPC == -1) {
 								localVariable.declaringScope.problemReporter().abortDueToInternalError(
 									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
-									(AstNode) localVariable.declaringScope.methodScope().referenceContext);
+									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
 							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 								System.arraycopy(
@@ -2224,7 +2224,7 @@ public class ClassFile
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
-								(AstNode) localVariable.declaringScope.methodScope().referenceContext);
+								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 > (contentsLength = contents.length)) {
 							System.arraycopy(

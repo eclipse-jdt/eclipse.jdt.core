@@ -218,7 +218,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
 	 */
-	public static IJavaElement create(IResource resource, IJavaProject project, WorkingCopyOwner owner) {
+	public static IJavaElement create(IResource resource, IJavaProject project) {
 		if (resource == null) {
 			return null;
 		}
@@ -227,7 +227,7 @@ public class JavaModelManager implements ISaveParticipant {
 			case IResource.PROJECT :
 				return JavaCore.create((IProject) resource);
 			case IResource.FILE :
-				return create((IFile) resource, project, owner);
+				return create((IFile) resource, project);
 			case IResource.FOLDER :
 				return create((IFolder) resource, project);
 			case IResource.ROOT :
@@ -252,7 +252,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Creating a Java element has the side effect of creating and opening all of the
 	 * element's parents if they are not yet open.
 	 */
-	public static IJavaElement create(IFile file, IJavaProject project, WorkingCopyOwner owner) {
+	public static IJavaElement create(IFile file, IJavaProject project) {
 		if (file == null) {
 			return null;
 		}
@@ -263,7 +263,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (file.getFileExtension() != null) {
 			String name = file.getName();
 			if (Util.isJavaFileName(name))
-				return createCompilationUnitFrom(file, project, owner);
+				return createCompilationUnitFrom(file, project);
 			if (Util.isClassFileName(name))
 				return createClassFileFrom(file, project);
 			if (Util.isArchiveFileName(name))
@@ -326,7 +326,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * file, its project being the given project. Returns <code>null</code> if unable
 	 * to recognize the compilation unit.
 	 */
-	public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project, WorkingCopyOwner owner) {
+	public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
 
 		if (file == null) return null;
 
@@ -343,7 +343,7 @@ public class JavaModelManager implements ISaveParticipant {
 				System.out.println("WARNING : creating unit element outside classpath ("+ Thread.currentThread()+"): " + file.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
-		return pkg.getCompilationUnit(file.getName(), owner);
+		return pkg.getCompilationUnit(file.getName());
 	}
 	
 	/**

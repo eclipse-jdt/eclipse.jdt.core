@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -161,7 +162,7 @@ public class InstanceOfExpression extends OperatorExpression {
 				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
 					for (int j = 0; j < exprMethodsLength; j++) {
 						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
-								&& (castTypeMethods[i].selector == expressionTypeMethods[j].selector)
+								&& CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector)
 								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
 							scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
 						}
@@ -211,7 +212,7 @@ public class InstanceOfExpression extends OperatorExpression {
 		return this.resolvedType = BooleanBinding;
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
 			expression.traverse(visitor, scope);

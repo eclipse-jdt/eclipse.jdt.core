@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -107,7 +107,7 @@ public class Initializer extends FieldDeclaration {
 		}
 	}
 
-	public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
+	public void traverse(ASTVisitor visitor, MethodScope scope) {
 
 		if (visitor.visit(this, scope)) {
 			block.traverse(visitor, scope);

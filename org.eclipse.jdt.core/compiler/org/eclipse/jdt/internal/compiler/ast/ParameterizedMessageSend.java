@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ParameterizedMessageSend extends MessageSend {
@@ -40,7 +40,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 	return output.append(')');
 }
 	
-public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		receiver.traverse(visitor, blockScope);
 		for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {

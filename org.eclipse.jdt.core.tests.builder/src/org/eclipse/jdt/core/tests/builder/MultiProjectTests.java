@@ -84,8 +84,7 @@ public class MultiProjectTests extends Tests {
 	}
 
 	// 14103 - avoid recompiling unaffected sources in dependent projects
-	// TODO (kent) enable once 14103 is addressed
-	public void _testCompileOnlyStructuralDependent() throws JavaModelException {
+	public void testCompileOnlyStructuralDependent() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

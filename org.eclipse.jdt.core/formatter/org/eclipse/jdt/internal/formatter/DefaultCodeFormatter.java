@@ -14,10 +14,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -32,7 +33,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	public static final boolean DEBUG = false;
 
-	private static AstNode[] parseClassBodyDeclarations(char[] source, Map settings) {
+	private static ASTNode[] parseClassBodyDeclarations(char[] source, Map settings) {
 		
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -154,7 +155,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private Map options;
 	
 	public DefaultCodeFormatter() {
-		this(DefaultCodeFormatterOptions.getDefault(), null);
+		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings()), null);
 	}
 
 	public DefaultCodeFormatter(Map options) {
@@ -176,7 +177,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.set(preferences.getMap());
 			}
 		} else {
-			this.preferences = DefaultCodeFormatterOptions.getDefault();
+			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 			if (preferences != null) {
 				this.preferences.set(preferences.getMap());
 			}
@@ -213,7 +214,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
@@ -268,7 +269,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 		
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations != null) {
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
@@ -281,7 +282,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return this.newCodeFormatter.scribe.toString();
 	}
 
-	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, AstNode[] bodyDeclarations, int offset, int length) {
+	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}

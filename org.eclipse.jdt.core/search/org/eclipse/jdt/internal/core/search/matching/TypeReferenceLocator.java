@@ -41,7 +41,7 @@ protected IJavaElement findElement(IJavaElement element, int accuracy) {
 		element = element.getParent();
 	return element;
 }
-public int match(AstNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
+public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 
 	return nodeSet.addMatch(node, matchLevel((ImportReference) node));
@@ -151,7 +151,7 @@ protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement el
 	else
 		locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedTypesPattern) {
 		if ((element = findElement(element, accuracy)) != null)
 			reportDeclaration(reference, element, locator, ((DeclarationOfReferencedTypesPattern) this.pattern).knownTypes);
@@ -171,7 +171,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	Binding binding = qNameRef.binding;
 	TypeBinding typeBinding = null;
 	int lastIndex = qNameRef.tokens.length - 1;
-	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
 			typeBinding = qNameRef.actualReceiverType;
 			lastIndex -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
@@ -237,7 +237,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 	}
 	locator.reportAccurateReference(qTypeRef.sourceStart, qTypeRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
-protected void reportDeclaration(AstNode reference, IJavaElement element, MatchLocator locator, SimpleSet knownTypes) throws CoreException {
+protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchLocator locator, SimpleSet knownTypes) throws CoreException {
 	int maxType = -1;
 	TypeBinding typeBinding = null;
 	if (reference instanceof TypeReference) {
@@ -247,7 +247,7 @@ protected void reportDeclaration(AstNode reference, IJavaElement element, MatchL
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		Binding binding = qNameRef.binding;
 		maxType = qNameRef.tokens.length - 1;
-		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+		switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
 			case BindingIds.FIELD : // reading a field
 				typeBinding = qNameRef.actualReceiverType;
 				maxType -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
@@ -317,7 +317,7 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 		maxType--;
 	}
 }
-public int resolveLevel(AstNode node) {
+public int resolveLevel(ASTNode node) {
 	if (node instanceof TypeReference)
 		return resolveLevel((TypeReference) node);
 	if (node instanceof NameReference)
@@ -350,7 +350,7 @@ protected int resolveLevel(NameReference nameRef) {
 
 	TypeBinding typeBinding = null;
 	QualifiedNameReference qNameRef = (QualifiedNameReference) nameRef;
-	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
 			if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 2 : qNameRef.otherBindings.length + 2))
 				return IMPOSSIBLE_MATCH; // must be at least A.x

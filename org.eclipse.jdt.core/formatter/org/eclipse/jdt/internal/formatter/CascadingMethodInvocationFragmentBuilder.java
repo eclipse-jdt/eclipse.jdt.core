@@ -12,13 +12,13 @@ package org.eclipse.jdt.internal.formatter;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 class CascadingMethodInvocationFragmentBuilder
-	extends AbstractSyntaxTreeVisitorAdapter {
+	extends ASTVisitor {
 		
 	ArrayList fragmentsList;
 
@@ -36,10 +36,10 @@ class CascadingMethodInvocationFragmentBuilder
 		return this.fragmentsList.size();
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
-		if ((messageSend.receiver.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT == 0) {
+		if ((messageSend.receiver.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT == 0) {
 			if (messageSend.receiver instanceof MessageSend) {
 				this.fragmentsList.add(0, messageSend);
 				messageSend.receiver.traverse(this, scope);

@@ -172,6 +172,18 @@ public abstract class ASTVisitor {
 	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(EnumConstant enumDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(EnumDeclaration enumDeclaration, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(EnumDeclaration enumDeclaration, CompilationUnitScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(EnumDeclaration enumDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(ForStatement forStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -214,6 +226,24 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedMessageSend messageSend, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(PostfixExpression postfixExpression, BlockScope scope) {
@@ -311,10 +341,22 @@ public abstract class ASTVisitor {
 		CompilationUnitScope scope) {
 		// do nothing by default
 	}	
+	public void endVisit(TypeParameter typeParameter, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(TypeParameter typeParameter, ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(Wildcard wildcard, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(Wildcard wildcard, ClassScope scope) {
 		// do nothing by default
 	}
 	public boolean visit(
@@ -446,6 +488,18 @@ public abstract class ASTVisitor {
 	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(EnumConstant enumConstant, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, CompilationUnitScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
 	public boolean visit(
 		ExplicitConstructorCall explicitConstructor,
 		BlockScope scope) {
@@ -510,6 +564,24 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedMessageSend messageSend, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(PostfixExpression postfixExpression, BlockScope scope) {
@@ -607,10 +679,22 @@ public abstract class ASTVisitor {
 		CompilationUnitScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(TypeParameter typeParameter, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(Wildcard wildcard, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(Wildcard wildcard, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 }

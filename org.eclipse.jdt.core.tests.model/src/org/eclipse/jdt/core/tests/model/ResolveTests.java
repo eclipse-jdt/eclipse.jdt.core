@@ -913,4 +913,66 @@ public void testUnicode() throws JavaModelException {
 		elements
 	);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47177
+ */
+public void testLocalNameForClassFile() throws JavaModelException {
+	IClassFile cu = getClassFile("Resolve", "test47177.jar", "", "ResolveLocalName.class");
+
+	//Resolve a local declaration name
+	IJavaElement[] elements = codeSelect(cu, "var1 = new Object();", "var1");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var1 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+
+	// Resolve a local declaration name with base type
+	elements = codeSelect(cu, "var2 = 1;", "var2");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var2 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+
+	// Resolve a local variable reference
+	elements = codeSelect(cu, "var1.toString();", "var1");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var1 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+
+	// Resolve a local variable reference
+	elements = codeSelect(cu, "var2++;", "var2");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var2 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+
+	// Resolve a local variable reference
+	elements = codeSelect(cu, "var3.hashCode();", "var3");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var3 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+
+	// Resolve a local variable reference
+	elements = codeSelect(cu, "var3.toString();", "var3");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var3 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+	
+	// Resolve a local variable reference
+	elements = codeSelect(cu, "var4;", "var4");
+	assertElementsEqual(
+			"Unexpected elements",
+			"var4 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+}
 }

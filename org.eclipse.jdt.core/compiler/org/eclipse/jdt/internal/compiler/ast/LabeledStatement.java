@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -67,7 +67,7 @@ public class LabeledStatement extends Statement {
 		}
 	}
 	
-	public AstNode concreteStatement() {
+	public ASTNode concreteStatement() {
 		
 		// return statement.concreteStatement(); // for supporting nested labels:   a:b:c: someStatement (see 21912)
 		return statement;
@@ -119,7 +119,7 @@ public class LabeledStatement extends Statement {
 
 
 	public void traverse(
-		IAbstractSyntaxTreeVisitor visitor,
+		ASTVisitor visitor,
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {

@@ -10,20 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
-class NodeSearcher extends AbstractSyntaxTreeVisitorAdapter {
-	public AstNode found;
+class NodeSearcher extends ASTVisitor {
+	public org.eclipse.jdt.internal.compiler.ast.ASTNode found;
 	public TypeDeclaration enclosingType;
 	public int position;
 	
@@ -64,7 +62,7 @@ class NodeSearcher extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	public boolean visit(
-		MemberTypeDeclaration memberTypeDeclaration,
+		TypeDeclaration memberTypeDeclaration,
 		ClassScope scope) {
 			if (memberTypeDeclaration.declarationSourceStart <= position
 				&& position <= memberTypeDeclaration.declarationSourceEnd) {

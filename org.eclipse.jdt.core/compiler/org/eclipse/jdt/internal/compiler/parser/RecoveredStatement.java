@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal statement structure for parsing recovery 
  */
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 
 public class RecoveredStatement extends RecoveredElement {
@@ -26,7 +26,7 @@ public RecoveredStatement(Statement statement, RecoveredElement parent, int brac
 /* 
  * Answer the associated parsed structure
  */
-public AstNode parseTree(){
+public ASTNode parseTree(){
 	return statement;
 }
 /*

@@ -79,7 +79,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		pushOnExpressionStack(alloc);
 	} else {
 		dispatchDeclarationInto(length);
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
@@ -101,13 +101,15 @@ protected void consumeClassHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		} else {
 			typeDecl = new CodeSnippetTypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -182,13 +184,15 @@ protected void consumeInterfaceHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		} else {
 			typeDecl = new CodeSnippetTypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
 		markEnclosingMemberWithLocalType(); 
 		blockReal();
 	}
@@ -596,7 +600,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 					identifierStack[identifierPtr], 
 					identifierPositionStack[identifierPtr--],
 					this.evaluationContext); 
-			ref.bits &= ~AstNode.RestrictiveFlagMASK;
+			ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 			ref.bits |= LOCAL | FIELD;
 			return ref;
 		}
@@ -618,7 +622,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length],
 				evaluationContext); // sourceEnd
-		ref.bits &= ~AstNode.RestrictiveFlagMASK;
+		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
 	} else {
@@ -676,7 +680,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
  */
 protected boolean resumeOnSyntaxError() {
 	if (this.diet || this.hasRecoveredOnExpression) { // no reentering inside expression recovery
-		return super.resumeOnSyntaxError();
+		return false;
 	}
 	
 	// record previous error, in case more accurate than potential one in expression recovery
@@ -698,7 +702,7 @@ protected boolean resumeOnSyntaxError() {
 	this.identifierPtr = -1;
 	this.identifierLengthPtr = -1;
 
-	// go for the exprssion
+	// go for the expression
 	goForExpression();
 	this.hasRecoveredOnExpression = true;
 	this.hasReportedError = false;
