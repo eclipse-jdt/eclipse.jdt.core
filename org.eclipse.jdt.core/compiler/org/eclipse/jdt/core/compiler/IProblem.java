@@ -197,8 +197,6 @@ public interface IProblem {
 	int Internal = 0x20000000;
 	int Syntax = 0x40000000;
 	int Javadoc = 0x80000000;
-	/** @deprecated */
-	int Annotation = 0x80000000;
 	
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
