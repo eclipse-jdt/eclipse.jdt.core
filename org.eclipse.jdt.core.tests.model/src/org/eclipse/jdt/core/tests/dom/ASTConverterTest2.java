@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0406"));
+//		suite.addTest(new ASTConverterTest2("test0412"));
 		return suite;
 	}
 	/**
@@ -383,5 +383,36 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		List extendedOperands = infixExpression.extendedOperands();
 		assertEquals("wrong size", 0, extendedOperands.size());
 	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23901
+	 */
+	public void test0412() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0412", "A.java");
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length);
+		ASTNode node = getASTNode(unit, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertTrue("Not an interface", typeDeclaration.isInterface());
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertNotNull("No declaring node", unit.findDeclaringNode(typeBinding));
+		Name name = typeDeclaration.getName();
+		IBinding binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		ASTNode declaringNode = unit.findDeclaringNode(binding);
+		assertNotNull("No declaring node", declaringNode);
+		assertEquals("Wrong node", typeDeclaration, declaringNode);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull("No type binding", typeBinding);
+		declaringNode = unit.findDeclaringNode(typeBinding);
+		assertNotNull("No declaring node", declaringNode);
+		assertEquals("Wrong node", typeDeclaration, declaringNode);
+	}
+
 }
 

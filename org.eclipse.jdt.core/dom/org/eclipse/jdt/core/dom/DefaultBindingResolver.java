@@ -193,7 +193,6 @@ class DefaultBindingResolver extends BindingResolver {
 				if (methodBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(methodBinding, node);
 				return methodBinding;
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
@@ -202,7 +201,6 @@ class DefaultBindingResolver extends BindingResolver {
 			if (typeBinding == null) {
 				return null;
 			}
-			this.bindingsToAstNodes.put(typeBinding, node);
 			return typeBinding;
 		} if (node instanceof SingleNameReference) {
 			SingleNameReference singleNameReference = (SingleNameReference) node;
