@@ -880,10 +880,9 @@ protected boolean isValidCompilationUnit() {
  * @see ICompilationUnit#isWorkingCopy()
  */
 public boolean isWorkingCopy() {
-	// NB: we could optimize by checking if (this.owner != DefaultWorkingCopyOwner.PRIMARY),
-	//       but this would return true for discarded working copies
-
-	return getPerWorkingCopyInfo() != null;
+	// For backward compatibility, non primary working copies are always returning true; in removal
+	// delta, clients can still check that element was a working copy before being discarded.
+	return this.owner != DefaultWorkingCopyOwner.PRIMARY || getPerWorkingCopyInfo() != null;
 }
 /**
  * @see IOpenable#makeConsistent(IProgressMonitor)
