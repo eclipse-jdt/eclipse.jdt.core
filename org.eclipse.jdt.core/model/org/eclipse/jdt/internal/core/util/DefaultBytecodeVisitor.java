@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import java.util.HashMap;
-
 import org.eclipse.jdt.core.util.IBytecodeVisitor;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -25,12 +23,6 @@ import org.eclipse.jdt.core.util.OpcodeStringValues;
  * Default implementation of ByteCodeVisitor
  */
 public class DefaultBytecodeVisitor implements IBytecodeVisitor {
-	private Integer[] INDEXES = new Integer[] {
-		new Integer(0),
-		new Integer(1),
-		new Integer(2),
-		new Integer(3),
-	};
 	private static final String EMPTY_CLASS_NAME = "\"\""; //$NON-NLS-1$
 	private static final int T_BOOLEAN = 4;
 	private static final int T_CHAR = 5;
@@ -45,29 +37,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private String lineSeparator;
 	private int tabNumber;
 	private int digitNumberForPC;
-	private HashMap hashMap;
+    private ILocalVariableTableEntry[] localVariableTableEntries;
+    private int localVariableAttributeLength;
 	
 	public DefaultBytecodeVisitor(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
-		int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
-		if (localVariableAttributeLength != 0) {
-			this.hashMap = new HashMap(localVariableAttributeLength);
-			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
-			for (int i = 0; i < localVariableAttributeLength; i++) {
-				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
-				switch(i) {
-					case 0 :
-					case 1 :
-					case 2 :
-					case 3 :
-						this.hashMap.put(INDEXES[i], new String(localVariableTableEntry.getName()));
-						break;
-					default: 
-						this.hashMap.put(new Integer(localVariableTableEntry.getIndex()), new String(localVariableTableEntry.getName()));
-				}
-			}
+		this.localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
+		if (this.localVariableAttributeLength != 0) {
+			this.localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
 		} else {
-			this.hashMap = null;
+            this.localVariableTableEntries = null;
 		}
 		this.buffer = buffer;
 		this.lineSeparator = lineSeparator;
@@ -122,7 +101,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -136,7 +115,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -150,7 +129,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -164,7 +143,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -178,7 +157,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -225,7 +204,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -239,23 +218,31 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
 	}
-	private String getLocalVariableName(int i) {
-		String localVariableName = null;
-		if (this.hashMap != null) {
-			if (i < 4) {
-				localVariableName = (String) this.hashMap.get(INDEXES[i]);
-			} else {
-				localVariableName = (String) this.hashMap.get(new Integer(i));
-			}
-		}
-		if (localVariableName == null) {
-			localVariableName = Util.bind("disassembler.localvariablename", Integer.toString(i)); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+	private String getLocalVariableName(int pc, int index) {
+        int nextPC = pc + 1;
+        switch(index) {
+            case 0 :
+            case 1 :
+            case 2 :
+            case 3 :
+                break;
+            default :
+                nextPC = index <= 255 ? pc + 2 : pc + 3;
+        }        
+        
+        for (int i = 0, max = this.localVariableAttributeLength; i < max; i++) {
+            final ILocalVariableTableEntry entry = this.localVariableTableEntries[i];
+            final int startPC = entry.getStartPC();
+            if (entry.getIndex() == index && (startPC <= nextPC) && ((startPC + entry.getLength()) > nextPC)) {
+                return new String(entry.getName());
+            }
+        }
+		String localVariableName = Util.bind("disassembler.localvariablename", Integer.toString(index)); //$NON-NLS-1$ //$NON-NLS-2$
 		return localVariableName;
 	}
 
@@ -267,7 +254,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -281,7 +268,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -295,7 +282,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -479,7 +466,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -493,7 +480,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -507,7 +494,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -521,7 +508,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -535,7 +522,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -585,7 +572,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -599,7 +586,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -613,7 +600,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -627,7 +614,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -641,7 +628,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -826,7 +813,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -840,7 +827,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -854,7 +841,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -868,7 +855,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -882,7 +869,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -932,7 +919,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -946,7 +933,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -960,7 +947,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -974,7 +961,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -988,7 +975,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -1405,7 +1392,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IINC],
 				Integer.toString(index),
 				Integer.toString(_const),
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}));
 		writeNewLine();
 	}
@@ -1418,7 +1405,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -1432,7 +1419,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -1446,7 +1433,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -1460,7 +1447,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -1474,7 +1461,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -1639,7 +1626,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -1653,7 +1640,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -1667,7 +1654,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -1681,7 +1668,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -1695,7 +1682,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -1964,7 +1951,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -1978,7 +1965,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -1992,7 +1979,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -2006,7 +1993,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -2020,7 +2007,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.load", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();
@@ -2117,7 +2104,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_0],
-				getLocalVariableName(0)
+				getLocalVariableName(pc, 0)
 			}
 		));
 		writeNewLine();
@@ -2131,7 +2118,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_1],
-				getLocalVariableName(1)
+				getLocalVariableName(pc, 1)
 			}
 		));
 		writeNewLine();
@@ -2145,7 +2132,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_2],
-				getLocalVariableName(2)
+				getLocalVariableName(pc, 2)
 			}
 		));
 		writeNewLine();
@@ -2159,7 +2146,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_3],
-				getLocalVariableName(3)
+				getLocalVariableName(pc, 3)
 			}
 		));
 		writeNewLine();
@@ -2173,7 +2160,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		buffer.append(Util.bind("classformat.store", //$NON-NLS-1$
 			new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE],
-				getLocalVariableName(index)
+				getLocalVariableName(pc, index)
 			}
 		));
 		writeNewLine();

@@ -1979,7 +1979,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    15  jsr 20\n" + 
 			"    18  aload_3 [local_3]\n" + 
 			"    19  athrow\n" + 
-			"    20  astore_2 [j]\n" + 
+			"    20  astore_2 [local_2]\n" + 
 			"    21  iconst_3\n" + 
 			"    22  istore_1 [j]\n" + 
 			"    23  ret 2\n" + 

@@ -1091,7 +1091,7 @@ public void test022() {
 		"    30  bipush 10\n" + 
 		"    32  if_icmplt 13\n" + 
 		"    35  iconst_0\n" + 
-		"    36  istore_2 [i]\n" + 
+		"    36  istore_2 [sum]\n" + 
 		"    37  aload_1 [arrayList]\n" + 
 		"    38  invokevirtual java/util/ArrayList.iterator()Ljava/util/Iterator; [31]\n" + 
 		"    41  astore [local_4]\n" + 
@@ -1100,16 +1100,16 @@ public void test022() {
 		"    48  invokeinterface java/util/Iterator.next()Ljava/lang/Object; [37] [nargs: 1]\n" + 
 		"    53  checkcast java/lang/Integer [20]\n" + 
 		"    56  astore_3 [e]\n" + 
-		"    57  iload_2 [i]\n" + 
+		"    57  iload_2 [sum]\n" + 
 		"    58  aload_3 [e]\n" + 
 		"    59  invokevirtual java/lang/Integer.intValue()I [41]\n" + 
 		"    62  iadd\n" + 
-		"    63  istore_2 [i]\n" + 
+		"    63  istore_2 [sum]\n" + 
 		"    64  aload [local_4]\n" + 
 		"    66  invokeinterface java/util/Iterator.hasNext()Z [45] [nargs: 1]\n" + 
 		"    71  ifne 46\n" + 
 		"    74  getstatic java/lang/System.out Ljava/io/PrintStream; [51]\n" + 
-		"    77  iload_2 [i]\n" + 
+		"    77  iload_2 [sum]\n" + 
 		"    78  invokevirtual java/io/PrintStream.println(I)V [56]\n" + 
 		"    81  return\n" + 
 		"      Line numbers:\n" + 
