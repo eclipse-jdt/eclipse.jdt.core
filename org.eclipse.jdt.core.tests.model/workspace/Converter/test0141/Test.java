@@ -1,7 +1,6 @@
 package test0141;
 import java.util.*;
 public class Test {
-	/** JavaDoc Comment
-	 */
+	/** JavaDoc Comment*/
   class B {}
 }

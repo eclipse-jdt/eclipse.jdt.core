@@ -2,6 +2,8 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -142,8 +144,37 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		int start = node.getStartPosition();
 		char[] actualContents = new char[length];
 		System.arraycopy(source, start, actualContents, 0, length);
-		String actualContentsString = new String(actualContents);		
-		assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString));
+		String actualContentsString = new String(actualContents);
+		if (containsLineSeparator(actualContentsString)) {
+			assertArraysEquals(actualContentsString, expectedContents);
+		} else {		
+			assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString));
+		}
+	}
+	
+	private boolean containsLineSeparator(String s) {
+		return s.indexOf("\n") != -1 ||  s.indexOf("\r") != -1;
+	}
+	
+	private void assertArraysEquals(String actualContents, String expectedContents) {
+		String[] actualContentsArray = createArrayOfString(actualContents);
+		String[] expectedContentsArray = createArrayOfString(expectedContents);
+		assertTrue("Different size", actualContentsArray.length == expectedContentsArray.length);
+		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
+			assertEquals("Different array parts", expectedContentsArray[i], actualContentsArray[i]);
+		}
+	}
+	
+	private String[] createArrayOfString(String s) {
+		StringTokenizer tokenizer = new StringTokenizer(s, "\r\n");
+		ArrayList arrayList = new ArrayList();
+		while (tokenizer.hasMoreElements()) {
+			String nextToken = tokenizer.nextToken();
+			if (nextToken.length() != 0) {
+				arrayList.add(nextToken);
+			}
+		}
+		return (String[]) arrayList.toArray(new String[arrayList.size()]);
 	}
 	
 	protected boolean isMalformed(ASTNode node) {
