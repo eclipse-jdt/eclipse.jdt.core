@@ -794,5 +794,23 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"0"
 		);
-	}			
+	}
+	
+	public void test022() { // unary expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Byte b = new Byte((byte)1);\n" + 
+				"	    Integer i = 0;\n" + 
+				"	    int n = b + i;\n" + 
+				"		System.out.println(n);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"1"
+		);
+	}		
 }

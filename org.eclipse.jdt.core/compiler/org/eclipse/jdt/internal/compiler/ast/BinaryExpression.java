@@ -1678,20 +1678,19 @@ public class BinaryExpression extends OperatorExpression {
 		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
-			if (leftType.isBaseType()) {
-				if (!rightType.isBaseType()) {
-					int unboxedID = scope.computeBoxingType(rightType).id;
-					if (unboxedID != rightTypeID) {
-						rightTypeID = unboxedID;
-						unboxedRight = true;
-					}
-				}
-			} else if (rightType.isBaseType()) {
+			if (!leftType.isBaseType() && rightTypeID != T_String) {
 				int unboxedID = scope.computeBoxingType(leftType).id;
-					if (unboxedID != leftTypeID) {
-						leftTypeID = unboxedID;
-						unboxedLeft = true;
-					}
+				if (unboxedID != leftTypeID) {
+					leftTypeID = unboxedID;
+					unboxedLeft = true;
+				}
+			}
+			if (!rightType.isBaseType() && leftTypeID != T_String) {
+				int unboxedID = scope.computeBoxingType(rightType).id;
+				if (unboxedID != rightTypeID) {
+					rightTypeID = unboxedID;
+					unboxedRight = true;
+				}
 			}
 		}
 		if (leftTypeID > 15
