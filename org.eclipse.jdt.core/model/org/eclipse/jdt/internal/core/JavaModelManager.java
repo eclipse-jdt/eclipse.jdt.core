@@ -190,9 +190,8 @@ public class JavaModelManager implements ISaveParticipant {
 				return createCompilationUnitFrom(file, project);
 			} else if (Util.isValidClassFileName(file.getName())) {
 				return createClassFileFrom(file, project);
-			} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
-				) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
-				)) {
+			} else if (extension.equalsIgnoreCase("jar")  //$NON-NLS-1$
+					|| extension.equalsIgnoreCase("zip")) {  //$NON-NLS-1$
 				return createJarPackageFragmentRootFrom(file, project);
 			}
 		}
