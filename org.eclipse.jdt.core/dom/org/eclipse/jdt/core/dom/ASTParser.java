@@ -623,7 +623,7 @@ public class ASTParser {
 						}
 					} else if (this.rawSource != null) {
 						source = this.rawSource;
-						if (this.unitName == null || this.project == null) {
+						if (this.unitName == null || this.project == null || this.compilerOptions == null) {
 							needToResolveBindings = false;
 						} else {
 							fileName = this.unitName;
@@ -636,7 +636,7 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
-					if (needToResolveBindings) {
+					if (needToResolveBindings && this.project != null) {
 						try {
 							// parse and resolve
 							compilationUnitDeclaration = 
@@ -646,6 +646,7 @@ public class ASTParser {
 									fileName,
 									this.project,
 									searcher,
+									this.compilerOptions,
 									false,
 									this.workingCopyOwner,
 									monitor);
