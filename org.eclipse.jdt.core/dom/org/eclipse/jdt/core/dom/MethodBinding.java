@@ -26,6 +26,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  */
 class MethodBinding implements IMethodBinding {
 
+	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
+		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED | Modifier.NATIVE |
+		Modifier.STRICTFP;
 	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	private org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding;
 	private BindingResolver resolver;
@@ -223,7 +226,7 @@ class MethodBinding implements IMethodBinding {
 	 * @see IBinding#getModifiers()
 	 */
 	public int getModifiers() {
-		return this.binding.getAccessFlags();
+		return this.binding.getAccessFlags() & VALID_MODIFIERS;
 	}
 
 	/*

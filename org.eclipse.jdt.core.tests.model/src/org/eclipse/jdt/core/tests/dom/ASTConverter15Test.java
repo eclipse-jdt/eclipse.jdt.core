@@ -1447,7 +1447,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0051() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0051", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -1455,6 +1455,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertTrue("Not a varargs", methodBinding.isVarargs());
 		List parameters = methodDeclaration.parameters();
 		assertEquals("Wrong size", 1, parameters.size());
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);

@@ -29,6 +29,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  */
 class VariableBinding implements IVariableBinding {
 
+	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
+		Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT | Modifier.VOLATILE;
+	
 	private org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding;
 	private BindingResolver resolver;
 	private String name;
@@ -95,7 +98,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public int getModifiers() {
 		if (isField()) {
-			return ((FieldBinding) this.binding).getAccessFlags();
+			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
 		}
 		if (binding.isFinal()) {
 			return IModifierConstants.ACC_FINAL;

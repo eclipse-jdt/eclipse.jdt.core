@@ -53,6 +53,9 @@ import org.eclipse.jdt.internal.core.ClassFile;
  */
 class TypeBinding implements ITypeBinding {
 
+	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
+		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP;
+
 	private static final String NO_NAME = ""; //$NON-NLS-1$	
 	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	private static final IVariableBinding[] NO_VARIABLE_BINDINGS = new IVariableBinding[0];
@@ -308,14 +311,16 @@ class TypeBinding implements ITypeBinding {
 	public int getModifiers() {
 		if (this.binding.isClass()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			if (referenceBinding.isAnonymousType()) {
-				return referenceBinding.getAccessFlags() & ~Modifier.FINAL;
+				return accessFlags & ~Modifier.FINAL;
 			}
-			return referenceBinding.getAccessFlags();
+			return accessFlags;
 		} else if (this.binding.isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			// clear the AccAbstract and the AccInterface bits
-			return referenceBinding.getAccessFlags() & ~(Modifier.ABSTRACT | 0x200);
+			return accessFlags & ~(Modifier.ABSTRACT | 0x200);
 		} else {
 			return 0;
 		}
