@@ -27,6 +27,8 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
+
+import java.util.Locale;
  
 public class DocumentElementParser extends Parser {
 	IDocumentElementRequestor requestor;
@@ -44,17 +46,26 @@ public class DocumentElementParser extends Parser {
 	int intArrayPtr;
 public DocumentElementParser(
 	final IDocumentElementRequestor requestor, 
-	IProblemFactory problemFactory) {
+	IProblemFactory problemFactory,
+	CompilerOptions options) {
 	super(new ProblemReporter(
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
-		new CompilerOptions(), 
+		options, 
 		problemFactory) {
 		public void record(IProblem problem, CompilationResult unitResult) {
 			requestor.acceptProblem(problem);
 		}
-	}, false);
+	},
+	false,
+	options.getAssertMode());
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
+}
+
+public DocumentElementParser(
+	final IDocumentElementRequestor requestor, 
+	IProblemFactory problemFactory) {
+		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
 }
 /**
  *
