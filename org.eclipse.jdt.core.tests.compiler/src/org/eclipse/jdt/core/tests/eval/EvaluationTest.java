@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.eval;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
-import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
