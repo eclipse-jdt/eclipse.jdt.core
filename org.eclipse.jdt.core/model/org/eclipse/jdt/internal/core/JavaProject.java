@@ -834,7 +834,6 @@ public class JavaProject
 			xmlWriter.endTag("classpath", indent);//$NON-NLS-1$
 			writer.flush();
 			writer.close();
-			System.out.println(s.toString("UTF8"));//$NON-NLS-1$
 			return s.toString("UTF8");//$NON-NLS-1$
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

@@ -171,7 +171,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	/**
 	 * Returns the XML encoding of the class path.
-	 */
+	 *///TODO (olivier) should remove
 	public Element elementEncode(
 		Document document,
 		IPath projectPath) {
