@@ -3276,13 +3276,32 @@ public final class JavaCore extends Plugin {
 					})
 				+ "}"); //$NON-NLS-1$
 			Util.verbose(
-				"	values: {" //$NON-NLS-1$
+				"	values: {\n" //$NON-NLS-1$
 				+ org.eclipse.jdt.internal.compiler.util.Util.toString(
 						respectiveContainers, 
 						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { return ((IClasspathContainer) o).getDescription(); }
+							public String displayString(Object o) { 
+								StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+								if (o == null) {
+									buffer.append("<null>"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+								IClasspathContainer container = (IClasspathContainer) o;
+								buffer.append(container.getDescription());
+								buffer.append(" {\n"); //$NON-NLS-1$
+								IClasspathEntry[] entries = container.getClasspathEntries();
+								if (entries != null){
+									for (int i = 0; i < entries.length; i++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(entries[i]); 
+										buffer.append('\n'); 
+									}
+								}
+								buffer.append(" 		}"); //$NON-NLS-1$
+								return buffer.toString();
+							}
 						})
-				+ "}"); //$NON-NLS-1$
+				+ "\n	}"); //$NON-NLS-1$
 		}
 
 		final int projectLength = affectedProjects.length;
@@ -3325,7 +3344,18 @@ public final class JavaCore extends Plugin {
 							Util.verbose("CPContainer INIT - reentering access to project container during its initialization, will see previous value"); //$NON-NLS-1$ 
 							Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
 							Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
-							Util.verbose("	previous value: " + previousContainer.getDescription()); //$NON-NLS-1$
+							StringBuffer buffer = new StringBuffer(previousContainer.getDescription());
+							buffer.append(" {\n"); //$NON-NLS-1$
+							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
+							if (entries != null){
+								for (int j = 0; j < entries.length; j++){
+									buffer.append(" 		"); //$NON-NLS-1$
+									buffer.append(entries[j]); 
+									buffer.append('\n'); 
+								}
+							}
+							buffer.append(" 		}"); //$NON-NLS-1$
+							Util.verbose("	previous value: " + buffer.toString()); //$NON-NLS-1$
 						}
 						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
 					}
