@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -313,6 +314,23 @@ public class CompilationUnit extends ASTNode {
 			throw new IllegalArgumentException();
 		}
 		this.messages = messages;
+	}
+		
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	void appendDebugString(StringBuffer buffer) {
+		buffer.append("CompilationUnit");
+		// include the type names
+		buffer.append("[");
+		for (Iterator it = types().iterator(); it.hasNext(); ) {
+			TypeDeclaration d = (TypeDeclaration) it.next();
+			buffer.append(d.getName().getIdentifier());
+			if (it.hasNext()) {
+				buffer.append(",");
+			}
+		}
+		buffer.append("]");
 	}
 		
 	/* (omit javadoc for this method)

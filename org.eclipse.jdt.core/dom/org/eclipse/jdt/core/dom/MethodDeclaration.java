@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -373,6 +374,29 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */	
 	public IMethodBinding resolveBinding() {
 		return getAST().getBindingResolver().resolveMethod(this);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	void appendDebugString(StringBuffer buffer) {
+		buffer.append("MethodDeclaration[");
+		buffer.append(isConstructor() ? "constructor " : "method ");
+		buffer.append(getName().getIdentifier());
+		buffer.append("(");
+		for (Iterator it = parameters().iterator(); it.hasNext(); ) {
+			SingleVariableDeclaration d = (SingleVariableDeclaration) it.next();
+			d.getType().appendPrintString(buffer);
+			if (it.hasNext()) {
+				buffer.append(";");
+			}
+		}
+		buffer.append(")");
+		if (!isConstructor()) {
+			buffer.append(" returns ");
+			getReturnType().appendPrintString(buffer);
+		}
+		buffer.append("]");
 	}
 
 	/* (omit javadoc for this method)

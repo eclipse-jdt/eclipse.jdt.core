@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -194,6 +195,24 @@ public class FieldDeclaration extends BodyDeclaration {
 		return variableDeclarationFragments;
 	}
 		
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	void appendDebugString(StringBuffer buffer) {
+		buffer.append("FieldDeclaration[");
+		buffer.append("field ");
+		getType().appendPrintString(buffer);
+		buffer.append(" ");
+		for (Iterator it = fragments().iterator(); it.hasNext(); ) {
+			VariableDeclarationFragment d = (VariableDeclarationFragment) it.next();
+			d.getName().appendPrintString(buffer);
+			if (it.hasNext()) {
+				buffer.append(",");
+			}
+		}
+		buffer.append("]");
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

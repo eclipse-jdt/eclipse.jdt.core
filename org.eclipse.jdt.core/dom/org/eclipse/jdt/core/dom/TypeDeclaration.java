@@ -471,6 +471,24 @@ public class TypeDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	void appendDebugString(StringBuffer buffer) {
+		buffer.append("TypeDeclaration[");
+		buffer.append(isInterface() ? "interface " : "class ");
+		buffer.append(getName().getIdentifier());
+		buffer.append(" ");
+		for (Iterator it = bodyDeclarations().iterator(); it.hasNext(); ) {
+			BodyDeclaration d = (BodyDeclaration) it.next();
+			d.appendDebugString(buffer);
+			if (it.hasNext()) {
+				buffer.append(";");
+			}
+		}
+		buffer.append("]");
+	}
+		
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	int memSize() {
 		return super.memSize() + 6 * 4;
 	}

@@ -1031,8 +1031,57 @@ public abstract class ASTNode {
 	 * 
 	 * @return a debug string 
 	 */
-	public String toString() {
+	public final String toString() {
+		// allocate a buffer that is large enough to hold an average compilation unit
+		StringBuffer buffer = new StringBuffer(6000);
+		int p = buffer.length();
+		try {
+			appendDebugString(buffer);
+		} catch (RuntimeException e) {
+			// since debugger sometimes call toString methods, problems can easily happen when
+			// toString is called on an instance that is being initialized
+			buffer.setLength(p);
+			buffer.append("!");
+			buffer.append(standardToString());
+		}
+		// convert to a string, but lose the extra space in the string buffer by copying
+		return new String(buffer.toString());
+	}
+	
+	/**
+	 * Returns the string representation of this node produced by the standard
+	 * <code>Object.toString</code> method.
+	 * 
+	 * @return a debug string 
+	 */
+	final String standardToString() {
 		return super.toString();
+	}
+	
+	/**
+	 * Appends a debug representation of this node to the given string buffer.
+	 * <p>
+	 * The <code>ASTNode</code> implementation of this method prints out the entire 
+	 * subtree. Subclasses may override to provide a more succinct representation.
+	 * </p>
+	 * 
+	 * @param buffer the string buffer to append to
+	 */
+	void appendDebugString(StringBuffer buffer) {
+		// print the subtree by default
+		appendPrintString(buffer);
+	}
+		
+	/**
+	 * Appends a standard Java source code representation of this subtree to the given
+	 * string buffer.
+	 * 
+	 * @param buffer the string buffer to append to
+	 */
+	final void appendPrintString(StringBuffer buffer) {
+		NaiveASTFlattener printer = new NaiveASTFlattener();
+		this.accept(printer);
+		buffer.append(printer.getResult());
 	}
 	
 	/**
