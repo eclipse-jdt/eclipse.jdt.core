@@ -40,7 +40,6 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
-						// we could improve error msg here telling "cannot use compound assignment on final blank field"
 					}
 				}
 				manageSyntheticReadAccessIfNecessary(currentScope);
@@ -66,14 +65,14 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			FieldBinding fieldBinding;
 			if ((fieldBinding = (FieldBinding) binding).isFinal()) {
 				// inside a context where allowed
-				if (fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if (!isCompound && fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfBlankFinalField(fieldBinding, this);
 					}
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
 					flowContext.recordSettingFinal(fieldBinding, this);						
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this, false);
+					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
 			}
 			break;
@@ -86,7 +85,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			if (localBinding.isFinal()) {
 				if ((bits & DepthMASK) == 0) {
-					if (!localBinding.isBlankFinal() || flowInfo.isPotentiallyAssigned(localBinding)) {
+					if (isCompound || !localBinding.isBlankFinal()){
+						currentScope.problemReporter().cannotAssignToFinalLocal(localBinding, this);
+					} else if (flowInfo.isPotentiallyAssigned(localBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
 					}
 					flowContext.recordSettingFinal(localBinding, this);								

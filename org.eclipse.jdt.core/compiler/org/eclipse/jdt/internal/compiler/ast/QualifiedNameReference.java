@@ -140,6 +140,7 @@ public class QualifiedNameReference extends NameReference {
 		if (lastFieldBinding.isFinal()) {
 			// in a context where it can be assigned?
 			if (lastFieldBinding.isBlankFinal()
+					&& !isCompound
 					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
 				if (flowInfo.isPotentiallyAssigned(lastFieldBinding)) {
 					if (indexOfFirstFieldBinding == 1) {
@@ -148,14 +149,14 @@ public class QualifiedNameReference extends NameReference {
 							lastFieldBinding,
 							this);
 					} else {
-						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this, true);
+						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
 						// attempting to assign a non implicit reference
 					}
 				}
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 				flowContext.recordSettingFinal(lastFieldBinding, this);
 			} else {
-				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this, false);
+				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
 			}
 		}
 		// equivalent to valuesRequired[maxOtherBindings]

@@ -225,15 +225,24 @@ public void cannotAllocateVoidArray(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void cannotAssignToFinalField(FieldBinding field, AstNode location, boolean allowBlankFinalFieldAssignment) {
+public void cannotAssignToFinalField(FieldBinding field, AstNode location) {
 	this.handle(
-		!allowBlankFinalFieldAssignment ? IProblem.FinalFieldAssignment : IProblem.InvalidReferenceForFinalFieldAssignment,
+		IProblem.FinalFieldAssignment,
 		new String[] {
 			(field.declaringClass == null ? "array" : new String(field.declaringClass.readableName())), //$NON-NLS-1$
 			new String(field.readableName())},
 		new String[] {
 			(field.declaringClass == null ? "array" : new String(field.declaringClass.shortReadableName())), //$NON-NLS-1$
 			new String(field.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void cannotAssignToFinalLocal(LocalVariableBinding local, AstNode location) {
+	String[] arguments = new String[] { new String(local.readableName())};
+	this.handle(
+		IProblem.NonBlankFinalLocalAssignment,
+		arguments,
+		arguments,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -721,7 +730,7 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, AstNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
-		local.isBlankFinal() ? IProblem.DuplicateFinalLocalInitialization : IProblem.NonBlankFinalLocalAssignment,
+		IProblem.DuplicateFinalLocalInitialization,
 		arguments,
 		arguments,
 		location.sourceStart,
