@@ -13,7 +13,7 @@ public class FormatterOptions {
 	/**
 	 * Option IDs
 	 */
-	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace.order"/*nonNLS*/;
+	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace"/*nonNLS*/;
 	public static final String OPTION_InsertNewlineInControlStatement = CodeFormatter.class.getName() + ".newlineControlStatement"/*nonNLS*/;
 	public static final String OPTION_InsertNewLineBetweenElseAndIf = CodeFormatter.class.getName() + ".newlineElseIf"/*nonNLS*/;
 	public static final String OPTION_InsertNewLineInEmptyBlock = CodeFormatter.class.getName() + ".newlineEmptyBlock"/*nonNLS*/;
