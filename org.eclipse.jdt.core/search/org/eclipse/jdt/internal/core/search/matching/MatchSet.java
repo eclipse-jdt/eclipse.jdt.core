@@ -266,15 +266,15 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 }
 public String toString() {
 	StringBuffer result = new StringBuffer();
-	result.append("Exact matches:");
+	result.append("Exact matches:"/*nonNLS*/);
 	for (Enumeration enum = this.matchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n");
+		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
 		result.append(node.toString(1));
 	}
-	result.append("\nPotential matches:");
+	result.append("\nPotential matches:"/*nonNLS*/);
 	for (Enumeration enum = this.potentialMatchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n");
+		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
 		result.append(node.toString(1));
 	}

@@ -282,17 +282,17 @@ public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
 	switch (classOrInterface){
 		case CLASS_SUFFIX :
-			buffer.append("ClassDeclarationPattern: pkg<");
+			buffer.append("ClassDeclarationPattern: pkg<"/*nonNLS*/);
 			break;
 		case INTERFACE_SUFFIX :
-			buffer.append("InterfaceDeclarationPattern: pkg<");
+			buffer.append("InterfaceDeclarationPattern: pkg<"/*nonNLS*/);
 			break;
 		default :
-			buffer.append("TypeDeclarationPattern: pkg<");
+			buffer.append("TypeDeclarationPattern: pkg<"/*nonNLS*/);
 			break;
 	}
 	if (qualification != null) buffer.append(qualification);
-	buffer.append(">, enclosing<");
+	buffer.append(">, enclosing<"/*nonNLS*/);
 	if (enclosingTypeNames != null) {
 		for (int i = 0; i < enclosingTypeNames.length; i++){
 			buffer.append(enclosingTypeNames[i]);
@@ -300,24 +300,24 @@ public String toString(){
 				buffer.append('.');
 		}
 	}
-	buffer.append(">, type<");
+	buffer.append(">, type<"/*nonNLS*/);
 	if (simpleName != null) buffer.append(simpleName);
-	buffer.append(">, ");
+	buffer.append(">, "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, ");
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, ");
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, ");
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive");
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive");
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
 }
 }

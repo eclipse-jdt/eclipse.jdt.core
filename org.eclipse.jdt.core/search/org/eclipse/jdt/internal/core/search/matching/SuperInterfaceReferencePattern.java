@@ -38,24 +38,24 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("SuperInterfaceReferencePattern: <");
+	buffer.append("SuperInterfaceReferencePattern: <"/*nonNLS*/);
 	if (superSimpleName != null) buffer.append(superSimpleName);
-	buffer.append(">, ");
+	buffer.append(">, "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, ");
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, ");
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, ");
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive");
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive");
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
 }
 

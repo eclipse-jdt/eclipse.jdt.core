@@ -141,7 +141,7 @@ private boolean matches(QualifiedNameReference qNameRef, boolean resolve) {
 				case PREFIX_MATCH:
 					return CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive);
 				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray());
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
 					return CharOperation.match(pattern, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive);
 			}
 		}
@@ -185,7 +185,7 @@ private boolean matches(QualifiedTypeReference typeRef, boolean resolve) {
 				case PREFIX_MATCH:
 					return CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive);
 				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray());
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
 					return CharOperation.match(pattern, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive);
 			}
 		}
@@ -246,24 +246,24 @@ protected void resetQuery() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("PackageReferencePattern: <");
+	buffer.append("PackageReferencePattern: <"/*nonNLS*/);
 	if (this.pkgName != null) buffer.append(this.pkgName);
-	buffer.append(">, ");
+	buffer.append(">, "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, ");
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, ");
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, ");
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive");
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive");
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
 }
 }

@@ -109,7 +109,7 @@ private IField createFieldHandle(FieldDeclaration field, char[][] definingTypeNa
 private IImportDeclaration createImportHandle(ImportReference importRef) {
 	char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 	if (importRef.onDemand) {
-		importName = CharOperation.concat(importName, ".*".toCharArray());
+		importName = CharOperation.concat(importName, ".*"/*nonNLS*/.toCharArray());
 	}
 	return ((CompilationUnit)this.currentOpenable).getImport(
 			new String(importName));
@@ -147,7 +147,7 @@ private IMethod createMethodHandle(AbstractMethodDeclaration method, char[][] de
 		TypeReference parameterType = arguments[i].type;
 		char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
 		for (int j = 0; j < parameterType.dimensions(); j++) {
-			typeName = CharOperation.concat(typeName, "[]".toCharArray());
+			typeName = CharOperation.concat(typeName, "[]"/*nonNLS*/.toCharArray());
 		}
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
@@ -289,7 +289,7 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				String pkgPath = pkg.getElementName().replace('.', '/');
 				String classFilePath = 
 					(pkgPath.length() > 0) ?
-						pkgPath + "/" + classFile.getElementName() :
+						pkgPath + "/"/*nonNLS*/ + classFile.getElementName() :
 						classFile.getElementName();
 				ZipFile zipFile = null;
 				try {

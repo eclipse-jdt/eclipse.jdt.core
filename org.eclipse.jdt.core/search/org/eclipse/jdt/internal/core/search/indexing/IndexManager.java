@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
+import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.processing.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -182,7 +183,7 @@ public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
 			if (index == null) {
 				// New index: add same index for given path and canonical path
 				String indexPath = computeIndexName(canonicalPath.toOSString());
-				index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString());
+				index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
 				indexes.put(canonicalPath, index);
 				indexes.put(path, index);
 				monitors.put(index, new ReadWriteMonitor());
@@ -256,7 +257,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return "Java indexing: " + IndexManager.class.getName();
+	return Util.bind("process.name"/*nonNLS*/, IndexManager.class.getName());
 }
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
@@ -272,7 +273,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 			// Add same index for given path and canonical path
 			String indexPath = computeIndexName(canonicalPath.toOSString());
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString());
+			index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
 			index.empty();
 			indexes.put(canonicalPath, index);
 			indexes.put(path, index);
@@ -317,7 +318,7 @@ public void saveIndexes(){
 			if (monitor == null) continue; // index got deleted since acquired
 			try {
 				monitor.enterWrite();
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile());
+				if (IndexManager.VERBOSE) System.out.println("-> merging index : "/*nonNLS*/+index.getIndexFile());
 				index.save();
 			} finally {
 				monitor.exitWrite();

@@ -31,7 +31,7 @@ import java.util.*;
  */
 public class SourceIndexer extends AbstractIndexer {
 	
-	public static final String[] FILE_TYPES= new String[] {"java"};
+	public static final String[] FILE_TYPES= new String[] {"java"/*nonNLS*/};
 	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
 	
 /**
