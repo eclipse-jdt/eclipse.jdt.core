@@ -51,6 +51,8 @@ public class AssertStatement extends Statement {
 
 		Constant cst = this.assertExpression.optimizedBooleanConstant();		
 		boolean isOptimizedTrueAssertion = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isOptimizedFalseAssertion = cst != NotAConstant && cst.booleanValue() == false;
+
 		FlowInfo assertInfo = flowInfo.copy();
 		if (isOptimizedTrueAssertion) {
 			assertInfo.setReachMode(FlowInfo.UNREACHABLE);
@@ -58,12 +60,17 @@ public class AssertStatement extends Statement {
 		assertInfo = assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits();
 		
 		if (exceptionArgument != null) {
-			exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); //dead branch
+			// only gets evaluated when escaping - results are not taken into account
+			exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); 
 		}
 		
 		// add the assert support in the clinit
 		manageSyntheticAccessIfNecessary(currentScope);
-		return flowInfo.mergedWith(assertInfo.unconditionalInits()); 
+		if (isOptimizedFalseAssertion) {
+			return flowInfo; // if assertions are enabled, the following code will be unreachable
+		} else {
+			return flowInfo.mergedWith(assertInfo.unconditionalInits()); 
+		}
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
