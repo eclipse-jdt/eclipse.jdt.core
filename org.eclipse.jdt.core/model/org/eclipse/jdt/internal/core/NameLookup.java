@@ -489,30 +489,35 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
-		int count= this.packageFragmentRoots.length;
-		String matchName= partialMatch ? name.toLowerCase() : name;
-		String[] splittedName = partialMatch ? null : Util.splitOn('.', matchName, 0, matchName.length());
-		for (int i= 0; i < count; i++) {
-			if (requestor.isCanceled())
-				return;
-			IPackageFragmentRoot root= this.packageFragmentRoots[i];
-			IJavaElement[] list= null;
-			try {
-				list= root.getChildren();
-			} catch (JavaModelException npe) {
-				continue; // this root package fragment is not present
-			}
-			int elementCount= list.length;
-			for (int j= 0; j < elementCount; j++) {
+		if (partialMatch) {
+			int count= this.packageFragmentRoots.length;
+			String matchName= name.toLowerCase();
+			for (int i= 0; i < count; i++) {
 				if (requestor.isCanceled())
 					return;
-				IPackageFragment packageFragment= (IPackageFragment) list[j];
-				if (partialMatch) {
+				IPackageFragmentRoot root= this.packageFragmentRoots[i];
+				IJavaElement[] list= null;
+				try {
+					list= root.getChildren();
+				} catch (JavaModelException npe) {
+					continue; // this root package fragment is not present
+				}
+				int elementCount= list.length;
+				for (int j= 0; j < elementCount; j++) {
+					if (requestor.isCanceled())
+						return;
+					IPackageFragment packageFragment= (IPackageFragment) list[j];
 					if (packageFragment.getElementName().toLowerCase().startsWith(matchName))
 						requestor.acceptPackageFragment(packageFragment);
-				} else {
-					if (Util.equalArraysOrNull(((PackageFragment)packageFragment).names, splittedName))
-						requestor.acceptPackageFragment(packageFragment);
+				}
+			}
+		} else {
+			String[] splittedName = Util.splitOn('.', name, 0, name.length());
+			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(splittedName);
+			if (roots != null) {
+				for (int i = 0, length = roots.length; i < length; i++) {
+					PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+					requestor.acceptPackageFragment(root.getPackageFragment(splittedName));
 				}
 			}
 		}
