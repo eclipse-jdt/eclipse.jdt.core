@@ -15,12 +15,6 @@ import org.eclipse.jdt.core.search.SearchPattern;
 
 public class TypeDeclarationPattern extends SearchPattern {
 
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new TypeDeclarationPattern(null, null, null, ' ', R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
-
 public char[] simpleName;
 public char[] pkg;
 public char[][] enclosingTypeNames;
@@ -31,19 +25,14 @@ public char[][] enclosingTypeNames;
 public char classOrInterface; 
 
 public static char[] createIndexKey(char[] packageName, char[][] enclosingTypeNames, char[] typeName, boolean isClass) {
-	TypeDeclarationPattern record = getTypeDeclarationRecord();
-	record.pkg = packageName;
-	record.enclosingTypeNames = enclosingTypeNames;
-	record.simpleName = typeName;
-	record.classOrInterface = isClass ? CLASS_SUFFIX : INTERFACE_SUFFIX;
-	return record.encodeIndexKey();
+	TypeDeclarationPattern pattern = new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
+	pattern.pkg = packageName;
+	pattern.enclosingTypeNames = enclosingTypeNames;
+	pattern.simpleName = typeName;
+	pattern.classOrInterface = isClass ? CLASS_SUFFIX : INTERFACE_SUFFIX;
+	return pattern.encodeIndexKey();
 }
-public static TypeDeclarationPattern getTypeDeclarationRecord() {
-	return (TypeDeclarationPattern)indexRecord.get();
-}
-public TypeDeclarationPattern(int matchRule) {
-	super(TYPE_DECL_PATTERN, matchRule);
-}
+
 public TypeDeclarationPattern(
 	char[] pkg,
 	char[][] enclosingTypeNames,
@@ -51,7 +40,7 @@ public TypeDeclarationPattern(
 	char classOrInterface,
 	int matchRule) {
 
-	super(TYPE_DECL_PATTERN, matchRule);
+	this(matchRule);
 
 	this.pkg = this.isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
 	if (isCaseSensitive || enclosingTypeNames == null) {
@@ -66,6 +55,9 @@ public TypeDeclarationPattern(
 	this.classOrInterface = classOrInterface;
 	
 	this.mustResolve = pkg != null && enclosingTypeNames != null;
+}
+TypeDeclarationPattern(int matchRule) {
+	super(TYPE_DECL_PATTERN, matchRule);
 }
 /*
  * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName '/' EnclosingTypeName
@@ -162,7 +154,7 @@ public char[] encodeIndexKey() {
 	return result;
 }
 public SearchPattern getBlankPattern() {
-	return getTypeDeclarationRecord();
+	return new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return new char[][] {TYPE_DECL};

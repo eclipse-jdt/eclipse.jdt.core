@@ -16,12 +16,6 @@ import org.eclipse.jdt.core.search.SearchPattern;
 
 public class MethodPattern extends SearchPattern {
 
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new MethodPattern(false, false, null, null, null, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
-
 protected boolean findDeclarations;
 protected boolean findReferences;
 
@@ -41,14 +35,12 @@ public int parameterCount;
 protected IType declaringType;
 
 public static char[] createIndexKey(char[] selector, int argCount) {
-	MethodPattern record = getMethodRecord();
-	record.selector = selector;
-	record.parameterCount = argCount;
-	return record.encodeIndexKey();
+	MethodPattern pattern = new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
+	pattern.selector = selector;
+	pattern.parameterCount = argCount;
+	return pattern.encodeIndexKey();
 }
-public static MethodPattern getMethodRecord() {
-	return (MethodPattern)indexRecord.get();
-}
+
 public MethodPattern(
 	boolean findDeclarations,
 	boolean findReferences,
@@ -62,7 +54,7 @@ public MethodPattern(
 	IType declaringType,
 	int matchRule) {
 
-	super(METHOD_PATTERN, matchRule);
+	this(matchRule);
 
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
@@ -86,6 +78,9 @@ public MethodPattern(
 
 	this.declaringType = declaringType;
 	this.mustResolve = mustResolve();
+}
+MethodPattern(int matchRule) {
+	super(METHOD_PATTERN, matchRule);
 }
 public void decodeIndexKey(char[] key) {
 	int size = key.length;
@@ -129,7 +124,7 @@ public char[] encodeIndexKey() {
 	return CharOperation.NO_CHAR; // find them all
 }
 public SearchPattern getBlankPattern() {
-	return getMethodRecord();
+	return new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)

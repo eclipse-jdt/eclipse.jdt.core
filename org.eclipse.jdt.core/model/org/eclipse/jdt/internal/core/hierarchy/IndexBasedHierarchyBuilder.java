@@ -446,7 +446,8 @@ public static void searchAllPossibleSubTypes(
 		}		
 	};
 	
-	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(null, null, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	SuperTypeReferencePattern pattern =
+		new SuperTypeReferencePattern(null, null, false, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	pattern.focus = type;
 	SubTypeSearchJob job = new SubTypeSearchJob(
 		pattern, 

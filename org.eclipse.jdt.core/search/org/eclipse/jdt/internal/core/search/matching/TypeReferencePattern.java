@@ -32,25 +32,27 @@ public static char[] createIndexKey(char[] typeName) {
 }
 
 public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
-	super(TYPE_REF_PATTERN, matchRule);
+	this(matchRule);
 
 	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
 	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null)
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
+	else
+		this.segments = null;
 	
 	this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
+}
+TypeReferencePattern(int matchRule) {
+	super(TYPE_REF_PATTERN, matchRule);
 }
 public void decodeIndexKey(char[] key) {
 	int nameLength = CharOperation.indexOf(SEPARATOR, key);
 	if (nameLength != -1)
 		key = CharOperation.subarray(key, 0, nameLength);
 	
-	this.simpleName = key;
-
-	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-	this.segments[0] = key;
+	this.simpleName = key; // decode into the simple name, see matchesDecodedPattern()
 }
 public char[] encodeIndexKey() {
 	if (this.simpleName != null)
@@ -62,7 +64,7 @@ public char[] encodeIndexKey() {
 	return null;
 }
 public SearchPattern getBlankPattern() {
-	return new TypeReferencePattern(null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	return new TypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return this.simpleName == null ? REF_CATEGORIES : CATEGORIES;
@@ -80,7 +82,7 @@ public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
 		return matchesName(this.simpleName, ((TypeReferencePattern) decodedPattern).simpleName);
 
 	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-	return matchesName(this.segments[this.currentSegment], ((TypeReferencePattern) decodedPattern).segments[0]);
+	return matchesName(this.segments[this.currentSegment], ((TypeReferencePattern) decodedPattern).simpleName);
 }
 protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */

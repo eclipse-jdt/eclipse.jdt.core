@@ -21,7 +21,7 @@ protected char[][] segments;
 protected int currentSegment;
 
 public PackageReferencePattern(char[] pkgName, int matchRule) {
-	super(PKG_REF_PATTERN, matchRule);
+	this(matchRule);
 
 	if (pkgName == null || pkgName.length == 0) {
 		this.pkgName = null;
@@ -33,9 +33,12 @@ public PackageReferencePattern(char[] pkgName, int matchRule) {
 		this.mustResolve = true;
 	}
 }
+PackageReferencePattern(int matchRule) {
+	super(PKG_REF_PATTERN, matchRule);
+}
 public void decodeIndexKey(char[] key) {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
-	this.segments[0] = key;
+	this.pkgName = key; // decode into the pkg name, see matchesDecodedPattern()
 }
 public char[] encodeIndexKey() {
 	if (this.currentSegment < 0) return null;
@@ -43,7 +46,7 @@ public char[] encodeIndexKey() {
 	return encodeIndexKey(this.segments[this.currentSegment]);
 }
 public SearchPattern getBlankPattern() {
-	return new PackageReferencePattern("*".toCharArray(), R_EXACT_MATCH | R_CASE_SENSITIVE); //$NON-NLS-1$;
+	return new PackageReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return new char[][] {REF};
@@ -54,7 +57,7 @@ protected boolean hasNextQuery() {
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
 public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
-	return matchesName(this.segments[this.currentSegment], ((PackageReferencePattern) decodedPattern).segments[0]);
+	return matchesName(this.segments[this.currentSegment], ((PackageReferencePattern) decodedPattern).pkgName);
 }
 protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */

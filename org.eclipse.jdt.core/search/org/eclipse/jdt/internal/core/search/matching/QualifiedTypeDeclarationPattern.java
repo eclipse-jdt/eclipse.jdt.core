@@ -14,31 +14,20 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 
 public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern {
-	
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new QualifiedTypeDeclarationPattern(null, null, ' ', R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
 
 protected char[] qualification;
 
-public static QualifiedTypeDeclarationPattern getQualifiedTypeDeclarationRecord() {
-	return (QualifiedTypeDeclarationPattern)indexRecord.get();
-}
-public QualifiedTypeDeclarationPattern(
-	char[] qualification,
-	char[] simpleName,
-	char classOrInterface,
-	int matchRule) {
-
-	super(matchRule);
+public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char classOrInterface, int matchRule) {
+	this(matchRule);
 
 	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
 	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
 	this.mustResolve = qualification != null;
+}
+QualifiedTypeDeclarationPattern(int matchRule) {
+	super(matchRule);
 }
 public void decodeIndexKey(char[] key) {
 	int size = key.length;
@@ -61,22 +50,19 @@ public void decodeIndexKey(char[] key) {
 	}
 	this.qualification = CharOperation.concatWith(pkgName, decodedEnclosingTypeNames, '.');
 }
-public SearchPattern getIndexRecord() {
-	return getQualifiedTypeDeclarationRecord();
+public SearchPattern getBlankPattern() {
+	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
-public boolean isMatchingIndexRecord() {
-	QualifiedTypeDeclarationPattern record = getQualifiedTypeDeclarationRecord();
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
-			if (this.classOrInterface != record.classOrInterface) return false;
+			if (this.classOrInterface != pattern.classOrInterface) return false;
 		case TYPE_SUFFIX : // nothing
 	}
 
-	if (!matchesName(this.pkg, record.qualification))
-		return false;
-	
-	return matchesName(this.simpleName, record.simpleName);
+	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.pkg, pattern.qualification);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
