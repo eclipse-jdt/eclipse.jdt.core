@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -115,9 +116,9 @@ class DefaultBindingResolver extends BindingResolver {
 	BindingTables bindingTables;
 	
 	/*
-	 * The compilation unit resolver that 'compile' the requested ASTs during batching
+	 * The lookup environment used to resolved bindings.
 	 */
-	CompilationUnitResolver compilationUnitResolver;
+	LookupEnvironment lookupEnvironment;
 
 	/**
 	 * This map is used to retrieve an old ast node using the new ast node. This is not an
@@ -138,24 +139,23 @@ class DefaultBindingResolver extends BindingResolver {
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
-	DefaultBindingResolver() {
-		this.newAstToOldAst = new HashMap();
-		this.astNodesToBlockScope = new HashMap();
-		this.bindingsToAstNodes = new HashMap();
-		this.bindingTables = new BindingTables();
-	}
-	
-	/**
-	 * Constructor for DefaultBindingResolver.
-	 */
-	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, CompilationUnitResolver compilationUnitResolver) {
+	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables) {
 		this.newAstToOldAst = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
 		this.bindingTables = bindingTables;
 		this.scope = scope;
 		this.workingCopyOwner = workingCopyOwner;
-		this.compilationUnitResolver = compilationUnitResolver;
+		this.lookupEnvironment = scope.environment;
+	}
+
+	DefaultBindingResolver(LookupEnvironment lookupEnvironment, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables) {
+		this.newAstToOldAst = new HashMap();
+		this.astNodesToBlockScope = new HashMap();
+		this.bindingsToAstNodes = new HashMap();
+		this.bindingTables = bindingTables;
+		this.workingCopyOwner = workingCopyOwner;
+		this.lookupEnvironment = lookupEnvironment;
 	}
 
 	/*

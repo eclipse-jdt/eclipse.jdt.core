@@ -403,10 +403,12 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public boolean overrides(IMethodBinding method) {
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding otherCompilerBinding = ((MethodBinding) method).binding;
+		if (this.binding == otherCompilerBinding) 
+			return false;
 		if (!this.binding.declaringClass.isCompatibleWith(otherCompilerBinding.declaringClass))
 			return false;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return false;
-		LookupEnvironment lookupEnvironment = ((DefaultBindingResolver) this.resolver).compilationUnitResolver.lookupEnvironment;
+		LookupEnvironment lookupEnvironment = ((DefaultBindingResolver) this.resolver).lookupEnvironment;
 		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 		return methodVerifier.doesMethodOverride(this.binding, otherCompilerBinding);
 	}

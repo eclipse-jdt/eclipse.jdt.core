@@ -196,7 +196,7 @@ class CompilationUnitResolver extends Compiler {
 		BindingKey bindingKey = new BindingKey(key);
 		Binding compilerBinding = bindingKey.getCompilerBinding(this);
 		if (compilerBinding == null) return null;
-		DefaultBindingResolver resolver = new DefaultBindingResolver(null/*no scope*/, null/*no owner*/, this.bindingTables, this);
+		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
 		if (compilerBinding.bindingType() == Binding.ARRAY_TYPE) {
 			return new TypeBinding(resolver, (ArrayBinding) compilerBinding);
 		} else {
@@ -211,7 +211,7 @@ class CompilationUnitResolver extends Compiler {
 		CompilationUnit compilationUnit = null;
 		ASTConverter converter = new ASTConverter(options, needToResolveBindings, monitor);
 		if (needToResolveBindings) {
-			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, owner, bindingTables, null/*no compilation unit resolver*/);
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, owner, bindingTables);
 		} else {
 			resolver = new BindingResolver();
 		}
@@ -529,7 +529,7 @@ class CompilationUnitResolver extends Compiler {
 						AST ast = AST.newAST(apiLevel);
 						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, monitor);
-						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables, this);
+						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
 						ast.setBindingResolver(resolver);
 						converter.setAST(ast);
 						CompilationUnit compilationUnit = converter.convert(unit, contents);
@@ -545,7 +545,7 @@ class CompilationUnitResolver extends Compiler {
 					if (bindingKey != null) {
 						Binding compilerBinding = bindingKey.getCompilerBinding(unit, this);
 						if (compilerBinding != null) {
-							DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables, this);
+							DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
 							IBinding binding = resolver.getBinding(compilerBinding);
 							
 							// pass it to requestor
@@ -562,7 +562,7 @@ class CompilationUnitResolver extends Compiler {
 			}
 			
 			// remaining binding keys
-			DefaultBindingResolver resolver = new DefaultBindingResolver(null, owner, this.bindingTables, this);
+			DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, owner, this.bindingTables);
 			Object[] keys = this.requestedKeys.valueTable;
 			for (int j = 0, keysLength = keys.length; j < keysLength; j++) {
 				BindingKey key = (BindingKey) keys[j];

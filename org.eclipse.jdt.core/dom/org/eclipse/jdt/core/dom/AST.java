@@ -252,7 +252,7 @@ public final class AST {
 		AST ast = AST.newAST(level);
 		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-		BindingResolver resolver = isResolved ? new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopyOwner, new DefaultBindingResolver.BindingTables(), null/*no compilation unit resolver*/) : new BindingResolver();
+		BindingResolver resolver = isResolved ? new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopyOwner, new DefaultBindingResolver.BindingTables()) : new BindingResolver();
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 	

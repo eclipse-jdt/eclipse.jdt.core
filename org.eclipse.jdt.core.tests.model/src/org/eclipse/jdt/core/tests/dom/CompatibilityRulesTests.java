@@ -13,9 +13,11 @@ package org.eclipse.jdt.core.tests.dom;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import junit.framework.Test;
 
@@ -474,6 +476,30 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"Lp1/Y;.foo()V"
 			});	
 		assertTrue("X#foo() should not override Y#foo()", !bindings[0].overrides(bindings[1]));
+	}
+
+	/*
+	 * Ensures that IMethodBinding#ovverides(IMethodBinding) doesn't throw a NullPointerException if
+	 * the method was not built in a batch.
+	 * (regression test for bug 79635 NPE when asking an IMethodBinding whether it overrides itself)
+	 */
+	public void test022() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/P/p1/X.java", true/*compute problems to get bindings*/);
+			ASTNode node = buildAST(
+				"package p1;\n" +
+				"public class X {\n" +
+				"  /*start*/void foo() {\n" +
+				"  }/*end*/\n" +
+				"}",
+				workingCopy);
+			IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
+			assertTrue("X#foo() should not override itself", !methodBinding.overrides(methodBinding));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 
 }
