@@ -189,73 +189,6 @@ class ASTConverter {
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
 	
-	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration, EnumConstantDeclaration enumConstantDeclaration) {
-		// add body declaration in the lexical order
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = typeDeclaration.memberTypes;
-		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = typeDeclaration.fields;
-		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-		
-		int fieldsLength = fields == null? 0 : fields.length;
-		int methodsLength = methods == null? 0 : methods.length;
-		int membersLength = members == null ? 0 : members.length;
-		int fieldsIndex = 0;
-		int methodsIndex = 0;
-		int membersIndex = 0;
-		
-		while ((fieldsIndex < fieldsLength)
-			|| (membersIndex < membersLength)
-			|| (methodsIndex < methodsLength)) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
-			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
-		
-			int position = Integer.MAX_VALUE;
-			int nextDeclarationType = -1;
-			if (fieldsIndex < fieldsLength) {
-				nextFieldDeclaration = fields[fieldsIndex];
-				if (nextFieldDeclaration.declarationSourceStart < position) {
-					position = nextFieldDeclaration.declarationSourceStart;
-					nextDeclarationType = 0; // FIELD
-				}
-			}
-			if (methodsIndex < methodsLength) {
-				nextMethodDeclaration = methods[methodsIndex];
-				if (nextMethodDeclaration.declarationSourceStart < position) {
-					position = nextMethodDeclaration.declarationSourceStart;
-					nextDeclarationType = 1; // METHOD
-				}
-			}
-			if (membersIndex < membersLength) {
-				nextMemberDeclaration = members[membersIndex];
-				if (nextMemberDeclaration.declarationSourceStart < position) {
-					position = nextMemberDeclaration.declarationSourceStart;
-					nextDeclarationType = 2; // MEMBER
-				}
-			}
-			switch (nextDeclarationType) {
-				case 0 :
-					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-						enumConstantDeclaration.bodyDeclarations().add(convert(nextFieldDeclaration));
-					} else {
-						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumConstantDeclaration.bodyDeclarations());
-					}
-					fieldsIndex++;
-					break;
-				case 1 :
-					methodsIndex++;
-					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						enumConstantDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
-					}
-					break;
-				case 2 :
-					membersIndex++;
-					enumConstantDeclaration.bodyDeclarations().add(convert(nextMemberDeclaration));
-					break;
-			}
-		}
-		convert(typeDeclaration.javadoc, enumConstantDeclaration);
-	}
-
 	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2, EnumDeclaration enumDeclaration) {
 		// add body declaration in the lexical order
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = enumDeclaration2.memberTypes;
@@ -1363,9 +1296,17 @@ class ASTConverter {
 		if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousType = ((QualifiedAllocationExpression) enumConstant.initialization).anonymousType;
 			if (anonymousType != null) {
-				int closingPosition = anonymousType.declarationSourceEnd;
-				enumConstantDeclaration.setSourceRange(declarationSourceStart, closingPosition - declarationSourceStart + 1);
-				buildBodyDeclarations(anonymousType, enumConstantDeclaration);
+				AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
+				int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
+				int end = retrieveRightBrace(anonymousType.bodyEnd, declarationSourceEnd);
+				anonymousClassDeclaration.setSourceRange(start, end - start + 1);
+				enumConstantDeclaration.setAnonymousClassDeclaration(anonymousClassDeclaration);
+				buildBodyDeclarations(anonymousType, anonymousClassDeclaration);
+				if (this.resolveBindings) {
+					recordNodes(anonymousClassDeclaration, anonymousType);
+					anonymousClassDeclaration.resolveBinding();
+				}
+				enumConstantDeclaration.setSourceRange(declarationSourceStart, end - declarationSourceStart + 1);
 			}
 		} else {
 			enumConstantDeclaration.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -844,6 +845,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		ITypeBinding typeBinding2 = enumDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding2);
 		List modifiers = enumDeclaration.modifiers();
 		assertEquals("Wrong number of modifiers", 2, modifiers.size());
 		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
@@ -865,7 +868,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"        double eval(double x, double y) { return x + y; }\n" + 
 				"    }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
-		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		AnonymousClassDeclaration anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
+		assertNotNull("No anonymous class", anonymousClassDeclaration);
+		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+				"        double eval(double x, double y) { return x + y; }\n" + 
+				"    }", source);
+		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a enum type", typeBinding.isEnum());
+		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
@@ -879,7 +890,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration, "MINUS {\n" + 
 				"        double eval(double x, double y) { return x - y; }\n" + 
 				"    }", source);
-		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
+		typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a enum type", typeBinding.isEnum());
+		assertNotNull("No anonymous class", anonymousClassDeclaration);
+		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+				"        double eval(double x, double y) { return x - y; }\n" + 
+				"    }", source);
+		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
@@ -893,7 +912,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration, "TIMES {\n" + 
 				"        double eval(double x, double y) { return x * y; }\n" + 
 				"    }", source);
-		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
+		assertNotNull("No anonymous class", anonymousClassDeclaration);
+		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+				"        double eval(double x, double y) { return x * y; }\n" + 
+				"    }", source);
+		typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a enum type", typeBinding.isEnum());
+		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
@@ -907,7 +934,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" + 
 				"        double eval(double x, double y) { return x / y; }\n" + 
 				"    }", source);
-		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
+		assertNotNull("No anonymous class", anonymousClassDeclaration);
+		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+				"        double eval(double x, double y) { return x / y; }\n" + 
+				"    }", source);
+		typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a enum type", typeBinding.isEnum());
+		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());

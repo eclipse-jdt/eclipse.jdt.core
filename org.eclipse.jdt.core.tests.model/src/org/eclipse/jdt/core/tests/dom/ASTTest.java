@@ -2742,12 +2742,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 					}
 					public ASTNode wrap() {
 						EnumConstantDeclaration s1 = x.getAST().newEnumConstantDeclaration();
-						s1.bodyDeclarations().add(x);
+						AnonymousClassDeclaration anonymousClassDeclaration = x.getAST().newAnonymousClassDeclaration();
+						s1.setAnonymousClassDeclaration(anonymousClassDeclaration);
+						anonymousClassDeclaration.bodyDeclarations().add(x);
 						return s1;
 					}
 					public void unwrap() {
-						EnumConstantDeclaration s1 = (EnumConstantDeclaration) x.getParent();
-						s1.bodyDeclarations().remove(x);
+						AnonymousClassDeclaration anonymousClassDeclaration = (AnonymousClassDeclaration) x.getParent();
+						if (anonymousClassDeclaration != null) {
+							anonymousClassDeclaration.bodyDeclarations().remove(x);
+						}
 					}
 				});
 				
