@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -85,7 +84,7 @@ protected static char[] createTypeDeclaration(char[] packageName, char[][] enclo
 
 
 public TypeDeclarationPattern(int matchMode, boolean isCaseSensitive) {
-	super(matchMode, isCaseSensitive);
+	super(TYPE_DECL_PATTERN, matchMode, isCaseSensitive);
 }
 public TypeDeclarationPattern(
 	char[] pkg,
@@ -95,7 +94,7 @@ public TypeDeclarationPattern(
 	int matchMode, 
 	boolean isCaseSensitive) {
 
-	super(matchMode, isCaseSensitive);
+	super(TYPE_DECL_PATTERN, matchMode, isCaseSensitive);
 
 	this.pkg = isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
 	if (isCaseSensitive || enclosingTypeNames == null) {
@@ -202,35 +201,6 @@ protected char[] indexEntryPrefix() {
  */
 protected int matchContainer() {
 	return COMPILATION_UNIT | CLASS | METHOD | FIELD;
-}
-/**
- * @see SearchPattern#matchesBinary(Object, Object)
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!(binaryInfo instanceof IBinaryType)) return false;
-
-	IBinaryType type = (IBinaryType) binaryInfo;
-	char[] fullyQualifiedTypeName = (char[]) type.getName().clone();
-	CharOperation.replace(fullyQualifiedTypeName, '/', '.');
-
-	if (this.enclosingTypeNames == null) {
-		if (!matchesType(this.simpleName, this.pkg, fullyQualifiedTypeName)) return false;
-	} else {
-		char[] enclosingTypeName = CharOperation.concatWith(this.enclosingTypeNames, '.');
-		char[] pattern = this.pkg == null
-			? enclosingTypeName
-			: CharOperation.concat(this.pkg, enclosingTypeName, '.');
-		if (!matchesType(this.simpleName, pattern, fullyQualifiedTypeName)) return false;
-	}
-
-	switch (this.classOrInterface) {
-		case CLASS_SUFFIX:
-			return !type.isInterface();
-		case INTERFACE_SUFFIX:
-			return type.isInterface();
-		case TYPE_SUFFIX: // nothing
-	}
-	return true;
 }
 /**
  * see SearchPattern.matchIndexEntry

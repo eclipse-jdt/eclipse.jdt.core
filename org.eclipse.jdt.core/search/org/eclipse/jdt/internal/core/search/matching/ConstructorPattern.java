@@ -15,12 +15,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
@@ -67,7 +64,7 @@ public ConstructorPattern(
 	char[][] parameterSimpleNames,
 	IType declaringType) {
 
-	super(matchMode, isCaseSensitive);
+	super(CONSTRUCTOR_PATTERN, matchMode, isCaseSensitive);
 
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
@@ -162,37 +159,6 @@ protected int matchContainer() {
 
 	// declarations are only found in Class
 	return CLASS;
-}
-/**
- * @see SearchPattern#matchesBinary(Object, Object)
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!this.findDeclarations) return false; // only relevant for declarations
-	if (!(binaryInfo instanceof IBinaryMethod)) return false;
-
-	IBinaryMethod method = (IBinaryMethod) binaryInfo;
-	if (!method.isConstructor()) return false;
-
-	// declaring type
-	if (enclosingBinaryInfo != null) {
-		char[] name = ((IBinaryType) enclosingBinaryInfo).getName();
-		char[] declaringTypeName = (char[]) name.clone();
-		CharOperation.replace(declaringTypeName, '/', '.');
-		if (!matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName))
-			return false;
-	}
-
-	// parameter types
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		String methodDescriptor = new String(method.getMethodDescriptor()).replace('/', '.');
-		String[] arguments = Signature.getParameterTypes(methodDescriptor);
-		if (parameterCount != arguments.length) return false;
-		for (int i = 0; i < parameterCount; i++)
-			if (!matchesType(this.parameterSimpleNames[i], this.parameterQualifications[i],  Signature.toString(arguments[i]).toCharArray()))
-				return false;
-	}
-	return true;
 }
 /**
  * @see SearchPattern#matchIndexEntry

@@ -27,7 +27,7 @@ protected int currentSegment;
 protected char[] decodedSegment;
 	
 public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
-	super(matchMode, isCaseSensitive);
+	super(PKG_REF_PATTERN, matchMode, isCaseSensitive);
 
 	this.pkgName = isCaseSensitive ? pkgName : CharOperation.toLowerCase(pkgName);
 	this.segments = CharOperation.splitOn('.', this.pkgName);

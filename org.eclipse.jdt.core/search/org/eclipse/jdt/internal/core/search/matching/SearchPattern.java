@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public abstract class SearchPattern implements ISearchPattern, IIndexConstants, IJavaSearchConstants {
 
+protected int kind;
 protected int matchMode;
 protected boolean isCaseSensitive;
 public boolean mustResolve = true;
@@ -1035,7 +1036,8 @@ private static char[][] enclosingTypeNames(IType type) {
 	}
 }
 
-public SearchPattern(int matchMode, boolean isCaseSensitive) {
+public SearchPattern(int kind, int matchMode, boolean isCaseSensitive) {
+	this.kind = kind;
 	this.matchMode = matchMode;
 	this.isCaseSensitive = isCaseSensitive;
 }
@@ -1163,14 +1165,6 @@ protected int matchContainer() {
 	return 0;
 }
 /**
- * Finds out whether the given binary info matches this search pattern.
- * Default is to return false.
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	// override if the pattern can match the binaryInfo
-	return false;
-}
-/**
  * Returns whether the given name matches the given pattern.
  */
 protected boolean matchesName(char[] pattern, char[] name) {
@@ -1188,23 +1182,6 @@ protected boolean matchesName(char[] pattern, char[] name) {
 		}
 	}
 	return false;
-}
-/**
- * Returns whether the given type binding matches the given simple name pattern 
- * and qualification pattern.
- */
-protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPattern, char[] fullyQualifiedTypeName) {
-	// NOTE: if case insensitive search then simpleNamePattern & qualificationPattern are assumed to be lowercase
-	char[] pattern;
-	if (simpleNamePattern == null) {
-		if (qualificationPattern == null) return true;
-		pattern = CharOperation.concat(qualificationPattern, ONE_STAR, '.');
-	} else {
-		pattern = qualificationPattern == null
-			? CharOperation.concat(ONE_STAR, simpleNamePattern)
-			: CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
-	}
-	return CharOperation.match(pattern, fullyQualifiedTypeName, this.isCaseSensitive);
 }
 /**
  * Returns whether the given type reference matches the given pattern.
@@ -1293,7 +1270,18 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
 		? qualifiedSourceName
 		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
-	return matchesType(simpleNamePattern, qualificationPattern, fullyQualifiedTypeName)
+
+	// NOTE: if case insensitive search then simpleNamePattern & qualificationPattern are assumed to be lowercase
+	char[] pattern;
+	if (simpleNamePattern == null) {
+		if (qualificationPattern == null) return ACCURATE_MATCH;
+		pattern = CharOperation.concat(qualificationPattern, ONE_STAR, '.');
+	} else {
+		pattern = qualificationPattern == null
+			? CharOperation.concat(ONE_STAR, simpleNamePattern)
+			: CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
+	}
+	return CharOperation.match(pattern, fullyQualifiedTypeName, this.isCaseSensitive)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;
 }

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
@@ -57,26 +56,6 @@ protected void decodeIndexEntry(IEntryResult entryResult){
 		decodedEnclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	}
 	this.decodedQualification = CharOperation.concatWith(pkgName, decodedEnclosingTypeNames, '.');
-}
-/**
- * @see SearchPattern#matchesBinary(Object, Object)
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!(binaryInfo instanceof IBinaryType)) return false;
-
-	IBinaryType type = (IBinaryType)binaryInfo;
-	char[] typeName = (char[]) type.getName().clone();
-	CharOperation.replace(typeName, '/', '.');
-	if (!matchesType(this.simpleName, this.qualification, typeName)) return false;
-
-	switch (this.classOrInterface) {
-		case CLASS_SUFFIX:
-			return !type.isInterface();
-		case INTERFACE_SUFFIX:
-			return type.isInterface();
-		case TYPE_SUFFIX: // nothing
-	}
-	return true;
 }
 /**
  * see SearchPattern.matchIndexEntry

@@ -29,6 +29,7 @@ protected SearchPattern[] patterns;
 
 public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	super(
+		OR_PATTERN,
 		Math.max(leftPattern.matchMode, rightPattern.matchMode),
 		false); // not used
 
@@ -97,22 +98,6 @@ protected int matchContainer() {
 	for (int i = 0, length = this.patterns.length; i < length; i++)
 		result |= this.patterns[i].matchContainer();
 	return result;
-}
-/**
- * @see SearchPattern#matchesBinary
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	for (int i = 0, length = this.patterns.length; i < length; i++)
-		if (this.patterns[i].matchesBinary(binaryInfo, enclosingBinaryInfo)) return true;
-	return false;
-}
-/**
- * @see SearchPattern#matchIndexEntry
- */
-protected boolean matchIndexEntry() {
-	for (int i = 0, length = this.patterns.length; i < length; i++)
-		if (this.patterns[i].matchIndexEntry()) return true;
-	return false;
 }
 /**
  * @see SearchPattern#matchLevel(AstNode, boolean)

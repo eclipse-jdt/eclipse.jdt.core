@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
  * Query the index multiple times and do an 'and' on the results.
  */
 public abstract class AndPattern extends SearchPattern {
-public AndPattern(int matchMode, boolean isCaseSensitive) {
-	super(matchMode, isCaseSensitive);
+public AndPattern(int kind, int matchMode, boolean isCaseSensitive) {
+	super(kind, matchMode, isCaseSensitive);
 }
 public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	for (int i = 0, max = references.length; i < max; i++) {

@@ -17,8 +17,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -73,7 +71,7 @@ public MethodPattern(
 	char[][] parameterSimpleNames,
 	IType declaringType) {
 
-	super(matchMode, isCaseSensitive);
+	super(METHOD_PATTERN, matchMode, isCaseSensitive);
 
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
@@ -192,48 +190,6 @@ protected int matchContainer() {
 		return METHOD | FIELD;
 	}
 	return CLASS;
-}
-/**
- * @see SearchPattern#matchesBinary(Object, Object)
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!this.findDeclarations) return false; // only relevant when finding declarations
-	if (!(binaryInfo instanceof IBinaryMethod)) return false;
-
-	IBinaryMethod method = (IBinaryMethod) binaryInfo;
-	if (!matchesName(this.selector, method.getSelector())) return false;
-
-	// declaring type
-	if (enclosingBinaryInfo != null && (this.declaringSimpleName != null || this.declaringQualification != null)) {
-		char[] name = ((IBinaryType) enclosingBinaryInfo).getName();
-		char[] declaringTypeName = (char[]) name.clone();
-		CharOperation.replace(declaringTypeName, '/', '.');
-		if (!matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName))
-			return false;
-	}
-
-	// parameter types
-	boolean checkReturnType = this.declaringSimpleName == null && (this.returnSimpleName != null || this.returnQualification != null);
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (checkReturnType || parameterCount > -1) {
-		String methodDescriptor = new String(method.getMethodDescriptor()).replace('/', '.');
-
-		// look at return type only if declaring type is not specified
-		if (checkReturnType) {
-			String returnTypeSignature = Signature.toString(Signature.getReturnType(methodDescriptor));
-			if (!matchesType(this.returnSimpleName, this.returnQualification, returnTypeSignature.toCharArray()))
-				return false;
-		}
-
-		if (parameterCount > -1) {
-			String[] arguments = Signature.getParameterTypes(methodDescriptor);
-			if (parameterCount != arguments.length) return false;
-			for (int i = 0; i < parameterCount; i++)
-				if (!matchesType(this.parameterSimpleNames[i], this.parameterQualifications[i], Signature.toString(arguments[i]).toCharArray()))
-					return false;
-		}
-	}
-	return true;
 }
 /**
  * @see SearchPattern#matchIndexEntry

@@ -44,7 +44,7 @@ public static char[] createReference(char[] typeName) {
 
 
 public TypeReferencePattern(char[] qualification, char[] simpleName, int matchMode, boolean isCaseSensitive) {
-	super(matchMode, isCaseSensitive);
+	super(TYPE_REF_PATTERN, matchMode, isCaseSensitive);
 
 	this.qualification = isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);

@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -139,7 +138,7 @@ public SuperTypeReferencePattern(
 	boolean isCaseSensitive,
 	boolean checkOnlySuperinterfaces) {
 
-	super(matchMode, isCaseSensitive);
+	super(SUPER_REF_PATTERN, matchMode, isCaseSensitive);
 
 	this.superQualification = isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
 	this.superSimpleName = isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
@@ -239,33 +238,6 @@ protected char[] indexEntryPrefix() {
  */
 protected int matchContainer() {
 	return CLASS;
-}
-/**
- * @see SearchPattern#matchesBinary
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!(binaryInfo instanceof IBinaryType)) return false;
-	IBinaryType type = (IBinaryType) binaryInfo;
-	if (!this.checkOnlySuperinterfaces) {
-		char[] vmName = type.getSuperclassName();
-		if (vmName != null) {
-			char[] superclassName = (char[]) vmName.clone();
-			CharOperation.replace(vmName, '/', '.');
-			if (matchesType(this.superSimpleName, this.superQualification, superclassName))
-				return true;
-		}
-	}
-
-	char[][] superInterfaces = type.getInterfaceNames();
-	if (superInterfaces != null) {
-		for (int i = 0, max = superInterfaces.length; i < max; i++) {
-			char[] superInterfaceName = (char[]) superInterfaces[i].clone();
-			CharOperation.replace(superInterfaceName, '/', '.');
-			if (matchesType(this.superSimpleName, this.superQualification, superInterfaceName))
-				return true;
-		}
-	}
-	return false;
 }
 /**
  * @see SearchPattern#matchIndexEntry

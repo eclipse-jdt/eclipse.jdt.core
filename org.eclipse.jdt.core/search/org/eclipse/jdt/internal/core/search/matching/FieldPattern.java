@@ -13,14 +13,11 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryField;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -70,7 +67,7 @@ public FieldPattern(
 	char[] typeQualification, 
 	char[] typeSimpleName) {
 
-	super(matchMode, isCaseSensitive);
+	super(FIELD_PATTERN, matchMode, isCaseSensitive);
 
 	this.findDeclarations = findDeclarations; // set to find declarations & all occurences
 	this.readAccess = readAccess; // set to find any reference, read only references & all occurences
@@ -144,29 +141,6 @@ protected int matchContainer() {
 		return METHOD | FIELD;
 	}
 	return CLASS;
-}
-/**
- * @see SearchPattern#matchesBinary(Object, Object)
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!this.findDeclarations) return false; // only relevant when finding declarations
-	if (!(binaryInfo instanceof IBinaryField)) return false;
-
-	IBinaryField field = (IBinaryField) binaryInfo;
-	if (!matchesName(this.name, field.getName())) return false;
-
-	// declaring type
-	if (enclosingBinaryInfo != null) {
-		IBinaryType declaringType = (IBinaryType) enclosingBinaryInfo;
-		char[] declaringTypeName = (char[]) declaringType.getName().clone();
-		CharOperation.replace(declaringTypeName, '/', '.');
-		if (!matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName))
-			return false;
-	}
-
-	// field type
-	String fieldTypeSignature = new String(field.getTypeName()).replace('/', '.');
-	return matchesType(this.typeSimpleName, this.typeQualification, Signature.toString(fieldTypeSignature).toCharArray());
 }
 protected int matchField(FieldBinding field, boolean matchName) {
 	if (field == null) return INACCURATE_MATCH;

@@ -42,4 +42,14 @@ public interface IIndexConstants {
 	// used as special marker for enclosing type name of local and anonymous classes
 	char[] ONE_ZERO = new char[] {'0'}; 
 	char[][] ONE_ZERO_CHAR = new char[][] {ONE_ZERO};
+
+	int PKG_REF_PATTERN = 1;
+	int PKG_DECL_PATTERN = 2;
+	int TYPE_REF_PATTERN = 4;
+	int TYPE_DECL_PATTERN = 8;
+	int SUPER_REF_PATTERN = 16;
+	int CONSTRUCTOR_PATTERN = 32;
+	int FIELD_PATTERN = 64;
+	int METHOD_PATTERN = 128;
+	int OR_PATTERN = 256;
 }

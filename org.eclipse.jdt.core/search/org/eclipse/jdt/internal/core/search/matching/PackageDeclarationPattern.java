@@ -20,7 +20,7 @@ public class PackageDeclarationPattern extends SearchPattern {
 protected char[] pkgName;
 
 public PackageDeclarationPattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
-	super(matchMode, isCaseSensitive);
+	super(PKG_DECL_PATTERN, matchMode, isCaseSensitive);
 	this.pkgName = pkgName;
 }
 /**

@@ -372,48 +372,43 @@ public IInitializer createInitializerHandle(TypeDeclaration typeDecl, FieldDecla
 public IMethod createMethodHandle(AbstractMethodDeclaration method, IType type) {
 	if (type == null) return null;
 	Argument[] arguments = method.arguments;
-	int length = arguments == null ? 0 : arguments.length;
+	int argCount = arguments == null ? 0 : arguments.length;
 	if (type.isBinary()) {
 		// don't cache the methods of the binary type
 		ClassFileReader reader = classFileReader(type);
 		if (reader == null) return null;
-		IBinaryMethod[] methods = reader.getMethods();
 
+		IBinaryMethod[] methods = reader.getMethods();
 		if (methods != null) {
-			for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
+			nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
 				IBinaryMethod binaryMethod = methods[i];
 				char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
 				if (CharOperation.equals(selector, method.selector)) {
-					String[] parameterTypes = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
-					if (length != parameterTypes.length) continue;
-					boolean sameParameters = true;
-					for (int j = 0; j < length; j++) {
-						TypeReference parameterType = arguments[j].type;
-						char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
-						for (int k = 0; k < parameterType.dimensions(); k++)
-							typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
-						String parameterTypeName = parameterTypes[j].replace('/', '.');
-						if (!Signature.toString(parameterTypeName).endsWith(new String(typeName))) {
-							sameParameters = false;
-							break;
-						} else {
-							parameterTypes[j] = parameterTypeName;
-						}
+					char[][] parameterTypes = Signature.getParameterTypes(binaryMethod.getMethodDescriptor());
+					if (argCount != parameterTypes.length) continue nextMethod;
+					for (int j = 0; j < argCount; j++) {
+						TypeReference typeRef = arguments[j].type;
+						char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+						for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+							typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+						char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
+						if (!CharOperation.endsWith(Signature.toCharArray(parameterTypeName), typeName))
+							continue nextMethod;
+						parameterTypes[j] = parameterTypeName;
 					}
-					if (sameParameters)
-						return type.getMethod(new String(selector), parameterTypes);
+					return type.getMethod(new String(selector), CharOperation.toStrings(parameterTypes));
 				}
 			}
 		}
 		return null;
 	}
 
-	String[] parameterTypeSignatures = new String[length];
-	for (int i = 0; i < length; i++) {
-		TypeReference parameterType = arguments[i].type;
-		char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
-		for (int j = 0; j < parameterType.dimensions(); j++)
-			typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
+	String[] parameterTypeSignatures = new String[argCount];
+	for (int i = 0; i < argCount; i++) {
+		TypeReference typeRef = arguments[i].type;
+		char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+		for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
+			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
 	return type.getMethod(new String(method.selector), parameterTypeSignatures);
@@ -533,11 +528,11 @@ public void initialize(JavaProject project, int potentialMatchSize) throws JavaM
 	this.matchesToProcess = new PotentialMatch[potentialMatchSize];
 }
 protected void locateMatches(JavaProject javaProject, PotentialMatch[] potentialMatches, int start, int length) throws JavaModelException {
-	
 	initialize(javaProject, length);
+
 	try {
 		this.nameLookup.setUnitsToLookInside(this.workingCopies);
-	
+
 		// create and resolve binding (equivalent to beginCompilation() in Compiler)
 		boolean bindingsWereCreated = true;
 		try {
@@ -810,8 +805,12 @@ protected void process(PotentialMatch potentialMatch, boolean bindingsWereCreate
 	MatchingNodeSet matchingNodeSet = null;
 	try {
 		if (unit.isEmpty()) {
-			if (this.currentPotentialMatch.openable instanceof ClassFile)
-				this.currentPotentialMatch.locateMatchesInClassFile();
+			if (this.currentPotentialMatch.openable instanceof ClassFile) {
+				ClassFile classFile = (ClassFile) this.currentPotentialMatch.openable;
+				IBinaryType info = this.getBinaryInfo(classFile, this.currentPotentialMatch.resource);
+				if (info != null)
+					new ClassFileMatchLocator().locateMatches(this, classFile, info);
+			}
 			return;
 		}
 		if (hasAlreadyDefinedType(unit)) return; // skip type has it is hidden so not visible
