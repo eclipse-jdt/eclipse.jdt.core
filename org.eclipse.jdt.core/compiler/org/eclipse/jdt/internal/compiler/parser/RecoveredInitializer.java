@@ -232,12 +232,16 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 	if (this.fieldDeclaration.declarationSourceEnd == 0) {
-		this.fieldDeclaration.sourceEnd = bodyEnd;
-		this.fieldDeclaration.declarationSourceEnd = bodyEnd;
-		this.fieldDeclaration.declarationEnd = bodyEnd;
-		((Initializer)this.fieldDeclaration).bodyEnd = bodyStart - 1;	
+		Initializer initializer = (Initializer)fieldDeclaration;
+		if(parser().rBraceSuccessorStart >= braceEnd) {
+			initializer.declarationSourceEnd = parser().rBraceEnd;
+			initializer.bodyEnd = parser().rBraceStart;
+		} else {
+			initializer.declarationSourceEnd = braceEnd;
+			initializer.bodyEnd  = braceStart - 1;
+		}
 	}
 }
 }

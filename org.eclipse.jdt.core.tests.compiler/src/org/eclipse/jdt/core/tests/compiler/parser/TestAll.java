@@ -68,6 +68,7 @@ public static Test suite() {
 	/* syntax error diagnosis tests */
 	addTest(suite, SyntaxErrorTest.class);
 	addTest(suite, DualParseSyntaxErrorTest.class);
+	addTest(suite, ParserTest.class);
 
 	return suite;
 }

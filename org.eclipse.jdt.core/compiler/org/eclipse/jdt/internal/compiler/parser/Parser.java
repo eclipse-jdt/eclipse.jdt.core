@@ -5551,15 +5551,68 @@ protected void parse() {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
 }
+// A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
+	if(referenceContext instanceof MethodDeclaration) {
+		MethodDeclaration methodDeclaration = (MethodDeclaration) referenceContext;
+		if(methodDeclaration.errorInSignature){
+			return;
+		}
+	}
 	compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	scanner.recordLineSeparator = false;
 	
-	DiagnoseParser diagnoseParser = new DiagnoseParser(this, isDietParse, oldFirstToken);
-	diagnoseParser.diagnoseParse();
+	int start = scanner.initialPosition;
+	int end = scanner.eofPosition <= Integer.MAX_VALUE ? scanner.eofPosition - 1 : scanner.eofPosition;
+	if(isDietParse) {
+		TypeDeclaration[] types = this.compilationUnit.types;
+		
+		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.Util.computeDietRange(types);
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
+		diagnoseParser.diagnoseParse();
+		
+		reportSyntaxErrorsForSkippedMethod(types);
+		scanner.resetTo(start, end);
+	} else {
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
+		diagnoseParser.diagnoseParse();
+	}
 }
-// A P I
-
+private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
+	if(types != null) {
+		for (int i = 0; i < types.length; i++) {
+			TypeDeclaration[] memberTypes = types[i].memberTypes;
+			if(memberTypes != null) {
+				reportSyntaxErrorsForSkippedMethod(memberTypes);
+			}
+			
+			AbstractMethodDeclaration[] methods = types[i].methods;
+			if(methods != null) {
+				for (int j = 0; j < methods.length; j++) {
+					AbstractMethodDeclaration method = methods[j];
+					if(methods[j].errorInSignature) {
+						DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE, method.declarationSourceStart, method.declarationSourceEnd);
+						diagnoseParser.diagnoseParse();
+					}
+				}
+			}
+			
+			FieldDeclaration[] fields = types[i].fields;
+			if (fields != null) {
+				int length = fields.length;
+				for (int j = 0; j < length; j++) {
+					if (fields[j] instanceof Initializer) {
+						Initializer initializer = (Initializer)fields[j];
+						if(initializer.errorInSignature){
+							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd);
+							diagnoseParser.diagnoseParse();
+						}
+					}
+				}
+			}
+		}
+	}
+}
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 	//only parse the method body of cd
 	//fill out its statements

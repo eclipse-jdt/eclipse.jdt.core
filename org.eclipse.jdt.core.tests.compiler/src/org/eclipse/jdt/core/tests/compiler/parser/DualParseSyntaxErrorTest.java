@@ -125,9 +125,9 @@ public void test02() {
 
 	String expectedSyntaxErrorDiagnosis =
 		"----------\n" + 
-		"1. ERROR in <test2> (at line 3)\n" + 
-		"	void foo() {   							\n" + 
-		"	           ^\n" + 
+		"1. ERROR in <test2> (at line 4)\n" + 
+		"	fX = 0;  							\n" + 
+		"	      ^\n" + 
 		"Syntax error, insert \"}\" to complete MethodBody\n" + 
 		"----------\n";
 
@@ -153,12 +153,12 @@ public void test03() {
 		"1. ERROR in <test3> (at line 3)\n" + 
 		"	void foo()   							\n" + 
 		"	         ^\n" + 
-		"Syntax error, insert \"}\" to complete MethodBody\n" + 
-		"----------\n" + 
-		"2. ERROR in <test3> (at line 3)\n" + 
-		"	void foo()   							\n" + 
-		"	         ^\n" + 
 		"Syntax error on token \")\", { expected after this token\n" + 
+		"----------\n" + 
+		"2. ERROR in <test3> (at line 4)\n" + 
+		"	fX = 0;  							\n" + 
+		"	      ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
 		"----------\n";
 
 	String testName = "<test3>";
@@ -261,9 +261,9 @@ public void test07() {
 
 	String expectedSyntaxErrorDiagnosis =
 		"----------\n" + 
-		"1. ERROR in <test7> (at line 3)\n" + 
-		"	void foo() {  							\n" + 
-		"	           ^\n" + 
+		"1. ERROR in <test7> (at line 6)\n" + 
+		"	System.out.println();					\n" + 
+		"	                    ^\n" + 
 		"Syntax error, insert \"}\" to complete MethodBody\n" + 
 		"----------\n";
 
@@ -338,9 +338,9 @@ public void test10() {
 
 	String expectedSyntaxErrorDiagnosis =
 		"----------\n" + 
-		"1. ERROR in <test10> (at line 3)\n" + 
-		"	void foo() {  							\n" + 
-		"	           ^\n" + 
+		"1. ERROR in <test10> (at line 6)\n" + 
+		"	System.out.println();					\n" + 
+		"	                    ^\n" + 
 		"Syntax error, insert \"}\" to complete MethodBody\n" + 
 		"----------\n";
 

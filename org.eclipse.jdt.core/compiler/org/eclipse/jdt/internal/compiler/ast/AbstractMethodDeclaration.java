@@ -44,6 +44,8 @@ public abstract class AbstractMethodDeclaration
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
 	
+	public boolean errorInSignature = false; 
+	
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
 	}

@@ -22,6 +22,9 @@ public class Initializer extends FieldDeclaration {
 	public int lastFieldID;
 	public int bodyStart;
 	public int bodyEnd;
+	
+	public boolean errorInSignature = false; 
+	
 	public Initializer(Block block, int modifiers) {
 		this.block = block;
 		this.modifiers = modifiers;

@@ -23,6 +23,7 @@ public class Util {
 	// flags
 	public static final int NO_FLAG = 0;
 	public static final int LBRACE_MISSING = 1;
+	public static final int IGNORE = 2;
 	
 	private static int pos;
 	private static int[] intervalStarts;
@@ -30,7 +31,7 @@ public class Util {
 	private static int[] intervalFlags;
 	
 	private static void addInterval(int start, int end){
-		addInterval(start, end, 0);
+		addInterval(start, end, NO_FLAG);
 	}
 	
 	private static void addInterval(int start, int end, int flags){
@@ -47,6 +48,10 @@ public class Util {
 	
 	private static int compare(int i1, int i2) {
 		return i1 - i2;
+	}
+	
+	public static boolean containsErrorInSignature(AbstractMethodDeclaration method){
+		return method.sourceEnd + 1 == method.bodyStart	|| method.bodyEnd == method.declarationSourceEnd;
 	}
 	
 	private static void quickSort(int[] list, int[] list2, int[] list3, int left, int right) {
@@ -123,12 +128,14 @@ public class Util {
 				int length = methods.length;
 				for (int i = 0; i < length; i++) {
 					AbstractMethodDeclaration method = methods[i];
-					if(!method.isDefaultConstructor()
-						&& !method.isClinit()
-						&& (method.modifiers & CompilerModifiers.AccSemicolonBody) == 0) {
-						
-						int flags = method.sourceEnd + 1 == method.bodyStart ? LBRACE_MISSING : NO_FLAG;
-						addInterval(method.bodyStart, method.bodyEnd, flags);
+					if(containsIgnoredBody(method)) {
+						if(containsErrorInSignature(method)) {
+							method.errorInSignature = true;
+							addInterval(method.declarationSourceStart, method.declarationSourceEnd, IGNORE);
+						} else {
+							int flags = method.sourceEnd + 1 == method.bodyStart ? LBRACE_MISSING : NO_FLAG;
+							addInterval(method.bodyStart, method.bodyEnd, flags);
+						}
 					}
 				}
 			}
@@ -140,7 +147,12 @@ public class Util {
 				for (int i = 0; i < length; i++) {
 					if (fields[i] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[i];
-						addInterval(initializer.bodyStart, initializer.bodyEnd);
+						if(initializer.declarationSourceEnd == initializer.bodyEnd){
+							initializer.errorInSignature = true;
+							addInterval(initializer.declarationSourceStart, initializer.declarationSourceEnd, IGNORE);
+						} else {
+							addInterval(initializer.bodyStart, initializer.bodyEnd);
+						}
 					}
 				}
 			}
@@ -167,5 +179,11 @@ public class Util {
 			}
 		}
 		return length - 1;
+	}
+	
+	public static boolean containsIgnoredBody(AbstractMethodDeclaration method){
+		return !method.isDefaultConstructor()
+			&& !method.isClinit()
+			&& (method.modifiers & CompilerModifiers.AccSemicolonBody) == 0;
 	}
 }

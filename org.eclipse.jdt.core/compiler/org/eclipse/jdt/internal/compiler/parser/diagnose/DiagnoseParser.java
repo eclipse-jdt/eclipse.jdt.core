@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.parser.diagnose;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -75,8 +74,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	StateInfo[] statePool;
 	
 	private Parser parser;
-	private int init;
-	private int eof;
 	
 	private class RepairCandidate {
 		public int symbol;
@@ -136,18 +133,13 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	    }
 	}
 
-	public DiagnoseParser(Parser parser, boolean isDiet, int firstToken) {
-		Scanner scanner = parser.scanner;
-		
-		this.init = scanner.initialPosition;
-		this.eof = scanner.eofPosition <= Integer.MAX_VALUE ? scanner.eofPosition - 1 : scanner.eofPosition;
+	public DiagnoseParser(Parser parser, int firstToken, int start, int end) {
+		this(parser, firstToken, start, end, new int[0], new int[0], new int[0]);
+	}
+
+	public DiagnoseParser(Parser parser, int firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip) {
 		this.parser = parser;
-		if(isDiet) {
-			int[][] intervalToSkip = Util.computeDietRange(parser.compilationUnit.types);
-			this.lexStream = new LexStream(BUFF_SIZE, scanner, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2], firstToken, init, eof);
-		} else {
-			this.lexStream = new LexStream(BUFF_SIZE, scanner, new int[0], new int[0], new int[0], firstToken, init, eof);
-		}
+		this.lexStream = new LexStream(BUFF_SIZE, parser.scanner, intervalStartToSkip, intervalEndToSkip, intervalFlagsToSkip, firstToken, start, end);
 	}
 	
 	private ProblemReporter problemReporter(){
@@ -205,7 +197,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		locationStartStack[stateStackTop] = lexStream.start(currentToken);
 		
 		boolean forceRecoveryAfterLBracketMissing = false;
-		int forceRecoveryToken = -1;
+//		int forceRecoveryToken = -1;
 
 		//
 		// Process a terminal
@@ -325,15 +317,15 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					act = Parser.tAction(act, tok);
 				}
 
-				if((tok != TokenNameRBRACE || (forceRecoveryToken != currentToken && (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0))
-					&& (lexStream.flags(currentToken) & LexStream.IS_AFTER_JUMP) !=0) {
-					act = ERROR_ACTION;
-					if(forceRecoveryToken != currentToken
-						&& (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0) {
-						forceRecoveryAfterLBracketMissing = true;
-						forceRecoveryToken = currentToken;
-					}
-				}
+//				if((tok != TokenNameRBRACE || (forceRecoveryToken != currentToken && (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0))
+//					&& (lexStream.flags(currentToken) & LexStream.IS_AFTER_JUMP) !=0) {
+//					act = ERROR_ACTION;
+//					if(forceRecoveryToken != currentToken
+//						&& (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0) {
+//						forceRecoveryAfterLBracketMissing = true;
+//						forceRecoveryToken = currentToken;
+//					}
+//				}
 				
 				//
 				// No error was detected, Read next token into

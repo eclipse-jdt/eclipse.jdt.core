@@ -144,20 +144,15 @@ public void test007() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	void foo()throw {\n" + 
-		"	         ^\n" + 
-		"Syntax error on token \")\", { expected after this token\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	               ^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo()throw {\n" + 
 		"	          ^^^^^\n" + 
-		"Syntax error on token \"throw\", delete this token\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 4)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"Syntax error on token \"throw\", { expected\n" + 
 		"----------\n"
 	);
 }
@@ -171,20 +166,20 @@ public void test008() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	void foo()throw E {\n" + 
-		"	         ^\n" + 
-		"Syntax error on token \")\", { expected after this token\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	               ^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo()throw E {\n" + 
-		"	                ^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"	          ^^^^^\n" + 
+		"Syntax error on token \"throw\", throws expected\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	}\n" + 
 		"	^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
 		"----------\n"
 	);
 }

@@ -427,18 +427,15 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 	if (this.methodDeclaration.declarationSourceEnd == 0) {
-		int end, declarationSourceEnd;
-		if(parser().rBraceSuccessorStart >= bodyEnd) {
-			declarationSourceEnd = parser().rBraceEnd;
-			end = parser().rBraceStart;
+		if(parser().rBraceSuccessorStart >= braceEnd) {
+			this.methodDeclaration.declarationSourceEnd = parser().rBraceEnd;
+			this.methodDeclaration.bodyEnd = parser().rBraceStart;
 		} else {
-			declarationSourceEnd = bodyEnd;
-			end = bodyStart - 1;
+			this.methodDeclaration.declarationSourceEnd = braceEnd;
+			this.methodDeclaration.bodyEnd  = braceStart - 1;
 		}
-		this.methodDeclaration.declarationSourceEnd = declarationSourceEnd;
-		this.methodDeclaration.bodyEnd = end;
 	}
 }
 }

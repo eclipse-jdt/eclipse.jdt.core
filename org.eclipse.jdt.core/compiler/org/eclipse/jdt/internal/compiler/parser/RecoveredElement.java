@@ -318,7 +318,7 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 }
 public void updateSourceEndIfNecessary(int sourceEnd){
 	this.updateSourceEndIfNecessary(sourceEnd + 1, sourceEnd);
