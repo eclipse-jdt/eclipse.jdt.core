@@ -18,6 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
@@ -2775,6 +2776,21 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ITypeBinding binding2 = expression4.resolveTypeBinding();
 		assertNotNull("No binding", binding2);
 		assertTrue("Should be the same", binding == binding2);
+	}
+	
+	public void _test0500() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0500", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IJavaProject project = sourceUnit.getJavaProject();
+		Map originalOptions = project.getOptions(true);
+		try {
+			project.setOption(JavaCore.COMPILER_PB_INVALID_ANNOTATION, JavaCore.ERROR);
+			project.setOption(JavaCore.COMPILER_PB_MISSING_ANNOTATION, JavaCore.ENABLED);
+			CompilationUnit result = (CompilationUnit)runConversion(sourceUnit, true);
+			IProblem[] problems= result.getProblems();
+			assertTrue(problems.length == 1);
+		} finally {
+			project.setOptions(originalOptions);
+		}
 	}
 	
 }
