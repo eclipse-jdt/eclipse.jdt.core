@@ -242,7 +242,11 @@ public String getTypeQualifiedName() {
 		return name.substring(0,name.lastIndexOf('.'));
 	}
 	if (fParent.getElementType() == IJavaElement.TYPE) {
-		return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+		if (Character.isDigit(fName.charAt(0))) {
+			return ((IType) fParent).getTypeQualifiedName();
+		} else {
+			return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+		}
 	}
 	Assert.isTrue(false); // should not be reachable
 	return null;
