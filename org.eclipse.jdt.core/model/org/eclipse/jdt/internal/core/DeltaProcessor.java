@@ -75,18 +75,18 @@ public class DeltaProcessor implements IResourceChangeListener {
 	protected IndexManager indexManager = new IndexManager();
 		
 	/* A table from IPath (from a classpath entry) to RootInfo */
-	Map roots;
+	public Map roots;
 	
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * Used when an IPath corresponds to more than one root */
 	Map otherRoots;
 	
 	/* Whether the roots tables should be recomputed */
-	boolean rootsAreStale = true;
+	public boolean rootsAreStale = true;
 	
 	/* A table from IPath (from a classpath entry) to RootInfo
 	 * from the last time the delta processor was invoked. */
-	Map oldRoots;
+	public Map oldRoots;
 
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * from the last time the delta processor was invoked.
@@ -1067,8 +1067,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 
 	public void initializeRoots() {
 		// remember roots infos as old roots infos
-		this.oldRoots = this.roots;
-		this.oldOtherRoots = this.otherRoots;
+		this.oldRoots = this.roots == null ? new HashMap() : this.roots;
+		this.oldOtherRoots = this.otherRoots == null ? new HashMap() : this.otherRoots;
 		
 		// recompute root infos only if necessary
 		if (!rootsAreStale) return;

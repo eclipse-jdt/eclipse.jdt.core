@@ -30,6 +30,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.DeltaProcessor;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import junit.framework.Test;
@@ -106,8 +108,9 @@ public static Test suite() {
 	// non-java projects
 	suite.addTest(new JavaElementDeltaTests("testAddNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent1"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent2"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent3"));
 	suite.addTest(new JavaElementDeltaTests("testOpenNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProjectUpdateDependent"));
@@ -1545,7 +1548,7 @@ public void testRemoveNonJavaProject() throws CoreException {
  * a delta on this other project.
  * (regression test for bug 19058 Closing non-java project doesn't remove root from java project)
  */
-public void testRemoveNonJavaProjectUpdateDependent() throws CoreException {
+public void testRemoveNonJavaProjectUpdateDependent1() throws CoreException {
 	try {
 		this.createProject("SP");
 		this.createFile("/SP/x.jar", "");
@@ -1577,6 +1580,43 @@ public void testRemoveNonJavaProjectUpdateDependent2() throws CoreException {
 		this.deleteProject("SP");
 		assertDeltas(
 			"Unexpected delta", 
+			"ResourceDelta(/SP)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("SP");
+		this.deleteProject("JP");
+	}
+}
+/*
+ * Removing a non-java project that contains a jar referenced in another project should produce
+ * a delta on this other project. Case of the removal being done right after start-up.
+ * (regression test for bug 31377 NullPointerException on binary import)
+ */
+public void testRemoveNonJavaProjectUpdateDependent3() throws CoreException {
+	try {
+		this.createProject("SP");
+		this.createFile("/SP/x.jar", "");
+		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/x.jar"}, "");
+		
+		// simulate start-up state of DeltaProcessor
+		DeltaProcessor deltaProcessor = JavaModelManager.getJavaModelManager().deltaProcessor;
+		deltaProcessor.oldRoots = null;
+		deltaProcessor.roots = null;
+		deltaProcessor.rootsAreStale = true;
+		
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteProject("SP");
+				}
+			}, 
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"JP[*]: {CHILDREN}\n" + 
+			"	/SP/x.jar[-]: {}\n" + 
 			"ResourceDelta(/SP)"
 		);
 	} finally {
