@@ -17,8 +17,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.tests.model.*;
-
 
 public class RenameTests extends CopyMoveTests {
 	ICompilationUnit cu;

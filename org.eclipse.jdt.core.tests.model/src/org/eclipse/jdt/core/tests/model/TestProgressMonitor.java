@@ -64,11 +64,6 @@ public void subTask(String name) {
 /**
  * @see IProgressMonitor#worked
  */
-public void worked(double work) {
-}
-/**
- * @see IProgressMonitor#worked
- */
 public void worked(int work) {
 }
 }
