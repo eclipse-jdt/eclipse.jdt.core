@@ -82,7 +82,9 @@ to rather highlight the caught exception type instead of entire catch block.
 <li>Added two new API methods <code>readRawClasspath()</code> and <code>readOutputLocation()</code> on <code>IJavaProject</code>
 interface so as to allow user to read classpath directly from disk (<code>.classpath</code> file contents). This is useful to configure
 a Java project before it is associated with the Java nature, or before the automatic classpath reconciliation mechanism has performed (within
-a resource modifying operation, and prior to the change notification).
+a resource modifying operation, and prior to the change notification). Note that these API additions are obsoleting the previously
+added API <code>IJavaProject#forceClasspathReload(IProgressMonitor)</code> (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=20931">20931</a>)
+which has thus been deprecated. Forcing the classpath reload can simply be achieved by: <code>p.setRawClasspath(p.readRawClasspath(), p.readOutputLocation(), ...)</code>.
 </li>
 </ul>
 
