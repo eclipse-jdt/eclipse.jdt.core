@@ -98,7 +98,7 @@ public int getModifiers() {
 	if (this.accessFlags == -1) {
 		// compute the accessflag. Don't forget the deprecated attribute
 		this.accessFlags = u2At(0);
-		readDeprecatedAndSyntheticAttributes();
+		readModifierRelatedAttributes();
 	}
 	return this.accessFlags;
 }
@@ -263,16 +263,21 @@ private void readConstantAttribute() {
 		constant = Constant.NotAConstant;
 	}
 }
-private void readDeprecatedAndSyntheticAttributes() {
+private void readModifierRelatedAttributes() {
 	int attributesCount = u2At(6);
 	int readOffset = 8;
 	for (int i = 0; i < attributesCount; i++) {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, DeprecatedName)) {
-			this.accessFlags |= AccDeprecated;
-		} else if (CharOperation.equals(attributeName, SyntheticName)) {
-			this.accessFlags |= AccSynthetic;
+		switch(attributeName[0]) {
+			case 'D' :
+				if (CharOperation.equals(attributeName, DeprecatedName))
+					this.accessFlags |= AccDeprecated;
+				break;
+			case 'S' :
+				if (CharOperation.equals(attributeName, SyntheticName))
+					this.accessFlags |= AccSynthetic;
+				break;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}

@@ -9,6 +9,9 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
+
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+
 /**
  * This interface defines constants for use by the builder / compiler
  * interface.
@@ -43,6 +46,8 @@ public interface IConstants {
 	/**
 	 * Extra flags for types and members attributes.
 	 */
-	int AccDeprecated = 0x100000;
+	int AccAnnotationDefault = ASTNode.Bit18; // indicate that the annotation attribute has a default value
+	int AccDeprecated = ASTNode.Bit21;
+	
 	
 }

@@ -1186,7 +1186,7 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 		intPtr--; // we get rid of the position of the default keyword
 		intPtr--; // we get rid of the position of the default keyword
 		annotationTypeMemberDeclaration.defaultValue = this.expressionStack[this.expressionPtr--];
-		annotationTypeMemberDeclaration.modifiers |=  AccAnnotationMethodWithDefault;
+		annotationTypeMemberDeclaration.modifiers |=  AccAnnotationDefault;
 	}
 
 	// store the this.endPosition (position just before the '}') in case there is

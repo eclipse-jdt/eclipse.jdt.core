@@ -137,7 +137,7 @@ public abstract class Annotation extends Expression {
 					continue nextMember;
 				}
 			}
-			if (!foundValue && (method.modifiers & AccAnnotationMethodWithDefault) == 0) {
+			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
 				scope.problemReporter().missingValueForAnnotationMember(this, method.selector);
 			}
 		}

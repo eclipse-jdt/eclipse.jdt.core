@@ -546,4 +546,70 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"The value for annotation attribute Foo.value must be a constant expression\n" + 
 			"----------\n");
 	}			
+	
+	// check use of array initializer
+	public void test023() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"	String[] value() default {};\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@Foo( {} )\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"");
+	}
+	
+	// check use of binary annotation - check referencing binary annotation
+	public void test024() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"	String[] value() default {};\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo({})\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}			
+	
+	// check use of binary annotation - check default value presence
+	// TODO (olivier) reenable once addressed
+	public void _test025() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"	String[] value() default {};\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}		
 }
