@@ -12,6 +12,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -541,6 +542,41 @@ public class JavaProject
 		}
 		return null;
 	}
+	/**
+	 * @see IJavaProject#findType(String)
+	 */
+	public IType findType(String fullyQualifiedName) throws JavaModelException {
+		IType type = 
+			this.getNameLookup().findType(
+				fullyQualifiedName, 
+				false,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		if (type == null) {
+			// try to find enclosing type
+			int lastDot = fullyQualifiedName.lastIndexOf('.');
+			if (lastDot == -1) return null;
+			type = this.findType(fullyQualifiedName.substring(0, lastDot));
+			if (type != null) {
+				type = type.getType(fullyQualifiedName.substring(lastDot+1));
+				if (!type.exists()) {
+					return null;
+				}
+			}
+		}
+		return type;
+	}
+	/**
+	 * @see IJavaProject#findType(String, String)
+	 */
+	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
+		return 
+			this.getNameLookup().findType(
+				packageName,
+				typeQualifiedName, 
+				false,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+	}
+
 	
 	/**
 	 * @see Openable

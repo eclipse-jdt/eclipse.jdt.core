@@ -91,6 +91,34 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException;
+	/**
+	 * Returns the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found.
+	 * The fully qualified name is a dot-separated name. For example,
+	 * a class B defined as a member type of a class A in package x.y should have a 
+	 * the fully qualified name "x.y.A.B".
+	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 2.0
+	 */
+	IType findType(String fullyQualifiedName) throws JavaModelException;
+	/**
+	 * Returns the first type found following this project's classpath 
+	 * with the given package name and type qualified name
+	 * or <code>null</code> if none is found.
+	 * The package name is a dot-separated name.
+	 * The type qualified name is also a dot-separated name. For example,
+	 * a class B defined as a member type of a class A should have the 
+	 * type qualified name "A.B".
+	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @see IType#getTypeQualifiedName(char)
+	 * @since 2.0
+	 */
+	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
 
 	/**
 	 * Returns all of the existing package fragment roots that exist
@@ -100,6 +128,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *		exception occurs while accessing its corresponding resource
 	 */
 	IPackageFragmentRoot[] getAllPackageFragmentRoots() throws JavaModelException;
+
+	/** TOFIX
+	 * 
+	 */
+	IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException;
 
 	/**
 	 * Returns an array of non-Java resources directly contained in this project.
@@ -258,11 +291,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @see IClasspathEntry 
 	 */
 	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable) throws JavaModelException;
-
-	/** TOFIX
-	 * 
-	 */
-	IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException;
 
 	/**
 	 * Returns whether this project has been built at least once and thus whether it has a build state.
