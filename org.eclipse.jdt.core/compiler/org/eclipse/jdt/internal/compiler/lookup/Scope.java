@@ -131,12 +131,15 @@ public abstract class Scope
 		if (type.isArrayType())
 			type = ((ArrayBinding) type).leafComponentType;
 
-		if (type instanceof BinaryTypeBinding) {
+		if (type instanceof BinaryTypeBinding && (type.tagBits & EndHierarchyCheck) == 0) {
 			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
 			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
-			binaryType.enclosingType();
-			binaryType.superclass();
-			binaryType.superInterfaces();
+			faultInReceiverType(binaryType.enclosingType());
+			faultInReceiverType(binaryType.superclass());
+			ReferenceBinding[] interfaces = binaryType.superInterfaces();
+			for (int i = 0, l = interfaces.length; i < l; i++)
+				faultInReceiverType(interfaces[i]);
+			type.tagBits |= EndHierarchyCheck;
 		}
 	}
 
