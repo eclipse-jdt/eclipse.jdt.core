@@ -109,7 +109,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		if (isAnnotationMember) {
 			// annotation cannot override any method
 			problemReporter().annotationCannotOverrideMethod(currentMethod, inheritedMethod);
-			continue nextMethod;
+			return; // do not repoort against subsequent inherited methods
 		}		
 		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
 			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);

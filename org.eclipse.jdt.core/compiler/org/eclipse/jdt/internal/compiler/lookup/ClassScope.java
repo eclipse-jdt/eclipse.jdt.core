@@ -787,9 +787,9 @@ public class ClassScope extends Scope {
 		if (referenceContext.superInterfaces == null) {
 			if (sourceType.isAnnotationType() && environment().options.sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
-				if (!detectHierarchyCycle(sourceType, annotationType, null))
-					return false;
+				boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };
+				return !foundCycle;
 			}
 			return true;
 		}

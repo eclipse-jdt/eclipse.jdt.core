@@ -2157,7 +2157,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	int hashCode();\n" + 
 			"	    ^^^^^^^^\n" + 
-			"The annotation type I cannot override the method Object.hashCode()\n" + 
+			"The annotation type I cannot override the method Annotation.hashCode()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	Object clone();\n" + 
