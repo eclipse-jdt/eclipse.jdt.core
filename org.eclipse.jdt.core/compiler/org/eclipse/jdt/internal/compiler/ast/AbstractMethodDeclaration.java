@@ -355,8 +355,8 @@ public abstract class AbstractMethodDeclaration
 		try {
 			bindArguments(); 
 			bindThrownExceptions();
-			resolveStatements();
 			resolveJavadoc();
+			resolveStatements();
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 
