@@ -99,7 +99,7 @@ public class QualifiedNameReference extends NameReference {
 							lastReceiverType = ((VariableBinding)binding).type;
 							break;
 						default :
-							lastReceiverType = otherBindings[i-1].type;
+							lastReceiverType = otherBindings[i-2].type;
 					}
 					manageSyntheticReadAccessIfNecessary(
 						currentScope, 

@@ -2924,7 +2924,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		this.buffer
 			.append(Util.bind("disassembler.constantstring")) //$NON-NLS-1$
 			.append(constantPoolEntry.getStringValue())
-			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
+			.append(Util.bind("disassembler.closeconstantstring")); //$NON-NLS-1$
 	}
 
 	private void appendOutputforConstantInteger(IConstantPoolEntry constantPoolEntry) {
