@@ -239,7 +239,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			// a problem occured while parsing the source
 			return source;
 		}
-		this.preferences.line_delimiter = lineSeparator;
+		if (lineSeparator != null) {
+			this.preferences.line_delimiter = lineSeparator;
+		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
@@ -254,7 +256,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	private String formatCompilationUnit(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
 		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), options);
 		
-		this.preferences.line_delimiter = lineSeparator;
+		if (lineSeparator != null) {
+			this.preferences.line_delimiter = lineSeparator;
+		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
@@ -273,7 +277,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			// a problem occured while parsing the source
 			return source;
 		}
-		this.preferences.line_delimiter = lineSeparator;
+		if (lineSeparator != null) {
+			this.preferences.line_delimiter = lineSeparator;
+		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
@@ -292,7 +298,9 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			// a problem occured while parsing the source
 			return source;
 		}
-		this.preferences.line_delimiter = lineSeparator;
+		if (lineSeparator != null) {
+			this.preferences.line_delimiter = lineSeparator;
+		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);

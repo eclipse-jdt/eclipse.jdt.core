@@ -413,7 +413,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final int fragmentsSize = builder.size();
 		
 		if (fragmentsSize > 1) {
-			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
 			boolean ok = false;
 			AstNode[] fragments = builder.fragments();
@@ -1538,7 +1538,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, this.preferences.insert_space_before_opening_brace_in_array_initializer);
 		
 		final Expression[] expressions = arrayInitializer.expressions;
 		if (expressions != null) {
@@ -1842,7 +1842,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		String block_brace_position = this.preferences.block_brace_position;
 		formatOpeningBrace(block_brace_position, this.preferences.insert_space_before_block_open_brace);
-		this.scribe.indent();
+		if (this.preferences.indent_block_statements) {
+			this.scribe.indent();
+		}
 	
 		final Statement[] statements = block.statements;
 		if (statements != null) {
@@ -1852,7 +1854,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		this.scribe.printComment();
 
-		this.scribe.unIndent();
+		if (this.preferences.indent_block_statements) {
+			this.scribe.unIndent();
+		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 	
 		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
@@ -2492,6 +2496,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final Statement action = forStatement.action;
 		if (action != null) {
 			if (action instanceof Block) {
+				action.traverse(this, scope);
+			} else if (action instanceof EmptyStatement && !this.preferences.put_empty_statement_on_new_line) {
 				action.traverse(this, scope);
 			} else {
 				this.scribe.indent();

@@ -157,9 +157,11 @@ public class Alignment {
 			this.breakIndentationLevel = this.location.outputIndentationLevel + (this.scribe.useTab ? continuationIndentation : continuationIndentation*this.scribe.tabSize);
 		}
 		// reduce indentation of broken fragment in case first fragment would be before the subsequent ones
-		int firstFragmentNextIndentationLevel =  this.scribe.getNextIndentationLevel(this.location.outputColumn);
-		if (firstFragmentNextIndentationLevel < this.breakIndentationLevel) {
-			this.breakIndentationLevel = firstFragmentNextIndentationLevel;
+		if ((mode & M_NEXT_SHIFTED_SPLIT) != 0) {
+			int firstFragmentNextIndentationLevel =  this.scribe.getNextIndentationLevel(this.location.outputColumn);
+			if (firstFragmentNextIndentationLevel < this.breakIndentationLevel) {
+				this.breakIndentationLevel = firstFragmentNextIndentationLevel;
+			}
 		}
 		this.shiftBreakIndentationLevel = this.breakIndentationLevel + indentSize;
 
