@@ -41,7 +41,6 @@ public class Block extends Statement {
 
 	public static final Block EmptyWith(int sourceStart, int sourceEnd) {
 		//return an empty block which position is s and e
-
 		Block bk = new Block(0);
 		bk.sourceStart = sourceStart;
 		bk.sourceEnd = sourceEnd;
