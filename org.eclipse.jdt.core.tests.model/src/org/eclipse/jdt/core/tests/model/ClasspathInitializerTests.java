@@ -384,8 +384,8 @@ public void testContainerInitializer6() throws CoreException {
 		manager.deltaState = new DeltaProcessingState();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
 			manager.deltaState,
-			IResourceChangeEvent.PRE_AUTO_BUILD
-					| IResourceChangeEvent.POST_AUTO_BUILD
+			IResourceChangeEvent.PRE_BUILD
+					| IResourceChangeEvent.POST_BUILD
 					| IResourceChangeEvent.POST_CHANGE
 					| IResourceChangeEvent.PRE_DELETE
 					| IResourceChangeEvent.PRE_CLOSE);
