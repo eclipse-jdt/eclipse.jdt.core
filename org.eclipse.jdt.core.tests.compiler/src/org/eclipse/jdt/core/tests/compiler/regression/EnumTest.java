@@ -2457,4 +2457,29 @@ public class EnumTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87064
+	public void test080() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface TestInterface {\n" + 
+				"	int test();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public enum X implements TestInterface {\n" + 
+				"	TEST {\n" + 
+				"		public int test() {\n" + 
+				"			return 42;\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	ENUM {\n" + 
+				"		public int test() {\n" + 
+				"			return 37;\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"} \n"
+			},
+			""
+		);
+	}		
 }
