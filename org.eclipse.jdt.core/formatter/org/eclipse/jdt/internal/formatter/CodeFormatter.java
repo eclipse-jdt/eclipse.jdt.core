@@ -282,6 +282,8 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 			}
 		}
 		updateMappedPositions(scanner.startPosition);
+		
+		updateRemainingMappedPositions();
 	}
 
 	/** 
@@ -2558,6 +2560,20 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 			&& indexInMap < indexToMap) {
 			mappedPositions[indexInMap] += splitDelta;
 			indexInMap++;
+		}
+	}
+
+	/**
+	 * Update positions which are beyond the source length
+	 */
+	private void updateRemainingMappedPositions() {
+		if (positionsToMap == null) {
+			return;
+		}
+		int sourceLength = formattedSource.length();
+		while (indexToMap < positionsToMap.length) {
+			mappedPositions[indexToMap] = sourceLength - 1;
+			indexToMap++;
 		}
 	}
 	
