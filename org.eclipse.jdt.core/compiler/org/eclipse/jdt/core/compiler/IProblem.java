@@ -727,4 +727,12 @@ public interface IProblem {
 	int JavadocInvalidTag = Javadoc + Internal + 487;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 489;
+
+	/**
+	 * Generics
+	 */
+	/** @since 3.0 */
+	int DuplicateTypeVariable = Internal + 500;
+	/** @since 3.0 */
+	int CannotUseTypeVariable = Internal +501;
 }

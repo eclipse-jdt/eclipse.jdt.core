@@ -40,7 +40,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	if (onDemand) {
 		importName+=".*"; //$NON-NLS-1$
 	}
-	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
+	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand, modifiers);
 	addChild(fNode);	
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
