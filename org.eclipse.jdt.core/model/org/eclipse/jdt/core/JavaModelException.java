@@ -110,6 +110,13 @@ public boolean isDoesNotExist() {
 	IJavaModelStatus javaModelStatus = getJavaModelStatus();
 	return javaModelStatus != null && javaModelStatus.isDoesNotExist();
 }
+
+/**
+ * Prints this exception's stack trace to the given print stream.
+ * 
+ * @param output the print stream
+ * @since 3.0
+ */
 public void printStackTrace(PrintStream output) {
 	synchronized(output) {
 		super.printStackTrace(output);
@@ -120,6 +127,13 @@ public void printStackTrace(PrintStream output) {
 		}
 	}
 }
+
+/**
+ * Prints this exception's stack trace to the given print writer.
+ * 
+ * @param output the print writer
+ * @since 3.0
+ */
 public void printStackTrace(PrintWriter output) {
 	synchronized(output) {
 		super.printStackTrace(output);

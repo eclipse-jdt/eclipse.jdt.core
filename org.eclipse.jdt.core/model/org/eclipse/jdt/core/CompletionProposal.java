@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * </p>
  * 
  * @see ICodeAssist#codeComplete(int, CompletionRequestor)
+ * @since 3.0
  */
 public class CompletionProposal {
 
