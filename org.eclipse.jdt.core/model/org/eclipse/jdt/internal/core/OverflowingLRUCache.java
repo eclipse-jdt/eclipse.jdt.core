@@ -51,9 +51,9 @@ public abstract class OverflowingLRUCache extends LRUCache {
 	protected boolean fTimestampsOn = true;
 	/**
 	 *	Indicates how much space should be reclaimed when the cache overflows.
-	 *	Inital load factor of one half.
+	 *	Inital load factor of one third.
 	 */
-	protected double fLoadFactor = 0.667;
+	protected double fLoadFactor = 0.333;
 /**
  * Creates a OverflowingLRUCache. 
  * @param size Size limit of cache.
@@ -151,6 +151,7 @@ public double getLoadFactor() {
  * @param space Amount of space to free up
  */
 protected boolean makeSpace(int space) {
+
 	int limit = fSpaceLimit;
 	if (fOverflow == 0) {
 		/* if space is already available */
@@ -159,24 +160,16 @@ protected boolean makeSpace(int space) {
 		}
 	}
 
-//	System.out.println("Cache Reached Max!");
-//	printStats();
-	
 	/* Free up space by removing oldest entries */
 	int spaceNeeded = (int)((1 - fLoadFactor) * fSpaceLimit);
 	spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
 	LRUCacheEntry entry = fEntryQueueTail;
-//	int i = 0;
+
 	while (fCurrentSpace + spaceNeeded > limit && entry != null) {
 		this.privateRemoveEntry(entry, false, false);
 		entry = entry._fPrevious;
-//		i++;
 	}
 
-//	System.out.println("Checked " + i + " entries.");
-//	System.out.println("Current Space at " + fCurrentSpace);
-//	printStats();
-		
 	/* check again, since we may have aquired enough space */
 	if (fCurrentSpace + space <= limit) {
 		fOverflow = 0;
