@@ -173,7 +173,13 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	// build corresponding compilation unit
 	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 	CompilationUnitDeclaration unit =
-		SourceTypeConverter.buildCompilationUnit(new ISourceType[] {sourceType}, false, true, lookupEnvironment.problemReporter, result);
+		SourceTypeConverter.buildCompilationUnit(
+			new ISourceType[] {sourceType}, 
+			false, // no need for field and methods
+			true, // need member types
+			false, // no need for field initialization
+			lookupEnvironment.problemReporter, 
+			result);
 		
 	// build bindings
 	if (unit != null) {
@@ -428,7 +434,14 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
 				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength, this.options.maxProblemsPerUnit);
-				units[i] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
+				units[i] = 
+					SourceTypeConverter.buildCompilationUnit(
+						new ISourceType[]{topLevelType}, 
+						false, // no need for field and methods
+						true, // need member types
+						false, // no need for field initialization
+						lookupEnvironment.problemReporter, 
+						result);
 				if (units[i] != null) {
 					try {
 						lookupEnvironment.buildTypeBindings(units[i]);
@@ -506,7 +519,13 @@ public void resolve(IGenericType suppliedType) {
 				topLevelType = topLevelType.getEnclosingType();
 			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 			CompilationUnitDeclaration unit =
-				SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
+				SourceTypeConverter.buildCompilationUnit(
+					new ISourceType[]{topLevelType}, 
+					false, // no need for field and methods
+					true, // need member types
+					false, // no need for field initialization
+					lookupEnvironment.problemReporter, 
+					result);
 
 			if (unit != null) {
 				lookupEnvironment.buildTypeBindings(unit);

@@ -198,7 +198,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	/*
 	 * @see ISourceElementRequestor#exitField(int)
 	 */
-	public void exitField(int declarationEnd) {
+	public void exitField(int initializationStart, int declarationEnd) {
 	}
 
 	/*

@@ -73,6 +73,9 @@ public int getDeclarationSourceEnd() {
 public int getDeclarationSourceStart() {
 	return declarationStart;
 }
+public char[] getInitializationSource() {
+	return null;
+}
 public int getModifiers() {
 	return modifiers;
 }

@@ -172,7 +172,7 @@ public void exitConstructor(int declarationEnd) {
 }
 /**
  */
-public void exitField(int declarationEnd) {
+public void exitField(int initializationStart, int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 /**
  * Element info for IField elements.
@@ -23,30 +22,24 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 	/**
 	 * The type name of this field.
 	 */
-	protected char[] fTypeName;
+	protected char[] typeName;
 	
 	/**
-	 * The field's constant value
+	 * The field's initializer string (if the field is a constant).
 	 */
-	protected Constant fConstant;
-/**
- * Constructs an info object for the given field.
- */
-protected SourceFieldElementInfo() {
-	fConstant = Constant.NotAConstant;	 
-}
-/**
- * Returns the constant associated with this field or
- * Constant.NotAConstant if the field is not constant.
- */
-public Constant getConstant() {
-	return fConstant;
+	protected char[] initializationSource;
+
+/*
+ * Returns the initialization source for this field.
+ * Returns null if the field is not a constant or if it has no initialization. */
+public char[] getInitializationSource() {
+	return this.initializationSource;
 }
 /**
  * Returns the type name of the field.
  */
 public char[] getTypeName() {
-	return fTypeName;
+	return this.typeName;
 }
 /**
  * Returns the type signature of the field.
@@ -54,19 +47,13 @@ public char[] getTypeName() {
  * @see Signature
  */
 protected String getTypeSignature() {
-	return Signature.createTypeSignature(fTypeName, false);
+	return Signature.createTypeSignature(this.typeName, false);
 }
-/**
- * Returns the constant associated with this field or
- * Constant.NotAConstant if the field is not constant.
- */
-public void setConstant(Constant constant) {
-	fConstant = constant; 
-}
+
 /**
  * Sets the type name of the field.
  */
 protected void setTypeName(char[] typeName) {
-	fTypeName= typeName;
+	this.typeName = typeName;
 }
 }

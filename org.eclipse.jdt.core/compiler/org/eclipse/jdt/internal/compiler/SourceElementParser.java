@@ -805,7 +805,9 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 		}
 		this.visitIfNeeded(fieldDeclaration);
 		if (isInRange){
-			requestor.exitField(fieldEndPosition);
+			requestor.exitField(
+				fieldDeclaration.initialization == null ? -1 :  fieldDeclaration.initialization.sourceStart, 
+				fieldEndPosition);
 		}
 
 	} else {
@@ -1068,8 +1070,9 @@ public void parseTypeMemberDeclarations(
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{sourceType}, 
-				false,
-				false, 
+				false, // no need for field and methods
+				false, // no need for member types
+				false, // no need for field initialization
 				problemReporter(), 
 				compilationUnitResult); 
 		if ((unit == null) || (unit.types == null) || (unit.types.length != 1))

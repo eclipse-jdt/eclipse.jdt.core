@@ -597,13 +597,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// compute parse tree for this most outer type
 			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit =
-				SourceTypeConverter
-					.buildCompilationUnit(
+				SourceTypeConverter.buildCompilationUnit(
 						topLevelTypes,
-						false,
-			// don't need field and methods
-			true, // by default get member types
-			this.parser.problemReporter(), result);
+						false, // no need for field and methods
+						true, // need member types
+						false, // no need for field initialization
+						this.parser.problemReporter(), 
+						result);
 
 			if (parsedUnit != null && parsedUnit.types != null) {
 				if(DEBUG) {

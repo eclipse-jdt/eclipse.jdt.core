@@ -6884,6 +6884,45 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 // A P I
 
 public void parse(
+	FieldDeclaration field, 
+	TypeDeclaration type, 
+	CompilationUnitDeclaration unit,
+	char[] initializationSource) {
+	//only parse the initializationSource of the given field
+
+	//convert bugs into parse error
+
+	initialize();
+	goForExpression();
+	nestedMethod[nestedType]++;
+
+	referenceContext = type;
+	compilationUnit = unit;
+
+	scanner.setSource(initializationSource);
+	scanner.resetTo(0, initializationSource.length-1);
+	try {
+		parse();
+	} catch (AbortCompilation ex) {
+		lastAct = ERROR_ACTION;
+	} finally {
+		nestedMethod[nestedType]--;
+	}
+
+	if (lastAct == ERROR_ACTION) {
+		return;
+	}
+
+	field.initialization = expressionStack[expressionPtr];
+	
+	// mark field with local type if one was found during parsing
+	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
+		field.bits |= AstNode.HasLocalTypeMASK;
+	}	
+}
+// A P I
+
+public void parse(
 	Initializer ini, 
 	TypeDeclaration type, 
 	CompilationUnitDeclaration unit) {

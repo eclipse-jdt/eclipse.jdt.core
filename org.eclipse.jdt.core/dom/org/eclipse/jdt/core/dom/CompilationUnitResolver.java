@@ -85,8 +85,9 @@ class CompilationUnitResolver extends Compiler {
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,
-				true,
-				true,
+				true, // need field and methods
+				true, // need member types
+				false, // no need for field initialization
 				lookupEnvironment.problemReporter,
 				result);
 

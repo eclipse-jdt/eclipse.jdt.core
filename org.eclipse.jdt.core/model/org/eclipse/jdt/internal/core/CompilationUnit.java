@@ -326,6 +326,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
+		requestor.parser = parser;
 		parser.parseCompilationUnit(this, false);
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();

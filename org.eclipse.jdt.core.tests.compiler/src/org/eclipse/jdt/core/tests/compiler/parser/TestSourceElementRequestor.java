@@ -107,7 +107,7 @@ public void exitConstructor(int declarationEnd) {}
 /**
  * exitField method comment.
  */
-public void exitField(int declarationEnd) {}
+public void exitField(int initializationStart, int declarationEnd) {}
 /**
  * exitInterface method comment.
  */

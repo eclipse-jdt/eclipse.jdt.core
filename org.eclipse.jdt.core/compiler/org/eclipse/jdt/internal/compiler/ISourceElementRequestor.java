@@ -123,16 +123,10 @@ void exitClass(int declarationEnd);
 void exitCompilationUnit(int declarationEnd);
 void exitConstructor(int declarationEnd);
 /*
- * - No initialization source for now -
- * initializationSource denotes the source of the expression used for initializing
- * the field if any (if no source, then it is null).
- *
- * Note: the initializationSource will be used in case we do need to type check
- *	against source models, and thus the only interesting use for it is field
- *  constant propagation. Therefore, the initializationSource will only be non
- *  null for final fields (so as to minimize char[] allocations).
+ * initializationStart denotes the source start of the expression used for initializing
+ * the field if any (-1 if no initialization).
  */
-void exitField(/*char[] initializationSource, */int declarationEnd);
+void exitField(int initializationStart, int declarationEnd);
 void exitInitializer(int declarationEnd);
 void exitInterface(int declarationEnd);
 void exitMethod(int declarationEnd);

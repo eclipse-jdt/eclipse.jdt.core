@@ -39,7 +39,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
  */
 public Object getConstant() throws JavaModelException {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
-	return convertConstant(info.getConstant());
+	return info.initializationSource;
 }
 /**
  * @see JavaElement#getHandleMemento()
