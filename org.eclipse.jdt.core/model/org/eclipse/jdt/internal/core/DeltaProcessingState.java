@@ -67,7 +67,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/* Whether the roots tables should be recomputed */
 	public boolean rootsAreStale = true;
 	
-	public Hashtable externalTimeStamps = new Hashtable();
+	/* Threads that are currently running initializeRoots() */
+	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	public Hashtable externalTimeStamps = new Hashtable();
 
 	/**
 	 * Workaround for bug 15168 circular errors not reported  
@@ -117,64 +118,76 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		HashMap newOtherRoots = null;
 		HashMap newSourceAttachments = null;
 		if (this.rootsAreStale) {
-
-			newRoots = new HashMap();
-			newOtherRoots = new HashMap();
-			newSourceAttachments = new HashMap();
-	
-			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-			IJavaProject[] projects;
+			Thread currentThread = Thread.currentThread();
+			boolean addedCurrentThread = false;			
 			try {
-				projects = model.getJavaProjects();
-			} catch (JavaModelException e) {
-				// nothing can be done
-				return;
-			}
-			for (int i = 0, length = projects.length; i < length; i++) {
-				IJavaProject project = projects[i];
-				IClasspathEntry[] classpath;
+				// if reentering initialization (through a container initializer for example) no need to compute roots again
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=47213
+				if (!this.initializingThreads.add(currentThread)) return;
+				addedCurrentThread = true;
+
+				newRoots = new HashMap();
+				newOtherRoots = new HashMap();
+				newSourceAttachments = new HashMap();
+		
+				IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+				IJavaProject[] projects;
 				try {
-					classpath = project.getResolvedClasspath(true);
+					projects = model.getJavaProjects();
 				} catch (JavaModelException e) {
-					// continue with next project
-					continue;
+					// nothing can be done
+					return;
 				}
-				for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
-					IClasspathEntry entry = classpath[j];
-					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
-					
-					// root path
-					IPath path = entry.getPath();
-					if (newRoots.get(path) == null) {
-						newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
-					} else {
-						ArrayList rootList = (ArrayList)newOtherRoots.get(path);
-						if (rootList == null) {
-							rootList = new ArrayList();
-							newOtherRoots.put(path, rootList);
-						}
-						rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
-					}
-					
-					// source attachment path
-					if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY) continue;
-					QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + path.toOSString()); //$NON-NLS-1$;
-					String propertyString = null;
+				for (int i = 0, length = projects.length; i < length; i++) {
+					IJavaProject project = projects[i];
+					IClasspathEntry[] classpath;
 					try {
-						propertyString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
-					} catch (CoreException e) {
+						classpath = project.getResolvedClasspath(true);
+					} catch (JavaModelException e) {
+						// continue with next project
 						continue;
 					}
-					IPath sourceAttachmentPath;
-					if (propertyString != null) {
-						int index= propertyString.lastIndexOf(PackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
-						sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
-					} else {
-						sourceAttachmentPath = entry.getSourceAttachmentPath();
+					for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
+						IClasspathEntry entry = classpath[j];
+						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+						
+						// root path
+						IPath path = entry.getPath();
+						if (newRoots.get(path) == null) {
+							newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
+						} else {
+							ArrayList rootList = (ArrayList)newOtherRoots.get(path);
+							if (rootList == null) {
+								rootList = new ArrayList();
+								newOtherRoots.put(path, rootList);
+							}
+							rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
+						}
+						
+						// source attachment path
+						if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY) continue;
+						QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + path.toOSString()); //$NON-NLS-1$;
+						String propertyString = null;
+						try {
+							propertyString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
+						} catch (CoreException e) {
+							continue;
+						}
+						IPath sourceAttachmentPath;
+						if (propertyString != null) {
+							int index= propertyString.lastIndexOf(PackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
+							sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
+						} else {
+							sourceAttachmentPath = entry.getSourceAttachmentPath();
+						}
+						if (sourceAttachmentPath != null) {
+							newSourceAttachments.put(sourceAttachmentPath, path);
+						}
 					}
-					if (sourceAttachmentPath != null) {
-						newSourceAttachments.put(sourceAttachmentPath, path);
-					}
+				}
+			} finally {
+				if (addedCurrentThread) {
+					this.initializingThreads.remove(currentThread);
 				}
 			}
 		}

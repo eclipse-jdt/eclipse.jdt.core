@@ -357,12 +357,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void execute() throws JavaModelException {
 		IJavaModelStatus status= verify();
 		if (status.isOK()) {
-			// if first time here, computes the root infos before executing the operation
-			// TODO (jerome) needed only if the operation modifies the roots (e.g. SetClasspathOperation)
-			DeltaProcessingState deltaState = JavaModelManager.getJavaModelManager().deltaState;
-			if (deltaState.roots == null) {
-				deltaState.initializeRoots();
-			}
+			// computes the root infos before executing the operation
+			// noop if aready initialized
+			JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
 
 			executeOperation();
 		} else {
