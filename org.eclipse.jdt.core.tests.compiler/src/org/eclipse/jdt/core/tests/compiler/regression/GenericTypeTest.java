@@ -12395,5 +12395,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                         ^^^^^\n" + 
 			"The array type int[] cannot be used as a type parameter bound\n" + 
 			"----------\n");
-	}			
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79628
+	public void test462() {
+		this.runConformTest(
+			new String[] {
+				"PropertiedObject.java",
+				"interface PropertiedObject<B extends PropertiedObject<B>> {}\n" + 
+				"interface Model extends PropertiedObject<Model> {}\n" + 
+				"interface View<T extends Model,U> extends PropertiedObject<View<?,?>> {}\n"
+			},
+			"");
+	}
 }
