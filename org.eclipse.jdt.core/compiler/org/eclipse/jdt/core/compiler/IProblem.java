@@ -448,6 +448,8 @@ public interface IProblem {
 	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;	
 	/** @since 3.0 */
 	int EmptyControlFlowStatement = Internal + TypeRelated + 188;	
+	/** @since 3.0 */
+	int UnnecessaryElse = Internal + 189;	
 
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;

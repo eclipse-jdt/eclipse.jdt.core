@@ -97,6 +97,9 @@ public class IfStatement extends Statement {
 			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		if (this.elseStatement != null) {
+		    if (thenFlowInfo == FlowInfo.DEAD_END) {
+		        currentScope.problemReporter().unnecessaryElse(this.elseStatement);
+		    }
 			// Save info for code gen
 			elseInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(elseFlowInfo);

@@ -522,6 +522,9 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
+		
+		case IProblem.UnnecessaryElse:
+			return this.options.getSeverity(CompilerOptions.UnnecessaryElse);
 
 		/*
 		 * Javadoc syntax errors
@@ -3444,6 +3447,14 @@ public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) 
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		reference.sourceStart,
 		end);
+}
+public void unnecessaryElse(ASTNode location) {
+	this.handle(
+		IProblem.UnnecessaryElse,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
 	this.handle(
