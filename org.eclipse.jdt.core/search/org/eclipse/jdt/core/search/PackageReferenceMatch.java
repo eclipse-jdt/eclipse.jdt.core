@@ -15,7 +15,10 @@ import org.eclipse.jdt.core.IJavaElement;
 
 /**
  * A Java search match that represents a package reference.
- * The element is the inner-most enclosing member that references this package.
+ * The element is the inner-most enclosing member that references this package. * <p>
+ * This class is intended to be instantiated and subclassed by clients.
+ * </p>
+
  * 
  * @since 3.0
  */
