@@ -502,6 +502,16 @@ public final class JavaConventions {
 					sourceEntryCount++;
 					IPath customOutput; 
 					if ((customOutput = resolvedEntry.getOutputLocation()) != null) {
+						// ensure custom output is in project
+						if (customOutput.isAbsolute()) {
+							if (!javaProject.getPath().isPrefixOf(customOutput)) {
+								return new JavaModelStatus(IJavaModelStatusConstants.PATH_OUTSIDE_PROJECT, javaProject, customOutput.toString());
+							}
+						} else {
+							return new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, customOutput);
+						}
+						
+						// ensure custom output doesn't conflict with other outputs
 						int index;
 						if ((index = indexOfMatchingPath(customOutput, outputLocations, outputCount)) != -1) {
 							continue; // already found
@@ -749,7 +759,6 @@ public final class JavaConventions {
 
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
-				// TODO: (jerome) check custom output folder is located inside same project as src folder
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= javaProject.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){

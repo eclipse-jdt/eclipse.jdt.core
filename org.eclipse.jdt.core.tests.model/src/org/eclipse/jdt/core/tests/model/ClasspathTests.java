@@ -957,6 +957,28 @@ public void testClasspathValidation17() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/**
+ * Should not allow custom output folder to be external to project.
+ * (regression test for bug 29079 Buildpath validation: No check that output folder is inside project)
+ */ 
+public void testClasspathValidation18() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/S/bin"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Path '/S/bin' must denote location inside project P",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
 
 /**
  * Setting the classpath with two entries specifying the same path
@@ -1279,7 +1301,7 @@ public void testInvalidClasspath1() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"XML format error in P/.classpath file: Bad format.",
+			"XML format error in 'P/.classpath' file: Bad format.",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -1301,7 +1323,7 @@ public void testInvalidClasspath2() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in P/.classpath file: Unknown kind: src1",
+			"Illegal entry in 'P/.classpath' file: Unknown kind: src1",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -1881,7 +1903,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Invalid classpath in P/.classpath file: Name collision.",
+			"Invalid classpath in 'P/.classpath' file: Name collision.",
 			project);
 	} finally {
 		this.deleteProject("P");
