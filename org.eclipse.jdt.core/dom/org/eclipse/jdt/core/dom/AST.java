@@ -208,6 +208,10 @@ public final class AST {
 			ICompilationUnit unit,
 			boolean resolveBindings) {
 				
+		if (unit == null) {
+			throw new IllegalArgumentException();
+		}
+		
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		char[] source = null;
 		try {
@@ -216,7 +220,7 @@ public final class AST {
 		}
 
 		if (resolveBindings) {
-			// If resolveBindings is true, we need to record the mod count
+			// FIXME - If resolveBindings is true, we need to record the mod count
 			// once newAST has been constructed. If the mod count goes above
 			// this level, someone is modifying the AST and all bets are off
 			// regarding resolved bindings. All existing binding info should be
@@ -228,16 +232,19 @@ public final class AST {
 					new AbstractSyntaxTreeVisitorAdapter());
 				return convert(compilationUnitDeclaration, source);
 			} catch(JavaModelException e) {
+				// FIXME - if this exception can happen, it needs to be converted
+				// to an appropriate RuntimeException of some ilk
 			}
 		} else {
 			return parseCompilationUnit(source);
 		}
+		// FIXME - this method must not return null!
 		return null;
 	}
 
 	/**
-	 * Parses the given string as a Java compilation unit and creates and 
-	 * returns a corresponding abstract syntax tree.
+	 * Parses the given string as the hypothethetical contents of the named
+	 * compilation unit and creates and returns a corresponding abstract syntax tree.
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
 	 * Each node in the subtree carries source range(s) information relating back
@@ -247,7 +254,7 @@ public final class AST {
 	 * <code>MALFORMED</code>.
 	 * </p>
 	 * <p>
-	 * If <code>javaProject</code> is not <code>null</code>, the various names
+	 * If the given project is not <code>null</code>, the various names
 	 * and types appearing in the compilation unit can be resolved to "bindings"
 	 * by calling the <code>resolveBinding</code> methods. These bindings 
 	 * draw connections between the different parts of a program, and 
@@ -260,19 +267,25 @@ public final class AST {
 	 * necessary. Note that bindings can only be resolved while the AST remains
 	 * in its original unmodified state. Once the AST is modified, all 
 	 * <code>resolveBinding</code> methods return <code>null</code>.
-	 * If <code>javaProject</code> is <code>null</code>, the analysis 
+	 * If the given project is <code>null</code>, the analysis 
 	 * does not go beyond parsing and building the tree, and all 
 	 * <code>resolveBinding</code> methods return <code>null</code> from the 
 	 * outset.
 	 * </p>
 	 * <p>
-	 * If the source defined an existing binary type or source type in the same project,
-	 * the source provided will hide the existing type.
+	 * The name of the compilation unit must be supplied for resolving bindings.
+	 * This name should include the ".java" suffix and match the name of the main
+	 * (public) class or interface declared in the source. For example, if the source
+	 * declares a public class named "Foo", the name of the compilation should be
+	 * "Foo.java". For the purposes of resolving bindings, types declared in the
+	 * source string hide types by the same name available through the classpath
+	 * of the given project.
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
-	 * @param unitName the name of the compilation unit to be parsed
-	 * @param javaProject the Java project used to resolve names, or 
+	 * @param unitName the name of the compilation unit that would contain the source
+	 *    string, or <code>null</code> if <code>javaProject</code> is also <code>null</code>
+	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if bindings are not resolved
 	 * @return the compilation unit node
 	 * @see ASTNode#getFlags
@@ -283,30 +296,40 @@ public final class AST {
 	public static CompilationUnit parseCompilationUnit(
 		char[] source,
 		String unitName,
-		IJavaProject javaProject) {
+		IJavaProject project) {
+			
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
+		if (unitName == null && project != null) {
+			throw new IllegalArgumentException();
+		}
+		if (project == null) {
+			// this just reuces to the other simplest case
+			return parseCompilationUnit(source);
+		}
 	
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 
-		if (javaProject != null) {
-			// If resolveBindings is true, we need to record the mod count
-			// once newAST has been constructed. If the mod count goes above
-			// this level, someone is modifying the AST and all bets are off
-			// regarding resolved bindings. All existing binding info should be
-			// discarded, and the various public resolveBinding methods should
-			// thereafter return null.
-			try {
-				compilationUnitDeclaration =
-					CompilationUnitResolver.resolve(
-						source,
-						unitName,
-						javaProject,
-						new AbstractSyntaxTreeVisitorAdapter());
-				return convert(compilationUnitDeclaration, source);
-			} catch (JavaModelException e) {
-			}
-		} else {
-			return parseCompilationUnit(source);
+		// FIXME - If resolveBindings is true, we need to record the mod count
+		// once newAST has been constructed. If the mod count goes above
+		// this level, someone is modifying the AST and all bets are off
+		// regarding resolved bindings. All existing binding info should be
+		// discarded, and the various public resolveBinding methods should
+		// thereafter return null.
+		try {
+			compilationUnitDeclaration =
+				CompilationUnitResolver.resolve(
+					source,
+					unitName,
+					project,
+					new AbstractSyntaxTreeVisitorAdapter());
+			return convert(compilationUnitDeclaration, source);
+		} catch (JavaModelException e) {
+			// FIXME - if this exception can happen, it needs to be converted
+			// to an appropriate RuntimeException of some ilk
 		}
+		// FIXME - this method must not return null!
 		return null;
 	}
 	  	
@@ -329,6 +352,9 @@ public final class AST {
 	 * @see ASTNode#getLength
 	 */
 	public static CompilationUnit parseCompilationUnit(char[] source) {
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
 		CompilationUnitDeclaration compilationUnitDeclaration = 
 			CompilationUnitResolver.parse(source);
 
