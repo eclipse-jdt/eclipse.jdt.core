@@ -228,8 +228,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public int reportMissingJavadocCommentsVisibility = AccPublic; 
 	public boolean reportMissingJavadocCommentsOverriding = true; 
 	
-	// JSR bytecode usage
-	public boolean useJsrBytecode = true;
+	// JSR bytecode inlining
+	public boolean inlineJsrBytecode = false;
 	
 	// javadoc comment support
 	public boolean docCommentSupport = false;
@@ -629,7 +629,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? ENABLED : DISABLED); //$NON-NLS-1$
-		buf.append("\n\t- use JSR bytecode : ").append(this.useJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- inline JSR bytecode : ").append(this.inlineJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 

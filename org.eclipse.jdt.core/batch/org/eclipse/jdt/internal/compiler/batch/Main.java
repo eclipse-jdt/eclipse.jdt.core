@@ -89,7 +89,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean systemExitWhenFinished = true;
 	public long startTime;
 	public boolean timing = false;
-	public boolean useJsrBytecode = true;
+	public boolean inlineJsrBytecode = false;
 	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
@@ -624,9 +624,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.produceRefInfo = true;
 				continue;
 			}
-			if (currentArg.equals("-noJSR")) { //$NON-NLS-1$
+			if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
 			    mode = Default;
-			    this.useJsrBytecode = false;
+			    this.inlineJsrBytecode = true;
 			    continue;
 			}
 			if (currentArg.startsWith("-g")) { //$NON-NLS-1$
@@ -1530,9 +1530,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.
-		compilerOptions.verbose = this.verbose;
-		compilerOptions.produceReferenceInfo = this.produceRefInfo;
-		compilerOptions.useJsrBytecode = this.useJsrBytecode;
+		this.compilerOptions.verbose = this.verbose;
+		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
+		this.compilerOptions.inlineJsrBytecode = this.inlineJsrBytecode;
 		batchCompiler.compile(getCompilationUnits());
 
 		printStats();
@@ -1544,7 +1544,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public void printStats() {
 		if (this.timing) {
 
-			long time = System.currentTimeMillis() - startTime;
+			long time = System.currentTimeMillis() - this.startTime;
 			if (this.lineCount != 0) {
 				this.out.println(
 					Main.bind(
