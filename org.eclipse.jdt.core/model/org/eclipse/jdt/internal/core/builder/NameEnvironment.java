@@ -181,11 +181,15 @@ public void cleanup() {
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
 	if (initialTypeNames != null) {
+		String mainTypeName = qualifiedTypeName;
+		int index = mainTypeName.indexOf('$');
+		if (index > 0)
+			mainTypeName = mainTypeName.substring(0, index);
 		for (int i = 0, length = initialTypeNames.length; i < length; i++) {
-			if (qualifiedTypeName.equals(initialTypeNames[i])) {
+			if (mainTypeName.equals(initialTypeNames[i])) {
 				if (isIncrementalBuild)
 					// catch the case that a type inside a source file has been renamed but other class files are looking for it
-					throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedTypeName));
+					throw new AbortCompilation(true, new AbortIncrementalBuildException(mainTypeName));
 				return null; // looking for a file which we know was provided at the beginning of the compilation
 			}
 		}
@@ -202,7 +206,11 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 
 	if (sourceLocations != null && sourceLocations[0].isPackage(qPackageName)) { // looks in common output folder
 		if (additionalSourceFilenames != null) {
-			String qSourceFileName = qualifiedTypeName + ".java"; //$NON-NLS-1$
+			String mainTypeName = qualifiedTypeName;
+			int index = mainTypeName.indexOf('$');
+			if (index > 0)
+				mainTypeName = mainTypeName.substring(0, index);
+			String qSourceFileName = mainTypeName + ".java"; //$NON-NLS-1$
 			for (int i = 0, length = sourceLocations.length; i < length; i++) {
 				NameEnvironmentAnswer answer =
 					sourceLocations[i].findSourceFile(qSourceFileName, qPackageName, typeName, additionalSourceFilenames);
