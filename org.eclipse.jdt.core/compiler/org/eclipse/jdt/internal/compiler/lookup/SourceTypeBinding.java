@@ -558,18 +558,17 @@ public FieldBinding[] fields() {
 		boolean complyTo15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = fields.length; i < length; i++) {
 			FieldBinding field = fields[i];
+			if (complyTo15) {
+				if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+					field.modifiers |= AccDeprecated;
+				else if ((field.modifiers & AccDeprecated) != 0)
+					scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
+			}
+			if (isViewedAsDeprecated && !field.isDeprecated())
+				field.modifiers |= AccDeprecatedImplicitly;
 			if (resolveTypeFor(field) == null) {
 				fields[i] = null;
 				failed++;
-			} else {
-				if (complyTo15) {
-					if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
-						field.modifiers |= AccDeprecated;
-					else if ((field.modifiers & AccDeprecated) != 0)
-						scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
-				}
-				if (isViewedAsDeprecated && !field.isDeprecated())
-					field.modifiers |= AccDeprecatedImplicitly;
 			}
 		}
 	} finally {
@@ -943,18 +942,17 @@ public MethodBinding[] methods() {
 		boolean complyTo15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
+			if (complyTo15) {
+				if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+					method.modifiers |= AccDeprecated;
+				else if ((method.modifiers & AccDeprecated) != 0)
+					scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
+			}
+			if (isViewedAsDeprecated && !method.isDeprecated())
+				method.modifiers |= AccDeprecatedImplicitly;
 			if (resolveTypesFor(method) == null) {
 				methods[i] = null; // unable to resolve parameters
 				failed++;
-			} else {
-				if (complyTo15) {
-					if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
-						method.modifiers |= AccDeprecated;
-					else if ((method.modifiers & AccDeprecated) != 0)
-						scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
-				}
-				if (isViewedAsDeprecated && !method.isDeprecated())
-					method.modifiers |= AccDeprecatedImplicitly;
 			}
 		}
 

@@ -238,6 +238,41 @@ public void test006() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124
 public void test007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"}\n",
+			
+			"Y.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class Y {\n" + 
+			"  Zork z;\n" +
+			"  X x;\n" +
+			"  X foo() {\n" + 
+			"    X x; // unexpected deprecated warning here\n" + 
+			"  }\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in Y.java (at line 8)\n" + 
+		"	X x; // unexpected deprecated warning here\n" + 
+		"	  ^\n" + 
+		"The local variable x is hiding a field from type Y\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
+public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -272,7 +307,7 @@ public void test007() {
 		null);  // custom options
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
-public void test008() {
+public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
