@@ -423,38 +423,24 @@ public void deleteFile(File file) {
 			}
 		}
 	}
-	if (!file.delete()) {
-		System.out.println("WARNING: deleteFile(File) could not delete: " + file.getPath());
-	}
-}
-protected void deleteProject(String projectName) throws CoreException {
-	IProject project = this.getProject(projectName);
-	CoreException lastException = null;
-	try {
-		if (!project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
-			project.open(null);
-		}
-		project.delete(true, null);
-	} catch (CoreException e) {
-		lastException = e;
-	}
+	boolean success = file.delete();
 	int retryCount = 60; // wait 1 minute at most
-	while (project.isAccessible() && --retryCount >= 0) {
+	while (!success && --retryCount >= 0) {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 		}
-		try {
-			project.delete(true, null);
-		} catch (CoreException e) {
-			lastException = e;
-		}
+		success = file.delete();
 	}
-	if (!project.isAccessible()) return;
-	System.err.println("Failed to delete project " + projectName);
-	if (lastException != null) {
-		throw lastException;
+	if (success) return;
+	System.err.println("Failed to delete " + file.getPath());
+}
+protected void deleteProject(String projectName) throws CoreException {
+	IProject project = this.getProject(projectName);
+	if (project.exists() && !project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
+		project.open(null);
 	}
+	deleteResource(project);
 }
 
 /**
@@ -477,7 +463,29 @@ protected void deleteProjects(final String[] projectNames) throws CoreException 
  * Delete this resource.
  */
 public void deleteResource(IResource resource) throws CoreException {
-	resource.delete(false, null);
+	CoreException lastException = null;
+	try {
+		resource.delete(true, null);
+	} catch (CoreException e) {
+		lastException = e;
+	}
+	int retryCount = 60; // wait 1 minute at most
+	while (resource.isAccessible() && --retryCount >= 0) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		try {
+			resource.delete(true, null);
+		} catch (CoreException e) {
+			lastException = e;
+		}
+	}
+	if (!resource.isAccessible()) return;
+	System.err.println("Failed to delete " + resource.getFullPath());
+	if (lastException != null) {
+		throw lastException;
+	}
 }
 /**
  * Returns true if this delta is flagged as having changed children.
