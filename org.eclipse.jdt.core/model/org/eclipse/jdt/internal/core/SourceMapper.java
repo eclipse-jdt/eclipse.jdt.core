@@ -548,14 +548,39 @@ public class SourceMapper
 	 */
 	public char[] findSource(IType type, IBinaryType info) {
 		char[] sourceFileName = info.sourceFileName();
-		if (sourceFileName == null)
-			return null; // no source file attribute
-		String name = new String(sourceFileName);
-
-		IPackageFragment pkgFrag = type.getPackageFragment();
-		if (!pkgFrag.isDefaultPackage()) {
-			String pkg = type.getPackageFragment().getElementName().replace('.', '/');
-			name = pkg + '/' + name;
+		String name = null;
+		if (sourceFileName == null) {
+			/*
+			 * We assume that this type has been compiled from a file with its name
+			 * For example, A.class comes from A.java and p.A.class comes from a file A.java
+			 * in the folder p.
+			 */
+			try {
+				if (type.isMember()) {
+					IType enclosingType = type.getDeclaringType();
+					while (enclosingType.getDeclaringType() != null) {
+						enclosingType = enclosingType.getDeclaringType();
+					}
+					name = enclosingType.getFullyQualifiedName().replace('.', '/') + ".java"; //$NON-NLS-1$
+				} else if (type.isLocal() || type.isAnonymous()){
+					String fullyQualifiedName = type.getFullyQualifiedName();
+					name = fullyQualifiedName.substring(0, fullyQualifiedName.indexOf('$')).replace('.', '/') + ".java"; //$NON-NLS-1$
+					System.out.println(name);
+				} else {
+					name = type.getFullyQualifiedName().replace('.', '/') + ".java"; //$NON-NLS-1$
+				}
+			} catch (JavaModelException e) {
+			}
+		} else {
+			name = new String(sourceFileName);
+			IPackageFragment pkgFrag = type.getPackageFragment();
+			if (!pkgFrag.isDefaultPackage()) {
+				String pkg = type.getPackageFragment().getElementName().replace('.', '/');
+				name = pkg + '/' + name;
+			}
+		}
+		if (name == null) {
+			return null;
 		}
 		// try to get the entry
 		ZipEntry entry = null;
