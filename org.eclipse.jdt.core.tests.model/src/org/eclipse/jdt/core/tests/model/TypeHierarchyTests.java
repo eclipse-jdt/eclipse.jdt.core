@@ -70,6 +70,12 @@ public void setUpSuite() throws Exception {
 		"public class X<E> extends ArrayList<E> implements List<E> {\n" +
 		"}"
 	);
+	createFile(
+		"/TypeHierarchy15/src/Y.java", 
+		"import util.*;\n" +
+		"public class Y extends ArrayList implements List {\n" +
+		"}"
+	);
 }
 
 /* (non-Javadoc)
@@ -753,7 +759,26 @@ public void testGeneric2() throws JavaModelException {
 		"  AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
-		"  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		"  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
+}
+/*
+ * Ensures that a hierarchy on a generic type can be opened
+ */
+public void testGeneric3() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/Y.java").getType("Y");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy
 	);
 }
