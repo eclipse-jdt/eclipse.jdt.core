@@ -18,18 +18,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
-import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
-import org.eclipse.jdt.internal.core.search.PathCollector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -60,6 +52,8 @@ public abstract class InternalSearchPattern {
 	public abstract char[] encodeIndexKey();
 
 	protected char[] encodeIndexKey(char[] key) {
+		// TODO (kent) with new index, need to encode key for case insensitive queries too
+		// also want to pass along the entire pattern
 		if (isCaseSensitive() && key != null) {
 			switch(matchMode()) {
 				case SearchPattern.R_EXACT_MATCH :
