@@ -56,6 +56,18 @@ protected void assertDeltas(String message, String expected) {
 				buffer.append("\n");
 			}
 		}
+		IResourceDelta[] nonJavaProjects = deltas[i].getResourceDeltas();
+		if (nonJavaProjects != null) {
+			for (int j=0, nonJavaProjectsLength=nonJavaProjects.length; j<nonJavaProjectsLength; j++) {
+				if (j == 0 && buffer.length() != 0) {
+					buffer.append("\n");
+				}
+				buffer.append(nonJavaProjects[j]);
+				if (j != nonJavaProjectsLength-1) {
+					buffer.append("\n");
+				}
+			}
+		}
 		if (i != length-1) {
 			buffer.append("\n\n");
 		}

@@ -17,20 +17,13 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.model.*;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 /**
  * Tests IJavaModel API.
  */
 public class JavaModelTests extends ModifyingResourceTests {
 
 public static Test suite() {
-	TestSuite suite = new Suite(JavaModelTests.class.getName());
-	suite.addTest(new JavaModelTests("testGetJavaProject"));
-	suite.addTest(new JavaModelTests("testGetJavaProjects1"));
-	suite.addTest(new JavaModelTests("testGetJavaProjects2"));
-	suite.addTest(new JavaModelTests("testAddFileToNonJavaProject"));
-	return suite;
+	return new Suite(JavaModelTests.class);
 }
 public JavaModelTests(String name) {
 	super(name);
@@ -121,6 +114,43 @@ public void testGetJavaProjects2() throws CoreException {
 		);
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/*
+ * Test retrieving non-Java projects.
+ */
+public void testGetNonJavaResources() throws CoreException {
+	try {
+		IJavaModel model = this.getJavaModel();
+
+		this.createJavaProject("JP", new String[]{}, "");
+		assertResourcesEqual(
+			"Unexpected non-Java resources",
+			"",
+			model.getNonJavaResources());
+
+		this.createProject("SP1");
+		assertResourcesEqual(
+			"Unexpected non-Java resources after creation of SP1",
+			"SP1",
+			model.getNonJavaResources());
+		
+		this.createProject("SP2");
+		assertResourcesEqual(
+			"Unexpected non-Java resources after creation of SP2",
+			"SP1\n" +
+			"SP2",
+			model.getNonJavaResources());
+
+		this.deleteProject("SP1");
+		assertResourcesEqual(
+			"Unexpected non-Java resources after deletion of SP1",
+			"SP2",
+			model.getNonJavaResources());
+	} finally {
+		this.deleteProject("SP1");
+		this.deleteProject("SP2");
+		this.deleteProject("JP");
 	}
 }
 

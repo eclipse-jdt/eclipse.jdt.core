@@ -261,7 +261,7 @@ public void testAddFileToNonJavaProject() throws CoreException {
 		this.createFile("/P/toto.txt", "");
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -279,7 +279,8 @@ public void testAddJavaNature() throws CoreException {
 		this.addJavaNature("P");
 		assertDeltas(
 			"Unexpected delta", 
-			"P[+]: {}"
+			"P[+]: {}\n" + 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -311,7 +312,10 @@ public void testAddNonJavaProject() throws CoreException {
 	try {
 		this.startDeltas();
 		this.createProject("P");
-		assertDeltas("Should get no delta", "");
+		assertDeltas(
+			"Should get a non-Java resource delta", 
+			"ResourceDelta(/P)"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -616,7 +620,8 @@ public void testCloseJavaProject() throws CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}"
+			"P[-]: {}\n" + 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -635,7 +640,7 @@ public void testCloseNonJavaProject() throws CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -658,8 +663,9 @@ public void testCloseNonJavaProjectUpdateDependent() throws CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta", 
-			"JP[*]: {CHILDREN}\n" +
-			"	x.jar[-]: {}"
+			"JP[*]: {CHILDREN}\n" + 
+			"	x.jar[-]: {}\n" + 
+			"ResourceDelta(/SP)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1251,7 +1257,8 @@ public void testOpenJavaProject() throws CoreException {
 		project.open(null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[+]: {}"
+			"P[+]: {}\n" + 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1271,7 +1278,7 @@ public void testOpenNonJavaProject() throws CoreException {
 		project.open(null);
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1328,7 +1335,8 @@ public void testRemoveJavaNature() throws CoreException {
 		this.removeJavaNature("P");
 		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}"
+			"P[-]: {}\n" + 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1525,8 +1533,8 @@ public void testRemoveNonJavaProject() throws CoreException {
 		this.startDeltas();
 		this.deleteProject("P");
 		assertDeltas(
-			"Should get no delta", 
-			""
+			"Should get a non-Java resource delta", 
+			"ResourceDelta(/P)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1546,8 +1554,9 @@ public void testRemoveNonJavaProjectUpdateDependent() throws CoreException {
 		this.deleteProject("SP");
 		assertDeltas(
 			"Unexpected delta", 
-			"JP[*]: {CHILDREN}\n" +
-			"	x.jar[-]: {}"
+			"JP[*]: {CHILDREN}\n" + 
+			"	x.jar[-]: {}\n" + 
+			"ResourceDelta(/SP)"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1568,7 +1577,7 @@ public void testRemoveNonJavaProjectUpdateDependent2() throws CoreException {
 		this.deleteProject("SP");
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"ResourceDelta(/SP)"
 		);
 	} finally {
 		this.stopDeltas();

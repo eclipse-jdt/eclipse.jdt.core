@@ -966,21 +966,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 	private int elementType(IResource res, int kind, int flags, int parentType, RootInfo rootInfo) {
 		switch (parentType) {
 			case IJavaElement.JAVA_MODEL:
-				if (kind != IResourceDelta.CHANGED) {
-					// change on the project itself
-					return IJavaElement.JAVA_PROJECT;
-				} else if ((flags & IResourceDelta.OPEN) != 0) {
-					// project is opened or closed
-					return IJavaElement.JAVA_PROJECT;
-				} else if ((flags & IResourceDelta.DESCRIPTION) != 0) {
-						// project's description has changed: need to check if java nature has changed
-						IProject proj = res.getProject();
-						boolean wasJavaProject = JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(proj) != null;
-						boolean isJavaProject = JavaProject.hasJavaNature(proj);
-						if (wasJavaProject != isJavaProject) {
-							return IJavaElement.JAVA_PROJECT;
-						}
-				} // else see below
+				// case of a movedTo or movedFrom project (other cases are handled in processResourceDelta(...)
+				return IJavaElement.JAVA_PROJECT;
+			case NON_JAVA_RESOURCE:
 			case IJavaElement.JAVA_PROJECT:
 				if (rootInfo == null) {
 					rootInfo = this.rootInfo(res.getFullPath());
@@ -988,7 +976,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				if (rootInfo != null && (rootInfo.project.getProject().getFullPath().isPrefixOf(res.getFullPath()))) {
 					return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 				} else {
-					return IJavaElement.JAVA_PROJECT; // not yet in a package fragment root
+					return NON_JAVA_RESOURCE; // not yet in a package fragment root
 				}
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:
@@ -1178,6 +1166,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 		if (element.isOpen()) {
 			JavaElementInfo info = element.getElementInfo();
 			switch (element.getElementType()) {
+				case IJavaElement.JAVA_MODEL :
+					((JavaModelInfo) info).nonJavaResources = null;
+					fCurrentDelta.addResourceDelta(delta);
+					return;
 				case IJavaElement.JAVA_PROJECT :
 					((JavaProjectElementInfo) info).setNonJavaResources(null);
 	
@@ -1365,16 +1357,32 @@ public class DeltaProcessor implements IResourceChangeListener {
 				fCurrentDelta = new JavaElementDelta(model);
 				
 				// find out the element type
-				RootInfo rootInfo = (RootInfo)this.roots.get(res.getFullPath());
-				int elementType = 
-					this.elementType(
-						res, 
-						delta.getKind(),
-						delta.getFlags(),
-						IJavaElement.JAVA_MODEL, 
-						rootInfo);
+				RootInfo rootInfo = null;
+				int elementType;
+				IProject proj = (IProject)res;
+				boolean wasJavaProject = JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(proj) != null;
+				boolean isJavaProject = JavaProject.hasJavaNature(proj);
+				if (!wasJavaProject && !isJavaProject) {
+					elementType = NON_JAVA_RESOURCE;
+				} else {
+					rootInfo = this.rootInfo(res.getFullPath());
+					if (rootInfo != null && (rootInfo.project.getProject().getFullPath().isPrefixOf(res.getFullPath()))) {
+						elementType = IJavaElement.PACKAGE_FRAGMENT_ROOT;
+					} else {
+						elementType = IJavaElement.JAVA_PROJECT; 
+					}
+				}
 				
-				this.traverseDelta(delta, elementType, rootInfo, null); // traverse delta
+				// traverse delta
+				if (!this.traverseDelta(delta, elementType, rootInfo, null) 
+						|| (wasJavaProject != isJavaProject && (delta.getKind()) == IResourceDelta.CHANGED)) { // project has changed nature (description or open/closed)
+					try {
+						// add child as non java resource
+						nonJavaResourcesChanged((JavaModel)model, delta);
+					} catch (JavaModelException e) {
+					}
+				}
+
 				translatedDeltas[i] = fCurrentDelta;
 			}
 			
@@ -1656,8 +1664,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	/**
 	 * Converts an <code>IResourceDelta</code> and its children into
 	 * the corresponding <code>IJavaElementDelta</code>s.
-	 * Return whether the delta corresponds to a resource on the classpath.
-	 * If it is not a resource on the classpath, it will be added as a non-java
+	 * Return whether the delta corresponds to a java element.
+	 * If it is not a java element, it will be added as a non-java
 	 * resource by the sender of this method.
 	 */
 	protected boolean traverseDelta(
@@ -1675,7 +1683,15 @@ public class DeltaProcessor implements IResourceChangeListener {
 		
 		// process current delta
 		boolean processChildren = true;
-		if (rootInfo != null || res instanceof IProject) {
+		if (res instanceof IProject) {
+			processChildren = 
+				this.updateCurrentDeltaAndIndex(
+					delta, 
+					elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT ? 
+						IJavaElement.JAVA_PROJECT : // case of prj=src
+						elementType, 
+					rootInfo);
+		} else if (rootInfo != null) {
 			processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, rootInfo);
 		} else {
 			// not yet inside a package fragment root
@@ -1724,9 +1740,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				boolean isNestedRoot = rootInfo != null && childRootInfo != null;
 				if (!isResFilteredFromOutput 
 						&& !isNestedRoot) { // do not treat as non-java rsc if nested root
-					if (childType == NON_JAVA_RESOURCE
-							|| !this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
-						
+					if (!this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
 						// it is a non-java resource
 						try {
 							if (rootInfo != null) { // if inside a package fragment root
@@ -1763,6 +1777,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 					} else {
 						oneChildOnClasspath = true;
 					}
+				} else {
+					oneChildOnClasspath = true; // to avoid reporting child delta as non-java resource delta
 				}
 								
 				// if child is a nested root 
@@ -1803,11 +1819,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				}
 			} // else resource delta will be added by parent
-			return isValidParent && (rootInfo != null || oneChildOnClasspath);
+			return elementType != NON_JAVA_RESOURCE || oneChildOnClasspath;
 		} else {
-			// if not on classpath or if the element type is NON_JAVA_RESOURCE, 
-			// it's a non-java resource
-			return rootInfo != null && elementType != NON_JAVA_RESOURCE;
+			return elementType != NON_JAVA_RESOURCE;
 		}
 	}
 

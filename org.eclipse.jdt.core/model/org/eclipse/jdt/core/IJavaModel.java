@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added getNonJavaResources()
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -110,6 +111,20 @@ IJavaProject getJavaProject(String name);
  * @exception JavaModelException if this request fails.
  */
 IJavaProject[] getJavaProjects() throws JavaModelException;
+/**
+ * Returns an array of non-Java resources (i.e. non-Java projects) in
+ * the workspace.
+ * <p>
+ * Non-Java projects include all projects that are closed (even if they have the
+ * Java nature).
+ * </p>
+ * 
+ * @return an array of non-Java projects contained in the workspace.
+ * @throws JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource
+ * @since 2.1
+ */
+Object[] getNonJavaResources() throws JavaModelException;
 /**
  * Returns the workspace associated with this Java model.
  * 

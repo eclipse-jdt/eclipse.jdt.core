@@ -361,6 +361,13 @@ public IJavaProject[] getJavaProjects() throws JavaModelException {
 
 }
 /**
+ * @see IJavaModel
+ */
+public Object[] getNonJavaResources() throws JavaModelException {
+		return ((JavaModelInfo) getElementInfo()).getNonJavaResources();
+}
+
+/**
  * Workaround for bug 15168 circular errors not reported 
  * Returns the list of java projects before resource delta processing
  * has started.
