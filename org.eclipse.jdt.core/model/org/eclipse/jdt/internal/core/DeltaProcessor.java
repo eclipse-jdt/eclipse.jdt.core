@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -193,12 +194,24 @@ public class DeltaProcessor implements IResourceChangeListener {
 									break; // only consider content change
 							case IResourceDelta.ADDED :
 								// check if any actual difference
+								project.flushClasspathProblemMarkers(false, true);
 								try {
 									// force to (re)read the property file
-									String fileClasspathString = project.getSharedProperty(classpathProp);
-									if (fileClasspathString == null)
-										break; // did not find the file
-									IClasspathEntry[] fileEntries = project.readPaths(fileClasspathString);
+									IClasspathEntry[] fileEntries = null;
+									try {
+										String fileClasspathString = project.loadClasspath();
+										if (fileClasspathString != null) {
+											fileEntries = project.readPaths(fileClasspathString);
+										}
+									} catch (IOException e) {
+										if (!JavaModelManager.IsResourceTreeLocked){
+											project.createClasspathProblemMarker(
+												Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+												IMarker.SEVERITY_ERROR,
+												false,	//  cycle error
+												true);	//	file format error
+										}
+									}
 									if (fileEntries == null)
 										break; // could not read, ignore 
 									if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
@@ -232,8 +245,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 											true); // needValidation
 									} catch (JavaModelException e) {
 									}
-								} catch (IOException e) {
-									break;
 								} catch (RuntimeException e) {
 									break;
 								} catch (CoreException e) {

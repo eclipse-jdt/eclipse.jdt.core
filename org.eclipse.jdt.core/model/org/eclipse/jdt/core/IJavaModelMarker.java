@@ -68,4 +68,13 @@ public interface IJavaModelMarker {
 	 * detected by the Java tooling during classpath setting.
 	 */
 	public static final String BUILDPATH_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".buildpath_problem"; //$NON-NLS-1$
+	
+	/** 
+	 * Classpath file format marker attribute (value <code>"classpathFileFormat"</code>).
+	 * Used only on buildpath problem markers.
+	 * The value of this attribute is either "true" or "false".
+	 * @since 2.0
+	 */
+	 public static final String CLASSPATH_FILE_FORMAT = "classpathFileFormat"; //$NON-NLS-1$
+	
 }

@@ -491,7 +491,8 @@ public class JavaProject
 	void createClasspathProblemMarker(
 		String message,
 		int severity,
-		boolean isCycleProblem) {
+		boolean isCycleProblem,		
+		boolean isClasspathFileFormatProblem) {
 		try {
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
@@ -499,12 +500,14 @@ public class JavaProject
 					IMarker.MESSAGE, 
 					IMarker.SEVERITY, 
 					IMarker.LOCATION, 
-					IJavaModelMarker.CYCLE_DETECTED },
+					IJavaModelMarker.CYCLE_DETECTED,
+					IJavaModelMarker.CLASSPATH_FILE_FORMAT },
 				new Object[] {
 					message,
 					new Integer(severity), 
 					Util.bind("classpath.buildPath"),//$NON-NLS-1$
-					isCycleProblem ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
+					isCycleProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
+					isClasspathFileFormatProblem ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
 		} catch (CoreException e) {
 		}
 	}
@@ -720,7 +723,7 @@ public class JavaProject
 	/**
 	 * Remove all markers denoting classpath problems
 	 */
-	protected void flushClasspathProblemMarkers(boolean flushCycleMarkers) {
+	protected void flushClasspathProblemMarkers(boolean flushCycleMarkers, boolean flushClasspathFormatMarkers) {
 		try {
 			IProject project = getProject();
 			if (project.exists()) {
@@ -728,7 +731,9 @@ public class JavaProject
 				for (int i = 0, length = markers.length; i < length; i++) {
 					IMarker marker = markers[i];
 					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
-					if (flushCycleMarkers == (cycleAttr != null && cycleAttr.equals("true"))){ //$NON-NLS-1$
+					String classpathFileFormatAttr =  (String)marker.getAttribute(IJavaModelMarker.CLASSPATH_FILE_FORMAT);
+					if ((flushCycleMarkers == (cycleAttr != null && cycleAttr.equals("true"))) //$NON-NLS-1$
+						&& (flushClasspathFormatMarkers == (classpathFileFormatAttr != null && classpathFileFormatAttr.equals("true")))){ //$NON-NLS-1$
 						marker.delete();
 					}
 				}
@@ -757,23 +762,26 @@ public class JavaProject
 				IClasspathEntry[] classpath = null;
 
 				// read from file
-				String sharedClasspath = loadClasspath();
-				if (sharedClasspath != null) {
-					try {
+				try {
+					String sharedClasspath = loadClasspath();
+					if (sharedClasspath != null) {
 						classpath = readPaths(sharedClasspath);
-					} catch(IOException e){
-						throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 					}
+				} catch(IOException e){
+					Util.log(e, 
+						"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+						+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					//throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+				}
 
-					// extract out the output location
-					if (classpath != null && classpath.length > 0) {
-						IClasspathEntry entry = classpath[classpath.length - 1];
-						if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-							outputLocation = entry.getPath();
-							IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
-							System.arraycopy(classpath, 0, copy, 0, copy.length);
-							classpath = copy;
-						}
+				// extract out the output location
+				if (classpath != null && classpath.length > 0) {
+					IClasspathEntry entry = classpath[classpath.length - 1];
+					if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+						outputLocation = entry.getPath();
+						IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
+						System.arraycopy(classpath, 0, copy, 0, copy.length);
+						classpath = copy;
 					}
 				}
 				// restore output location				
@@ -990,20 +998,23 @@ public class JavaProject
 			return defaultOutputLocation();
 		}
 		// if not already opened, then read from file (avoid populating the model for CP question)
-		String sharedClasspath = loadClasspath();
 		IClasspathEntry[] classpath = null;
-		if (sharedClasspath != null) {
-			try {
+		try {
+			String sharedClasspath = loadClasspath();
+			if (sharedClasspath != null) {
 				classpath = readPaths(sharedClasspath);
-			} catch(IOException e){
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
-			// extract out the output location
-			if (classpath != null && classpath.length > 0) {
-				IClasspathEntry entry = classpath[classpath.length - 1];
-				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-					outputLocation = entry.getPath();
-				}
+		} catch(IOException e){
+			Util.log(e, 
+				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+				+"/.classpath, will revert to default output location"); //$NON-NLS-1$
+			//throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+		// extract out the output location
+		if (classpath != null && classpath.length > 0) {
+			IClasspathEntry entry = classpath[classpath.length - 1];
+			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+				outputLocation = entry.getPath();
 			}
 		}
 		if (outputLocation != null) {
@@ -1200,21 +1211,24 @@ public class JavaProject
 			return defaultClasspath();
 		}
 		// if not already opened, then read from file (avoid populating the model for CP question)
-		String sharedClasspath = loadClasspath();
-		if (sharedClasspath != null) {
-			try {
+		try {
+			String sharedClasspath = loadClasspath();
+			if (sharedClasspath != null) {
 				classpath = readPaths(sharedClasspath);
-			} catch(IOException e){
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
-			// extract out the output location
-			if (classpath != null && classpath.length > 0) {
-				IClasspathEntry entry = classpath[classpath.length - 1];
-				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-					IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
-					System.arraycopy(classpath, 0, copy, 0, copy.length);
-					classpath = copy;
-				}
+		} catch(IOException e){
+			Util.log(e, 
+				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+				+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+			//throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+		// extract out the output location
+		if (classpath != null && classpath.length > 0) {
+			IClasspathEntry entry = classpath[classpath.length - 1];
+			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+				IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
+				System.arraycopy(classpath, 0, copy, 0, copy.length);
+				classpath = copy;
 			}
 		}
 		if (classpath != null) {
@@ -1284,7 +1298,7 @@ public class JavaProject
 		throws JavaModelException {
 
 		if (generateMarkerOnError){
-			flushClasspathProblemMarkers(false);
+			flushClasspathProblemMarkers(false, false);
 		}
 
 		int length = classpathEntries.length;
@@ -1303,6 +1317,7 @@ public class JavaProject
 					createClasspathProblemMarker(
 						status.getMessage(), 
 						IMarker.SEVERITY_ERROR,
+						false,
 						false);
 			}
 
@@ -1351,6 +1366,7 @@ public class JavaProject
 								createClasspathProblemMarker(
 									status.getMessage(), 
 									IMarker.SEVERITY_ERROR,
+									false,
 									false);
 						}
 						resolvedEntries.add(containerRawEntry);
@@ -2078,10 +2094,11 @@ public class JavaProject
 					project.createClasspathProblemMarker(
 						Util.bind("classpath.cycle"), //$NON-NLS-1$
 						IMarker.SEVERITY_ERROR,
-						true); 
+						true,
+						false); 
 				}
 			} else {
-				project.flushClasspathProblemMarkers(true);
+				project.flushClasspathProblemMarkers(true, false);
 			}			
 		}
 	}
