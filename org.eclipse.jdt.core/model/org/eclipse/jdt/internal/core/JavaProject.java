@@ -1609,16 +1609,11 @@ public class JavaProject
 	}
 
 	/**
-	 * Ensures that this project is not currently being deleted before
-	 * opening.
-	 *
-	 * fix for 1FW67PA
+	 * Open project if resource isn't closed
 	 */
 	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		if (manager.isBeingDeleted(fProject) || !this.fProject.isOpen()) {
+		if (!this.fProject.isOpen()) {
 			throw newNotPresentException();
 		} else {
 			super.openWhenClosed(pm);

@@ -588,8 +588,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	
 	/**
 	 * Note that the project is about to be deleted.
-	 *
-	 * fix for 1FW67PA
 	 */
 	public void deleting(IProject project) {
 		
@@ -597,6 +595,10 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		
 		if (!this.projectsBeingDeleted.contains(project)) {
 			this.projectsBeingDeleted.add(project);
+			try {
+				JavaCore.create(project).close();
+			} catch (JavaModelException e) {
+			}
 		}
 		
 		this.deltaProcessor.addDependentsToProjectsToUpdate(project.getFullPath());
