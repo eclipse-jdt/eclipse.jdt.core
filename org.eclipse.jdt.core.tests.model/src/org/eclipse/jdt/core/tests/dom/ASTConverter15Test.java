@@ -1100,7 +1100,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "Y", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "Y:test0037.A", typeBinding.getKey());
+		assertEquals("Wrong key", "Y:test0037/A", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "Y", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
@@ -1120,7 +1120,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "X", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "X:test0037.A", typeBinding.getKey());
+		assertEquals("Wrong key", "X:test0037/A", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "X", simpleName.getIdentifier());
 		binding2 = simpleName.resolveBinding();
@@ -1189,6 +1189,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List typeParameters = methodDeclaration.typeParameters();
+		assertEquals("wrong size", 1, typeParameters.size());
+		TypeParameter parameter = (TypeParameter) typeParameters.get(0);
+		IBinding binding = parameter.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		assertEquals("wrong key", "T:test0040/A/test0040.Tfoo()", binding.getKey());
+		Type returnType = methodDeclaration.getReturnType2();
+		IBinding binding2 = returnType.resolveBinding();
+		assertNotNull("No binding", binding2);
+		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
+		assertEquals("wrong key", "T:test0040/A/test0040.Tfoo()", binding2.getKey());		
 	}
 	
 	/**

@@ -159,7 +159,11 @@ class MethodBinding implements IMethodBinding {
 		buffer.append('/');
 		ITypeBinding _returnType = getReturnType();
 		if (_returnType != null) {
-			buffer.append(_returnType.getKey());
+			if (_returnType.isTypeVariable()) {
+				buffer.append(_returnType.getQualifiedName());
+			} else {
+				buffer.append(_returnType.getKey());
+			}
 		}
 		if (!isConstructor()) {
 			buffer.append(this.getName());
@@ -167,16 +171,25 @@ class MethodBinding implements IMethodBinding {
 		ITypeBinding[] parameters = getParameterTypes();
 		buffer.append('(');
 		for (int i = 0, max = parameters.length; i < max; i++) {
-			ITypeBinding parameter = parameters[i];
+			final ITypeBinding parameter = parameters[i];
 			if (parameter != null) {
-				buffer.append(parameter.getKey());
+				if (parameter.isTypeVariable()) {
+					buffer.append(parameter.getQualifiedName());
+				} else {
+					buffer.append(parameter.getKey());
+				}
 			}
 		}
 		buffer.append(')');
 		ITypeBinding[] thrownExceptions = getExceptionTypes();
 		for (int i = 0, max = thrownExceptions.length; i < max; i++) {
-			if (thrownExceptions[i] != null) {
-				buffer.append(thrownExceptions[i].getKey());
+			final ITypeBinding thrownException = thrownExceptions[i];
+			if (thrownException != null) {
+				if (thrownException.isTypeVariable()) {
+					buffer.append(thrownException.getQualifiedName());					
+				} else {
+					buffer.append(thrownException.getKey());
+				}
 			}
 		}
 		return buffer.toString();
