@@ -117,6 +117,97 @@ public void test004() {
 		"----------\n");
 }
 
+// check cannot bind type variable in static context
+public void test005() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    \n" + 
+			"    T t;\n" + 
+			"    static {\n" + 
+			"        T s;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	T s;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n");
+}
+			
+// check static references to type variables
+public void test006() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    \n" + 
+			"    T ok1;\n" + 
+			"    static {\n" + 
+			"        T wrong1;\n" + 
+			"    }\n" + 
+			"    static void foo(T wrong2) {\n" + 
+			"		T wrong3;\n" + 
+			"    }\n" + 
+			"    class MX extends T {\n" + 
+			"        T ok2;\n" + 
+			"    }\n" + 
+			"    static class SMX extends T {\n" + 
+			"        T wrong4;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	T wrong1;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	static void foo(T wrong2) {\n" + 
+		"	                ^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	T wrong3;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	class MX extends T {\n" + 
+		"	                 ^\n" + 
+		"Superclass T cannot refer to a type variable\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
+		"	static class SMX extends T {\n" + 
+		"	                         ^\n" + 
+		"Superclass T cannot refer to a type variable\n" + 
+		"----------\n");
+}
+
+// check static references to type variables
+public void test007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    \n" + 
+			"    T ok1;\n" + 
+			"    static class SMX {\n" + 
+			"        T wrong4;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	T wrong4;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the type variable T\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return GenericTypeTest.class;
