@@ -662,11 +662,11 @@ class ASTConverter {
 	}	
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.CastExpression) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.CastExpression) expression);
-		}
 		if (checkForParenthesis(expression)) {
 			return convertToParenthesizedExpression(expression);
+		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.CastExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.CastExpression) expression);
 		}
 		// switch between all types of expression
 		if (expression instanceof ArrayAllocationExpression) {
@@ -2712,32 +2712,30 @@ class ASTConverter {
 		 */
 		int start = expression.sourceStart;
 		int end = expression.sourceEnd;
-		int leftParentCount = 0;
-		int rightParentCount = 0;
 		scanner.resetTo(start, end);
+		int dangling = 0, token;
+		boolean first = true;
 		try {
-			int token = scanner.getNextToken();
-			if (token != Scanner.TokenNameLPAREN) {
-				return false;
-			} else {
-				leftParentCount++;
-			}
-			boolean stop = false;
-			while (!stop && ((token  = scanner.getNextToken()) != Scanner.TokenNameEOF)) {
-				switch(token) {
-					case Scanner.TokenNameLPAREN:
-						leftParentCount++;
+			while (true) {
+				token = scanner.getNextToken();
+				switch (token) {
+					case Scanner.TokenNameLPAREN :
+						dangling ++;
 						break;
-					case Scanner.TokenNameRPAREN:
-						rightParentCount++;
-						if (rightParentCount == leftParentCount) {
-							// we found the matching parenthesis
-							stop = true;
-						}
+					case Scanner.TokenNameRPAREN :
+						if (first) return false;
+						dangling --;
+						break;
+					case Scanner.TokenNameEOF :
+						if (first) return false;
+						return dangling == 0;
+					default :
+						if (first) return false;
+						if (dangling == 0) return false;
 				}
+				first = false;
 			}
-			return (scanner.currentPosition >= end) && (rightParentCount == leftParentCount);
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e){
 		}
 		return false;
 	}

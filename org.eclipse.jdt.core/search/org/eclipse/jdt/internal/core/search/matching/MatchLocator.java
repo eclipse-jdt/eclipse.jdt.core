@@ -413,11 +413,19 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			// create type
 			return unit.getType(new String(simpleTypeName));
 		} else {
+			IType type; 
 			try {
-				return ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
+				type = ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
 			} catch (JavaModelException e) {
 				return null;
 			}
+			// ensure this is a top level type (see bug 20011  Searching for Inner Classes gives bad search results)
+			IType declaringType = type.getDeclaringType();
+			while (declaringType != null) {
+				type = declaringType;
+				declaringType = type.getDeclaringType();
+			}
+			return type;
 		}
 	}
 	/**
@@ -862,27 +870,31 @@ public IType lookupType(TypeBinding typeBinding) {
 		IJavaElement element,
 		int accuracy)
 		throws CoreException {
-
+	
 		if (accuracy == -1) return;
-
+	
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
 		scanner.setSource(
 			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
-
+	
 		int refSourceStart = -1, refSourceEnd = -1;
 		int tokenNumber = qualifiedName.length;
 		int token = -1;
 		int previousValid = -1;
 		int i = 0;
+		int currentPosition;
 		do {
-			int currentPosition = scanner.currentPosition;
-			// read token
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-			}
+			// find first token that is an identifier (parenthesized expressions include parenthesises in source range - see bug 20693 - Finding references to variables does not find all occurrences  )
+			do {
+				currentPosition = scanner.currentPosition;
+				try {
+					token = scanner.getNextToken();
+				} catch (InvalidInputException e) {
+				}
+			} while (token !=  ITerminalSymbols.TokenNameIdentifier && token !=  ITerminalSymbols.TokenNameEOF);
+	
 			if (token != ITerminalSymbols.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
 				boolean equals = false;
@@ -916,7 +928,7 @@ public IType lookupType(TypeBinding typeBinding) {
 				return;
 			}
 		} while (token != ITerminalSymbols.TokenNameEOF);
-
+	
 	}
 	/**
 	 * Finds the accurate positions of each valid token in the source and
