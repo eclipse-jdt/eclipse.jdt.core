@@ -41,6 +41,11 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_COMPACT_IF_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 	public static final int DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT;
 	public static final int DEFAULT_CONTINUATION_INDENTATION = 2; // 2 indentations
+	// TODO remove before 3.0
+	/**
+	 * @deprecated
+	 */
+	public static final boolean DEFAULT_CONVERT_OLD_TO_NEW = true;
 	public static final int DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final char DEFAULT_FILLING_SPACE = DASH;
 	public static final boolean DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE = false;
@@ -196,6 +201,7 @@ public class DefaultCodeFormatterOptions {
 	public int compact_if_alignment;
 	public int conditional_expression_alignment;
 	public int continuation_indentation;
+	public boolean convert_old_to_new;// TODO remove when testing is over
 	public int explicit_constructor_arguments_alignment;
 	public char filling_space; 	// TODO remove when testing is over
 	public boolean format_guardian_clause_on_one_line;
@@ -354,6 +360,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT, getAlignment(this.compact_if_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT, getAlignment(this.conditional_expression_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, Integer.toString(this.continuation_indentation));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_CONVERT_OLD_TO_NEW, this.convert_old_to_new ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT, getAlignment(this.explicit_constructor_arguments_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE, this.format_guardian_clause_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -549,6 +556,10 @@ public class DefaultCodeFormatterOptions {
 		final Object continuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION);
 		if (continuationIndentationOption != null) {
 			this.continuation_indentation = Integer.parseInt((String) continuationIndentationOption);
+		}
+		final Object convertOldToNewOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONVERT_OLD_TO_NEW);
+		if (convertOldToNewOption != null) {
+			this.convert_old_to_new = DefaultCodeFormatterConstants.TRUE.equals(convertOldToNewOption);
 		}
 		final Object explicitConstructorArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT);
 		if (explicitConstructorArgumentsAlignmentOption != null) {
@@ -1050,61 +1061,63 @@ public class DefaultCodeFormatterOptions {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
 		// TODO Remove before 3.0
-		final Object clearBlankLines = settings.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);
-		if (clearBlankLines != null) {
-			if (JavaCore.CLEAR_ALL.equals(clearBlankLines)) {
-				this.number_of_empty_lines_to_preserve = 0;
-			} else if (JavaCore.PRESERVE_ONE.equals(clearBlankLines)) {
-				this.number_of_empty_lines_to_preserve = 1;
-			} else {
-				this.number_of_empty_lines_to_preserve = Integer.MAX_VALUE;
+		if (this.convert_old_to_new) {
+			final Object clearBlankLines = settings.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);
+			if (clearBlankLines != null) {
+				if (JavaCore.CLEAR_ALL.equals(clearBlankLines)) {
+					this.number_of_empty_lines_to_preserve = 0;
+				} else if (JavaCore.PRESERVE_ONE.equals(clearBlankLines)) {
+					this.number_of_empty_lines_to_preserve = 1;
+				} else {
+					this.number_of_empty_lines_to_preserve = Integer.MAX_VALUE;
+				}
 			}
-		}
-		final Object compactAssignment = settings.get(JavaCore.FORMATTER_COMPACT_ASSIGNMENT);
-		if (compactAssignment != null) {
-			this.insert_space_before_assignment_operators = JavaCore.NORMAL.equals(compactAssignment);
-		}
-		final Object newLineOpenBrace = settings.get(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE);
-		if(newLineOpenBrace != null){
-			if (JavaCore.INSERT.equals(newLineOpenBrace)) {
-				this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
-				this.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
-				this.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
-				this.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
-				this.switch_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
-			} else {
-				this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-				this.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-				this.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-				this.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
-				this.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+			final Object compactAssignment = settings.get(JavaCore.FORMATTER_COMPACT_ASSIGNMENT);
+			if (compactAssignment != null) {
+				this.insert_space_before_assignment_operators = JavaCore.NORMAL.equals(compactAssignment);
 			}
-		}
-		final Object newLineControl = settings.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
-		if (newLineControl != null) {
-			this.insert_new_line_in_control_statements = JavaCore.INSERT.equals(newLineControl);
-		}
-		final Object newLineElseIf  = settings.get(JavaCore.FORMATTER_NEWLINE_ELSE_IF);
-		if (newLineElseIf != null) {
-			this.compact_else_if = JavaCore.DO_NOT_INSERT.equals(newLineElseIf);
-		}
-		final Object newLineEmptyBlock  = settings.get(JavaCore.FORMATTER_NEWLINE_EMPTY_BLOCK);
-		if (newLineEmptyBlock != null) {
-			if (JavaCore.INSERT.equals(newLineEmptyBlock)) {
-				this.insert_new_line_in_empty_anonymous_type_declaration = true;
-				this.insert_new_line_in_empty_type_declaration = true;
-				this.insert_new_line_in_empty_method_body = true;
-				this.insert_new_line_in_empty_block = true;
-			} else {
-				this.insert_new_line_in_empty_anonymous_type_declaration = false;
-				this.insert_new_line_in_empty_type_declaration = false;
-				this.insert_new_line_in_empty_method_body = false;
-				this.insert_new_line_in_empty_block = false;
+			final Object newLineOpenBrace = settings.get(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE);
+			if(newLineOpenBrace != null){
+				if (JavaCore.INSERT.equals(newLineOpenBrace)) {
+					this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					this.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					this.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					this.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					this.switch_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+				} else {
+					this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					this.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					this.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					this.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					this.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+				}
 			}
-		}
-		final Object castExpression = settings.get(JavaCore.FORMATTER_SPACE_CASTEXPRESSION);
-		if (castExpression != null) {
-			this.insert_space_after_closing_paren_in_cast = JavaCore.INSERT.equals(castExpression);
+			final Object newLineControl = settings.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
+			if (newLineControl != null) {
+				this.insert_new_line_in_control_statements = JavaCore.INSERT.equals(newLineControl);
+			}
+			final Object newLineElseIf  = settings.get(JavaCore.FORMATTER_NEWLINE_ELSE_IF);
+			if (newLineElseIf != null) {
+				this.compact_else_if = JavaCore.DO_NOT_INSERT.equals(newLineElseIf);
+			}
+			final Object newLineEmptyBlock  = settings.get(JavaCore.FORMATTER_NEWLINE_EMPTY_BLOCK);
+			if (newLineEmptyBlock != null) {
+				if (JavaCore.INSERT.equals(newLineEmptyBlock)) {
+					this.insert_new_line_in_empty_anonymous_type_declaration = true;
+					this.insert_new_line_in_empty_type_declaration = true;
+					this.insert_new_line_in_empty_method_body = true;
+					this.insert_new_line_in_empty_block = true;
+				} else {
+					this.insert_new_line_in_empty_anonymous_type_declaration = false;
+					this.insert_new_line_in_empty_type_declaration = false;
+					this.insert_new_line_in_empty_method_body = false;
+					this.insert_new_line_in_empty_block = false;
+				}
+			}
+			final Object castExpression = settings.get(JavaCore.FORMATTER_SPACE_CASTEXPRESSION);
+			if (castExpression != null) {
+				this.insert_space_after_closing_paren_in_cast = JavaCore.INSERT.equals(castExpression);
+			}
 		}
 	}
 
@@ -1127,6 +1140,7 @@ public class DefaultCodeFormatterOptions {
 		this.compact_if_alignment = DEFAULT_COMPACT_IF_ALIGNMENT;
 		this.conditional_expression_alignment = DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT;
 		this.continuation_indentation = DEFAULT_CONTINUATION_INDENTATION;
+		this.convert_old_to_new = DEFAULT_CONVERT_OLD_TO_NEW;
 		this.explicit_constructor_arguments_alignment = DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT;
 		this.filling_space = DEFAULT_FILLING_SPACE;
 		this.format_guardian_clause_on_one_line = DEFAULT_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE;
@@ -1270,6 +1284,7 @@ public class DefaultCodeFormatterOptions {
 		this.compact_if_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.conditional_expression_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_NEXT_PER_LINE_SPLIT);
 		this.continuation_indentation = 2;
+		this.convert_old_to_new = DEFAULT_CONVERT_OLD_TO_NEW;
 		this.explicit_constructor_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.filling_space = ' ';
 		this.format_guardian_clause_on_one_line = true;
