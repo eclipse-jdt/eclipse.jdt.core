@@ -214,8 +214,12 @@ public class Scribe {
 	
 	private void preserveEmptyLines(int count) {
 		if (count > 0) {
-			int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve + 1);
-			this.printNewLines(linesToPreserve);
+			if (this.formatter.preferences.preserve_user_linebreaks) {
+				this.printNewLines(count);
+			} else {
+				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve + 1);
+				this.printNewLines(linesToPreserve);
+			}
 		}
 	}
 		
@@ -302,7 +306,7 @@ public class Scribe {
 						}
 						if (count > 1) {
 							if (hasLineComment) {
-								// the line comment consumed of of the line break
+								// the line comment consumed the line break
 								preserveEmptyLines(count + 1);
 							} else {
 								preserveEmptyLines(count);
@@ -310,7 +314,7 @@ public class Scribe {
 						} else if (count == 1) {
 							if (hasLineComment) {
 								preserveEmptyLines(1);
-							} else if (hasComment) {
+							} else if (hasComment || this.formatter.preferences.preserve_user_linebreaks) {
 								printNewLine();
 							}
 						}
