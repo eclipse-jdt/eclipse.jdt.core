@@ -2074,10 +2074,11 @@ public void testInvalidClasspath2() throws CoreException {
  */
 public void testInvalidExternalClassFolder() throws CoreException {
 	try {
-		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {getExternalPath()}, "bin");
+		String externalPath = getExternalPath();
+		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + getExternalPath() + "\' for project P",
+			"Required library cannot denote external folder: \'" + externalPath.substring(0, externalPath.length()-1) + "\' for project P",
 			proj);
 	} finally {
 		deleteProject("P");
