@@ -3,14 +3,15 @@
 <plugin
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
-    version = "0.9"
+    version = "2.0"
     provider-name = "Object Technology International, Inc."
     class="org.eclipse.jdt.core.JavaCore">
 
 <requires>
     <import plugin="org.eclipse.core.resources"/>
     <import plugin="org.apache.xerces"/>
-  <import plugin="org.eclipse.ant.core" /> 
+    <import plugin="org.eclipse.ant.core" /> 
+    <import plugin="org.eclipse.core.runtime"/>
 </requires>
 	
 <runtime>
