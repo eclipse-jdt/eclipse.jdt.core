@@ -199,8 +199,11 @@ private SimpleLookupTable getIndexStates() {
 	char[] savedIndexNames = readIndexState();
 	if (savedIndexNames.length > 0) {
 		char[][] names = CharOperation.splitOn('\n', savedIndexNames);
-		for (int i = 0, l = names.length; i < l; i++)
-			this.indexStates.put(new String(names[i]), SAVED_STATE);
+		for (int i = 0, l = names.length; i < l; i++) {
+			char[] name = names[i];
+			if (name.length > 0)
+				this.indexStates.put(new String(name), SAVED_STATE);
+		}
 	}
 	return this.indexStates;
 }
@@ -501,6 +504,13 @@ public void shutdown() {
 	for (int i = 0, max = selectedIndexes.length; i < max; i++) {
 		String path = selectedIndexes[i].getIndexFile().getAbsolutePath();
 		knownPaths.put(path, path);
+	}
+
+	Object[] indexNames = indexStates.keyTable;
+	for (int i = 0, l = indexNames.length; i < l; i++) {
+		String key = (String) indexNames[i];
+		if (key != null && !knownPaths.containsKey(key))
+			updateIndexState(key, null);
 	}
 
 	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
