@@ -62,6 +62,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
+	
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
 
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
@@ -82,9 +83,11 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
 }
-/* Ask the oracle for a type which corresponds to the compoundName.
-* Answer null if the name cannot be found.
-*/
+
+/**
+ * Ask the name environment for a type which corresponds to the compoundName.
+ * Answer null if the name cannot be found.
+ */
 
 public ReferenceBinding askForType(char[][] compoundName) {
 	NameEnvironmentAnswer answer = nameEnvironment.findType(compoundName);
@@ -267,9 +270,9 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 	}
 	return packageBinding;
 }
+
 /* Used to guarantee array type identity.
 */
-
 public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 	if (type instanceof LocalTypeBinding) // cache local type arrays with the local type itself
 		return ((LocalTypeBinding) type).createArrayType(dimensionCount);
@@ -487,19 +490,22 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 	cachedInfo[cachedInfo.length-1] = wildcard;
 	return wildcard;
 }
+
 /**
  * Returns the access restriction associated to a given type, or null if none
  */
 public AccessRestriction getAccessRestriction(TypeBinding type) {
 	return (AccessRestriction) this.accessRestrictions.get(type);
 }
-/* Answer the type for the compoundName if it exists in the cache.
-* Answer theNotFoundType if it could not be resolved the first time
-* it was looked up, otherwise answer null.
-*
-* NOTE: Do not use for nested types... the answer is NOT the same for a.b.C or a.b.C.D.E
-* assuming C is a type in both cases. In the a.b.C.D.E case, null is the answer.
-*/
+
+/**
+ *  Answer the type for the compoundName if it exists in the cache.
+ * Answer theNotFoundType if it could not be resolved the first time
+ * it was looked up, otherwise answer null.
+ *
+ * NOTE: Do not use for nested types... the answer is NOT the same for a.b.C or a.b.C.D.E
+ * assuming C is a type in both cases. In the a.b.C.D.E case, null is the answer.
+ */
 
 public ReferenceBinding getCachedType(char[][] compoundName) {
 	if (compoundName.length == 1) {
@@ -814,7 +820,7 @@ public void reset() {
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
-
+	
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
 	this.lastUnitIndex = -1;
@@ -833,6 +839,7 @@ public void setAccessRestriction(ReferenceBinding type, AccessRestriction access
 	type.modifiers |= CompilerModifiers.AccRestrictedAccess;
 	this.accessRestrictions.put(type, accessRestriction);
 }
+
 void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
 	// walk all the unique collections & replace the unresolvedType with the resolvedType
 	// must prevent 2 entries so == still works (1 containing the unresolvedType and the other containing the resolvedType)
