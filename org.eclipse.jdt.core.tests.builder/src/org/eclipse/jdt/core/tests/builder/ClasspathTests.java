@@ -151,16 +151,47 @@ public class ClasspathTests extends Tests {
 		JavaCore.setOptions(options);
 	}
 
-	public void testMissingLibrary() throws JavaModelException {
+	public void testMissingLibrary1() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class Test1 {}" //$NON-NLS-1$
 		);
-		env.addClass(root, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
+
+		fullBuild();
+		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
+		expectingOnlySpecificProblemsFor(projectPath,
+			new Problem[] {
+				new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		);
+
+		//----------------------------
+		//           Step 2
+		//----------------------------	
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingPresenceOf(new IPath[]{
+			bin.append("p1").append("Test1.class"), //$NON-NLS-1$ //$NON-NLS-2$
+		});
+	}
+	
+	public void testMissingLibrary2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Test1 {}" //$NON-NLS-1$
+		);
+		IPath classTest2 = env.addClass(root, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Test2 {}" //$NON-NLS-1$
 		);
@@ -170,13 +201,21 @@ public class ClasspathTests extends Tests {
 		);
 
 		fullBuild();
-		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest3});
-		expectingOnlySpecificProblemsFor(projectPath,
-			new Problem[] {
-				new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest3) //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		);
+		expectingSpecificProblemFor(
+			projectPath,
+			new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Problem[] prob1 = env.getProblemsFor(classTest1);
+		Problem[] prob2 = env.getProblemsFor(classTest2);
+		Problem[] prob3 = env.getProblemsFor(classTest3);
+		assertEquals("too much problems", prob1.length + prob2.length + prob3.length,1);
+		if(prob1.length == 1) {
+			expectingSpecificProblemFor(classTest1, new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (prob2.length == 1) {
+			expectingSpecificProblemFor(classTest2, new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest2)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			expectingSpecificProblemFor(classTest3, new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest3)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		//----------------------------
 		//           Step 2
