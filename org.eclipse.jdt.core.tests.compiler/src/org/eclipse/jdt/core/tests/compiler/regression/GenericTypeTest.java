@@ -2138,6 +2138,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		);
 	}
 	
+	// TODO reenable once wildcards are supported
 	// A is not an interface
 	public void _test075() {
 		this.runNegativeTest(
@@ -2159,12 +2160,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}"
 			},
-			"TOTO"
+			"TODO"
 		);
 	}
-	
+
 	// A is not an interface
-	public void _test076() {
+	public void test076() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2184,9 +2185,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}"
 			},
-			"TOTO"
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends Object & p.A> extends p.A<T> {\n" + 
+			"	                                   ^^^\n" + 
+			"The type A is not an interface; it cannot be specified as a bounded parameter\n" + 
+			"----------\n"
 		);
-	}	
+	}
 	// unsafe type operation: only for constructors with signature change
 	// TODO javac finds no error/warning on this test
 	public void test077() {

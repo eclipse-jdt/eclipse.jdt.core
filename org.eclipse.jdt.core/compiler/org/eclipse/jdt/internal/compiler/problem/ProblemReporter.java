@@ -178,6 +178,14 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
+public void boundsMustBeAnInterface(ASTNode location, TypeBinding type) {
+	this.handle(
+		IProblem.BoundsMustBeAnInterface,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 	if (location.isConstructor()) {
 		this.handle(

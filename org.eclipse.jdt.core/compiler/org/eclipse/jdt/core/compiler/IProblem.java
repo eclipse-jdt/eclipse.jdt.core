@@ -832,7 +832,9 @@ public interface IProblem {
 	int UnsafeRawMethodInvocation = TypeRelated + 530;
     /** @since 3.0 */
 	int UnsafeRawAssignment = TypeRelated + 531;
-	
+    /** @since 3.0 */
+	int BoundsMustBeAnInterface = TypeRelated + 532;
+
 	/**
 	 * Foreach
 	 */

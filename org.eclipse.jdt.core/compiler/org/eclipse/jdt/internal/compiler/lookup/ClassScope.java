@@ -833,7 +833,7 @@ public class ClassScope extends Scope {
 					}
 					typeRef.resolvedType = superType; // hold onto the problem type
 					if (superType.isClass()) {
-//					problemReporter().superinterfaceMustBeAnInterface(sourceType, referenceContext, superInterface);
+						problemReporter().boundsMustBeAnInterface(typeRef, superType);
 						typeVariable.tagBits |= HierarchyHasProblems;
 						noProblems = false;
 						continue nextVariable;
