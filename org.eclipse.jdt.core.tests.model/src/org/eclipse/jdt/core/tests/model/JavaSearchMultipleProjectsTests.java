@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import junit.framework.Test;
 
@@ -21,6 +22,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.JavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -31,6 +33,13 @@ public JavaSearchMultipleProjectsTests(String name) {
 }
 public static Test suite() {
 	return new Suite(JavaSearchMultipleProjectsTests.class);
+}
+protected void tearDown() throws Exception {
+	// Cleanup caches
+	JavaModelManager.Containers = new HashMap(5);
+	JavaModelManager.Variables = new HashMap(5);
+
+	super.tearDown();
 }
 protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
 	String actual = scope.toString();
