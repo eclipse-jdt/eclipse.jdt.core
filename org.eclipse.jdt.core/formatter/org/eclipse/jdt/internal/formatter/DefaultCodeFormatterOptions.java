@@ -396,8 +396,15 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
+		putDeprecatedFillingSpaceOption(options);
 		return options;
+	}
+
+	/**
+	 * @deprecated method used to hide deprecated warning
+	 */
+	private void putDeprecatedFillingSpaceOption(Map options) {
+		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
 	}
 
 	public void set(Map settings) {
@@ -1275,7 +1282,7 @@ public class DefaultCodeFormatterOptions {
 				this.tab_size = 4;
 			}
 		}
-		final Object fillingSpaceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
+		final Object fillingSpaceOption = getDeprecatedFillingSpaceOption(settings);
 		if (fillingSpaceOption != null) {
 			try {
 				this.filling_space = ((String) fillingSpaceOption).charAt(0);
@@ -1301,6 +1308,13 @@ public class DefaultCodeFormatterOptions {
 		}
 	}
 	
+	/**
+	 * @deprecated method used to hide deprecated warning
+	 */
+	private Object getDeprecatedFillingSpaceOption(Map settings) {
+		return settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
+	}
+
 	public void setDefaultSettings() {
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
