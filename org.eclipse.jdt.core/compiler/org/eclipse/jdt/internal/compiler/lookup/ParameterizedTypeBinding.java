@@ -385,7 +385,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        return false;
         if (otherType.isRawType())
             return erasure() == otherType.erasure();
-        // TODO (philippe) What should we do when the otherType is a BinaryTypeBinding that is = to this? see 73837
         if (otherType.isParameterizedType()) {
             if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
             	return false; // should have been identical
@@ -410,9 +409,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				}
             }
             return true;
-        } else if (otherType.isWildcard()){ // wildcard
-                return ((WildcardBinding) otherType).boundCheck(this);
         }
+        if (otherType.isWildcard())
+        	return ((WildcardBinding) otherType).boundCheck(this);
         return false;
 	}
 
