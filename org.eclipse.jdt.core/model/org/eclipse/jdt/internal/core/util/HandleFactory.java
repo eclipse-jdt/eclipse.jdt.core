@@ -287,7 +287,7 @@ public class HandleFactory {
 				newElement = unit;
 				break;			
 			case Scope.CLASS_SCOPE :
-					IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements);
+				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements);
 				switch (parentElement.getElementType()) {
 					case IJavaElement.COMPILATION_UNIT :
 						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
