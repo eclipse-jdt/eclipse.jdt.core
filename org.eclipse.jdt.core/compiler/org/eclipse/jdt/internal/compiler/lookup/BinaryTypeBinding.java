@@ -109,6 +109,11 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
+	
+	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
+	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
+	this.superInterfaces = NoSuperInterfaces;
+	
 	char[] superclassName = binaryType.getSuperclassName();
 	if (superclassName != null)
 		// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
@@ -137,7 +142,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 	}
 
-	this.superInterfaces = NoSuperInterfaces;
 	char[][] interfaceNames = binaryType.getInterfaceNames();
 	if (interfaceNames != null) {
 		int size = interfaceNames.length;

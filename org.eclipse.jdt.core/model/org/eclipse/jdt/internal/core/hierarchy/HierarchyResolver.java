@@ -756,8 +756,12 @@ public ReferenceBinding setFocusType(char[][] compoundName) {
 }
 public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)
-	if (this.subTypeOfType(this.focusType, typeBinding)) return true;
-	if (!this.superTypesOnly && this.subTypeOfType(typeBinding, this.focusType)) return true;
+	try {
+		if (this.subTypeOfType(this.focusType, typeBinding)) return true;
+		if (!this.superTypesOnly && this.subTypeOfType(typeBinding, this.focusType)) return true;
+	} catch (AbortCompilation e) {
+		// unresolved superclass/superinterface -> ignore
+	}
 	return false;
 }
 private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {
