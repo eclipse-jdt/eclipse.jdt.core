@@ -968,10 +968,13 @@ protected void report(SearchMatch match) throws CoreException {
  * in the source and reports a reference to this this qualified name
  * to the search requestor.
  */
-protected void reportAccurateReference(int referenceType, int sourceStart, int sourceEnd, char[] name, IJavaElement element, int accuracy) throws CoreException {
+protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaElement element, int accuracy) throws CoreException {
 	if (accuracy == -1) return;
 	if (!encloses(element)) return;
 
+	int sourceStart = typeRef.sourceStart;
+	int sourceEnd = typeRef.sourceEnd;
+	
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
 	scanner.setSource(this.currentPossibleMatch.getContents());
@@ -987,12 +990,12 @@ protected void reportAccurateReference(int referenceType, int sourceStart, int s
 			// ignore
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracy, currentPosition, scanner.currentPosition, this);
+			SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, currentPosition, scanner.currentPosition, this);
 			report(match);
 			return;
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
-	SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracy, sourceStart, sourceEnd+1, this);
+	SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, sourceStart, sourceEnd+1, this);
 	report(match);
 }
 /**
@@ -1000,8 +1003,12 @@ protected void reportAccurateReference(int referenceType, int sourceStart, int s
  * reports a reference to this token to the search requestor.
  * A token is valid if it has an accuracy which is not -1.
  */
-protected void reportAccurateReference(int referenceType, int sourceStart, int sourceEnd, char[][] tokens, IJavaElement element, int[] accuracies) throws CoreException {
+protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJavaElement element, int[] accuracies) throws CoreException {
 	if (!encloses(element)) return;
+	
+	int sourceStart = qNameRef.sourceStart;
+	int sourceEnd = qNameRef.sourceEnd;
+	char[][] tokens = qNameRef.tokens;
 	
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
@@ -1046,10 +1053,10 @@ protected void reportAccurateReference(int referenceType, int sourceStart, int s
 		if (accuracies[accuracyIndex] != -1) {
 			// accept reference
 			if (refSourceStart != -1) {
-				SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracies[accuracyIndex], refSourceStart, refSourceEnd+1, this);
+				SearchMatch match = JavaSearchMatch.newFieldReferenceMatch(element, accuracies[accuracyIndex], refSourceStart, refSourceEnd+1, qNameRef, this);
 				report(match);
 			} else {
-				SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracies[accuracyIndex], sourceStart, sourceEnd+1, this);
+				SearchMatch match = JavaSearchMatch.newFieldReferenceMatch(element, accuracies[accuracyIndex], sourceStart, sourceEnd+1, qNameRef, this);
 				report(match);
 			}
 			i = 0;

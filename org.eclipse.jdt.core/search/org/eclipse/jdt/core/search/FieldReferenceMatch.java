@@ -20,8 +20,19 @@ import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
  */
 public class FieldReferenceMatch extends JavaSearchMatch {
 
-	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+	private boolean isReadAccess;
+	private boolean isWriteAccess;
+	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, boolean isReadAccess, boolean isWriteAccess, SearchParticipant participant, IResource resource) {
 		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
+		this.isReadAccess = isReadAccess;
+		this.isWriteAccess = isWriteAccess;
+	}
+	
+	public boolean isReadAccess() {
+		return this.isReadAccess;
 	}
 
+	public boolean isWriteAccess() {
+		return this.isWriteAccess;
+	}
 }

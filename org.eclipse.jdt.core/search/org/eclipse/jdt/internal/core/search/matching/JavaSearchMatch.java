@@ -16,6 +16,8 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.PackageReferenceMatch;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class JavaSearchMatch extends SearchMatch {
@@ -74,6 +76,21 @@ public class JavaSearchMatch extends SearchMatch {
 				return new JavaSearchMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
 		}
 	}
+	public static JavaSearchMatch newFieldReferenceMatch(
+			IJavaElement enclosingElement,
+			int accuracy,
+			int sourceStart,  
+			int sourceEnd,
+			Reference reference,
+			MatchLocator locator) {
+		int bits = reference.bits;
+		boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
+		boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
+		boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+		SearchParticipant participant = locator.getParticipant(); 
+		IResource resource = locator.currentPossibleMatch.resource;
+		return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, participant, resource);
+	}
 	public static JavaSearchMatch newReferenceMatch(
 			int referenceType,
 			IJavaElement enclosingElement,
@@ -88,8 +105,8 @@ public class JavaSearchMatch extends SearchMatch {
 				return new PackageReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 			case IJavaElement.TYPE:
 				return new TypeReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
-			case IJavaElement.FIELD:
-				return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+			//case IJavaElement.FIELD:
+				// handled by newFieldReferenceMatch
 			case IJavaElement.METHOD:
 				return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 			case IJavaElement.LOCAL_VARIABLE:

@@ -146,7 +146,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			typeBinding = typeBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, importRef.sourceStart, importRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(importRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.pattern.simpleName == null) {
@@ -155,7 +155,7 @@ protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement el
 			locator.report(match);
 		}
 	} else
-		locator.reportAccurateReference(IJavaElement.TYPE, arrayRef.sourceStart, arrayRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+		locator.reportAccurateTypeReference(arrayRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedTypesPattern) {
@@ -221,7 +221,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, qNameRef.sourceStart, qNameRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(qNameRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	TypeBinding typeBinding = qTypeRef.resolvedType;
@@ -249,7 +249,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, qTypeRef.sourceStart, qTypeRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(qTypeRef, this.pattern.simpleName, element, accuracy);
 }
 protected int referenceType() {
 	return IJavaElement.TYPE;
