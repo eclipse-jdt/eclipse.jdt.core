@@ -1290,7 +1290,7 @@ public final class CompletionEngine
 			if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(currentType));
-				proposal.setDeclarationUniqueKey(currentType.computeUniqueKey());
+				proposal.setDeclarationKey(currentType.computeUniqueKey());
 				proposal.setSignature(
 						createMethodSignature(
 								CharOperation.NO_CHAR_CHAR,
@@ -1499,9 +1499,9 @@ public final class CompletionEngine
 						if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
 							CompletionProposal proposal = this.createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 							proposal.setDeclarationSignature(getSignature(currentType));
-							proposal.setDeclarationUniqueKey(currentType.computeUniqueKey());
+							proposal.setDeclarationKey(currentType.computeUniqueKey());
 							proposal.setSignature(getSignature(constructor));
-							proposal.setUniqueKey(constructor.computeUniqueKey());
+							proposal.setKey(constructor.computeUniqueKey());
 							proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
 							proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
 							proposal.setParameterPackageNames(parameterPackageNames);
@@ -3189,9 +3189,9 @@ public final class CompletionEngine
 			if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_DECLARATION, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
-				proposal.setDeclarationUniqueKey(method.declaringClass.computeUniqueKey());
+				proposal.setDeclarationKey(method.declaringClass.computeUniqueKey());
 				proposal.setSignature(getSignature(method));
-				proposal.setUniqueKey(method.computeUniqueKey());
+				proposal.setKey(method.computeUniqueKey());
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
 				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
 				proposal.setParameterPackageNames(parameterPackageNames);
@@ -4914,9 +4914,9 @@ public final class CompletionEngine
 		buffer.append("{\n");//$NON-NLS-1$
 		buffer.append("\tCompletion[").append(proposal.getCompletion() == null ? "null".toCharArray() : proposal.getCompletion()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buffer.append("\tDeclarationSignature[").append(proposal.getDeclarationSignature() == null ? "null".toCharArray() : proposal.getDeclarationSignature()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buffer.append("\tDeclarationUniqueKey[").append(proposal.getDeclarationUniqueKey() == null ? "null".toCharArray() : proposal.getDeclarationUniqueKey()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buffer.append("\tDeclarationKey[").append(proposal.getDeclarationKey() == null ? "null".toCharArray() : proposal.getDeclarationKey()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buffer.append("\tSignature[").append(proposal.getSignature() == null ? "null".toCharArray() : proposal.getSignature()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buffer.append("\tUniqueKey[").append(proposal.getUniqueKey() == null ? "null".toCharArray() : proposal.getUniqueKey()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buffer.append("\tKey[").append(proposal.getKey() == null ? "null".toCharArray() : proposal.getKey()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 //		buffer.append("\tDeclarationPackage[").append(proposal.getDeclarationPackageName() == null ? "null".toCharArray() : proposal.getDeclarationPackageName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 //		buffer.append("\tDeclarationType[").append(proposal.getDeclarationTypeName() == null ? "null".toCharArray() : proposal.getDeclarationTypeName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 //		buffer.append("\tPackage[").append(proposal.getPackageName() == null ? "null".toCharArray() : proposal.getPackageName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

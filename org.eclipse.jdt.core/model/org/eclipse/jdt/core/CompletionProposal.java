@@ -65,13 +65,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * <li>{@link #getDeclarationSignature()} -
 	 * the type signature of the type being implemented or subclassed
 	 * </li>
-	 * <li>{@link #getDeclarationUniqueKey()} -
+	 * <li>{@link #getDeclarationKey()} -
 	 * the type unique key of the type being implemented or subclassed
 	 * </li>
 	 * <li>{@link #getSignature()} -
 	 * the method signature of the constructor that is referenced
 	 * </li>
-	 * <li>{@link #getUniqueKey()} -
+	 * <li>{@link #getKey()} -
 	 * the method unique key of the constructor that is referenced
 	 * if the declaring type is not an interface
 	 * </li>
@@ -222,7 +222,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * the type signature of the type that declares the
 	 * method that is being overridden or implemented
 	 * </li>
-	 * <li>{@link #getDeclarationUniqueKey()} -
+	 * <li>{@link #getDeclarationKey()} -
 	 * the unique of the type that declares the
 	 * method that is being overridden or implemented
 	 * </li>
@@ -234,7 +234,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * the method signature of the method that is being
 	 * overridden or implemented
 	 * </li>
-	 * <li>{@link #getUniqueKey()} -
+	 * <li>{@link #getKey()} -
 	 * the method unique key of the method that is being
 	 * overridden or implemented
 	 * </li>
@@ -443,7 +443,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * in the context, or <code>null</code> if none.
 	 * Defaults to null.
 	 */
-	private char[] declarationUniqueKey = null;
+	private char[] declarationKey = null;
 	
 	/**
 	 * Simple name of the method, field,
@@ -465,7 +465,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * relevant in the context, or <code>null</code> if none.
 	 * Defaults to null.
 	 */
-	private char[] uniqueKey = null;
+	private char[] key = null;
 	
 	/**
 	 * Modifier flags relevant in the context, or
@@ -806,15 +806,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
-	 * Returns the unique key of the relevant
+	 * Returns the key of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
-	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - unique key
+	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - key
 	 * of the type that is being subclassed or implemented</li>
-	 * 	<li><code>METHOD_DECLARATION</code> - unique key
+	 * 	<li><code>METHOD_DECLARATION</code> - key
 	 * of the type that declares the method that is being
 	 * implemented or overridden</li>
 	 * </ul>
@@ -823,12 +823,12 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * returned.
 	 * </p>
 	 * 
-	 * @return a unique key, or <code>null</code> if none
+	 * @return a key, or <code>null</code> if none
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
      * @since 3.1
 	 */
-	public char[] getDeclarationUniqueKey() {
-		return this.declarationUniqueKey;
+	public char[] getDeclarationKey() {
+		return this.declarationKey;
 	}
 	
 	/**
@@ -850,7 +850,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
-	 * Sets the type or package unique of the relevant
+	 * Sets the type or package key of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
 	 * If not set, defaults to none.
@@ -860,12 +860,12 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 * 
-	 * @param key the type or package unique key, or
+	 * @param key the type or package key, or
 	 * <code>null</code> if none
      * @since 3.1
 	 */
-	public void setDeclarationUniqueKey(char[] key) {
-		this.declarationUniqueKey = key;
+	public void setDeclarationKey(char[] key) {
+		this.declarationKey = key;
 	}
 	
 	/**
@@ -954,16 +954,16 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
-	 * Returns the unique key relevant in the context,
+	 * Returns the key relevant in the context,
 	 * or <code>null</code> if none.
 	 * <p>
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
-	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - method unique key
+	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - method key
 	 * of the constructor that is being invoked, or <code>null</code> if
 	 * the declaring type is an interface</li>
-	 * 	<li><code>METHOD_DECLARATION</code> - method unique key
+	 * 	<li><code>METHOD_DECLARATION</code> - method key
 	 * of the method that is being implemented or overridden</li>
 	 * </ul>
 	 * For kinds of completion proposals, this method returns
@@ -971,12 +971,12 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * returned.
 	 * </p>
 	 * 
-	 * @return the unique key, or <code>null</code> if none
+	 * @return the key, or <code>null</code> if none
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
      * @since 3.1
 	 */
-	public char[] getUniqueKey() {
-		return this.uniqueKey;
+	public char[] getKey() {
+		return this.key;
 	}
 	
 //	/**
@@ -1202,7 +1202,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
-	 * Sets the unique key of the method, field type, member type,
+	 * Sets the key of the method, field type, member type,
 	 * relevant in the context, or <code>null</code> if none.
 	 * <p>
 	 * If not set, defaults to none.
@@ -1212,11 +1212,11 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 * 
-	 * @param key the unique key, or <code>null</code> if none
+	 * @param key the key, or <code>null</code> if none
      * @since 3.1
 	 */
-	public void setUniqueKey(char[] key) {
-		this.uniqueKey = key;
+	public void setKey(char[] key) {
+		this.key = key;
 	}
 	
 	/**

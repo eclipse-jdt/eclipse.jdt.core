@@ -114,9 +114,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(proposal.getSignature() == null ? NULL_LITERAL : proposal.getSignature());
 		if(this.showUniqueKeys) {
 			buffer.append(", ");
-			buffer.append(proposal.getDeclarationUniqueKey() == null ? NULL_LITERAL : proposal.getDeclarationUniqueKey());
+			buffer.append(proposal.getDeclarationKey() == null ? NULL_LITERAL : proposal.getDeclarationKey());
 			buffer.append(", ");
-			buffer.append(proposal.getUniqueKey() == null ? NULL_LITERAL : proposal.getUniqueKey());
+			buffer.append(proposal.getKey() == null ? NULL_LITERAL : proposal.getKey());
 		}
 		buffer.append(", ");
 		buffer.append(proposal.getName() == null ? NULL_LITERAL : proposal.getName());
