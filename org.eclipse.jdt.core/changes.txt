@@ -116,6 +116,7 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3197      DCR - OpenOnSelection - Code resolve doesn't work on declarations (1G0UX9V)  
   3177      64kb method should be a configurable problem (1FJHGVF)  
 
 **********************************************************************************

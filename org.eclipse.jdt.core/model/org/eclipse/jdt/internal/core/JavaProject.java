@@ -281,7 +281,7 @@ public class JavaProject
 	}
 
 	/**
-	 * @see NameLookup
+	 * @see IJavaProject
 	 */
 	public IPackageFragment findPackageFragment(IPath path)
 		throws JavaModelException {
@@ -290,7 +290,7 @@ public class JavaProject
 	}
 
 	/**
-	 * @see NameLookup
+	 * @see IJavaProject
 	 */
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
