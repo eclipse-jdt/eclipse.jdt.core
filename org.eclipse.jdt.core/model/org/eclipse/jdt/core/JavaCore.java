@@ -15,6 +15,7 @@
  *                                 CORE_INCOMPLETE_CLASSPATH
  *     IBM Corporation - added run(IWorkspaceRunnable, IProgressMonitor)
  *     IBM Corporation - added exclusion patterns to source classpath entries
+ *     IBM Corporation - added specific output location to source classpath entries
  *     IBM Corporation - added the following constants:
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
  *                                 CLEAN
@@ -2088,12 +2089,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
-//TODO: determine whether we need this intermediate API (would say we don't) ?		
+
 		return newSourceEntry(path, exclusionPatterns, null /*output location*/); 
 	}
 
 	/**
-	 * TODO: describe isCleaning flag
+	 * TODO: check spec for specific output location
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
 	 * workspace-relative path but excluding all source files with paths
