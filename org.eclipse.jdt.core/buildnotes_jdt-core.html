@@ -43,13 +43,18 @@ Eclipse SDK 3.0M8 Build - ?th February 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API JavaCore.run(IWorkspaceRunnable action, ISchedulingRule rule, IProgressMonitor monitor) to control
+     the scheduling rule during a Java batch operation.
+</li>
 <li>Added API <code>SearchEngine.createJavaSearchScope(IJavaElement[], int)</code> that allows to filter the
      classpath entries added in the scope: SOURCES, APPLICATION_LIBRARIES, SYSTEM_LIBRARIES and REQUIRED_PROJECTS.
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52273">52273</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51045">51045</a>
+Offer to call JavaCore.run with scheduling rule 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52273">52273</a>
 Add option on predefined search scope to include/exclude system contain libraries 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49809">49809</a>
 NPE from MethodVerifier 
