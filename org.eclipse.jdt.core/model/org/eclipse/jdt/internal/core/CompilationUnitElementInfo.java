@@ -17,21 +17,21 @@ import org.eclipse.jdt.core.ISourceRange;
 	/**
 	 * The length of this compilation unit's source code <code>String</code>
 	 */
-	protected int fSourceLength;
+	protected int sourceLength;
 
 	/** 
 	 * Timestamp of original resource at the time this element
 	 * was opened or last updated.
 	 */
-	protected long fTimestamp;
+	protected long timestamp;
 /**
  * Returns the length of the source string.
  */
 public int getSourceLength() {
-	return fSourceLength;
+	return this.sourceLength;
 }
 protected ISourceRange getSourceRange() {
-	return new SourceRange(0, fSourceLength);
+	return new SourceRange(0, this.sourceLength);
 }
 protected boolean isOpen() {
 	return true;
@@ -40,6 +40,6 @@ protected boolean isOpen() {
  * Sets the length of the source string.
  */
 public void setSourceLength(int newSourceLength) {
-	fSourceLength = newSourceLength;
+	this.sourceLength = newSourceLength;
 }
 }

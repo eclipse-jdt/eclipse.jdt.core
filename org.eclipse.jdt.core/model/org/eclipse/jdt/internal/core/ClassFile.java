@@ -52,7 +52,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
  */
 
 public class ClassFile extends Openable implements IClassFile, SuffixConstants {
-	protected BinaryType fBinaryType = null;
+	protected BinaryType binaryType = null;
 	private boolean checkAutomaticSourceMapping;
 /*
  * Creates a handle to a class file.
@@ -337,7 +337,7 @@ public ISourceRange getSourceRange() throws JavaModelException {
  * @see IClassFile
  */
 public IType getType() throws JavaModelException {
-	if (fBinaryType == null) {
+	if (this.binaryType == null) {
 		// Remove the ".class" from the name of the ClassFile - always works
 		// since constructor fails if name does not end with ".class"
 		String name = fName.substring(0, fName.lastIndexOf('.'));
@@ -348,9 +348,9 @@ public IType getType() throws JavaModelException {
 				name = name.substring(index + 1);
 			}
 		}
-		fBinaryType = new BinaryType(this, name);
+		this.binaryType = new BinaryType(this, name);
 	}
-	return fBinaryType;
+	return this.binaryType;
 }
 /**
  * @see IClassFile

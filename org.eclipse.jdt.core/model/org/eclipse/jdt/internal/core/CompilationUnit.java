@@ -131,7 +131,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	if (underlyingResource == null) {
 		underlyingResource = getResource();
 	}
-	unitInfo.fTimestamp = ((IFile)underlyingResource).getModificationStamp();
+	unitInfo.timestamp = ((IFile)underlyingResource).getModificationStamp();
 	
 	// compute other problems if needed
 	if (computeProblems){
@@ -839,7 +839,7 @@ public boolean isBasedOn(IResource resource) {
 	// timestamp
 	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 	if (info == null) return false;
-	return ((CompilationUnitElementInfo)info).fTimestamp == ((IFile) resource).getModificationStamp();
+	return ((CompilationUnitElementInfo)info).timestamp == ((IFile) resource).getModificationStamp();
 }
 /**
  * @see IOpenable#isConsistent()
@@ -1085,7 +1085,7 @@ protected void updateTimeStamp(CompilationUnit original) throws JavaModelExcepti
 		throw new JavaModelException(
 			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
 	}
-	((CompilationUnitElementInfo) getElementInfo()).fTimestamp = timeStamp;
+	((CompilationUnitElementInfo) getElementInfo()).timestamp = timeStamp;
 }
 
 }
