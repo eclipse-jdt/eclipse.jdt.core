@@ -242,6 +242,7 @@ public final class AST {
 		
 		ASTConverter converter = new ASTConverter(options, true, monitor);
 		AST ast = AST.newAST(level);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
