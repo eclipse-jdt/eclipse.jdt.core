@@ -44,10 +44,14 @@ public WordEntry add(WordEntry entry) {
 
 public WordEntry[] asArray() {
 	WordEntry[] array = new WordEntry[elementSize];
-	for (int i = 0, j = 0, length = elements.length; i < length; i++) {
+	int count = 0;
+	for (int i = 0, length = elements.length; i < length; i++) {
 		WordEntry current = elements[i];
-		if (current != null) array[j++] = current;
+		if (current != null)
+			array[count++] = current;
 	}
+	if (count < array.length) // add a little protection because of 40950
+		System.arraycopy(array, 0, array = new WordEntry[count], 0, count);
 	return array;
 }
 
