@@ -25,14 +25,13 @@ ClasspathJar(String zipFilename) {
 }
 
 void buildDirectoryStructure() {
+	this.directoryCache = new SimpleLookupTable(101);
+
 	try {
 		this.zipFile = new ZipFile(zipFilename);
 	} catch(IOException e) {
-		this.directoryCache = new SimpleLookupTable();
 		return;
 	}
-
-	directoryCache = new SimpleLookupTable(101);
 	for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = ((ZipEntry) e.nextElement()).getName();
 
@@ -72,8 +71,7 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 			NameEnvironment.assembleName(new String(className) + ".class", packageName, '/'); //$NON-NLS-1$
 		if (zipFile.getEntry(binaryFilename) == null) return null;
 
-		return new NameEnvironmentAnswer(
-			ClassFileReader.read(zipFile, binaryFilename));
+		return new NameEnvironmentAnswer(ClassFileReader.read(zipFile, binaryFilename));
 	} catch (Exception e) {
 		return null; // treat as if class file is missing
 	}
