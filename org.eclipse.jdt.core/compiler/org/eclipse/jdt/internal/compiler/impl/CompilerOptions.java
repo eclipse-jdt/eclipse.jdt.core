@@ -45,6 +45,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportUnusedImport = "org.eclipse.jdt.core.compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
+	public static final String OPTION_ReportLocalVariableHiding = "org.eclipse.jdt.core.compiler.problem.localVariableHiding"; //$NON-NLS-1$
+	public static final String OPTION_ReportConstructorParameterHidingField = "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"; //$NON-NLS-1$
+	public static final String OPTION_ReportFieldHiding = "org.eclipse.jdt.core.compiler.problem.fieldHiding"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompatibleNonInheritedInterfaceMethod = "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedPrivateMember = "org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"; //$NON-NLS-1$
@@ -74,6 +77,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
+	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -101,6 +105,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int NoEffectAssignment = 0x2000000;
 	public static final int IncompatibleNonInheritedInterfaceMethod = 0x4000000;
 	public static final int UnusedPrivateMember = 0x8000000;
+	public static final int LocalVariableHiding = 0x10000000;
+	public static final int FieldHiding = 0x20000000;
+	public static final int ConstructorParameterHidingField = 0x40000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = 
@@ -109,12 +116,16 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		
 	public int warningThreshold = 
 		MethodWithConstructorName 
-		| OverriddenPackageDefaultMethod
 		| UsingDeprecatedAPI 
 		| MaskedCatchBlock 
-		| AssertUsedAsAnIdentifier 
-		| NoImplicitStringConversion
-		| IncompatibleNonInheritedInterfaceMethod;
+		| OverriddenPackageDefaultMethod
+		| UnusedImport
+		| StaticAccessReceiver
+		| NoEffectAssignment
+		| IncompatibleNonInheritedInterfaceMethod
+		| LocalVariableHiding
+		| FieldHiding
+		| NoImplicitStringConversion;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -124,11 +135,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
 
-	// JDK 1.1, 1.2, 1.3 or 1.4
+	// JDK 1.1, 1.2, 1.3, 1.4 or 1.5
 	public static final int JDK1_1 = 0;
 	public static final int JDK1_2 = 1;
 	public static final int JDK1_3 = 2;
 	public static final int JDK1_4 = 3;
+	public static final int JDK1_5 = 4;
 	
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
 	public int complianceLevel = JDK1_3; // by default be compliant with 1.3
@@ -451,7 +463,48 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			}
-			// Report non-externalized string literals
+			// Report local var hiding another variable
+			if(optionID.equals(OPTION_ReportLocalVariableHiding)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= LocalVariableHiding;
+					this.warningThreshold &= ~LocalVariableHiding;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~LocalVariableHiding;
+					this.warningThreshold |= LocalVariableHiding;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~LocalVariableHiding;
+					this.warningThreshold &= ~LocalVariableHiding;
+				}
+				continue;
+			}
+			// Report field hiding another variable
+			if(optionID.equals(OPTION_ReportFieldHiding)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= FieldHiding;
+					this.warningThreshold &= ~FieldHiding;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~FieldHiding;
+					this.warningThreshold |= FieldHiding;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~FieldHiding;
+					this.warningThreshold &= ~FieldHiding;
+				}
+				continue;
+			}
+			// Report constructor parameter hiding another variable
+			if(optionID.equals(OPTION_ReportConstructorParameterHidingField)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= ConstructorParameterHidingField;
+					this.warningThreshold &= ~ConstructorParameterHidingField;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~ConstructorParameterHidingField;
+					this.warningThreshold |= ConstructorParameterHidingField;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~ConstructorParameterHidingField;
+					this.warningThreshold &= ~ConstructorParameterHidingField;
+				}
+				continue;
+			}			// Report non-externalized string literals
 			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
 				if (optionValue.equals(ERROR)) {
 					this.errorThreshold |= NonExternalizedString;
@@ -760,19 +813,32 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-unused private member: IGNORE"); //$NON-NLS-1$
 			}
 		}
-		switch(targetJDK){
-			case JDK1_1 :
-				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
-				break;
-			case JDK1_2 :
-				buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
-				break;
-			case JDK1_3 :
-				buf.append("\n-target JDK: 1.3"); //$NON-NLS-1$
-				break;
-			case JDK1_4 :
-				buf.append("\n-target JDK: 1.4"); //$NON-NLS-1$
-				break;
+		if ((errorThreshold & LocalVariableHiding) != 0){
+			buf.append("\n-local variable hiding another variable: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & LocalVariableHiding) != 0){
+				buf.append("\n-local variable hiding another variable: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-local variable hiding another variable: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & FieldHiding) != 0){
+			buf.append("\n-field hiding another variable: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & FieldHiding) != 0){
+				buf.append("\n-field hiding another variable: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-field hiding another variable: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & ConstructorParameterHidingField) != 0){
+			buf.append("\n-constructor parameter hiding field: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & ConstructorParameterHidingField) != 0){
+				buf.append("\n-constructor parameter hiding field: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-constructor parameter hiding field: IGNORE"); //$NON-NLS-1$
+			}
 		}
 		switch(complianceLevel){
 			case JDK1_1 :
@@ -786,6 +852,43 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				break;
 			case JDK1_4 :
 				buf.append("\n-compliance JDK: 1.4"); //$NON-NLS-1$
+				break;
+			case JDK1_5 :
+				buf.append("\n-compliance JDK: 1.5"); //$NON-NLS-1$
+				break;
+		}
+		switch(sourceLevel){
+			case JDK1_1 :
+				buf.append("\n-source level: 1.1"); //$NON-NLS-1$
+				break;
+			case JDK1_2 :
+				buf.append("\n-source level: 1.2"); //$NON-NLS-1$
+				break;
+			case JDK1_3 :
+				buf.append("\n-source level: 1.3"); //$NON-NLS-1$
+				break;
+			case JDK1_4 :
+				buf.append("\n-source level: 1.4"); //$NON-NLS-1$
+				break;
+			case JDK1_5 :
+				buf.append("\n-source level: 1.5"); //$NON-NLS-1$
+				break;
+		}
+		switch(targetJDK){
+			case JDK1_1 :
+				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
+				break;
+			case JDK1_2 :
+				buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
+				break;
+			case JDK1_3 :
+				buf.append("\n-target JDK: 1.3"); //$NON-NLS-1$
+				break;
+			case JDK1_4 :
+				buf.append("\n-target JDK: 1.4"); //$NON-NLS-1$
+				break;
+			case JDK1_5 :
+				buf.append("\n-target JDK: 1.5"); //$NON-NLS-1$
 				break;
 		}
 		if (isPrivateConstructorAccessChangingVisibility){

@@ -686,6 +686,15 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.OPTION_ReportUnusedPrivateMember,
 					CompilerOptions.IGNORE);
 				options.put(
+					CompilerOptions.OPTION_ReportLocalVariableHiding,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportFieldHiding,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportConstructorParameterHidingField,
+					CompilerOptions.IGNORE);
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -734,7 +743,19 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedPrivateMember,
 							CompilerOptions.WARNING);
-					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
+					} else if (token.equals("localHiding")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportLocalVariableHiding,
+							CompilerOptions.WARNING);
+					} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportFieldHiding,
+							CompilerOptions.WARNING);
+					} else if (token.equals("constrParamHidingField")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportConstructorParameterHidingField,
+							CompilerOptions.WARNING);
+   					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
 							CompilerOptions.WARNING);
@@ -1156,7 +1177,7 @@ public class Main implements ProblemSeverities {
 		});
 	}
 	
-	public Map getDefaultOptions() {
+	public static Map getDefaultOptions() {
 		Map defaultOptions = new Hashtable();
 		defaultOptions.put(
 			CompilerOptions.OPTION_LocalVariableAttribute,
@@ -1173,19 +1194,27 @@ public class Main implements ProblemSeverities {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportUnreachableCode,
 			CompilerOptions.ERROR);
-		defaultOptions.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportInvalidImport, 
+			CompilerOptions.ERROR);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
 			CompilerOptions.WARNING);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportMethodWithConstructorName,
 			CompilerOptions.WARNING);
-		defaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportDeprecation, 
+			CompilerOptions.WARNING);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportHiddenCatchBlock,
 			CompilerOptions.WARNING);
-		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedLocal, 
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedImport, 
+			CompilerOptions.WARNING);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportUnusedParameter,
 			CompilerOptions.IGNORE);
@@ -1225,7 +1254,16 @@ public class Main implements ProblemSeverities {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportUnusedPrivateMember,
 			CompilerOptions.IGNORE);
-			return defaultOptions;
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportConstructorParameterHidingField,
+			CompilerOptions.IGNORE);
+		return defaultOptions;
 	}
 	public Map getOptions() {
 		return this.options;
@@ -1432,11 +1470,11 @@ public class Main implements ProblemSeverities {
 				getOptions(),
 				getBatchRequestor(),
 				getProblemFactory());
-		CompilerOptions options = batchCompiler.options;
+		CompilerOptions compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.
-		options.setVerboseMode(verbose);
-		options.produceReferenceInfo(produceRefInfo);
+		compilerOptions.setVerboseMode(verbose);
+		compilerOptions.produceReferenceInfo(produceRefInfo);
 		batchCompiler.compile(getCompilationUnits());
 
 		// cleanup

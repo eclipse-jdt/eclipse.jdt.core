@@ -610,9 +610,37 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
-		
 		case IProblem.Task :
 			return Warning;			
+		case IProblem.LocalVariableHidingLocalVariable:
+		case IProblem.LocalVariableHidingField:
+		case IProblem.ArgumentHidingLocalVariable:
+		case IProblem.ArgumentHidingField:
+			if ((errorThreshold & CompilerOptions.LocalVariableHiding) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.LocalVariableHiding) != 0){
+				return Warning;
+			}
+			return Ignore;		
+		case IProblem.ConstructorArgumentHidingField:
+			if ((errorThreshold & CompilerOptions.ConstructorParameterHidingField) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.ConstructorParameterHidingField) != 0){
+				return Warning;
+			}
+			return Ignore;		
+		case IProblem.FieldHidingLocalVariable:
+		case IProblem.FieldHidingField:
+			if ((errorThreshold & CompilerOptions.FieldHiding) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.FieldHiding) != 0){
+				return Warning;
+			}
+			return Ignore;		
+	  
 		default:
 			return Error;
 	}
@@ -924,6 +952,26 @@ public void expressionShouldBeAVariable(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void fieldHiding(FieldDeclaration fieldDecl, Binding otherVariable) {
+	FieldBinding field = fieldDecl.binding;
+	if (otherVariable instanceof LocalVariableBinding) {
+		this.handle(
+			IProblem.FieldHidingLocalVariable,
+			new String[] {new String(field.declaringClass.readableName()), new String(field.name) },
+			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) },
+			fieldDecl.sourceStart,
+			fieldDecl.sourceEnd);
+	} else if (otherVariable instanceof FieldBinding) {
+		FieldBinding otherField = (FieldBinding) otherVariable;
+		this.handle(
+			IProblem.FieldHidingField,
+			new String[] {new String(field.declaringClass.readableName()), new String(field.name) , new String(otherField.declaringClass.readableName())  },
+			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name) , new String(otherField.declaringClass.shortReadableName()) },
+			fieldDecl.sourceStart,
+			fieldDecl.sourceEnd);
+	}
+}
+
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
 		IProblem.ThisSuperDuringConstructorInvocation,
@@ -2050,6 +2098,29 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		AbortCompilation | Error,
 		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
 		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
+}
+public void localVariableHiding(LocalDeclaration local, Binding otherVariable, boolean  isConstructorArgHidingField) {
+	if (otherVariable instanceof LocalVariableBinding) {
+		String[] arguments = new String[] {new String(local.name)  };
+		this.handle(
+			(local instanceof Argument) 
+				? IProblem.ArgumentHidingLocalVariable 
+				: IProblem.LocalVariableHidingLocalVariable,
+			arguments,
+			arguments,
+			local.sourceStart,
+			local.sourceEnd);
+	} else if (otherVariable instanceof FieldBinding) {
+		FieldBinding field = (FieldBinding) otherVariable;
+		this.handle(
+			(local instanceof Argument)
+				? (isConstructorArgHidingField ? IProblem.ConstructorArgumentHidingField : IProblem.ArgumentHidingField) 
+				: IProblem.LocalVariableHidingField,
+			new String[] {new String(local.name) , new String(field.declaringClass.readableName()) },
+			new String[] {new String(local.name), new String(field.declaringClass.shortReadableName()) },
+			local.sourceStart,
+			local.sourceEnd);
+	}
 }
 public void maskedExceptionHandler(ReferenceBinding exceptionType, AstNode location) {
 	this.handle(
