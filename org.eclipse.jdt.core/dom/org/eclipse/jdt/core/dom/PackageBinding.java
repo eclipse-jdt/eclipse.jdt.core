@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
