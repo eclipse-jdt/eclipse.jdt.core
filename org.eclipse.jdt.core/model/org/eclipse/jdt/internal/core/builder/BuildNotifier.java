@@ -34,9 +34,15 @@ protected String previousSubtask;
 public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.monitor = monitor;
 	try {
-		this.rootPathLength = project.getDescription().getLocation() == null
-			? project.getParent().getLocation().toString().length() + 1
-			: project.getDescription().getLocation().toString().length() + 1;
+		IPath location = project.getDescription().getLocation();
+		if (location == null)
+			location = project.getParent().getLocation(); // default workspace location
+		else if (location.lastSegment().equalsIgnoreCase(project.getName()))
+			location = location.removeLastSegments(1); // want to show project name if possible
+		String printedLocation = location.toString();
+		this.rootPathLength = printedLocation.length() + 1;
+		if (printedLocation.endsWith("/")) //$NON-NLS-1$
+			this.rootPathLength--;
 	} catch(CoreException e) {
 		this.rootPathLength = 0;
 	}
