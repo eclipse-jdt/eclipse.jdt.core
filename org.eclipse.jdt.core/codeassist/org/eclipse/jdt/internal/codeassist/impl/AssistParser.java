@@ -912,7 +912,7 @@ protected void popUntilElement(int kind){
 	while (i >= 0 && elementKindStack[i] != kind) {
 		i--;
 	}
-	if(i > 0) {
+	if(i >= 0) {
 		if(i < elementPtr) {
 			previousKind = elementKindStack[i+1];
 			previousInfo = elementInfoStack[i+1];

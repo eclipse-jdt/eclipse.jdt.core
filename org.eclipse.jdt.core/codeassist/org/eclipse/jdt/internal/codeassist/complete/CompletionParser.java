@@ -1559,7 +1559,7 @@ protected void consumeStatementSwitch() {
 }
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
-	pushOnElementStack(K_BLOCK_DELIMITER);
+	if(!(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER)) pushOnElementStack(K_BLOCK_DELIMITER);
 }
 protected void consumePushPosition() {
 	super.consumePushPosition();
@@ -2411,6 +2411,21 @@ protected boolean resumeAfterRecovery() {
 public void setAssistIdentifier(char[] assistIdent){
 	((CompletionScanner)scanner).completionIdentifier = assistIdent;
 }
+public  String toString() {
+	String s = ""; //$NON-NLS-1$
+	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
+	for (int i = 0; i <= elementPtr; i++) {
+		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+	};
+	s = s + "}\n"; //$NON-NLS-1$
+	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
+	for (int i = 0; i <= elementPtr; i++) {
+		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+	};
+	s = s + "}\n"; //$NON-NLS-1$
+	return s + super.toString();
+}
+
 /*
  * Update recovery state based on current parser/scanner state
  */
