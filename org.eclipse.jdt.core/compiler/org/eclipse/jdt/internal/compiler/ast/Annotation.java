@@ -263,8 +263,9 @@ public abstract class Annotation extends Expression {
 						if (((ReferenceBinding)this.recipient).isAnnotationType()) {
 							if ((metaTagBits & TagBits.AnnotationForAnnotationType) != 0)
 							break checkTargetCompatibility;
-						} else 	if ((metaTagBits & TagBits.AnnotationForType) != 0) 
-								break checkTargetCompatibility;
+						} 
+						if ((metaTagBits & TagBits.AnnotationForType) != 0) 
+							break checkTargetCompatibility;
 						break;
 					case Binding.TYPE_PARAMETER :
 						if ((metaTagBits & TagBits.AnnotationForParameter) != 0)
