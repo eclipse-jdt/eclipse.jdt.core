@@ -1,5 +1,17 @@
 package org.eclipse.jdt.core;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.core.*;
 
+/**
+ * Markers used by the Java model.
+ * <p>
+ * This interface declares constants only; it is not intended to be implemented
+ * or extended.
+ * </p>
+ */
 public interface IJavaModelMarker {
 
 	/**
@@ -17,7 +29,7 @@ public interface IJavaModelMarker {
 	 * detected by the outliner, or a problem detected during a code completion)
 	 */
 	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"/*nonNLS*/;
-	
+    
 	/** 
 	 * Id marker attribute (value <code>"id"</code>).
 	 * Reserved for future use.

@@ -1,5 +1,28 @@
 package org.eclipse.jdt.core;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.core.*;
 
+/**
+ * A Java model region describes a hierarchical set of elements.
+ * Regions are often used to describe a set of elements to be considered
+ * when performing operations; for example, the set of elements to be
+ * considered during a search. A region may include elements from different
+ * projects.
+ * <p>
+ * When an element is included in a region, all of its children
+ * are considered to be included. Children of an included element 
+ * <b>cannot</b> be selectively excluded.
+ * </p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * Instances can be created via the <code>JavaCore.newRegion</code>.
+ * </p>
+ *
+ * @see JavaCore#newRegion
+ */
 public interface IRegion {
 /**
  * Adds the given element and all of its descendents to this region.
