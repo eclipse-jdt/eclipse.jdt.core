@@ -299,6 +299,6 @@ public interface IJavaElement extends IAdaptable {
 	 * @return <code>true</code> if the structure of this element is known
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 */
+	 */// TODO: (philippe) predicate shouldn't throw an exception
 	boolean isStructureKnown() throws JavaModelException;
 }
