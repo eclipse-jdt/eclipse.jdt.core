@@ -74,6 +74,15 @@ public RecoveredElement add(ImportReference importReference, int bracketBalance)
 }
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
 	
+	if (typeDeclaration instanceof AnonymousLocalTypeDeclaration){
+		if (this.typeCount > 0) {
+			// add it to the last type
+			RecoveredType lastType = this.types[this.typeCount-1];
+			lastType.typeDeclaration.declarationSourceEnd = 0; // reopen type
+			lastType.bracketBalance++; // expect one closing brace
+			return lastType.add(typeDeclaration, bracketBalance);
+		}
+	}
 	if (types == null) {
 		types = new RecoveredType[5];
 		typeCount = 0;

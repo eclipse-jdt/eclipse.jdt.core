@@ -118,6 +118,19 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		return this.parent.add(memberTypeDeclaration, bracketBalance);
 	}
 	
+	if (memberTypeDeclaration instanceof AnonymousLocalTypeDeclaration){
+		if (this.methodCount > 0) {
+			// add it to the last method body
+			RecoveredMethod lastMethod = this.methods[this.methodCount-1];
+			lastMethod.methodDeclaration.declarationSourceEnd = 0; // reopen method
+			lastMethod.bracketBalance++; // expect one closing brace
+			return lastMethod.add(typeDeclaration, bracketBalance);
+		} else {
+			// ignore
+			return this;
+		}
+	}	
+		
 	if (memberTypes == null) {
 		memberTypes = new RecoveredType[5];
 		memberTypeCount = 0;
