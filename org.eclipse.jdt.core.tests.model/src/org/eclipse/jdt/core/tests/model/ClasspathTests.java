@@ -73,7 +73,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] {"testInvalidInternalJar2"};
+//	TESTS_NAMES = new String[] {"testInvalidExternalClassFolder"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -2075,10 +2075,12 @@ public void testInvalidClasspath2() throws CoreException {
 public void testInvalidExternalClassFolder() throws CoreException {
 	try {
 		String externalPath = getExternalPath();
+		// remove trailing slash
+		externalPath = externalPath.substring(0, externalPath.length()-1);
 		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + externalPath.substring(0, externalPath.length()-1) + "\' for project P",
+			"Required library cannot denote external folder: \'" + externalPath + "\' for project P",
 			proj);
 	} finally {
 		deleteProject("P");
