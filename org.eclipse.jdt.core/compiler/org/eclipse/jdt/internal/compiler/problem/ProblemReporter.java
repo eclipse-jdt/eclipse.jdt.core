@@ -177,6 +177,14 @@ public void annotationMembersCannotHaveTypeParameters(AnnotationMethodDeclaratio
 		annotationMethodDeclaration.sourceStart,
 		annotationMethodDeclaration.sourceEnd);
 }
+public void annotationTypeDeclarationCannotHaveConstructor(ConstructorDeclaration constructorDeclaration) {
+	this.handle(
+		IProblem.AnnotationTypeDeclarationCannotHaveConstructor,
+		NoArgument,
+		NoArgument,
+		constructorDeclaration.sourceStart,
+		constructorDeclaration.sourceEnd);
+}
 public void annotationTypeDeclarationCannotHaveSuperclass(TypeDeclaration typeDeclaration) {
 	this.handle(
 		IProblem.AnnotationTypeDeclarationCannotHaveSuperclass,

@@ -2463,5 +2463,22 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	            ^^^^^\n" + 
 			"The method baz() of type X must override a superclass method\n" + 
 			"----------\n");
-	}		
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80114
+	public void test078() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	X() {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	X() {}\n" + 
+			"	^^^\n" + 
+			"Annotation type declaration cannot have a constructor\n" + 
+			"----------\n");
+	}
 }
