@@ -4097,5 +4097,40 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"SUCCESS");
+	}
+	// 59641: check assign/invoke with wildcards
+	public void test145() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		XList<?> lx = new XList<X>();\n" + 
+				"		X x = lx.get();\n" + 
+				"		lx.add(null);\n" + 
+				"		lx.add(x);\n" + 
+				"		lx.slot = x;\n" + 
+				"		lx.addAll(lx);\n" + 
+				"    }    	\n" + 
+				"}\n" + 
+				"class XList<E extends X> {\n" + 
+				"    E slot;\n" + 
+				"    void add(E e) {}\n" + 
+				"    E get() { return null; \n" + 
+				"    }\n" + 
+				"    void addAll(XList<E> le) {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lx.add(x);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Unsafe wildcard operation: The method add(?) of type XList<?> is not applicable for the arguments (X)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	lx.slot = x;\n" + 
+			"	          ^\n" + 
+			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?\n" + 
+			"----------\n");
 	}		
 }

@@ -3569,6 +3569,51 @@ public void unsafeInvocationWithRawArguments(ASTNode location, TypeBinding recei
 			location.sourceEnd);    
     }
 }
+public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] arguments) {
+    if (method.isConstructor()) {
+		this.handle(
+			IProblem.UnsafeWildcardConstructorInvocation,
+			new String[] {
+				new String(receiverType.readableName()),
+				parametersAsString(method.parameters, false),
+				parametersAsString(arguments, false),
+			 }, 
+			new String[] {
+				new String(receiverType.shortReadableName()),
+				parametersAsString(method.parameters, true),
+				parametersAsString(arguments, true),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    } else {
+		this.handle(
+			IProblem.UnsafeWildcardMethodInvocation,
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, false),
+				new String(receiverType.readableName()),
+				parametersAsString(arguments, false),
+			 }, 
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, true),
+				new String(receiverType.shortReadableName()),
+				parametersAsString(arguments, true),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    }
+}
+public void unsafeWildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
+	this.handle(
+		IProblem.UnsafeWildcardFieldAssignment,
+		new String[] { 
+		        new String(expressionType.readableName()), new String(variableType.readableName()) },
+		new String[] { 
+		        new String(expressionType.shortReadableName()), new String(variableType.shortReadableName()) },
+		location.sourceStart,
+		location.sourceEnd);    
+}
 public void unusedArgument(LocalDeclaration localDecl) {
 
 	String[] arguments = new String[] {new String(localDecl.name)};

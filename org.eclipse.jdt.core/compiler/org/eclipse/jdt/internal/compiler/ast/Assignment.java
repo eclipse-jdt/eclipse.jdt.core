@@ -56,10 +56,12 @@ public class Assignment extends Expression {
 		}
 	}
 
-	void checkRawAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
+	void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
 		
 		FieldBinding leftField = getLastField(this.lhs);
-		if (leftField != null && leftField.declaringClass.isRawType() 
+		if (leftField != null && lhsType.isWildcard() && rhsType != NullBinding) {
+		    scope.problemReporter().unsafeWildcardAssignment(lhsType, rhsType, this.expression);
+		} else if (leftField != null && leftField.declaringClass.isRawType() 
 		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
 		} else if (rhsType.isRawType() && (lhsType.isParameterizedType() || lhsType.isGenericType())) {
@@ -163,7 +165,7 @@ public class Assignment extends Expression {
 				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 				|| rhsType.isCompatibleWith(lhsType)) {
 			expression.computeConversion(scope, lhsType, rhsType);
-			checkRawAssignment(scope, lhsType, rhsType);
+			checkAssignment(scope, lhsType, rhsType);
 			return this.resolvedType;
 		}
 		scope.problemReporter().typeMismatchError(rhsType, lhsType, expression);
@@ -185,7 +187,7 @@ public class Assignment extends Expression {
 				&& (this.lhs.bits & IsStrictlyAssignedMASK) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}
-		checkRawAssignment(scope, lhsType, rhsType);
+		checkAssignment(scope, lhsType, rhsType);
 		return type;
 	}
 

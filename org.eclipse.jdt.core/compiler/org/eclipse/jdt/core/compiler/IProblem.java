@@ -857,7 +857,13 @@ public interface IProblem {
 	int UndefinedTypeVariable = Internal + 539;
 	/** @since 3.1 */
 	int SuperInterfacesCollide = TypeRelated + 540;
-
+	/** @since 3.1 */
+	int UnsafeWildcardConstructorInvocation = TypeRelated + 541;
+	/** @since 3.1 */
+	int UnsafeWildcardMethodInvocation = TypeRelated + 542;
+	/** @since 3.1 */
+	int UnsafeWildcardFieldAssignment = TypeRelated + 543;
+	
 	/**
 	 * Foreach
 	 */
