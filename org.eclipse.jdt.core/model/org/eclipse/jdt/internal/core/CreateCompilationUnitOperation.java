@@ -63,11 +63,14 @@ protected void executeOperation() throws JavaModelException {
 	worked(1);
 	createFile(folder, unit.getElementName(), stream, fForce);
 	worked(1);
-	fResultElements = new IJavaElement[] {getCompilationUnit()};
-	for (int i = 0; i < fResultElements.length; i++) {
-		delta.added(fResultElements[i]);
-	}
-	addDelta(delta);
+	fResultElements = new IJavaElement[] {unit};
+	if (unit.getParent().exists()) {
+		for (int i = 0; i < fResultElements.length; i++) {
+			delta.added(fResultElements[i]);
+		}
+		addDelta(delta);
+	} // else unit is created outside classpath
+	  // non-java resource delta will be notified by delta processor
 	done();
 }
 /**

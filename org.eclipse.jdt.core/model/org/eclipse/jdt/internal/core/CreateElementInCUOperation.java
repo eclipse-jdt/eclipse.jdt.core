@@ -142,11 +142,14 @@ protected void executeOperation() throws JavaModelException {
 		this.hasModifiedResource = true;
 		worked(1);
 		fResultElements = generateResultHandles();
-		for (int i = 0; i < fResultElements.length; i++) {
-			delta.added(fResultElements[i]);
+		if (unit.getParent().exists()) {
+			for (int i = 0; i < fResultElements.length; i++) {
+				delta.added(fResultElements[i]);
+			}
+			addDelta(delta);
+		} // else unit is created outside classpath
+		  // non-java resource delta will be notified by delta processor
 		}
-		addDelta(delta);
-	}
 	done();
 }
 /**

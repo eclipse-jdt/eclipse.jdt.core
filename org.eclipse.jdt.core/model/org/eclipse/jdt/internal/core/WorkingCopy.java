@@ -53,6 +53,11 @@ protected OpenableElementInfo createElementInfo() {
 public void destroy() {
 	try {
 		close();
+		
+		// if original element is not on classpath flush it from the cache 
+		if (!this.getParent().exists()) {
+			((CompilationUnit)this.getOriginalElement()).close();
+		}
 	} catch (JavaModelException e) {
 		// do nothing
 	}
