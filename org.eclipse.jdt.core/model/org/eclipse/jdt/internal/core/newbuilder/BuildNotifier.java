@@ -205,8 +205,7 @@ public void updateProgress(float percentComplete) {
 		if (work > this.workDone) {
 			if (monitor != null)
 				monitor.worked(work - this.workDone);
-			if (JavaBuilder.DEBUG)
-				System.out.println(NumberFormat.getPercentInstance().format(this.percentComplete));
+			//if (JavaBuilder.DEBUG) System.out.println(NumberFormat.getPercentInstance().format(this.percentComplete));
 			this.workDone = work;
 		}
 	}
