@@ -344,7 +344,11 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 				buffer.append(fDocument, fInterfacesRange[0], fInterfacesRange[1] + 1 - fInterfacesRange[0]);
 			}
 		} else {
-			buffer.append(fDocument, fNameRange[1] + 1, fOpenBodyRange[0] - fNameRange[1] - 1);
+			if (fImplementsRange[0] < 0) {
+				buffer.append(' ');
+			} else {
+				buffer.append(fDocument, fNameRange[1] + 1, fOpenBodyRange[0] - fNameRange[1] - 1);
+			}
 		}
 	}
 	
