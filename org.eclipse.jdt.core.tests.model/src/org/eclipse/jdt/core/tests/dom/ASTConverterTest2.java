@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0511"));
+		suite.addTest(new ASTConverterTest2("test0512"));
 		return suite;
 	}
 	/**
@@ -3250,5 +3250,22 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertFalse("is synthetic", binding.isSynthetic());
 		assertFalse("is default constructor", binding.isDefaultConstructor());
 		assertNull("Has a declaring node", unit.findDeclaringNode(binding));
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=47326
+	 */
+	public void test0512() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0512", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("Wrong number of problems", 1, (unit).getProblems().length); //$NON-NLS-1$
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", declaration.isConstructor());
+		checkSourceRange(declaration, "public A();", source);
 	}
 }
