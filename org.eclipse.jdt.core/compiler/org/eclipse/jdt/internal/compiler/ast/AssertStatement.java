@@ -61,7 +61,15 @@ public class AssertStatement extends Statement {
 		
 		if (exceptionArgument != null) {
 			// only gets evaluated when escaping - results are not taken into account
-			exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); 
+			FlowInfo exceptionInfo = exceptionArgument.analyseCode(currentScope, flowContext, assertInfo.copy()); 
+			
+			if (!isOptimizedTrueAssertion){
+				flowContext.checkExceptionHandlers(
+					currentScope.getJavaLangAssertionError(),
+					this,
+					exceptionInfo,
+					currentScope);
+			}
 		}
 		
 		// add the assert support in the clinit
