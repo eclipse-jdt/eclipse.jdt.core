@@ -120,7 +120,6 @@ public class ForeachStatement extends Statement {
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
-					this.collectionVariable.useFlag = LocalVariableBinding.USED;
 					this.indexVariable.useFlag = LocalVariableBinding.USED;
 					break;
 			}
@@ -172,8 +171,6 @@ public class ForeachStatement extends Statement {
 			case RAW_ITERABLE :
 			case GENERIC_ITERABLE :
 				collection.generateCode(scope, codeStream, true);
-				codeStream.dup();
-				codeStream.store(this.collectionVariable, false);
 				// declaringClass.iterator();
 				final TypeBinding collectionTypeBinding = collection.resolvedType;
 				MethodBinding iteratorMethodBinding =
@@ -302,6 +299,7 @@ public class ForeachStatement extends Statement {
 		this.elementVariable.resolve(scope); // collection expression can see itemVariable
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection.resolveType(scope);
+		this.collection.computeConversion(scope, collectionType, collectionType);
 		boolean hasError = elementType == null || collectionType == null;
 		
 		if (!hasError) {
@@ -358,6 +356,10 @@ public class ForeachStatement extends Statement {
 					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
 					scope.addLocalVariable(this.maxVariable);
 					this.maxVariable.setConstant(NotAConstant); // not inlinable
+					// add #array secret variable (of collection type)
+					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
+					scope.addLocalVariable(this.collectionVariable);
+					this.collectionVariable.setConstant(NotAConstant); // not inlinable
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
@@ -369,10 +371,6 @@ public class ForeachStatement extends Statement {
 				default :
 					scope.problemReporter().invalidTypeForCollection(collection);
 			}
-			// add #array secret variable (of collection type)
-			this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
-			scope.addLocalVariable(this.collectionVariable);
-			this.collectionVariable.setConstant(NotAConstant); // not inlinable
 		}
 		if (action != null) {
 			action.resolve(scope);
