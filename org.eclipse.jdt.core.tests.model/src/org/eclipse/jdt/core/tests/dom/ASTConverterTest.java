@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0400"));
+//		suite.addTest(new ASTConverterTest("test0402"));
 		return suite;
 	}
 		
@@ -9770,11 +9770,18 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
-		checkSourceRange(type, "String foo()[]", source);
+		checkSourceRange(type, "String", source);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
+		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName());
 		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertNotNull("No method binding", methodBinding);
+		ITypeBinding typeBinding2 = methodBinding.getReturnType();
+		assertNotNull("No type binding", typeBinding2);
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding2.getQualifiedName());
+		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
 	}	
 
 	/**
@@ -9817,11 +9824,18 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
-		checkSourceRange(type, "String[] foo()[]", source);
+		checkSourceRange(type, "String[]", source);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No type binding", typeBinding);
-		assertEquals("Wrong qualified name", "java.lang.String[][]", typeBinding.getQualifiedName());
+		assertEquals("Wrong dimension", 1, typeBinding.getDimensions());
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
 		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertNotNull("No method binding", methodBinding);
+		ITypeBinding typeBinding2 = methodBinding.getReturnType();
+		assertNotNull("No type binding", typeBinding2);
+		assertEquals("Wrong qualified name", "java.lang.String[][]", typeBinding2.getQualifiedName());
+		assertEquals("Wrong dimension", 2, typeBinding2.getDimensions());
 	}
 
 	/**
@@ -9839,8 +9853,20 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
 		checkSourceRange(singleVariableDeclaration, "final String s[]", source); //$NON-NLS-1$
 		Type type = singleVariableDeclaration.getType();
-		checkSourceRange(type, "String s[]", source); //$NON-NLS-1$
+		checkSourceRange(type, "String", source); //$NON-NLS-1$
 		assertEquals("Wrong dimension", 1, singleVariableDeclaration.getExtraDimensions());
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("An array binding", !typeBinding.isArray());
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
+		assertEquals("wrong fully qualified name", "java.lang.String", typeBinding.getQualifiedName());
+		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
+		assertNotNull("No variable binding", variableBinding);
+		ITypeBinding typeBinding2 = variableBinding.getType();
+		assertNotNull("No type binding", typeBinding2);
+		assertTrue("Not an array binding", typeBinding2.isArray());
+		assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
+		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding2.getQualifiedName());
 	}
 
 	/**
@@ -9858,8 +9884,20 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
 		checkSourceRange(singleVariableDeclaration, "final String[] \\u0073\\u005B][]", source); //$NON-NLS-1$
 		Type type = singleVariableDeclaration.getType();
-		checkSourceRange(type, "String[] \\u0073\\u005B][]", source); //$NON-NLS-1$
+		checkSourceRange(type, "String[]", source); //$NON-NLS-1$
 		assertEquals("Wrong dimension", 2, singleVariableDeclaration.getExtraDimensions());
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("Not an array binding", typeBinding.isArray());
+		assertEquals("Wrong dimension", 1, typeBinding.getDimensions());
+		assertEquals("wrong fully qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
+		assertNotNull("No variable binding", variableBinding);
+		ITypeBinding typeBinding2 = variableBinding.getType();
+		assertNotNull("No type binding", typeBinding2);
+		assertTrue("Not an array binding", typeBinding2.isArray());
+		assertEquals("Wrong dimension", 3, typeBinding2.getDimensions());
+		assertEquals("wrong fully qualified name", "java.lang.String[][][]", typeBinding2.getQualifiedName());
 	}
 
 	/**
@@ -9887,7 +9925,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not an infix expression", expression3.getNodeType() == ASTNode.INFIX_EXPRESSION);
 		checkSourceRange(expression3, "1 + 2", source);
 	}
-	
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22306
 	 */
@@ -9920,6 +9958,49 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		Block block = methodDeclaration.getBody();
 		List statements = block.statements();
 		assertEquals("wrong size", 3, statements.size());
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an superconstructorinvocation", statement.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
+		checkSourceRange(statement, "super();", source);
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560
+	 */
+	public void test0401() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0401", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size());
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not a return statement", statement.getNodeType() == ASTNode.RETURN_STATEMENT);
+		ReturnStatement returnStatement = (ReturnStatement) statement;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("there is no expression", expression);
+		// call the default initialization
+		methodDeclaration.getReturnType();
+		ITypeBinding typeBinding = expression.resolveTypeBinding();
+		assertNotNull("No typebinding", typeBinding);
+		assertEquals("wrong name", "int", typeBinding.getName());
+	}	
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23464
+	 */
+	public void test0402() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0402", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
+		assertEquals("Wrong number of errors", 0, ((CompilationUnit) result).getProblems().length);
+		assertNotNull(node);
+		assertTrue("Not a super method invocation", node.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
+		checkSourceRange(node, "new A().super();", source);
 	}	
 	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
