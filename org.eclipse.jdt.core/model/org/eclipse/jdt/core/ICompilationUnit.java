@@ -279,7 +279,6 @@ IImportDeclaration[] getImports() throws JavaModelException;
  * @return the original element the specified working copy element was created from,
  * or <code>null</code> if this is not a working copy element
  * @since 3.0
- * TODO: revise spec
  */
 IJavaElement getOriginal(IJavaElement workingCopyElement);
 /**
@@ -289,7 +288,6 @@ IJavaElement getOriginal(IJavaElement workingCopyElement);
  * @return the original element this working copy was created from,
  * or <code>null</code> if this is not a working copy
  * @since 3.0
- * TODO: revise spec
  */
 IJavaElement getOriginalElement();
 /**
@@ -358,22 +356,32 @@ IType[] getTypes() throws JavaModelException;
  *   not be determined. 
  * @return a new working copy of this element if this element is not
  * a working copy, or this element if this element is already a working copy
+ * @since 3.0
  */
 ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException;
 /**
- * TODO: revise spec
- * Returns a new working copy of this element using the given factory to create
+ * Returns a shared working copy on this element using the given working copy owner to create
  * the buffer, or this element if this element is already a working copy.
- * Note that this factory will be used for the life time of this working copy, that is if the 
- * working copy is closed then reopened, this factory will be reused.
+ * This API can only answer an already existing working copy if it is based on the same
+ * original compilation unit AND was using the same working copy owner (that is, as defined by <code>Object.equals</code>).	 
+ * <p>
+ * The life time of a shared working copy is as follows:
+ * <ul>
+ * <li>The first call to <code>getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</code> 
+ * 	creates a new working copy for this element</li>
+ * <li>Subsequent calls increment an internal counter.</li>
+ * <li>A call to <code>discardWorkingCopy()</code> decrements the internal counter.</li>
+ * <li>When this counter is 0, the working copy is discarded.
+ * </ul>
+ * So users of this method must discard exactly once the working copy.
+ * <p>
+ * Note that the working copy owner will be used for the life time of this working copy, that is if the 
+ * working copy is closed then reopened, this owner will be used.
  * The buffer will be automatically initialized with the original's compilation unit content
  * upon creation.
  * <p>
- * Note: if intending to share a working copy amongst several clients, then 
- * <code>#getSharedWorkingCopy</code> should be used instead.
- * </p><p>
- * When the working copy instance is created, an ADDED IJavaElementDelta is 
- * reported on this working copy.
+ * When the shared working copy instance is created, an ADDED IJavaElementDelta is reported on this
+ * working copy.
  * </p><p>
  * Since 2.1, a working copy can be created on a not-yet existing compilation
  * unit. In particular, such a working copy can then be committed in order to create
@@ -390,7 +398,7 @@ ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelExcept
  *   not be determined. 
  * @return a new working copy of this element using the given factory to create
  * the buffer, or this element if this element is already a working copy
- * @since 2.0
+ * @since 3.0
  */
 ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException;
 /**

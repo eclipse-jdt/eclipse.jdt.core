@@ -153,8 +153,9 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	openParent(info, newElements, monitor);
 	if (monitor != null && monitor.isCanceled()) return;
 
-	
-	newElements.put(this, info); // TODO: should not have to put info before building structure
+	 // puts the info before building the structure so that questions to the handle behave has if the element existed
+	 // (case of compilation units becoming working copies)
+	newElements.put(this, info);
 
 	// build the structure of the openable (this will open the buffer if needed)
 	try {
