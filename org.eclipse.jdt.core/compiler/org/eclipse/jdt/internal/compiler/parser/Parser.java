@@ -2427,17 +2427,19 @@ protected void consumeNestedMethod() {
 }
 protected void consumeNestedType() {
 	// NestedType ::= $empty
-	this.nestedType++;
-	try {
-		this.nestedMethod[this.nestedType] = 0;
-	} catch (IndexOutOfBoundsException e) {
-		//except in test's cases, it should never raise
-		int oldL = this.nestedMethod.length;
-		System.arraycopy(this.nestedMethod , 0, (this.nestedMethod = new int[oldL + 30]), 0, oldL);
-		this.nestedMethod[this.nestedType] = 0;
-		// increase the size of the fieldsCounter as well. It has to be consistent with the size of the nestedMethod collection
-		System.arraycopy(this.variablesCounter, 0, (this.variablesCounter = new int[oldL + 30]), 0, oldL);
+	int length = this.nestedMethod.length;
+	if (++this.nestedType >= length) {
+		System.arraycopy(
+			this.nestedMethod, 0,
+			this.nestedMethod = new int[length + 30], 0,
+			length);
+		// increase the size of the variablesCounter as well. It has to be consistent with the size of the nestedMethod collection
+		System.arraycopy(
+			this.variablesCounter, 0,
+			this.variablesCounter = new int[length + 30], 0,
+			length);
 	}
+	this.nestedMethod[this.nestedType] = 0;
 	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeOneDimLoop() {
@@ -2453,16 +2455,14 @@ protected void consumeOpenBlock() {
 	// OpenBlock ::= $empty
 
 	pushOnIntStack(this.scanner.startPosition);
-	try {
-		this.realBlockStack[++this.realBlockPtr] = 0;
-	} catch (IndexOutOfBoundsException e) {
-		//this.realBlockPtr is correct 
-		int oldStackLength = this.realBlockStack.length;
-		int oldStack[] = this.realBlockStack;
-		this.realBlockStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, this.realBlockStack, 0, oldStackLength);
-		this.realBlockStack[this.realBlockPtr] = 0;
+	int stackLength = this.realBlockStack.length;
+	if (++this.realBlockPtr >= stackLength) {
+		System.arraycopy(
+			this.realBlockStack, 0,
+			this.realBlockStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.realBlockStack[this.realBlockPtr] = 0;
 }
 protected void consumePackageDeclaration() {
 	// PackageDeclaration ::= 'package' Name ';'
@@ -5309,15 +5309,14 @@ protected void parse() {
 	this.stateStackTop = -1;
 	this.currentToken = getFirstToken();
 	ProcessTerminals : for (;;) {
-		try {
-			this.stack[++this.stateStackTop] = act;
-		} catch (IndexOutOfBoundsException e) {
-			int oldStackLength = this.stack.length;
-			int oldStack[] = this.stack;
-			this.stack = new int[oldStackLength + StackIncrement];
-			System.arraycopy(oldStack, 0, this.stack, 0, oldStackLength);
-			this.stack[this.stateStackTop] = act;
+		int stackLength = this.stack.length;
+		if (++this.stateStackTop >= stackLength) {
+			System.arraycopy(
+				this.stack, 0,
+				this.stack = new int[stackLength + StackIncrement], 0,
+				stackLength);
 		}
+		this.stack[this.stateStackTop] = act;
 
 		act = tAction(act, this.currentToken);
 
@@ -5796,36 +5795,29 @@ protected void pushIdentifier() {
 	Increase the total number of identifier in the stack.
 	identifierPtr points on the next top */
 
-	try {
-		this.identifierStack[++this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
-		this.identifierPositionStack[this.identifierPtr] = 
-			(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1); 
-	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallaocation (this.identifierPtr is correct)---*/
-		int oldStackLength = this.identifierStack.length;
-		char[][] oldStack = this.identifierStack;
-		this.identifierStack = new char[oldStackLength + 20][];
-		System.arraycopy(oldStack, 0, this.identifierStack, 0, oldStackLength);
-		this.identifierStack[this.identifierPtr] = this.scanner.getCurrentTokenSource();
-		/*identifier position stack*/
-		long[] oldPos = this.identifierPositionStack;
-		this.identifierPositionStack = new long[oldStackLength + 20];
-		System.arraycopy(oldPos, 0, this.identifierPositionStack, 0, oldStackLength);
-		this.identifierPositionStack[this.identifierPtr] = 
-			(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1); 
+	int stackLength = this.identifierStack.length;
+	if (++this.identifierPtr >= stackLength) {
+		System.arraycopy(
+			this.identifierStack, 0,
+			this.identifierStack = new char[stackLength + 20][], 0,
+			stackLength);
+		System.arraycopy(
+			this.identifierPositionStack, 0,
+			this.identifierPositionStack = new long[stackLength + 20], 0,
+			stackLength);
 	}
+	this.identifierStack[this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
+	this.identifierPositionStack[this.identifierPtr] =
+		(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1); 
 
-	try {
-		this.identifierLengthStack[++this.identifierLengthPtr] = 1;
-	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallocation (this.identifierLengthPtr is correct)---*/
-		int oldStackLength = this.identifierLengthStack.length;
-		int oldStack[] = this.identifierLengthStack;
-		this.identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
-		this.identifierLengthStack[this.identifierLengthPtr] = 1;
+	stackLength = this.identifierLengthStack.length;
+	if (++this.identifierLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.identifierLengthStack, 0,
+			this.identifierLengthStack = new int[stackLength + 10], 0,
+			stackLength);
 	}
-
+	this.identifierLengthStack[this.identifierLengthPtr] = 1;
 }
 protected void pushIdentifier(int flag) {
 	/*push a special flag on the stack :
@@ -5833,113 +5825,101 @@ protected void pushIdentifier(int flag) {
 	-negative number for direct ref to base types.
 	identifierLengthPtr points on the top */
 
-	try {
-		this.identifierLengthStack[++this.identifierLengthPtr] = flag;
-	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallaocation (this.identifierLengthPtr is correct)---*/
-		int oldStackLength = this.identifierLengthStack.length;
-		int oldStack[] = this.identifierLengthStack;
-		this.identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
-		this.identifierLengthStack[this.identifierLengthPtr] = flag;
+	int stackLength = this.identifierLengthStack.length;
+	if (++this.identifierLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.identifierLengthStack, 0,
+			this.identifierLengthStack = new int[stackLength + 10], 0,
+			stackLength);
 	}
-
+	this.identifierLengthStack[this.identifierLengthPtr] = flag;
 }
 protected void pushOnAstLengthStack(int pos) {
-	try {
-		this.astLengthStack[++this.astLengthPtr] = pos;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.astLengthStack.length;
-		int[] oldPos = this.astLengthStack;
-		this.astLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
-		this.astLengthStack[this.astLengthPtr] = pos;
+
+	int stackLength = this.astLengthStack.length;
+	if (++this.astLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.astLengthStack, 0,
+			this.astLengthStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.astLengthStack[this.astLengthPtr] = pos;
 }
 protected void pushOnAstStack(ASTNode node) {
 	/*add a new obj on top of the ast stack
 	astPtr points on the top*/
 
-	try {
-		this.astStack[++this.astPtr] = node;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.astStack.length;
-		ASTNode[] oldStack = this.astStack;
-		this.astStack = new ASTNode[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
-		this.astPtr = oldStackLength;
-		this.astStack[this.astPtr] = node;
+	int stackLength = this.astStack.length;
+	if (++this.astPtr >= stackLength) {
+		System.arraycopy(
+			this.astStack, 0,
+			this.astStack = new ASTNode[stackLength + AstStackIncrement], 0,
+			stackLength);
+		this.astPtr = stackLength;
 	}
+	this.astStack[this.astPtr] = node;
 
-	try {
-		this.astLengthStack[++this.astLengthPtr] = 1;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.astLengthStack.length;
-		int[] oldPos = this.astLengthStack;
-		this.astLengthStack = new int[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
-		this.astLengthStack[this.astLengthPtr] = 1;
+	stackLength = this.astLengthStack.length;
+	if (++this.astLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.astLengthStack, 0,
+			this.astLengthStack = new int[stackLength + AstStackIncrement], 0,
+			stackLength);
 	}
+	this.astLengthStack[this.astLengthPtr] = 1;
 }
 protected void pushOnExpressionStack(Expression expr) {
 
-	try {
-		this.expressionStack[++this.expressionPtr] = expr;
-	} catch (IndexOutOfBoundsException e) {
-		//this.expressionPtr is correct 
-		int oldStackLength = this.expressionStack.length;
-		Expression[] oldStack = this.expressionStack;
-		this.expressionStack = new Expression[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldStack, 0, this.expressionStack, 0, oldStackLength);
-		this.expressionStack[this.expressionPtr] = expr;
+	int stackLength = this.expressionStack.length;
+	if (++this.expressionPtr >= stackLength) {
+		System.arraycopy(
+			this.expressionStack, 0,
+			this.expressionStack = new Expression[stackLength + ExpressionStackIncrement], 0,
+			stackLength);
 	}
+	this.expressionStack[this.expressionPtr] = expr;
 
-	try {
-		this.expressionLengthStack[++this.expressionLengthPtr] = 1;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.expressionLengthStack.length;
-		int[] oldPos = this.expressionLengthStack;
-		this.expressionLengthStack = new int[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldPos, 0, this.expressionLengthStack, 0, oldStackLength);
-		this.expressionLengthStack[this.expressionLengthPtr] = 1;
+	stackLength = this.expressionLengthStack.length;
+	if (++this.expressionLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.expressionLengthStack, 0,
+			this.expressionLengthStack = new int[stackLength + ExpressionStackIncrement], 0,
+			stackLength);
 	}
+	this.expressionLengthStack[this.expressionLengthPtr] = 1;
 }
 protected void pushOnExpressionStackLengthStack(int pos) {
-	try {
-		this.expressionLengthStack[++this.expressionLengthPtr] = pos;
-	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = this.expressionLengthStack.length;
-		int[] oldPos = this.expressionLengthStack;
-		this.expressionLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, this.expressionLengthStack, 0, oldStackLength);
-		this.expressionLengthStack[this.expressionLengthPtr] = pos;
+
+	int stackLength = this.expressionLengthStack.length;
+	if (++this.expressionLengthPtr >= stackLength) {
+		System.arraycopy(
+			this.expressionLengthStack, 0,
+			this.expressionLengthStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.expressionLengthStack[this.expressionLengthPtr] = pos;
 }
 protected void pushOnIntStack(int pos) {
 
-	try {
-		this.intStack[++this.intPtr] = pos;
-	} catch (IndexOutOfBoundsException e) {
-		//this.intPtr is correct 
-		int oldStackLength = this.intStack.length;
-		int oldStack[] = this.intStack;
-		this.intStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, this.intStack, 0, oldStackLength);
-		this.intStack[this.intPtr] = pos;
+	int stackLength = this.intStack.length;
+	if (++this.intPtr >= stackLength) {
+		System.arraycopy(
+			this.intStack, 0,
+			this.intStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.intStack[this.intPtr] = pos;
 }
 protected void pushOnRealBlockStack(int i){
 	
-	try {
-		this.realBlockStack[++this.realBlockPtr] = i;
-	} catch (IndexOutOfBoundsException e) {
-		//this.realBlockPtr is correct 
-		int oldStackLength = this.realBlockStack.length;
-		int oldStack[] = this.realBlockStack;
-		this.realBlockStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, this.realBlockStack, 0, oldStackLength);
-		this.realBlockStack[this.realBlockPtr] = i;
+	int stackLength = this.realBlockStack.length;
+	if (++this.realBlockPtr >= stackLength) {
+		System.arraycopy(
+			this.realBlockStack, 0,
+			this.realBlockStack = new int[stackLength + StackIncrement], 0,
+			stackLength);
 	}
+	this.realBlockStack[this.realBlockPtr] = i;
 }
 protected static char[] readTable(String filename) throws java.io.IOException {
 
