@@ -12,15 +12,9 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 /**
@@ -75,37 +69,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	protected static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
-
-	/**
-	 * Name of the extension point for contributing classpath variable initializers
-	 */
-	protected static final String CPVARIABLE_INITIALIZER_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
-
-	/**
-	 * Name of the extension point for contributing classpath container resolvers
-	 */
-	protected static final String CPCONTAINER_RESOLVER_EXTPOINT_ID = "classpathContainerResolver" ; //$NON-NLS-1$
-
-	/**
-	 * Name of the extension point for contributing a source code formatter
-	 */
-	protected static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
-
-	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
-	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
-	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
-	private static final String VARIABLE_DEBUG = PLUGIN_ID + "/debug/cpvariable" ; //$NON-NLS-1$
-	private static final String ZIP_ACCESS_DEBUG = PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
-	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
-	private static final String HIERARCHY_DEBUG = PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
-	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
-	private static final String COMPLETION_DEBUG = PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
-	private static final String SELECTION_DEBUG = PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
-	private static final String SHARED_WC_DEBUG = PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
-	private static final String SEARCH_DEBUG = PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
-	
-	private final static IPath InitializationInProgress = new Path("Initialization In Progress"); //$NON-NLS-1$
-	private static Hashtable Options = getDefaultOptions();
 
 	/**
 	 * Creates the Java core plug-in.
@@ -191,49 +154,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			element = ((IMember) element).getClassFile();
 		if (marker != null && element != null)
 			marker.setAttribute(ATT_HANDLE_ID, element.getHandleIdentifier());
-	}
-
-	/**
-	 * Configure the plugin with respect to option settings defined in ".options" file
-	 */
-	private void configurePluginDebugOptions(){
-			if(JavaCore.getPlugin().isDebugging()){
-				String option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
-				if(option != null) IndexManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-				
-				option = Platform.getDebugOption(COMPILER_DEBUG);
-				if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(JAVAMODEL_DEBUG);
-				if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(SHARED_WC_DEBUG);
-				if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(VARIABLE_DEBUG);
-				if(option != null) JavaModelManager.VARIABLE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
-				if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(DELTA_DEBUG);
-				if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(HIERARCHY_DEBUG);
-				if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(BUILDER_DEBUG);
-				if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-				
-				option = Platform.getDebugOption(COMPLETION_DEBUG);
-				if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-				
-				option = Platform.getDebugOption(SELECTION_DEBUG);
-				if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-	
-				option = Platform.getDebugOption(SEARCH_DEBUG);
-				if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-			}
 	}
 	
 	/**
@@ -371,12 +291,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		IPath variablePath = (IPath) JavaModelManager.Variables.get(variableName);
 
-		if (variablePath == InitializationInProgress) return null; // break cycle
+		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
 		if (variablePath == null){
 			ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
 			if (initializer != null){
-				JavaModelManager.Variables.put(variableName, InitializationInProgress); // avoid initialization cycles
+				JavaModelManager.Variables.put(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
 				initializer.initialize(variableName);
 				variablePath = (IPath) JavaModelManager.Variables.get(variableName); // retry
 				if (JavaModelManager.VARIABLE_VERBOSE){
@@ -395,7 +315,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPVARIABLE_INITIALIZER_EXTPOINT_ID);
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -670,18 +590,57 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return a new variable classpath entry
 	 * @since 2.0
 	 */
-	public static IClasspathEntry newContainerEntry(
-		IPath containerID,
-		boolean isExported) {
+	public static IClasspathEntry newContainerEntry(IPath containerPath) {
+			
+		return newContainerEntry(containerPath, false);
+	}
+
+	/** TOFIX
+	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the the path is the name of a classpath variable.
+	 * The trailing segments of the path will be appended to resolved variable path.
+	 * <p>
+	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
+	 * depending on what the classpath variable is referring.
+	 * </p>
+	 * <p>
+	 * e.g. Here are some examples of variable path usage<ul>
+	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath variables
+	 * or access the resources at the given paths.
+	 * </p>
+	 *
+	 * @param variablePath the path of the binary archive; first segment is the
+	 *   name of a classpath variable
+	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
+	 *    or <code>null</code> if none; if present, the first segment is the
+	 *    name of a classpath variable (not necessarily the same variable
+	 *    as the one that begins <code>variablePath</code>)
+	 * @param sourceAttachmentRootPath the location of the root within the source archive
+	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new variable classpath entry
+	 * @since 2.0
+	 */
+	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
 			
 		Assert.isTrue(
-			containerID != null && containerID.segmentCount() >= 1,
+			containerPath != null && containerPath.segmentCount() >= 1,
 			Util.bind("classpath.illegalContainerPath" )); //$NON-NLS-1$
 			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
-			containerID,
+			containerPath,
 			null,
 			null,
 			isExported);
@@ -1154,7 +1113,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
-			configurePluginDebugOptions();
+			manager.configurePluginDebugOptions();
 			manager.loadVariables();
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
@@ -1335,9 +1294,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static void setOptions(Hashtable newOptions) {
 		if (newOptions == null){
-			Options = getDefaultOptions();
+			JavaModelManager.Options = getDefaultOptions();
 		} else {
-			Options = (Hashtable)newOptions.clone();
+			JavaModelManager.Options = (Hashtable)newOptions.clone();
 		}
 	}
 
@@ -1353,7 +1312,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see JavaCore#getDefaultOptions
 	 */
 	public static Hashtable getOptions() {
-		return (Hashtable)Options.clone();
+		return (Hashtable)JavaModelManager.Options.clone();
 	}
 
 	/**

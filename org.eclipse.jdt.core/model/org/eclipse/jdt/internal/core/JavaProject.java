@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.eval.EvaluationContext;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -654,6 +655,43 @@ public class JavaProject
 		return writer.toString();
 	}
 
+	
+	/** TOFIX
+	 * 
+	 */
+	public IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath){
+
+		Map projectContainers = (Map)JavaModelManager.Containers.get(this);
+		if (projectContainers == null){
+			projectContainers = new HashMap(1);
+			JavaModelManager.Containers.put(this, projectContainers);
+		}
+		IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
+
+		if (entries == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+		if (entries == null){
+			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
+			if (resolver != null){
+				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				entries = resolver.resolve(containerPath, this);
+				if (entries != null){
+					projectContainers.put(containerPath, entries);
+				}
+				if (JavaModelManager.VARIABLE_VERBOSE){
+					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> {"); //$NON-NLS-2$//$NON-NLS-1$
+					if (entries != null){
+						for (int i = 0; i < entries.length; i++){
+							if (i > 0) System.out.println(", ");//$NON-NLS-1$
+							System.out.println(entries[i]);
+						}
+					}
+					System.out.println("}");//$NON-NLS-1$
+				}
+			}
+		}
+		return entries;			
+	}
+	
 	/**
 	 * Returns the classpath entry that refers to the given path
 	 * or <code>null</code> if there is no reference to the path.

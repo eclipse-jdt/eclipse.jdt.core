@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.formatter.CodeFormatter;
@@ -53,7 +54,7 @@ public class ToolFactory {
 			Plugin jdtCorePlugin = JavaCore.getPlugin();
 			if (jdtCorePlugin == null) return null;
 		
-			IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaCore.FORMATTER_EXTPOINT_ID);
+			IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.FORMATTER_EXTPOINT_ID);
 			if (extension != null) {
 				IExtension[] extensions =  extension.getExtensions();
 				for(int i = 0; i < extensions.length; i++){

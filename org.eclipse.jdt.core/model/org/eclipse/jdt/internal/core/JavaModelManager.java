@@ -8,13 +8,17 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.codeassist.SelectionEngine;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -35,10 +39,51 @@ import org.xml.sax.*;
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
 
 	/**
-	 * Variable pool
+	 * Classpath variables pool
 	 */
 	public static Map Variables = new HashMap(5);
-/**
+	
+	/**
+	 * Classpath containers pool
+	 */
+	public static Map Containers = new HashMap(5);
+
+	public static Hashtable Options = JavaCore.getDefaultOptions();
+
+	/**
+	 * Name of the extension point for contributing classpath variable initializers
+	 */
+	public static final String CPVARIABLE_INITIALIZER_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+
+	/**
+	 * Name of the extension point for contributing classpath container resolvers
+	 */
+	public static final String CPCONTAINER_RESOLVER_EXTPOINT_ID = "classpathContainerResolver" ; //$NON-NLS-1$
+
+	/**
+	 * Name of the extension point for contributing a source code formatter
+	 */
+	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
+	/**
+	 * Special value used for recognizing ongoing initialization
+	 */
+	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
+	public final static IClasspathEntry[] ContainerInitializationInProgress = new IClasspathEntry[0];
+	
+	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
+	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
+	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String VARIABLE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpvariable" ; //$NON-NLS-1$
+	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
+	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
+	private static final String HIERARCHY_DEBUG = JavaCore.PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
+	private static final String BUILDER_DEBUG = JavaCore.PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
+	private static final String COMPLETION_DEBUG = JavaCore.PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
+	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
+	private static final String SHARED_WC_DEBUG = JavaCore.PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
+	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
+
+/**
  * Returns whether the given full path (for a package) conflicts with the output location
  * of the given project.
  */
@@ -454,7 +499,49 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 	}
 }
 
-
+/**
+	 * Configure the plugin with respect to option settings defined in ".options" file
+	 */
+	public void configurePluginDebugOptions(){
+			if(JavaCore.getPlugin().isDebugging()){
+				String option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
+				if(option != null) IndexManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(COMPILER_DEBUG);
+				if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(JAVAMODEL_DEBUG);
+				if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(SHARED_WC_DEBUG);
+				if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(VARIABLE_DEBUG);
+				if(option != null) JavaModelManager.VARIABLE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
+				if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(DELTA_DEBUG);
+				if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(HIERARCHY_DEBUG);
+				if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(BUILDER_DEBUG);
+				if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(COMPLETION_DEBUG);
+				if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(SELECTION_DEBUG);
+				if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(SEARCH_DEBUG);
+				if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			}
+	}
+	
 	/**
 	 * Note that the project is about to be deleted.
 	 *
@@ -603,6 +690,55 @@ public void doneSaving(ISaveContext context){
 		}
 		this.zipFiles = null;
 	}
+	
+	/**
+ 	 * Retrieve the client classpath container resolver for a given container path
+ 	 */
+	public static ClasspathContainerResolver getClasspathContainerResolver(IPath containerPath){
+		
+		Plugin jdtCorePlugin = JavaCore.getPlugin();
+		if (jdtCorePlugin == null) return null;
+
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPCONTAINER_RESOLVER_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+					IPluginDescriptor plugin = extension.getDeclaringPluginDescriptor();
+					if (plugin.isPluginActivated()) {
+						int bestMatch = -1;
+						IConfigurationElement bestResolver = null;
+						
+						for(int j = 0; j < configElements.length; j++){
+								String prefixAttribute = configElements[j].getAttribute("containerPrefix"); //$NON-NLS-1$
+								if (prefixAttribute != null){
+									IPath resolverPrefixPath = new Path(prefixAttribute);
+									if (resolverPrefixPath.isPrefixOf(containerPath)){
+										if (resolverPrefixPath.segmentCount() > bestMatch){
+											bestResolver = configElements[j];
+											bestMatch = resolverPrefixPath.segmentCount();
+										}				
+									}
+								}
+						}
+						if (bestResolver != null){
+							if (JavaModelManager.VARIABLE_VERBOSE) {
+								System.out.println("CPVariable INIT - found initializer: "+containerPath+" --> " + bestResolver.getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							}						
+							try {
+								Object execExt = bestResolver.createExecutableExtension("class"); //$NON-NLS-1$
+								if (execExt instanceof ClasspathContainerResolver){
+									return (ClasspathContainerResolver)execExt;
+								}
+							} catch(CoreException e) {
+							}
+						}
+					}
+			}	
+		}
+		return null;
+	}	
+	
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
