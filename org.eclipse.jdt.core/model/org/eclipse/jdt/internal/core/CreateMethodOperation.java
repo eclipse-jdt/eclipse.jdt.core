@@ -64,15 +64,19 @@ protected String[] convertDOMMethodTypesToSignatures() {
 protected IDOMNode generateElementDOM() throws JavaModelException {
 	if (fDOMNode == null) {
 		fDOMNode = (new DOMFactory()).createMethod(fSource);
-		if (fDOMNode == null) { //syntactically incorrect source
+		if (fDOMNode == null) {
+			//syntactically incorrect source
 			fDOMNode = generateSyntaxIncorrectDOM();
+			if (fDOMNode == null) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
 		}
 		if (fAlteredName != null && fDOMNode != null) {
 			fDOMNode.setName(fAlteredName);
 		}
 	}
 	if (!(fDOMNode instanceof IDOMMethod)) {
-		return null;
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	}
 	return fDOMNode;
 }

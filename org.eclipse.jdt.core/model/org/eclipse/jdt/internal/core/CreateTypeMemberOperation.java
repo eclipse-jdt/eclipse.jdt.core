@@ -123,11 +123,9 @@ public IJavaModelStatus verify() {
 	if (!fForce) {
 		//check for name collisions
 		try {
-			IDOMNode node= generateElementDOM();
-			if (node == null) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
-			}
+			generateElementDOM();
 		} catch (JavaModelException jme) {
+			return jme.getJavaModelStatus();
 		}
 		return verifyNameCollision();
 	}

@@ -48,13 +48,16 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
 		fDOMNode = (new DOMFactory()).createField(fSource);
 		if (fDOMNode == null) {
 			fDOMNode = generateSyntaxIncorrectDOM();
+			if (fDOMNode == null) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
 		}
 		if (fAlteredName != null && fDOMNode != null) {
 			fDOMNode.setName(fAlteredName);
 		}
 	}
 	if (!(fDOMNode instanceof IDOMField)) {
-		return null;
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	}
 	return fDOMNode;
 }

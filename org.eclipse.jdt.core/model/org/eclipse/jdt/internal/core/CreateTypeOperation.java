@@ -44,14 +44,18 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
 	if (fDOMNode == null) {
 		fDOMNode = (new DOMFactory()).createType(fSource);
 		if (fDOMNode == null) {
+			//syntactically incorrect source
 			fDOMNode = generateSyntaxIncorrectDOM();
+			if (fDOMNode == null) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
 		}
 		if (fAlteredName != null && fDOMNode != null) {
 			fDOMNode.setName(fAlteredName);
 		}
 	}
 	if (!(fDOMNode instanceof IDOMType)) {
-		return null;
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	}
 	return fDOMNode;
 }
