@@ -212,6 +212,7 @@ protected IType getOriginalType(ArrayList hierarchy) {
 }
 /**
  * @see IWorkingCopy
+ * @deprecated
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
 	return this;

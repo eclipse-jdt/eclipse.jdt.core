@@ -79,7 +79,11 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	if (slash == oldSlash+1){ // could not have been known at index time
 		decodedEnclosingTypeName = null;
 	} else {
-		decodedEnclosingTypeName = CharOperation.subarray(word, oldSlash+1, slash);
+		if (slash == oldSlash+2 && word[oldSlash+1] == ONE_ZERO[0]) {
+			decodedEnclosingTypeName = ONE_ZERO;
+		} else {
+			decodedEnclosingTypeName = CharOperation.subarray(word, oldSlash+1, slash);
+		}
 	}
 	oldSlash = slash;
 	slash = CharOperation.indexOf(SEPARATOR, word, slash+1);

@@ -607,7 +607,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
  * @private Debugging purposes
  */
 public Object toStringInfo(int tab, StringBuffer buffer) {
-	Object info = fgJavaModelManager.getInfo(this);
+	Object info = fgJavaModelManager.peekAtInfo(this);
 	this.toStringInfo(tab, buffer, info);
 	return info;
 }

@@ -45,7 +45,11 @@ public void close() throws JavaModelException {
 				IJavaElement[] children = getChildren();
 				for (int i = 0, size = children.length; i < size; ++i) {
 					JavaElement child = (JavaElement) children[i];
-					child.close();
+					if (child instanceof BinaryType) {
+						((IOpenable)child.getParent()).close();
+					} else {
+						child.close();
+					}
 				}
 			} catch (JavaModelException e) {
 			}

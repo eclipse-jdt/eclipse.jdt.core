@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.search.*;
 import java.util.*;
 
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 import org.eclipse.jdt.internal.core.search.*;
@@ -522,9 +523,18 @@ public static void searchAllPossibleSubTypes(
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
 			pathRequestor.acceptPath(resourcePath);
-			if (resourcePath.endsWith("class")){ //$NON-NLS-1$
+			int suffix = resourcePath.toLowerCase().indexOf(".class"); //$NON-NLS-1$
+			if (suffix != -1){ 
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
 				if (binaryType == null){
+					if (enclosingTypeName == IIndexConstants.ONE_ZERO) { // local or anonymous type
+						int lastSlash = resourcePath.lastIndexOf('/');
+						if (lastSlash == -1) return;
+						int lastDollar = resourcePath.lastIndexOf('$');
+						if (lastDollar == -1) return;
+						enclosingTypeName = resourcePath.substring(lastSlash+1, lastDollar).toCharArray();
+						typeName = resourcePath.substring(lastDollar+1, suffix).toCharArray();
+					}
 					binaryType = new HierarchyBinaryType(modifiers, qualification, typeName, enclosingTypeName, classOrInterface);
 					binariesFromIndexMatches.put(resourcePath, binaryType);
 				}

@@ -19,7 +19,6 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName,
 
 	this.modifiers = modifiers;
 	this.isClass = classOrInterface == IIndexConstants.CLASS_SUFFIX;
-	this.name = CharOperation.concat(qualification, typeName, '/');
 	if (enclosingTypeName == null){
 		this.name = CharOperation.concat(qualification, typeName, '/');
 	} else {
