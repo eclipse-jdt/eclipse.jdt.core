@@ -17,7 +17,8 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 
 /**
- * This is still subject to changes before 3.0.
+ * Constants used to set up the options of the code formatter.
+ * 
  * @since 3.0
  */
 public class DefaultCodeFormatterConstants {
@@ -2626,7 +2627,16 @@ public class DefaultCodeFormatterConstants {
 			throw WRONG_ARGUMENT;
 		}
 	}
-	// TODO (olivier) need to add some spec
+	/**
+	 * Create a new alignment value according to the given values. This must be used to set up
+	 * the alignment options.
+	 * 
+	 * @param forceSplit the given force value
+	 * @param wrapStyle the given wrapping style
+	 * @param indentStyle the given indent style
+	 * 
+	 * @return the new alignement value
+	 */
 	public static String createAlignmentValue(boolean forceSplit, int wrapStyle, int indentStyle) {
 		int alignmentValue = 0; 
 		switch(wrapStyle) {
