@@ -44,7 +44,7 @@ public class JavaSearchScope extends AbstractSearchScope {
 	/* The paths of the resources in this search scope 
 	   (or the classpath entries' paths 
 	   if the resources are projects) */
-	private IPath[] paths;
+	private String[] paths;
 	private boolean[] pathWithSubFolders;
 	protected AccessRuleSet[] pathRestrictions;
 	private int pathsCount;
@@ -122,7 +122,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								add(path, true, access);
+								add(path.toString(), true, access);
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -134,7 +134,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 								|| (includeMask & SYSTEM_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								add(path, true, access);
+								add(path.toString(), true, access);
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -153,7 +153,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & SOURCES) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add(entry.getPath(), true, access);
+						add(entry.getPath().toString(), true, access);
 					}
 				}
 				break;
@@ -192,7 +192,7 @@ public void add(IJavaElement element, IJavaProject project) throws JavaModelExce
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			root = (IPackageFragmentRoot)element;
 			if (project == null)
-				add(root.getPath(), true, null);
+				add(root.getPath().toString(), true, null);
 			else
 				add((JavaProject)project, root.getPath(), includeMask, new HashSet(2), null);
 			break;
@@ -202,14 +202,14 @@ public void add(IJavaElement element, IJavaProject project) throws JavaModelExce
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
 				IPath path = root.getPath().append(new Path(relativePath));
 				if (project == null)
-					add(path, false, null);
+					add(path.toString(), false, null);
 				else
 					add((JavaProject)project, path, includeMask, new HashSet(2), null);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null && resource.isAccessible()) {
 					if (project == null)
-						add(resource.getFullPath(), false, null);
+						add(resource.getFullPath().toString(), false, null);
 					else
 						add((JavaProject)project, resource.getFullPath(), includeMask, new HashSet(2), null);
 				}
@@ -223,7 +223,7 @@ public void add(IJavaElement element, IJavaProject project) throws JavaModelExce
 				}
 				this.elements.add(element);
 			}
-			this.add(this.fullPath(element), true, null);
+			add(fullPath(element), true, null);
 			
 			// find package fragment root including this java element
 			IJavaElement parent = element.getParent();
@@ -248,12 +248,12 @@ public void add(IJavaElement element, IJavaProject project) throws JavaModelExce
  * Adds the given path to this search scope. Remember if subfolders need to be included
  * and associated access restriction as well.
  */
-private void add(IPath path, boolean withSubFolders, AccessRuleSet access) {
+private void add(String path, boolean withSubFolders, AccessRuleSet access) {
 	if (this.paths.length == this.pathsCount) {
 		System.arraycopy(
 			this.paths,
 			0,
-			this.paths = new IPath[this.pathsCount * 2],
+			this.paths = new String[this.pathsCount * 2],
 			0,
 			this.pathsCount);
 		System.arraycopy(
@@ -283,38 +283,33 @@ private void add(IPath path, boolean withSubFolders, AccessRuleSet access) {
  * @see IJavaSearchScope#encloses(String)
  */
 public boolean encloses(String resourcePathString) {
-	return this.encloses(fullPath(resourcePathString)) >= 0;
+	return this.indexOf(fullPath(resourcePathString)) >= 0;
 }
-private IPath fullPath(String resourcePathString) {
-	IPath resourcePath;
+private String fullPath(String resourcePathString) {
 	int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
 	if (separatorIndex != -1) {
-		resourcePath = 
-			new Path(resourcePathString.substring(0, separatorIndex)).
-				append(new Path(resourcePathString.substring(separatorIndex+1)));
-	} else {
-			resourcePath = new Path(resourcePathString);
+		return resourcePathString.substring(0, separatorIndex).replace('\\', '/') + '/' + resourcePathString.substring(separatorIndex+1);
 	}
-	return resourcePath;
+	return resourcePathString;
 }
 
 /**
  * Returns paths list index of given path or -1 if not found.
  */
-private int encloses(IPath path) {
+private int indexOf(String path) {
 	for (int i = 0; i < this.pathsCount; i++) {
 		if (this.pathWithSubFolders[i]) {
-			if (this.paths[i].isPrefixOf(path)) {
+			if (path.startsWith(this.paths[i])) {
 				return i;
 			}
 		} else {
 			// if not looking at subfolders, this scope encloses the given path 
 			// if this path is a direct child of the scope's ressource
 			// or if this path is the scope's resource (see bug 13919 Declaration for package not found if scope is not project)
-			IPath scopePath = this.paths[i];
-			if (scopePath.isPrefixOf(path) 
-				&& ((scopePath.segmentCount() == path.segmentCount() - 1)
-					|| (scopePath.segmentCount() == path.segmentCount()))) {
+			String scopePath = this.paths[i];
+			if (path.startsWith(scopePath) 
+				&& ((scopePath.length() == path.lastIndexOf('/'))
+					|| (scopePath.length() == path.length()))) {
 				return i;
 			}
 		}
@@ -338,7 +333,7 @@ public boolean encloses(IJavaElement element) {
 		}
 		return false;
 	}
-	return this.encloses(this.fullPath(element)) >= 0;
+	return this.indexOf(fullPath(element)) >= 0;
 }
 
 /* (non-Javadoc)
@@ -347,22 +342,22 @@ public boolean encloses(IJavaElement element) {
 public IPath[] enclosingProjectsAndJars() {
 	return this.enclosingProjectsAndJars;
 }
-private IPath fullPath(IJavaElement element) {
+private String fullPath(IJavaElement element) {
 	if (element instanceof IPackageFragmentRoot) {
-		return ((IPackageFragmentRoot)element).getPath();
+		return ((IPackageFragmentRoot)element).getPath().toString();
 	}
 	IJavaElement parent = element.getParent();
-	IPath parentPath = parent == null ? null : this.fullPath(parent);
-	IPath childPath;
+	String parentPath = parent == null ? null : fullPath(parent);
+	String childPath;
 	if (element instanceof PackageFragment) {
 		String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
-		childPath = new Path(relativePath);
+		childPath = relativePath;
 	} else if (element instanceof IOpenable) {
-		childPath = new Path(element.getElementName());
+		childPath = element.getElementName();
 	} else {
 		return parentPath;
 	}
-	return parentPath == null ? childPath : parentPath.append(childPath);
+	return parentPath == null ? childPath : parentPath + '/' + childPath;
 }
 
 /**
@@ -372,7 +367,7 @@ private IPath fullPath(IJavaElement element) {
  * 	Returns specific uninit access rule set when scope does not enclose the given path.
  */
 public AccessRuleSet getAccessRuleSet(String path) {
-	int index = encloses(fullPath(path));
+	int index = indexOf(fullPath(path));
 	if (index == -1) {
 		// this search scope does not enclose given path
 		return NOT_INITIALIZED_RESTRICTION;
@@ -383,7 +378,7 @@ public AccessRuleSet getAccessRuleSet(String path) {
 }
 
 protected void initialize() {
-	this.paths = new IPath[1];
+	this.paths = new String[1];
 	this.pathWithSubFolders = new boolean[1];
 	this.pathRestrictions = null;
 	this.pathsCount = 0;
@@ -451,9 +446,9 @@ public String toString() {
 		} else {
 			result.append("["); //$NON-NLS-1$
 			for (int i = 0; i < this.pathsCount; i++) {
-				IPath path = this.paths[i];
+				String path = this.paths[i];
 				result.append("\n\t"); //$NON-NLS-1$
-				result.append(path.toString());
+				result.append(path);
 			}
 			result.append("\n]"); //$NON-NLS-1$
 		}
