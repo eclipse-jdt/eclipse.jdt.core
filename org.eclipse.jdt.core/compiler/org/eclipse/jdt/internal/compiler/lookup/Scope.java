@@ -1104,6 +1104,7 @@ public abstract class Scope
 
 		// at this point the scope is a compilation unit scope
 		CompilationUnitScope unitScope = (CompilationUnitScope) scope;
+		PackageBinding currentPackage = unitScope.fPackage; 
 		// ask for the imports + name
 		if ((mask & TYPE) != 0) {
 			// check single type imports.
@@ -1124,9 +1125,8 @@ public abstract class Scope
 				}
 			}
 			// check if the name is in the current package, skip it if its a sub-package
-			PackageBinding currentPackage = unitScope.fPackage; // extra temp to workaround JIT issue (35731)
-			Binding binding = currentPackage.getTypeOrPackage(name);
 			unitScope.recordReference(currentPackage.compoundName, name);
+			Binding binding = currentPackage.getTypeOrPackage(name);
 			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
 
 			// check on demand imports
