@@ -45,6 +45,89 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
         return null; // not supported here - combined with resolveType(...)
     }
     
+	private TypeBinding internalResolveType(Scope scope) {
+	    
+	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+
+		// handle the error here
+		this.constant = NotAConstant;
+		if (this.didResolve) { // is a shared type reference which was already resolved
+			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
+				return null; // already reported error
+			}
+			return this.resolvedType;
+		} 
+	    this.didResolve = true;
+		ReferenceBinding currentType = null;
+		for (int i = 0, max = this.tokens.length; i < max; i++) {
+		    if (i == 0) {
+		        // isolate first fragment
+				while (this.typeArguments[i] == null) i++;
+				this.resolvedType = scope.getType(this.tokens, i+1);
+				if (!(this.resolvedType.isValidBinding())) {
+					reportInvalidType(scope);
+					return null;
+				}
+				currentType = (ReferenceBinding) this.resolvedType;
+		    } else {
+			    this.resolvedType = currentType = scope.getMemberType(this.tokens[i], currentType);
+				if (!(this.resolvedType.isValidBinding())) {
+					reportInvalidType(scope);
+					return null;
+				}
+		    }
+		    // check generic and arity
+			TypeVariableBinding[] typeVariables = currentType.typeVariables();
+		    TypeReference[] args = this.typeArguments[i];
+			int argLength = args.length;
+			TypeBinding[] argTypes = new TypeBinding[argLength];
+			boolean argHasError = false;
+			for (int j = 0; j < argLength; j++) {
+		    TypeBinding argType;
+			    if (isClassScope) {
+			        	argType = args[j].resolveType((ClassScope)scope);
+			    } else {
+			        	argType = args[j].resolveType((BlockScope)scope);
+			    }
+		     if (argType == null) {
+		         argHasError = true;
+		     } else {
+			    argTypes[j] = argType;
+		     }			    
+			}
+			if (argHasError) return null;
+			if (typeVariables == NoTypeVariables) { // check generic
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
+					return null;
+			} else if (argLength != typeVariables.length) { // check arity
+					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+					return null;
+			}			
+			// check argument type compatibility
+			for (int j = 0; j < argLength; j++) {
+			    TypeBinding argType = argTypes[j];
+			    if (!typeVariables[j].boundCheck(argType)) {
+			        argHasError = true;
+					scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
+			    }
+			}
+			if (argHasError) return null;
+			currentType = scope.createParameterizedType(currentType, argTypes);
+		}
+		this.resolvedType = currentType;
+		if (isTypeUseDeprecated(this.resolvedType, scope)) {
+			reportDeprecatedType(scope);
+		}		
+		// array type ?
+		if (this.dimensions > 0) {
+			if (dimensions > 255) {
+				scope.problemReporter().tooManyDimensions(this);
+			}
+			this.resolvedType = scope.createArray(currentType, dimensions);
+		}
+		return this.resolvedType;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		int length = tokens.length;
 		for (int i = 0; i < length - 1; i++) {
@@ -81,135 +164,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}	
 	
 	public TypeBinding resolveType(BlockScope scope) {
-		// handle the error here
-		this.constant = NotAConstant;
-		if (this.didResolve) { // is a shared type reference which was already resolved
-			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
-				return null; // already reported error
-			}
-			return this.resolvedType;
-		} 
-	    this.didResolve = true;
-		ReferenceBinding currentType = null;
-		for (int i = 0, max = this.tokens.length; i < max; i++) {
-		    if (i == 0) {
-		        // isolate first fragment
-				while (this.typeArguments[i] == null) i++;
-				TypeBinding type = scope.getType(this.tokens, i+1);
-				if (!(type.isValidBinding())) {
-					reportInvalidType(scope);
-					return null;
-				}
-				currentType = (ReferenceBinding) type;
-		    } else {
-			    currentType = scope.getMemberType(this.tokens[i], currentType);
-		    }
-		    // check generic and arity
-			TypeVariableBinding[] typeVariables = currentType.typeVariables();
-		    TypeReference[] args = this.typeArguments[i];
-			int argLength = args.length;
-			TypeBinding[] argTypes = new TypeBinding[argLength];
-			for (int j = 0; j < argLength; j++) {
-			    argTypes[j] = args[j].resolveType(scope);
-			}
-			if (typeVariables == NoTypeVariables) { // check generic
-					scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
-					return null;
-			} else if (argLength != typeVariables.length) { // check arity
-					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
-					return null;
-			}			
-			// check argument type compatibility
-			boolean argHasError = false;
-			for (int j = 0; j < argLength; j++) {
-			    TypeBinding argType = argTypes[j];
-			    if (argType == null) {
-			        argHasError = true;
-			    } else if (!typeVariables[j].boundCheck(argType)) {
-			        argHasError = true;
-					scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
-			    }
-			}
-			if (argHasError) return null;
-			currentType = scope.createParameterizedType(currentType, argTypes);
-		}
-		this.resolvedType = currentType;
-		if (isTypeUseDeprecated(this.resolvedType, scope)) {
-			reportDeprecatedType(scope);
-		}		
-		// array type ?
-		if (this.dimensions > 0) {
-			if (dimensions > 255) {
-				scope.problemReporter().tooManyDimensions(this);
-			}
-			this.resolvedType = scope.createArray(currentType, dimensions);
-		}
-		return this.resolvedType;
+	    return internalResolveType(scope);
 	}	
 	public TypeBinding resolveType(ClassScope scope) {
-		// handle the error here
-		this.constant = NotAConstant;
-		if (this.didResolve) { // is a shared type reference which was already resolved
-			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
-				return null; // already reported error
-			}
-			return this.resolvedType;
-		} 
-	    this.didResolve = true;
-		ReferenceBinding currentType = null;
-		for (int i = 0, max = this.tokens.length; i < max; i++) {
-		    if (i == 0) {
-		        // isolate first fragment
-				while (this.typeArguments[i] == null) i++;
-				TypeBinding type = scope.getType(this.tokens, i+1);
-				if (!(type.isValidBinding())) {
-					reportInvalidType(scope);
-					return null;
-				}
-				currentType = (ReferenceBinding) type;
-		    } else {
-			    currentType = scope.getMemberType(this.tokens[i], currentType);
-		    }
-		    // check generic and arity
-			TypeVariableBinding[] typeVariables = currentType.typeVariables();
-		    TypeReference[] args = this.typeArguments[i];
-			int argLength = args.length;
-			TypeBinding[] argTypes = new TypeBinding[argLength];
-			for (int j = 0; j < argLength; j++) {
-			    argTypes[j] = args[j].resolveType(scope);
-			}
-			if (typeVariables == NoTypeVariables) { // check generic
-				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
-				return null;
-			} else if (argLength != typeVariables.length) { // check arity
-				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
-				return null;
-			}			
-			// check argument type compatibility
-			boolean argHasError = false;
-			for (int j = 0; j < argLength; j++) {
-			    TypeBinding argType = argTypes[j];
-			    if (argType == null) {
-			        argHasError = true;
-			    } else if (!typeVariables[j].boundCheck(argType)) {
-			        argHasError = true;
-					scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
-			    }
-			}
-			if (argHasError) return null;
-			currentType = scope.createParameterizedType(currentType, argTypes);
-		}
-		this.resolvedType = currentType;
-		if (isTypeUseDeprecated(this.resolvedType, scope)) {
-			reportDeprecatedType(scope);
-		}		
-		// array type ?
-		if (this.dimensions > 0) {
-			if (dimensions > 255) {
-				scope.problemReporter().tooManyDimensions(this);
-			}
-			this.resolvedType = scope.createArray(currentType, dimensions);
-		}
-		return this.resolvedType;
+	    	    return internalResolveType(scope);
 	}	
 }

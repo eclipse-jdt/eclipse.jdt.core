@@ -30,6 +30,8 @@ public class LocalVariableBinding extends VariableBinding {
 	public int initializationCount = 0;
 
 	// for synthetic local variables	
+	// if declaration slot is not positionned, the variable will not be listed in attribute
+	// note that the name of a variable should be chosen so as not to conflict with user ones (usually starting with a space char is all needed)
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 
 		this.name = name;
