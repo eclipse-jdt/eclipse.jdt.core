@@ -642,12 +642,16 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							} else {
 								constant = NotAConstant;
 							}
-							if ((!variable.isFinal()) && ((bits & DepthMASK) != 0)) {
+							if (!variable.isFinal() && (bits & DepthMASK) != 0) {
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 							}
 							return this.resolvedType = variable.type;
 						}
 						// a field
+						FieldBinding field = (FieldBinding) this.binding;
+						if (!field.isStatic()) {
+							scope.problemReporter().unqualifiedFieldAccess(this, field);
+						}
 						return this.resolvedType = checkFieldAccess(scope);
 					}
 	

@@ -45,17 +45,17 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
-	if (blockDeclaration.sourceEnd != 0 
-		&& nestedBlockDeclaration.sourceStart > blockDeclaration.sourceEnd){
+	if (this.blockDeclaration.sourceEnd != 0 
+		&& nestedBlockDeclaration.sourceStart > this.blockDeclaration.sourceEnd){
 		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 	}
 			
 	RecoveredBlock element = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
 
 	// if we have a pending Argument, promote it into the new block
-	if (pendingArgument != null){
-		element.attach(pendingArgument);
-		pendingArgument = null;
+	if (this.pendingArgument != null){
+		element.attach(this.pendingArgument);
+		this.pendingArgument = null;
 	}
 	this.attach(element);
 	if (nestedBlockDeclaration.sourceEnd == 0) return element;
@@ -90,8 +90,8 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 */	
 		/* do not consider a local variable starting passed the block end (if set)
 		it must be belonging to an enclosing block */
-	if (blockDeclaration.sourceEnd != 0 
-		&& localDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
+	if (this.blockDeclaration.sourceEnd != 0 
+		&& localDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
 
 		if (delegatedByParent){
 			return this; //ignore
@@ -103,7 +103,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalanceValue);
 
 	if (localDeclaration instanceof Argument){
-		pendingArgument = element;
+		this.pendingArgument = element;
 		return this;
 	}
 	
@@ -125,8 +125,8 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean del
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
-	if (blockDeclaration.sourceEnd != 0 
-		&& stmt.sourceStart > blockDeclaration.sourceEnd){
+	if (this.blockDeclaration.sourceEnd != 0 
+		&& stmt.sourceStart > this.blockDeclaration.sourceEnd){
 			
 		if (delegatedByParent){
 			return this; //ignore
@@ -153,8 +153,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 
 	/* do not consider a type starting passed the block end (if set)
 		it must be belonging to an enclosing block */
-	if (blockDeclaration.sourceEnd != 0 
-		&& typeDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
+	if (this.blockDeclaration.sourceEnd != 0 
+		&& typeDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
 		if (delegatedByParent){
 			return this; //ignore
 		} else {
@@ -172,31 +172,31 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
  */
 void attach(RecoveredStatement recoveredStatement) {
 
-	if (statements == null) {
-		statements = new RecoveredStatement[5];
-		statementCount = 0;
+	if (this.statements == null) {
+		this.statements = new RecoveredStatement[5];
+		this.statementCount = 0;
 	} else {
-		if (statementCount == statements.length) {
+		if (this.statementCount == this.statements.length) {
 			System.arraycopy(
-				statements, 
+				this.statements, 
 				0, 
-				(statements = new RecoveredStatement[2 * statementCount]), 
+				(this.statements = new RecoveredStatement[2 * this.statementCount]), 
 				0, 
-				statementCount); 
+				this.statementCount); 
 		}
 	}
-	statements[statementCount++] = recoveredStatement;
+	this.statements[this.statementCount++] = recoveredStatement;
 }
 /* 
  * Answer the associated parsed structure
  */
 public AstNode parseTree(){
-	return blockDeclaration;
+	return this.blockDeclaration;
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered block:\n"); //$NON-NLS-1$
-	blockDeclaration.print(tab + 1, result);
+	this.blockDeclaration.print(tab + 1, result);
 	if (this.statements != null) {
 		for (int i = 0; i < this.statementCount; i++) {
 			result.append("\n"); //$NON-NLS-1$
@@ -211,14 +211,14 @@ public String toString(int tab) {
 public Block updatedBlock(){
 
 	// if block was not marked to be preserved or empty, then ignore it
-	if (!preserveContent || statementCount == 0) return null;
+	if (!this.preserveContent || this.statementCount == 0) return null;
 
-	Statement[] updatedStatements = new Statement[statementCount];
+	Statement[] updatedStatements = new Statement[this.statementCount];
 	int updatedCount = 0;
 	
 	// only collect the non-null updated statements
-	for (int i = 0; i < statementCount; i++){
-		Statement updatedStatement = statements[i].updatedStatement();
+	for (int i = 0; i < this.statementCount; i++){
+		Statement updatedStatement = this.statements[i].updatedStatement();
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
 		}
@@ -226,14 +226,14 @@ public Block updatedBlock(){
 	if (updatedCount == 0) return null; // not interesting block
 
 	// resize statement collection if necessary
-	if (updatedCount != statementCount){
-		blockDeclaration.statements = new Statement[updatedCount];
-		System.arraycopy(updatedStatements, 0, blockDeclaration.statements, 0, updatedCount);
+	if (updatedCount != this.statementCount){
+		this.blockDeclaration.statements = new Statement[updatedCount];
+		System.arraycopy(updatedStatements, 0, this.blockDeclaration.statements, 0, updatedCount);
 	} else {
-		blockDeclaration.statements = updatedStatements;
+		this.blockDeclaration.statements = updatedStatements;
 	}
 
-	return blockDeclaration;
+	return this.blockDeclaration;
 }
 /*
  * Rebuild a statement from the nested structure which is in scope
@@ -247,19 +247,19 @@ public Statement updatedStatement(){
  * in which case both the currentElement is exited
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
-	if ((--bracketBalance <= 0) && (parent != null)){
+	if ((--this.bracketBalance <= 0) && (this.parent != null)){
 		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 
 		/* if the block is the method body, then it closes the method too */
 		RecoveredMethod method = enclosingMethod();
 		if (method != null && method.methodBody == this){
-			return parent.updateOnClosingBrace(braceStart, braceEnd);
+			return this.parent.updateOnClosingBrace(braceStart, braceEnd);
 		}
 		RecoveredInitializer initializer = enclosingInitializer();
 		if (initializer != null && initializer.initializerBody == this){
-			return parent.updateOnClosingBrace(braceStart, braceEnd);
+			return this.parent.updateOnClosingBrace(braceStart, braceEnd);
 		}
-		return parent;
+		return this.parent;
 	}
 	return this;
 }
@@ -287,14 +287,14 @@ public void updateParseTree(){
 public Statement updateStatement(){
 
 	// if block was closed or empty, then ignore it
-	if (this.blockDeclaration.sourceEnd != 0 || statementCount == 0) return null;
+	if (this.blockDeclaration.sourceEnd != 0 || this.statementCount == 0) return null;
 
-	Statement[] updatedStatements = new Statement[statementCount];
+	Statement[] updatedStatements = new Statement[this.statementCount];
 	int updatedCount = 0;
 	
 	// only collect the non-null updated statements
-	for (int i = 0; i < statementCount; i++){
-		Statement updatedStatement = statements[i].updatedStatement();
+	for (int i = 0; i < this.statementCount; i++){
+		Statement updatedStatement = this.statements[i].updatedStatement();
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
 		}
@@ -302,14 +302,14 @@ public Statement updateStatement(){
 	if (updatedCount == 0) return null; // not interesting block
 
 	// resize statement collection if necessary
-	if (updatedCount != statementCount){
-		blockDeclaration.statements = new Statement[updatedCount];
-		System.arraycopy(updatedStatements, 0, blockDeclaration.statements, 0, updatedCount);
+	if (updatedCount != this.statementCount){
+		this.blockDeclaration.statements = new Statement[updatedCount];
+		System.arraycopy(updatedStatements, 0, this.blockDeclaration.statements, 0, updatedCount);
 	} else {
-		blockDeclaration.statements = updatedStatements;
+		this.blockDeclaration.statements = updatedStatements;
 	}
 
-	return blockDeclaration;
+	return this.blockDeclaration;
 }
 
 /*
@@ -329,8 +329,8 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	
 	/* do not consider a local variable starting passed the block end (if set)
 		it must be belonging to an enclosing block */
-	if (blockDeclaration.sourceEnd != 0 
-		&& fieldDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
+	if (this.blockDeclaration.sourceEnd != 0 
+		&& fieldDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
 		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 
