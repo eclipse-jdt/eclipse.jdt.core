@@ -1300,11 +1300,48 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"		Byte b = new Byte((byte)1);\n" + 
 				"		b++;\n" + 
 				"		if (b instanceof Byte) {\n" + 
-				"			System.out.println(\"SUCCESS\");\n" + 
+				"			System.out.println(\"SUCCESS\" + b);\n" + 
 				"		}\n" + 
 				"	}\n" + 
 				"}\n",
 			},
-			"SUCCESS");
-	}	
+			"SUCCESS2");
+	}
+	
+	public void test048() { // postfix increment
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static Byte b = new Byte((byte)1);\n" +
+				"	public static void main(String[] s) {\n" + 
+				"		b++;\n" + 
+				"		if (b instanceof Byte) {\n" + 
+				"			System.out.print(\"SUCCESS\" + b);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS2");
+	}
+	
+	public void test049() { // postfix increment
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static class Y {\n" + 
+				"		public static Byte b = new Byte((byte)1);\n" +
+				"	}\n" +
+				"	public static void main(String[] s) {\n" + 
+				"		X.Y.b++;\n" + 
+				"		if (X.Y.b instanceof Byte) {\n" + 
+				"			System.out.print(\"SUCCESS\" + X.Y.b);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS2");
+	}
+
 }
