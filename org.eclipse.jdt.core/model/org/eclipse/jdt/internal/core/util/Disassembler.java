@@ -332,10 +332,10 @@ public class Disassembler implements IClassFileDisassembler {
 				case IConstantPoolConstant.CONSTANT_Integer:
 					switch(fieldDescriptor[0]) {
 						case 'C' :
-							buffer.append("'" + Character.toString((char) constantPoolEntry.getIntegerValue()) + "'"); //$NON-NLS-1$//$NON-NLS-2$
+							buffer.append("'" + (char) constantPoolEntry.getIntegerValue() + "'"); //$NON-NLS-1$//$NON-NLS-2$
 							break;
 						case 'Z' :
-							buffer.append(Boolean.toString(constantPoolEntry.getIntegerValue() == 1));
+							buffer.append(constantPoolEntry.getIntegerValue() == 1 ? "true" : "false");//$NON-NLS-1$//$NON-NLS-2$
 							break;
 						case 'B' :
 							buffer.append((byte) constantPoolEntry.getIntegerValue());
