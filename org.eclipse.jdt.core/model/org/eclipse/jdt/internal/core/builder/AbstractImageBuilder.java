@@ -93,6 +93,11 @@ public void acceptResult(CompilationResult result) {
 		ArrayList definedTypeNames = new ArrayList(length);
 		for (int i = 0; i < length; i++) {
 			ClassFile classFile = classFiles[i];
+			if (classFile.referenceBinding != null && classFile.referenceBinding.isHierarchyInconsistent())
+				// ensure that this file is always retrieved from source for the rest of the build
+				if (!problemSourceFiles.contains(compilationUnit))
+					problemSourceFiles.add(compilationUnit);
+
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
 			boolean isNestedType = classFile.enclosingClassFile != null;
@@ -310,32 +315,10 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 	for (int i = 0, l = problems.length; i < l; i++) {
 		IProblem problem = problems[i];
 		int id = problem.getID();
-		switch (id) {
-			case IProblem.IsClassPathCorrect :
-				JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
-				String[] args = problem.getArguments();
-				missingClassFile = args[0];
-				break;
-
-			case IProblem.UndefinedType:
-			case IProblem.NotVisibleType :
-			case IProblem.AmbiguousType :
-			case IProblem.InternalTypeNameProvided :
-			case IProblem.InheritedTypeHidesEnclosingName :
-			    // TODO (kent) shouldn't it rather record the fact hierarchy is broken differently ? through the compilation result ? 
-			    if (!ProblemReporter.SUPER_TYPE_PROBLEM.equals(problem.getArguments()[1])) { // is problem affected a supertype ?
-			        break;
-			    }
-			    // fall through
-			case IProblem.SuperclassMustBeAClass :
-			case IProblem.SuperInterfaceMustBeAnInterface :
-			case IProblem.HierarchyCircularitySelfReference :
-			case IProblem.HierarchyCircularity :
-			case IProblem.HierarchyHasProblems :
-				// ensure that this file is always retrieved from source for the rest of the build
-				if (!problemSourceFiles.contains(sourceFile))
-					problemSourceFiles.add(sourceFile);
-				break;
+		if (id == IProblem.IsClassPathCorrect) {
+			JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
+			String[] args = problem.getArguments();
+			missingClassFile = args[0];
 		}
 
 		if (id != IProblem.Task) {
