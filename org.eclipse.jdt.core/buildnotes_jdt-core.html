@@ -38,14 +38,18 @@
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK 3.1 - ?th June 2004 - J2SE 1.5 Preview - Codename "Cheetah"
-<br>Project org.eclipse.jdt.core v_500
+<br>Project org.eclipse.jdt.core v_500 (Cheetah06)
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_500">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
 <li>From target 1.5 on, the JSR bytecode instruction is no longer generated. As a consequence, the 
     corresponding compiler option status will be ignored as soon as -target 1.5 is specified.
-</li>    
+</li>
+<li>Batch compiler defaults to 1.5 source and target, when toggled in 1.5 compliant mode ("-1.5").
+</li>
+<li>Added support for generics to JavaModel, thus enabling editor problem reconciling, outliner, type hierarchies. </li>
+<li>Improved codeassist and codeselect handling of generics </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
