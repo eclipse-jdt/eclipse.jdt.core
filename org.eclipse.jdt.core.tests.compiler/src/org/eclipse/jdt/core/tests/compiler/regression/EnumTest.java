@@ -717,12 +717,14 @@ public class EnumTest extends AbstractComparisonTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
-				"public final enum X {}\n" + 
+				"public final enum X {\n" +
+				"	FOO() {}\n" +
+				"}\n" + 
 				"\n",
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
-			"	public final enum X {}\n" + 
+			"	public final enum X {\n" + 
 			"	                  ^\n" + 
 			"Illegal modifier for the enum X; only public & abstract are permitted\n" + 
 			"----------\n");

@@ -245,7 +245,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (receiverType == null) {
 			hasError = true;
 		} else if (((ReferenceBinding) receiverType).isFinal() && this.anonymousType != null) {
-			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+			if (!receiverType.isEnum()) {
+				scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+			}
 			hasError = true;
 		}
 		// resolve type arguments (for generic constructor call)
