@@ -191,7 +191,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -199,7 +200,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 				for (int i = 0; i < length; i++) {
 					buffer.append(SortElementBuilder.this.source, start, end - start + 1);
-					this.children[i].generateSource(buffer, lineSeparator);
+					this.children[i].generateSource(buffer);
 					if (i < length - 1) {
 						start = this.children[i].sourceEnd + 1;
 					} else {
@@ -373,7 +374,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -381,7 +383,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 				for (int i = 0; i < length; i++) {
 					buffer.append(SortElementBuilder.this.source, start, end - start + 1);
-					this.children[i].generateSource(buffer, lineSeparator);
+					this.children[i].generateSource(buffer);
 					if (i < length - 1) {
 						start = this.children[i].sourceEnd + 1;
 					} else {
@@ -398,7 +400,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				buffer.append(SortElementBuilder.this.source, this.sourceStart, this.declarationSourceEnd - this.sourceStart + 1);
 			}	
 		}
-		protected void generateReduceSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateReduceSource(StringBuffer buffer) {
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.nameSourceStart;
@@ -406,7 +408,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	
 				for (int i = 0; i < length; i++) {
 					buffer.append(SortElementBuilder.this.source, start, end - start + 1);
-					this.children[i].generateSource(buffer, lineSeparator);
+					this.children[i].generateSource(buffer);
 					if (i < length - 1) {
 						start = this.children[i].sourceEnd + 1;
 					} else {
@@ -425,10 +427,10 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		}		
 	}
 	
-	class SortMultipleFielDeclaration extends SortElement {
+	class SortMultipleFieldDeclaration extends SortElement {
 		int declarationStart;
 		
-		SortMultipleFielDeclaration(SortFieldDeclaration fieldDeclaration) {
+		SortMultipleFieldDeclaration(SortFieldDeclaration fieldDeclaration) {
 			super(fieldDeclaration.declarationStart, fieldDeclaration.modifiers);
 			this.declarationStart = fieldDeclaration.declarationStart;
 			this.id = MULTIPLE_FIELD;
@@ -498,14 +500,16 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.fieldCounter;
 			int start = this.innerFields[0].sourceStart;
 			int end = this.innerFields[0].nameSourceStart - 1;
 			buffer.append(SortElementBuilder.this.source, start, end - start + 1);
 			
 			for (int i = 0; i < length; i++) {
-				this.innerFields[i].generateReduceSource(buffer, lineSeparator);
+				this.innerFields[i].newSourceStart = this.newSourceStart;
+				this.innerFields[i].generateReduceSource(buffer);
 				if (i < length - 1) {
 					start = this.innerFields[i].sourceEnd + 1;
 					end = this.innerFields[i + 1].nameSourceStart - 1;
@@ -545,7 +549,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -553,7 +558,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 				for (int i = 0; i < length; i++) {
 					buffer.append(SortElementBuilder.this.source, start, end - start + 1);
-					this.children[i].generateSource(buffer, lineSeparator);
+					this.children[i].generateSource(buffer);
 					if (i < length - 1) {
 						start = this.children[i].sourceEnd + 1;
 					} else {
@@ -653,7 +658,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -662,7 +668,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				buffer.append(SortElementBuilder.this.source, start, end - start);
 				
 				for (int i = 0; i < length; i++) {
-					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer, lineSeparator);
+					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer);
 				}
 				start = this.lastChildBeforeSorting.sourceEnd + 1;
 				buffer.append(SortElementBuilder.this.source, start, this.sourceEnd - start + 1);
@@ -732,13 +738,14 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		/**
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
-		void generateSource(StringBuffer buffer, String lineSeparator) {
+		protected void generateSource(StringBuffer buffer) {
+			super.generateSource(buffer);
 			int length = this.children_count;
 			if (length != 0) {
 				int end = this.firstChildBeforeSorting.sourceStart;
 				buffer.append(SortElementBuilder.this.source, 0, end);
 				for (int i = 0; i < length; i++) {
-					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer, lineSeparator);
+					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer);
 				}
 				int start = this.lastChildBeforeSorting.sourceEnd + 1;
 				buffer.append(SortElementBuilder.this.source, start, this.sourceEnd - start + 1);
@@ -774,11 +781,10 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		
 	public String getSource() {
 		StringBuffer buffer = new StringBuffer();
-		String lineSeparator = Util.findLineSeparator(this.source);
-		if (lineSeparator == null) {
-			lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
+		this.compilationUnit.generateSource(buffer);
+		if (this.positionsToMap != null) {
+			compilationUnit.traverseChildrenLast(new SortJavaElement.PositionsBuilder(this.positionsToMap));
 		}
-		this.compilationUnit.generateSource(buffer, lineSeparator);
 		return buffer.toString();
 	}
 
@@ -812,6 +818,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	void sort() {
+		if (this.positionsToMap != null) {
+			compilationUnit.traverseChildrenFirst(new SortJavaElement.PositionsMapper(this.positionsToMap));
+		}
 		compilationUnit.sort();
 	}
 
@@ -874,11 +883,11 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				if (currentElementChildren != null) {
 					SortElement previousElement = this.currentElement.children[this.currentElement.children_count - 1];
 					if (previousElement.id == SortJavaElement.FIELD && ((SortFieldDeclaration) previousElement).declarationStart == declarationStart) {
-						SortMultipleFielDeclaration multipleFielDeclaration = new SortMultipleFielDeclaration((SortFieldDeclaration) previousElement);
+						SortMultipleFieldDeclaration multipleFielDeclaration = new SortMultipleFieldDeclaration((SortFieldDeclaration) previousElement);
 						multipleFielDeclaration.addField(fieldDeclaration);
 						this.currentElement.children[this.currentElement.children_count - 1] = multipleFielDeclaration;
-					} else if (previousElement.id == SortJavaElement.MULTIPLE_FIELD && ((SortMultipleFielDeclaration) previousElement).declarationStart == declarationStart) {
-						((SortMultipleFielDeclaration) previousElement).addField(fieldDeclaration);
+					} else if (previousElement.id == SortJavaElement.MULTIPLE_FIELD && ((SortMultipleFieldDeclaration) previousElement).declarationStart == declarationStart) {
+						((SortMultipleFieldDeclaration) previousElement).addField(fieldDeclaration);
 					} else {
 						this.currentElement.addChild(fieldDeclaration);
 					}
@@ -969,7 +978,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		if (this.currentElement.children != null) {
 			SortElement element = this.currentElement.children[this.currentElement.children_count - 1];
 			if (element.id == SortJavaElement.MULTIPLE_FIELD) {
-				SortMultipleFielDeclaration multipleFielDeclaration = (SortMultipleFielDeclaration) element;
+				SortMultipleFieldDeclaration multipleFielDeclaration = (SortMultipleFieldDeclaration) element;
 				multipleFielDeclaration.innerFields[multipleFielDeclaration.fieldCounter - 1].declarationSourceEnd = normalizedDeclarationSourceEnd;
 				multipleFielDeclaration.sourceEnd = normalizedDeclarationSourceEnd;
 			}
