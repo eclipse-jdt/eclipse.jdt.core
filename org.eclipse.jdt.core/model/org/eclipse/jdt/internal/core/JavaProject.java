@@ -485,7 +485,7 @@ public class JavaProject
 	void createClasspathProblemMarker(
 		String message,
 		int severity,
-		boolean cycleDetected) {
+		boolean isCycleProblem) {
 		try {
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
@@ -498,7 +498,7 @@ public class JavaProject
 					message,
 					new Integer(severity), 
 					Util.bind("classpath.buildPath"),//$NON-NLS-1$
-					cycleDetected ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
+					isCycleProblem ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
 		} catch (CoreException e) {
 		}
 	}
