@@ -1145,4 +1145,25 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"false"
 		);
 	}
+	
+	public void test039() { // equal expression
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		int i = 0;\n" + 
+				"		if (i != null) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (i != null) {\n" + 
+			"	    ^^^^^^^^^\n" + 
+			"The operator != is undefined for the argument type(s) int, null\n" + 
+			"----------\n"
+		);
+	}	
 }
