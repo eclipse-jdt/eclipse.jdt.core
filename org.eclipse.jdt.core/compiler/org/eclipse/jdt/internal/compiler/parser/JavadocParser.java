@@ -193,8 +193,11 @@ public class JavadocParser extends AbstractCommentParser {
 				while (ptr >= 0) {
 					Object node = this.sourceParser.astStack[ptr];
 					if (node instanceof TypeDeclaration) {
-						name = ((TypeDeclaration)node).name;
-						break;
+						TypeDeclaration typeDecl = (TypeDeclaration) node;
+						if (typeDecl.bodyEnd == 0) { // type declaration currenly parsed
+							name = typeDecl.name;
+							break;
+						}
 					}
 					ptr--;
 				}

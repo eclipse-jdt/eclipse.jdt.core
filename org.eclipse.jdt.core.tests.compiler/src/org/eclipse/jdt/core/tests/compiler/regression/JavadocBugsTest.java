@@ -3750,4 +3750,32 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+
+	/**
+	 * Bug 87404: [javadoc] Unexpected not defined warning on constructor
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87404"
+	 */
+	public void testBug87404() {
+		runConformTest(
+			new String[] {
+				"p/A.java",
+				"package p;\n" + 
+				"class A {\n" + 
+				"	A(char c) {}\n" + 
+				"	class B {\n" + 
+				"		B(Exception ex) {}\n" + 
+				"	}\n" + 
+				"	void foo() {}\n" + 
+				"    /**\n" + 
+				"     * Link {@link #A(char)} OK \n" + 
+				"     * Link {@link #A(String)} OK\n" + 
+				"     * Link {@link #foo()} OK\n" + 
+				"     * Link {@link #bar()} OK\n" + 
+				"     */\n" + 
+				"    public A(String str) {}\n" + 
+				"	void bar() {}\n" + 
+				"}"
+			}
+		);
+	}
 }
