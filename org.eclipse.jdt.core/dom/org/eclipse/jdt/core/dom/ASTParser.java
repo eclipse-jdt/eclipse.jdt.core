@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -647,6 +648,56 @@ public class ASTParser {
 			} else {
 				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, monitor);
 			}
+		} finally {
+	   	   // re-init defaults to allow reuse (and avoid leaking)
+	   	   initializeDefaults();
+		}
+	}
+	
+	/**
+     * Creates bindings for a batch of Java elements. These elements are either 
+     * enclosed in {@link ICompilationUnit}s or in {@link IClassFile}s.
+     * <p>
+     * All enclosing compilation units and class files must
+     * come from the same Java project, which must be set beforehand
+     * with <code>setProject</code>.
+     * </p>
+     * <p>
+     * All elements must exist. If one doesn't exist, an <code>IllegalStateException</code>
+     * is thrown.
+     * </p>
+     * <p>
+     * The returned array has the same size as the given elements array. At a given position
+     * it contains the binding of the corresponding Java element, or <code>null</code> 
+     * if no binding could be created. 
+     * </p>
+	 * <p>
+	 * Note also the following parser parameters are used, regardless of what
+	 * may have been specified:
+	 * <ul>
+	 * <li>The {@linkplain #setResolveBindings(boolean) binding resolution flag} is <code>true</code<</li>
+	 * <li>The {@linkplain #setKind(int) parser kind} is <code>K_COMPILATION_UNIT</code></li>
+	 * <li>The {@linkplain #setSourceRange(int,int) source range} is <code>(0, -1)</code></li>
+	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>
+	 * </ul>
+	 * </p>
+     * <p>
+     * A successful call to this method returns all settings to their
+     * default values so the object is ready to be reused.
+     * </p>
+     * 
+     * @param elements the Java elements to create bindings for
+     * @return the bindings for the given Java elements, possibly containing <code>null</code>s
+     *              if some bindings could not be created
+	 * @exception IllegalStateException if the settings provided
+	 * are insufficient, contradictory, or otherwise unsupported
+	 * @since 3.1
+     */
+	public IBinding[] createBindings(IJavaElement[] elements, IProgressMonitor monitor) {
+		try {
+			if (this.project == null)
+				throw new IllegalStateException("project not specified"); //$NON-NLS-1$
+			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
 		} finally {
 	   	   // re-init defaults to allow reuse (and avoid leaking)
 	   	   initializeDefaults();

@@ -84,7 +84,7 @@ class BindingKey {
 	  * Otherwise return the given type binding.
 	  * Returns null if the given type binding is null.
 	  */
-	 Binding getArrayBinding(int dim, TypeBinding binding) {
+	 TypeBinding getArrayBinding(int dim, TypeBinding binding) {
 	 	if (binding == null) return null;
 	 	if (dim == 0) return binding;
 		return this.environment.createArrayType(binding, dim);
@@ -120,7 +120,7 @@ class BindingKey {
 	 * Returns null if not found.
 	 * This key's scanner should be positioned on the token after the top level type.
 	 */
-	Binding getBinaryBinding() {
+	TypeBinding getBinaryBinding() {
 		TypeBinding binding = this.environment.getType(this.compoundName);
 		return getArrayBinding(this.dimension, binding);
 	}
@@ -154,11 +154,9 @@ class BindingKey {
 		 			if (baseTypeBinding != null) 
 	 					return getArrayBinding(this.dimension, baseTypeBinding);
 	 			}
-	 			if (parsedUnit == null) 
-	 				return getBinaryBinding();
 	 			char[] typeName = this.compoundName[this.compoundName.length-1];
 	 			int dim = this.dimension;
-	 			TypeBinding binding = getTypeBinding(parsedUnit, parsedUnit.types, typeName);
+	 			TypeBinding binding = parsedUnit == null ? getBinaryBinding() : getTypeBinding(parsedUnit, parsedUnit.types, typeName);
 	 			if (binding == null) return null;
  				TypeBinding typeBinding = null;
  				if (this.scanner.isAtParametersStart()) {

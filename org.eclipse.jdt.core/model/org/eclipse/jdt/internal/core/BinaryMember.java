@@ -49,6 +49,10 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	if (openableParentInfo == null) return;
 	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()
+ */
+public abstract String getBindingKey() throws JavaModelException;
 /*
  * @see ISourceReference
  */

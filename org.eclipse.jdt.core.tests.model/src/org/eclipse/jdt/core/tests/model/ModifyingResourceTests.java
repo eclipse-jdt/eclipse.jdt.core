@@ -212,6 +212,15 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
 	};
 	getWorkspace().run(runnable, null);
 }
+protected IClassFile createClassFile(String libPath, String classFileRelativePath, String contents) throws CoreException {
+	IClassFile classFile = getClassFile(libPath + "/" + classFileRelativePath);
+	IJavaProject javaProject = classFile.getJavaProject();
+	IProject project = javaProject.getProject();
+	String sourcePath = project.getLocation().toOSString() + File.separatorChar + classFile.getType().getElementName() + ".java";
+	Util.compile(new String[] {sourcePath, contents}, javaProject.getOptions(true), getFolder(libPath).getLocation().toOSString());
+	project.refreshLocal(IResource.DEPTH_INFINITE, null);
+	return classFile;
+}
 /*
  * Returns a new classpath from the given folders and their respective exclusion/inclusion patterns.
  * The folder path is an absolute workspace-relative path.

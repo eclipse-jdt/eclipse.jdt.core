@@ -11,11 +11,17 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -40,16 +46,31 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 class CompilationUnitResolver extends Compiler {
 	
+	/* A list of int */
+	static class IntArrayList {
+		public int[] list = new int[5];
+		public int length = 0;
+		public void add(int i) {
+			if (this.list.length == this.length) {
+				System.arraycopy(this.list, 0, this.list = new int[this.length*2], 0, this.length);
+			}
+				this.list[this.length++] = i;
+			}
+		}
+		
 	/*
 	 * The sources that were requested.
 	 * Map from file name (char[]) to ICompilationUnit.
@@ -459,6 +480,135 @@ class CompilationUnitResolver extends Compiler {
 			}
 			// unit cleanup is done by caller
 		}
+	}
+	public static IBinding[] resolve(
+		final IJavaElement[] elements,
+		int apiLevel,
+		Map compilerOptions,
+		IJavaProject javaProject,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor) {
+
+		final int length = elements.length;
+		final HashMap sourceElementPositions = new HashMap(); // a map from ICompilationUnit to int[] (positions in elements)
+		int cuNumber = 0;
+		final HashtableOfObjectToInt binaryElementPositions = new HashtableOfObjectToInt(); // a map from String (binding key) to int (position in elements)
+		for (int i = 0; i < length; i++) {
+			IJavaElement element = elements[i];
+			if (!(element instanceof SourceRefElement))
+				throw new IllegalStateException(element + " is not part of a compilation unit or class file"); //$NON-NLS-1$
+			Object cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
+			if (cu != null) {
+				// source member
+				IntArrayList intList = (IntArrayList) sourceElementPositions.get(cu);
+				if (intList == null) {
+					sourceElementPositions.put(cu, intList = new IntArrayList());
+					cuNumber++;
+				}
+				intList.add(i);
+			} else {
+				// binary member
+				try {
+					String key = ((BinaryMember) element).getBindingKey();
+					binaryElementPositions.put(key, i);
+				} catch (JavaModelException e) {
+					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
+				}
+			}	
+		}
+		ICompilationUnit[] cus = new ICompilationUnit[cuNumber];
+		sourceElementPositions.keySet().toArray(cus);
+		
+		int bindingKeyNumber = binaryElementPositions.size();
+		String[] bindingKeys = new String[bindingKeyNumber];
+		binaryElementPositions.keysToArray(bindingKeys);
+		
+		class Requestor extends ASTRequestor {
+			IBinding[] bindings = new IBinding[length];
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				// TODO (jerome) optimize to visit the AST only once
+				IntArrayList intList = (IntArrayList) sourceElementPositions.get(source);
+				for (int i = 0; i < intList.length; i++) {
+					final int index = intList.list[i];
+					SourceRefElement element = (SourceRefElement) elements[index];
+					ISourceRange range = null;
+					try {
+						if (element instanceof IField || (element instanceof IType && ((IType) element).isAnonymous()))
+							range = ((IMember) element).getNameRange();
+						else
+							range = element.getSourceRange();
+					} catch (JavaModelException e) {
+						throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
+					}
+					final int rangeStart = range.getOffset();
+					final int rangeLength = range.getLength();
+					class DeclarationVisitor extends ASTVisitor {
+						public boolean visit(AnnotationTypeDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(AnnotationTypeMemberDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(AnonymousClassDeclaration node) {
+							ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node.getParent();
+							if (found(classInstanceCreation.getType()))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(EnumConstantDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveVariable();
+							return true;
+						}
+						public boolean visit(EnumDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(ImportDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(MethodDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(TypeDeclaration node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(TypeParameter node) {
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						public boolean visit(VariableDeclarationFragment node) {						
+							if (found(node))
+								bindings[index] = node.resolveBinding();
+							return true;
+						}
+						protected boolean found(ASTNode node) {
+							return node.getStartPosition() == rangeStart && node.getLength() == rangeLength;
+						}
+					}
+					ast.accept(new DeclarationVisitor());
+				}
+			}
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				int index = binaryElementPositions.get(bindingKey);
+				this.bindings[index] = binding;
+			}
+		}
+		Requestor requestor = new Requestor();
+		resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, monitor);
+		return requestor.bindings;
 	}
 	/*
 	 * When unit result is about to be accepted, removed back pointers

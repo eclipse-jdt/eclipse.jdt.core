@@ -32,6 +32,16 @@ public boolean equals(Object o) {
 	return super.equals(o);
 }
 /*
+ * @see BinaryMember
+ */
+public String getBindingKey() throws JavaModelException {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append( ((BinaryMember) getParent()).getBindingKey());
+	buffer.append('.');
+	buffer.append(getElementName());
+	return buffer.toString();
+}
+/*
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
