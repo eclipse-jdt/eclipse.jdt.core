@@ -356,7 +356,16 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
-
+	/*
+	 * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
+	 */
+	public IJavaElement getWorkingCopy(
+		IProgressMonitor monitor,
+		IBufferFactory factory,
+		IProblemRequestor problemRequestor) 
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
 	/*
 	 * @see IWorkingCopy#hasManagedWorkingCopy()
 	 */

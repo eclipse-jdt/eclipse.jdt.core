@@ -43,8 +43,14 @@ public class WorkingCopy extends CompilationUnit {
 /**
  */
 protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory) {
+	this(parent, name, bufferFactory, null);
+}
+/**
+ */
+protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory, IProblemRequestor problemRequestor) {
 	super(parent, name);
 	this.bufferFactory = bufferFactory;
+	this.problemRequestor = problemRequestor;
 	this.useCount = 1;
 }
 /**
@@ -296,9 +302,7 @@ public IMarker[] reconcile() throws JavaModelException {
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	if (this.problemRequestor != null) this.problemRequestor.clear();
-	this.makeConsistent(this.problemRequestor, this.problemRequestor != null, null);
-	//if (this.problemRequestor != null) this.problemRequestor.done();
+	this.makeConsistent(this.problemRequestor, null);
 
 	// build the deltas
 	deltaBuilder.buildDeltas();
@@ -326,7 +330,7 @@ public void reconcile(IProblemRequestor problemRequestor) throws JavaModelExcept
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	this.makeConsistent(problemRequestor, problemRequestor != null, null);
+	this.makeConsistent(problemRequestor, null);
 
 	// build the deltas
 	deltaBuilder.buildDeltas();

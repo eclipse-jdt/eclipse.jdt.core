@@ -174,6 +174,32 @@ IJavaElement getWorkingCopy() throws JavaModelException;
  */
 IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**
+ * Returns a new working copy of this element using the given factory to create
+ * the buffer, or this element if this element is already a working copy.
+ * Note that this factory will be used for the life time of this working copy, i.e. if the 
+ * working copy is closed then reopened, this factory will be reused.
+ * The buffer will be automatically initialized with the original's compilation unit content
+ * upon creation.
+ *
+ * Note: if intending to share a working copy amongst several clients, then 
+ * <code>#getSharedWorkingCopy</code> should be used insted.
+ *
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
+ *                 or <code>null</code> if no progress should be reported 
+ * @param factory the factory that creates a buffer that is used to get the content of the working copy
+ *                 or <code>null</code> if the internal factory should be used
+ * @param problemRequestor a requestor which will get notified of problems detected during
+ * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
+ * 	that the client is not interested in problems.
+ * @exception JavaModelException if the contents of this element can
+ *   not be determined. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 2.0
+ */
+IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException;
+/**
  * Returns whether this working copy's original element's content
  * has not changed since the inception of this working copy.
  */

@@ -59,18 +59,24 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 	CompilationUnitVisitor.visit(this, visitor);
 } 
 
-protected void buildStructure(OpenableElementInfo info, IProblemRequestor problemRequestor, boolean reportProblemInsideMethods, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
 
 	// remove existing (old) infos
 	removeInfo();
+	
+	//if (problemRequestor != null) 	problemRequestor.clear();
+
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), problemRequestor, reportProblemInsideMethods));
+	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), problemRequestor));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
 		fgJavaModelManager.putInfo(key, value);
 	}
+
+//	if (problemRequestor != null) 	problemRequestor.done();
+
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
@@ -216,10 +222,6 @@ public IJavaElement findSharedWorkingCopy() {
 }
 
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
-	return this.generateInfos(info, pm, newElements, underlyingResource, problemRequestor, false);
-}
-
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor, boolean reportProblemInsideMethods) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -233,7 +235,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements, problemRequestor);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
-		parser.parseCompilationUnit(this, reportProblemInsideMethods);
+		parser.parseCompilationUnit(this, problemRequestor != null);
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
 			unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
@@ -472,12 +474,20 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
+	return getWorkingCopy(pm, factory, null);
+}
+
+/**
+ * @see IWorkingCopy
+ */
+public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory, problemRequestor);
 	// open the working copy now to ensure contents are that of the current state of this element
 	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
 	workingCopy.open(pm, buffer);
 	return workingCopy;
 }
+
 /**
  * @see Openable
  */
@@ -526,16 +536,13 @@ public boolean isWorkingCopy() {
  * @see IOpenable
  */
 public void makeConsistent(IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
-	this.makeConsistent(problemRequestor, false, pm);
-}
-
-public void makeConsistent(IProblemRequestor problemRequestor, boolean reportProblemInsideMethods, IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, problemRequestor, reportProblemInsideMethods, pm);
+		buildStructure(info, problemRequestor, pm);
 	}
 }
+
 /**
  * @see ISourceManipulation
  */

@@ -34,7 +34,7 @@ public interface IProblemRequestor {
 	 * Notification sent before starting a Java operation which can cause problems to be reported.
 	 * Typically, this would tell the problem collector to clear previously recorded problems.
 	 */
-	void clear();
+	//void clear();
 
 	/**
 	 * Notification sent after having completed the Java operation which caused problems to be reported.
