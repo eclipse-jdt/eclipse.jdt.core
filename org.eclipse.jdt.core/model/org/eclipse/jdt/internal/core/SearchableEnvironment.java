@@ -232,7 +232,7 @@ public class SearchableEnvironment
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					storage.acceptClass(packageName, simpleTypeName, 0);
+					storage.acceptClass(packageName, simpleTypeName, IConstants.AccPublic);
 				}
 				public void acceptInterface(
 					char[] packageName,
@@ -243,7 +243,7 @@ public class SearchableEnvironment
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					storage.acceptInterface(packageName, simpleTypeName, 0);
+					storage.acceptInterface(packageName, simpleTypeName, IConstants.AccPublic);
 				}
 			};
 			try {

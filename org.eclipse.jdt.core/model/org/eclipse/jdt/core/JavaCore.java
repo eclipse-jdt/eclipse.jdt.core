@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+import org.eclipse.jdt.internal.codeassist.impl.CompletionOptions;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -121,6 +122,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String OPTION_CompactAssignment = FormatterOptions.OPTION_CompactAssignment;
 	public static final String OPTION_TabulationChar = FormatterOptions.OPTION_TabulationChar;
 	public static final String OPTION_TabulationSize = FormatterOptions.OPTION_TabulationSize;
+	
+	/**
+	 * Completion Engine options
+	 */
+	public static final String OPTION_VisibilitySensitivity = CompletionOptions.OPTION_PerformVisibilityCheck;
+	public static final String OPTION_EntireWordReplacement = CompletionOptions.OPTION_EntireWordReplacement;
 	
 	/**
 	 * JavaCore options
