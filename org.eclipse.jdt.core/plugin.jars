@@ -5,6 +5,6 @@ jdtcore.jar=\
 	compiler,\
 	eval,\
 	formatter,\
-	jdom,\
+	dom,\
 	model, \
 	search

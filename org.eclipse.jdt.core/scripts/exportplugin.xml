@@ -45,7 +45,7 @@
 		    <zipfileset dir="eval" />
 		    <zipfileset dir="model" />
 		    <zipfileset dir="formatter" />
-		    <zipfileset dir="jdom" />
+		    <zipfileset dir="dom" />
   		</zip>		
 	</target>
 </project>
