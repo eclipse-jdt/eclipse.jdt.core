@@ -51,6 +51,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int recoveredStaticInitializerStart;
 	protected int lastIgnoredToken, nextIgnoredToken;
 	protected int lastErrorEndPosition;
+	protected boolean ignoreNextOpeningBrace;
 		
 	// assert is 1.4 feature only
 	protected long sourceLevel;
@@ -1771,10 +1772,8 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 
 protected void consumeArrayCreationHeader() {
 	if(currentElement != null && currentToken == TokenNameLBRACE) {
-		currentToken = 0;
-		lastIgnoredToken = -1;
-		lastCheckPoint = scanner.currentPosition;
-		currentElement.bracketBalance++; 
+		ignoreNextOpeningBrace = true;
+		currentElement.bracketBalance++;
 	}
 }
 protected void consumeArrayCreationExpressionWithInitializer() {
@@ -2403,9 +2402,7 @@ protected void consumeDimWithOrWithOutExpr() {
 	pushOnExpressionStack(null);
 	
 	if(currentElement != null && currentToken == TokenNameLBRACE) {
-		currentToken = 0;
-		lastIgnoredToken = -1;
-		lastCheckPoint = scanner.currentPosition;
+		ignoreNextOpeningBrace = true;
 		currentElement.bracketBalance++; 
 	}
 }
@@ -8000,8 +7997,10 @@ public void recoveryExitFromVariable() {
 public void recoveryTokenCheck() {
 	switch (currentToken) {
 		case TokenNameLBRACE : {
-			RecoveredElement newElement = 
-				currentElement.updateOnOpeningBrace(scanner.currentPosition - 1);
+			RecoveredElement newElement = null;
+			if(!ignoreNextOpeningBrace) {
+				newElement = currentElement.updateOnOpeningBrace(scanner.currentPosition - 1);
+			}
 			lastCheckPoint = scanner.currentPosition;				
 			if (newElement != null){ // null means nothing happened
 				restartRecovery = true; // opening brace detected
@@ -8019,6 +8018,7 @@ public void recoveryTokenCheck() {
 			}
 		}
 	}
+	ignoreNextOpeningBrace = false;
 }
 protected void reportSyntaxError(int act, int currentKind, int topOfStackState) {
 

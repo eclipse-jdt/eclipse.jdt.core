@@ -5845,7 +5845,7 @@ public void test105() {
 		
 	String expectedDietUnitToString = 
 		"public class X {\n" +
-		"  static int B;\n" +
+		"  static int B = foo(new int[]{0,0,} , new int[]{0,0,});\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"  <clinit>() {\n" +
@@ -5856,7 +5856,7 @@ public void test105() {
 
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" +
-		"  static int B;\n" +
+		"  static int B = foo(new int[]{0,0,} , new int[]{0,0,});\n" +
 		"  public X() {\n" +
 		"    super();\n" +
 		"  }\n" +
@@ -5922,6 +5922,93 @@ public void test106() {
 		"  public X() {\n" +
 		"  }\n" +
 		"  clon foo();\n" +  
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
+public void test107() {
+	String s = 
+		"public class X {\n" +
+		"	int[] a = new int[]{0,0}, b = new int[]{0,0};\n" +
+		"	#\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" +
+		"  int[] a = new int[]{0,0,};\n" +
+		"  int[] b = new int[]{0,0,};\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" +
+		"  int[] a = new int[]{0,0,};\n" +
+		"  int[] b = new int[]{0,0,};\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" +
+		"  int[] a;\n" +
+		"  int[] b;\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
+public void test108() {
+	String s = 
+		"public class X {\n" +
+		"	int a = new int[]{0,0}, b = new int[]{0,0};\n" +
+		"	#\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" +
+		"  int a = new int[]{0,0,};\n" +
+		"  int b = new int[]{0,0,};\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" +
+		"  int a = new int[]{0,0,};\n" +
+		"  int b = new int[]{0,0,};\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" + 
+		"  int a;\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
 		"}\n";
 	
 	String testName = "";
