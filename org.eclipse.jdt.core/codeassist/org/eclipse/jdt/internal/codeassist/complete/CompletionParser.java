@@ -574,6 +574,11 @@ protected void consumeConditionalExpression(int op) {
 protected void consumeConstructorBody() {
 	super.consumeConstructorBody();
 	this.labelCounterPtr--;
+	if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
+}
+protected void consumeConstructorHeader() {
+	super.consumeConstructorHeader();
+	pushBlockInvocationPtr();
 }
 protected void consumeConstructorHeaderName() {
 
@@ -686,6 +691,12 @@ protected void consumeMethodHeaderName() {
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
 	this.labelCounterPtr--;
+	if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
+}
+
+protected void consumeMethodHeader() {
+	super.consumeMethodHeader();
+	pushBlockInvocationPtr();
 }
 protected void consumeModifiers() {
 	super.consumeModifiers();
