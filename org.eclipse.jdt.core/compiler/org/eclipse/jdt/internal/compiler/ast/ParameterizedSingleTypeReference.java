@@ -86,7 +86,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType) {
+	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
 
 		// handle the error here
 		this.constant = NotAConstant;
@@ -157,9 +157,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				    break checkGeneric;
 			return currentType;
 		}
-		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, enclosingType);
-		// check argument type compatibility now if not a class scope
-		if (!isClassScope) // otherwise will do it in Scope.connectTypeVariables()
+		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
+		// check argument type compatibility
+		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			for (int i = 0; i < argLength; i++)
 			    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
 					scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
@@ -199,16 +199,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return output;
 	}
 	
-	public TypeBinding resolveType(BlockScope scope) {
-	    return internalResolveType(scope, null);
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+	    return internalResolveType(scope, null, checkBounds);
 	}	
 
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope, null);
+	    return internalResolveType(scope, null, false /*no bounds check in classScope*/);
 	}	
 	
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-	    return internalResolveType(scope, enclosingType);
+	    return internalResolveType(scope, enclosingType, true/*check bounds*/);
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

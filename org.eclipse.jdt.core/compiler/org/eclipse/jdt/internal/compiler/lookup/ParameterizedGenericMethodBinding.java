@@ -214,24 +214,31 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
    		        break;
        		       
 			case Binding.PARAMETERIZED_TYPE:
-    	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-    	        TypeBinding[] originalArguments = originalParameterizedType.arguments;
-    	        if (originalArguments != null) {
-	    	        TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-	    	        if (substitutedArguments != originalArguments) {
-						identicalVariables: { // if substituted with original variables, then answer the generic type itself
-							TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-							length = originalVariables.length;
-							for (int i = 0; i < length; i++) {
-								if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-							}
-							return originalParameterizedType.type;
-						}    	        	
-	    	            return this.environment.createParameterizedType(
-	    	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType());
-	        	    } 
-    	        }
-    	        break;
+				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+				ReferenceBinding originalEnclosing = originalType.enclosingType();
+				ReferenceBinding substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
+				}
+				TypeBinding[] originalArguments = originalParameterizedType.arguments;
+				TypeBinding[] substitutedArguments = originalArguments;
+				if (originalArguments != null) {
+					substitutedArguments = Scope.substitute(this, originalArguments);
+				}
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+					identicalVariables: { // if substituted with original variables, then answer the generic type itself
+						if (substitutedEnclosing != originalEnclosing) break identicalVariables;
+						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
+						length = originalVariables.length;
+						for (int i = 0; i < length; i++) {
+							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
+						}
+						return originalParameterizedType.type;
+					}
+					return this.environment.createParameterizedType(
+							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
+				}
+				break;   		        
     	        
 			case Binding.ARRAY_TYPE:
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();
@@ -252,16 +259,22 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		        }
 		        break;
 
+
 			case Binding.GENERIC_TYPE:
 			    // treat as if parameterized with its type variables
 				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+				originalEnclosing = originalType.enclosingType();
+				substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
+				}
 				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
 				length = originalVariables.length;
 				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-				if (substitutedArguments != originalArguments) {
+				substitutedArguments = Scope.substitute(this, originalArguments);
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 					return this.environment.createParameterizedType(
-							originalGenericType, substitutedArguments, null);
+							originalGenericType, substitutedArguments, substitutedEnclosing);
 				}
 				break;
         }

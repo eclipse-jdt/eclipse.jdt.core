@@ -110,7 +110,12 @@ public TypeBinding resolveSuperType(ClassScope scope) {
 	}
 	return this.resolvedType;
 }
-public TypeBinding resolveType(BlockScope blockScope) {
+
+public final TypeBinding resolveType(BlockScope blockScope) {
+	return resolveType(blockScope, true /* checkbounds if any */);
+}
+
+public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
 	// handle the error here
 	this.constant = NotAConstant;
 	if (this.resolvedType != null) // is a shared type reference which was already resolved
@@ -146,7 +151,7 @@ public TypeBinding resolveType(ClassScope classScope) {
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
-    return resolveType(blockScope);
+    return resolveType(blockScope, true /* check bounds*/);
 }
 
 public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding genericType, int rank) {

@@ -748,22 +748,19 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	        ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	        if (this != otherParamType.type) 
 	            return false;
-	        ReferenceBinding enclosing = enclosingType();
-	        if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
-	            return false;
+            if (!isStatic()) { // static member types do not compare their enclosing
+		        ReferenceBinding enclosing = enclosingType();
+		        if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
+		            return false;
+            }
 	        int length = this.typeVariables == null ? 0 : this.typeVariables.length;
 	        TypeBinding[] otherArguments = otherParamType.arguments;
 	        int otherLength = otherArguments == null ? 0 : otherArguments.length;
 	        if (otherLength != length) 
 	            return false;
-	        // argument must be identical, only equivalence is allowed if wildcard other type
 	        for (int i = 0; i < length; i++) {
-	        	TypeBinding argument = this.typeVariables[i];
-	        	TypeBinding otherArgument = otherArguments[i];
-				if (!(argument == otherArgument
-						|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
+	        	if (!this.typeVariables[i].isTypeArgumentContainedBy(otherArguments[i]))
 					return false;
-				}
 	        }
 	        return true;
     	
@@ -924,7 +921,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 				TypeBinding fieldType = 
 					fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
 						? this // enum constant is implicitly of declaring enum type
-						: fieldDecl.type.resolveType(initializationScope);
+						: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
 				field.type = fieldType;
 				field.modifiers &= ~AccUnresolved;
 				if (fieldType == null) {
@@ -960,7 +957,13 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration
 	
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
-	if (typeParameters != null) methodDecl.scope.connectTypeVariables(typeParameters);
+	if (typeParameters != null) {
+		methodDecl.scope.connectTypeVariables(typeParameters);
+		// Perform deferred bound checks for type variables (only done after type variable hierarchy is connected)
+		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+			typeParameters[i].checkBounds(methodDecl.scope);
+		}
+	}
 	TypeReference[] exceptionTypes = methodDecl.thrownExceptions;
 	if (exceptionTypes != null) {
 		int size = exceptionTypes.length;
@@ -969,7 +972,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		int count = 0;
 		ReferenceBinding resolvedExceptionType;
 		for (int i = 0; i < size; i++) {
-			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope);
+			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/);
 			if (resolvedExceptionType == null) {
 				continue;
 			}
@@ -997,7 +1000,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		method.parameters = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			Argument arg = arguments[i];
-			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope);
+			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				foundArgProblem = true;
 			} else if (parameterType == VoidBinding) {
@@ -1025,7 +1028,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = null;
 			foundReturnTypeProblem = true;
 		} else {
-		    TypeBinding methodType = returnType.resolveType(methodDecl.scope);
+		    TypeBinding methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
 			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == VoidBinding) {

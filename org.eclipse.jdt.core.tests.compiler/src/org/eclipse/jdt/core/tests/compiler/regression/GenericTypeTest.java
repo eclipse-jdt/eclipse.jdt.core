@@ -9471,4 +9471,446 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 		customOptions,
 		null/*no custom requestor*/);
 	}
-}
+	// 76434
+	public void test363() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"import java.util.Set;\n" + 
+				"public class X {\n" + 
+				"  Set<Map.Entry<Integer, ?>> m_values;\n" + 
+				"  X(Map<Integer, ?> values) {\n" + 
+				"    m_values = values.entrySet();\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"");
+	}	
+	// check param type equivalences
+	public void test364() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"	\n" + 
+				"	void bar1(MX<Class<? extends String>> mxcs, MX<Class<? extends Object>> mxco) {\n" + 
+				"		mxco = mxcs;\n" + // wrong
+				"	}\n" + 
+				"	void bar1(Class<? extends String> cs, Class<? extends Object> co) {\n" + 
+				"		co = cs;\n" + // ok
+				"	}\n" + 
+				"	\n" + 
+				"}\n" + 
+				"class MX<E> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	mxco = mxcs;\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<? extends String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n");
+	}		
+	// check param type equivalences
+	public void test365() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Runnable> {\n" + 
+				"	\n" + 
+				"	class MX <U> {\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	MX<T> createMX() { return new MX<T>(); }\n" + 
+				"\n" + 
+				"	void foo(X<?> x, MX<?> mx) {\n" + 
+				"		mx = x.createMX();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	mx = x.createMX();\n" + 
+			"	     ^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X<?>.MX<?> to X<T>.MX<?>\n" + 
+			"----------\n");
+	}		
+	// check param type equivalences
+	public void test366() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"	\n" + 
+				"	void foo1(MX<Class<? extends Object>> target, MX<Class> value) {\n" + 
+				"		target= value; // foo1 - wrong\n" + 
+				"	}\n" + 
+				"	void foo2(MX<Class<? extends Object>> target, MX<Class<? extends String>> value) {\n" + 
+				"		target= value; // foo2 - wrong\n" + 
+				"	}\n" + 
+				"	void foo3(MX<Class<? extends Object>> target, MX<Class<? extends String>> value) {\n" + 
+				"		target= value; // foo3 - wrong\n" + 
+				"	}\n" + 
+				"	void foo4(MX<Class<? extends Object>> target, MX<Class<String>> value) {\n" + 
+				"		target= value; // foo4 - wrong\n" + 
+				"	}\n" + 
+				"	void foo5(MX<? extends Class> target, MX<Class> value) {\n" + 
+				"		target= value; // foo5\n" + 
+				"	}\n" + 
+				"	void foo6(MX<? super Class> target, MX<Class> value) {\n" + 
+				"		target= value; // foo6\n" + 
+				"	}\n" + 
+				"	void foo7(MX<Class<? extends Class>> target, MX<Class<Class>> value) {\n" + 
+				"		target= value; // foo7 - wrong\n" + 
+				"	}\n" + 
+				"	void foo8(MX<MX<? extends Class>> target, MX<MX<Class>> value) {\n" + 
+				"		target= value; // foo8 - wrong\n" + 
+				"	}\n" + 
+				"	void foo9(MX<? extends Object> target, MX<? extends String> value) {\n" + 
+				"		target= value; // foo9\n" + 
+				"	}\n" + 
+				"	void foo10(MX<? extends String> target, MX<? extends Object> value) {\n" + 
+				"		target= value; // foo10 - wrong\n" + 
+				"	}\n" + 
+				"	void foo11(MX<? super Object> target, MX<? super String> value) {\n" + 
+				"		target= value; // foo11 - wrong\n" + 
+				"	}\n" + 
+				"	void foo12(MX<? super String> target, MX<? super Object> value) {\n" + 
+				"		target= value; // foo12\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class MX<E> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	target= value; // foo1 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	target= value; // foo2 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<? extends String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	target= value; // foo3 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<? extends String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 13)\n" + 
+			"	target= value; // foo4 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<String>> to MX<Class<? extends Object>>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 22)\n" + 
+			"	target= value; // foo7 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<Class<Class>> to MX<Class<? extends Class>>\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 25)\n" + 
+			"	target= value; // foo8 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<MX<Class>> to MX<MX<? extends Class>>\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 31)\n" + 
+			"	target= value; // foo10 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<? extends Object> to MX<? extends String>\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 34)\n" + 
+			"	target= value; // foo11 - wrong\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from MX<? super String> to MX<? super Object>\n" + 
+			"----------\n");
+	}		
+	// check param type equivalences
+	public void test367() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"public class X { \n" + 
+				"	\n" + 
+				"	void foo1(MX<? extends MX> target, MX<MX<String>> value) {\n" + 
+				"		target= value; // foo1\n" + 
+				"	}\n" + 
+				"	void foo2(MX<?> target, MX<MX<String>> value) {\n" + 
+				"		target= value; // foo2\n" + 
+				"	}\n" + 
+				"	void foo3(MX<? super MX> target, MX<MX<String>> value) {\n" + 
+				"		target= value; // foo3\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class MX<E> {\n" + 
+				"}\n"	,
+			},
+			"");
+	}
+	// check param type equivalences
+	public void test368() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"public class X<T extends Runnable> {\n" + 
+				"	\n" + 
+				"	static class MX <U> {\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	MX<T> createMX() { return new MX<T>(); }\n" + 
+				"\n" + 
+				"	void foo(X<?> x, MX<?> mx) {\n" + 
+				"		mx = x.createMX();\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"");
+	}	
+	// bound check for Enum<T>
+	public void test369() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"public class X {\n" + 
+				"	\n" + 
+				"	<T extends Enum<T>> T foo(T t) { return null; }\n" + 
+				"}\n",
+			},
+			"");
+	}
+	// decoding raw binary type
+	public void test370() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+			"import java.lang.annotation.Annotation;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"import sun.reflect.annotation.AnnotationParser;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	{\n" + 
+			"		Map<Class, Annotation> map = AnnotationParser.parseAnnotations(null, null, null);\n" + 
+			"	}\n" + 
+			"}\n",
+			},
+			"");
+	}		
+	// X<? extends Y> is not compatible with X<Y>
+	public void test371() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",	
+				"public class X {\n" + 
+				"   	public void foo(XC<Runnable> target, XC<? extends Runnable> value) {\n" + 
+				"   		target = value;\n" + 
+				"   	}\n" + 
+				"}\n" + 
+				"class XC <E>{\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	target = value;\n" + 
+			"	         ^^^^^\n" + 
+			"Type mismatch: cannot convert from XC<? extends Runnable> to XC<Runnable>\n" + 
+			"----------\n");
+	}			
+	public void test372() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"import java.util.Iterator;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class X <K, V> {\n" + 
+				"\n" + 
+				"	void foo(Iterator<Map.Entry<K,V>> iter) {\n" + 
+				"		new XA.MXA<K,V>(iter.next());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XA <K, V> {\n" + 
+				"	static class MXA <K, V>  implements Entry<K,V> {\n" + 
+				"		MXA(Entry<K,V> e) {\n" + 
+				"		}\n" + 
+				"		public K getKey() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V getValue() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V setValue(V value) {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"");
+	}
+	public void test373() {
+		this.runConformTest(
+			new String[] {
+				"XA.java",	
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class XA <K, V> {\n" + 
+				"	static class MXA <K, V>  implements Entry<K,V> {\n" + 
+				"		MXA(Entry<K,V> e) {\n" + 
+				"		}\n" + 
+				"		public K getKey() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V getValue() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V setValue(V value) {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"");
+		// compile against binaries
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"import java.util.Iterator;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class X <K, V> {\n" + 
+				"\n" + 
+				"	void foo(Iterator<Map.Entry<K,V>> iter) {\n" + 
+				"		new XA.MXA<K,V>(iter.next());\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	// wildcard with no upper bound uses type variable as upper bound
+	public void test374() {
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"public class X <T extends Exception> {\n" + 
+				"\n" + 
+				"	void foo1(X <? extends Exception> target, X<?> value) {\n" + 
+				"		target = value; // foo1\n" + 
+				"	}\n" + 
+				"	void foo2(X <? extends Exception> target, X<? super RuntimeException> value) {\n" + 
+				"		target = value;  // foo2\n" + 
+				"	}	\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	public void test375() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",	
+				"public class X <T> {\n" + 
+				"\n" + 
+				"	void foo1(X <? super Exception> target, X<? extends Exception> value) {\n" + 
+				"		target = value; // foo1\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	target = value; // foo1\n" + 
+			"	         ^^^^^\n" + 
+			"Type mismatch: cannot convert from X<? extends Exception> to X<? super Exception>\n" + 
+			"----------\n");
+	}		
+	public void test376() {
+		this.runConformTest(
+			new String[] {
+				"XA.java",	
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class XA <K, V> {\n" + 
+				"   XA<K,V> self() { return this; } \n" +
+				"	static class MXA <K, V>  implements Entry<K,V> {\n" + 
+				"		MXA(Entry<K,V> e) {\n" + 
+				"		}\n" + 
+				"		public K getKey() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V getValue() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"		public V setValue(V value) {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"");
+		// compile against binaries
+		this.runConformTest(
+			new String[] {
+				"X.java",	
+				"import java.util.Iterator;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class X <K, V> {\n" + 
+				"\n" + 
+				"	void foo(Iterator<Map.Entry<K,V>> iter) {\n" + 
+				"		new XA.MXA<K,V>(iter.next());\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"",
+			null,
+			false,
+			null);
+	}	
+	
+	// 76601
+	 public void test377() {
+	  this.runConformTest(
+	   new String[] {
+	    "Test.java",
+	    "public class Test {\n" + 
+	     " public static void main (String[] args) {\n" + 
+	     "  final String val = (args == null||args.length==0 ? \"SUCC\" : args[0]) + \"ESS\";\n" + 
+	     "  class AllegedBoundMismatch<E2 extends SuperI<E2>> {\n" + 
+	     "   String field = val;\n" + 
+	     "  }\n" + 
+	     "  System.out.println(new Object() {\n" + 
+	     "   AllegedBoundMismatch<SubI<Q>> trial = new AllegedBoundMismatch<SubI<Q>>();\n" + 
+	     "  }.trial.field);\n" + 
+	     " }\n" + 
+	     "}\n" + 
+	     "class Q {}\n" + 
+	     "interface SubI<Q> extends SuperI<SubI<Q>> {}\n" + 
+	     "interface SuperI<Q> {}"
+	   },
+	   "SUCCESS");
+	 }  
+	 
+	 // 76219
+	 public void test378() {
+	  this.runConformTest(
+	   new String[] {
+	    "BB.java",
+	    "interface AA<W, Z extends AA<W, Z>> { \n" + 
+	     " public boolean m(AA<W, ?> that); \n" + 
+	     " public Z z(); \n" + 
+	     " public boolean b(); \n" + 
+	     "}\n" + 
+	     "abstract class BB<U, V extends AA<U, V>> implements AA<U,V> { \n" + 
+	     " public boolean m(AA<U, ?> wht) { return wht.z().b(); } \n" + 
+	     "}\n"
+	   }
+	  );
+	 }  	
+}	
+

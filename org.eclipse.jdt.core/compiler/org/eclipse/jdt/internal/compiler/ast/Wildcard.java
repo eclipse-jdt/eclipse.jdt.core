@@ -58,7 +58,7 @@ public class Wildcard extends SingleTypeReference {
 	    if (this.bound != null) {
 			boundType = scope.kind == Scope.CLASS_SCOPE
 	       		? this.bound.resolveType((ClassScope)scope)
-	       		: this.bound.resolveType((BlockScope)scope);
+	       		: this.bound.resolveType((BlockScope)scope, true /* check bounds*/);
 	       		        
 			if (boundType == null) {
 				return null;

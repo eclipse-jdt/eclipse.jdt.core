@@ -113,7 +113,7 @@ public class ArrayAllocationExpression extends Expression {
 		// only at the -end- like new int [4][][]. The parser allows new int[][4][]
 		// so this must be checked here......(this comes from a reduction to LL1 grammar)
 
-		TypeBinding referenceType = type.resolveType(scope);
+		TypeBinding referenceType = type.resolveType(scope, true /* check bounds*/);
 		
 		// will check for null after dimensions are checked
 		constant = Constant.NotAConstant;

@@ -296,7 +296,7 @@ public abstract class Scope
 			if (typeRef == null)
 				continue nextVariable;
 			ReferenceBinding superType = this.kind == METHOD_SCOPE
-				? (ReferenceBinding) typeRef.resolveType((BlockScope)this)
+				? (ReferenceBinding) typeRef.resolveType((BlockScope)this, false/*no bound check*/)
 				: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
 			if (superType == null) {
 				typeVariable.tagBits |= HierarchyHasProblems;
@@ -328,7 +328,7 @@ public abstract class Scope
 				for (int j = 0, k = boundRefs.length; j < k; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
-						? (ReferenceBinding) typeRef.resolveType((BlockScope)this)
+						? (ReferenceBinding) typeRef.resolveType((BlockScope)this, false)
 						: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
 					if (superType == null) {
 						typeVariable.tagBits |= HierarchyHasProblems;
@@ -355,7 +355,7 @@ public abstract class Scope
 		if (type.isArrayType()) {
 		    TypeBinding leafComponentType = type.leafComponentType();
 		    if (leafComponentType.isGenericType())
-		        return createArrayType(environment().createRawType((ReferenceBinding) leafComponentType, null), type.dimensions());
+		        return createArrayType(environment().createRawType((ReferenceBinding) leafComponentType, leafComponentType.enclosingType()), type.dimensions());
 		} else if (type.isGenericType()) {
 	        return environment().createRawType((ReferenceBinding) type, type.enclosingType());
 		}
@@ -2317,7 +2317,7 @@ public abstract class Scope
 			qualifiedType = this.environment().createRawType(currentType, qualifiedType);
 		} else {
 			qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-									? this.createParameterizedType(currentType, null, qualifiedType)
+									? this.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
 									: currentType;
 		}
 		
@@ -2338,7 +2338,7 @@ public abstract class Scope
 				qualifiedType = this.environment().createRawType(currentType, qualifiedType);
 			} else {
 				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-										? this.createParameterizedType(currentType, null, qualifiedType)
+										? this.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
 										: currentType;
 			}
 			
@@ -2512,7 +2512,7 @@ public abstract class Scope
 				return invocation; // raw type is taking precedence
 			}
 		}
-		return createParameterizedType((ReferenceBinding) mec, bestArguments, null);
+		return createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, null);
 	}
 	
 	// JLS 15.12.2

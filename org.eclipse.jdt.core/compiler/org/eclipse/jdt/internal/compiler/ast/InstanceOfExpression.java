@@ -77,7 +77,7 @@ public class InstanceOfExpression extends OperatorExpression {
 
 		constant = NotAConstant;
 		TypeBinding expressionType = expression.resolveType(scope);
-		TypeBinding checkedType = type.resolveType(scope);
+		TypeBinding checkedType = type.resolveType(scope, true /* check bounds*/);
 		if (expressionType == null || checkedType == null)
 			return null;
 

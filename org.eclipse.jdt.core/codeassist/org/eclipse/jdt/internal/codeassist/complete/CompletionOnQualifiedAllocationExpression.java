@@ -56,7 +56,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (this.resolvedType.isInterface()) // handle the anonymous class definition case
 			this.resolvedType = scope.getJavaLangObject();
 	} else {
-		this.resolvedType = type.resolveType(scope);
+		this.resolvedType = type.resolveType(scope, true /* check bounds*/);
 		if (!(this.resolvedType instanceof ReferenceBinding))
 			throw new CompletionNodeFound(); // no need to continue if its an array or base type
 	}

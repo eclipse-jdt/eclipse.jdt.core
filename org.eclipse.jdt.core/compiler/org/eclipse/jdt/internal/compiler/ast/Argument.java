@@ -97,7 +97,7 @@ public class Argument extends LocalDeclaration {
 		// provide the scope with a side effect : insertion of a LOCAL
 		// that represents the argument. The type must be from JavaThrowable
 
-		TypeBinding exceptionType = this.type.resolveType(scope);
+		TypeBinding exceptionType = this.type.resolveType(scope, true /* check bounds*/);
 		if (exceptionType == null) return null;
 		if (exceptionType.isGenericType() || exceptionType.isParameterizedType()) {
 			scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);

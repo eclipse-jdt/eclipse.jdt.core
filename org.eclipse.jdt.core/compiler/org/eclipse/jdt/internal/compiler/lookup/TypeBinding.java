@@ -264,6 +264,44 @@ public boolean isPartOfRawType() {
     return false;
 }
 
+// JLS3: 4.5.1.1
+public boolean isTypeArgumentContainedBy(TypeBinding otherArgument) {
+	if (this == otherArgument)
+		return true;
+	TypeBinding lowerBound = this;
+	TypeBinding upperBound = this;
+	if (isWildcard()) {
+		WildcardBinding wildcard = (WildcardBinding) this;
+		switch(wildcard.kind) {
+			case Wildcard.EXTENDS :
+				upperBound = wildcard.bound;
+				lowerBound = null;
+				break;
+			case Wildcard. SUPER :
+				upperBound = wildcard.typeVariable();
+				lowerBound = wildcard.bound;
+				break;
+			case Wildcard.UNBOUND :
+				upperBound = wildcard.typeVariable();
+				lowerBound = null;
+		}
+	}
+	if (otherArgument.isWildcard()) {
+		WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
+		switch(otherWildcard.kind) {
+			case Wildcard.EXTENDS:
+				return upperBound != null && upperBound.isCompatibleWith(otherWildcard.bound);
+
+			case Wildcard.SUPER :
+				return lowerBound != null && otherWildcard.bound.isCompatibleWith(lowerBound);
+
+			case Wildcard.UNBOUND :
+				return true;
+		}
+	}
+	return false;
+}
+
 /**
  * Returns true if the type was declared as a type variable
  */

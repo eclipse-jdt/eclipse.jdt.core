@@ -48,8 +48,19 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			return null; // will not get here since the above error aborts the compilation
 		}
 	}
-	if (convertGenericToRawType && targetType.isGenericType()) // raw reference to generic ?
-	    return environment.createRawType(targetType, null);
+	if (convertGenericToRawType) {
+		boolean rawEnclosing = false;
+		ReferenceBinding targetEnclosingType = targetType.enclosingType();
+		if (targetEnclosingType != null && targetEnclosingType.isGenericType()) { // convert to raw type since wasn't parameterized
+			rawEnclosing = true;
+			targetEnclosingType = environment.createRawType(targetEnclosingType, targetEnclosingType.enclosingType());
+		}
+		if (targetType.isGenericType()) { // raw reference to generic ?
+		    return environment.createRawType(targetType, targetEnclosingType);
+		} else if (rawEnclosing) {
+			return environment.createParameterizedType(targetType, null, targetEnclosingType);
+		}
+	}
 	return targetType;
 }
 void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment) {

@@ -672,16 +672,7 @@ public class ClassScope extends Scope {
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
 		if (typeParameters != null) {
 			for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
-				TypeParameter typeParameter = typeParameters[i];
-				TypeReference typeRef = typeParameter.type;
-				if (typeRef != null) {
-					typeRef.checkBounds(this);
-
-					TypeReference[] boundRefs = typeParameter.bounds;
-					if (boundRefs != null)
-						for (int j = 0, k = boundRefs.length; j < k; j++)
-							boundRefs[j].checkBounds(this);
-				}
+				typeParameters[i].checkBounds(this);
 			}
 		}
 	}
@@ -710,7 +701,7 @@ public class ClassScope extends Scope {
 			sourceType.superInterfaces = NoSuperInterfaces;
 			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
-			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
+			if (referenceContext.superclass != null || (referenceContext.superInterfaces != null && referenceContext.superInterfaces.length > 0))
 				problemReporter().objectCannotHaveSuperTypes(sourceType);
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}

@@ -80,7 +80,7 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 * We need to override to handle package references
 	 */
-	public TypeBinding resolveType(BlockScope blockScope) {
+	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
 		return internalResolveType(blockScope);
 	}
 

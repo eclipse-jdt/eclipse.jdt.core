@@ -414,10 +414,12 @@ public class SourceTypeConverter implements CompilerModifiers {
 		}
 		char[][] interfaceNames = sourceType.getInterfaceNames();
 		int interfaceCount = interfaceNames == null ? 0 : interfaceNames.length;
-		type.superInterfaces = new TypeReference[interfaceCount];
-		for (int i = 0; i < interfaceCount; i++) {
-			type.superInterfaces[i] = createTypeReference(interfaceNames[i], start, end);
-			type.superInterfaces[i].bits |= ASTNode.IsSuperType;
+		if (interfaceCount > 0) {
+			type.superInterfaces = new TypeReference[interfaceCount];
+			for (int i = 0; i < interfaceCount; i++) {
+				type.superInterfaces[i] = createTypeReference(interfaceNames[i], start, end);
+				type.superInterfaces[i].bits |= ASTNode.IsSuperType;
+			}
 		}
 		/* convert member types */
 		if ((this.flags & MEMBER_TYPE) != 0) {

@@ -55,7 +55,7 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	/*
 	 *
 	 */
-	private TypeBinding internalResolveType(Scope scope) {
+	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
 		this.constant = NotAConstant;
 		if (this.resolvedType != null) // is a shared type reference which was already resolved
@@ -80,8 +80,8 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 * We need to override to handle package references
 	 */
-	public TypeBinding resolveType(BlockScope blockScope) {
-		return internalResolveType(blockScope);
+	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
+		return internalResolveType(blockScope, checkBounds);
 	}
 
 	/* (non-Javadoc)
@@ -89,6 +89,6 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 * We need to override to handle package references
 	 */
 	public TypeBinding resolveType(ClassScope classScope) {
-		return internalResolveType(classScope);
+		return internalResolveType(classScope, false);
 	}
 }

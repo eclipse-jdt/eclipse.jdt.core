@@ -72,7 +72,7 @@ public class QualifiedThisReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
-		TypeBinding type = this.resolvedType = this.qualification.resolveType(scope);
+		TypeBinding type = this.resolvedType = this.qualification.resolveType(scope, true /* check bounds*/);
 		if (type == null) return null;
 		// X.this is not a raw type as denoting enclosing instance
 		if (type.isRawType()) {

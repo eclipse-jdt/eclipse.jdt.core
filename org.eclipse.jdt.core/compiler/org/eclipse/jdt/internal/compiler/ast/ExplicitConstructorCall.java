@@ -176,18 +176,18 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	 * exact need.
 	 */
 	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-		ReferenceBinding superType;
+		ReferenceBinding superTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
 		if (!flowInfo.isReachable()) return;
 		// perform some emulation work in case there is some and we are inside a local type only
-		if ((superType = binding.declaringClass).isNestedType()
+		if (superTypeErasure.isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
-			if (superType.isLocalType()) {
-				((LocalTypeBinding) superType).addInnerEmulationDependent(currentScope, qualification != null);
+			if (superTypeErasure.isLocalType()) {
+				((LocalTypeBinding) superTypeErasure).addInnerEmulationDependent(currentScope, qualification != null);
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(superType, qualification != null);
+				currentScope.propagateInnerEmulation(superTypeErasure, qualification != null);
 			}
 		}
 	}
@@ -288,7 +288,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				boolean argHasError = false; // typeChecks all arguments
 				this.genericTypeArguments = new TypeBinding[length];
 				for (int i = 0; i < length; i++) {
-					if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope)) == null) {
+					if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/)) == null) {
 						argHasError = true;
 					}
 				}

@@ -38,7 +38,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
 			this.resolvedType = this.type.resolveType((ClassScope)scope);
 		} else {
-			this.resolvedType = this.type.resolveType((BlockScope)scope);
+			this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
 		}
 
 		// buffering the arguments' types

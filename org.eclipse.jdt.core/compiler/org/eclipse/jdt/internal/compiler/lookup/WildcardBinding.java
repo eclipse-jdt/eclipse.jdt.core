@@ -308,7 +308,7 @@ public class WildcardBinding extends ReferenceBinding {
 			this.genericType = resolvedType; // no raw conversion
 			affected = true;
 		} else if (this.bound == unresolvedType) {
-			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
+			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType;
 			affected = true;
 		}
 		if (affected) 

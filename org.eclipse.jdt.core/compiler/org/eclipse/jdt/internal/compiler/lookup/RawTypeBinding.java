@@ -150,11 +150,19 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		        break;
 		        
 			case Binding.PARAMETERIZED_TYPE:
+				ReferenceBinding substitutedEnclosing = originalType.enclosingType();
+				if (substitutedEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(substitutedEnclosing);
+				}				
 		        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-				return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType());
+				return this.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
 				
 			case Binding.GENERIC_TYPE:
-	            return this.environment.createRawType((ReferenceBinding)originalType, null);
+				substitutedEnclosing = originalType.enclosingType();
+				if (substitutedEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(substitutedEnclosing);
+				}				
+	            return this.environment.createRawType((ReferenceBinding)originalType, substitutedEnclosing);
 	            
 			case Binding.ARRAY_TYPE:
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();

@@ -32,7 +32,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		FlowInfo flowInfo) {
 
 		// check captured variables are initialized in current context (26134)
-		checkCapturedLocalInitializationIfNecessary(this.binding.declaringClass, currentScope, flowInfo);
+		checkCapturedLocalInitializationIfNecessary((ReferenceBinding)this.binding.declaringClass.erasure(), currentScope, flowInfo);
 
 		// process arguments
 		if (arguments != null) {
@@ -162,18 +162,18 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
-		ReferenceBinding allocatedType;
+		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
 		// perform some emulation work in case there is some and we are inside a local type only
-		if ((allocatedType = binding.declaringClass).isNestedType()
+		if (allocatedTypeErasure.isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
-			if (allocatedType.isLocalType()) {
-				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(currentScope, false);
+			if (allocatedTypeErasure.isLocalType()) {
+				((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
 				// request cascade of accesses
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(allocatedType, false);
+				currentScope.propagateInnerEmulation(allocatedTypeErasure, false);
 				// request cascade of accesses
 			}
 		}
@@ -236,7 +236,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			// initialization of an enum constant
 			this.resolvedType = scope.enclosingSourceType();
 		} else {
-			this.resolvedType = this.type.resolveType(scope);
+			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 		}
 		// will check for null after args are resolved
 
@@ -246,7 +246,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			boolean argHasError = false; // typeChecks all arguments
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope)) == null) {
+				if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/)) == null) {
 					argHasError = true;
 				}
 			}

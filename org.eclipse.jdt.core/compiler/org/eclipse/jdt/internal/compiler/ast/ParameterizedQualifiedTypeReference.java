@@ -111,7 +111,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope) {
+	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 
 		// handle the error here
 		this.constant = NotAConstant;
@@ -146,7 +146,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 			}				
 			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
-				scope.problemReporter().staticMemberOfParameterizedType(this, scope.createParameterizedType(currentType, null, qualifiedType));
+				scope.problemReporter().staticMemberOfParameterizedType(this, scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
 				typeIsConsistent = false;
 			}			
 			// check generic and arity
@@ -183,12 +183,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				// check parameterizing non-static member type of raw type
 				if (typeIsConsistent && !currentType.isStatic() && qualifiedType != null && qualifiedType.isRawType()) {
 					scope.problemReporter().rawMemberTypeCannotBeParameterized(
-							this, scope.environment().createRawType(currentType, qualifiedType), argTypes);
+							this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType), argTypes);
 					typeIsConsistent = false;				
 				}
-				ParameterizedTypeBinding parameterizedType = scope.createParameterizedType(currentType, argTypes, qualifiedType);
-				// check argument type compatibility now if not a class scope
-				if (!isClassScope) // otherwise will do it in Scope.connectTypeVariables()
+				ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
+				// check argument type compatibility
+				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 					for (int j = 0; j < argLength; j++)
 					    if (!typeVariables[j].boundCheck(parameterizedType, argTypes[j]))
 							scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, args[j]);
@@ -200,13 +200,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						return null;
 				if (currentType.isGenericType()) {
 	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType(currentType, null, qualifiedType));
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
 						typeIsConsistent = false;
 					}
 	   			    qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
 				} else {
 					qualifiedType = (qualifiedType != null && qualifiedType.isParameterizedType())
-													? scope.createParameterizedType(currentType, null, qualifiedType)
+													? scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
 													: currentType;
 				}
 			}
@@ -265,11 +265,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		return output;
 	}	
 	
-	public TypeBinding resolveType(BlockScope scope) {
-	    return internalResolveType(scope);
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+	    return internalResolveType(scope, checkBounds);
 	}	
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope);
+	    return internalResolveType(scope, false);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {

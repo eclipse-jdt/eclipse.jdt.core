@@ -79,7 +79,7 @@ public class QualifiedTypeReference extends TypeReference {
 				qualifiedType = scope.environment().createRawType(currentType, qualifiedType);
 			} else {
 				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-										? scope.createParameterizedType(currentType, null, qualifiedType)
+										? scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
 										: currentType;
 			}
 		}

@@ -73,7 +73,7 @@ public class ClassLiteralAccess extends Expression {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
-		if ((targetType = type.resolveType(scope)) == null)
+		if ((targetType = type.resolveType(scope, true /* check bounds*/)) == null)
 			return null;
 
 		if (targetType.isArrayType()

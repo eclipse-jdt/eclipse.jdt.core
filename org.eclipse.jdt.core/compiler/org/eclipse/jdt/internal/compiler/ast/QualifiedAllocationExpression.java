@@ -48,8 +48,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		
 		// check captured variables are initialized in current context (26134)
+		ReferenceBinding allocatedType = this.superTypeBinding == null ? this.binding.declaringClass : this.superTypeBinding;
 		checkCapturedLocalInitializationIfNecessary(
-			this.superTypeBinding == null ? this.binding.declaringClass : this.superTypeBinding, 
+			(ReferenceBinding) allocatedType.erasure(),
 			currentScope, 
 			flowInfo);
 		
@@ -158,17 +159,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
-		ReferenceBinding allocatedType;
+		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
 		// perform some emulation work in case there is some and we are inside a local type only
-		if ((allocatedType = binding.declaringClass).isNestedType()
+		if (allocatedTypeErasure.isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
-			if (allocatedType.isLocalType()) {
-				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(currentScope, enclosingInstance != null);
+			if (allocatedTypeErasure.isLocalType()) {
+				((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, enclosingInstance != null);
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(allocatedType, enclosingInstance != null);
+				currentScope.propagateInnerEmulation(allocatedTypeErasure, enclosingInstance != null);
 			}
 		}
 	}
@@ -238,7 +239,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				// initialization of an enum constant
 				receiverType = scope.enclosingSourceType();
 			} else {
-				receiverType = this.type.resolveType(scope);
+				receiverType = this.type.resolveType(scope, true /* check bounds*/);
 			}			
 		}
 		if (receiverType == null) {
@@ -252,7 +253,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			int length = this.typeArguments.length;
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				TypeBinding argType = this.typeArguments[i].resolveType(scope);
+				TypeBinding argType = this.typeArguments[i].resolveType(scope, true /* check bounds*/);
 				if (argType == null) return null; // error already reported
 				this.genericTypeArguments[i] = argType;
 			}

@@ -121,7 +121,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.
 	this.constant = NotAConstant;
-	this.resolvedType = this.type.resolveType(scope); // will check for null after args are resolved
+	this.resolvedType = this.type.resolveType(scope, true /* check bounds*/); // will check for null after args are resolved
 
 	// buffering the arguments' types
 	boolean argsContainCast = false;

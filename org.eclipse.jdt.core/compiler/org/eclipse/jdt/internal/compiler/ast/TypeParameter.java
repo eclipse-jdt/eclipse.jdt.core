@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeParameter extends AbstractVariableDeclaration {
@@ -28,6 +29,17 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		return TYPE_PARAMETER;
 	}
 
+	public void checkBounds(Scope scope) {
+		
+		if (this.type != null) {
+			this.type.checkBounds(scope);
+		}
+		if (this.bounds != null) {
+			for (int i = 0, length = this.bounds.length; i < length; i++) {
+				this.bounds[i].checkBounds(scope);
+			}
+		}
+	}
 	
 	public void resolve(ClassScope scope) {
 	    // TODO (philippe) add warning for detecting variable name collisions

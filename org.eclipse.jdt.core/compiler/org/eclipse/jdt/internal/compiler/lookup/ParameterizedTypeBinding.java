@@ -109,7 +109,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.isMemberType() && this.enclosingType == null) {
 			ReferenceBinding originalEnclosing = this.type.enclosingType();
 			this.enclosingType = originalEnclosing.isGenericType()
-													? this.environment.createRawType(originalEnclosing, null) // TODO (need to propagate in depth on enclosing type)
+													? this.environment.createRawType(originalEnclosing, originalEnclosing.enclosingType()) // TODO (need to propagate in depth on enclosing type)
 													: originalEnclosing;
 		}
 	    return this.enclosingType;
@@ -400,22 +400,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	            if (this.type != otherParamType.type) 
 	                return false;
-	            ReferenceBinding enclosing = enclosingType();
-	            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
-	                return false;
+	            if (!isStatic()) { // static member types do not compare their enclosing
+		            ReferenceBinding enclosing = enclosingType();
+		            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
+		                return false;
+	            }
 	            int length = this.arguments == null ? 0 : this.arguments.length;
 	            TypeBinding[] otherArguments = otherParamType.arguments;
 	            int otherLength = otherArguments == null ? 0 : otherArguments.length;
 	            if (otherLength != length) 
 	                return false;
-	            // argument must be identical, only equivalence is allowed if wildcard other type
 	            for (int i = 0; i < length; i++) {
-	            	TypeBinding argument = this.arguments[i];
-	            	TypeBinding otherArgument = otherArguments[i];
-					if (!(argument == otherArgument
-							|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
-						return false;
-					}
+	            	if (!this.arguments[i].isTypeArgumentContainedBy(otherArguments[i]))
+	            		return false;
 	            }
 	            return true;
 	    	
@@ -607,20 +604,27 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				
 			case Binding.PARAMETERIZED_TYPE:
 				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+				ReferenceBinding originalEnclosing = originalType.enclosingType();
+				ReferenceBinding substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
+				}
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
+				TypeBinding[] substitutedArguments = originalArguments;
 				if (originalArguments != null) {
-					TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-					if (substitutedArguments != originalArguments) {
-						identicalVariables: { // if substituted with original variables, then answer the generic type itself
-							TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-							for (int i = 0, length = originalVariables.length; i < length; i++) {
-								if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-							}
-							return originalParameterizedType.type;
+					substitutedArguments = Scope.substitute(this, originalArguments);
+				}
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+					identicalVariables: { // if substituted with original variables, then answer the generic type itself
+						if (substitutedEnclosing != originalEnclosing) break identicalVariables;
+						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
+						for (int i = 0, length = originalVariables.length; i < length; i++) {
+							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
 						}
-						return this.environment.createParameterizedType(
-								originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
-					}				
+						return originalParameterizedType.type;
+					}
+					return this.environment.createParameterizedType(
+							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
 				}
 				break;
 				
@@ -646,13 +650,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			case Binding.GENERIC_TYPE:
 			    // treat as if parameterized with its type variables
 				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+				originalEnclosing = originalType.enclosingType();
+				substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
+				}
 				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
 				int length = originalVariables.length;
 				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
-				if (substitutedArguments != originalArguments) {
+				substitutedArguments = Scope.substitute(this, originalArguments);
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 					return this.environment.createParameterizedType(
-							originalGenericType, substitutedArguments, null);
+							originalGenericType, substitutedArguments, substitutedEnclosing);
 				}
 				break;
 		}
@@ -691,7 +700,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.arguments != null) {
 			for (int i = 0, l = this.arguments.length; i < l; i++) {
 				if (this.arguments[i] == unresolvedType) {
-					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
+					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType;
 					update = true;
 				}
 			}

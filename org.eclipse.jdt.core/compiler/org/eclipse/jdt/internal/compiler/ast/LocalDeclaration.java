@@ -141,7 +141,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope
-		TypeBinding variableType = type.resolveType(scope);
+		TypeBinding variableType = type.resolveType(scope, true /* check bounds*/);
 
 		checkModifiers();
 

@@ -28,8 +28,8 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 		System.arraycopy(this.typeArguments, 0, this.typeArguments = new TypeReference[length + 1][], 0, length);
 	}
 	
-	public TypeBinding resolveType(BlockScope scope) {
-		super.resolveType(scope);
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+		super.resolveType(scope, checkBounds);
 		throw new SelectionNodeFound(this.resolvedType);
 	}
 	
