@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AnnotationTestMixed extends AnnotationTest {
+
+	String reportInvalidAnnotation = CompilerOptions.ERROR;
+	String reportMissingAnnotation = CompilerOptions.ENABLED;
 
 	public AnnotationTestMixed(String name) {
 		super(name);
@@ -48,16 +48,29 @@ public class AnnotationTestMixed extends AnnotationTest {
 			}
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
+		if (false) {
+			TestSuite ts = new TestSuite();
+			ts.addTest(new AnnotationTestMixed("testBug45669"));
+			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
+		}
 		return setupSuite(testClass());
 	}
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.ERROR);
-		options.put(CompilerOptions.OPTION_ReportMissingAnnotation, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidAnnotation, reportInvalidAnnotation);
+		options.put(CompilerOptions.OPTION_ReportMissingAnnotation, reportMissingAnnotation);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		return options;
+	}
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+		reportInvalidAnnotation = CompilerOptions.ERROR;
+		reportMissingAnnotation = CompilerOptions.ENABLED;
 	}
 	
 	/*
@@ -125,8 +138,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	}
 	
 	public void test005() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.IGNORE);
+		reportInvalidAnnotation = CompilerOptions.IGNORE;
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -137,12 +149,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 					+ "	public X() {}\n"
 					+ "\n"
 					+ "	public void foo() {}\n"
-					+ "}\n" },
-			null,
-			null,
-			true,
-			null,
-			options);
+					+ "}\n" });
 	}
 	
 	public void test010() {
@@ -763,42 +770,13 @@ public class AnnotationTestMixed extends AnnotationTest {
 	}
 
 	/**
-	 * Test fix for bug 45198.
-	 * When this bug happened a NPE was thrown in factory.createMethod(...)
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45198">45198</a>
-	 */
-	public void _testBug45198() { // TODO (frederic) should move this test to model side (where plugin is started)
-		Hashtable savedOptions = JavaCore.getOptions();
-		Map options = getCompilerOptions();
-		Hashtable newOptions = new Hashtable(options.size());
-		newOptions.putAll(options);
-		JavaCore.setOptions(newOptions);
-		try {
-			IDOMFactory factory= new DOMFactory();
-			IDOMMethod m= factory.createMethod(
-					"/**" + LINE_SEPARATOR +
-					" * @return Returns the content." + LINE_SEPARATOR +
-					" */" + LINE_SEPARATOR +
-					"public String getContent() {" + LINE_SEPARATOR +
-					"	return fContent;" + LINE_SEPARATOR +
-					"}" + LINE_SEPARATOR);
-			assertTrue("initial contents wrong", equals(m.getContents(), 
-							"/**" + LINE_SEPARATOR +
-							" * @return Returns the content." + LINE_SEPARATOR +
-							" */" + LINE_SEPARATOR +
-							"public String getContent() {" + LINE_SEPARATOR +
-							"	return fContent;" + LINE_SEPARATOR +
-							"}" + LINE_SEPARATOR));
-		} finally {
-			JavaCore.setOptions(savedOptions);
-		}
-	}
-
-	/**
 	 * Test fix for bug 45596.
+	 * When this bug happened, compiler wrongly complained on missing parameter javadoc
+	 * entries for method declaration in anonymous class.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
 	 */
 	public void testBug45596() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
@@ -814,5 +792,281 @@ public class AnnotationTestMixed extends AnnotationTest {
 			   		+ "    void foo(int x, String str) {}\n"
 			   		+ "  };\n"
 			   		+ "}\n"});
+	}
+
+	/**
+	 * Additional test for bug 45596.
+	 * Verify correct complain about missing parameter javadoc entries in anonymous class.
+	 */
+	public void testBug45596a() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo(int x, String str) {}\n" + 
+		"}\n",
+		"Y1.java",
+		"public class Y1 {\n" + 
+		"	/** */\n" + 
+		"	protected X field = new X() {\n" + 
+		"		/** Invalid javadoc comment in anonymous class */\n" + 
+		"		void foo(String str) {}\n" + 
+		"	};\n" + 
+		"}\n",
+		"Y2.java",
+		"public class Y2 {\n" + 
+		"	/** */\n" + 
+		"	void foo() {\n" + 
+		"		X x = new X() {\n" + 
+		"			/** Invalid javadoc comment in anonymous class */\n" + 
+		"			void foo(String str) {}\n" + 
+		"		};\n" + 
+		"		x.foo(0, \"\");\n" + 
+		"	}\n" + 
+		"}\n",
+		"Y3.java",
+		"public class Y3 {\n" + 
+		"	static X x;\n" + 
+		"	static {\n" + 
+		"		x = new X() {\n" + 
+		"			/** Invalid javadoc comment in anonymous class */\n" + 
+		"			void foo(String str) {}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n" },
+		"----------\n" + 
+		"1. ERROR in Y1.java (at line 5)\n" + 
+		"	void foo(String str) {}\n" + 
+		"	                ^^^\n" + 
+		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in Y2.java (at line 6)\n" + 
+		"	void foo(String str) {}\n" + 
+		"	                ^^^\n" + 
+		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in Y3.java (at line 6)\n" + 
+		"	void foo(String str) {}\n" + 
+		"	                ^^^\n" + 
+		"Annotation: Missing javadoc entry for parameter str\n" + 
+		"----------\n"
+			);
+	}
+
+	/**
+	 * Additional test for bug 45596.
+	 * Verify no complain about missing parameter javadoc entries.
+	 */
+	public void testBug45596b() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	void foo(int x, String str) {}\n" + 
+		"}\n",
+		"Y1.java",
+		"public class Y1 {\n" + 
+		"	/** */\n" + 
+		"	protected X field = new X() {\n" + 
+		"		/**\n" + 
+		"		 * Valid javadoc comment in anonymous class.\n" + 
+		"		 * @param str String\n" + 
+		"		 * @return int\n" + 
+		"		 */\n" + 
+		"		int bar(String str) {\n" + 
+		"			return 10;\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n",
+		"Y2.java",
+		"public class Y2 {\n" + 
+		"	/** */\n" + 
+		"	void foo() {\n" + 
+		"		X x = new X() {\n" + 
+		"			/**\n" + 
+		"			 * Valid javadoc comment in anonymous class.\n" + 
+		"			 * @param str String\n" + 
+		"			 * @return int\n" + 
+		"			 */\n" + 
+		"			int bar(String str) {\n" + 
+		"				return 10;\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"		x.foo(0, \"\");\n" + 
+		"	}\n" + 
+		"}\n",
+		"Y3.java",
+		"public class Y3 {\n" + 
+		"	static X x;\n" + 
+		"	static {\n" + 
+		"		x = new X() {\n" + 
+		"			/**\n" + 
+		"			 * Valid javadoc comment in anonymous class.\n" + 
+		"			 * @param str String\n" + 
+		"			 * @return int\n" + 
+		"			 */\n" + 
+		"			int bar(String str) {\n" + 
+		"				return 10;\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n"}
+			);
+	}
+
+	/**
+	 * Test fix for bug 45592.
+	 * When this bug happened, a NullPointerException occured during the compilation.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
+	 */
+	public void testBug45592() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+		"a/Y.java",
+		"package a;\n" + 
+		"\n" + 
+		"/** */\n" + 
+		"public class Y {\n" + 
+		"	protected boolean bar(Object obj) {\n" + 
+		"		return obj == null;\n" + 
+		"	}\n" + 
+		"}\n",
+		"test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"	public static Boolean valueOf(boolean bool) {\n" + 
+		"		if (bool) {\n" + 
+		"			return Boolean.TRUE;\n" + 
+		"		} else {\n" + 
+		"			return Boolean.FALSE;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n",
+		"test/YY.java",
+		"package test;\n" + 
+		"\n" + 
+		"import a.Y;\n" + 
+		"\n" + 
+		"/** */\n" + 
+		"public class YY extends Y {\n" + 
+		"	/**\n" + 
+		"	 * Returns a Boolean.\n" + 
+		"	 * @param key\n" + 
+		"	 * @return A Boolean telling whether the key is null or not.\n" + 
+		"	 * @see #bar(Object)\n" + 
+		"	 */\n" + 
+		"	protected Boolean foo(Object key) {\n" + 
+		"		return X.valueOf(bar(key));\n" + 
+		"	}\n" + 
+		"}\n"
+		}
+			);
+	}
+
+	/**
+	 * Test fix for bug 45737.
+	 * When this bug happened, compiler complains on return type and argument of method bar.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45737">45737</a>
+	 */
+	public void testBug45737() {
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"class Y {\n" + 
+				"	void foo() {\n" + 
+				"		X x = new X() {\n" + 
+				"			/**\n" + 
+				"			 * Valid javadoc comment in anonymous class.\n" + 
+				"			 * @param str String\n" + 
+				"			 * @return int\n" + 
+				"			 */\n" + 
+				"			int bar(String str) {\n" + 
+				"				return 10;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		x.foo();\n" + 
+				"	}\n" + 
+				"}\n",
+				"X.java",
+				"class X {\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 45669.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45669">45669</a>
+	 */
+	public void testBug45669() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * Valid javadoc comment with tags mixed order\n" + 
+				"	 * @param str first param\n" + 
+				"	 * 		@see String\n" + 
+				"	 * @param dbl second param\n" + 
+				"	 * 		@see Double\n" + 
+				"	 * 		also\n" + 
+				"	 * 		@see \"String ref\"\n" + 
+				"	 * @return int\n" + 
+				"	 * @throws InterruptedException\n" + 
+				"	 * \n" + 
+				"	 */\n" + 
+				"	int foo(String str, Double dbl) throws InterruptedException {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	/*
+	 * Additional test for bug 45669.
+	 * Verify that compiler complains when @throws tag is between @param tags.
+	 */
+	public void testBug45669a() {
+		reportMissingAnnotation = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * Javadoc comment with tags invalid mixed order\n" + 
+				"	 * @param str first param\n" + 
+				"	 * 		@see String\n" + 
+				"	 * @throws InterruptedException\n" + 
+				"	 * @param dbl second param\n" + 
+				"	 * 		@see Double\n" + 
+				"	 * 		also\n" + 
+				"	 * 		@see \"String ref\"\n" + 
+				"	 * @return int\n" + 
+				"	 * \n" + 
+				"	 */\n" + 
+				"	int foo(String str, Double dbl) throws InterruptedException {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	* @param dbl second param\n" + 
+		"	   ^^^^^\n" + 
+		"Annotation: Unexpected javadoc entry\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	int foo(String str, Double dbl) throws InterruptedException {\n" + 
+		"	                           ^^^\n" + 
+		"Annotation: Missing javadoc entry for parameter dbl\n" + 
+		"----------\n"
+		);
 	}
 }
