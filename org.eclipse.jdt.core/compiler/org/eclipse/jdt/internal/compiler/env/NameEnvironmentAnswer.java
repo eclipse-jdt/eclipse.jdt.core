@@ -34,7 +34,7 @@ public class NameEnvironmentAnswer {
 	 * receiver represents a compilation unit or source type.
 	 */
 	public IBinaryType getBinaryType() {
-		return binaryType;
+		return this.binaryType;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class NameEnvironmentAnswer {
 	 * receiver represents a binary or source type.
 	 */
 	public ICompilationUnit getCompilationUnit() {
-		return compilationUnit;
+		return this.compilationUnit;
 	}
 
 	/**
@@ -53,27 +53,27 @@ public class NameEnvironmentAnswer {
 	 * several type at once. Then the first type is guaranteed to be the requested type.
 	 */
 	public ISourceType[] getSourceTypes() {
-		return sourceTypes;
+		return this.sourceTypes;
 	}
 
 	/**
 	 * Answer whether the receiver contains the resolved binary form of the type.
 	 */
 	public boolean isBinaryType() {
-		return binaryType != null;
+		return this.binaryType != null;
 	}
 
 	/**
 	 * Answer whether the receiver contains the compilation unit which defines the type.
 	 */
 	public boolean isCompilationUnit() {
-		return compilationUnit != null;
+		return this.compilationUnit != null;
 	}
 
 	/**
 	 * Answer whether the receiver contains the unresolved source form of the type.
 	 */
 	public boolean isSourceType() {
-		return sourceTypes != null;
+		return this.sourceTypes != null;
 	}
 }

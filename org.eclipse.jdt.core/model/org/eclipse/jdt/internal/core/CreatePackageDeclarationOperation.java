@@ -47,7 +47,7 @@ public CreatePackageDeclarationOperation(String name, ICompilationUnit parentEle
 	fName= name;
 }
 /**
- * @see CreateTypeMemberOperation#generateElementDOM
+ * @see CreateTypeMemberOperation#generateSyntaxIncorrectDOM()
  * @deprecated JDOM is obsolete
  */
 // TODO - JDOM - remove once model ported off of JDOM

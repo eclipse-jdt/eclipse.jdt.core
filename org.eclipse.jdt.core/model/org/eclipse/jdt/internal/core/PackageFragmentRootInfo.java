@@ -48,7 +48,7 @@ class PackageFragmentRootInfo extends OpenableElementInfo {
  * Create and initialize a new instance of the receiver
  */
 public PackageFragmentRootInfo() {
-	fNonJavaResources = null;
+	this.fNonJavaResources = null;
 }
 /**
  * Starting at this folder, create non-java resources for this package fragment root 
@@ -104,8 +104,6 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 }
 /**
  * Compute the non-package resources of this package fragment root.
- * 
- * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
 private Object[] computeNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
 	Object[] nonJavaResources = NO_NON_JAVA_RESOURCES;
@@ -129,10 +127,10 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
  * Returns an array of non-java resources contained in the receiver.
  */
 synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
-	Object[] nonJavaResources = fNonJavaResources;
+	Object[] nonJavaResources = this.fNonJavaResources;
 	if (nonJavaResources == null) {
 		nonJavaResources = this.computeNonJavaResources(project, underlyingResource, handle);
-		fNonJavaResources = nonJavaResources;
+		this.fNonJavaResources = nonJavaResources;
 	}
 	return nonJavaResources;
 }
@@ -140,7 +138,7 @@ synchronized Object[] getNonJavaResources(IJavaProject project, IResource underl
  * Returns the kind of this root.
  */
 public int getRootKind() {
-	return fRootKind;
+	return this.fRootKind;
 }
 /**
  * Retuns the SourceMapper for this root, or <code>null</code>
@@ -162,13 +160,13 @@ private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedCl
  * Set the fNonJavaResources to res value
  */
 void setNonJavaResources(Object[] resources) {
-	fNonJavaResources = resources;
+	this.fNonJavaResources = resources;
 }
 /**
  * Sets the kind of this root.
  */
 protected void setRootKind(int newRootKind) {
-	fRootKind = newRootKind;
+	this.fRootKind = newRootKind;
 }
 /**
  * Sets the SourceMapper for this root.

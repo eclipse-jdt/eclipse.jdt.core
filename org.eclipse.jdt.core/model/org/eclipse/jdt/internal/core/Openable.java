@@ -109,7 +109,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		return;
 	}
 	if (position < -1 || position > buffer.getLength()) {
-		throw new IllegalArgumentException("Completion position "+position+" is not located in supplied source range (0, "+buffer.getLength()+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
@@ -135,7 +135,7 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 	}
 	int end= buffer.getLength();
 	if (offset < 0 || length < 0 || offset + length > end ) {
-		throw new IllegalArgumentException("Selected range ("+offset+ ", " + (offset+length)+") is not located in supplied source range (0, "+end+")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 
 	// fix for 1FVXGDK

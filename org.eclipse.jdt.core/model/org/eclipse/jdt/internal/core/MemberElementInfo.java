@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.core;
 	/**
 	 * The modifiers associated with this member.
 	 *
-	 * @see IConstants
+	 * @see org.eclipse.jdt.internal.compiler.env.IConstants
 	 */
 	protected int flags;
 

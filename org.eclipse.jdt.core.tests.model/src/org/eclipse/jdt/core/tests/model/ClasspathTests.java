@@ -226,8 +226,8 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
-			"	"+  getExternalJCLPath() +"[*]: {REORDERED}\n" + 
-			"	"+  getExternalJCLSourcePath() +"[*]: {REORDERED}\n" + 
+			"	"+  getExternalJCLPathString() +"[*]: {REORDERED}\n" + 
+			"	"+  getExternalJCLSourcePathString() +"[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {

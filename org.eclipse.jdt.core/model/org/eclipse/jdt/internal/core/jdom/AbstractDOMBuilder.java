@@ -83,7 +83,7 @@ public AbstractDOMBuilder() {
  *
  * <p>A line separator might corresponds to several characters in the source.
  *
- * @see IDocumentElementRequestor#acceptLineSeparatorPositions(int[])
+ * @see org.eclipse.jdt.internal.compiler.IDocumentElementRequestor#acceptLineSeparatorPositions(int[])
  */
 public void acceptLineSeparatorPositions(int[] positions) {
 	if (positions != null) {
@@ -147,7 +147,7 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
 	return (IDOMCompilationUnit)fNode;
 }
 /**
- * @see IDocumentElementRequestor#enterClass(int, int[], int, int, int, char[], int, int, char[], int, int, char[][], int[], int[], int)
+ * @see org.eclipse.jdt.internal.compiler.IDocumentElementRequestor#enterClass(int, int[], int, int, int, char[], int, int, char[], int, int, char[][], int[], int[], int)
  */
 public void enterCompilationUnit() {
  	if (fBuildingCU) {
@@ -159,7 +159,7 @@ public void enterCompilationUnit() {
  * Finishes the configuration of the compilation unit DOM object which
  * was created by a previous enterCompilationUnit call.
  *
- * @see IDocumentElementRequestor#exitCompilationUnit(int)
+ * @see org.eclipse.jdt.internal.compiler.IDocumentElementRequestor#exitCompilationUnit(int)
  */
 public void exitCompilationUnit(int declarationEnd) {
 	DOMCompilationUnit cu = (DOMCompilationUnit) fStack.pop();

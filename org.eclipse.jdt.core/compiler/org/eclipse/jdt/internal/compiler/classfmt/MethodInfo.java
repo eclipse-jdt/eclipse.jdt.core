@@ -59,7 +59,7 @@ public int compareTo(Object o) {
 	return new String(this.getMethodDescriptor()).compareTo(new String(otherMethod.getMethodDescriptor()));
 }
 /**
- * @see IGenericMethod#getArgumentNames()
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
  */
 public char[][] getArgumentNames() {
 	return null;

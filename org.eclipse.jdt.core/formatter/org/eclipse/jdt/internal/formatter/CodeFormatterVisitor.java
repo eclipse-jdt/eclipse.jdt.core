@@ -505,7 +505,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * @param block
 	 * @param scope
 	 * @param block_brace_position
-	 * @return
 	 */
 	private void formatBlock(Block block, BlockScope scope, String block_brace_position, boolean insertSpaceBeforeOpeningBrace) {
 		formatOpeningBrace(block_brace_position, insertSpaceBeforeOpeningBrace);
@@ -739,7 +738,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, String, int, int, int, String)
 	 */
 	public TextEdit format(String string, ASTNode[] nodes) {
 		// reset the scribe
@@ -769,7 +768,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, String, int, int, int, String)
 	 */
 	public TextEdit format(String string, CompilationUnitDeclaration compilationUnitDeclaration) {
 		// reset the scribe
@@ -799,7 +798,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, String, int, int, int, String)
 	 */
 	public TextEdit format(String string, ConstructorDeclaration constructorDeclaration) {
 		// reset the scribe
@@ -840,7 +839,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, String, int, int, int, String)
 	 */
 	public TextEdit format(String string, Expression expression) {
 		// reset the scribe
@@ -875,7 +874,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = scribe.line; 
+        final int line = this.scribe.line; 
         
         this.scribe.printModifiers();
 		/*
@@ -1248,9 +1247,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
          */
         this.scribe.printComment();
         if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
-                && (scribe.line > line || scribe.column >= this.preferences.page_width)) 
+                && (this.scribe.line > line || this.scribe.column >= this.preferences.page_width)) 
         {
-            scribe.printNewLine();
+            this.scribe.printNewLine();
         }
     }
     
@@ -2307,7 +2306,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Break, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.BreakStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(BreakStatement breakStatement, BlockScope scope) {
 		
@@ -2321,7 +2320,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Case, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.CaseStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(CaseStatement caseStatement, BlockScope scope) {		
 		if (caseStatement.constantExpression == null) {
@@ -2627,7 +2626,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = scribe.line;
+        final int line = this.scribe.line;
 		this.scribe.printModifiers();
 		this.scribe.space();
 		/*
@@ -2707,7 +2706,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Continue, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ContinueStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
 
@@ -2944,7 +2943,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(ForStatement forStatement, BlockScope scope) {
 	
 		this.scribe.printNextToken(TerminalTokens.TokenNamefor);
-	    final int line = scribe.line;
+	    final int line = this.scribe.line;
 	    this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_for);
 		
 		if (this.preferences.insert_space_after_opening_paren_in_for) {
@@ -3031,7 +3030,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameif);
-        final int line = scribe.line;
+        final int line = this.scribe.line;
         this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_if);
 		if (this.preferences.insert_space_after_opening_paren_in_if) {
 			this.scribe.space();
@@ -3207,7 +3206,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.IntLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.IntLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
 
@@ -3272,7 +3271,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 		format(memberTypeDeclaration);	
@@ -3340,7 +3339,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = scribe.line;
+        final int line = this.scribe.line;
         
         this.scribe.printModifiers();
 		this.scribe.space();
@@ -3741,7 +3740,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.SingleNameReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleNameReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SingleNameReference singleNameReference, BlockScope scope) {
 
@@ -3849,7 +3848,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		formatOpeningBrace(switch_brace, this.preferences.insert_space_before_opening_brace_in_switch);
 		this.scribe.printNewLine();
 
-		if (preferences.indent_switchstatements_compare_to_switch) {
+		if (this.preferences.indent_switchstatements_compare_to_switch) {
 			this.scribe.indent();
 		}
 		final Statement[] statements = switchStatement.statements;
@@ -3969,7 +3968,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if ((wasACase || wasAStatement) && this.preferences.indent_switchstatements_compare_to_cases) {
 			this.scribe.unIndent();
 		}
-		if (preferences.indent_switchstatements_compare_to_switch) {
+		if (this.preferences.indent_switchstatements_compare_to_switch) {
 			this.scribe.unIndent();
 		}
 		this.scribe.printNewLine();
@@ -4163,7 +4162,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNamewhile);
-		final int line = scribe.line;
+		final int line = this.scribe.line;
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_while);
 		
 		if (this.preferences.insert_space_after_opening_paren_in_while) {

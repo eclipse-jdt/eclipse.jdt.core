@@ -763,19 +763,14 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 		// Then the size of the stringName array
 		//writeU2(utf8Constant.length);
 		int savedCurrentOffset = currentOffset;
-		if (currentOffset + 2 >= poolContent.length) {
+		int utf8encodingLength = utf8encoding.length;
+		if (currentOffset + 2 + utf8encodingLength >= poolContent.length) {
 			// we need to resize the poolContent array because we won't have
 			// enough space to write the length
-			int length = poolContent.length;
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+			resizePoolContents(2 + utf8encodingLength);
 		}
 		currentOffset += 2;
 		// add in once the whole byte array
-		int length = poolContent.length;
-		int utf8encodingLength = utf8encoding.length;
-		if (currentOffset + utf8encodingLength >= length) {
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + utf8encodingLength + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		}
 		System.arraycopy(utf8encoding, 0, poolContent, currentOffset, utf8encodingLength);
 		currentOffset += utf8encodingLength;
 		// Now we know the length that we have to write in the constant pool
@@ -788,7 +783,7 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param char[] stringName
+ * @param utf8Constant char[]
  * @return <CODE>int</CODE>
  */
 public int literalIndex(char[] utf8Constant) {
@@ -802,8 +797,7 @@ public int literalIndex(char[] utf8Constant) {
 		if (currentOffset + 2 >= poolContent.length) {
 			// we need to resize the poolContent array because we won't have
 			// enough space to write the length
-			int length = poolContent.length;
-			System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+			resizePoolContents(2);
 		}
 		currentOffset += 2;
 		int length = 0;
@@ -866,7 +860,7 @@ public int literalIndex(char[] stringCharArray, byte[] utf8encoding) {
  * value. If the double is not already present into the pool, it is added. The 
  * double cache is updated and it returns the right index.
  *
- * @param <CODE>double</CODE> key
+ * @param key <CODE>double</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(double key) {
@@ -890,14 +884,12 @@ public int literalIndex(double key) {
 		writeU1(DoubleTag);
 		// Then add the 8 bytes representing the double
 		long temp = java.lang.Double.doubleToLongBits(key);
+		int length = poolContent.length;
+		if (currentOffset + 8 >= length) {
+			resizePoolContents(8);
+		}
 		for (int i = 0; i < 8; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (temp >>> (56 - (i << 3)));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[(length << 1) + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (temp >>> (56 - (i << 3)));
-			}
+			poolContent[currentOffset++] = (byte) (temp >>> (56 - (i << 3)));
 		}
 	}
 	return index;
@@ -907,7 +899,7 @@ public int literalIndex(double key) {
  * value. If the float is not already present into the pool, it is added. The 
  * int cache is updated and it returns the right index.
  *
- * @param <CODE>float</CODE> key
+ * @param key <CODE>float</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(float key) {
@@ -928,14 +920,11 @@ public int literalIndex(float key) {
 		writeU1(FloatTag);
 		// Then add the 4 bytes representing the float
 		int temp = java.lang.Float.floatToIntBits(key);
+		if (currentOffset + 4 >= poolContent.length) {
+			resizePoolContents(4);
+		}
 		for (int i = 0; i < 4; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (temp >>> (24 - i * 8));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length * 2 + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (temp >>> (24 - i * 8));
-			}
+			poolContent[currentOffset++] = (byte) (temp >>> (24 - i * 8));
 		}
 	}
 	return index;
@@ -945,7 +934,7 @@ public int literalIndex(float key) {
  * value. If the int is not already present into the pool, it is added. The 
  * int cache is updated and it returns the right index.
  *
- * @param <CODE>int</CODE> key
+ * @param key <CODE>int</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(int key) {
@@ -965,14 +954,11 @@ public int literalIndex(int key) {
 		// First add the tag
 		writeU1(IntegerTag);
 		// Then add the 4 bytes representing the int
+		if (currentOffset + 4 >= poolContent.length) {
+			resizePoolContents(4);
+		}
 		for (int i = 0; i < 4; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (key >>> (24 - i * 8));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length * 2 + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (key >>> (24 - i * 8));
-			}
+			poolContent[currentOffset++] = (byte) (key >>> (24 - i * 8));
 		}
 	}
 	return index;
@@ -982,7 +968,7 @@ public int literalIndex(int key) {
  * value. If the long is not already present into the pool, it is added. The 
  * long cache is updated and it returns the right index.
  *
- * @param <CODE>long</CODE> key
+ * @param key <CODE>long</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(long key) {
@@ -1005,14 +991,11 @@ public int literalIndex(long key) {
 		// First add the tag
 		writeU1(LongTag);
 		// Then add the 8 bytes representing the long
+		if (currentOffset + 8 >= poolContent.length) {
+			resizePoolContents(8);
+		}
 		for (int i = 0; i < 8; i++) {
-			try {
-				poolContent[currentOffset++] = (byte) (key >>> (56 - (i << 3)));
-			} catch (IndexOutOfBoundsException e) { //currentOffset has been ++ already (see the -1)
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[(length << 1) + CONSTANTPOOL_INITIAL_SIZE]), 0, length);
-				poolContent[currentOffset - 1] = (byte) (key >>> (56 - (i << 3)));
-			}
+			poolContent[currentOffset++] = (byte) (key >>> (56 - (i << 3)));
 		}
 	}
 	return index;
@@ -1044,7 +1027,7 @@ public int literalIndex(String stringConstant) {
  * This method returns the index into the constantPool 
  * corresponding to the field binding aFieldBinding.
  *
- * @param FieldBinding aFieldBinding
+ * @param aFieldBinding FieldBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(FieldBinding aFieldBinding) {
@@ -1087,7 +1070,7 @@ public int literalIndex(FieldBinding aFieldBinding) {
  * or a method reference constant.
  * Note: uses the method binding #constantPoolDeclaringClass which could be an array type
  * for the array clone method (see UpdatedMethodDeclaration).
- * @param MethodBinding aMethodBinding
+ * @param aMethodBinding MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(MethodBinding aMethodBinding) {
@@ -1173,7 +1156,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
+ * @param aTypeBinding TypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(TypeBinding aTypeBinding) {
@@ -1211,9 +1194,9 @@ public int literalIndex(TypeBinding aTypeBinding) {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param int nameIndex
- * @param int nameIndex
- * @param org.eclipse.jdt.internal.compiler.lookup.FieldBinding a FieldBinding
+ * @param nameIndex int
+ * @param typeIndex int
+ * @param key org.eclipse.jdt.internal.compiler.lookup.FieldBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key) {
@@ -1247,7 +1230,6 @@ public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key)
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangBoolean() {
@@ -1300,7 +1282,6 @@ public int literalIndexForJavaLangBooleanTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangByte() {
@@ -1353,7 +1334,6 @@ public int literalIndexForJavaLangByteTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangCharacter() {
@@ -1406,7 +1386,6 @@ public int literalIndexForJavaLangCharacterTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangClass() {
@@ -1536,7 +1515,6 @@ public int literalIndexForJavaLangClassGetComponentType() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangClassNotFoundException() {
@@ -1558,7 +1536,6 @@ public int literalIndexForJavaLangClassNotFoundException() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangDouble() {
@@ -1611,7 +1588,6 @@ public int literalIndexForJavaLangDoubleTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangError() {
@@ -1684,7 +1660,6 @@ public int literalIndexForJavaLangException() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangFloat() {
@@ -1737,7 +1712,6 @@ public int literalIndexForJavaLangFloatTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangInteger() {
@@ -1790,7 +1764,6 @@ public int literalIndexForJavaLangIntegerTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangLong() {
@@ -1843,7 +1816,6 @@ public int literalIndexForJavaLangLongTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangNoClassDefFoundError() {
@@ -1866,7 +1838,6 @@ public int literalIndexForJavaLangNoClassDefFoundError() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangAssertionError() {
@@ -1889,7 +1860,7 @@ public int literalIndexForJavaLangAssertionError() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
+ * @param typeBindingID int
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangAssertionErrorConstructor(int typeBindingID) {
@@ -2150,7 +2121,6 @@ public int literalIndexForJavaLangNoClassDefFoundErrorStringConstructor() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangObject() {
@@ -2172,7 +2142,6 @@ public int literalIndexForJavaLangObject() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangReflectConstructor() {
@@ -2223,7 +2192,6 @@ public int literalIndexForJavaLangReflectConstructorNewInstance() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangShort() {
@@ -2276,7 +2244,6 @@ public int literalIndexForJavaLangShortTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangString() {
@@ -2298,7 +2265,6 @@ public int literalIndexForJavaLangString() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaUtilIterator() {
@@ -3290,7 +3256,6 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangSystem() {
@@ -3348,7 +3313,6 @@ public int literalIndexForJavaLangSystemExitInt() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangThrowable() {
@@ -3406,7 +3370,6 @@ public int literalIndexForJavaLangThrowableGetMessage() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangVoid() {
@@ -3459,7 +3422,7 @@ public int literalIndexForJavaLangVoidTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param char[] stringName
+ * @param stringCharArray char[]
  * @return <CODE>int</CODE>
  */
 public int literalIndexForLdc(char[] stringCharArray) {
@@ -3476,8 +3439,7 @@ public int literalIndexForLdc(char[] stringCharArray) {
 			if (currentOffset + 2 >= poolContent.length) {
 				// we need to resize the poolContent array because we won't have
 				// enough space to write the length
-				int length = poolContent.length;
-				System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
+				resizePoolContents(2);
 			}
 			currentOffset += 2;
 			int length = 0;
@@ -3530,9 +3492,9 @@ public int literalIndexForLdc(char[] stringCharArray) {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param int nameIndex
- * @param int nameIndex
- * @param org.eclipse.jdt.internal.compiler.lookup.MethodBinding a methodBinding
+ * @param nameIndex int
+ * @param typeIndex int
+ * @param key org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding key) {
@@ -3615,43 +3577,39 @@ public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
 		UTF8Cache.remove(QualifiedNamesConstants.Clinit);
 	}
 }
+
 /**
- * Write a unsigned byte into the byte array
- * 
- * @param <CODE>int</CODE> The value to write into the byte array
+ * Resize the pool contents
  */
-protected final void writeU1(int value) {
-	try {
-		poolContent[currentOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		//currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) value;
-	}
+private final void resizePoolContents(int minimalSize) {
+	int length = poolContent.length;
+	int toAdd = length;
+	if (toAdd < minimalSize)
+		toAdd = minimalSize;
+	System.arraycopy(poolContent, 0, poolContent = new byte[length + toAdd], 0, length);
 }
 /**
  * Write a unsigned byte into the byte array
  * 
- * @param <CODE>int</CODE> The value to write into the byte array
+ * @param value <CODE>int</CODE> The value to write into the byte array
+ */
+protected final void writeU1(int value) {
+	if (currentOffset + 1 >= poolContent.length) {
+		resizePoolContents(1);
+	}
+	poolContent[currentOffset++] = (byte) value;
+}
+/**
+ * Write a unsigned byte into the byte array
+ * 
+ * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU2(int value) {
+	if (currentOffset + 2 >= poolContent.length) {
+		resizePoolContents(2);
+	}
 	//first byte
-	try {
-		poolContent[currentOffset++] = (byte) (value >> 8);
-	} catch (IndexOutOfBoundsException e) {
-		 //currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) (value >> 8);
-	}
-	try {
-		poolContent[currentOffset++] = (byte) value;
-	} catch (IndexOutOfBoundsException e) {
-		 //currentOffset has been ++ already (see the -1)
-		int length = poolContent.length;
-		System.arraycopy(poolContent, 0, (poolContent = new byte[length + CONSTANTPOOL_GROW_SIZE]), 0, length);
-		poolContent[currentOffset - 1] = (byte) value;
-	}
+	poolContent[currentOffset++] = (byte) (value >> 8);
+	poolContent[currentOffset++] = (byte) value;
 }
 }

@@ -41,7 +41,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	
 	/**
 	 * @param classFileBytes byte[]
-	 * @param offsets int[]
+	 * @param constantPool IConstantPool
 	 * @param offset int
 	 * @param decodingFlags int
 	 */
@@ -50,7 +50,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			
 		boolean no_code_attribute = (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
 		final int flags = u2At(classFileBytes, 0, offset);
-		accessFlags = flags;
+		this.accessFlags = flags;
 		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
 			this.isSynthetic = true;
 		}
@@ -119,7 +119,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
-		attributeBytes = readOffset;
+		this.attributeBytes = readOffset;
 	}
 	/**
 	 * @see IMethodInfo#getAccessFlags()
@@ -191,14 +191,14 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 * @see IMethodInfo#isClinit()
 	 */
 	public boolean isClinit() {
-		return name[0] == '<' && name.length == 8; // Can only match <clinit>
+		return this.name[0] == '<' && this.name.length == 8; // Can only match <clinit>
 	}
 
 	/**
 	 * @see IMethodInfo#isConstructor()
 	 */
 	public boolean isConstructor() {
-		return name[0] == '<' && name.length == 6; // Can only match <init>
+		return this.name[0] == '<' && this.name.length == 6; // Can only match <init>
 	}
 
 	/**
@@ -220,6 +220,6 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	}
 
 	int sizeInBytes() {
-		return attributeBytes;
+		return this.attributeBytes;
 	}
 }

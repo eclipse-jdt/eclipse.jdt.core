@@ -751,7 +751,7 @@ protected boolean isNameAltered() {
 	return getMask(MASK_NAME_ALTERED);
 }
 /**
- * @see IDOMNode#isSignatureEqual(IDOMNode).
+ * @see IDOMNode#isSignatureEqual(IDOMNode)
  *
  * <p>By default, the signatures of two nodes are equal if their
  * type and names are equal. Node types that have other requirements

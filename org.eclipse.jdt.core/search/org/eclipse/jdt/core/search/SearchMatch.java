@@ -51,12 +51,17 @@ public class SearchMatch {
 	private SearchParticipant participant;	
 	private IResource resource;
 
+	private boolean insideDocComment = false;
+
 	/**
 	 * Creates a new search match.
+	 * <p>
+	 * Note that <code>isInsideDocComment()</code> defaults to false.
+	 * </p>
 	 * 
 	 * @param element the element that encloses or corresponds to the match,
 	 * or <code>null</code> if none
-	 * @param accuracy one of A_ACCURATE or A_INACCURATE
+	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
 	 * @param offset the offset the match starts at, or -1 if unknown
 	 * @param length the length of the match, or -1 if unknown
 	 * @param participant the search participant that created the match
@@ -132,23 +137,41 @@ public class SearchMatch {
 	public final IResource getResource() {
 		return this.resource;
 	}
-	
+
 	/**
 	 * Returns whether this search match is inside a doc comment of a Java
 	 * source file.
 	 * 
-	 * @return <code>true</code> if this search match is inside a Java doc
+	 * @return <code>true</code> if this search match is inside a doc
 	 * comment, and <code>false</code> otherwise
 	 */
-	public boolean isInsideDocComment() {
+	public final boolean isInsideDocComment() {
 		// default is outside a doc comment
-		return false;
+		return this.insideDocComment;
 	}
 
 	/**
+	 * Sets the accuracy of this match.
+	 * 
+	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
+	 */
+	public final void setAccuracy (int accuracy) {
+		this.accuracy = accuracy;
+	}
+
+	/**
+	 * Sets the element of this search match.
+	 * 
+	 * @param element the element that encloses or corresponds to the match,
+	 * or <code>null</code> if none
+	 */
+	public final void setElement (Object element) {
+		this.element = element;
+	}
+	/**
 	 * Sets the length of this search match.
 	 * 
-	 * @param length the length of this match, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
 	 */
 	public final void setLength(int length) {
 		this.length = length;
@@ -157,13 +180,42 @@ public class SearchMatch {
 	/**
 	 * Sets the offset of this search match.
 	 * 
-	 * @param offset the offset of this match, or -1 if unknown
+	 * @param offset the offset the match starts at, or -1 if unknown
 	 */
 	public final void setOffset(int offset) {
 		this.offset = offset;
 	}
-	
+
 	/**
+	 * Sets the participant of this match.
+	 * 
+	 * @param participant the search participant that created this match
+	 */
+	public final void setParticipant (SearchParticipant participant) {
+		this.participant = participant;
+	}
+
+	/**
+	 * Sets the resource of this match.
+	 * 
+	 * @param resource the resource of the match, or <code>null</code> if none
+	 */
+	public final void setResource (IResource resource) {
+		this.resource = resource;
+	}
+
+	/**
+	 * Sets whether this search match is inside a doc comment of a Java
+	 * source file.
+	 * 
+	 * @param insideDoc <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
+	 */
+	public final void setInsideDocComment (boolean insideDoc) {
+		this.insideDocComment = insideDoc;
+	}
+
+	/* (non-javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -175,8 +227,10 @@ public class SearchMatch {
 		buffer.append(this.offset);
 		buffer.append("\n  length="); //$NON-NLS-1$
 		buffer.append(this.length);
-		buffer.append("\n  element="); //$NON-NLS-1$
-		buffer.append(((JavaElement)getElement()).toStringWithAncestors());
+		if (this.element != null) {
+			buffer.append("\n  element="); //$NON-NLS-1$
+			buffer.append(((JavaElement)getElement()).toStringWithAncestors());
+		}
 		buffer.append("\n"); //$NON-NLS-1$
 		return buffer.toString();
 	}

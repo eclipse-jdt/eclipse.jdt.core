@@ -431,7 +431,7 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
  * Returns -1 if the @methodBinding is not a predefined methodBinding, 
  * the right index otherwise.
  *
- * @param methodBindingorg.eclipse.jdt.internal.compiler.lookup.MethodBinding
+ * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int indexOfWellKnownMethods(MethodBinding methodBinding) {
@@ -683,7 +683,7 @@ public int indexOfWellKnownTypes(TypeBinding typeBinding) {
  * method descriptor. It can be either an interface method reference constant
  * or a method reference constant.
  *
- * @param MethodBinding aMethodBinding
+ * @param aMethodBinding MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(MethodBinding aMethodBinding) {
@@ -777,7 +777,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
+ * @param aTypeBinding TypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(TypeBinding aTypeBinding) {
@@ -1355,9 +1355,9 @@ public int literalIndexForJavaLangShortShortValue() {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param int nameIndex
- * @param int nameIndex
- * @param org.eclipse.jdt.internal.compiler.lookup.MethodBinding a methodBinding
+ * @param nameIndex int
+ * @param typeIndex int
+ * @param key org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding key) {

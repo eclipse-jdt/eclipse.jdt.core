@@ -40,11 +40,11 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 */
 	protected int resourceDeltasCounter;
 	/**
-	 * @see #getMovedFromHandle()
+	 * @see #getMovedFromElement()
 	 */
 	protected IJavaElement fMovedFromHandle = null;
 	/**
-	 * @see #getMovedToHandle()
+	 * @see #getMovedToElement()
 	 */
 	protected IJavaElement fMovedToHandle = null;
 	/**

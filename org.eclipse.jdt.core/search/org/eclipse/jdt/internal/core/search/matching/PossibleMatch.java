@@ -68,7 +68,7 @@ public char[] getContents() {
 /**
  * The exact openable file name. In particular, will be the originating .class file for binary openable with attached
  * source.
- * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, ReferenceBinding)
+ * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
  */
 public char[] getFileName() {
 	return this.openable.getElementName().toCharArray();

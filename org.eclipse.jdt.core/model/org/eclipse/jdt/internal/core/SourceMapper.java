@@ -283,7 +283,7 @@ public class SourceMapper
 	 * Converts these type names to unqualified signatures. This needs to be done in order to be consistent
 	 * with the way the source range is retrieved.
 	 * @see SourceMapper#getUnqualifiedMethodHandle
-	 * @see Signature.
+	 * @see Signature
 	 */
 	private String[] convertTypeNamesToSigs(char[][] typeNames) {
 		if (typeNames == null)
@@ -1158,7 +1158,7 @@ public class SourceMapper
 	/** 
 	 * Sets the mapping for this method to its parameter names.
 	 *
-	 * @see fParameterNames
+	 * @see #fParameterNames
 	 */
 	protected void setMethodParameterNames(
 		IMethod method,
@@ -1173,7 +1173,7 @@ public class SourceMapper
 	 * Sets the mapping for this element to its source ranges for its source range
 	 * and name range.
 	 *
-	 * @see fSourceRanges
+	 * @see #fSourceRanges
 	 */
 	protected void setSourceRange(
 		IJavaElement element,

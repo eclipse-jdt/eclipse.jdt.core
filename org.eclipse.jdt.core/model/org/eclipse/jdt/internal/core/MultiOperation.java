@@ -30,7 +30,7 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * Table specifying insertion positions for elements being 
 	 * copied/moved/renamed. Keyed by elements being processed, and
 	 * values are the corresponding insertion point.
-	 * @see processElements(IProgressMonitor)
+	 * @see #processElements()
 	 */
 	protected Map insertBeforeElements = new HashMap(1);
 	/**
@@ -114,11 +114,11 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * values are the new name.
 	 */
 	private void initializeRenamings() {
-		if (this.renamingsList != null && this.renamingsList.length == elementsToProcess.length) {
+		if (this.renamingsList != null && this.renamingsList.length == this.elementsToProcess.length) {
 			this.renamings = new HashMap(this.renamingsList.length);
 			for (int i = 0; i < this.renamingsList.length; i++) {
 				if (this.renamingsList[i] != null) {
-					this.renamings.put(elementsToProcess[i], this.renamingsList[i]);
+					this.renamings.put(this.elementsToProcess[i], this.renamingsList[i]);
 				}
 			}
 		}
@@ -151,13 +151,13 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * be completed.
 	 */
 	protected void processElements() throws JavaModelException {
-		beginTask(getMainTaskName(), elementsToProcess.length);
+		beginTask(getMainTaskName(), this.elementsToProcess.length);
 		IJavaModelStatus[] errors = new IJavaModelStatus[3];
 		int errorsCounter = 0;
-		for (int i = 0; i < elementsToProcess.length; i++) {
+		for (int i = 0; i < this.elementsToProcess.length; i++) {
 			try {
-				verify(elementsToProcess[i]);
-				processElement(elementsToProcess[i]);
+				verify(this.elementsToProcess[i]);
+				processElement(this.elementsToProcess[i]);
 			} catch (JavaModelException jme) {
 				if (errorsCounter == errors.length) {
 					// resize

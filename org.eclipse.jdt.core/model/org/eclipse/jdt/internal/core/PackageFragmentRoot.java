@@ -318,7 +318,7 @@ public IPackageFragment createPackageFragment(String pkgName, boolean force, IPr
  * Returns the root's kind - K_SOURCE or K_BINARY, defaults
  * to K_SOURCE if it is not on the classpath.
  *
- * @exception NotPresentException if the project and root do
+ * @exception JavaModelException if the project and root do
  * 		not exist.
  */
 protected int determineKind(IResource underlyingResource) throws JavaModelException {
@@ -839,7 +839,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		if (getJavaProject().getElementName().equals(path.segment(0))) {
 			buffer.append(path.removeFirstSegments(1).makeRelative());
 		} else {
-			buffer.append(path);
+		    if (isExternal()) {
+				buffer.append(path.toOSString());
+		    } else {
+				buffer.append(path);
+		    }
 		}
 	}
 	if (info == null) {

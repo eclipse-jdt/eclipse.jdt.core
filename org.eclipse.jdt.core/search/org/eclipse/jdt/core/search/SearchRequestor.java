@@ -35,6 +35,7 @@ public abstract class SearchRequestor {
 	 * Accepts the given search match.
 	 *
 	 * @param match the found match
+	 * @throws CoreException
 	 */
 	// TODO (jerome) - remove throws CoreException
 	public abstract void acceptSearchMatch(SearchMatch match) throws CoreException;

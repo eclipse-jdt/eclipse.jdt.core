@@ -661,6 +661,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			resource.delete(true, null);
 		} catch (CoreException e) {
 			lastException = e;
+		} catch (IllegalArgumentException iae) {
+			// just print for info
+			System.out.println(iae.getMessage());
 		}
 		int retryCount = 60; // wait 1 minute at most
 		while (resource.isAccessible() && --retryCount >= 0) {
@@ -672,6 +675,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				resource.delete(true, null);
 			} catch (CoreException e) {
 				lastException = e;
+			} catch (IllegalArgumentException iae) {
+				// just print for info
+				System.out.println("Retry "+retryCount+": "+iae.getMessage());
 			}
 		}
 		if (!resource.isAccessible()) return;
@@ -827,7 +833,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected IPath getExternalJCLSourcePath() {
-		return new Path(EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip");
+		return new Path(getExternalJCLSourcePathString());
+	}
+	/**
+	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
+	 */
+	protected String getExternalJCLSourcePathString() {
+		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip";
 	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));

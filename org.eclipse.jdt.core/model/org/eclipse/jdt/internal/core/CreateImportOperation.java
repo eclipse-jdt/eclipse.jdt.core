@@ -54,7 +54,7 @@ public CreateImportOperation(String importName, ICompilationUnit parentElement) 
 	fImportName = importName;
 }
 /**
- * @see CreateTypeMemberOperation#generateElementDOM
+ * @see CreateTypeMemberOperation
  * @deprecated JDOM is obsolete
  */
 // TODO - JDOM - remove once model ported off of JDOM

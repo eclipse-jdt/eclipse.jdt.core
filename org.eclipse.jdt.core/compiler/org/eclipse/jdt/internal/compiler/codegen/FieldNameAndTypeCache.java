@@ -49,7 +49,7 @@ public void clear() {
 }
 /** Returns true if the collection contains an element for the key.
  *
- * @param char[] key the key that we are looking for
+ * @param key char[] the key that we are looking for
  * @return boolean
  */
 public boolean containsKey(FieldBinding key) {

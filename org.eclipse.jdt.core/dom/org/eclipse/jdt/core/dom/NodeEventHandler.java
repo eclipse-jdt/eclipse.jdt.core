@@ -18,7 +18,7 @@ package org.eclipse.jdt.core.dom;
  * that does nothing. Internal subclasses do all the real work.
  * </p>
  * 
- * @see AST#getNodeEventHandler()
+ * @see AST#getEventHandler()
  */
 class NodeEventHandler {
 

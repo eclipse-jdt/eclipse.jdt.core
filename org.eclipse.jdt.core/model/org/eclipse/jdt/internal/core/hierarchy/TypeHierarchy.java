@@ -420,7 +420,7 @@ public IType[]  getAllSubtypes(IType type) {
 	return getAllSubtypesForType(type);
 }
 /**
- * @see getAllSubtypes(IType)
+ * @see #getAllSubtypes(IType)
  */
 private IType[] getAllSubtypesForType(IType type) {
 	ArrayList subTypes = new ArrayList();
@@ -540,7 +540,7 @@ public IType[] getExtendingInterfaces(IType type) {
 }
 /**
  * Assumes that the type is an interface
- * @see getExtendingInterfaces
+ * @see #getExtendingInterfaces
  */
 private IType[] getExtendingInterfaces0(IType extendedInterface) {
 	Iterator iter = this.typeToSuperInterfaces.keySet().iterator();
@@ -575,7 +575,7 @@ public IType[] getImplementingClasses(IType type) {
 }
 /**
  * Assumes that the type is an interface
- * @see getImplementingClasses
+ * @see #getImplementingClasses
  */
 private IType[] getImplementingClasses0(IType interfce) {
 	
@@ -1213,7 +1213,7 @@ public synchronized void refresh(IProgressMonitor monitor) throws JavaModelExcep
 		this.progressMonitor = monitor;
 		if (monitor != null) {
 			if (this.focusType != null) {
-				monitor.beginTask(Util.bind("hierarchy.creatingOnType", focusType.getFullyQualifiedName()), 100); //$NON-NLS-1$
+				monitor.beginTask(Util.bind("hierarchy.creatingOnType", this.focusType.getFullyQualifiedName()), 100); //$NON-NLS-1$
 			} else {
 				monitor.beginTask(Util.bind("hierarchy.creating"), 100); //$NON-NLS-1$
 			}
@@ -1281,12 +1281,12 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		Hashtable hashtable2 = new Hashtable();
 		int count = 0;
 		
-		if(focusType != null) {
+		if(this.focusType != null) {
 			Integer index = new Integer(count++);
-			hashtable.put(focusType, index);
-			hashtable2.put(index, focusType);
+			hashtable.put(this.focusType, index);
+			hashtable2.put(index, this.focusType);
 		}
-		Object[] types = classToSuperclass.keySet().toArray();
+		Object[] types = this.classToSuperclass.keySet().toArray();
 		for (int i = 0; i < types.length; i++) {
 			Object t = types[i];
 			if(hashtable.get(t) == null) {
@@ -1294,14 +1294,14 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 				hashtable.put(t, index);
 				hashtable2.put(index, t);
 			}
-			Object superClass = classToSuperclass.get(t);
+			Object superClass = this.classToSuperclass.get(t);
 			if(superClass != null && hashtable.get(superClass) == null) {
 				Integer index = new Integer(count++);
 				hashtable.put(superClass, index);
 				hashtable2.put(index, superClass);
 			}
 		}
-		types = typeToSuperInterfaces.keySet().toArray();
+		types = this.typeToSuperInterfaces.keySet().toArray();
 		for (int i = 0; i < types.length; i++) {
 			Object t = types[i];
 			if(hashtable.get(t) == null) {
@@ -1309,7 +1309,7 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 				hashtable.put(t, index);
 				hashtable2.put(index, t);
 			}
-			Object[] sp = (Object[])typeToSuperInterfaces.get(t);
+			Object[] sp = (Object[])this.typeToSuperInterfaces.get(t);
 			if(sp != null) {
 				for (int j = 0; j < sp.length; j++) {
 					Object superInterface = sp[j];
@@ -1326,23 +1326,23 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		
 		// save general info
 		byte generalInfo = 0;
-		if(computeSubtypes) {
+		if(this.computeSubtypes) {
 			generalInfo |= COMPUTE_SUBTYPES;
 		}
 		output.write(generalInfo);
 		
 		// save project
-		if(project != null) {
-			output.write(project.getHandleIdentifier().getBytes());
+		if(this.project != null) {
+			output.write(this.project.getHandleIdentifier().getBytes());
 		}
 		output.write(SEPARATOR1);
 		
 		// save missing types
-		for (int i = 0; i < missingTypes.size(); i++) {
+		for (int i = 0; i < this.missingTypes.size(); i++) {
 			if(i != 0) {
 				output.write(SEPARATOR2);
 			}
-			output.write(((String)missingTypes.get(i)).getBytes());
+			output.write(((String)this.missingTypes.get(i)).getBytes());
 			
 		}
 		output.write(SEPARATOR1);
@@ -1354,16 +1354,16 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			// n bytes
 			output.write(t.getHandleIdentifier().getBytes());
 			output.write(SEPARATOR4);
-			output.write(flagsToBytes((Integer)typeFlags.get(t)));
+			output.write(flagsToBytes((Integer)this.typeFlags.get(t)));
 			output.write(SEPARATOR4);
 			byte info = CLASS;
-			if(focusType != null && focusType.equals(t)) {
+			if(this.focusType != null && this.focusType.equals(t)) {
 				info |= COMPUTED_FOR;
 			}
-			if(interfaces.contains(t)) {
+			if(this.interfaces.contains(t)) {
 				info |= INTERFACE;
 			}
-			if(rootClasses.contains(t)) {
+			if(this.rootClasses.contains(t)) {
 				info |= ROOT;
 			}
 			output.write(info);
@@ -1371,10 +1371,10 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		output.write(SEPARATOR1);
 		
 		// save superclasses
-		types = classToSuperclass.keySet().toArray();
+		types = this.classToSuperclass.keySet().toArray();
 		for (int i = 0; i < types.length; i++) {
 			IJavaElement key = (IJavaElement)types[i];
-			IJavaElement value = (IJavaElement)classToSuperclass.get(key);
+			IJavaElement value = (IJavaElement)this.classToSuperclass.get(key);
 			
 			output.write(((Integer)hashtable.get(key)).toString().getBytes());
 			output.write('>');
@@ -1384,10 +1384,10 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		output.write(SEPARATOR1);
 		
 		// save superinterfaces
-		types = typeToSuperInterfaces.keySet().toArray();
+		types = this.typeToSuperInterfaces.keySet().toArray();
 		for (int i = 0; i < types.length; i++) {
 			IJavaElement key = (IJavaElement)types[i];
-			IJavaElement[] values = (IJavaElement[])typeToSuperInterfaces.get(key);
+			IJavaElement[] values = (IJavaElement[])this.typeToSuperInterfaces.get(key);
 			
 			if(values.length > 0) {
 				output.write(((Integer)hashtable.get(key)).toString().getBytes());

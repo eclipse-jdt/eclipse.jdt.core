@@ -146,7 +146,7 @@ public static Test suite() {
 	if (false) {
 		System.err.println("WARNING: "+ClasspathInitializerTests.class.getName()+" is currently running subset of test cases!!!");
 		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testUserLibraryInitializer1"));
+		suite.addTest(new ClasspathInitializerTests("testContainerInitializer10"));
 		return suite;
 	}
 	return new Suite(ClasspathInitializerTests.class);
@@ -574,6 +574,74 @@ public void testContainerInitializer9() throws CoreException {
 		stopDeltas();
 		ContainerInitializer.setInitializer(null);
 		deleteProject("P1");
+	}
+}
+/*
+ * Ensure that creating a Java project initializes a container and refreshes the external jar at the same time
+ * without throwing a ConcurrentModificationException
+ * (regression test for bug 63534 ConcurrentModificationException after "catching up")
+ */
+public void testContainerInitializer10() throws CoreException {
+	class LogListener implements ILogListener {
+    	IStatus log;
+        public void logging(IStatus status, String plugin) {
+            this.log = status;
+        }
+	}
+	LogListener listener = new LogListener();
+	try {
+		Platform.addLogListener(listener);
+		final IJavaProject p1 = createJavaProject("P1");
+		final IJavaProject p2 = createJavaProject("P2");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P3", "/P1"}) {
+	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+	            super.initialize(containerPath, project);
+	            getJavaModel().refreshExternalArchives(new IJavaElement[] {p1}, null);
+	        }
+		});
+		getWorkspace().run(new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) throws CoreException {
+                p2.setRawClasspath(new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/P2/src"))}, new Path("/P2/bin"), null);
+				createProject("P3");
+                editFile(
+                	"/P3/.project",
+                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+                	"<projectDescription>\n" + 
+                	"	<name>P3</name>\n" + 
+                	"	<comment></comment>\n" + 
+                	"	<projects>\n" + 
+                	"	</projects>\n" + 
+                	"	<buildSpec>\n" + 
+                	"		<buildCommand>\n" + 
+                	"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
+                	"			<arguments>\n" + 
+                	"			</arguments>\n" + 
+                	"		</buildCommand>\n" + 
+                	"	</buildSpec>\n" + 
+                	"	<natures>\n" + 
+                	"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
+                	"	</natures>\n" + 
+                	"</projectDescription>\n"
+                );
+                createFile(
+                	"/P3/.classpath",
+                	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+                	"<classpath>\n" + 
+                	"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
+                	"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" + 
+                	"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" + 
+                	"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+                	"</classpath>"
+                );
+             }
+        }, null);
+		
+		assertEquals("Should not get any exception in log", null, listener.log);
+	} finally {
+	    Platform.removeLogListener(listener);
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
 	}
 }
 public void testVariableInitializer1() throws CoreException {

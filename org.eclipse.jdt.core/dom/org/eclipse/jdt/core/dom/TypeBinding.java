@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Internal implementation of type bindings.
@@ -167,9 +166,12 @@ class TypeBinding implements ITypeBinding {
 		if (referenceBinding.isNestedType()) {
 			try {
 				return this.resolver.getTypeBinding(referenceBinding.enclosingType());
-			} catch (AbortCompilation e) {
-				// in case the enclosing type cannot be resolvable due to missing jars on the classpath
-				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			} catch (RuntimeException e) {
+				/* in case a method cannot be resolvable due to missing jars on the classpath
+				 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+				 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+				 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+				 */
 			}
 		}
 		return null;
@@ -186,9 +188,12 @@ class TypeBinding implements ITypeBinding {
 		ReferenceBinding superclass = null;
 		try {
 			superclass = referenceBinding.superclass();
-		} catch (AbortCompilation e) {
-			// in case the superclass cannot be resolvable due to missing jars on the classpath
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		} catch (RuntimeException e) {
+			/* in case a method cannot be resolvable due to missing jars on the classpath
+			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+			 */
 			return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 		}
 		if (superclass == null) {
@@ -208,9 +213,12 @@ class TypeBinding implements ITypeBinding {
 		ReferenceBinding[] interfaces = null;
 		try {
 			interfaces = referenceBinding.superInterfaces();
-		} catch (AbortCompilation e) {
-			// in case the one of the super interfaces cannot be resolvable due to missing jars on the classpath
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		} catch (RuntimeException e) {
+			/* in case a method cannot be resolvable due to missing jars on the classpath
+			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+			 */
 		}
 		if (interfaces == null) {
 			return NO_TYPE_BINDINGS;
@@ -323,9 +331,12 @@ class TypeBinding implements ITypeBinding {
 				}
 				return newMembers;
 			}
-		} catch (AbortCompilation e) {
-			// in case a member types cannot be resolvable due to missing jars on the classpath
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		} catch (RuntimeException e) {
+			/* in case a method cannot be resolvable due to missing jars on the classpath
+			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+			 */
 		}
 		return NO_TYPE_BINDINGS;
 	}
@@ -359,9 +370,12 @@ class TypeBinding implements ITypeBinding {
 				}
 				return newFields;
 			}
-		} catch (AbortCompilation e) {
-			// in case a field cannot be resolvable due to missing jars on the classpath
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		} catch (RuntimeException e) {
+			/* in case a method cannot be resolvable due to missing jars on the classpath
+			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+			 */
 		}
 		return NO_VARIABLE_BINDINGS;
 	}
@@ -388,9 +402,12 @@ class TypeBinding implements ITypeBinding {
 				}
 				return newMethods;
 			}
-		} catch (AbortCompilation e) {
-			// in case a method cannot be resolvable due to missing jars on the classpath
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+		} catch (RuntimeException e) {
+			/* in case a method cannot be resolvable due to missing jars on the classpath
+			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+			 */
 		}
 		return NO_METHOD_BINDINGS;
 	}

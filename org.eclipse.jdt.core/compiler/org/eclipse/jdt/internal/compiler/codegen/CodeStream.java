@@ -3024,6 +3024,8 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	if (this.targetLevel >= JDK1_5) {
 		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderAppend(typeID));
 	} else {
@@ -3104,6 +3106,8 @@ public void invokeStringConcatenationDefaultConstructor() {
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	if (this.targetLevel >= JDK1_5) {
 		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderDefaultConstructor());
 	} else {
@@ -3123,6 +3127,8 @@ public void invokeStringConcatenationStringConstructor() {
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokespecial;
 	if (this.targetLevel >= JDK1_5) {
 		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderConstructor());
 	} else {
@@ -3143,6 +3149,8 @@ public void invokeStringConcatenationToString() {
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokevirtual;
 	if (this.targetLevel >= JDK1_5) {
 		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderToString());
 	} else {

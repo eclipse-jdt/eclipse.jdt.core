@@ -259,8 +259,8 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * Inserts the given child into the given JDOM, 
 	 * based on the position settings of this operation.
 	 *
-	 * @see createAfter(IJavaElement)
-	 * @see createBefore(IJavaElement)
+	 * @see #createAfter(IJavaElement)
+	 * @see #createBefore(IJavaElement)
 	 * @deprecated JDOM is obsolete
 	 */
     // TODO - JDOM - remove once model ported off of JDOM
@@ -318,7 +318,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 *  <li>INVALID_SIBLING - the sibling provided for positioning is not valid.
 	 * </ul>
 	 * @see IJavaModelStatus
-	 * @see JavaConventions
+	 * @see org.eclipse.jdt.core.JavaConventions
 	 */
 	public IJavaModelStatus verify() {
 		if (getParentElement() == null) {

@@ -155,11 +155,81 @@ Incorrect highlighting for type problem in qualified type name
 [1.5] ArrayStoreException in 1.5 parser
 
 
+<a name="v_436"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0RC1 Build - 28th May 2004 - 3.0 RELEASE CANDIDATE 1
+<br>Project org.eclipse.jdt.core v_436
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_436">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63534">63534</a>
+ConcurrentModificationException after "catching up" 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62131">62131</a>
+CodeStream should do bounds checks
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64470">64470</a>
+&lt;packages prefixes=..../&gt; should be removed
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64299">64299</a>
+NullPointerException when OverrideIndicatorLabelDecorator is decorating
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63550">63550</a>
+NPE "Java AST Creation"
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64421">64421</a>
+ArrayIndexOutOfBoundsException in PackageReferenceLocator.matchReportReference()
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62453">62453</a>
+Large File: Java builder not reacting on cancel
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64377">64377</a>
+CRASH: An internal error occurred during: "Java AST creation"
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64378">64378</a>
+Wording of error message
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64332">64332</a>
+Javadoc errors in non-API doc comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64329">64329</a>
+Missing Javadoc tags declaration in API methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=64170">64170</a>
+Classpath reentrance protection is not thread-safe 
+
+<a name="v_435"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0RC1 Build - 27th May 2004
+<br>Project org.eclipse.jdt.core v_435
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_435">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>API polish on search matches (org.eclipse.jdt.core.search.SearchMatch hierarchy):
+<ul>
+<li>added setters for all match properties (not just length & offset)</li>
+<li>add insideDocComment argument to PackageReferenceMatch constructor (for 
+being consistent with other reference matches)</li>
+</ul>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62697">62697</a> for more details.
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62854">62854</a>
+refactoring does not trigger reconcile 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62697">62697</a>
+Need to know if a package reference match is in Javadoc or in Code
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63756">63756</a>
+multiple builds early
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63077">63077</a>
+IllegalArgumentException in Openable.codeSelect 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62861">62861</a>
+ArrayIndexOutOfBoundsException in SearchableEnvironment 
+
+
 <a name="v_434"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0RC1 Build - 26th May 2004 - 3.0 RELEASE CANDIDATE 1
+Eclipse SDK 3.0RC1 Build - 26th May 2004
 <br>Project org.eclipse.jdt.core v_434
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_434">cvs</a>).
 <h2>

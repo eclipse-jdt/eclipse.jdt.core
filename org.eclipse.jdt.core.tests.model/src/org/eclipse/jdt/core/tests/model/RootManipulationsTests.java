@@ -483,7 +483,7 @@ public void testDeleteJarFile3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
-			"	" + getExternalJCLPath() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	" + getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(

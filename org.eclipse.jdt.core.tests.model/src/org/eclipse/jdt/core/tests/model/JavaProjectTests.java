@@ -885,10 +885,10 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]\n" + 
-		"java [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
-		"java.lang [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
-		"META-INF [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
-		"<default> [in "+  getExternalJCLPath() +" [in JavaProjectTests]]\n" + 
+		"java [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
+		"java.lang [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
+		"META-INF [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
+		"<default> [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
 		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
 		"p [in lib.jar [in JavaProjectTests]]\n" + 
 		"<default> [in lib.jar [in JavaProjectTests]]",

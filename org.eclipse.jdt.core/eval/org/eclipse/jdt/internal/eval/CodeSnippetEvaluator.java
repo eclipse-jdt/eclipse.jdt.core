@@ -107,7 +107,7 @@ protected char[] getClassName() {
 	return CharOperation.concat(CODE_SNIPPET_CLASS_NAME_PREFIX, Integer.toString(EvaluationContext.CODE_SNIPPET_COUNTER + 1).toCharArray());
 }
 /**
- * @see Evaluator.
+ * @see Evaluator
  */
 Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 	Compiler compiler = null;

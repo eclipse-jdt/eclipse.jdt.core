@@ -822,7 +822,7 @@ public class MultiProjectTests extends Tests {
 			
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required .class files.", x),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p3.Z. Fix the build path then try rebuilding this project.", p1)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p3.Z. Fix the build path then try building this project.", p1)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 		} finally {
 			env.setBuildOrder(null);

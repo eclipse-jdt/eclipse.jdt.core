@@ -118,7 +118,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 	// nothing to do
 }
 /**
- * @see DOMNode#appendSimpleContents(CharArrayBuffer)
+ * @see DOMMember#appendSimpleContents(CharArrayBuffer)
  */
 protected void appendSimpleContents(CharArrayBuffer buffer) {
 	// append eveything before my name
@@ -180,7 +180,7 @@ public int getNodeType() {
 	return IDOMNode.INITIALIZER;
 }
 /**
- * @see IDOMNode#isSigantureEqual(IDOMNode).
+ * @see IDOMNode#isSignatureEqual(IDOMNode)
  *
  * <p>This method always answers false since an initializer
  * does not have a signature.
@@ -202,7 +202,7 @@ protected void offset(int offset) {
 	offsetRange(fBodyRange, offset);
 }
 /**
- * @see IDOMInitializer#setBody(char[])
+ * @see IDOMInitializer#setBody(String)
  */
 public void setBody(String body) {
 	becomeDetailed();

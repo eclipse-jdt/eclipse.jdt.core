@@ -718,8 +718,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *  be performed during the classpath setting operation (if validation fails, the classpath setting will not complete).
 	 *  <p>
 	 * @param javaProject the given java project
-	 * @param classpath a given classpath
-	 * @param outputLocation a given output location
+	 * @param rawClasspath a given classpath
+	 * @param projectOutputLocation a given output location
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given classpath and output location are compatible, otherwise a status 
 	 *		object indicating what is wrong with the classpath or output location

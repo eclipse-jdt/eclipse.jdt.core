@@ -22,7 +22,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 	/**
 	 * ArrayTypeReference constructor comment.
 	 * @param source char[]
-	 * @param dim int
+	 * @param dimensions int
 	 * @param pos int
 	 */
 	public ArrayTypeReference(char[] source, int dimensions, long pos) {

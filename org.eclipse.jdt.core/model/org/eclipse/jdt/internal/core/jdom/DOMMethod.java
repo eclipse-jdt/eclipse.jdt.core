@@ -350,7 +350,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 	
 }
 /**
- * @see DOMNode#appendSimpleContents(CharArrayBuffer)
+ * @see DOMMember#appendSimpleContents(CharArrayBuffer)
  */
 protected void appendSimpleContents(CharArrayBuffer buffer) {
 	// append eveything before my name
@@ -519,7 +519,7 @@ protected boolean isReturnTypeAltered() {
 	return getMask(MASK_RETURN_TYPE_ALTERED);
 }
 /**
- * @see IDOMNode#isSigantureEqual(IDOMNode).
+ * @see IDOMNode#isSignatureEqual(IDOMNode)
  *
  * <p>Two methods have equal signatures if there names are the same
  * and their parameter types are the same.
@@ -609,7 +609,7 @@ public void setConstructor(boolean b) {
 	fragment();
 }
 /**
- * @see IDOMMethod#setExceptions(char[][])
+ * @see IDOMMethod#setExceptions(String[])
  */
 public void setExceptions(String[] names) {
 	becomeDetailed();
@@ -639,7 +639,7 @@ public void setName(String name) {
 	}
 }
 /**
- * @see IDOMMethod#setParameters(char[][], char[][])
+ * @see IDOMMethod#setParameters(String[], String[])
  */
 public void setParameters(String[] types, String[] names) throws IllegalArgumentException {
 	becomeDetailed();
@@ -676,7 +676,7 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
 	fragment();
 }
 /**
- * @see IDOMMethod#setReturnType(char[])
+ * @see IDOMMethod#setReturnType(String)
  */
 public void setReturnType(String name) throws IllegalArgumentException {
 	if (name == null) {

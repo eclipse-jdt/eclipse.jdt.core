@@ -166,7 +166,7 @@ public boolean equals(Object o) {
 }
 /**
  * @see IPackageFragment#getClassFile(String)
- * @exception IllegalArgumentExcpetion if the name does not end with ".class"
+ * @exception IllegalArgumentException if the name does not end with ".class"
  */
 public IClassFile getClassFile(String classFileName) {
 	if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(classFileName)) {
@@ -193,7 +193,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 }
 /**
  * @see IPackageFragment#getCompilationUnit(String)
- * @exception IllegalArgumentExcpetion if the name does not end with ".java"
+ * @exception IllegalArgumentException if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
 	if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(cuName)) {

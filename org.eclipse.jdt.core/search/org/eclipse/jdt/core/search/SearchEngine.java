@@ -430,7 +430,7 @@ public class SearchEngine {
 	 * being searched (for example, search method declarations in a case sensitive way).
 	 *
 	 * @param scope the search result has to be limited to the given scope
-	 * @param resultCollector a callback object to which each match is reported
+	 * @param requestor a callback object to which each match is reported
 	 */
 	private void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();

@@ -1172,8 +1172,6 @@ public abstract class ASTNode {
 		 * This node will be the common parent of all nodes added to 
 		 * this list.
 		 * 
-		 * @param cycleCheck <code>true</code> if cycles should be
-		 *    checked, and <code>false</code> if cycles are not a risk
 		 * @param property the property descriptor
 		 * @since 3.0
 		 */
@@ -1530,6 +1528,7 @@ public abstract class ASTNode {
 	 * </ul>
 	 * 
 	 * @param property the property
+	 * @param value the property value
 	 * @exception RuntimeException if this node does not have the
 	 * given property, or if the given property cannot be set
 	 * @since 3.0
@@ -2004,7 +2003,7 @@ public abstract class ASTNode {
 	/**
      * Postlude portion of the "3 step program" for replacing the
 	 * old child of this node with another node.
-     * See {@link #preChange(SimplePropertyDescriptor)} for details.
+     * See {@link #preValueChange(SimplePropertyDescriptor)} for details.
 	 * @since 3.0
 	 */ 
 	final void postValueChange(SimplePropertyDescriptor property) {

@@ -1800,14 +1800,24 @@ public class JavaProject
 		boolean returnResolutionInProgress)
 		throws JavaModelException {
 
+	    JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		JavaModelManager.PerProjectInfo perProjectInfo = null;
 		if (ignoreUnresolvedEntry && !generateMarkerOnError) {
 			perProjectInfo = getPerProjectInfo();
 			if (perProjectInfo != null) {
 				// resolved path is cached on its info
 				IClasspathEntry[] infoPath = perProjectInfo.resolvedClasspath;
-				if (infoPath != null && (returnResolutionInProgress || infoPath != RESOLUTION_IN_PROGRESS)) {
+				if (infoPath != null) {
 					return infoPath;
+				} else if  (returnResolutionInProgress && manager.isClasspathBeingResolved(this)) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						Util.verbose(
+							"CPResolution: reentering raw classpath resolution, will use empty classpath instead" + //$NON-NLS-1$
+							"	project: " + getElementName() + '\n' + //$NON-NLS-1$
+							"	invocation stack trace:"); //$NON-NLS-1$
+						new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
+					}						
+				    return RESOLUTION_IN_PROGRESS;
 				}
 			}
 		}
@@ -1816,7 +1826,7 @@ public class JavaProject
 		boolean nullOldResolvedCP = perProjectInfo != null && perProjectInfo.resolvedClasspath == null;
 		try {
 			// protect against misbehaving clients (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=61040)
-			if (nullOldResolvedCP) perProjectInfo.resolvedClasspath = RESOLUTION_IN_PROGRESS;
+			if (nullOldResolvedCP) manager.setClasspathBeingResolved(this, true);
 			resolvedPath = getResolvedClasspath(
 				getRawClasspath(generateMarkerOnError, !generateMarkerOnError), 
 				generateMarkerOnError ? getOutputLocation() : null, 
@@ -1840,6 +1850,7 @@ public class JavaProject
 
 			perProjectInfo.resolvedClasspath = resolvedPath;
 			perProjectInfo.resolvedPathToRawEntries = reverseMap;
+			manager.setClasspathBeingResolved(this, false);
 		}
 		return resolvedPath;
 	}
