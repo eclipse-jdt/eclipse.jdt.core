@@ -65,7 +65,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 			monitor.beginTask(Util.bind("element.attachingSource"), 2); //$NON-NLS-1$
 		}
 		SourceMapper oldMapper= getSourceMapper();
-		IWorkspace workspace= getJavaModel().getWorkspace();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		boolean rootNeedsToBeClosed= false;
 
 		if (sourcePath == null) {
@@ -579,7 +579,7 @@ protected String getSourceAttachmentProperty() throws JavaModelException {
 	String propertyString = null;
 	QualifiedName qName= getSourceAttachmentPropertyName();
 	try {
-		propertyString = getWorkspace().getRoot().getPersistentProperty(qName);
+		propertyString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
 		
 		// if no existing source attachment information, then lookup a recommendation from classpath entries
 		if (propertyString == null) {
@@ -610,7 +610,7 @@ protected QualifiedName getSourceAttachmentPropertyName() throws JavaModelExcept
 
 public void setSourceAttachmentProperty(String property) {
 	try {
-		getWorkspace().getRoot().setPersistentProperty(this.getSourceAttachmentPropertyName(), property);
+		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(this.getSourceAttachmentPropertyName(), property);
 	} catch (CoreException ce) {
 	}
 }

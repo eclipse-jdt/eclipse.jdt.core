@@ -236,7 +236,7 @@ public class JavaProject
 		IClasspathEntry[] immediateClasspath = 
 			getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
 			
-		IWorkspaceRoot workspaceRoot = this.getWorkspace().getRoot();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
 
@@ -319,7 +319,7 @@ public class JavaProject
 
 		IPath projectPath = getProject().getFullPath();
 		IPath entryPath = resolvedEntry.getPath();
-		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		
 		switch(resolvedEntry.getEntryKind()){
 			
