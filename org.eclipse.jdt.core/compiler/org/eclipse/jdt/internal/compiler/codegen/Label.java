@@ -151,6 +151,11 @@ public void place() { // Currently lacking wide support.
 						LocalVariableBinding local = locals[i];
 						if ((local != null) && (local.initializationCount > 0)) {
 							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
+								// we want to prevent interval of size 0 to have a negative size.
+								// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
+								if (local.initializationPCs[((local.initializationCount - 1) << 1)] == oldPosition) {
+									local.initializationPCs[((local.initializationCount - 1) << 1)] = position;
+								}
 								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = position;
 							}
 						}
