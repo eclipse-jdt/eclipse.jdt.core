@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * A parameterized type encapsulates a type with type arguments,
@@ -38,8 +37,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.methods = null;		
 		this.arguments = typeArguments;
 		this.environment = environment;
-		this.modifiers = type.modifiers | AccGenericSignature;
-		this.modifiers ^= AccUnresolved; // clear the bit which is only relevant for raw type
+		this.modifiers = type.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
 		    if ((typeArguments[i].tagBits & HasTypeVariable) != 0) {
 		        this.tagBits |= HasTypeVariable;
@@ -142,19 +140,30 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])
 	 */
 	public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
-   	    // TODO (kent) need to be optimized to avoid resolving all methods
-	    methods();	
 		int argCount = argumentTypes.length;
-	
-		// have resolved all arg types & return type of the methods
-		nextMethod : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
-				TypeBinding[] toMatch = method.parameters;
-				for (int p = 0; p < argCount; p++)
-					if (toMatch[p] != argumentTypes[p])
-						continue nextMethod;
-				return method;
+
+		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+			nextMethod : for (int m = methods.length; --m >= 0;) {
+				MethodBinding method = methods[m];
+				if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+					TypeBinding[] toMatch = method.parameters;
+					for (int p = 0; p < argCount; p++)
+						if (toMatch[p] != argumentTypes[p])
+							continue nextMethod;
+					return method;
+				}
+			}
+		} else {
+			MethodBinding[] constructors = getMethods(ConstructorDeclaration.ConstantPoolName); // takes care of duplicates & default abstract methods
+			nextConstructor : for (int c = constructors.length; --c >= 0;) {
+				MethodBinding constructor = constructors[c];
+				TypeBinding[] toMatch = constructor.parameters;
+				if (toMatch.length == argCount) {
+					for (int p = 0; p < argCount; p++)
+						if (toMatch[p] != argumentTypes[p])
+							continue nextConstructor;
+					return constructor;
+				}
 			}
 		}
 		return null;
@@ -164,19 +173,31 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactMethod(char[], TypeBinding[])
 	 */
 	public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes) {
-   	    // TODO (kent) need to be optimized to avoid resolving all methods
-	    methods();	
 		int argCount = argumentTypes.length;
 		int selectorLength = selector.length;
 		boolean foundNothing = true;
-	
-		// have resolved all arg types & return type of the methods
-		nextMethod : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
-				foundNothing = false; // inner type lookups must know that a method with this name exists
-				if (method.parameters.length == argCount) {
-					TypeBinding[] toMatch = method.parameters;
+
+		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+			nextMethod : for (int m = methods.length; --m >= 0;) {
+				MethodBinding method = methods[m];
+				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
+					foundNothing = false; // inner type lookups must know that a method with this name exists
+					if (method.parameters.length == argCount) {
+						TypeBinding[] toMatch = method.parameters;
+						for (int p = 0; p < argCount; p++)
+							if (toMatch[p] != argumentTypes[p])
+								continue nextMethod;
+						return method;
+					}
+				}
+			}
+		} else {
+			MethodBinding[] matchingMethods = getMethods(selector); // takes care of duplicates & default abstract methods
+			foundNothing = matchingMethods == NoMethods;
+			nextMethod : for (int m = matchingMethods.length; --m >= 0;) {
+				MethodBinding method = matchingMethods[m];
+				TypeBinding[] toMatch = method.parameters;
+				if (toMatch.length == argCount) {
 					for (int p = 0; p < argCount; p++)
 						if (toMatch[p] != argumentTypes[p])
 							continue nextMethod;
@@ -184,13 +205,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 				}
 			}
 		}
-	
+
 		if (foundNothing) {
 			if (isInterface()) {
-				 if (superInterfaces().length == 1)
-					return superInterfaces()[0].getExactMethod(selector, argumentTypes);
-			} else if (superclass() != null) {
-				return superclass().getExactMethod(selector, argumentTypes);
+				 if (superInterfaces.length == 1)
+					return superInterfaces[0].getExactMethod(selector, argumentTypes);
+			} else if (superclass != null) {
+				return superclass.getExactMethod(selector, argumentTypes);
 			}
 		}
 		return null;
@@ -221,50 +242,49 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
 	public MethodBinding[] getMethods(char[] selector) {
-	    // TODO (kent) need to be optimized to avoid resolving all methods
-	    methods();	    
-		try{
-			int count = 0;
-			int lastIndex = -1;
+		java.util.ArrayList matchingMethods = null;
+		if (this.methods != null) {
 			int selectorLength = selector.length;
-			// have resolved all arg types & return type of the methods
-			for (int m = 0, length = methods.length; m < length; m++) {
-				MethodBinding method = methods[m];
+			for (int i = 0, length = this.methods.length; i < length; i++) {
+				MethodBinding method = methods[i];
 				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
-					count++;
-					lastIndex = m;
+					if (matchingMethods == null)
+						matchingMethods = new java.util.ArrayList(2);
+					matchingMethods.add(method);
 				}
 			}
-			if (count == 1)
-				return new MethodBinding[] {methods[lastIndex]};
-			if (count > 1) {
-				MethodBinding[] result = new MethodBinding[count];
-				count = 0;
-				for (int m = 0; m <= lastIndex; m++) {
-					MethodBinding method = methods[m];
-					if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector))
-						result[count++] = method;
-				}
+			if (matchingMethods != null) {
+				MethodBinding[] result = new MethodBinding[matchingMethods.size()];
+				matchingMethods.toArray(result);
 				return result;
 			}
-		} catch(AbortCompilation e){
-			// ensure null methods are removed
-			MethodBinding[] newMethods = null;
-			int count = 0;
-			for (int i = 0, max = methods.length; i < max; i++){
-				MethodBinding method = methods[i];
-				if (method == null && newMethods == null){
-					System.arraycopy(methods, 0, newMethods = new MethodBinding[max], 0, i);
-				} else if (newMethods != null && method != null) {
-					newMethods[count++] = method;
-				}
+		}
+		if ((modifiers & AccUnresolved) == 0) return NoMethods; // have created all the methods and there are no matches
+
+		MethodBinding[] parameterizedMethods = null;
+		try {
+		    MethodBinding[] originalMethods = this.type.getMethods(selector);
+		    int length = originalMethods.length;
+		    if (length == 0) return NoMethods; 
+
+		    parameterizedMethods = new MethodBinding[length];
+		    for (int i = 0; i < length; i++)
+		    	// substitute methods, so as to get updated declaring class at least
+	            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
+		    if (this.methods == null) {
+		    	this.methods = parameterizedMethods;
+		    } else {
+		    	MethodBinding[] temp = new MethodBinding[length + this.methods.length];
+		    	System.arraycopy(parameterizedMethods, 0, temp, 0, length);
+		    	System.arraycopy(this.methods, 0, temp, length, this.methods.length);
+		    	this.methods = temp;
 			}
-			if (newMethods != null){
-				System.arraycopy(newMethods, 0, methods = new MethodBinding[count], 0, count);
-			}			
-			throw e;
-		}		
-		return NoMethods;
+		    return parameterizedMethods;
+		} finally {
+			// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
+		    if (parameterizedMethods == null) 
+		        this.methods = parameterizedMethods = NoMethods;
+		}
 	}
 
 	/**
@@ -306,21 +326,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#methods()
 	 */
 	public MethodBinding[] methods() {
-		if (this.methods == null) {
-			try {
-			    MethodBinding[] originalMethods = this.type.methods();
-			    int length = originalMethods.length;
-			    MethodBinding[] parameterizedMethods = new MethodBinding[length];
-			    for (int i = 0; i < length; i++)
-			    	// substitute all methods, so as to get updated declaring class at least
-		            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
-			    this.methods = parameterizedMethods;
-			} finally {
-				// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
-			    if (this.methods == null) 
-			        this.methods = NoMethods;
-			}
-		}
+		if ((modifiers & AccUnresolved) == 0)
+			return this.methods;
+
+		try {
+		    MethodBinding[] originalMethods = this.type.methods();
+		    int length = originalMethods.length;
+		    MethodBinding[] parameterizedMethods = new MethodBinding[length];
+		    for (int i = 0; i < length; i++)
+		    	// substitute all methods, so as to get updated declaring class at least
+	            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
+		    this.methods = parameterizedMethods;
+		} finally {
+			// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
+		    if (this.methods == null) 
+		        this.methods = NoMethods;
+
+			modifiers ^= AccUnresolved;
+		}		
 		return this.methods;
 	}
 
