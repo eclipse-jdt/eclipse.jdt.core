@@ -184,6 +184,7 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 			} else {
 				return null;
 			}
+			if (superclassName == null) return null;
 			int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
 			char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
 			return new MissingType(new String(simpleName));
