@@ -230,7 +230,7 @@ public class SwitchStatement extends Statement {
 						int key = cst.intValue();
 						for (int j = 0; j < counter; j++) {
 							if (casesValues[j] == key) {
-								scope.problemReporter().duplicateCase((Case) statements[i], cst);
+								scope.problemReporter().duplicateCase((Case) statements[i], cst); //TODO: (philippe) could improve diagnosis to indicate colliding case
 							}
 						}
 						casesValues[counter++] = key;
