@@ -294,7 +294,7 @@ public class ASTParser {
      * for the node that include the given source position. This kind of limited
      * AST is sufficient for certain purposes but totally unsuitable for others.
      * In places where it can be used, the limited AST offers the advantage of
-     * being smaller and faster to faster to construct.
+     * being smaller and faster to construct.
 	 * </p>
 	 * <p>
 	 * The AST will include nodes for all of the compilation unit's
@@ -423,10 +423,13 @@ public class ASTParser {
 
 	/**
      * Sets the source code to be parsed.
+     * This method automatically sets the project (and compiler
+     * options) based on the given compilation unit, in a manner
+     * equivalent to <code>setProject(source.getJavaProject())</code>
      *
 	 * @param source the Java model compilation unit whose source code
      * is to be parsed, or <code>null</code> if none
-     */
+      */
 	public void setSource(ICompilationUnit source) {
 		this.compilationUnitSource = source;
 		// clear the others
@@ -440,6 +443,9 @@ public class ASTParser {
 	
 	/**
      * Sets the source code to be parsed.
+     * This method automatically sets the project (and compiler
+     * options) based on the given compilation unit, in a manner
+     * equivalent to <code>setProject(source.getJavaProject())</code>
      *
 	 * @param source the Java model class file whose corresponding source code
      * is to be parsed, or <code>null</code> if none
@@ -510,15 +516,17 @@ public class ASTParser {
 	
 	/**
      * Sets the Java project used when resolving bindings.
-     * This setting is used in conjunction with <code>setSource(char[])</code>;
-     * it is ignored if the source code comes from
-     * <code>setSource(ICompilationUnit)</code>
-     * or <code>setSource(IClassFile)</code>.
+     * This method automatically sets the compiler
+     * options based on the given project:
+     * <pre>
+     * setCompilerOptions(project.getOptions(true));
+     * </pre>
+     * This setting is used in conjunction with <code>setSource(char[])</code>.
      * For the purposes of resolving bindings, types declared in the
 	 * source string will hide types by the same name available
      * through the classpath of the given project.
      * Defaults to none (<code>null</code>).
-     *
+     * 
 	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if none
      */

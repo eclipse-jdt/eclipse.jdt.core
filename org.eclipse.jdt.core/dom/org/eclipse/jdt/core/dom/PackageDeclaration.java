@@ -140,7 +140,7 @@ public class PackageDeclaration extends ASTNode {
 	 */
 	PackageDeclaration(AST ast) {
 		super(ast);
-		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
 			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 		}
 	}
@@ -200,7 +200,7 @@ public class PackageDeclaration extends ASTNode {
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.setJavadoc((Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		}
@@ -222,7 +222,7 @@ public class PackageDeclaration extends ASTNode {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChild(visitor, getJavadoc());
 				acceptChildren(visitor, this.annotations);
 			}

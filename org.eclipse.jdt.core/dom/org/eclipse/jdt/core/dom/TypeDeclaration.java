@@ -271,10 +271,10 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */
 	TypeDeclaration(AST ast) {
 		super(ast);
-		if (ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (ast.apiLevel == AST.LEVEL_2_0) {
 			this.superInterfaceNames = new ASTNode.NodeList(SUPER_INTERFACES_PROPERTY);
 		}
-		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
 			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 			this.superInterfaceTypes = new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
 		}
@@ -434,7 +434,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 			result.setSuperclass(
 					(Name) ASTNode.copySubtree(target, getSuperclass()));
@@ -443,7 +443,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		}
 		result.setInterface(isInterface());
 		result.setName((SimpleName) getName().clone(target));
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.typeParameters().addAll(
 					ASTNode.copySubtrees(target, typeParameters()));
@@ -472,14 +472,14 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.apiLevel == AST.LEVEL_2_0) {
 				acceptChild(visitor, getJavadoc());
 				acceptChild(visitor, getName());
 				acceptChild(visitor, getSuperclass());
 				acceptChildren(visitor, this.superInterfaceNames);
 				acceptChildren(visitor, this.bodyDeclarations);
 			}
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChild(visitor, getJavadoc());
 				acceptChildren(visitor, this.modifiers);
 				acceptChild(visitor, getName());

@@ -25,9 +25,6 @@ public class JavadocTestMixed extends JavadocTest {
 	public JavadocTestMixed(String name) {
 		super(name);
 	}
-	public JavadocTestMixed(String name, String support) {
-		super(name, support);
-	}
 
 	public static Class javadocTestClass() {
 		return JavadocTestMixed.class;

@@ -273,10 +273,10 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setName((Name) getName().clone(target));
 		}
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.setType((Type) getType().clone(target));
 		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
@@ -302,10 +302,10 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.apiLevel == AST.LEVEL_2_0) {
 				acceptChild(visitor, getName());
 			}
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChild(visitor, getType());
 			}
 			acceptChildren(visitor, arguments);

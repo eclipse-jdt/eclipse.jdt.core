@@ -152,6 +152,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.0
 	 */
 	public static final String COMPILER_CODEGEN_INLINE_JSR_BYTECODE = PLUGIN_ID + ".compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
 	/**
@@ -3476,7 +3477,7 @@ public final class JavaCore extends Plugin {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions()
-	 *///TODO should use a Map for 3.0
+	 */
 	public static void setOptions(Hashtable newOptions) {
 		
 		// see #initializeDefaultPluginPreferences() for changing default settings

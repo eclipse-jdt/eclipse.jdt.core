@@ -1513,9 +1513,6 @@ public class JavadocTestOptions extends JavadocTest {
 	public JavadocTestOptions(String name) {
 		super(name);
 	}
-	public JavadocTestOptions(String name, String support) {
-		super(name, support);
-	}
 	public static Class javadocTestClass() {
 		return JavadocTestOptions.class;
 	}

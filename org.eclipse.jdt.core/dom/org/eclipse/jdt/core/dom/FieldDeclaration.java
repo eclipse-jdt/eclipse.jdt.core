@@ -250,10 +250,10 @@ public class FieldDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 		}
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setType((Type) getType().clone(target));
@@ -278,7 +278,7 @@ public class FieldDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());

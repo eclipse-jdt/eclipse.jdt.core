@@ -201,7 +201,7 @@ public class ImportDeclaration extends ASTNode {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.setStatic(isStatic());
 		}
 		result.setName((Name) getName().clone(target));
