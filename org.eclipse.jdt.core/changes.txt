@@ -133,6 +133,8 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GL0X82: ITPJCORE:ALL - ClassCastException setting args on class file
+  1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types
   1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to member constructor
   1GKYS7Y: ITPJCORE:WINNT - Main not found
   1GELSDQ: ITPJUI:WINNT - JDOM: IType.createMethod does not insert nicely for inner types
