@@ -203,6 +203,7 @@ private void checkNonExternalizedString() {
 }
 
 // chech presence of task: tags
+// TODO (frederic) see if we need to take unicode characters into account...
 public void checkTaskTag(int commentStart, int commentEnd) {
 	char[] src = this.source;
 	
@@ -212,8 +213,9 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 		return;
 	}
 	int foundTaskIndex = this.foundTaskCount;
-	char previous = commentStart==0 ? 0 : this.source[commentStart-1];
-	nextChar : for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
+	char previous = src[commentStart+1]; // should be '*' or '/'
+	nextChar : for (
+		int i = commentStart + 2; i < commentEnd && i < this.eofPosition; i++) {
 		char[] tag = null;
 		char[] priority = null;
 		// check for tag occurrence only if not ambiguous with javadoc tag
@@ -232,7 +234,8 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 	
 				for (int t = 0; t < tagLength; t++) {
 					char sc, tc;
-					if ((i+t) >= this.eofPosition) continue nextTag;
+					int x = i+t;
+					if (x >= this.eofPosition || x >= commentEnd) continue nextTag;
 					if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
 						if (this.isTaskCaseSensitive || (Character.toLowerCase(sc) != Character.toLowerCase(tc))) { 	// case insensitive check
 							continue nextTag;
