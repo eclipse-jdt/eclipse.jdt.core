@@ -81,16 +81,16 @@ protected void cleanOutputFolders() throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	ArrayList visited = new ArrayList(sourceLocations.length);
-	next : for (int iSource = 0, length = sourceLocations.length; iSource < length; iSource++) {
-		ClasspathMultiDirectory sourceLocation = sourceLocations[iSource];
+	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
+		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		if (sourceLocation.hasIndependentOutputFolder) {
 			IContainer outputFolder = sourceLocation.binaryFolder;
-			if (!visited.contains(outputFolder)){
+			if (!visited.contains(outputFolder)) {
 				visited.add(outputFolder);
 				if (deleteAll) {
 					IResource[] members = outputFolder.members(); 
-					for (int iMember = 0, memberLength = members.length; iMember < memberLength; iMember++)
-						members[iMember].delete(IResource.FORCE, null);
+					for (int j = 0, m = members.length; j < m; j++)
+						members[j].delete(IResource.FORCE, null);
 				} else {
 					outputFolder.accept(
 						new IResourceVisitor() {
@@ -131,7 +131,7 @@ protected void cleanOutputFolders() throws CoreException {
 	}
 }
 
-protected void copyExtraResourcesBack(final ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
+protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
@@ -146,9 +146,9 @@ protected void copyExtraResourcesBack(final ClasspathMultiDirectory sourceLocati
 						String extension = resource.getFileExtension();
 						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
 						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
-						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-							return false;						
 						if (javaBuilder.filterExtraResource(resource)) return false;
+						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+							return false;
 
 						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 						IResource copiedResource = outputFolder.getFile(partialPath);
@@ -164,10 +164,9 @@ protected void copyExtraResourcesBack(final ClasspathMultiDirectory sourceLocati
 						return false;
 					case IResource.FOLDER :
 						if (resource.equals(outputFolder)) return false;
-						if (resource.equals(sourceLocation.sourceFolder)) return true;
+						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 							return false;
-						if (javaBuilder.filterExtraResource(resource)) return false;
 
 						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
 				}

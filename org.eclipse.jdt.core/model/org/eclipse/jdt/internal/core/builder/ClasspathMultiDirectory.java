@@ -16,7 +16,6 @@ class ClasspathMultiDirectory extends ClasspathDirectory {
 
 IContainer sourceFolder;
 char[][] exclusionPatterns; // used by builders when walking source folders
-// TODO: wasn't the old name better? hasSeparateOutputFolder? could mislead into thinking it has a unique output folder (as opposed to shared)
 boolean hasIndependentOutputFolder; // if output folder is not equal to any of the source folders
 
 ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] exclusionPatterns) {
@@ -26,7 +25,7 @@ ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[]
 	this.exclusionPatterns = exclusionPatterns;
 	this.hasIndependentOutputFolder = false;
 
-	// TODO: don't think this can ever occur (see ClasspathEntry#fullExclusionPatternChars computation)
+	// handle the case when a state rebuilds a source folder
 	if (this.exclusionPatterns != null && this.exclusionPatterns.length == 0)
 		this.exclusionPatterns = null;
 }
@@ -41,6 +40,6 @@ public boolean equals(Object o) {
 
 public String toString() {
 	return "Source classpath directory " + sourceFolder.getFullPath().toString() + //$NON-NLS-1$
-		" with binary output directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
+		" with binary directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
 }
 }
