@@ -8492,4 +8492,41 @@ public void test013(){
 		expectedReplacedSource,
 		testName); 
 }
+/**
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=27941
+ */
+public void test014(){
+	String str = 
+		"public class Bar {\n" +
+		"  void foo() {\n" + 
+		"    String s = \"a\" + \"b\";\n" + 
+		"    zzz\n" + 
+		"  }\n" +  
+		"}\n";
+
+	String testName = "<bug 27941>";
+	String completeBehind = "zzz";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	int cursorLocation = str.lastIndexOf("zzz") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+		"public class Bar {\n" +
+		"  public Bar() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    String s;\n" +
+		"    <CompleteOnName:zzz>;\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
 }

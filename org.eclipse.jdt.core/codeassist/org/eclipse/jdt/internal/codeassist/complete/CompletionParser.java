@@ -873,9 +873,11 @@ protected void consumeBinaryExpression(int op) {
 	super.consumeBinaryExpression(op);
 	popElement(K_BINARY_OPERATOR);
 	
-	BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
-	if(assistNode != null && exp.right == assistNode) {
-		assistNodeParent = exp;
+	if(expressionStack[expressionPtr] instanceof BinaryExpression) {
+		BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
+		if(assistNode != null && exp.right == assistNode) {
+			assistNodeParent = exp;
+		}
 	}
 }
 protected void consumeCastExpression() {
