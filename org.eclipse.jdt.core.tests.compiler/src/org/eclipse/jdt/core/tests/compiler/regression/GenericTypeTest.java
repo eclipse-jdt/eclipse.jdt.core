@@ -7967,9 +7967,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 	  public void _test310() {
 		this.runNegativeTest(
 			new String[] {
-				"p/X.java",
+				"X.java",
 				"import java.util.List;\n" + 
-				"\n" + 
 				"public class X extends X2 {\n" + 
 				"	void foo(List<X> lx) { }\n" + 
 				"}\n" + 
@@ -7990,9 +7989,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 	public void _test311() {
 		this.runNegativeTest(
 			new String[] {
-				"p/X.java",
+				"X.java",
 				"import java.util.List;\n" + 
-				"\n" + 
 				"public class X extends X2 {\n" + 
 				"	void foo(List<X> lx) { }\n" + 
 				"	void bar(){\n" + 
@@ -8021,9 +8019,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 	public void _test312() {
 		this.runNegativeTest(
 			new String[] {
-				"p/X.java",
+				"X.java",
 				"import java.util.List;\n" + 
-				"\n" + 
 				"public class X extends X2 {\n" + 
 				"	void foo(List<X> lx) { }\n" + 
 				"}\n" + 
