@@ -307,13 +307,15 @@ public class ConditionalExpression extends OperatorExpression {
 			if (valueIfTrueType == BooleanBinding) {
 				this.optimizedIfTrueConstant = valueIfTrue.optimizedBooleanConstant();
 				this.optimizedIfFalseConstant = valueIfFalse.optimizedBooleanConstant();
-			
-				// Propagate the optimized boolean constant if possible
-				if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant) {
-					
+				if (this.optimizedIfTrueConstant != NotAConstant 
+						&& this.optimizedIfFalseConstant != NotAConstant
+						&& this.optimizedIfTrueConstant.booleanValue() == this.optimizedIfFalseConstant.booleanValue()) {
+					// a ? true : true  /   a ? false : false
+					this.optimizedBooleanConstant = optimizedIfTrueConstant;
+				} else if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant) { // Propagate the optimized boolean constant if possible
 					this.optimizedBooleanConstant = condConstant.booleanValue()
-						? optimizedIfTrueConstant
-						: optimizedIfFalseConstant;
+						? this.optimizedIfTrueConstant
+						: this.optimizedIfFalseConstant;
 				}
 			}
 			return this.resolvedType = valueIfTrueType;
