@@ -41,6 +41,7 @@ public static Test suite() {
 
 	return suite;
 }
+
 /**
  * Get a new working copy.
  */
@@ -51,6 +52,7 @@ protected void setUp() {
 		e.printStackTrace();
 	}
 }
+
 /**
  * Destroy the working copy.
  */
@@ -58,7 +60,6 @@ protected void tearDown() throws Exception {
 	this.workingCopy.destroy();
 	this.workingCopy = null;
 }
-
 
 /**
  * Hierarchy scope on a working copy test.
@@ -78,7 +79,6 @@ public void testHierarchyScopeOnWorkingCopy() throws JavaModelException, CoreExc
 		copy.destroy();
 	}
 }
-
 
 /**
  * Type declaration in a working copy test.
@@ -107,6 +107,7 @@ public void testAddNewType() throws JavaModelException, CoreException {
 		"src/wc/X.java wc.NewType [NewType]", 
 		resultCollector.toString());
 }
+
 /**
  * Declaration of referenced types test.
  * (Regression test for bug 5355 search: NPE in searchDeclarationsOfReferencedTypes  )
@@ -130,45 +131,6 @@ public void testDeclarationOfReferencedTypes() throws JavaModelException, CoreEx
 		resultCollector.toString());
 }
 
-
-/**
- * Type declaration in a working copy test.
- * A type is removed from the working copy only.
- */
-public void testRemoveType() throws JavaModelException, CoreException {
-	this.workingCopy.getType("X").delete(true, null);
-	
-	IJavaSearchScope scope = 
-		SearchEngine.createJavaSearchScope(
-			new IJavaElement[] {this.workingCopy.getParent()});
-	
-	// type X should not be visible when working copy hides it
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).search(
-		getWorkspace(), 
-		"X",
-		TYPE,
-		DECLARATIONS, 
-		scope, 
-		resultCollector);
-	assertEquals(
-		"", 
-		resultCollector.toString());
-		
-	// ensure the type is still present in the compilation unit
-	resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().search(
-		getWorkspace(), 
-		"X",
-		TYPE,
-		DECLARATIONS, 
-		scope, 
-		resultCollector);
-	assertEquals(
-		"src/wc/X.java wc.X [X]", 
-		resultCollector.toString());
-
-}
 /**
  * Type declaration in a working copy test.
  * A type is moved from one working copy to another.
@@ -219,5 +181,43 @@ public void testMoveType() throws JavaModelException, CoreException {
 	}
 }
 
+/**
+ * Type declaration in a working copy test.
+ * A type is removed from the working copy only.
+ */
+public void testRemoveType() throws JavaModelException, CoreException {
+	this.workingCopy.getType("X").delete(true, null);
+	
+	IJavaSearchScope scope = 
+		SearchEngine.createJavaSearchScope(
+			new IJavaElement[] {this.workingCopy.getParent()});
+	
+	// type X should not be visible when working copy hides it
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).search(
+		getWorkspace(), 
+		"X",
+		TYPE,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"", 
+		resultCollector.toString());
+		
+	// ensure the type is still present in the compilation unit
+	resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"X",
+		TYPE,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"src/wc/X.java wc.X [X]", 
+		resultCollector.toString());
+
+}
 
 }
