@@ -85,12 +85,12 @@ public class IndexAllProject extends IndexRequest {
 					if (sourceFolder != null) {
 						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
-// KJ : Switch to use a proxy visitor?
+// KJ : Release next week
 //							sourceFolder.accept(new IResourceProxyVisitor() {
 //								public boolean visit(IResourceProxy proxy) {
 //									if (isCancelled) return false;
 //									if (proxy.getType() == IResource.FILE) {
-//										if (Util.isJavaFileName(proxy.getName()) {
+//										if (Util.isJavaFileName(proxy.getName())) {
 //											IResource resource = proxy.requestResource();
 //											if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
 							sourceFolder.accept(new IResourceVisitor() {
@@ -113,7 +113,7 @@ public class IndexAllProject extends IndexRequest {
 //								public boolean visit(IResourceProxy proxy) {
 //									if (isCancelled) return false;
 //									if (proxy.getType() == IResource.FILE) {
-//										if (Util.isJavaFileName(proxy.getName()) {
+//										if (Util.isJavaFileName(proxy.getName())) {
 //											IResource resource = proxy.requestResource();
 							sourceFolder.accept(new IResourceVisitor() {
 								public boolean visit(IResource resource) {

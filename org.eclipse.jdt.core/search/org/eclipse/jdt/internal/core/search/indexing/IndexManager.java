@@ -38,11 +38,11 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.Index;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -280,14 +280,17 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 		? (IContainer) project
 		 : (IContainer) ResourcesPlugin.getWorkspace().getRoot().getFolder(sourceFolder);
 	try {
+// KJ : Release next week
+//		folder.accept(new IResourceProxyVisitor() {
+//			public boolean visit(IResourceProxy proxy) throws CoreException {
+//				if (proxy.getType() == IResource.FILE) {
+//					if (Util.isJavaFileName(proxy.getName())) { 
+//						IResource resource = proxy.requestResource();
+//						if (!Util.isExcluded(resource, exclusionPattern))
 		folder.accept(new IResourceVisitor() {
-			/*
-			 * @see IResourceVisitor#visit(IResource)
-			 */
 			public boolean visit(IResource resource) throws CoreException {
-				if (resource instanceof IFile) {
-					if (org.eclipse.jdt.internal.core.Util.isJavaFileName(resource.getName()) 
-							&& !org.eclipse.jdt.internal.core.Util.isExcluded(resource, exclusionPattern)) {
+				if (resource.getType() == IResource.FILE) {
+					if (Util.isJavaFileName(resource.getName()) && !Util.isExcluded(resource, exclusionPattern)) {
 						addSource((IFile)resource, container);
 					}
 					return false;
@@ -319,7 +322,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name"); //$NON-NLS-1$
+	return org.eclipse.jdt.internal.core.search.Util.bind("process.name"); //$NON-NLS-1$
 }
 private void rebuildIndex(String indexName, IPath path) {
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
@@ -474,7 +477,7 @@ public void saveIndexes() {
 					JobManager.verbose("-> got the following exception while merging:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}
-				//org.eclipse.jdt.internal.core.Util.log(e);
+				//Util.log(e);
 			}
 		} finally {
 			monitor.exitWrite();

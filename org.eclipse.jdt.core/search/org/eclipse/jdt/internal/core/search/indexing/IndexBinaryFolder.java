@@ -69,8 +69,17 @@ public class IndexBinaryFolder extends IndexRequest {
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
 			if (max == 0) {
+// KJ : Release next week
+//				this.folder.accept(new IResourceProxyVisitor() {
+//					public boolean visit(IResourceProxy proxy) {
+//						if (isCancelled) return false;
+//						if (proxy.getType() == IResource.FILE) {
+//							if (Util.isClassFileName(proxy.getName())) {
+//								IResource resource = proxy.requestResource();
+//								if (resource.getLocation() != null) {
 				this.folder.accept(new IResourceVisitor() {
 					public boolean visit(IResource resource) {
+// KJ : what should happen if an index job is cancelled? 2 others below...
 						if (isCancelled) return false;
 						if (resource.getType() == IResource.FILE) {
 							if (Util.isClassFileName(resource.getName()) && resource.getLocation() != null) {
@@ -87,6 +96,12 @@ public class IndexBinaryFolder extends IndexRequest {
 					indexedFileNames.put(results[i].getPath(), DELETED);
 
 				final long indexLastModified = index.getIndexFile().lastModified();
+//				this.folder.accept(new IResourceProxyVisitor() {
+//					public boolean visit(IResourceProxy proxy) {
+//						if (isCancelled) return false;
+//						if (proxy.getType() == IResource.FILE) {
+//							if (Util.isClassFileName(proxy.getName())) {
+//								IResource resource = proxy.requestResource();
 				this.folder.accept(new IResourceVisitor() {
 					public boolean visit(IResource resource) {
 						if (isCancelled) return false;

@@ -60,7 +60,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 		sourceLocation.sourceFolder.accept(
-// KJ : Switch to use a proxy visitor?
+// KJ : Release next week
 //			new IResourceProxyVisitor() {
 //				public boolean visit(IResourceProxy proxy) throws CoreException {
 //					IResource resource = null;
