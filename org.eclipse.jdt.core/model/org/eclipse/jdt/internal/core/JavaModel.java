@@ -338,7 +338,6 @@ protected IJavaElement getHandleFromMementoForSourceMembers(String memento, IPac
 	}
 	//source type
 	return getHandleFromMementoForSourceType(memento, cu, typeStart, memento.length());
-	;
 }
 /**
  * Returns the <code>IJavaElement</code> represented by the <code>String</code>

@@ -121,7 +121,6 @@ public class IndexedFile implements IQueryResult {
 	}
 	public String getProperty(String propertyName) {
 		return (String) properties.get(propertyName);
-		;
 	}
 	/**
 	 * getPropertyNames method comment.

@@ -276,7 +276,7 @@ public static IStatus validatePackageName(String name) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"/*nonNLS*/), null);
 	}
 	if (Character.isWhitespace(name.charAt(0)) || Character.isWhitespace(name.charAt(name.length() - 1))) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"/*nonNLS*/), null);;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"/*nonNLS*/), null);
 	}
 	int dot = 0;
 	while (dot != -1 && dot < length-1) {
