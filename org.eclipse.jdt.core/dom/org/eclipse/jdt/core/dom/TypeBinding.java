@@ -263,7 +263,7 @@ class TypeBinding implements ITypeBinding {
 			if (cu == null) return null;
 			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 			DefaultBindingResolver bindingResolver = (DefaultBindingResolver) this.resolver;
-			ASTNode node = (ASTNode) bindingResolver.bindingsToAstNodes.get(this);
+			ASTNode node = (ASTNode) bindingResolver.bindingTables.bindingsToAstNodes.get(this);
 			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
 			try {
 				return cu.getElementAt(node.getStartPosition());

@@ -15,20 +15,18 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 
 import junit.framework.Test;
 
 /*
  * Test the bridge between the DOM AST and the Java model.
  */
-public class ASTModelBridgeTests extends ModifyingResourceTests {
+public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	ICompilationUnit workingCopy;
 
@@ -46,36 +44,13 @@ public class ASTModelBridgeTests extends ModifyingResourceTests {
 	 * by "*start*" and "*end*".
 	 */
 	private ASTNode buildAST(String contents) throws JavaModelException {
-		String markerStart = "/*start*/";
-		String markerEnd = "/*end*/";
-		final int astStart = contents.indexOf(markerStart); // start of AST inclusive
-		contents = new String(CharOperation.replace(contents.toCharArray(), markerStart.toCharArray(), CharOperation.NO_CHAR));
-		final int astEnd = contents.indexOf(markerEnd); // end of AST exclusive
-		contents = new String(CharOperation.replace(contents.toCharArray(), markerEnd.toCharArray(), CharOperation.NO_CHAR));
+		MarkerInfo markerInfo = new MarkerInfo(contents);
+		contents = markerInfo.source;
 
 		this.workingCopy.getBuffer().setContents(contents);
 		CompilationUnit unit = this.workingCopy.reconcile(AST.JLS3, false, null, null);
 
-		class EndVisit extends RuntimeException {
-			private static final long serialVersionUID = 1L;
-		}
-		class Visitor extends ASTVisitor {
-			ASTNode found;
-			public void preVisit(ASTNode node) {
-				if (node instanceof CompilationUnit) return;
-				if (node.getStartPosition() == astStart && node.getStartPosition() + node.getLength() == astEnd) {
-					this.found = node;
-					throw new EndVisit();
-				}
-			}
-		}
-		Visitor visitor = new Visitor();
-		try {
-			unit.accept(visitor);
-		} catch (EndVisit e) {
-			return visitor.found;
-		}
-		return null;
+		return findNode(unit, markerInfo);
 	}
 	
 	public void setUpSuite() throws Exception {

@@ -197,7 +197,7 @@ class MethodBinding implements IMethodBinding {
 		IType declaringType = (IType) getDeclaringClass().getJavaElement();
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
+		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingTables.bindingsToAstNodes.get(this);
 		if (method == null) return null;
 		ArrayList parameterSignatures = new ArrayList();
 		Iterator iterator = method.parameters().iterator();

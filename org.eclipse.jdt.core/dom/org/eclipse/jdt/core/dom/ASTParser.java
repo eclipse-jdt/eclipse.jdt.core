@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -580,6 +579,43 @@ public class ASTParser {
    	   return result;
 	}
 	
+	/**
+     * For each source coming from the given AST requestor, creates an abstract syntax tree and
+     * reports it back to the AST requestor. Repeat this process while the AST requestor has
+     * sources.
+     * <p>
+     * Note that if bindings are resolved, more ASTs than originaly requested can be reported back.
+     * These ASTs come from compilation units required to resolve the original ones.
+     * </p><p>
+     * A successful call to this method returns all settings to their
+     * default values so the object is ready to be reused.
+     * </p><p>
+	 * Note that this API is under development and suggest to change without notice.
+	 * </p>
+     * 
+     * @param requestor the AST requestor that provides sources and that collects abtract syntax trees
+	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 *   or <code>null</code> if none
+	 * @exception IllegalStateException if the settings provided
+	 * are insufficient, contradictory, or otherwise unsupported
+	 * @since 3.1
+     */
+	// TODO (jerome) remove statement about API being under development above
+	public void createASTs(ASTRequestor requestor, IProgressMonitor monitor) {
+		try {
+			if (this.resolveBindings) {
+				if (this.project == null)
+					throw new IllegalStateException("project not specified"); //$NON-NLS-1$
+				CompilationUnitResolver.resolve(requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
+			} else {
+				CompilationUnitResolver.parse(requestor, this.apiLevel, this.compilerOptions, monitor);
+			}
+		} finally {
+	   	   // re-init defaults to allow reuse (and avoid leaking)
+	   	   initializeDefaults();
+		}
+	}
+	
 	private ASTNode internalCreateAST(IProgressMonitor monitor) {
 		boolean needToResolveBindings = this.resolveBindings;
 		switch(this.astKind) {
@@ -596,57 +632,30 @@ public class ASTParser {
 			case K_COMPILATION_UNIT :
 				CompilationUnitDeclaration compilationUnitDeclaration = null;
 				try {
-					char[] source = null;
 					NodeSearcher searcher = null;
-					char[][] packageName = null;
-					String fileName = null;
+					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
 					if (this.compilationUnitSource != null) {
-						try {
-							source = this.compilationUnitSource.getSource().toCharArray();
-						} catch(JavaModelException e) {
-							// no source, then we cannot build anything
-							throw new IllegalStateException();
-						}
-						PackageFragment packageFragment = (PackageFragment)this.compilationUnitSource.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-						if (packageFragment != null){
-							packageName = Util.toCharArrays(packageFragment.names);
-						}
-						fileName = this.compilationUnitSource.getElementName();
+						sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.compilationUnitSource;
 					} else if (this.classFileSource != null) {
-						String sourceString = null;
 						try {
-							sourceString = this.classFileSource.getSource();
-						} catch (JavaModelException e) {
-							// nothing to do
-						}
-					
-						if (sourceString == null) {
-							throw new IllegalStateException();
-						}
-						source = sourceString.toCharArray();
-						try {
+							String sourceString = this.classFileSource.getSource();
+							if (sourceString == null) {
+								throw new IllegalStateException();
+							}
 							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getParent();
-							packageName = Util.toCharArrays(packageFragment.names);
 							BinaryType type = (BinaryType) this.classFileSource.getType();
 							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
-							fileName = type.sourceFileName(binaryType);
+							String fileName = type.sourceFileName(binaryType);
+							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileName, this.project);
 						} catch(JavaModelException e) {
+							// class file doesn't exist
 							needToResolveBindings = false;
 						}
 					} else if (this.rawSource != null) {
-						source = this.rawSource;
-						if (this.unitName == null || this.project == null || this.compilerOptions == null) {
-							needToResolveBindings = false;
-						} else {
-							fileName = this.unitName;
-							needToResolveBindings = true;
-						}
-					}
-					if (source == null) {
+						needToResolveBindings = this.unitName != null && this.project != null && this.compilerOptions != null;
+						sourceUnit = new BasicCompilationUnit(this.rawSource, null, this.unitName == null ? "" : this.unitName, this.project); //$NON-NLS-1$
+					} else {
 						throw new IllegalStateException();
-					}
-					if (this.sourceLength == -1) {
-						this.sourceLength = source.length;
 					}
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
@@ -656,30 +665,35 @@ public class ASTParser {
 							// parse and resolve
 							compilationUnitDeclaration = 
 								CompilationUnitResolver.resolve(
-									source,
-									packageName,
-									fileName,
+									sourceUnit,
 									this.project,
 									searcher,
 									this.compilerOptions,
-									false,
 									this.workingCopyOwner,
 									monitor);
 						} catch (JavaModelException e) {
 							compilationUnitDeclaration = CompilationUnitResolver.parse(
-									source,
+									sourceUnit,
 									searcher,
 									this.compilerOptions);
 							needToResolveBindings = false;
 						}
 					} else {
 						compilationUnitDeclaration = CompilationUnitResolver.parse(
-								source,
+								sourceUnit,
 								searcher,
 								this.compilerOptions);
 						needToResolveBindings = false;
 					}
-					return convert(monitor, compilationUnitDeclaration, source, needToResolveBindings);
+					return CompilationUnitResolver.convert(
+						compilationUnitDeclaration, 
+						sourceUnit.getContents(), 
+						this.apiLevel, 
+						this.compilerOptions,
+						needToResolveBindings,
+						this.compilationUnitSource == null ? this.workingCopyOwner : this.compilationUnitSource.getOwner(),
+						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null, 
+						monitor);
 				} finally {
 					if (compilationUnitDeclaration != null && this.resolveBindings) {
 						compilationUnitDeclaration.cleanUp();
@@ -688,27 +702,7 @@ public class ASTParser {
 		}
 		throw new IllegalStateException();
 	}
-
-	private ASTNode convert(IProgressMonitor monitor, CompilationUnitDeclaration compilationUnitDeclaration, char[] source, boolean needToResolveBindings) {
-		BindingResolver resolver = null;
-		AST ast = AST.newAST(this.apiLevel);
-		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-		CompilationUnit compilationUnit = null;
-		ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
-		if (needToResolveBindings) {
-			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, this.compilationUnitSource == null ? null : this.compilationUnitSource.getOwner());
-		} else {
-			resolver = new BindingResolver();
-		}
-		ast.setBindingResolver(resolver);
-		converter.setAST(ast);
-		compilationUnit = converter.convert(compilationUnitDeclaration, source);
-		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
-		ast.setDefaultNodeFlag(0);
-		ast.setOriginalModificationCount(ast.modificationCount());
-		return compilationUnit;
-	}
-
+	
 	/**
 	 * Parses the given source between the bounds specified by the given offset (inclusive)
 	 * and the given length and creates and returns a corresponding abstract syntax tree.

@@ -15,8 +15,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
@@ -163,6 +162,26 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
+	public static ASTNode convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, IProgressMonitor monitor) {
+		BindingResolver resolver = null;
+		AST ast = AST.newAST(apiLevel);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
+		CompilationUnit compilationUnit = null;
+		ASTConverter converter = new ASTConverter(options, needToResolveBindings, monitor);
+		if (needToResolveBindings) {
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, owner, bindingTables);
+		} else {
+			resolver = new BindingResolver();
+		}
+		ast.setBindingResolver(resolver);
+		converter.setAST(ast);
+		compilationUnit = converter.convert(compilationUnitDeclaration, source);
+		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		ast.setDefaultNodeFlag(0);
+		ast.setOriginalModificationCount(ast.modificationCount());
+		return compilationUnit;
+	}
+	
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -221,8 +240,50 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}	
 	
-	public static CompilationUnitDeclaration parse(char[] source, NodeSearcher nodeSearcher, Map settings) {
-		if (source == null) {
+	public static void parse(ASTRequestor astRequestor, int apiLevel, Map options, IProgressMonitor monitor) {
+		ICompilationUnit[] workingCopies = astRequestor.getSources();
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		Parser parser = new CommentRecorderParser(
+			new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+					compilerOptions, 
+					new DefaultProblemFactory()),
+			false);
+		while (workingCopies != null) {
+			for (int i = 0, length = workingCopies.length; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopies[i];
+				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
+				CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
+				
+				if (compilationUnitDeclaration.ignoreMethodBodies) {
+					compilationUnitDeclaration.ignoreFurtherInvestigation = true;
+					// if initial diet parse did not work, no need to dig into method bodies.
+					continue; 
+				}
+				
+				//fill the methods bodies in order for the code to be generated
+				//real parse of the method....
+				parser.scanner.setSource(compilationResult);
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
+				if (types != null) {
+					for (int j = types.length; --j >= 0;)
+						types[j].parseMethod(parser, compilationUnitDeclaration);
+				}
+				
+				// convert AST
+				ASTNode node = convert(compilationUnitDeclaration, sourceUnit.getContents(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
+				
+				
+				// accept AST
+				astRequestor.acceptAST(node);
+			}
+			
+			workingCopies = astRequestor.getSources();
+		}
+	}
+	
+	public static CompilationUnitDeclaration parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, NodeSearcher nodeSearcher, Map settings) {
+		if (sourceUnit == null) {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
@@ -232,11 +293,6 @@ class CompilationUnitResolver extends Compiler {
 					compilerOptions, 
 					new DefaultProblemFactory()),
 			false);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
 		
@@ -247,6 +303,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 		
 		if (nodeSearcher != null) {
+			char[] source = sourceUnit.getContents();
 			int searchPosition = nodeSearcher.position;
 			if (searchPosition < 0 || searchPosition > source.length) {
 				// the position is out of range. There is no need to search for a node.
@@ -284,14 +341,45 @@ class CompilationUnitResolver extends Compiler {
 		return compilationUnitDeclaration;
 	}
 
+	public static void resolve(
+		ASTRequestor requestor,
+		int apiLevel,
+		Map options,
+		IJavaProject javaProject,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor) {
+	
+		CancelableNameEnvironment environment = null;
+		CancelableProblemFactory problemFactory = null;
+		try {
+			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, monitor);
+			problemFactory = new CancelableProblemFactory(monitor);
+			CompilationUnitResolver resolver =
+				new CompilationUnitResolver(
+					environment,
+					getHandlingPolicy(),
+					options,
+					getRequestor(),
+					problemFactory);
+
+			resolver.resolve(requestor, apiLevel, options, owner, monitor);
+		} catch (JavaModelException e) {
+			// project doesn't exist -> simple parse without resolving
+			parse(requestor, apiLevel, options, monitor);
+		} finally {
+			if (environment != null) {
+				environment.monitor = null; // don't hold a reference to this external object
+			}
+			if (problemFactory != null) {
+				problemFactory.monitor = null; // don't hold a reference to this external object
+			}
+		}
+	}
 	public static CompilationUnitDeclaration resolve(
-		char[] source,
-		char[][] packageName,
-		String unitName,
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 		IJavaProject javaProject,
 		NodeSearcher nodeSearcher,
 		Map options,
-		boolean cleanUp,
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException {
@@ -313,11 +401,7 @@ class CompilationUnitResolver extends Compiler {
 			unit = 
 				resolver.resolve(
 					null, // no existing compilation unit declaration
-					new BasicCompilationUnit(
-						source,
-						packageName,
-						unitName,
-						javaProject),
+					sourceUnit,
 					nodeSearcher,
 					true, // method verification
 					true, // analyze code
@@ -330,9 +414,7 @@ class CompilationUnitResolver extends Compiler {
 			if (problemFactory != null) {
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			}
-			if (cleanUp && unit != null) {
-				unit.cleanUp();
-			}
+			// unit cleanup is done by caller
 		}
 	}
 	/*
@@ -377,6 +459,80 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
+	private void resolve(ASTRequestor astRequestor, int apiLevel, Map compilerOptions, WorkingCopyOwner owner, IProgressMonitor monitor) {
+
+		DefaultBindingResolver.BindingTables bindingTables = new DefaultBindingResolver.BindingTables();
+		CompilationUnitDeclaration unit = null;
+		int i = 0;
+		try {
+			ICompilationUnit[] workingCopies = astRequestor.getSources();
+			if (workingCopies == null) return;
+			int length = workingCopies.length;
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[length];
+			System.arraycopy(workingCopies, 0, sourceUnits, 0, length);
+			beginToCompile(sourceUnits);
+			// process all units (some more could be injected in the loop by the lookup environment)
+			for (; i < this.totalUnits; i++) {
+				unit = this.unitsToProcess[i];
+				try {
+					process(unit, i);
+					
+					// convert AST
+					CompilationResult compilationResult = unit.compilationResult;
+					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
+					char[] contents = sourceUnit.getContents();
+					AST ast = AST.newAST(apiLevel);
+					ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
+					ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, monitor);
+					BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, bindingTables);
+					ast.setBindingResolver(resolver);
+					converter.setAST(ast);
+					CompilationUnit compilationUnit = converter.convert(unit, contents);
+					compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
+					
+					// pass it to requestor
+					astRequestor.acceptAST(compilationUnit);
+				} finally {
+					// cleanup compilation unit result
+					unit.cleanUp();
+				}
+				this.unitsToProcess[i] = null; // release reference to processed unit declaration
+				this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+				
+				if (i == this.totalUnits-1) {
+					// end of batch: look for new one
+					do {
+						workingCopies = astRequestor.getSources();
+					} while (workingCopies != null && workingCopies.length == 0);
+					if (workingCopies != null) {
+						for (int j = 0, workingCopyLength = workingCopies.length; j < workingCopyLength; j++) {
+							ICompilationUnit workingCopy = workingCopies[j];
+							accept((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy);
+						}
+					}
+				}
+			}
+		} catch (AbortCompilation e) {
+			this.handleInternalException(e, unit);
+		} catch (Error e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} catch (RuntimeException e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} finally {
+			// No reset is performed there anymore since,
+			// within the CodeAssist (or related tools),
+			// the compiler may be called *after* a call
+			// to this resolve(...) method. And such a call
+			// needs to have a compiler with a non-empty
+			// environment.
+			// this.reset();
+		}
+	}
+	
 	private CompilationUnitDeclaration resolve(
 			CompilationUnitDeclaration unit,
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,

@@ -72,16 +72,38 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  */
 class DefaultBindingResolver extends BindingResolver {
 	
+	/*
+	 * Holds on binding tables that can be shared by several ASTs.
+	 */
+	static class BindingTables {
+		/**
+		 * This map is used to keep the correspondance between new bindings and the 
+		 * compiler bindings. This is an identity map. We should only create one object
+		 * for one binding.
+		 */
+		Map compilerBindingsToASTBindings;
+	
+		/**
+		 * This map is used to get an ast node from its binding (new binding)
+		 */
+		Map bindingsToAstNodes;
+	
+		/**
+		 * This map is used to get an ast node from its binding key.
+		 */
+		Map bindingKeysToAstNodes;
+		
+		BindingTables() {
+			this.compilerBindingsToASTBindings = new HashMap();
+			this.bindingsToAstNodes = new HashMap();
+			this.bindingKeysToAstNodes = new HashMap();
+		}
+	
+	}
+	
 	private static final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {"java".toCharArray(), "lang".toCharArray(), "StringBuffer".toCharArray()}; //$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
 	private static final char[][] JAVA_LANG_EXCEPTION = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Exception".toCharArray()};//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
 
-	/**
-	 * This map is used to keep the correspondance between new bindings and the 
-	 * compiler bindings. This is an identity map. We should only create one object
-	 * for one binding.
-	 */
-	Map compilerBindingsToASTBindings;
-	
 	/**
 	 * This map is used to retrieve an old ast node using the new ast node. This is not an
 	 * identity map.
@@ -89,19 +111,14 @@ class DefaultBindingResolver extends BindingResolver {
 	Map newAstToOldAst;
 	
 	/**
-	 * This map is used to get an ast node from its binding (new binding)
-	 */
-	Map bindingsToAstNodes;
-	
-	/**
-	 * This map is used to get an ast node from its binding key.
-	 */
-	Map bindingKeysToAstNodes;
-	
-	/**
 	 * This map is used to retrieve the corresponding block scope for a ast node
 	 */
 	Map astNodesToBlockScope;
+	
+	/*
+	 * The shared binding tables accros ASTs.
+	 */
+	BindingTables bindingTables;
 	
 	/**
 	 * Compilation unit scope
@@ -118,17 +135,17 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	DefaultBindingResolver() {
 		this.newAstToOldAst = new HashMap();
-		this.compilerBindingsToASTBindings = new HashMap();
-		this.bindingsToAstNodes = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
-		this.bindingKeysToAstNodes = new HashMap();
+		this.bindingTables = new BindingTables();
 	}
 	
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
-	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner) {
-		this();
+	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables) {
+		this.newAstToOldAst = new HashMap();
+		this.astNodesToBlockScope = new HashMap();
+		this.bindingTables = bindingTables;
 		this.scope = scope;
 		this.workingCopyOwner = workingCopyOwner;
 	}
@@ -185,12 +202,12 @@ class DefaultBindingResolver extends BindingResolver {
 										if (declaringClass != null) {
 											FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1], true /*resolve*/);
 											if (exactBinding != null) {
-												IVariableBinding variableBinding = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+												IVariableBinding variableBinding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
 												if (variableBinding != null) {
 													return variableBinding;
 												}
 												variableBinding = new VariableBinding(this, exactBinding);
-												this.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
+												this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
 												return variableBinding;
 											}
 										}
@@ -320,12 +337,12 @@ class DefaultBindingResolver extends BindingResolver {
 									ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
 									FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name, true /*resolve*/);
 									if (exactBinding != null) {
-										IVariableBinding variableBinding2 = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+										IVariableBinding variableBinding2 = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
 										if (variableBinding2 != null) {
 											return variableBinding2;
 										}
 										variableBinding2 = new VariableBinding(this, exactBinding);
-										this.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
+										this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
 										return variableBinding2;
 									}
 									break;
@@ -475,10 +492,10 @@ class DefaultBindingResolver extends BindingResolver {
 				if (typeBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(typeBinding, type);
+				this.bindingTables.bindingsToAstNodes.put(typeBinding, type);
 				String key = typeBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, type);				
+					this.bindingTables.bindingKeysToAstNodes.put(key, type);				
 				}
 				return typeBinding;
 			}
@@ -495,10 +512,10 @@ class DefaultBindingResolver extends BindingResolver {
 				if (typeBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(typeBinding, typeParameter);
+				this.bindingTables.bindingsToAstNodes.put(typeBinding, typeParameter);
 				String key = typeBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, typeParameter);				
+					this.bindingTables.bindingKeysToAstNodes.put(key, typeParameter);				
 				}
 				return typeBinding;
 			}
@@ -518,10 +535,10 @@ class DefaultBindingResolver extends BindingResolver {
 				if (methodBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(methodBinding, method);
+				this.bindingTables.bindingsToAstNodes.put(methodBinding, method);
 				String key = methodBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, method);				
+					this.bindingTables.bindingKeysToAstNodes.put(key, method);				
 				}
 				return methodBinding;
 			}
@@ -567,10 +584,10 @@ class DefaultBindingResolver extends BindingResolver {
 				if (variableBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(variableBinding, variable);
+				this.bindingTables.bindingsToAstNodes.put(variableBinding, variable);
 				String key = variableBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, variable);				
+					this.bindingTables.bindingKeysToAstNodes.put(key, variable);				
 				}
 				return variableBinding;
 			}
@@ -578,10 +595,10 @@ class DefaultBindingResolver extends BindingResolver {
 			if (variableBinding == null) {
 				return null;
 			}
-			this.bindingsToAstNodes.put(variableBinding, variable);
+			this.bindingTables.bindingsToAstNodes.put(variableBinding, variable);
 			String key = variableBinding.getKey();
 			if (key != null) {
-				this.bindingKeysToAstNodes.put(key, variable);				
+				this.bindingTables.bindingKeysToAstNodes.put(key, variable);				
 			}
 			return variableBinding;
 		}
@@ -813,10 +830,10 @@ class DefaultBindingResolver extends BindingResolver {
 					if (packageBinding == null) {
 						return null;
 					}
-					this.bindingsToAstNodes.put(packageBinding, pkg);
+					this.bindingTables.bindingsToAstNodes.put(packageBinding, pkg);
 					String key = packageBinding.getKey();
 					if (key != null) {
-						this.bindingKeysToAstNodes.put(key, pkg);				
+						this.bindingTables.bindingKeysToAstNodes.put(key, pkg);				
 					}
 					return packageBinding;
 				}
@@ -836,14 +853,14 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding == null) {
 			return null;
 		}
-		return (ASTNode) this.bindingsToAstNodes.get(binding);
+		return (ASTNode) this.bindingTables.bindingsToAstNodes.get(binding);
 	}
 	
 	synchronized ASTNode findDeclaringNode(String bindingKey) {
 		if (bindingKey == null) {
 			return null;
 		}
-		return (ASTNode) this.bindingKeysToAstNodes.get(bindingKey);
+		return (ASTNode) this.bindingTables.bindingKeysToAstNodes.get(bindingKey);
 	}
 		
 	/*
@@ -877,24 +894,24 @@ class DefaultBindingResolver extends BindingResolver {
 						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) referenceBinding;
 						Binding binding2 = problemReferenceBinding.original;
 						if (binding2 != null && binding2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-							TypeBinding binding = (TypeBinding) this.compilerBindingsToASTBindings.get(binding2);
+							TypeBinding binding = (TypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(binding2);
 							if (binding != null) {
 								return binding;
 							}
 							binding = new TypeBinding(this, (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding2);
-							this.compilerBindingsToASTBindings.put(binding2, binding);
+							this.bindingTables.compilerBindingsToASTBindings.put(binding2, binding);
 							return binding;
 						} 
 					}
 			}
 			return null;
 		} else {
-			TypeBinding binding = (TypeBinding) this.compilerBindingsToASTBindings.get(referenceBinding);
+			TypeBinding binding = (TypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
 			if (binding != null) {
 				return binding;
 			}
 			binding = new TypeBinding(this, referenceBinding);
-			this.compilerBindingsToASTBindings.put(referenceBinding, binding);
+			this.bindingTables.compilerBindingsToASTBindings.put(referenceBinding, binding);
 			return binding;
 		}
 	}
@@ -905,12 +922,12 @@ class DefaultBindingResolver extends BindingResolver {
 		if (packageBinding == null || !packageBinding.isValidBinding()) {
 			return null;
 		}
-		IPackageBinding binding = (IPackageBinding) this.compilerBindingsToASTBindings.get(packageBinding);
+		IPackageBinding binding = (IPackageBinding) this.bindingTables.compilerBindingsToASTBindings.get(packageBinding);
 		if (binding != null) {
 			return binding;
 		}
 		binding = new PackageBinding(packageBinding);
-		this.compilerBindingsToASTBindings.put(packageBinding, binding);
+		this.bindingTables.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}
 	/*
@@ -919,12 +936,12 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
  		if (variableBinding != null) {
 	 		if (variableBinding.isValidBinding()) {
-				IVariableBinding binding = (IVariableBinding) this.compilerBindingsToASTBindings.get(variableBinding);
+				IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
 				if (binding != null) {
 					return binding;
 				}
 				binding = new VariableBinding(this, variableBinding);
-				this.compilerBindingsToASTBindings.put(variableBinding, binding);
+				this.bindingTables.compilerBindingsToASTBindings.put(variableBinding, binding);
 				return binding;
 	 		} else {
 				/*
@@ -939,12 +956,12 @@ class DefaultBindingResolver extends BindingResolver {
 							ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
 							FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name, true /*resolve*/);
 							if (exactBinding != null) {
-								IVariableBinding variableBinding2 = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+								IVariableBinding variableBinding2 = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
 								if (variableBinding2 != null) {
 									return variableBinding2;
 								}
 								variableBinding2 = new VariableBinding(this, exactBinding);
-								this.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
+								this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
 								return variableBinding2;
 							}
 							break;
@@ -961,12 +978,12 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
 		if (methodBinding != null) {
 			if (methodBinding.isValidBinding()) {
-				IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
+				IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(methodBinding);
 				if (binding != null) {
 					return binding;
 				}
 				binding = new MethodBinding(this, methodBinding);
-				this.compilerBindingsToASTBindings.put(methodBinding, binding);
+				this.bindingTables.compilerBindingsToASTBindings.put(methodBinding, binding);
 				return binding;
 			} else {
 				/*
@@ -980,12 +997,12 @@ class DefaultBindingResolver extends BindingResolver {
 						if (declaringClass != null) {
 							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
 							if (exactBinding != null) {
-								IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+								IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
 								if (binding != null) {
 									return binding;
 								}
 								binding = new MethodBinding(this, exactBinding);
-								this.compilerBindingsToASTBindings.put(exactBinding, binding);
+								this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, binding);
 								return binding;
 							}
 						}
@@ -1045,10 +1062,10 @@ class DefaultBindingResolver extends BindingResolver {
 				if (typeBinding == null) {
 					return null;
 				}
-				this.bindingsToAstNodes.put(typeBinding, type);
+				this.bindingTables.bindingsToAstNodes.put(typeBinding, type);
 				String key = typeBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, type);				
+					this.bindingTables.bindingKeysToAstNodes.put(key, type);				
 				}
 				return typeBinding;
 			}

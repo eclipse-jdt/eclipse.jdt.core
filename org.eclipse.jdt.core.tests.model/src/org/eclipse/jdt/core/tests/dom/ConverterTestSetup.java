@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public abstract class ConverterTestSetup extends AbstractJavaModelTests {
+public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	protected AST ast;
 
