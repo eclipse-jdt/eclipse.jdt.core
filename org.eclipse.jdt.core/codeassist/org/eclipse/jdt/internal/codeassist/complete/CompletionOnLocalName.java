@@ -20,7 +20,7 @@ public class CompletionOnLocalName extends LocalDeclaration {
 		s += "<CompleteOnLocalName:"; //$NON-NLS-1$
 		if (type != null) s += type.toString() + " "; //$NON-NLS-1$
 		s += new String(name);
-		if (initialization != null) s += " = " + initialization.toStringExpression();
+		if (initialization != null) s += " = " + initialization.toStringExpression(); //$NON-NLS-1$
 		s += ">"; //$NON-NLS-1$
 		return s;
 	}	
