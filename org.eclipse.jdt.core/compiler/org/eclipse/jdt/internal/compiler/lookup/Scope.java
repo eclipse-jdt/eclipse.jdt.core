@@ -2542,9 +2542,10 @@ public abstract class Scope
 		TypeBinding[] bestArguments = new TypeBinding[argLength];
 		for (int i = 0; i < length; i++) {
 			TypeBinding invocation = (TypeBinding)invocations.get(i);
+			TypeVariableBinding[] invocationVariables = invocation.typeVariables();
 			if (invocation.isGenericType()) {
 				for (int j = 0; j < argLength; j++) {
-					TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[j], invocation.typeVariables()[j], (ReferenceBinding) mec, j);
+					TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[j], invocationVariables[j], (ReferenceBinding) mec, j);
 					if (bestArgument == null) return null;
 					bestArguments[j] = bestArgument;
 				}
