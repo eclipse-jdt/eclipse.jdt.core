@@ -206,18 +206,18 @@ public void computeId() {
 				id = T_JavaLangAssertionError;
 			return;
 		case 'B' :
-			if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
-				id = T_JavaLangByte;
-			else if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
+			if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
 				id = T_JavaLangBoolean;
+			else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
+				id = T_JavaLangByte;
 			return;
 		case 'C' :
-			if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
-				id = T_JavaLangClassNotFoundException;
+			if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
+				id = T_JavaLangCharacter;
 			else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
 				id = T_JavaLangClass;
-			else if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
-				id = T_JavaLangCharacter;
+			else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
+				id = T_JavaLangClassNotFoundException;
 			return;
 		case 'D' :
 			if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
