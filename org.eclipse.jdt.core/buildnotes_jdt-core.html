@@ -16,7 +16,22 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> </li>
+<li>Improved specification of <code>IBuffer</code> by saying that:
+	<ul>
+		<li> Java model operations that manipulate an <code>IBuffer</code> (e.g. 
+			<code>IType.createMethod(...)</code>) ensures that the same line delimiter 
+			(i.e. either <code>"\n"</code> or <code>"\r"</code> or <code>"\r\n"</code>) is 
+			used accross the whole buffer. Thus these operations may change the line delimiter(s) 
+			included in the string to be append, or replaced.
+			However implementors of this interface should be aware that other clients of <code>IBuffer</code>
+			might not do such transformations beforehand.</li>
+		<li> <code>addBufferChangedListener</code> and <code>removeBufferChangedListener</code>
+			have no effect if the buffer is already closed.</li>
+		<li> Other operations that manipulate the buffer (like <code>setContent</code>
+			might throw a <code>RuntimeException</code> if called after the buffer
+			has been closed.</li>
+	</ul>
+</li>
 </ul>
 
 <h3>
