@@ -225,7 +225,7 @@ public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) {
 	int index = 0;
 	for (int i = 0; i < length; i++) {
 		ICompilationUnit wc = workingCopies[i];
-		if (equals(wc.getParent())) {
+		if (equals(wc.getParent()) && !Util.isExcluded(wc)) { // 59933 - excluded wc shouldn't be answered back
 			result[index++] = wc;
 		}
 	}
