@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0469"));			
+		suite.addTest(new ASTConverterTest2("test0470"));			
 		return suite;
 	}
 	/**
@@ -1856,6 +1856,33 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode parent = node.getParent();
 		assertNotNull(parent);
 		assertTrue("not a block", parent.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+	}		
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=37381
+	 */
+	public void test0470() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0470", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node;
+		List initializers = forStatement.initializers();
+		assertEquals("wrong size", 1, initializers.size());
+		Expression initializer = (Expression) initializers.get(0);
+		assertTrue("not a variable declaration expression", initializer.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION); //$NON-NLS-1$
+		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) initializer;
+		List fragments = variableDeclarationExpression.fragments();
+		assertEquals("wrong size", 2, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		checkSourceRange(fragment, "i= 0", source);
+		fragment = (VariableDeclarationFragment) fragments.get(1);
+		checkSourceRange(fragment, "j= goo(3)", source);
+		checkSourceRange(variableDeclarationExpression, "int i= 0, j= goo(3)", source);
 	}		
 }
 

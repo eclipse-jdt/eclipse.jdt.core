@@ -1927,6 +1927,11 @@ class ASTConverter {
 				for (int i = 1; i < initializationsLength; i++) {
 					variableDeclarationExpression.fragments().add(convertToVariableDeclarationFragment((LocalDeclaration)initializations[i]));
 				}
+				if (initializationsLength != 1) {
+					int start = variableDeclarationExpression.getStartPosition();
+					int end = ((LocalDeclaration) initializations[initializationsLength - 1]).declarationSourceEnd;
+					variableDeclarationExpression.setSourceRange(start, end - start + 1);
+				}
 				forStatement.initializers().add(variableDeclarationExpression);
 			} else {
 				int initializationsLength = initializations.length;
