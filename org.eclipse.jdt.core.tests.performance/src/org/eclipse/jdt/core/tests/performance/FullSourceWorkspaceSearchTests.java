@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.PrintStream;
 import java.text.NumberFormat;
 
 import junit.framework.*;
@@ -26,13 +27,19 @@ import org.eclipse.test.performance.Dimension;
 /**
  */
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
-	
-	static int[] REFERENCES = new int[4];
-	private static int COUNT = 0;
-	private static IJavaSearchScope SEARCH_SCOPE;
-	static int ALL_TYPES_NAMES = 0;
-	static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
 
+	// Tests counter
+	private static int TESTS_COUNT = 0;
+
+	// Search stats
+	private static int[] REFERENCES = new int[4];
+	private static IJavaSearchScope SEARCH_SCOPE;
+	private static int ALL_TYPES_NAMES = 0;
+	private static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
+
+	// Log file streams
+	private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+	
 	/**
 	 * @param name
 	 */
@@ -40,15 +47,46 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		super(name);
 	}
 
-//	static {
-//		TESTS_NAMES = new String[] { "testPerfIndexing" };
-//	}
+	static {
+//		TESTS_NAMES = new String[] { "testPerfIndexing", "testPerfSearchAllTypeNames" };
+	}
+	/*
+	 * Specific way to build test suite.
+	 * We need to know whether test perf indexing is in list to allow
+	 * index manager disabling.
+	 * CAUTION: If test perf indexing is not included in test suite,
+	 * then time for other tests may include time spent to index files!
+	 */
 	public static Test suite() {
-		Test suite = buildSuite(FullSourceWorkspaceSearchTests.class);
-		COUNT = suite.countTestCases();
-		INDEX_MANAGER.disable();
+		
+		// Create suite
+		Test suite = buildSuite(testClass());
+		TESTS_COUNT = suite.countTestCases();
+	
+		// Add test to sjuite and disable indexing if subset of test does include indexing test
+		boolean indexing = false;
+		for (int i=0, size= TESTS_NAME_LIST.size(); i<size; i++) {
+			String testName = (String) TESTS_NAME_LIST.get(i);
+			if (testName.equals("testPerfIndexing")) {
+				indexing = true;
+			}
+		}
+		if (indexing) {
+			INDEX_MANAGER.disable();
+		}
+
+		// Init log
+		initLogDir();
+		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, "Search");
+		
+		// Return created suite
 		return suite;
 	}
+
+	private static Class testClass() {
+		return FullSourceWorkspaceSearchTests.class;
+	}
+
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
@@ -60,10 +98,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		COUNT--;
-		if (COUNT == 0) {
-			// Print statistics
+		TESTS_COUNT--;
+		
+		// Log perf result
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
+		
+		// Print statistics
+		if (TESTS_COUNT == 0) {
 			System.out.println("-------------------------------------");
 			System.out.println("Search performance test statistics:");
 			NumberFormat intFormat = NumberFormat.getIntegerInstance();
@@ -74,6 +117,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			System.out.println("  - "+intFormat.format(ALL_TYPES_NAMES)+" all types names.");
 			System.out.println("-------------------------------------\n");
 		}
+		super.tearDown();
 	}
 	/**
 	 * Simple search result collector: only count matches.
