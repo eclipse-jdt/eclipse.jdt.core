@@ -340,11 +340,11 @@ public class DeltaProcessor {
 				// NB: No need to check project's nature as if the project is not a java project:
 				//     - if the project is added or changed this is a noop for projectsBeingDeleted
 				//     - if the project is closed, it has already lost its java nature
+				IProject project = (IProject)resource;
+				JavaProject javaProject = (JavaProject)JavaCore.create(project);
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
 						// remember project and its dependents
-						IProject project = (IProject)resource;
-						JavaProject javaProject = (JavaProject)JavaCore.create(project);
 						this.addToRootsToRefreshWithDependents(javaProject);
 						// workaround for bug 15168 circular errors not reported 
 						if (JavaProject.hasJavaNature(project)) {
@@ -354,10 +354,8 @@ public class DeltaProcessor {
 						break;
 						
 					case IResourceDelta.CHANGED : 
-							project = (IProject)resource;
 							if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 								// project opened or closed: remember  project and its dependents
-								javaProject = (JavaProject)JavaCore.create(project);
 								this.addToRootsToRefreshWithDependents(javaProject);
 								
 								// workaround for bug 15168 circular errors not reported 
@@ -379,7 +377,6 @@ public class DeltaProcessor {
 								boolean isJavaProject = JavaProject.hasJavaNature(project);
 								if (wasJavaProject != isJavaProject) { 
 									// java nature added or removed: remember  project and its dependents
-									javaProject = (JavaProject)JavaCore.create(project);
 									this.addToRootsToRefreshWithDependents(javaProject);
 		
 									// workaround for bug 15168 circular errors not reported 
@@ -400,7 +397,7 @@ public class DeltaProcessor {
 								} else {
 									// in case the project was removed then added then changed (see bug 19799)
 									if (isJavaProject) { // need nature check - 18698
-										this.addToParentInfo((JavaProject)JavaCore.create(project));
+										this.addToParentInfo(javaProject);
 										processChildren = true;
 									}
 								}
@@ -408,7 +405,7 @@ public class DeltaProcessor {
 								// workaround for bug 15168 circular errors not reported 
 								// in case the project was removed then added then changed
 								if (JavaProject.hasJavaNature(project)) { // need nature check - 18698
-									this.addToParentInfo((JavaProject)JavaCore.create(project));
+									this.addToParentInfo(javaProject);
 									processChildren = true;
 								}						
 							}		
@@ -420,6 +417,10 @@ public class DeltaProcessor {
 							this.state.rootsAreStale = true;
 							break;
 				}
+				
+				// in all cases, refresh the external jars for this project
+				addForRefresh(javaProject);
+				
 				break;
 			case IResource.FILE :
 				IFile file = (IFile) resource;
@@ -2022,7 +2023,7 @@ public class DeltaProcessor {
 	private void updateClasspathMarkers(IResourceDelta delta, HashSet affectedProjects, Map preferredClasspaths, Map preferredOutputs) {
 		IResource resource = delta.getResource();
 		boolean processChildren = false;
-		
+
 		switch (resource.getType()) {
 	
 			case IResource.ROOT :
@@ -2049,11 +2050,12 @@ public class DeltaProcessor {
 								javaProject.updateClasspathMarkers(preferredClasspaths, preferredOutputs); // in case .classpath got modified while closed
 							}
 						} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
-							if (!JavaProject.hasJavaNature(project)) {
+							boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
+							if (wasJavaProject && !isJavaProject) {
 								// project no longer has Java nature, discard Java related obsolete markers
-								JavaProject javaProject = (JavaProject)JavaCore.create(project);
 								affectedProjects.add(project.getFullPath());
 								// flush classpath markers
+								JavaProject javaProject = (JavaProject)JavaCore.create(project);
 								javaProject.
 									flushClasspathProblemMarkers(
 										true, // flush cycle markers
@@ -2062,6 +2064,14 @@ public class DeltaProcessor {
 									
 								// remove problems and tasks created  by the builder
 								JavaBuilder.removeProblemsAndTasksFor(project);
+							}
+						} else if (isJavaProject) {
+							// check if all entries exist
+							try {
+								JavaProject javaProject = (JavaProject)JavaCore.create(project);
+								javaProject.getResolvedClasspath(true/*ignore unresolved entry*/, true/*generate marker on error*/);
+							} catch (JavaModelException e) {
+								// project doesn't exist: ignore
 							}
 						}
 						break;
@@ -2095,7 +2105,7 @@ public class DeltaProcessor {
 	}
 
 	/*
-	 * Update the classpath markers and cycle markers for the projects to update.
+	 * Update the .classpath format, missing entries and cycle markers for the projects affected by the given delta.
 	 */
 	private void updateClasspathMarkers(IResourceDelta delta) {
 		
@@ -2103,46 +2113,48 @@ public class DeltaProcessor {
 		Map preferredOutputs = new HashMap(5);
 		HashSet affectedProjects = new HashSet(5);
 		
-		// read .classpath files that have changed, and create markers if format is wrong
+		// read .classpath files that have changed, and create markers if format is wrong or if an entry cannot be found
+		JavaModel.flushExternalFileCache();
 		updateClasspathMarkers(delta, affectedProjects, preferredClasspaths, preferredOutputs); 
 	
+		// update .classpath format markers for affected projects (dependent projects 
+		// or projects that reference a library in one of the projects that have changed)
 		if (!affectedProjects.isEmpty()) {
 			try {
-				if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
-					IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-					IProject[] projects = workspaceRoot.getProjects();
-					int length = projects.length;
-					for (int i = 0; i < length; i++){
-						IProject project = projects[i];
-						JavaProject javaProject = (JavaProject)JavaCore.create(project);
-						if (preferredClasspaths.get(javaProject) == null) { // not already updated
-							try {
-								IPath projectPath = project.getFullPath();
-								IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true); // allowed to reuse model cache
-								for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
-									IClasspathEntry entry = classpath[j];
-									switch (entry.getEntryKind()) {
-										case IClasspathEntry.CPE_PROJECT:
-											if (affectedProjects.contains(entry.getPath())) {
-												javaProject.updateClasspathMarkers(null, null);
-											}
-											break;
-										case IClasspathEntry.CPE_LIBRARY:
-											IPath entryPath = entry.getPath();
-											IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
-											if (!libProjectPath.equals(projectPath) // if library contained in another project
-													&& affectedProjects.contains(libProjectPath)) {
-												javaProject.updateClasspathMarkers(null, null);
-											}
-											break;
-									}
+				IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+				IProject[] projects = workspaceRoot.getProjects();
+				int length = projects.length;
+				for (int i = 0; i < length; i++){
+					IProject project = projects[i];
+					JavaProject javaProject = (JavaProject)JavaCore.create(project);
+					if (preferredClasspaths.get(javaProject) == null) { // not already updated
+						try {
+							IPath projectPath = project.getFullPath();
+							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true); // allowed to reuse model cache
+							for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
+								IClasspathEntry entry = classpath[j];
+								switch (entry.getEntryKind()) {
+									case IClasspathEntry.CPE_PROJECT:
+										if (affectedProjects.contains(entry.getPath())) {
+											javaProject.updateClasspathMarkers(null, null);
+										}
+										break;
+									case IClasspathEntry.CPE_LIBRARY:
+										IPath entryPath = entry.getPath();
+										IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
+										if (!libProjectPath.equals(projectPath) // if library contained in another project
+												&& affectedProjects.contains(libProjectPath)) {
+											javaProject.updateClasspathMarkers(null, null);
+										}
+										break;
 								}
-							} catch(JavaModelException e) {
-									// project no longer exists
 							}
+						} catch(JavaModelException e) {
+								// project no longer exists
 						}
 					}
 				}
+
 				// update all cycle markers
 				JavaProject.updateAllCycleMarkers(preferredClasspaths);
 			} catch(JavaModelException e) {

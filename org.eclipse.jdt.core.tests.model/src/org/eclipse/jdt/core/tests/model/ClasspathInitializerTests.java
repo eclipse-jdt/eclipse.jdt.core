@@ -132,7 +132,7 @@ public ClasspathInitializerTests(String name) {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer6"));
+		suite.addTest(new ClasspathInitializerTests("testContainerInitializer5"));
 		return suite;
 	}
 	return new Suite(ClasspathInitializerTests.class);
@@ -304,11 +304,13 @@ public void testContainerInitializer5() throws CoreException {
 		assertTrue("initializer did not run", nullInitializer.hasRun);
 		
 		// next cp resolution request will rerun the initializer
+		waitForAutoBuild();
 		nullInitializer.hasRun = false; // reset		
 		p1.getResolvedClasspath(true);
 		assertTrue("initializer did not run", nullInitializer.hasRun); // initializer should have run again (since keep setting to null)
 
 		// assigning new (non-null) value to container
+		waitForAutoBuild();
 		this.createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
 		p1.getResolvedClasspath(true);

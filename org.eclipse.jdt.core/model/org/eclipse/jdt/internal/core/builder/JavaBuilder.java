@@ -501,8 +501,6 @@ private boolean isWorthBuilding() throws CoreException {
 		if (DEBUG)
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
-		JavaModelManager.getJavaModelManager().getDeltaProcessor().addForRefresh(javaProject);
-
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
