@@ -104,6 +104,9 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 			? new MethodButNoClassDeclarationVisitor()
 			: new NoClassNoMethodDeclarationVisitor();
 	}
+
+	// Always check annotation while matching indexes
+	this.annotationParser.checkAnnotation = true;
 }
 public void checkAnnotation() {
 	super.checkAnnotation();
@@ -211,6 +214,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 }
 /**
  * Parses the method bodies in the given compilation unit
+ * @param unit CompilationUnitDeclaration
  */
 public void parseBodies(CompilationUnitDeclaration unit) {
 	TypeDeclaration[] types = unit.types;
@@ -224,6 +228,8 @@ public void parseBodies(CompilationUnitDeclaration unit) {
 }
 /**
  * Parses the member bodies in the given type.
+ * @param type TypeDeclaration
+ * @param unit CompilationUnitDeclaration
  */
 protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) {
 	FieldDeclaration[] fields = type.fields;
