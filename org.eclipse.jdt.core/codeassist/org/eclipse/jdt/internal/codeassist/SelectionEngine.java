@@ -633,7 +633,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						// position not used
 					} else {
 						qualifiedSelection = typeName;
-						char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot - 1);
+						char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot);
 						char[] selectionIdentifier =
 							CharOperation.subarray(typeName, dot + 1, typeName.length);
 						this.selectedIdentifier = selectionIdentifier;

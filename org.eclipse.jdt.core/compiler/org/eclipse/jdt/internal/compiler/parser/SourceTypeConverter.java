@@ -330,7 +330,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			positions[i] = position;
 		}
 		return new ImportReference(
-			CharOperation.splitOn('.', importName, 0, max - (onDemand ? 3 : 1)),
+			CharOperation.splitOn('.', importName, 0, max - (onDemand ? 2 : 0)),
 			positions,
 			onDemand);
 	}
@@ -376,7 +376,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				positions[i] = pos;
 			}
 			char[][] identifiers =
-				CharOperation.splitOn('.', typeSignature, 0, dimStart - 1);
+				CharOperation.splitOn('.', typeSignature, 0, dimStart);
 			if (dim == 0) {
 				return new QualifiedTypeReference(identifiers, positions);
 			} else {

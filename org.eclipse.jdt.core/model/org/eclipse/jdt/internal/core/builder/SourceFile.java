@@ -31,7 +31,7 @@ public class SourceFile implements ICompilationUnit {
 		char[] typeName = initialTypeName.toCharArray();
 		int lastIndex = CharOperation.lastIndexOf('/', typeName);
 		this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
-		this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
+		this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex);
 	
 		this.encoding = encoding;
 	}

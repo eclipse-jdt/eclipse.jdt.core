@@ -233,7 +233,7 @@ public class TypeConverter {
 				return new ArrayTypeReference(identifier, dim, 0);
 			}
 		} else { // qualified type reference
-			char[][] identifiers =	CharOperation.splitOn('.', type, 0, dimStart - 1);
+			char[][] identifiers =	CharOperation.splitOn('.', type, 0, dimStart);
 			if (dim == 0) {
 				return new QualifiedTypeReference(identifiers, new long[]{0});
 			} else {

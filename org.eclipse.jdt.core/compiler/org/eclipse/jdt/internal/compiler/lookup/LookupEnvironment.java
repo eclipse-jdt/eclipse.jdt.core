@@ -455,7 +455,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end) {
 	if (end == -1)
-		end = signature.length - 1;
+		end = signature.length;
 
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
 	ReferenceBinding binding = getCachedType(compoundName);
@@ -522,7 +522,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 				throw new Error(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
 		}
 	} else {
-		binding = getTypeFromConstantPoolName(signature, start + 1, end - 1);
+		binding = getTypeFromConstantPoolName(signature, start + 1, end);
 	}
 
 	if (dimension == 0)
