@@ -117,7 +117,7 @@ public interface IScanner {
 	 * Note that the actual token ID values are subject to change if new keywords were added to the language
 	 * (i.e. 'assert' keyword in 1.4).
 	 * 
-	 * @throws InvalidInputException - in case a lexical error was detected while reading the current token
+	 * @throws InvalidInputException in case a lexical error was detected while reading the current token
 	 */
 	int getNextToken() throws InvalidInputException;
 
