@@ -1648,7 +1648,7 @@ public class Util {
 	public static void verbose(String log) {
 		verbose(log, System.out);
 	}
-	public static void verbose(String log, PrintStream printStream) {
+	public static synchronized void verbose(String log, PrintStream printStream) {
 		int start = 0;
 		do {
 			int end = log.indexOf('\n', start);
