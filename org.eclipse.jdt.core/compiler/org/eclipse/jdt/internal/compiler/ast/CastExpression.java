@@ -257,16 +257,19 @@ public class CastExpression extends Expression {
 				return false; 
 			}
 			if (isNarrowing ? !expressionType.isEquivalentTo(match) : !match.isEquivalentTo(castType)) {
-				scope.problemReporter().unsafeCast(this);
+				scope.problemReporter().unsafeCast(this, scope);
 				return true;
 			}
 			if ((castType.tagBits & TagBits.HasDirectWildcard) == 0) {
 				if ((!match.isParameterizedType() && !match.isGenericType())
 						|| expressionType.isRawType()) {
-					scope.problemReporter().unsafeCast(this);
+					scope.problemReporter().unsafeCast(this, scope);
 					return true;
 				}
 			}
+		} else if (isNarrowing && castType.isTypeVariable()) {
+			scope.problemReporter().unsafeCast(this, scope);
+			return true;
 		}
 		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 		return true;

@@ -358,7 +358,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	 * Resolve annotations, and check duplicates, answers combined tagBits 
 	 * for recognized standard annotations
 	 */
-	public void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+	public static void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :

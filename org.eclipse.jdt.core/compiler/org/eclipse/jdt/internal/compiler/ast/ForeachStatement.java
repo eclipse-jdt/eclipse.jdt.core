@@ -331,6 +331,7 @@ public class ForeachStatement extends Statement {
 						this.elementVariableImplicitWidening = UNBOXING;
 						if (elementType.isBaseType()) {
 							this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeID;
+							scope.problemReporter().autoboxing(collection, collectionElementType, elementType);
 						}
 					} else {
 						this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeID;
@@ -340,6 +341,7 @@ public class ForeachStatement extends Statement {
 						int boxedID = scope.environment().computeBoxingType(collectionElementType).id;
 						this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
 						compileTimeTypeID = boxedID;
+						scope.problemReporter().autoboxing(collection, collectionElementType, elementType);
 					}
 				}
 			} else if (collectionType instanceof ReferenceBinding) {

@@ -386,12 +386,12 @@ public FieldBinding[] fields() {
  */
 public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsClass) {
 
-    if (erasure().id == erasureId) return this;
+    if (this.id == erasureId || erasure().id == erasureId) return this;
     ReferenceBinding currentType = this;
     // iterate superclass to avoid recording interfaces if searched supertype is class
     if (erasureIsClass) {
 		while ((currentType = currentType.superclass()) != null) { 
-			if (currentType.erasure().id == erasureId) return currentType;
+			if (currentType.id == erasureId || currentType.erasure().id == erasureId) return currentType;
 		}    
 		return null;
     }
@@ -409,7 +409,7 @@ public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsC
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]).erasure().id == erasureId)
+			if ((currentType = interfaces[j]).id == erasureId || currentType.erasure().id == erasureId)
 				return currentType;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -427,11 +427,11 @@ public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsC
  */
 public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 
-    if (erasure() == erasure) return this;
+    if (this == erasure || erasure() == erasure) return this;
     ReferenceBinding currentType = this;
     if (erasure.isClass()) {
 		while ((currentType = currentType.superclass()) != null) {
-			if (currentType.erasure() == erasure) return currentType;
+			if (currentType == erasure || currentType.erasure() == erasure) return currentType;
 		}
 		return null;
     }
@@ -449,7 +449,7 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]).erasure() == erasure)
+			if ((currentType = interfaces[j]) == erasure || currentType.erasure() == erasure)
 				return currentType;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -466,6 +466,14 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
+ */
+public long getAnnotationTagBits() {
+	return this.tagBits;
+}
+
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
@@ -703,12 +711,12 @@ public ReferenceBinding[] memberTypes() {
  */
 public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (this == targetType) return false;
-	if (!this.isPartOfRawType()) return false;
 	if (!(targetType instanceof ReferenceBinding)) 
 		return false;
 	TypeBinding compatible = this.findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
 	if (compatible == null) 
 		return false;
+	if (!compatible.isPartOfRawType()) return false;
 	do {
 		if (compatible.isRawType() && (targetType.isBoundParameterizedType() || targetType.isGenericType())) {
 			return true;

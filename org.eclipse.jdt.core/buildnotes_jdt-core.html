@@ -41,6 +41,49 @@
   </tr>
 </table>
 
+<a name="v_530"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.1M5 - ?th December 2004
+<br>Project org.eclipse.jdt.core v_530
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_530">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> Added optional compiler diagnosis when boxing/unboxing conversion is performed. Corresponding problem IDs are:
+<code>IProblem.BoxingConversion</code> and <code>IProblem.UnboxingConversion</code>.
+<pre>
+* COMPILER / Reporting Boxing/Unboxing Conversion
+*    When enabled, the compiler will issue an error or a warning whenever a boxing or an unboxing
+*    conversion is performed.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.autoboxing"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>	 
+<li> Renamed unsafe type operation optional problem into unchecked type operation, to better match notion of
+"unchecked" warning from JLS 3rd edition.
+<pre>
+* COMPILER / Reporting Unchecked Type Operation
+*    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
+*    invalidates type safety since involving raw types (e.g. invoking #foo(X&lt;String&gt;) with arguments  (X)).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78122">78122</a>
+[compiler] Detect and visually indicate auto-boxing in Jdk1.5 code
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78592">78592</a>
+[1.5][compiler] missing unchecked cast warning
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78591">78591</a>
+[1.5][compiler] missing unchecked cast warning
+
+
 <a name="v_529"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>

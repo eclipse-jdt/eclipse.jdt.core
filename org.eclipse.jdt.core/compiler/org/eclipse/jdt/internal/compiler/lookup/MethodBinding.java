@@ -11,10 +11,13 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
 public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
+	
 	public int modifiers;
 	public char[] selector;
 	public TypeBinding returnType;
@@ -22,7 +25,6 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
 	public TypeVariableBinding[] typeVariables = NoTypeVariables;
-
 	char[] signature;
 	public long tagBits;
 	
@@ -360,6 +362,22 @@ public char[] genericSignature() {
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
+
+/**
+ * Compute the tagbits for standard annotations. For source types, these could require
+ * lazily resolving corresponding annotation nodes, in case of forward references.
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
+ */
+public long getAnnotationTagBits() {
+	MethodBinding originalMethod = this.original();
+	if ((originalMethod.tagBits & TagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
+		TypeDeclaration typeDecl = ((SourceTypeBinding)originalMethod.declaringClass).scope.referenceContext;
+		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
+		ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
+	}
+	return originalMethod.tagBits;
+}
+
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	for (int i = this.typeVariables.length; --i >= 0;)
 		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))

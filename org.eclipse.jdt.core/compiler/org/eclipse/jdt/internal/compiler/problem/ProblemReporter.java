@@ -278,6 +278,14 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
+public void autoboxing(Expression expression, TypeBinding originalType, TypeBinding convertedType) {
+	this.handle(
+		originalType.isBaseType() ? IProblem.BoxingConversion : IProblem.UnboxingConversion,
+		new String[] { new String(originalType.readableName()), new String(convertedType.readableName()), },
+		new String[] { new String(originalType.shortReadableName()), new String(convertedType.shortReadableName()), },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void boundHasConflictingArguments(ASTNode location, TypeBinding type) {
 	this.handle(
 		IProblem.BoundHasConflictingArguments,
@@ -640,7 +648,7 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 		case IProblem.UnsafeReturnTypeOverride:
-			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
+			return this.options.getSeverity(CompilerOptions.UncheckedTypeOperation);
 
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
@@ -657,8 +665,12 @@ public int computeSeverity(int problemId){
 
 		case IProblem.LocalVariableCannotBeNull :
 		case IProblem.LocalVariableCanOnlyBeNull :
-			return this.options.getSeverity(CompilerOptions.InconsistentNullCheck);
+			return this.options.getSeverity(CompilerOptions.NullReference);
 			
+		case IProblem.BoxingConversion :
+		case IProblem.UnboxingConversion :
+			return this.options.getSeverity(CompilerOptions.Autoboxing);
+
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -4799,12 +4811,22 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		nameRef.sourceStart,
 		end);
 }
-public void unsafeCast(CastExpression castExpression) {
+public void unsafeCast(CastExpression castExpression, Scope scope) {
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
+	TypeBinding erasedCastType = castExpression.resolvedType.erasure();
+	if (erasedCastType.isGenericType()) erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedCastType, erasedCastType.enclosingType());
 	this.handle(
 		IProblem.UnsafeGenericCast,
-		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
-		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		new String[]{ 
+			new String(castedExpressionType.readableName()), 
+			new String(castExpression.resolvedType.readableName()),
+			new String(erasedCastType.readableName()),
+		},
+		new String[]{ 
+			new String(castedExpressionType.shortReadableName()), 
+			new String(castExpression.resolvedType.shortReadableName()),
+			new String(erasedCastType.shortReadableName()),
+		},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
@@ -607,10 +608,15 @@ public char[] genericSignature() {
     }
 	return sig.toString().toCharArray();
 }
+/**
+ * Compute the tagbits for standard annotations. For source types, these could require
+ * lazily resolving corresponding annotation nodes, in case of forward references.
+ * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
+ */
 public long getAnnotationTagBits() {
 	if ((this.tagBits & AnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
-		typeDecl.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+		ASTNode.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
 	}
 	return this.tagBits;
 }

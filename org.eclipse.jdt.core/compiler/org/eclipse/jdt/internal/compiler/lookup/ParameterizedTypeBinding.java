@@ -217,6 +217,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}	
 
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getAnnotationTagBits()
+	 */
+	public long getAnnotationTagBits() {
+		return this.type.getAnnotationTagBits();
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])
 	 */
 	public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {

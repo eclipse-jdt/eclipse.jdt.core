@@ -45,8 +45,12 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 		return null;
 	}
 	
+	/**
+	 * Compute the tagbits for standard annotations. For source types, these could require
+	 * lazily resolving corresponding annotation nodes, in case of forward references.
+	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding#getAnnotationTagBits()
+	 */
 	public long getAnnotationTagBits() {
-		// TODO (philippe) need to generalize to methods & fields
 		return 0;
 	}
 

@@ -321,26 +321,29 @@ public abstract class Expression extends Statement {
 					return true;
 				}
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
-				
-				ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
 				if (match != null) {
 					if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
 					return checkUnsafeCast(scope, castType, expressionType, match, false);
 				}
 				match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 				if (match != null) {
-					tagAsNeedCheckCast();
+					if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
+						tagAsNeedCheckCast();
+					}
 					return checkUnsafeCast(scope, castType, expressionType, match, true);
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 
-				ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
 				if (match != null) {
 					return checkUnsafeCast(scope, castType, expressionType, match, false);
 				}
 				// a subclass may implement the interface ==> no check at compile time
 				if (!((ReferenceBinding) expressionType).isFinal()) {
-					tagAsNeedCheckCast();
+					if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
+						tagAsNeedCheckCast();
+					}
 					match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 					if (match != null) {
 						return checkUnsafeCast(scope, castType, expressionType, match, true);
@@ -372,7 +375,7 @@ public abstract class Expression extends Statement {
 			}
 			if (((ReferenceBinding) castType).isFinal()) {
 				// no subclass for castType, thus compile-time check is valid
-				ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+				TypeBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo(expressionType.isTypeVariable() ? (ReferenceBinding)expressionType : (ReferenceBinding)expressionType.erasure());
 				if (match == null) {
 					// potential runtime error
 					reportIllegalCast(scope, castType, expressionType);
@@ -381,14 +384,16 @@ public abstract class Expression extends Statement {
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
 
-			ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
 			if (match != null) {
 				return checkUnsafeCast(scope, castType, expressionType, match, false);
 			}
 			
 			match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 			if (match != null) {
-				tagAsNeedCheckCast();
+				if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
+					tagAsNeedCheckCast();
+				}
 				return checkUnsafeCast(scope, castType, expressionType, match, true);
 			}  else {
 				MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
@@ -483,8 +488,10 @@ public abstract class Expression extends Statement {
 		// or to become an int before boxed into an Integer
 		if (runtimeTimeType != NullBinding && runtimeTimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
-				compileTimeType = scope.environment().computeBoxingType(compileTimeType);
+				TypeBinding unboxedType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = UNBOXING;
+				scope.problemReporter().autoboxing(this, compileTimeType, runtimeTimeType);
+				compileTimeType = unboxedType;
 			}
 		} else {
 			if (compileTimeType != NullBinding && compileTimeType.isBaseType()) {
@@ -492,6 +499,7 @@ public abstract class Expression extends Statement {
 				if (boxedType == runtimeTimeType) // Object o = 12;
 					boxedType = compileTimeType; 
 				this.implicitConversion = BOXING | (boxedType.id << 4) + compileTimeType.id;
+				scope.problemReporter().autoboxing(this, compileTimeType, runtimeTimeType);
 				return;
 			}
 		}

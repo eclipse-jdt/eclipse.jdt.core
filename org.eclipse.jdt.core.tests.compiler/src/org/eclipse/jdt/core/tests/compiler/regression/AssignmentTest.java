@@ -125,7 +125,7 @@ public void test002() {
  */
 public void test003() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -156,7 +156,7 @@ public void test003() {
 }
 public void test004() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -204,7 +204,7 @@ public void test004() {
 }
 public void test005() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -225,7 +225,7 @@ public void test005() {
 }
 public void test006() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -246,7 +246,7 @@ public void test006() {
 }
 public void test007() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -269,7 +269,7 @@ public void test007() {
 }
 public void test008() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -295,7 +295,7 @@ public void test008() {
 // TODO (philippe) reenable once fixed
 public void _test009() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -341,7 +341,7 @@ public void _test009() {
 }
 public void test010() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -368,7 +368,7 @@ public void test010() {
 }
 public void test011() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -400,7 +400,7 @@ public void test011() {
 }
 public void test012() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -427,7 +427,7 @@ public void test012() {
 }
 public void test013() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -458,7 +458,7 @@ public void test013() {
 }
 public void test014() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -484,7 +484,7 @@ public void test014() {
 }
 public void test015() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -511,7 +511,7 @@ public void test015() {
 }
 public void test016() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -545,7 +545,7 @@ public void test016() {
 }
 public void test017() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -579,7 +579,7 @@ public void test017() {
 }
 public void test018() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -614,7 +614,7 @@ public void test018() {
 }
 public void test019() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -677,7 +677,7 @@ public void test020() {
 }
 public void test021() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -716,7 +716,7 @@ public void test021() {
 }
 public void test022() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -753,7 +753,7 @@ public void test022() {
 }
 public void test023() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -785,7 +785,7 @@ public void test023() {
 }
 public void test024() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -823,7 +823,7 @@ public void test024() {
 }
 public void test025() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -853,7 +853,7 @@ public void test025() {
 // TODO (philippe) reenable once fixed
 public void _test026() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -880,7 +880,7 @@ public void _test026() {
 // TODO (philippe) reenable once fixed
 public void _test027() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -910,7 +910,7 @@ public void _test027() {
 // TODO (philippe) reenable once fixed
 public void _test028() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -940,7 +940,7 @@ public void _test028() {
 }
 public void test029() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -971,7 +971,7 @@ public void test029() {
 }
 public void test030() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1003,7 +1003,7 @@ public void test030() {
 // TODO (philippe) reenable once fixed
 public void _test031() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1042,7 +1042,7 @@ public void _test031() {
 }
 public void test032() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1065,7 +1065,7 @@ public void test032() {
 }
 public void test033() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

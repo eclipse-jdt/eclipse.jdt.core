@@ -381,9 +381,16 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @deprecated - got renamed into {@link #COMPILER_PB_UNCHECKED_TYPE_OPERATION}
 	 * @since 3.1
 	 */
-	public static final String COMPILER_PB_UNSAFE_TYPE_OPERATION = PLUGIN_ID + ".compiler.problem.unsafeTypeOperation"; //$NON-NLS-1$
+	public static final String COMPILER_PB_UNSAFE_TYPE_OPERATION = PLUGIN_ID + ".compiler.problem.uncheckedTypeOperation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_UNCHECKED_TYPE_OPERATION = PLUGIN_ID + ".compiler.problem.uncheckedTypeOperation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1793,10 +1800,10 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
-	 * COMPILER / Reporting Unsafe Type Operation
+	 * COMPILER / Reporting Unchecked Type Operation
 	 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
 	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
@@ -1822,16 +1829,23 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
-	 * COMPILER / Reporting Inconsistent null Checks
+	 * COMPILER / Reporting Null Reference or Dereference
 	 *    When enabled, the compiler will issue an error or a warning whenever assumption were made on a variable
 	 *    with respect to holding null/non-null values, but the assumption is not followed in a consistent manner.
 	 *    Situations include:
 	 *         - if variable was assumed to be null and further used to access field or methods
 	 *         - if variable was assumed to be null or non-null and further tested for null cases.
 	 *         
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.inconsistentNullCheck"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Boxing/Unboxing Conversion
+	 *    When enabled, the compiler will issue an error or a warning whenever a boxing or an unboxing
+	 *    conversion is performed.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.autoboxing"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Comment
 	 *    This is the generic control for the severity of Javadoc problems.

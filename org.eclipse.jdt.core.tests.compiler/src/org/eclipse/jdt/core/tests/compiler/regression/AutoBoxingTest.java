@@ -2,9 +2,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -13,6 +15,12 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 	public AutoBoxingTest(String name) {
 		super(name);
 	}
+	
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+		return defaultOptions;
+	}	
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
@@ -740,10 +748,25 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Float f = args.length == 0 ? new Float(0) : 0;\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type float is boxed into Float\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	Float f = args.length == 0 ? new Float(0) : 0;\n" + 
+			"	                             ^^^^^^^^^^^^\n" + 
+			"The expression of type Float is unboxed into float\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
 			"	System.out.println((int)f);\n" + 
 			"	                   ^^^^^^\n" + 
 			"Cannot cast from Float to int\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 4)\n" + 
+			"	System.out.println((int)f);\n" + 
+			"	                        ^\n" + 
+			"The expression of type Float is unboxed into int\n" + 
 			"----------\n"
 		);
 	}
@@ -761,10 +784,20 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	System.out.println((Integer) 0);\n" + 
+			"	                             ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
 			"	System.out.println((Float) 0);\n" + 
 			"	                   ^^^^^^^^^\n" + 
 			"Cannot cast from int to Float\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	System.out.println((Float) 0);\n" + 
+			"	                           ^\n" + 
+			"The expression of type int is boxed into Float\n" + 
 			"----------\n"
 		);
 	}
@@ -1230,7 +1263,12 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Integer i = 0;\n" + 
+			"	            ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
 			"	i += \"aaa\";\n" + 
 			"	^^^^^^^^^^\n" + 
 			"The operator += is undefined for the argument type(s) Integer, String\n" + 
@@ -1249,7 +1287,12 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Integer i = 0;\n" + 
+			"	            ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
 			"	i += null;\n" + 
 			"	^^^^^^^^^\n" + 
 			"The operator += is undefined for the argument type(s) Integer, null\n" + 
@@ -1268,7 +1311,12 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Integer i = 0;\n" + 
+			"	            ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
 			"	i = i + null;\n" + 
 			"	    ^^^^^^^^\n" + 
 			"The operator + is undefined for the argument type(s) Integer, null\n" + 
@@ -1394,7 +1442,22 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Byte b = 0;\n" + 
+			"	         ^\n" + 
+			"The expression of type int is boxed into Byte\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	++b;\n" + 
+			"	^^^\n" + 
+			"The expression of type byte is boxed into Byte\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	++b;\n" + 
+			"	  ^\n" + 
+			"The expression of type Byte is unboxed into byte\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
 			"	foo(0);\n" + 
 			"	^^^\n" + 
 			"The method foo(Byte) in the type X is not applicable for the arguments (int)\n" + 
@@ -1453,6 +1516,11 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"	for(Integer i : bytes) {\n" + 
 			"	                ^^^^^\n" + 
 			"Type mismatch: cannot convert from element type byte to Integer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	for(Integer i : bytes) {\n" + 
+			"	                ^^^^^\n" + 
+			"The expression of type byte is boxed into Integer\n" + 
 			"----------\n");
 	}	
 	

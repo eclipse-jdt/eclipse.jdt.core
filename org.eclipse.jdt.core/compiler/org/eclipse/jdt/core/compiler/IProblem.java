@@ -1023,6 +1023,14 @@ public interface IProblem {
 	int CorruptedSignature = Internal + 700;
 
 	/**
+	 * Autoboxing
+	 */
+	/** @since 3.1 */
+	int BoxingConversion = Internal + 720;
+	/** @since 3.1 */
+	int UnboxingConversion = Internal + 721;
+	
+	/**
 	 * Enum
 	 */
 	/** @since 3.1 */

@@ -510,7 +510,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in A.java (at line 3)\r\n" + 
 			"	abstract class A implements I { void foo(G<A> x) {} }\r\n" + 
 			"	                                     ^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(G<A>) of type A has the same erasure as foo(G<I>) of type I but does not override it\n" + 
+			"Name clash: The method foo(G<A>) of type A has the same erasure as foo(G<I>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(G<A>) in A and foo(G<I>) in I have the same erasure, yet neither overrides the other
 		);
@@ -525,7 +525,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in A.java (at line 3)\r\n" + 
 			"	abstract class A implements I { I foo(G<A> x) { return null; } }\r\n" + 
 			"	                                  ^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(G<A>) of type A has the same erasure as foo(G<I>) of type I but does not override it\n" + 
+			"Name clash: The method foo(G<A>) of type A has the same erasure as foo(G<I>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(G<A>) in A and foo(G<I>) in I have the same erasure, yet neither overrides the other
 		);
@@ -592,7 +592,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	abstract class X2 extends A implements I {}\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(T) of type A has the same erasure as foo(T) of type I but does not override it\n" + 
+			"Name clash: The method foo(T) of type A has the same erasure as foo(T) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T,S>foo(T) in A and <T>foo(T) in I have the same erasure, yet neither overrides the other
 		);
@@ -608,7 +608,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	abstract class X3 extends A implements I {}\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(T) of type A has the same erasure as foo(T) of type I but does not override it\n" + 
+			"Name clash: The method foo(T) of type A has the same erasure as foo(T) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T>foo(T) in A and <T,S>foo(T) in I have the same erasure, yet neither overrides the other
 		);
@@ -683,7 +683,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X1 extends A implements I {}\r\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
@@ -699,7 +699,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X2 extends A implements I {}\r\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
@@ -715,7 +715,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X3 extends A implements I {}\r\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
@@ -731,7 +731,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X4 extends A implements I {}\r\n" + 
 			"	               ^^\n" + 
-			"Name clash : The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type A has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
@@ -748,7 +748,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	class X5 extends A implements I { public <T> void foo(Class<T> s) {} }\r\n" + 
 			"	                                                  ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<T>) of type X5 has the same erasure as foo(Class<T>) of type A but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type X5 has the same erasure as foo(Class<T>) of type A but does not override it\n" + 
 			"----------\n"
 			// name clash: <T>foo(java.lang.Class<T>) in X5 and <T,S>foo(java.lang.Class<T>) in A have the same erasure, yet neither overrides the other
 		);
@@ -802,7 +802,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X { void foo(A<String> a) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(A<String>) of type Y has the same erasure as foo(A) of type X but does not override it\n" + 
+			"Name clash: The method foo(A<String>) of type Y has the same erasure as foo(A) of type X but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in X have the same erasure, yet neither overrides the other
 		);
@@ -817,7 +817,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X { void foo(A<String>[] a) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type X but does not override it\n" + 
+			"Name clash: The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type X but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>[]) in Y and foo(A[]) in X have the same erasure, yet neither overrides the other
 		);
@@ -876,7 +876,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X extends Y implements I { }\r\n" + 
 			"	               ^\n" + 
-			"Name clash : The method foo(A<String>) of type Y has the same erasure as foo(A) of type I but does not override it\n" + 
+			"Name clash: The method foo(A<String>) of type Y has the same erasure as foo(A) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in I have the same erasure, yet neither overrides the other
 		);
@@ -892,7 +892,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	abstract class X extends Y implements I { }\r\n" + 
 			"	               ^\n" + 
-			"Name clash : The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type I but does not override it\n" + 
+			"Name clash: The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type I but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>[]) in Y and foo(A[]) in I have the same erasure, yet neither overrides the other
 		);
@@ -929,7 +929,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\r\n" + 
 			"	class Z extends Y { void test(X<Number> a) {} }\r\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method test(X<Number>) of type Z has the same erasure as test(X<? extends Number>) of type Y but does not override it\n" + 
+			"Name clash: The method test(X<Number>) of type Z has the same erasure as test(X<? extends Number>) of type Y but does not override it\n" + 
 			"----------\n"
 			// name clash: test(X<java.lang.Number>) in Z and test(X<? extends java.lang.Number>) in Y have the same erasure, yet neither overrides the other
 		);
@@ -948,7 +948,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public int compareTo(Object o) { return 0; }\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method compareTo(Object) of type X has the same erasure as compareTo(T) of type Comparable<T> but does not override it\n" + 
+			"Name clash: The method compareTo(Object) of type X has the same erasure as compareTo(T) of type Comparable<T> but does not override it\n" + 
 			"----------\n"
 			// name clash: compareTo(java.lang.Object) in X and compareTo(T) in java.lang.Comparable<X> have the same erasure, yet neither overrides the other
 		);

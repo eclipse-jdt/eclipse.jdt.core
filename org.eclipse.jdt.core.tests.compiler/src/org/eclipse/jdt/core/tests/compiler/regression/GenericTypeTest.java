@@ -1650,7 +1650,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	X<IOException> xioe2 = x; // unsafe\n" + 
 			"	                       ^\n" + 
-			"Type safety: The expression of raw type X is converted to X<IOException>. References to generic type X<T> should be parameterized\n" + 
+			"Type safety: The expression of type X is converted to X<IOException> using a raw conversion. References to generic type X<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -2021,12 +2021,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X((A)null, (A)null);\n" + 
 			"	            ^^^^^^^\n" + 
-			"Type safety: The expression of raw type A is converted to A<String>. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X((A)null, (A)null);\n" + 
 			"	                     ^^^^^^^\n" + 
-			"Type safety: The expression of raw type A is converted to A<String>. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
@@ -2036,7 +2036,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
-			"Type safety: The expression of raw type A is converted to A<String>. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 11)\n" + 
 			"	a.print(x);\n" + 
@@ -2235,12 +2235,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X((AX)null, (AX)null);\n" + 
 			"	            ^^^^^^^^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X((AX)null, (AX)null);\n" + 
 			"	                      ^^^^^^^^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
@@ -2255,7 +2255,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	a.bar(a);\n" + 
@@ -2275,7 +2275,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"9. WARNING in X.java (at line 15)\n" + 
 			"	as.bar(a);\n" + 
 			"	       ^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n");
 	}		
 
@@ -2333,7 +2333,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	public void test087() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2362,7 +2362,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	public void test088() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2404,7 +2404,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	public void test090() {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2574,7 +2574,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	}	
 	public void test098() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2914,7 +2914,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	Iterable<String> is = new ArrayList();\n" + 
 			"	                      ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type ArrayList is converted to Iterable<String>. References to generic type Iterable<T> should be parameterized\n" + 
+			"Type safety: The expression of type ArrayList is converted to Iterable<String> using a raw conversion. References to generic type Iterable<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -2924,7 +2924,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 	public void test108() {
 	    // also ensure no unsafe type operation problem is issued (assignment to variable of type raw)
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4406,7 +4406,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"public class X {\n" + 
 				"    \n" + 
 				"    public static void main(String[] args) {\n" + 
-				"        AX<String, Thread> a = bar();\n" + 
+				"        AX<String, Thread> a = bar();\n" + // TODO (philippe) should flag impossible to compute proper substitutes
 				"        String s = a.get();\n" + 
 				"        System.out.println(s);\n" + 
 				"	}\n" + 
@@ -4423,7 +4423,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	AX<String, Thread> a = bar();\n" + 
-			"	                   ^\n" + // TODO (philippe) should instead flag impossible to compute proper substitutes
+			"	                   ^\n" + 
 			"Type mismatch: cannot convert from AX<AX<Object,Object>,Thread> to AX<String,Thread>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
@@ -4434,7 +4434,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<AX<T,T>,U>. References to generic type AX<E,F> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<AX<T,T>,U> using a raw conversion. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test169() {
@@ -4472,7 +4472,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<T>. References to generic type AX<E> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<T> using a raw conversion. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -4501,7 +4501,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type AX is converted to AX<X>. References to generic type AX<E> should be parameterized\n" + 
+			"Type safety: The expression of type AX is converted to AX<X> using a raw conversion. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
@@ -4674,12 +4674,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	return new Vector();\n" + 
 			"	       ^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type Vector is converted to Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
+			"Type safety: The expression of type Vector is converted to Vector<T> using a raw conversion. References to generic type Vector<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to Vector<Object> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Object to Vector<Object> is actually checking against the erased type Vector\n" + 
 			"----------\n",
 			null,
 			true,
@@ -4850,12 +4850,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	return (AX<String>) o;\n" + 
 			"	       ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to AX<String> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Object to AX<String> is actually checking against the erased type AX\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	return (AX<E>) o;\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to AX<E> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Object to AX<E> is actually checking against the erased type AX\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 15)\n" + 
 			"	return (AX<E>) null;\n" + 
@@ -4915,7 +4915,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to Hashtable<String,Integer> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Object to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 18)\n" + 
 			"	Object a5 = (Hashtable<String,Integer>) z1;\n" + 
@@ -4925,7 +4925,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Z3 to Hashtable<String,Integer> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Z3 to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
 			"----------\n",
 			null,
 			true,
@@ -5892,7 +5892,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. WARNING in X.java (at line 18)\n" + 
 			"	mx1.foo(mx2.get());\n" + 
 			"	        ^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type Class is converted to Class<? extends Object>. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The expression of type Class is converted to Class<? extends Object> using a raw conversion. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -6014,12 +6014,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
 			"	                       ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List to List<X> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from List to List<X> is actually checking against the erased type List\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	void m0() { List<X> l = list(); } // unsafe conversion\n" + 
 			"	                        ^^^^^^\n" + 
-			"Type safety: The expression of raw type List is converted to List<X>. References to generic type List<E> should be parameterized\n" + 
+			"Type safety: The expression of type List is converted to List<X> using a raw conversion. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	void m1() { for (X a : list()); } // type mismatch\n" + 
@@ -6029,12 +6029,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4. WARNING in X.java (at line 7)\n" + 
 			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type Iterator is converted to Iterator<X>. References to generic type Iterator<E> should be parameterized\n" + 
+			"Type safety: The expression of type Iterator is converted to Iterator<X> using a raw conversion. References to generic type Iterator<E> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
 			"	                                          ^^^^^^^^^^\n" + 
-			"Type safety: The cast from Collection to List<X> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from Collection to List<X> is actually checking against the erased type List\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
@@ -6044,7 +6044,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"7. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List to Collection<X> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from List to Collection<X> is actually checking against the erased type Collection\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
@@ -6731,7 +6731,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> x2= (List<Number>)ls;//unsafe\n" + 
 			"	                 ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List<? extends Number> to List<Number> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from List<? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
@@ -6911,7 +6911,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	X<E,String> xe = (X<E,String>) new X<String,String>();\n" + 
 			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<String,String> to X<E,String> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<String,String> to X<E,String> is actually checking against the erased type X\n" + 
 			"----------\n");
 	}			
 	public void test263() {
@@ -6930,7 +6930,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	XC<E,String> xe = (XC<E,String>) new X<String,String>();\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<String,String> to XC<E,String> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<String,String> to XC<E,String> is actually checking against the erased type XC\n" + 
 			"----------\n");
 	}
 	public void test264() {
@@ -6970,7 +6970,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	XC<U> xcu = (XC<U>) new X<E>();\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<E> to XC<U> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<E> to XC<U> is actually checking against the erased type XC\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
@@ -6980,7 +6980,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<E> to XC<? extends X> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<E> to XC<? extends X> is actually checking against the erased type XC\n" + 
 			"----------\n");
 	}		
 	public void test266() {
@@ -7028,7 +7028,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of raw type ArrayList is converted to ArrayList<X>. References to generic type ArrayList<E> should be parameterized\n" + 
+			"Type safety: The expression of type ArrayList is converted to ArrayList<X> using a raw conversion. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
@@ -7160,7 +7160,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	public List<String> useList(List<String> l) {\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
+			"Name clash: The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
@@ -7213,7 +7213,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	public void useList(List<String> l) {\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
+			"Name clash: The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
@@ -7235,7 +7235,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	super.useList(l);\n" + 
 			"	              ^\n" + 
-			"Type safety: The expression of raw type List is converted to List<String>. References to generic type List<E> should be parameterized\n" + 
+			"Type safety: The expression of type List is converted to List<String> using a raw conversion. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
@@ -7746,7 +7746,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	public void putAll(Map<String, ? extends V> t) { }\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<String,V> but does not override it\n" + 
+			"Name clash: The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<String,V> but does not override it\n" + 
 			"----------\n");
 		this.runConformTest(
 			new String[] {
@@ -7767,7 +7767,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public void putAll(java.util.Map<? extends String, ? extends V> t) { }\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<S,V> but does not override it\n" + 
+			"Name clash: The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<S,V> but does not override it\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74244
@@ -7990,7 +7990,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"Name clash: The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75156 variation - should report name clash and ambiguity
@@ -8014,7 +8014,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"Name clash: The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	this.foo((List)null);\n" + 
@@ -8040,7 +8040,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"Name clash: The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73963 
@@ -8372,12 +8372,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	G<String> g = new G();\n" + 
 			"	              ^^^^^^^\n" + 
-			"Type safety: The expression of raw type G is converted to G<String>. References to generic type G<T> should be parameterized\n" + 
+			"Type safety: The expression of type G is converted to G<String> using a raw conversion. References to generic type G<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	G<Thread>.Member gtm = gm;\n" + 
 			"	                       ^^\n" + 
-			"Type safety: The expression of raw type G.Member is converted to G<Thread>.Member. References to generic type G<T>.Member should be parameterized\n" + 
+			"Type safety: The expression of type G.Member is converted to G<Thread>.Member using a raw conversion. References to generic type G<T>.Member should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	Zork z;\n" + 
@@ -9306,7 +9306,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\r\n" + 
 			"	<T, S> S foo(Class<S> c) { return null; }\r\n" + 
 			"	         ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
+			"Name clash: The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
 			"----------\n");
 	}		
 	public void test356() {
@@ -9324,7 +9324,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\r\n" + 
 			"	<T, S> T foo(Class<T> c) { return null; }\r\n" + 
 			"	         ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
 	}		
 	public void test357() {
@@ -9342,7 +9342,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\r\n" + 
 			"	<T> T foo(Class<T> c) { return null; }\r\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76720
@@ -9964,7 +9964,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(Class<? extends String> s) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<? extends String>) of type X has the same erasure as foo(Class<String>) of type Y but does not override it\n" + 
+			"Name clash: The method foo(Class<? extends String>) of type X has the same erasure as foo(Class<String>) of type Y but does not override it\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -9980,7 +9980,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void foo(Class<String> s) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
+			"Name clash: The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
 	public void test382() {
@@ -9995,7 +9995,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Name clash : The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
@@ -10013,7 +10013,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public abstract class X extends Y implements I {}\n" + 
 			"	                      ^\n" + 
-			"Name clash : The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
 			"----------\n");
 	}
 	public void test383() {
@@ -10033,7 +10033,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
 			"	                                                        ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n");
 			/*
 			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
@@ -10051,7 +10051,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
@@ -10074,7 +10074,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public abstract class X extends Y implements I {}\n" + 
 			"	                      ^\n" + 
-			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Name clash: The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n");
 			/*
 			X.java:1: name clash: <T,S>foo(java.lang.Class<T>) in Y and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
@@ -10181,22 +10181,21 @@ public class GenericTypeTest extends AbstractComparisonTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	public R getU() { return (R)u; } // Warning\n" + 
-				"	                         ^^^^\n" + 
-				"Unnecessary cast from U to R\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
-				"	public R getV() { return (R)v; } // Warning\n" + 
-				"	                         ^^^^\n" + 
-				"Unnecessary cast from V to R\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 8)\n" + 
-				"	public T getT() { return (T)o; } // Warning\n" + 
-				"	                         ^^^^\n" + 
-				"Unnecessary cast from Object to T\n" + 
-				"----------\n"
-		);
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public R getU() { return (R)u; } // Warning\n" + 
+			"	                         ^^^^\n" + 
+			"Type safety: The cast from U to R is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	public R getV() { return (R)v; } // Warning\n" + 
+			"	                         ^^^^\n" + 
+			"Type safety: The cast from V to R is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	public T getT() { return (T)o; } // Warning\n" + 
+			"	                         ^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - generic varargs method
@@ -10562,7 +10561,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 34)\n" + 
 			"	public <J extends I> void mm(M1<J> q) { \n" + 
 			"	                          ^^^^^^^^^^^\n" + 
-			"Name clash : The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 
+			"Name clash: The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 
 			"----------\n"
 		);
 	}			
@@ -10727,7 +10726,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends String> to X<String> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<? extends String> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -10760,7 +10759,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<T> to X<String> will not check conformance of type arguments at runtime\n" + 
+			"Type safety: The cast from X<T> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n");	
 	}		
 	
@@ -11675,4 +11674,109 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
+	public void test437() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Number n= new Integer(1);\n" + 
+				"		X x = new X<Number>();\n" + 
+				"		x.m(n);\n" + 
+				"		x.m(new Integer(2));\n" + 
+				"		Y y= new Y();\n" + 
+				"		y.m(n);\n" + 
+				"		y.m(new Integer(2));\n" + 
+				"	}\n" + 
+				"}\n",
+				"X.java",
+				"class X<T> {\n" + 
+				"	public void m(Number num) { System.out.print(\"X.m(Number) = \" + num + ','); }\n" + 
+				"	public void m(T t) { System.out.print(\"X.m(T) = \" + t + ','); }\n" + 
+				"}\n",
+				"Y.java",
+				"class Y extends X<Number> {\n" + 
+				"	public void m(Number num) { System.out.print(\"Y.m(Number) = \" + num + ','); }\n" + 
+				"}\n",
+			},
+		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78591
+	public void test438() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X<T> {\n" + 
+				"    Zork z;\n" +
+				"    List<T> list;\n" + 
+				"    void add(Object abs) {\n" + 
+				"        list.add((T) list.get(0)); // checked cast\n" + 
+				"        list.add((T) abs); // unchecked cast\n" + 
+				"    }\n" + 
+				"    void bar(List<? extends T> other) {\n" + 
+				"    	list.add((T) other.get(0)); // checked cast\n" + 
+				"    }\n" + 
+				"    void baz(List<? super T> other) {\n" + 
+				"    	list.add((T) other.get(0)); // unchecked cast\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	list.add((T) list.get(0)); // checked cast\n" + 
+			"	         ^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from T to T\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	list.add((T) abs); // unchecked cast\n" + 
+			"	         ^^^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	list.add((T) other.get(0)); // checked cast\n" + 
+			"	         ^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from ? extends T to T. It is already compatible with the argument type T\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 13)\n" + 
+			"	list.add((T) other.get(0)); // unchecked cast\n" + 
+			"	         ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from ? super T to T is actually checking against the erased type Object\n" + 
+			"----------\n");
+	}		
+
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78592
+	public void test439() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Node {\n" + 
+				"}\n" + 
+				"class Composite<E> {\n" + 
+				"}\n" + 
+				"class Concrete extends Composite {\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"    Composite<Node> comp = new Concrete(); // unchecked cast\n" + 
+				"    Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	Composite<Node> comp = new Concrete(); // unchecked cast\n" + 
+			"	                       ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Concrete is converted to Composite<Node> using a raw conversion. References to generic type Composite<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
 }

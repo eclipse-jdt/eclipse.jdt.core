@@ -892,9 +892,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unsafe")) {//$NON-NLS-1$ 
+					} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$ 
 						this.options.put(
-							CompilerOptions.OPTION_ReportUnsafeTypeOperation,
+							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
 						this.options.put(
@@ -999,9 +999,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("nullCheck")) { //$NON-NLS-1$
+					} else if (token.equals("null")) { //$NON-NLS-1$
 						this.options.put(
-							CompilerOptions.OPTION_ReportInconsistentNullCheck,
+							CompilerOptions.OPTION_ReportNullReference,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+					} else if (token.equals("boxing")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportAutoboxing,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$

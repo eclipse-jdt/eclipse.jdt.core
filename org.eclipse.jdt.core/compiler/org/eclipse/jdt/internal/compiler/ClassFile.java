@@ -3600,7 +3600,7 @@ public class ClassFile
 		if (annotationBinding == null) {
 			return false;
 		}
-		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return true; // by default the retention is CLASS
 			

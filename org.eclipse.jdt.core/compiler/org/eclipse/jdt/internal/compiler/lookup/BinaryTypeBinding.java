@@ -529,9 +529,7 @@ public FieldBinding[] fields() {
 		resolveTypeFor(fields[i]);
 	return fields;
 }
-public long getAnnotationTagBits() {
-	return this.tagBits;
-}
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
