@@ -447,9 +447,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 			}
 	
-			// Discard empty old package (if still empty after the rename)
-			boolean isEmpty = true;
-	
 			// Update package statement in compilation unit if needed
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
 				for (int i = 0; i < resources.length; i++) {
@@ -478,6 +475,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 			}
 			
+			// Discard empty old package (if still empty after the rename)
+			boolean isEmpty = true;
 			if (isMove()) {
 				// delete remaining files in this package (.class file in the case where Proj=src=bin)
 				// in case of a copy
@@ -604,7 +603,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
 			if ((sourceFolder.exists() && sourceFolder.isReadOnly()) || (i == nameLength - 1 && sourceFolderIsReadOnly)) {
 				parentFolder.setReadOnly(true);
-				// the source folder will be deleted anyway
+				// the source folder will be deleted anyway (move operation)
 				sourceFolder.setReadOnly(false);
 			}
 			sideEffectPackageName.append('.');
