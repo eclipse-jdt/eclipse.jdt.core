@@ -606,10 +606,13 @@ public class JavaProject
 				break;
 	
 			case  IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL :
-				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
+				String setting = getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true);
+				if (JavaCore.ERROR.equals(setting)) {
 					severity = IMarker.SEVERITY_ERROR;
-				} else {
+				} else if (JavaCore.WARNING.equals(setting)) {
 					severity = IMarker.SEVERITY_WARNING;
+				} else {
+					return; // setting == IGNORE
 				}
 				break;
 				
@@ -1762,7 +1765,7 @@ public class JavaProject
 			
 			/* validation if needed */
 			if (generateMarkerOnError || !ignoreUnresolvedEntry) {
-				status = JavaConventions.validateClasspathEntry(this, rawEntry, false);
+				status = ClasspathEntry.validateClasspathEntry(this, rawEntry, false /*ignore src attach*/, false /*do not recurse in containers, done later to accumulate*/);
 				if (generateMarkerOnError && !status.isOK()) createClasspathProblemMarker(status);
 			}
 
@@ -1793,9 +1796,8 @@ public class JavaProject
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						IClasspathEntry cEntry = containerEntries[j];
-						
 						if (generateMarkerOnError) {
-							IJavaModelStatus containerStatus = JavaConventions.validateClasspathEntry(this, cEntry, false);
+							IJavaModelStatus containerStatus = ClasspathEntry.validateClasspathEntry(this, cEntry, false, true /*recurse*/);
 							if (!containerStatus.isOK()) createClasspathProblemMarker(containerStatus);
 						}
 						// if container is exported, then its nested entries must in turn be exported  (21749)
@@ -1823,7 +1825,7 @@ public class JavaProject
 		resolvedEntries.toArray(resolvedPath);
 
 		if (generateMarkerOnError && projectOutputLocation != null) {
-			status = JavaConventions.validateClasspath(this, resolvedPath, projectOutputLocation);
+			status = ClasspathEntry.validateClasspath(this, resolvedPath, projectOutputLocation);
 			if (!status.isOK()) createClasspathProblemMarker(status);
 		}
 		return resolvedPath;

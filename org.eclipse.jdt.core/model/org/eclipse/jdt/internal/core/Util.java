@@ -749,7 +749,42 @@ public class Util implements SuffixConstants {
 		}
 		return true;		
 	}
+
+		/*
+	 * Returns the index of the first argument paths which is strictly enclosing the path to check
+	 */
+	public static int indexOfEnclosingPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (paths[i].equals(checkedPath)) continue;
+			if (paths[i].isPrefixOf(checkedPath)) return i;
+		}
+		return -1;
+	}
 	
+	/*
+	 * Returns the index of the first argument paths which is equal to the path to check
+	 */
+	public static int indexOfMatchingPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (paths[i].equals(checkedPath)) return i;
+		}
+		return -1;
+	}
+
+	/*
+	 * Returns the index of the first argument paths which is strictly nested inside the path to check
+	 */
+	public static int indexOfNestedPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (checkedPath.equals(paths[i])) continue;
+			if (checkedPath.isPrefixOf(paths[i])) return i;
+		}
+		return -1;
+	}
+
 	/*
 	 * Returns whether the given java element is exluded from its root's classpath.
 	 */
