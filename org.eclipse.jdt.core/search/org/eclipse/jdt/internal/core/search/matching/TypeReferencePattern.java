@@ -279,7 +279,7 @@ protected int matchLevel(NameReference nameRef, boolean resolve) {
 	// try to match all enclosing types for which the token matches as well.
 	while (typeBinding != null && lastIndex >= 0) {
 		if (this.matchesName(this.simpleName, tokens[lastIndex--])) {
-			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			int level = matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			if (level != IMPOSSIBLE_MATCH) return level;
 		}
 		if (typeBinding instanceof ReferenceBinding)
