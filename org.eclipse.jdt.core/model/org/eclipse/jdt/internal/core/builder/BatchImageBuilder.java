@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.Util;
 
 import java.util.*;
@@ -21,6 +22,7 @@ public class BatchImageBuilder extends AbstractImageBuilder {
 
 protected BatchImageBuilder(JavaBuilder javaBuilder) {
 	super(javaBuilder);
+	this.nameEnvironment.isIncrementalBuild = false;
 }
 
 public void build() {
@@ -30,24 +32,21 @@ public void build() {
 	try {
 		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
-		cleanOutputFolder();
+		cleanOutputFolders();
 		notifier.updateProgressDelta(0.1f);
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
-		ArrayList locations = new ArrayList(33);
-		ArrayList typeNames = new ArrayList(33);
-		addAllSourceFiles(locations, typeNames);
+		ArrayList sourceFiles = new ArrayList(33);
+		addAllSourceFiles(sourceFiles);
 		notifier.updateProgressDelta(0.15f);
 
-		if (locations.size() > 0) {
-			String[] allSourceFiles = new String[locations.size()];
-			locations.toArray(allSourceFiles);
-			String[] initialTypeNames = new String[typeNames.size()];
-			typeNames.toArray(initialTypeNames);
+		if (sourceFiles.size() > 0) {
+			SourceFile[] allSourceFiles = new SourceFile[sourceFiles.size()];
+			sourceFiles.toArray(allSourceFiles);
 
 			notifier.setProgressPerCompilationUnit(0.75f / allSourceFiles.length);
 			workQueue.addAll(allSourceFiles);
-			compile(allSourceFiles, initialTypeNames);
+			compile(allSourceFiles);
 		}
 	} catch (CoreException e) {
 		throw internalException(e);
@@ -56,94 +55,104 @@ public void build() {
 	}
 }
 
-protected void addAllSourceFiles(final ArrayList locations, final ArrayList typeNames) throws CoreException {
-	for (int i = 0, length = sourceFolders.length; i < length; i++) {
-		final int srcFolderLength = sourceFolders[i].getLocation().addTrailingSeparator().toString().length();
-		sourceFolders[i].accept(
-			new IResourceVisitor() {
-				public boolean visit(IResource resource) {
-					if (resource.getType() == IResource.FILE) {
-						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(resource.getFileExtension())) {
-							String sourceLocation = resource.getLocation().toString();
-							locations.add(sourceLocation);
-							typeNames.add(sourceLocation.substring(srcFolderLength, sourceLocation.length() - 5)); // length of .java
-						}
-						return false;
-					}
-					return true;
-				}
-			}
-		);
-		notifier.checkCancel();
-	}
-}
-
-protected void cleanOutputFolder() throws CoreException {
-	if (hasSeparateOutputFolder) {
-		// outputPath is not on the class path so wipe it clean then copy extra resources back
-		IResource[] members = outputFolder.members(); 
-		for (int i = 0, length = members.length; i < length; i++)
-			members[i].delete(IResource.FORCE, null);
-		notifier.checkCancel();
-		copyExtraResourcesBack();
-	} else {
-		// outputPath == a source folder so just remove class files
-		outputFolder.accept(
+protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {
+	for (int i = 0, l = sourceLocations.length; i < l; i++) {
+		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+		sourceLocation.sourceFolder.accept(
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
+					if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+						return false;
 					if (resource.getType() == IResource.FILE) {
-						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
-							resource.delete(IResource.FORCE, null);
+						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+							sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
 						return false;
 					}
 					return true;
 				}
 			}
 		);
+		notifier.checkCancel();
 	}
-	notifier.checkCancel();
 }
 
-protected void copyExtraResourcesBack() throws CoreException {
+protected void cleanOutputFolders() throws CoreException {
+	boolean deleteAll = JavaCore.CLEAN.equals(
+		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
+	ArrayList visited = new ArrayList(sourceLocations.length);
+	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
+		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+		if (deleteAll && sourceLocation.hasIndependentOutputFolder) {
+			IContainer outputFolder = sourceLocation.binaryFolder;
+			if (visited.contains(outputFolder)) continue next;
+			visited.add(outputFolder);
+			IResource[] members = outputFolder.members(); 
+			for (int j = 0, m = members.length; j < m; j++)
+				members[j].delete(IResource.FORCE, null);
+			copyExtraResourcesBack(sourceLocation);
+		} else {
+			final char[][] exclusionPatterns =
+				sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder)
+					? sourceLocation.exclusionPatterns
+					: null; // ignore exclusionPatterns if output folder != source folder
+			sourceLocation.binaryFolder.accept(
+				new IResourceVisitor() {
+					public boolean visit(IResource resource) throws CoreException {
+						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+							return false;
+						if (resource.getType() == IResource.FILE) {
+							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+								resource.delete(IResource.FORCE, null);
+							return false;
+						}
+						return true;
+					}
+				}
+			);
+			notifier.checkCancel();
+		}
+	}
+}
+
+protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation) throws CoreException {
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
-	final IPath outputPath = outputFolder.getFullPath();
-	for (int i = 0, length = sourceFolders.length; i < length; i++) {
-		IContainer sourceFolder = sourceFolders[i];
-		final IPath sourcePath = sourceFolder.getFullPath();
-		final int segmentCount = sourcePath.segmentCount();
-		sourceFolder.accept(
-			new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					switch(resource.getType()) {
-						case IResource.FILE :
-							String extension = resource.getFileExtension();
-							if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
-							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
-							if (javaBuilder.filterResource(resource)) return false;
+	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+	final IContainer outputFolder = sourceLocation.binaryFolder;
+	sourceLocation.sourceFolder.accept(
+		new IResourceVisitor() {
+			public boolean visit(IResource resource) throws CoreException {
+				if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+					return false;
+				switch(resource.getType()) {
+					case IResource.FILE :
+						String extension = resource.getFileExtension();
+						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
+						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
+						if (javaBuilder.filterExtraResource(resource)) return false;
 
-							IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
-							IResource copiedResource = outputFolder.getFile(partialPath);
-							if (copiedResource.exists()) {
-								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
-							} else {
-								resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
-								copiedResource.setDerived(true);
-							}
-							return false;
-						case IResource.FOLDER :
-							if (resource.getFullPath().equals(outputPath)) return false;
-							if (resource.getFullPath().equals(sourcePath)) return true;
-							if (javaBuilder.filterResource(resource)) return false;
+						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
+						IResource copiedResource = outputFolder.getFile(partialPath);
+						if (copiedResource.exists()) {
+							createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
+						} else {
+							resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
+							copiedResource.setDerived(true);
+						}
+						return false;
+					case IResource.FOLDER :
+						if (resource.equals(outputFolder)) return false;
+						if (javaBuilder.filterExtraResource(resource)) return false;
 
-							getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount));
-					}
-					return true;
+						getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
 				}
+				return true;
 			}
-		);
-	}
+		}
+	);
 }
 
 public String toString() {

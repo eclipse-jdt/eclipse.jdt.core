@@ -141,7 +141,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	next : for (int i = 0; i < length; i++) {
 		char[][] qualifiedName = qualifiedNames[i];
 		int qLength = qualifiedName.length;
-		for (int j = 0, k = WellKnownQualifiedNames.length; j < k; j++) {
+		for (int j = 0, m = WellKnownQualifiedNames.length; j < m; j++) {
 			char[][] wellKnownName = WellKnownQualifiedNames[j];
 			if (qLength > wellKnownName.length)
 				break; // all remaining well known names are shorter
@@ -153,7 +153,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 		// InternedQualifiedNames[1] is for size 2...
 		// InternedQualifiedNames[6] is for size 7
 		ArrayList internedNames = InternedQualifiedNames[qLength <= MaxQualifiedNames ? qLength - 1 : 0];
-		for (int j = 0, k = internedNames.size(); j < k; j++) {
+		for (int j = 0, m = internedNames.size(); j < m; j++) {
 			char[][] internedName = (char[][]) internedNames.get(j);
 			if (CharOperation.equals(qualifiedName, internedName)) {
 				keepers[index++] = internedName;
@@ -192,7 +192,7 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown)
 	next : for (int i = 0; i < length; i++) {
 		char[] name = simpleNames[i];
 		int sLength = name.length;
-		for (int j = 0, k = WellKnownSimpleNames.length; j < k; j++) {
+		for (int j = 0, m = WellKnownSimpleNames.length; j < m; j++) {
 			char[] wellKnownName = WellKnownSimpleNames[j];
 			if (sLength > wellKnownName.length)
 				break; // all remaining well known names are shorter
@@ -207,7 +207,7 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown)
 		// InternedSimpleNames[1] is for size 1...
 		// InternedSimpleNames[29] is for size 29
 		ArrayList internedNames = InternedSimpleNames[sLength < MaxSimpleNames ? sLength : 0];
-		for (int j = 0, k = internedNames.size(); j < k; j++) {
+		for (int j = 0, m = internedNames.size(); j < m; j++) {
 			char[] internedName = (char[]) internedNames.get(j);
 			if (CharOperation.equals(name, internedName)) {
 				keepers[index++] = internedName;

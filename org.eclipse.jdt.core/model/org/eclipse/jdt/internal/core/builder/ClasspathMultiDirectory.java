@@ -10,21 +10,23 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.core.resources.IContainer;
 
 class ClasspathMultiDirectory extends ClasspathDirectory {
 
-String sourcePath;
-String encoding;
+IContainer sourceFolder;
+char[][] exclusionPatterns; // used by builders when walking source folders
+boolean hasIndependentOutputFolder; // if output folder is not equal to any of the source folders
 
-ClasspathMultiDirectory(String sourcePath, String binaryPath, String encoding) {
-	super(binaryPath);
+ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] exclusionPatterns) {
+	super(binaryFolder, true);
 
-	this.sourcePath = sourcePath;
-	if (!sourcePath.endsWith("/")) //$NON-NLS-1$
-		this.sourcePath += "/"; //$NON-NLS-1$
-	this.encoding = encoding;
+	this.sourceFolder = sourceFolder;
+	this.exclusionPatterns = exclusionPatterns;
+	this.hasIndependentOutputFolder = false;
+
+	if (this.exclusionPatterns != null && this.exclusionPatterns.length == 0)
+		this.exclusionPatterns = null;
 }
 
 public boolean equals(Object o) {
@@ -32,30 +34,11 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathMultiDirectory)) return false;
 
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
-	return binaryPath.equals(md.binaryPath) && sourcePath.equals(md.sourcePath);
+	return sourceFolder.equals(md.sourceFolder) && binaryFolder.equals(md.binaryFolder);
 } 
 
-NameEnvironmentAnswer findSourceFile(
-	String qualifiedSourceFileName,
-	String qualifiedPackageName,
-	char[] typeName,
-	String[] additionalSourceFilenames) {
-
-	// if an additional source file is waiting to be compiled, answer it
-	// BUT not if this is a secondary type search,
-	// if we answer the source file X.java which may no longer define Y
-	// then the binary type looking for Y will fail & think the class path is wrong
-	// let the recompile loop fix up dependents when Y has been deleted from X.java
-	String fullSourceName = sourcePath + qualifiedSourceFileName;
-	for (int i = 0, l = additionalSourceFilenames.length; i < l; i++)
-		if (fullSourceName.equals(additionalSourceFilenames[i]))
-			return new NameEnvironmentAnswer(
-				new SourceFile(fullSourceName, typeName, CharOperation.splitOn('/', qualifiedPackageName.toCharArray()), encoding));
-	return null;
-}
-
 public String toString() {
-	return "Source classpath directory " + sourcePath + //$NON-NLS-1$
-		" with binary directory " + binaryPath; //$NON-NLS-1$
+	return "Source classpath directory " + sourceFolder.getFullPath().toString() + //$NON-NLS-1$
+		" with binary directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
 }
 }

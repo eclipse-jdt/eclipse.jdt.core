@@ -10,98 +10,114 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.CoreException;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 import java.io.*;
 
 public class SourceFile implements ICompilationUnit {
 
-	public char[] fileName;
-	public char[] mainTypeName;
-	public char[][] packageName;
-	public String encoding;
-	
-	public SourceFile(String fileName, String initialTypeName, String encoding) {
+IFile resource;
+ClasspathMultiDirectory sourceLocation;
+String initialTypeName;
+String encoding;
 
-		this.fileName = fileName.toCharArray();
-		CharOperation.replace(this.fileName, '\\', '/');
-	
-		char[] typeName = initialTypeName.toCharArray();
-		int lastIndex = CharOperation.lastIndexOf('/', typeName);
-		this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
-		this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex);
-	
-		this.encoding = encoding;
+public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, String encoding) {
+	this.resource = resource;
+	this.sourceLocation = sourceLocation;
+	this.initialTypeName = extractTypeName();
+	this.encoding = encoding;
+}
+
+public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof SourceFile)) return false;
+
+	SourceFile f = (SourceFile) o;
+	return sourceLocation == f.sourceLocation && resource.getFullPath().equals(f.resource.getFullPath());
+} 
+
+String extractTypeName() {
+	// answer a String with the qualified type name for the source file in the form: 'p1/p2/A'
+	IPath fullPath = resource.getFullPath();
+	int resourceSegmentCount = fullPath.segmentCount();
+	int sourceFolderSegmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+	int charCount = (resourceSegmentCount - sourceFolderSegmentCount - 1) - 5; // length of ".java"
+	for (int i = sourceFolderSegmentCount; i < resourceSegmentCount; i++)
+		charCount += fullPath.segment(i).length();
+
+	char[] result = new char[charCount];
+	int offset = 0;
+	resourceSegmentCount--; // deal with the last segment separately
+	for (int i = sourceFolderSegmentCount; i < resourceSegmentCount; i++) {
+		String segment = fullPath.segment(i);
+		int size = segment.length();
+		segment.getChars(0, size, result, offset);
+		offset += size;
+		result[offset++] = '/';
 	}
-	
-	public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
+	String segment = fullPath.segment(resourceSegmentCount);
+	int size = segment.length() - 5; // length of ".java"
+	segment.getChars(0, size, result, offset);
+	return new String(result);
+}
 
-		this.fileName = fileName.toCharArray();
-		CharOperation.replace(this.fileName, '\\', '/');
-	
-		this.mainTypeName = mainTypeName;
-		this.packageName = packageName;
-	
-		this.encoding = encoding;
-	}
-	
-	public char[] getContents() {
-
-		// otherwise retrieve it
-		BufferedReader reader = null;
+public char[] getContents() {
+	// otherwise retrieve it
+	InputStreamReader reader = null;
+	try {
+		reader =
+			this.encoding == null
+				? new InputStreamReader(resource.getContents())
+				: new InputStreamReader(resource.getContents(), this.encoding);
+		CharArrayBuffer result = new CharArrayBuffer();
 		try {
-			File file = new File(new String(fileName));
-			InputStreamReader streamReader =
-				this.encoding == null
-					? new InputStreamReader(new FileInputStream(file))
-					: new InputStreamReader(new FileInputStream(file), this.encoding);
-			reader = new BufferedReader(streamReader);
-			int length = (int) file.length();
-			char[] contents = new char[length];
-			int len = 0;
-			int readSize = 0;
-			while ((readSize != -1) && (len != length)) {
-				// See PR 1FMS89U
-				// We record first the read size. In this case len is the actual read size.
-				len += readSize;
-				readSize = reader.read(contents, len, length - len);
-			}
+			int count;
+			char[] buffer = new char[4096];
+			while ((count = reader.read(buffer, 0, buffer.length)) > -1)
+				result.append(buffer, 0, count);
+		} finally {
 			reader.close();
-			// See PR 1FMS89U
-			// Now we need to resize in case the default encoding used more than one byte for each
-			// character
-			if (len != length)
-				System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
-			return contents;
-		} catch (FileNotFoundException e) {
-			throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
-		} catch (IOException e) {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch(IOException ioe) {
-				}
-			}
-			throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
 		}
+		return result.getContents();
+	} catch (CoreException e) {
+		throw new AbortCompilation(true, new MissingSourceFileException(resource.getFullPath().toString()));
+	} catch (IOException e) {
+		if (reader != null) {
+			try { reader.close(); } catch(IOException ioe) {}
+		}
+		throw new AbortCompilation(true, new MissingSourceFileException(resource.getFullPath().toString()));
 	}
-	
-	public char[] getFileName() {
-		return fileName;
-	}
-	
-	public char[] getMainTypeName() {
-		return mainTypeName;
-	}
-	
-	public char[][] getPackageName() {
-		return packageName;
-	}
-	
-	public String toString() {
-		return "SourceFile[" //$NON-NLS-1$
-			+ new String(fileName) + "]";  //$NON-NLS-1$
-	}
+}
+
+public char[] getFileName() {
+	return resource.getFullPath().toString().toCharArray(); // do not know what you want to return here
+}
+
+public char[] getMainTypeName() {
+	char[] typeName = initialTypeName.toCharArray();
+	int lastIndex = CharOperation.lastIndexOf('/', typeName);
+	return CharOperation.subarray(typeName, lastIndex + 1, -1);
+}
+
+public char[][] getPackageName() {
+	char[] typeName = initialTypeName.toCharArray();
+	int lastIndex = CharOperation.lastIndexOf('/', typeName);
+	return CharOperation.splitOn('/', typeName, 0, lastIndex);
+}
+
+String typeLocator() {
+	return resource.getProjectRelativePath().toString();
+}
+
+public String toString() {
+	return "SourceFile[" //$NON-NLS-1$
+		+ resource.getFullPath() + "]";  //$NON-NLS-1$
+}
 }

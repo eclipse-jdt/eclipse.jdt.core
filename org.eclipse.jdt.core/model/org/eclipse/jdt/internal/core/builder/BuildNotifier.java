@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.core.Util;
 public class BuildNotifier {
 
 protected IProgressMonitor monitor;
-protected int rootPathLength;
 protected boolean cancelling;
 protected float percentComplete;
 protected float progressPerCompilationUnit;
@@ -35,16 +34,6 @@ protected String previousSubtask;
 
 public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.monitor = monitor;
-	try {
-		IPath location = project.getDescription().getLocation();
-		if (location == null)
-			location = project.getParent().getLocation(); // default workspace location
-		else if (project.getName().equalsIgnoreCase(location.lastSegment()))
-			location = location.removeLastSegments(1); // want to show project name if possible
-		this.rootPathLength = location.addTrailingSeparator().toString().length();
-	} catch(CoreException e) {
-		this.rootPathLength = 0;
-	}
 	this.cancelling = false;
 	this.newErrorCount = 0;
 	this.fixedErrorCount = 0;
@@ -57,12 +46,8 @@ public BuildNotifier(IProgressMonitor monitor, IProject project) {
 /**
  * Notification before a compile that a unit is about to be compiled.
  */
-public void aboutToCompile(ICompilationUnit unit) {
-	String message = new String(unit.getFileName());
-	message = message.replace('\\', '/');
-	int end = message.lastIndexOf('/');
-	message = Util.bind("build.compiling", //$NON-NLS-1$
-		message.substring(rootPathLength, end <= rootPathLength ? message.length() : end));
+public void aboutToCompile(SourceFile unit) {
+	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).toString()); //$NON-NLS-1$
 	subTask(message);
 }
 
@@ -97,12 +82,8 @@ public void checkCancelWithinCompiler() {
 /**
  * Notification while within a compile that a unit has finished being compiled.
  */
-public void compiled(ICompilationUnit unit) {
-	String message = new String(unit.getFileName());
-	message = message.replace('\\', '/');
-	int end = message.lastIndexOf('/');
-	message = Util.bind("build.compiling", //$NON-NLS-1$
-		message.substring(rootPathLength, end <= rootPathLength ? message.length() : end));
+public void compiled(SourceFile unit) {
+	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).toString()); //$NON-NLS-1$
 	subTask(message);
 	updateProgressDelta(progressPerCompilationUnit);
 	checkCancelWithinCompiler();
@@ -171,7 +152,7 @@ public void subTask(String message) {
 }
 
 protected void updateProblemCounts(IProblem[] newProblems) {
-	for (int i = 0, newSize = newProblems.length; i < newSize; ++i)
+	for (int i = 0, l = newProblems.length; i < l; i++)
 		if (newProblems[i].getID() != IProblem.Task)
 			if (newProblems[i].isError()) newErrorCount++; else newWarningCount++;
 }
@@ -182,14 +163,14 @@ protected void updateProblemCounts(IProblem[] newProblems) {
  */
 protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems) {
 	if (newProblems != null) {
-		next : for (int i = 0, newSize = newProblems.length; i < newSize; ++i) {
+		next : for (int i = 0, l = newProblems.length; i < l; i++) {
 			IProblem newProblem = newProblems[i];
 			if (newProblem.getID() == IProblem.Task) continue; // skip task
 			boolean isError = newProblem.isError();
 			String message = newProblem.getMessage();
 
 			if (oldProblems != null) {
-				for (int j = 0, oldSize = oldProblems.length; j < oldSize; ++j) {
+				for (int j = 0, m = oldProblems.length; j < m; j++) {
 					IMarker pb = oldProblems[j];
 					if (pb == null) continue; // already matched up with a new problem
 					boolean wasError = IMarker.SEVERITY_ERROR
@@ -204,7 +185,7 @@ protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems
 		}
 	}
 	if (oldProblems != null) {
-		next : for (int i = 0, oldSize = oldProblems.length; i < oldSize; ++i) {
+		next : for (int i = 0, l = oldProblems.length; i < l; i++) {
 			IMarker oldProblem = oldProblems[i];
 			if (oldProblem == null) continue next; // already matched up with a new problem
 			boolean wasError = IMarker.SEVERITY_ERROR
@@ -212,7 +193,7 @@ protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems
 			String message = oldProblem.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 
 			if (newProblems != null) {
-				for (int j = 0, newSize = newProblems.length; j < newSize; ++j) {
+				for (int j = 0, m = newProblems.length; j < m; j++) {
 					IProblem pb = newProblems[j];
 					if (pb.getID() == IProblem.Task) continue; // skip task
 					if (wasError == pb.isError() && message.equals(pb.getMessage()))

@@ -27,7 +27,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * The abstract superclass of image builders.
+ * The abstract superclass of Java builders.
  * Provides the building and compilation mechanism
  * in common with the batch and incremental builders.
  */
@@ -37,15 +37,14 @@ protected JavaBuilder javaBuilder;
 protected State newState;
 
 // local copies
-protected IContainer outputFolder;
-protected IContainer[] sourceFolders;
+protected NameEnvironment nameEnvironment;
+protected ClasspathMultiDirectory[] sourceLocations;
 protected BuildNotifier notifier;
 
-protected boolean hasSeparateOutputFolder;
-protected NameEnvironment nameEnvironment;
+protected String encoding;
 protected Compiler compiler;
 protected WorkQueue workQueue;
-protected ArrayList problemTypeLocations;
+protected ArrayList problemSourceFiles;
 protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
@@ -57,28 +56,14 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.newState = new State(javaBuilder);
 
 	// local copies
-	this.outputFolder = javaBuilder.outputFolder;
-	this.sourceFolders = javaBuilder.sourceFolders;
+	this.nameEnvironment = javaBuilder.nameEnvironment;
+	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
 
-	// only perform resource copying if the output location does not match a source folder
-	// corresponds to: project == src == bin, or several source folders are contributing resources,
-	// but one is the output location too (and would get populated with other source folder resources).
-	IPath outputPath = outputFolder.getFullPath();
-	int index = sourceFolders.length;
-	if (index == 0) {
-		// handle case of the last source folder is removed... so no source folders exist but the output folder must still be cleaned
-		this.hasSeparateOutputFolder = !outputPath.equals(javaBuilder.currentProject.getFullPath());
-	} else {
-		this.hasSeparateOutputFolder = true;
-		while (this.hasSeparateOutputFolder && --index >= 0)
-			this.hasSeparateOutputFolder = !outputPath.equals(sourceFolders[index].getFullPath());
-	}
-
-	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
-	this.compiler = newCompiler(javaBuilder.currentProject);
+	this.encoding = javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
+	this.compiler = newCompiler();
 	this.workQueue = new WorkQueue();
-	this.problemTypeLocations = new ArrayList(3);
+	this.problemSourceFiles = new ArrayList(3);
 }
 
 public void acceptResult(CompilationResult result) {
@@ -90,14 +75,13 @@ public void acceptResult(CompilationResult result) {
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
-	// only need to find resource for the sourceLocation when problems need to be reported against it
-	String sourceLocation = new String(result.getFileName()); // the full filesystem path "d:/xyz/eclipse/src1/Test/p1/p2/A.java"
-	if (!workQueue.isCompiled(sourceLocation)) {
+	SourceFile compilationUnit = (SourceFile) result.getCompilationUnit(); // go directly back to the sourceFile
+	if (!workQueue.isCompiled(compilationUnit)) {
 		try {
-			workQueue.finished(sourceLocation);
-			updateProblemsFor(sourceLocation, result); // record compilation problems before potentially adding duplicate errors
+			workQueue.finished(compilationUnit);
+			updateProblemsFor(compilationUnit, result); // record compilation problems before potentially adding duplicate errors
 
-			ICompilationUnit compilationUnit = result.getCompilationUnit();
+			String typeLocator = compilationUnit.typeLocator();
 			ClassFile[] classFiles = result.getClassFiles();
 			int length = classFiles.length;
 			ArrayList duplicateTypeNames = null;
@@ -111,27 +95,27 @@ public void acceptResult(CompilationResult result) {
 				// Look for a possible collision, if one exists, report an error but do not write the class file
 				if (isNestedType) {
 					String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
-					if (newState.isDuplicateLocation(qualifiedTypeName, sourceLocation))
+					if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator))
 						continue;
 				} else {
 					String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
-					if (newState.isDuplicateLocation(qualifiedTypeName, sourceLocation)) {
+					if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator)) {
 						if (duplicateTypeNames == null)
 							duplicateTypeNames = new ArrayList();
 						duplicateTypeNames.add(compoundName);
-						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName))); //$NON-NLS-1$
+						createErrorFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName))); //$NON-NLS-1$
 						continue;
 					}
-					newState.recordLocationForType(qualifiedTypeName, sourceLocation);
+					newState.recordLocatorForType(qualifiedTypeName, typeLocator);
 				}
-				definedTypeNames.add(writeClassFile(classFile, !isNestedType));
+				definedTypeNames.add(writeClassFile(classFile, compilationUnit.sourceLocation.binaryFolder, !isNestedType));
 			}
 
-			finishedWith(sourceLocation, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
+			finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
 			Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
-			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile")); //$NON-NLS-1$
+			createErrorFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile")); //$NON-NLS-1$
 		}
 	}
 }
@@ -140,31 +124,25 @@ protected void cleanUp() {
 	this.nameEnvironment.cleanup();
 
 	this.javaBuilder = null;
-	this.outputFolder = null;
-	this.sourceFolders = null;
+	this.nameEnvironment = null;
+	this.sourceLocations = null;
 	this.notifier = null;
 	this.compiler = null;
-	this.nameEnvironment = null;
 	this.workQueue = null;
-	this.problemTypeLocations = null;
+	this.problemSourceFiles = null;
 }
 
 /* Compile the given elements, adding more elements to the work queue 
 * if they are affected by the changes.
 */
-protected void compile(String[] filenames, String[] initialTypeNames) {
-	String encoding = javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
-	int toDo = filenames.length;
+protected void compile(SourceFile[] units) {
+	int toDo = units.length;
 	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
 		// do them all now
-		SourceFile[] toCompile = new SourceFile[toDo];
-		for (int i = 0; i < toDo; i++) {
-			String filename = filenames[i];
-			if (JavaBuilder.DEBUG)
-				System.out.println("About to compile " + filename); //$NON-NLS-1$
-			toCompile[i] = new SourceFile(filename, initialTypeNames[i], encoding);
-		}
-		compile(toCompile, initialTypeNames, null);
+		if (JavaBuilder.DEBUG)
+			for (int i = 0; i < toDo; i++)
+				System.out.println("About to compile " + units[i].typeLocator()); //$NON-NLS-1$
+		compile(units, null);
 	} else {
 		int i = 0;
 		boolean compilingFirstGroup = true;
@@ -172,48 +150,45 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			int doNow = toDo < MAX_AT_ONCE ? toDo : MAX_AT_ONCE;
 			int index = 0;
 			SourceFile[] toCompile = new SourceFile[doNow];
-			String[] initialNamesInLoop = new String[doNow];
 			while (i < toDo && index < doNow) {
-				String filename = filenames[i];
 				// Although it needed compiling when this method was called, it may have
 				// already been compiled when it was referenced by another unit.
-				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
+				SourceFile unit = units[i++];
+				if (compilingFirstGroup || workQueue.isWaiting(unit)) {
 					if (JavaBuilder.DEBUG)
-						System.out.println("About to compile " + filename);//$NON-NLS-1$
-					String initialTypeName = initialTypeNames[i];
-					initialNamesInLoop[index] = initialTypeName;
-					toCompile[index++] = new SourceFile(filename, initialTypeName, encoding);
+						System.out.println("About to compile " + unit.typeLocator()); //$NON-NLS-1$
+					toCompile[index++] = unit;
 				}
-				i++;
 			}
-			if (index < doNow) {
+			if (index < doNow)
 				System.arraycopy(toCompile, 0, toCompile = new SourceFile[index], 0, index);
-				System.arraycopy(initialNamesInLoop, 0, initialNamesInLoop = new String[index], 0, index);
-			}
-			String[] additionalFilenames = new String[toDo - i];
-			System.arraycopy(filenames, i, additionalFilenames, 0, additionalFilenames.length);
+			SourceFile[] additionalUnits = new SourceFile[toDo - i];
+			System.arraycopy(units, i, additionalUnits, 0, additionalUnits.length);
 			compilingFirstGroup = false;
-			compile(toCompile, initialNamesInLoop, additionalFilenames);
+			compile(toCompile, additionalUnits);
 		}
 	}
 }
 
-void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalFilenames) {
+void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	if (units.length == 0) return;
 	notifier.aboutToCompile(units[0]); // just to change the message
 
 	// extend additionalFilenames with all hierarchical problem types found during this entire build
-	if (!problemTypeLocations.isEmpty()) {
-		int toAdd = problemTypeLocations.size();
-		int length = additionalFilenames == null ? 0 : additionalFilenames.length;
+	if (!problemSourceFiles.isEmpty()) {
+		int toAdd = problemSourceFiles.size();
+		int length = additionalUnits == null ? 0 : additionalUnits.length;
 		if (length == 0)
-			additionalFilenames = new String[toAdd];
+			additionalUnits = new SourceFile[toAdd];
 		else
-			System.arraycopy(additionalFilenames, 0, additionalFilenames = new String[length + toAdd], 0, length);
+			System.arraycopy(additionalUnits, 0, additionalUnits = new SourceFile[length + toAdd], 0, length);
 		for (int i = 0; i < toAdd; i++)
-			additionalFilenames[length + i] = (String) problemTypeLocations.get(i);
+			additionalUnits[length + i] = (SourceFile) problemSourceFiles.get(i);
 	}
-	nameEnvironment.setNames(initialTypeNames, additionalFilenames);
+	String[] initialTypeNames = new String[units.length];
+	for (int i = 0, l = units.length; i < l; i++)
+		initialTypeNames[i] = units[i].initialTypeName;
+	nameEnvironment.setNames(initialTypeNames, additionalUnits);
 	notifier.checkCancel();
 	try {
 		inCompiler = true;
@@ -241,25 +216,16 @@ protected void createErrorFor(IResource resource, String message) {
 	}
 }
 
-protected String extractTypeNameFrom(String sourceLocation) {
-	for (int j = 0, k = sourceFolders.length; j < k; j++) {
-		String folderLocation = sourceFolders[j].getLocation().addTrailingSeparator().toString();
-		if (sourceLocation.startsWith(folderLocation))
-			return sourceLocation.substring(folderLocation.length(), sourceLocation.length() - 5); // length of ".java"
-	}
-	return sourceLocation; // should not reach here
-}
-
-protected void finishedWith(String sourceLocation, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
+protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
 	if (duplicateTypeNames == null) {
-		newState.record(sourceLocation, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
+		newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
 		return;
 	}
 
 	char[][][] qualifiedRefs = result.qualifiedReferences;
 	char[][] simpleRefs = result.simpleNameReferences;
 	// for each duplicate type p1.p2.A, add the type name A (package was already added)
-	next : for (int i = 0, dLength = duplicateTypeNames.size(); i < dLength; i++) {
+	next : for (int i = 0, l = duplicateTypeNames.size(); i < l; i++) {
 		char[][] compoundName = (char[][]) duplicateTypeNames.get(i);
 		char[] typeName = compoundName[compoundName.length - 1];
 		int sLength = simpleRefs.length;
@@ -269,13 +235,14 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 		System.arraycopy(simpleRefs, 0, simpleRefs = new char[sLength + 1][], 0, sLength);
 		simpleRefs[sLength] = typeName;
 	}
-	newState.record(sourceLocation, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
+	newState.record(sourceLocator, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
 }
 
-protected IContainer getOutputFolder(IPath packagePath) throws CoreException {
+protected IContainer getOutputFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
+	if (packagePath.isEmpty()) return outputFolder;
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
-		getOutputFolder(packagePath.removeLastSegments(1));
+		getOutputFolder(packagePath.removeLastSegments(1), outputFolder);
 		folder.create(true, true, null);
 		folder.setDerived(true);
 	}
@@ -289,18 +256,14 @@ protected RuntimeException internalException(CoreException t) {
 	return imageBuilderException;
 }
 
-protected Compiler newCompiler(IProject project) {
+protected Compiler newCompiler() {
 	// called once when the builder is initialized... can override if needed
 	return new Compiler(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		JavaCore.create(project).getOptions(true),
+		javaBuilder.javaProject.getOptions(true),
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
-}
-
-protected IResource resourceForLocation(String sourceLocation) {
-	return javaBuilder.workspaceRoot.getFileForLocation(new Path(sourceLocation));
 }
 
 /**
@@ -313,12 +276,12 @@ protected IResource resourceForLocation(String sourceLocation) {
  *	 - its range is the problem's range
  *	 - it has an extra attribute "ID" which holds the problem's id
  */
-protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
-	
-	if (resource == null || problems == null || problems.length == 0) return;
+protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) throws CoreException {
+	if (sourceFile == null || problems == null || problems.length == 0) return;
 
 	String missingClassFile = null;
-	for (int i = 0, length = problems.length; i < length; i++) {
+	IResource resource = sourceFile.resource;
+	for (int i = 0, l = problems.length; i < l; i++) {
 		IProblem problem = problems[i];
 		int id = problem.getID();
 		switch (id) {
@@ -343,9 +306,8 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			case IProblem.InterfaceInternalNameProvided :
 			case IProblem.InterfaceInheritedNameHidesEnclosingName :
 				// ensure that this file is always retrieved from source for the rest of the build
-				String fileLocation = resource.getLocation().toString();
-				if (!problemTypeLocations.contains(fileLocation))
-					problemTypeLocations.add(fileLocation);
+				if (!problemSourceFiles.contains(sourceFile))
+					problemSourceFiles.add(sourceFile);
 				break;
 		}
 
@@ -374,11 +336,10 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
 			int priority = IMarker.PRIORITY_NORMAL;
 			String compilerPriority = problem.getArguments()[2];
-			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority)) {
+			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority))
 				priority = IMarker.PRIORITY_HIGH;
-			} else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority)) {
+			else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority))
 				priority = IMarker.PRIORITY_LOW;
-			}
 			marker.setAttributes(
 				new String[] {
 					IMarker.MESSAGE, 
@@ -414,20 +375,20 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 	}
 }
 
-protected void updateProblemsFor(String sourceLocation, CompilationResult result) throws CoreException {
+protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	IProblem[] problems = result.getProblems();
 	if (problems == null || problems.length == 0) return;
 
 	notifier.updateProblemCounts(problems);
-	storeProblemsFor(resourceForLocation(sourceLocation), problems);
+	storeProblemsFor(sourceFile, problems);
 }
 
-protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) throws CoreException {
+protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, boolean isSecondaryType) throws CoreException {
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);
 	IContainer container = outputFolder;
 	if (filePath.segmentCount() > 1) {
-		container = getOutputFolder(filePath.removeLastSegments(1));
+		container = getOutputFolder(filePath.removeLastSegments(1), outputFolder);
 		filePath = new Path(filePath.lastSegment());
 	}
 

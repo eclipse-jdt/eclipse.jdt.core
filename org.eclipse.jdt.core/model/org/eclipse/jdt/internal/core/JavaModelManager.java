@@ -1163,7 +1163,7 @@ public class JavaModelManager implements ISaveParticipant {
 					if (!kind.equals("STATE")) //$NON-NLS-1$
 						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
 					if (in.readBoolean())
-						return JavaBuilder.readState(in);
+						return JavaBuilder.readState(project, in);
 					if (JavaBuilder.DEBUG)
 						System.out.println("Saved state thinks last build failed for " + project.getName()); //$NON-NLS-1$
 				} finally {

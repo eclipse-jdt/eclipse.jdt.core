@@ -22,12 +22,12 @@ public WorkQueue() {
 	this.compiledList = new ArrayList(11);
 }
 
-public void add(String element) {
+public void add(SourceFile element) {
 	needsCompileList.add(element);
 }
 
-public void addAll(String[] elements) {
-	for (int i = 0, length = elements.length; i < length; i++)
+public void addAll(SourceFile[] elements) {
+	for (int i = 0, l = elements.length; i < l; i++)
 		add(elements[i]);
 }
 
@@ -36,16 +36,16 @@ public void clear() {
 	this.compiledList.clear();
 }	
 
-public void finished(String element) {
+public void finished(SourceFile element) {
 	needsCompileList.remove(element);
 	compiledList.add(element);
 }
 
-public boolean isCompiled(String element) {
+public boolean isCompiled(SourceFile element) {
 	return compiledList.contains(element);
 }
 
-public boolean isWaiting(String element) {
+public boolean isWaiting(SourceFile element) {
 	return needsCompileList.contains(element);
 }
 

@@ -18,8 +18,8 @@ package org.eclipse.jdt.internal.core.builder;
 public final class SimpleLookupTable implements Cloneable {
 
 // to avoid using Enumerations, walk the individual tables skipping nulls
-public Object keyTable[];
-public Object valueTable[];
+public Object[] keyTable;
+public Object[] valueTable;
 public int elementSize; // number of elements in the table
 public int threshold;
 
@@ -137,7 +137,7 @@ private void rehash() {
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 	Object object;
-	for (int i = 0, length = valueTable.length; i < length; i++)
+	for (int i = 0, l = valueTable.length; i < l; i++)
 		if ((object = valueTable[i]) != null)
 			s += keyTable[i].toString() + " -> " + object.toString() + "\n"; 	//$NON-NLS-2$ //$NON-NLS-1$
 	return s;

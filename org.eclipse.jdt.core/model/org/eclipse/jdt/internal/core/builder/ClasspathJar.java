@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.*;
+
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
@@ -20,11 +23,20 @@ import java.util.zip.*;
 class ClasspathJar extends ClasspathLocation {
 
 String zipFilename; // keep for equals
+String relativePathname;
 ZipFile zipFile;
-SimpleLookupTable packageCache;	
+SimpleLookupTable packageCache;
 
 ClasspathJar(String zipFilename) {
 	this.zipFilename = zipFilename;
+	this.relativePathname = zipFilename;
+	this.zipFile = null;
+	this.packageCache = null;
+}
+
+ClasspathJar(IFile resource) {
+	this.zipFilename = resource.getLocation().toString();
+	this.relativePathname = resource.getProjectRelativePath().toString();
 	this.zipFile = null;
 	this.packageCache = null;
 }
@@ -52,6 +64,10 @@ NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageNa
 		if (reader != null) return new NameEnvironmentAnswer(reader);
 	} catch (Exception e) {} // treat as if class file is missing
 	return null;
+}
+
+IPath getRelativePath() {
+	return new Path(relativePathname);
 }
 
 boolean isPackage(String qualifiedPackageName) {

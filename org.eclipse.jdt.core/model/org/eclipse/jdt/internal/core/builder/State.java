@@ -20,14 +20,15 @@ import java.io.*;
 import java.util.*;
 
 public class State {
+// NOTE: this state cannot contain types that are not defined in this project
 
 String javaProjectName;
-ClasspathLocation[] classpathLocations;
-String outputLocationString;
-// keyed by location (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
+ClasspathMultiDirectory[] sourceLocations;
+ClasspathLocation[] binaryLocations;
+// keyed by the project relative path of the type (ie. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 SimpleLookupTable references;
-// keyed by qualified type name "p1/p2/A", value is the full filesystem path which defines this type "d:/xyz/eclipse/Test/p1/p2/A.java"
-SimpleLookupTable typeLocations;
+// keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
+SimpleLookupTable typeLocators;
 
 int buildNumber;
 long lastStructuralBuildTime;
@@ -35,7 +36,7 @@ SimpleLookupTable structuralBuildTimes;
 
 private String[] knownPackageNames; // of the form "p1/p2"
 
-static final byte VERSION = 0x0004;
+static final byte VERSION = 0x0005;
 
 State() {
 }
@@ -43,10 +44,10 @@ State() {
 protected State(JavaBuilder javaBuilder) {
 	this.knownPackageNames = null;
 	this.javaProjectName = javaBuilder.currentProject.getName();
-	this.classpathLocations = javaBuilder.classpath;
-	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
+	this.sourceLocations = javaBuilder.nameEnvironment.sourceLocations;
+	this.binaryLocations = javaBuilder.nameEnvironment.binaryLocations;
 	this.references = new SimpleLookupTable(7);
-	this.typeLocations = new SimpleLookupTable(7);
+	this.typeLocators = new SimpleLookupTable(7);
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildTime = System.currentTimeMillis();
@@ -59,7 +60,7 @@ void copyFrom(State lastState) {
 		this.buildNumber = lastState.buildNumber + 1;
 		this.lastStructuralBuildTime = lastState.lastStructuralBuildTime;
 		this.references = (SimpleLookupTable) lastState.references.clone();
-		this.typeLocations = (SimpleLookupTable) lastState.typeLocations.clone();
+		this.typeLocators = (SimpleLookupTable) lastState.typeLocators.clone();
 	} catch (CloneNotSupportedException e) {
 		this.references = new SimpleLookupTable(lastState.references.elementSize);
 		Object[] keyTable = lastState.references.keyTable;
@@ -68,31 +69,31 @@ void copyFrom(State lastState) {
 			if (keyTable[i] != null)
 				this.references.put(keyTable[i], valueTable[i]);
 
-		this.typeLocations = new SimpleLookupTable(lastState.typeLocations.elementSize);
-		keyTable = lastState.typeLocations.keyTable;
-		valueTable = lastState.typeLocations.valueTable;
+		this.typeLocators = new SimpleLookupTable(lastState.typeLocators.elementSize);
+		keyTable = lastState.typeLocators.keyTable;
+		valueTable = lastState.typeLocators.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)
 			if (keyTable[i] != null)
-				this.typeLocations.put(keyTable[i], valueTable[i]);
+				this.typeLocators.put(keyTable[i], valueTable[i]);
 	}
 }
 
-char[][] getDefinedTypeNamesFor(String location) {
-	Object c = references.get(location);
+char[][] getDefinedTypeNamesFor(String typeLocator) {
+	Object c = references.get(typeLocator);
 	if (c instanceof AdditionalTypeCollection)
 		return ((AdditionalTypeCollection) c).definedTypeNames;
 	return null; // means only one type is defined with the same name as the file... saves space
 }
 
-boolean isDuplicateLocation(String qualifiedName, String location) {
-	String existingLocation = (String) typeLocations.get(qualifiedName);
-	return existingLocation != null && !existingLocation.equals(location);
+boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator) {
+	String existing = (String) typeLocators.get(qualifiedTypeName);
+	return existing != null && !existing.equals(typeLocator);
 }
 
 boolean isKnownPackage(String qualifiedPackageName) {
 	if (knownPackageNames == null) {
-		ArrayList names = new ArrayList(typeLocations.elementSize);
-		Object[] keyTable = typeLocations.keyTable;
+		ArrayList names = new ArrayList(typeLocators.elementSize);
+		Object[] keyTable = typeLocators.keyTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				String packageName = (String) keyTable[i]; // is a type name of the form p1/p2/A
@@ -108,25 +109,25 @@ boolean isKnownPackage(String qualifiedPackageName) {
 		knownPackageNames = new String[names.size()];
 		names.toArray(knownPackageNames);
 	}
-	for (int i = 0, length = knownPackageNames.length; i < length; i++)
+	for (int i = 0, l = knownPackageNames.length; i < l; i++)
 		if (knownPackageNames[i].equals(qualifiedPackageName))
 			return true;
 	return false;
 }
 
-void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
+void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
 	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
-			references.put(location, new ReferenceCollection(qualifiedRefs, simpleRefs));
+			references.put(typeLocator, new ReferenceCollection(qualifiedRefs, simpleRefs));
 	} else {
 		char[][] definedTypeNames = new char[typeNames.size()][]; // can be empty when no types are defined
 		typeNames.toArray(definedTypeNames);
-		references.put(location, new AdditionalTypeCollection(definedTypeNames, qualifiedRefs, simpleRefs));
+		references.put(typeLocator, new AdditionalTypeCollection(definedTypeNames, qualifiedRefs, simpleRefs));
 	}
 }
 
-void recordLocationForType(String qualifiedName, String location) {
+void recordLocatorForType(String qualifiedTypeName, String typeLocator) {
 	this.knownPackageNames = null;
-	typeLocations.put(qualifiedName, location);
+	typeLocators.put(qualifiedTypeName, typeLocator);
 }
 
 void recordStructuralDependency(IProject prereqProject, State prereqState) {
@@ -134,10 +135,10 @@ void recordStructuralDependency(IProject prereqProject, State prereqState) {
 		structuralBuildTimes.put(prereqProject.getName(), new Long(prereqState.lastStructuralBuildTime));
 }
 
-void remove(String locationToRemove) {
+void removeLocator(String typeLocatorToRemove) {
 	this.knownPackageNames = null;
-	references.removeKey(locationToRemove);
-	typeLocations.removeValue(locationToRemove);
+	references.removeKey(typeLocatorToRemove);
+	typeLocators.removeValue(typeLocatorToRemove);
 }
 
 void removePackage(IResourceDelta sourceDelta) {
@@ -145,22 +146,22 @@ void removePackage(IResourceDelta sourceDelta) {
 	switch(resource.getType()) {
 		case IResource.FOLDER :
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
-			for (int i = 0, length = children.length; i < length; ++i)
+			for (int i = 0, l = children.length; i < l; i++)
 				removePackage(children[i]);
 			return;
 		case IResource.FILE :
-			IPath location = resource.getLocation();
-			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(location.getFileExtension()))
-				remove(location.toString());
+			IPath typeLocatorPath = resource.getProjectRelativePath();
+			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(typeLocatorPath.getFileExtension()))
+				removeLocator(typeLocatorPath.toString());
 	}
 }
 
-void removeTypeLocation(String locationToRemove) {
+void removeQualifiedTypeName(String qualifiedTypeNameToRemove) {
 	this.knownPackageNames = null;
-	typeLocations.removeKey(locationToRemove);
+	typeLocators.removeKey(qualifiedTypeNameToRemove);
 }
 
-static State read(DataInputStream in) throws IOException {
+static State read(IProject project, DataInputStream in) throws IOException {
 	if (JavaBuilder.DEBUG)
 		System.out.println("About to read state..."); //$NON-NLS-1$
 	if (VERSION != in.readByte()) {
@@ -171,23 +172,46 @@ static State read(DataInputStream in) throws IOException {
 
 	State newState = new State();
 	newState.javaProjectName = in.readUTF();
+	if (!project.getName().equals(newState.javaProjectName)) {
+		if (JavaBuilder.DEBUG)
+			System.out.println("Project's name does not match... answered null"); //$NON-NLS-1$
+		return null;
+	}
 	newState.buildNumber = in.readInt();
 	newState.lastStructuralBuildTime = in.readLong();
-	newState.outputLocationString = in.readUTF();
 
 	int length = in.readInt();
-	newState.classpathLocations = new ClasspathLocation[length];
-	String encoding = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(newState.javaProjectName)).getOption(JavaCore.CORE_ENCODING, true);
-	for (int i = 0; i < length; ++i) {
+	newState.sourceLocations = new ClasspathMultiDirectory[length];
+	for (int i = 0; i < length; i++) {
+		IContainer sourceFolder = project, outputFolder = project;
+		String folderName;
+		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
+		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
+		ClasspathMultiDirectory md =
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in));
+		if (in.readBoolean())
+			md.hasIndependentOutputFolder = true;
+		newState.sourceLocations[i] = md;
+	}
+
+	length = in.readInt();
+	newState.binaryLocations = new ClasspathLocation[length];
+	for (int i = 0; i < length; i++) {
 		switch (in.readByte()) {
 			case 1 :
-				newState.classpathLocations[i] = ClasspathLocation.forSourceFolder(in.readUTF(), in.readUTF(), encoding);
+				newState.binaryLocations[i] = newState.sourceLocations[in.readInt()];
 				break;
 			case 2 :
-				newState.classpathLocations[i] = ClasspathLocation.forBinaryFolder(in.readUTF());
+				IContainer outputFolder = project;
+				String folderName = in.readUTF();
+				if (folderName.length() > 0) outputFolder = project.getFolder(folderName);
+				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean());
 				break;
 			case 3 :
-				newState.classpathLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(project.getFile(in.readUTF()));
+				break;
+			case 4 :
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
 		}
 	}
 
@@ -195,13 +219,13 @@ static State read(DataInputStream in) throws IOException {
 	for (int i = 0; i < length; i++)
 		newState.structuralBuildTimes.put(in.readUTF(), new Long(in.readLong()));
 
-	String[] internedLocations = new String[length = in.readInt()];
+	String[] internedTypeLocators = new String[length = in.readInt()];
 	for (int i = 0; i < length; i++)
-		internedLocations[i] = in.readUTF();
+		internedTypeLocators[i] = in.readUTF();
 
-	newState.typeLocations = new SimpleLookupTable(length = in.readInt());
+	newState.typeLocators = new SimpleLookupTable(length = in.readInt());
 	for (int i = 0; i < length; i++)
-		newState.typeLocations.put(in.readUTF(), internedLocations[in.readInt()]);
+		newState.typeLocators.put(in.readUTF(), internedTypeLocators[in.readInt()]);
 
 	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 	char[][][] internedQualifiedNames = new char[length = in.readInt()][][];
@@ -216,29 +240,29 @@ static State read(DataInputStream in) throws IOException {
 
 	newState.references = new SimpleLookupTable(length = in.readInt());
 	for (int i = 0; i < length; i++) {
-		String location = internedLocations[in.readInt()];
+		String typeLocator = internedTypeLocators[in.readInt()];
 		ReferenceCollection collection = null;
 		switch (in.readByte()) {
 			case 1 :
 				char[][] additionalTypeNames = readNames(in);
 				char[][][] qualifiedNames = new char[in.readInt()][][];
-				for (int j = 0, qLength = qualifiedNames.length; j < qLength; j++)
+				for (int j = 0, m = qualifiedNames.length; j < m; j++)
 					qualifiedNames[j] = internedQualifiedNames[in.readInt()];
 				char[][] simpleNames = new char[in.readInt()][];
-				for (int j = 0, sLength = simpleNames.length; j < sLength; j++)
+				for (int j = 0, m = simpleNames.length; j < m; j++)
 					simpleNames[j] = internedSimpleNames[in.readInt()];
 				collection = new AdditionalTypeCollection(additionalTypeNames, qualifiedNames, simpleNames);
 				break;
 			case 2 :
 				char[][][] qNames = new char[in.readInt()][][];
-				for (int j = 0, qLength = qNames.length; j < qLength; j++)
+				for (int j = 0, m = qNames.length; j < m; j++)
 					qNames[j] = internedQualifiedNames[in.readInt()];
 				char[][] sNames = new char[in.readInt()][];
-				for (int j = 0, sLength = sNames.length; j < sLength; j++)
+				for (int j = 0, m = sNames.length; j < m; j++)
 					sNames[j] = internedSimpleNames[in.readInt()];
 				collection = new ReferenceCollection(qNames, sNames);
 		}
-		newState.references.put(location, collection);
+		newState.references.put(typeLocator, collection);
 	}
 	if (JavaBuilder.DEBUG)
 		System.out.println("Successfully read state for " + newState.javaProjectName); //$NON-NLS-1$
@@ -289,35 +313,56 @@ void write(DataOutputStream out) throws IOException {
  * String		project name
  * int				build number
  * int				last structural build number
- * String		output location
 */
 	out.writeByte(VERSION);
 	out.writeUTF(javaProjectName);
 	out.writeInt(buildNumber);
 	out.writeLong(lastStructuralBuildTime);
-	out.writeUTF(outputLocationString);
 
 /*
- * Class path locations[]
+ * ClasspathMultiDirectory[]
  * int				id
  * String		path(s)
- * 
- * NOTE: Cannot have portable build states while classpath directories are full filesystem paths
 */
-	out.writeInt(length = classpathLocations.length);
-	for (int i = 0; i < length; ++i) {
-		ClasspathLocation c = classpathLocations[i];
+	out.writeInt(length = sourceLocations.length);
+	for (int i = 0; i < length; i++) {
+		ClasspathMultiDirectory md = sourceLocations[i];
+		out.writeUTF(md.sourceFolder.getProjectRelativePath().toString());
+		out.writeUTF(md.binaryFolder.getProjectRelativePath().toString());
+		writeNames(md.exclusionPatterns, out);
+		out.writeBoolean(md.hasIndependentOutputFolder);
+	}
+
+/*
+ * ClasspathLocation[]
+ * int				id
+ * String		path(s)
+*/
+	out.writeInt(length = binaryLocations.length);
+	next : for (int i = 0; i < length; i++) {
+		ClasspathLocation c = binaryLocations[i];
 		if (c instanceof ClasspathMultiDirectory) {
 			out.writeByte(1);
-			ClasspathMultiDirectory md = (ClasspathMultiDirectory) c;
-			out.writeUTF(md.sourcePath);
-			out.writeUTF(md.binaryPath);
+			for (int j = 0, m = sourceLocations.length; j < m; j++) {
+				if (sourceLocations[j] == c) {
+					out.writeInt(j);
+					continue next;
+				}
+			}
 		} else if (c instanceof ClasspathDirectory) {
 			out.writeByte(2);
-			out.writeUTF(((ClasspathDirectory) c).binaryPath);
-		} else if (c instanceof ClasspathJar) {
-			out.writeByte(3);
-			out.writeUTF(((ClasspathJar) c).zipFilename);
+			ClasspathDirectory cd = (ClasspathDirectory) c;
+			out.writeUTF(cd.binaryFolder.getProjectRelativePath().toString());
+			out.writeBoolean(cd.isOutputFolder);
+		} else {
+			ClasspathJar jar = (ClasspathJar) c;
+			if (jar.zipFilename.equals(jar.relativePathname)) {
+				out.writeByte(3);
+				out.writeUTF(jar.relativePathname);
+			} else {
+				out.writeByte(4);
+				out.writeUTF(jar.zipFilename);
+			}
 		}
 	}
 
@@ -342,10 +387,10 @@ void write(DataOutputStream out) throws IOException {
 	}
 
 /*
- * String[]		Interned locations
+ * String[]		Interned type locators
  */
 	out.writeInt(length = references.elementSize);
-	ArrayList internedLocations = new ArrayList(length);
+	ArrayList internedTypeLocators = new ArrayList(length);
 	if (length > 0) {
 		keyTable = references.keyTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
@@ -353,7 +398,7 @@ void write(DataOutputStream out) throws IOException {
 				length--;
 				String key = (String) keyTable[i];
 				out.writeUTF(key);
-				internedLocations.add(key);
+				internedTypeLocators.add(key);
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
@@ -361,23 +406,23 @@ void write(DataOutputStream out) throws IOException {
 	}
 
 /*
- * Type locations table
+ * Type locators table
  * String		type name
- * int				interned location id
+ * int				interned locator id
  */
-	out.writeInt(length = typeLocations.elementSize);
+	out.writeInt(length = typeLocators.elementSize);
 	if (length > 0) {
-		keyTable = typeLocations.keyTable;
-		valueTable = typeLocations.valueTable;
+		keyTable = typeLocators.keyTable;
+		valueTable = typeLocators.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				length--;
 				out.writeUTF((String) keyTable[i]);
-				out.writeInt(internedLocations.indexOf((String) valueTable[i]));
+				out.writeInt(internedTypeLocators.indexOf((String) valueTable[i]));
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
-			System.out.println("typeLocations table is inconsistent"); //$NON-NLS-1$
+			System.out.println("typeLocators table is inconsistent"); //$NON-NLS-1$
 	}
 
 /*
@@ -391,11 +436,11 @@ void write(DataOutputStream out) throws IOException {
 		if (valueTable[i] != null) {
 			ReferenceCollection collection = (ReferenceCollection) valueTable[i];
 			char[][][] qNames = collection.qualifiedNameReferences;
-			for (int j = 0, qLength = qNames.length; j < qLength; j++) {
+			for (int j = 0, m = qNames.length; j < m; j++) {
 				char[][] qName = qNames[j];
 				if (!internedQualifiedNames.contains(qName)) { // remember the names have been interned
 					internedQualifiedNames.add(qName);
-					for (int k = 0, sLength = qName.length; k < sLength; k++) {
+					for (int k = 0, n = qName.length; k < n; k++) {
 						char[] sName = qName[k];
 						if (!internedSimpleNames.contains(sName)) // remember the names have been interned
 							internedSimpleNames.add(sName);
@@ -403,7 +448,7 @@ void write(DataOutputStream out) throws IOException {
 				}
 			}
 			char[][] sNames = collection.simpleNameReferences;
-			for (int j = 0, sLength = sNames.length; j < sLength; j++) {
+			for (int j = 0, m = sNames.length; j < m; j++) {
 				char[] sName = sNames[j];
 				if (!internedSimpleNames.contains(sName)) // remember the names have been interned
 					internedSimpleNames.add(sName);
@@ -425,7 +470,7 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * References table
- * int			interned location id
+ * int			interned locator id
  * ReferenceCollection
 */
 	out.writeInt(length = references.elementSize);
@@ -434,7 +479,7 @@ void write(DataOutputStream out) throws IOException {
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				length--;
-				out.writeInt(internedLocations.indexOf((String) keyTable[i]));
+				out.writeInt(internedTypeLocators.indexOf((String) keyTable[i]));
 				ReferenceCollection collection = (ReferenceCollection) valueTable[i];
 				if (collection instanceof AdditionalTypeCollection) {
 					out.writeByte(1);
@@ -461,7 +506,7 @@ void write(DataOutputStream out) throws IOException {
 }
 
 private void writeNames(char[][] names, DataOutputStream out) throws IOException {
-	int length = names.length;
+	int length = names == null ? 0 : names.length;
 	out.writeInt(length);
 	for (int i = 0; i < length; i++) {
 		char[] name = names[i];
@@ -485,11 +530,12 @@ public String toString() {
 /* Debug helper
 void dump() {
 	System.out.println("State for " + javaProjectName + " (" + buildNumber + " @ " + new Date(lastStructuralBuildTime) + ")");
-	System.out.println("\tClass path locations:");
-	for (int i = 0, length = classpathLocations.length; i < length; ++i)
-		System.out.println("\t\t" + classpathLocations[i]);
-	System.out.println("\tOutput location:");
-	System.out.println("\t\t" + outputLocationString);
+	System.out.println("\tClass path source locations:");
+	for (int i = 0, l = sourceLocations.length; i < l; i++)
+		System.out.println("\t\t" + sourceLocations[i]);
+	System.out.println("\tClass path binary locations:");
+	for (int i = 0, l = binaryLocations.length; i < l; i++)
+		System.out.println("\t\t" + binaryLocations[i]);
 
 	System.out.print("\tStructural build numbers table:");
 	if (structuralBuildTimes.elementSize == 0) {
@@ -502,12 +548,12 @@ void dump() {
 				System.out.print("\n\t\t" + keyTable[i].toString() + " -> " + valueTable[i].toString());
 	}
 
-	System.out.print("\tType locations table:");
-	if (typeLocations.elementSize == 0) {
+	System.out.print("\tType locators table:");
+	if (typeLocators.elementSize == 0) {
 		System.out.print(" <empty>");
 	} else {
-		Object[] keyTable = typeLocations.keyTable;
-		Object[] valueTable = typeLocations.valueTable;
+		Object[] keyTable = typeLocators.keyTable;
+		Object[] valueTable = typeLocators.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)
 			if (keyTable[i] != null)
 				System.out.print("\n\t\t" + keyTable[i].toString() + " -> " + valueTable[i].toString());
@@ -527,18 +573,18 @@ void dump() {
 				System.out.print("\n\t\t\tqualified:");
 				if (qRefs.length == 0)
 					System.out.print(" <empty>");
-				else for (int j = 0, k = qRefs.length; j < k; j++)
-						System.out.print("  '" + org.eclipse.jdt.internal.compiler.util.CharOperation.toString(qRefs[j]) + "'");
+				else for (int j = 0, m = qRefs.length; j < m; j++)
+						System.out.print("  '" + CharOperation.toString(qRefs[j]) + "'");
 				char[][] sRefs = c.simpleNameReferences;
 				System.out.print("\n\t\t\tsimple:");
 				if (sRefs.length == 0)
 					System.out.print(" <empty>");
-				else for (int j = 0, k = sRefs.length; j < k; j++)
+				else for (int j = 0, m = sRefs.length; j < m; j++)
 						System.out.print("  " + new String(sRefs[j]));
 				if (c instanceof AdditionalTypeCollection) {
 					char[][] names = ((AdditionalTypeCollection) c).definedTypeNames;
 					System.out.print("\n\t\t\tadditional type names:");
-					for (int j = 0, k = names.length; j < k; j++)
+					for (int j = 0, m = names.length; j < m; j++)
 						System.out.print("  " + new String(names[j]));
 				}
 			}

@@ -10,23 +10,37 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 abstract class ClasspathLocation {
 
-static ClasspathLocation forSourceFolder(String sourceFolderPathname, String outputFolderPathname, String encoding) {
-	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname, encoding);
+static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder, char[][] exclusionPatterns) {
+	return new ClasspathMultiDirectory(sourceFolder, outputFolder, exclusionPatterns);
 }
 
-static ClasspathLocation forBinaryFolder(String binaryFolderPathname) {
-	return new ClasspathDirectory(binaryFolderPathname);
+static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder) {
+	return new ClasspathDirectory(binaryFolder, isOutputFolder);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname) {
 	return new ClasspathJar(libraryPathname);
 }
 
+static ClasspathLocation forLibrary(IFile library) {
+	return new ClasspathJar(library);
+}
+
 abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);
+
+abstract IPath getRelativePath();
+
+boolean isOutputFolder() {
+	return false;
+}
+
 abstract boolean isPackage(String qualifiedPackageName);
 
 // free anything which is not required when the state is saved
