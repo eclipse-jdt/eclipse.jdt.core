@@ -783,10 +783,12 @@ public void doneSaving(ISaveContext context){
 		for (int i= 0; i < variables.length; ++i) {
 			String var = variables[i];
 			IPath varPath = JavaCore.getClasspathVariable(var);
-			Element varElement= document.createElement("variable"); //$NON-NLS-1$
-			varElement.setAttribute("name", var); //$NON-NLS-1$
-			varElement.setAttribute("path", varPath.toString());			 //$NON-NLS-1$
-			rootElement.appendChild(varElement);
+			if (varPath != null){
+				Element varElement= document.createElement("variable"); //$NON-NLS-1$
+				varElement.setAttribute("name", var); //$NON-NLS-1$
+				varElement.setAttribute("path", varPath.toString());			 //$NON-NLS-1$
+				rootElement.appendChild(varElement);
+			}
 		}
 
 		// produce a String output
