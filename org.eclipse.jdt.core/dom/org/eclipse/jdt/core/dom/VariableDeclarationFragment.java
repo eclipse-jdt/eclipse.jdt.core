@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -141,8 +141,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * Sets the number of extra array dimensions this variable has over
 	 * and above the type specified in the enclosing declaration.
 	 * 
-	 * @return the number of extra array dimensions
-	 * @see Modifier
+	 * @param dimensions the number of extra array dimensions
 	 * @exception IllegalArgumentException if the number of dimensions is negative
 	 */ 
 	public void setExtraDimensions(int dimensions) {
