@@ -2994,12 +2994,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    P foo() { return null; }\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
-		"	                        ^\n" + 
-		"Cannot instantiate the generic type X<T> using wildcard arguments (? extends AX)\n" + 
-		"----------\n");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe wildcard operation: The constructor X(? extends AX) of type X<? extends AX> is not applicable for the arguments (AX<String>). The wildcard parameter ? extends AX has no lower bound, and may actually be more restrictive than argument AX<String>\n" + 
+			"----------\n");		
 	}		
 
 

@@ -269,10 +269,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		// limit of fault-tolerance
 		if (hasError) return this.resolvedType = receiverType;
-		if ((receiverType.tagBits & TagBits.HasWildcard) != 0) {
-		    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)receiverType);
-		    return this.resolvedType = receiverType;
-		}				
+//		if ((receiverType.tagBits & TagBits.HasWildcard) != 0) {
+//		    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)receiverType);
+//		    return this.resolvedType = receiverType;
+//		}				
 		if (this.anonymousType == null) {
 			// qualified allocation with no anonymous type
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;

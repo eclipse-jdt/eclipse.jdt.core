@@ -868,7 +868,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int UnsafeRawFieldAssignment = TypeRelated + 536;
 	/** @since 3.1 */
-	int InvalidClassInstantiationWithWildcards = Internal + 537;
+//	int InvalidClassInstantiationWithWildcards = Internal + 537;
 	/** @since 3.1 */
 	int FinalBoundForTypeVariable = TypeRelated + 538;
 	/** @since 3.1 */

@@ -272,10 +272,10 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
 			return this.resolvedType;
 		}
-		if ((this.resolvedType.tagBits & TagBits.HasWildcard) != 0) {
-		    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)this.resolvedType);
-		    return this.resolvedType;
-		}
+//		if ((this.resolvedType.tagBits & TagBits.HasWildcard) != 0) {
+//		    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)this.resolvedType);
+//		    return this.resolvedType;
+//		}
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 			if (binding.declaringClass == null)
