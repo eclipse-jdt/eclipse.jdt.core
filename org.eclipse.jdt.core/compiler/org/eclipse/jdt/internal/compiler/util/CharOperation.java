@@ -505,9 +505,16 @@ public static final boolean pathMatch(char[] pattern, char[] path, boolean isCas
 	int iPath = 0, pathLength = path.length;
 	int pathSegmentEnd = CharOperation.indexOf(pathSeparator, path);
 	if (pathSegmentEnd < 0) pathSegmentEnd = pathLength;
+
+	// special case: pattern foo is equivalent to **\foo (not absolute)
+	boolean freePrefixDoubleStar = pattern[0] != pathSeparator;
 	
+	// special case: pattern foo\ is equivalent to foo\**
+	boolean freeSuffixDoubleStar = pattern[patternLength-1] == pathSeparator;
+		
 	// first segments
 	while (iPattern < patternLength
+				&& !freePrefixDoubleStar
 				&& !(patternSegmentEnd == iPattern+2
 					&& pattern[iPattern] == '*' 
 					&& pattern[iPattern+1] == '*')) {
@@ -528,8 +535,8 @@ public static final boolean pathMatch(char[] pattern, char[] path, boolean isCas
 	/* check sequence of doubleStar+segment */
 	int segmentStart;
 	if (patternSegmentEnd == iPattern+2
-					&& pattern[iPattern] == '*' 
-					&& pattern[iPattern+1] == '*'){
+				&& pattern[iPattern] == '*' 
+				&& pattern[iPattern+1] == '*'){
 		patternSegmentEnd = CharOperation.indexOf(pathSeparator, pattern, iPattern = patternSegmentEnd+1); // skip separator
 		if (patternSegmentEnd < 0) patternSegmentEnd = patternLength;
 		segmentStart = iPattern;
@@ -573,8 +580,9 @@ public static final boolean pathMatch(char[] pattern, char[] path, boolean isCas
 	}
 
 	return (segmentStart >= patternSegmentEnd)
-			|| (iPath >= pathLength && iPattern >= patternLength)	
-			|| (iPattern == patternLength - 2 && pattern[iPattern] == '*' && pattern[iPattern+1] == '*'); 
+				|| (iPath >= pathLength && iPattern >= patternLength)	
+				|| (iPattern == patternLength - 2 && pattern[iPattern] == '*' && pattern[iPattern+1] == '*')
+				|| (iPattern == patternLength &&  freeSuffixDoubleStar); 
 }
 
 public static final int occurencesOf(char toBeFound, char[] array) {
