@@ -275,7 +275,11 @@ public class PotentialMatch implements ICompilationUnit {
 	public String toString() {
 		return this.openable == null ? "Fake PotentialMatch" : this.openable.toString(); //$NON-NLS-1$
 	}
-
+	/**
+	 * The exact openable file name. In particular, will be the originating .class file for binary openable with attached
+	 * source.
+	 * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, ReferenceBinding)
+	 */
 	public char[] getFileName() {
 		return this.openable.getElementName().toCharArray();
 	}
