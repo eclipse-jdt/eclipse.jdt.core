@@ -15018,5 +15018,34 @@ public void test500(){
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}			
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944
+	public void test532() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"public class X extends Z<Boolean> {\n" + 
+				"	@Override public Boolean value() { return true; }\n" + 
+				"}\n" +
+				"abstract class Z<T> {\n" + 
+				"	public T foo() { return value(); }\n" + 
+				"	public abstract T value();\n" + 
+				"}\n",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"import p.X;\n" +
+				"public class Y { boolean test() { return new X().foo().booleanValue(); } }\n",
+			},
+			"",
+			null,
+			false, // do not flush output
+			null
+		);		
+	}
 }

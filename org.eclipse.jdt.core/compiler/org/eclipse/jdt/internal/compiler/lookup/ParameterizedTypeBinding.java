@@ -43,14 +43,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				if (arguments[i] instanceof UnresolvedReferenceBinding)
 					((UnresolvedReferenceBinding) arguments[i]).addWrapper(this);
 		}
+		this.tagBits |=  HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
 	 */
 	public boolean canBeInstantiated() {
-		return ((this.tagBits & HasDirectWildcard) == 0) // cannot instantiate param type with wildcard arguments
-							&& super.canBeInstantiated();
+		return ((this.tagBits & HasDirectWildcard) == 0) && super.canBeInstantiated(); // cannot instantiate param type with wildcard arguments
 	}
 	public int kind() {
 		return PARAMETERIZED_TYPE;
@@ -615,7 +615,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	ReferenceBinding resolve() {
-		// TODO need flag to know that this has already been done... should it be on ReferenceBinding?
+		if ((this.tagBits & HasUnresolvedTypeVariables) == 0)
+			return this;
+
+		this.tagBits &= ~HasUnresolvedTypeVariables; // can be recursive so only want to call once
 		ReferenceBinding resolvedType = BinaryTypeBinding.resolveType(this.type, this.environment, false); // still part of parameterized type ref
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
@@ -693,9 +696,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			// check this variable can be substituted given parameterized type
 			if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
 			    // lazy init, since cannot do so during binding creation if during supertype connection
-			    if (currentType.arguments == null)  currentType.initializeArguments(); // only for raw types
+			    if (currentType.arguments == null)
+					currentType.initializeArguments(); // only for raw types
 			    if (currentType.arguments != null)
-		           return currentType.arguments[originalVariable.rank];
+					return currentType.arguments[originalVariable.rank];
 			}
 			// recurse on enclosing type, as it may hold more substitutions to perform
 			if (currentType.isStatic()) break;

@@ -572,12 +572,12 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 
 	if (foundNothing) {
 		if (isInterface()) {
-			 if (superInterfaces.length == 1) {
+			 if (superInterfaces().length == 1) { // ensure superinterfaces are resolved before checking
 				if (refScope != null)
 					refScope.recordTypeReference(superInterfaces[0]);
 				return superInterfaces[0].getExactMethod(selector, argumentTypes, refScope);
 			 }
-		} else if (superclass != null) {
+		} else if (superclass() != null) { // ensure superclass is resolved before checking
 			if (refScope != null)
 				refScope.recordTypeReference(superclass);
 			return superclass.getExactMethod(selector, argumentTypes, refScope);

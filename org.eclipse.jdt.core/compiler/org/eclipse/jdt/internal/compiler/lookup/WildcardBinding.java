@@ -47,6 +47,7 @@ public class WildcardBinding extends ReferenceBinding {
 			((UnresolvedReferenceBinding) genericType).addWrapper(this);
 		if (bound instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) bound).addWrapper(this);
+		this.tagBits |=  HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
 	public int kind() {
@@ -372,6 +373,10 @@ public class WildcardBinding extends ReferenceBinding {
     }
     
 	ReferenceBinding resolve() {
+		if ((this.tagBits & HasUnresolvedTypeVariables) == 0)
+			return this;
+
+		this.tagBits &= ~HasUnresolvedTypeVariables;
 		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0);
 	    switch(this.kind) {
 	        case Wildcard.EXTENDS :
