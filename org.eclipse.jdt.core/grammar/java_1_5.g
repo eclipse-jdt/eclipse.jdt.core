@@ -1994,7 +1994,9 @@ QUESTION ::=    '?'
 COLON ::=    ':'    
 COMMA ::=    ','    
 DOT ::=    '.'    
-EQUAL ::=    '='    
+EQUAL ::=    '='  
+AT ::= '@'
+ELLIPSIS  ::= '...'  
 
 $end
 -- need a carriage return after the $end
