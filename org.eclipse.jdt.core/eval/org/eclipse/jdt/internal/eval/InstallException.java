@@ -15,6 +15,8 @@ package org.eclipse.jdt.internal.eval;
  * for any reason.
  */
 public class InstallException extends Exception {
+	
+	private static final long serialVersionUID = -5870897747810654203L;	// backward compatible
 /**
  * Constructs a <code>InstallException</code> with no detail  message.
  */

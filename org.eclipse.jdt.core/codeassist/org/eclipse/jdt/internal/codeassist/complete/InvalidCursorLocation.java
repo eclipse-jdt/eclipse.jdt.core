@@ -23,7 +23,9 @@ public class InvalidCursorLocation extends RuntimeException {
 	public static final String NO_COMPLETION_INSIDE_COMMENT = "No Completion Inside Comment";      //$NON-NLS-1$
 	public static final String NO_COMPLETION_INSIDE_STRING = "No Completion Inside String";        //$NON-NLS-1$
 	public static final String NO_COMPLETION_INSIDE_NUMBER = "No Completion Inside Number";        //$NON-NLS-1$
-    
+
+	private static final long serialVersionUID = -3443160725735779590L; // backward compatible
+	
 public InvalidCursorLocation(String irritant){
 	this.irritant = irritant;
 }

@@ -20,6 +20,9 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
  * should only be thrown from within problem handlers.
  */
 public class AbortCompilationUnit extends AbortCompilation {
+
+	private static final long serialVersionUID = -4253893529982226734L; // backward compatible
+	
 public AbortCompilationUnit(CompilationResult compilationResult, IProblem problem) {
 	super(compilationResult, problem);
 }

@@ -20,6 +20,7 @@ public class AlignmentException extends RuntimeException {
 	
 	public static final int LINE_TOO_LONG = 1;
 	public static final int ALIGN_TOO_SMALL = 2;
+	private static final long serialVersionUID = -3324134986466253314L; // backward compatible
 	
 	int reason;
 	int value;
