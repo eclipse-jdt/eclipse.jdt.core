@@ -170,15 +170,21 @@ public String toStringFillingRation(String prefix) {
 	buffer.append(this.projectCache.size());
 	buffer.append(" projects\n"); //$NON-NLS-1$
 	buffer.append(prefix);
-	buffer.append("Root cache: "); //$NON-NLS-1$
+	buffer.append("Root cache["); //$NON-NLS-1$
+	buffer.append(this.rootCache.getSpaceLimit());
+	buffer.append("]: "); //$NON-NLS-1$
 	buffer.append(NumberFormat.getInstance().format(this.rootCache.fillingRatio()));
 	buffer.append("%\n"); //$NON-NLS-1$
 	buffer.append(prefix);
-	buffer.append("Package cache: "); //$NON-NLS-1$
+	buffer.append("Package cache["); //$NON-NLS-1$
+	buffer.append(this.pkgCache.getSpaceLimit());
+	buffer.append("]: "); //$NON-NLS-1$
 	buffer.append(NumberFormat.getInstance().format(this.pkgCache.fillingRatio()));
 	buffer.append("%\n"); //$NON-NLS-1$
 	buffer.append(prefix);
-	buffer.append("Openable cache: "); //$NON-NLS-1$
+	buffer.append("Openable cache["); //$NON-NLS-1$
+	buffer.append(this.openableCache.getSpaceLimit());
+	buffer.append("]: "); //$NON-NLS-1$
 	buffer.append(NumberFormat.getInstance().format(this.openableCache.fillingRatio()));
 	buffer.append("%\n"); //$NON-NLS-1$
 	return buffer.toString();
