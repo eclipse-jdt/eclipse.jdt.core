@@ -831,7 +831,7 @@ public static IClasspathEntry newSourceEntry(IPath path){
  *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
  */
 public static IClasspathEntry newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath sourceAttachmentRootPath){
-	Assert.isTrue(variablePath != null && variablePath.segmentCount() >= 1, "invalid variable path");
+	Assert.isTrue(variablePath != null && variablePath.segmentCount() >= 1, Util.bind("classpath.illegalVariablePath"/*nonNLS*/));
 	return new ClasspathEntry(
 					IPackageFragmentRoot.K_SOURCE, 
 					IClasspathEntry.CPE_VARIABLE, 
@@ -925,7 +925,7 @@ public static void setClasspathVariable(String variableName, IPath path) throws 
  */
 public static void setClasspathVariable(String variableName, IPath path, IProgressMonitor monitor) throws JavaModelException {
 
-	Assert.isTrue(path != null, "variable path cannot be null");
+	Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath"/*nonNLS*/));
 	updateVariableValue(variableName, path, monitor);
 }
 /* (non-Javadoc)
