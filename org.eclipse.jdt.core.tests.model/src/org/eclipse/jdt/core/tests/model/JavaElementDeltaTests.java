@@ -66,12 +66,17 @@ public class JavaElementDeltaTests extends ModifyingResourceTests {
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			for (int i = 0, length = DeltaListener.this.deltas.size(); i < length; i++) {
-				IJavaElementDelta[] projects = ((IJavaElementDelta)this.deltas.get(i)).getAffectedChildren();
-				for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
-					buffer.append(projects[j]);
-					if (j != projectsLength-1) {
-						buffer.append("\n");
+				IJavaElementDelta delta = (IJavaElementDelta)this.deltas.get(i);
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				if (children.length > 0) {
+					for (int j=0, childrenLength=children.length; j<childrenLength; j++) {
+						buffer.append(children[j]);
+						if (j != childrenLength-1) {
+							buffer.append("\n");
+						}
 					}
+				} else {
+					buffer.append(delta);
 				}
 				if (i != length-1) {
 					buffer.append("\n\n");
@@ -133,6 +138,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRenameMethodAndSave"));
 	suite.addTest(new JavaElementDeltaTests("testSaveWorkingCopy"));
 	suite.addTest(new JavaElementDeltaTests("testWorkingCopyCommit"));
+	suite.addTest(new JavaElementDeltaTests("testAddCommentAndCommit"));
 	
 	// managed working copies
 	suite.addTest(new JavaElementDeltaTests("testCreateSharedWorkingCopy"));
@@ -219,6 +225,41 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/**
+ * Ensures that adding a comment to a working copy and commiting it triggers an empty fine grained
+ * delta with the kind set for PRE_AUTO_BUILD listeners.
+ * (regression test for bug 32937 Kind not set for empty fine-grained delta)
+ */
+public void testAddCommentAndCommit() throws CoreException {
+	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
+	ICompilationUnit copy = null;
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFile("P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
+		copy = (ICompilationUnit)unit.getWorkingCopy(null, null, null);
+		
+		// add comment to working copy
+		copy.getBuffer().setContents(
+			"public class X {\n" +
+			"  // some comment\n" +
+			"}");
+
+		// commit working copy
+		JavaCore.addElementChangedListener(listener, ElementChangedEvent.PRE_AUTO_BUILD);
+		copy.commit(true, null);
+		assertEquals(
+			"Unexpected delta after committing working copy", 
+			"X.java[*]: {CONTENT | FINE GRAINED}",
+			listener.toString());
+	} finally {
+		JavaCore.removeElementChangedListener(listener);
+		if (copy != null) copy.destroy();
 		this.deleteProject("P");
 	}
 }

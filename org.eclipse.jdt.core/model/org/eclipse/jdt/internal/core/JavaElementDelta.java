@@ -235,6 +235,12 @@ public void changed(IJavaElement element, int changeFlag) {
 	insertDeltaTree(element, changedDelta);
 }
 /**
+ * Mark this delta as a content changed delta.
+ */
+public void contentChanged() {
+	fChangeFlags |= F_CONTENT;
+}
+/**
  * Clone this delta so that its elements are rooted at the given project.
  */
 public IJavaElementDelta clone(IJavaProject project) {
@@ -324,6 +330,9 @@ protected JavaElementDelta find(IJavaElement e) {
  * Mark this delta as a fine-grained delta.
  */
 public void fineGrained() {
+	if (fKind == 0) { // if not set yet
+		fKind = CHANGED;
+	}
 	fChangeFlags |= F_FINE_GRAINED;
 }
 /**

@@ -137,6 +137,10 @@ public void buildDeltas() {
 	this.findDeletions();
 	this.findChangesInPositioning(this.javaElement, 0);
 	this.trimDelta(this.delta);
+	if (this.delta.getAffectedChildren().length == 0) {
+		// this is a fine grained but not children affected -> mark as content changed
+		this.delta.contentChanged();
+	}
 }
 /**
  * Finds elements which have been added or changed.
