@@ -1293,29 +1293,34 @@ class ASTConverter {
 		enumConstantDeclaration.setName(typeName);
 		int declarationSourceStart = enumConstant.declarationSourceStart;
 		int declarationSourceEnd = enumConstant.declarationSourceEnd;
-		if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousType = ((QualifiedAllocationExpression) enumConstant.initialization).anonymousType;
-			if (anonymousType != null) {
-				AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
-				int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
-				int end = retrieveRightBrace(anonymousType.bodyEnd, declarationSourceEnd);
-				anonymousClassDeclaration.setSourceRange(start, end - start + 1);
-				enumConstantDeclaration.setAnonymousClassDeclaration(anonymousClassDeclaration);
-				buildBodyDeclarations(anonymousType, anonymousClassDeclaration);
-				if (this.resolveBindings) {
-					recordNodes(anonymousClassDeclaration, anonymousType);
-					anonymousClassDeclaration.resolveBinding();
+		final org.eclipse.jdt.internal.compiler.ast.Expression initialization = enumConstant.initialization;
+		if (initialization != null) {
+			if (initialization instanceof QualifiedAllocationExpression) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousType = ((QualifiedAllocationExpression) initialization).anonymousType;
+				if (anonymousType != null) {
+					AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
+					int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
+					int end = retrieveRightBrace(anonymousType.bodyEnd, declarationSourceEnd);
+					anonymousClassDeclaration.setSourceRange(start, end - start + 1);
+					enumConstantDeclaration.setAnonymousClassDeclaration(anonymousClassDeclaration);
+					buildBodyDeclarations(anonymousType, anonymousClassDeclaration);
+					if (this.resolveBindings) {
+						recordNodes(anonymousClassDeclaration, anonymousType);
+						anonymousClassDeclaration.resolveBinding();
+					}
+					enumConstantDeclaration.setSourceRange(declarationSourceStart, end - declarationSourceStart + 1);
 				}
-				enumConstantDeclaration.setSourceRange(declarationSourceStart, end - declarationSourceStart + 1);
+			} else {
+				enumConstantDeclaration.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
+			}
+			final org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = ((org.eclipse.jdt.internal.compiler.ast.AllocationExpression) initialization).arguments;
+			if (arguments != null) {
+				for (int i = 0, max = arguments.length; i < max; i++) {
+					enumConstantDeclaration.arguments().add(convert(arguments[i]));
+				}
 			}
 		} else {
 			enumConstantDeclaration.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-		}
-		final org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = ((org.eclipse.jdt.internal.compiler.ast.AllocationExpression) enumConstant.initialization).arguments;
-		if (arguments != null) {
-			for (int i = 0, max = arguments.length; i < max; i++) {
-				enumConstantDeclaration.arguments().add(convert(arguments[i]));
-			}
 		}
 		if (this.resolveBindings) {
 			recordNodes(enumConstantDeclaration, enumConstant);

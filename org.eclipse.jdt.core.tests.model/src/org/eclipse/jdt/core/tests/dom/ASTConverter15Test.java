@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0091"));
+		suite.addTest(new ASTConverter15Test("test0092"));
 		return suite;
 	}
 		
@@ -2057,7 +2057,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
 	 */
 	public void test0072() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0072", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15", "src", "test0072", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
@@ -2777,6 +2777,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			IMethodBinding methodBinding = memberDeclaration.resolveBinding();
 			assertNotNull("No binding", methodBinding);
 			assertEquals("Wrong name", "id", methodBinding.getName());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80960
+	 */
+	public void test0092() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"  public enum Rank { DEUCE, THREE, FOUR, FIVE, SIX,\n" +
+				"    SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE }\n" +
+				"\n" +
+				"  //public enum Suit { CLUBS, DIAMONDS, HEARTS, SPADES }\n" +
+				"  public enum Suit{\n" +
+				"\n" +
+				"  private X(int rank, int suit) {  \n" +
+				"  }\n" +
+				"  \n" +
+				"  private static final List<X> protoDeck = new ArrayList<X>();\n" +
+				"  \n" +
+				"  public static ArrayList<X> newDeck() {\n" +
+				"      return new ArrayList<X>(protoDeck); // Return copy of prototype deck\n" +
+				"  }\n" +
+				"}",
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
