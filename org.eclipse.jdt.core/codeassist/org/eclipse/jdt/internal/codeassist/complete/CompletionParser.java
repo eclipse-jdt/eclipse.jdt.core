@@ -1204,6 +1204,8 @@ protected void consumeConstructorHeaderName() {
 	if (currentElement == null){
 		this.hasReportedError = true; // do not report any error
 	}
+	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+	pushOnGenericsLengthStack(0); // handle type arguments
 	this.restartRecovery = true;
 }
 protected void consumeDefaultLabel() {
