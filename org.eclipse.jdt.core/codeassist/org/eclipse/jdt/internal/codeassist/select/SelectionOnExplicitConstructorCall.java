@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.codeassist.select;
  *
  *	---> class X {
  *         void foo() {
- *           <SelectOnExplicitConstructorCall:this.bar(1, 2)>
+ *           <SelectOnExplicitConstructorCall:Y.super(1, 2)>
  *         }
  *       }
  *
