@@ -234,8 +234,8 @@ protected void deleteEmptyPackageFragment(
 	boolean force)
 	throws JavaModelException {
 
-	IContainer resource = (IContainer) fragment.getCorrespondingResource();
-	IResource rootResource = fragment.getParent().getUnderlyingResource();
+	IContainer resource = (IContainer) fragment.getResource();
+	IResource rootResource = fragment.getParent().getResource();
 
 	try {
 		resource.delete(
