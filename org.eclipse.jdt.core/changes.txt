@@ -11,6 +11,7 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return type is secondary one
 1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
 1GH2R62: ITPJCORE:WIN2000 - Typo in progress message
 1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
