@@ -875,6 +875,12 @@ public class TypeDeclaration
 					memberTypes[i].resolve(scope);
 				}
 			}
+			int missingAbstractMethodslength = this.missingAbstractMethods == null ? 0 : this.missingAbstractMethods.length;
+			int methodsLength = this.methods == null ? 0 : methods.length;
+			if ((methodsLength + missingAbstractMethodslength) > 0xFFFF) {
+				scope.problemReporter().tooManyMethods(this);
+			}
+			
 			if (methods != null) {
 				for (int i = 0, count = methods.length; i < count; i++) {
 					methods[i].resolve(scope);

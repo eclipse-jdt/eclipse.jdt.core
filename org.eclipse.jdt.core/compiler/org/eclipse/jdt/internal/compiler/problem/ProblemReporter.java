@@ -2582,6 +2582,24 @@ public void tooManyDimensions(AstNode expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void tooManyFields(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.TooManyFields,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
+public void tooManyMethods(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.TooManyMethods,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
 public void typeCastError(CastExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());

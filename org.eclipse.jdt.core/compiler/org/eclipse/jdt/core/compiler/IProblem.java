@@ -15,6 +15,9 @@
  *     IBM Corporation - added the following constants
  * 								   TooManySyntheticArgumentSlots
  * 								   TooManyArrayDimensions
+ * 								   TooManyBytesForStringConstant
+ * 								   TooManyMethods
+ * 								   TooManyFields
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -492,6 +495,10 @@ public interface IProblem {
 	//constant pool
 	int TooManyConstantsInConstantPool = Internal + 430;
 	int TooManyBytesForStringConstant = Internal + 431;
+
+	// static constraints
+	int TooManyFields = Internal + 432;
+	int TooManyMethods = Internal + 433; 
 		
 	// 1.4 features
 	// assertion warning

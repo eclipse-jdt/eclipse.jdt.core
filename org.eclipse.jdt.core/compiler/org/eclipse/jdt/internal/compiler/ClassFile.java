@@ -564,6 +564,9 @@ public class ClassFile
 				+ (syntheticFields == null ? 0 : syntheticFields.length);
 
 		// write the number of fields
+		if (fieldCount > 0xFFFF) {
+			referenceBinding.scope.problemReporter().tooManyFields(referenceBinding.scope.referenceType());
+		}
 		contents[contentsOffset++] = (byte) (fieldCount >> 8);
 		contents[contentsOffset++] = (byte) fieldCount;
 
@@ -2447,6 +2450,8 @@ public class ClassFile
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
 		ClassFile classFile = new ClassFile(typeBinding, null, true);
 
+		// TODO: handle cases where a field cannot be generated (name too long)
+		// TODO: handle too many methods
 		// inner attributes
 		if (typeBinding.isMemberType())
 			classFile.recordEnclosingTypeAttributes(typeBinding);
