@@ -104,12 +104,11 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
-	 * The allowable modifiers differ for each type of body declaration.
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 * @since 3.0
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
 		return this.modifierFlags;
@@ -117,13 +116,11 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Sets the modifiers explicitly specified on this declaration.
-	 * The allowable modifiers differ for each type of body declaration.
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
 	 * @since 3.0
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
 	 */ 
 	public void setModifiers(int modifiers) {
 		modifying();
@@ -143,6 +140,8 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
 	 * @since 3.0
+	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
+	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
 		return this.modifiers;

@@ -29,14 +29,6 @@ import java.util.List;
 public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = 
-		Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-		| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
-		| Modifier.TRANSIENT;
-
-	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
 	 * Defaults to an empty list.
 	 * 
@@ -160,6 +152,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
 	 * @since 3.0
+	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
+	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
 		return this.modifiers;
@@ -174,7 +168,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
 		return this.modifierFlags;
@@ -183,20 +177,16 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/**
 	 * Sets the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * The following modifiers are valid for fields: public, private, protected,
+	 * The following modifiers are meaningful for fields: public, private, protected,
 	 * static, final, volatile, and transient. For local variable and formal
 	 * parameter declarations, the only meaningful modifier is final.
 	 * </p>
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
 	 */ 
 	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
 		modifying();
 		this.modifierFlags = modifiers;
 	}

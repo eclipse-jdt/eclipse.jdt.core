@@ -31,11 +31,6 @@ import java.util.List;
 public class VariableDeclarationStatement extends Statement {
 	
 	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = Modifier.FINAL;
-
-	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
 	 * Defaults to an empty list.
 	 * 
@@ -136,6 +131,8 @@ public class VariableDeclarationStatement extends Statement {
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
 	 * @since 3.0
+	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
+	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
 		return this.modifiers;
@@ -150,7 +147,7 @@ public class VariableDeclarationStatement extends Statement {
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
 		return this.modifierFlags;
@@ -165,13 +162,9 @@ public class VariableDeclarationStatement extends Statement {
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
-	 * TBD (jeem) - deprecate
+	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
 	 */ 
 	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
 		modifying();
 		this.modifierFlags = modifiers;
 	}
