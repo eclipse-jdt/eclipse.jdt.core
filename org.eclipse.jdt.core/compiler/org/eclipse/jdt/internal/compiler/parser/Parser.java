@@ -2745,7 +2745,9 @@ protected void consumePostfixExpression() {
 }
 protected void consumePrimaryNoNewArray() {
 	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
-	updateSourcePosition(expressionStack[expressionPtr]);
+	final Expression parenthesizedExpression = expressionStack[expressionPtr];
+	updateSourcePosition(parenthesizedExpression);
+	parenthesizedExpression.bits |= AstNode.IsParenthesizedMASK;
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'

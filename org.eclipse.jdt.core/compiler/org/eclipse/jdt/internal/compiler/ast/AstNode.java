@@ -25,7 +25,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public int bits = IsReachableMASK; // reachable by default
 
 	// for operators only
-	// Reach . . . . . . . . . . . . . . . . . O O O O O O V VrR R R R
+	// Reach LocalReach Parenthesized . . . . . . . . . . . . . . . . . . O O O O O O V VrR R R R R
 	public static final int ReturnTypeIDMASK = 15; // 4 lower bits for operators
 	public static final int ValueForReturnMASK = 16; // for binary expressions
 	public static final int OnlyValueRequiredMASK = 32; // for binary expressions
@@ -33,7 +33,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static final int OperatorMASK = 63 << OperatorSHIFT;
 
 	// for name references only
-	// Reach . . . . . . . . . . . . . . . . D D D D D D D D VrF R R R
+	// Reach LocalReach Parenthesized . . . . . . . . . . . . . . . D D D D D D D D VrF R R R R
 	public static final int RestrictiveFlagMASK = 7;
 	// 3 lower bits for name references
 	public static final int FirstAssignmentToLocalMASK = 8;
@@ -53,6 +53,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static final int HasLocalTypeMASK = 2;
 	// cannot conflict with AddAssertionMASK
 
+	// for expression only
+	public static final int IsParenthesizedMASK = 0x20000000;
+	
 	/*
 	public final static int BitMask1= 0x1; // decimal 1
 	public final static int BitMask2= 0x2; // decimal 2
