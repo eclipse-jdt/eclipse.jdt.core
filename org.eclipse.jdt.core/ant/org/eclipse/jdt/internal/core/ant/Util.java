@@ -12,7 +12,7 @@ public class Util {
 
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.ant.Messages"; //$NON-NLS-1$
+	private final static String bundleName = "org.eclipse.jdt.internal.core.ant.messages"; //$NON-NLS-1$
 
 
 	static {

@@ -25,7 +25,7 @@ public class ProblemFactory implements IProblemFactory {
  */
 private ProblemFactory(Locale locale) {
 	fLocale = locale;
-	fCompilerResources = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.Messages", locale); //$NON-NLS-1$
+	fCompilerResources = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.messages", locale); //$NON-NLS-1$
 	initializeMessageTemplates();
 }
 /**

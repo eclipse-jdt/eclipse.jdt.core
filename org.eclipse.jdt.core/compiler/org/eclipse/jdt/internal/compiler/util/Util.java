@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 public class Util {
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.compiler.util.Messages"; //$NON-NLS-1$
+	private final static String bundleName = "org.eclipse.jdt.internal.compiler.util.messages"; //$NON-NLS-1$
 	static {
 		relocalize();
 	}

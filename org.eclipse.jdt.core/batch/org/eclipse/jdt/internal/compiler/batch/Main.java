@@ -68,7 +68,7 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.Messages"; //$NON-NLS-1$
+	private final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
 	static {
 		String ver = System.getProperty("java.version"); //$NON-NLS-1$
 		JDK1_1 = ((ver != null) && ver.startsWith("1.1")); //$NON-NLS-1$
