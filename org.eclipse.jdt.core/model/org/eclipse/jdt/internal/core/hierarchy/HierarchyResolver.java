@@ -781,8 +781,7 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
 		for (int i = 0, length = superInterfaces.length; i < length; i++) {
-			ReferenceBinding superInterface = superInterfaces[i];
-			if (superInterface instanceof ParameterizedTypeBinding) superInterface = ((ParameterizedTypeBinding)superInterface).type;	
+			ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].erasure();
 			if (this.subTypeOfType(superInterface, typeBinding)) return true;
 		} 
 	}
