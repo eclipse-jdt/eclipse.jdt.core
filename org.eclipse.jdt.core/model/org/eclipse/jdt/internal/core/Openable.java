@@ -76,6 +76,7 @@ protected void buildStructure(OpenableElementInfo info, IProblemRequestor proble
  * Close the buffer associated with this element, if any.
  */
 protected void closeBuffer(OpenableElementInfo info) {
+	if (!hasBuffer()) return; // nothing to do
 	IBuffer buffer = null;
 	buffer = getBufferManager().getBuffer(this);
 	if (buffer != null) {

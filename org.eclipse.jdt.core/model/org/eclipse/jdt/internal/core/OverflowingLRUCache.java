@@ -285,7 +285,14 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 			if (!close(entry)) return;
 			// buffer close will recursively call #privateRemoveEntry with external==true
 			// thus entry will already be removed if reaching this point.
-			if (fEntryTable.get(entry) == null) return;
+			if (fEntryTable.get(entry) == null){
+				return;
+			} else {
+				// basic removal
+				fEntryTable.remove(entry._fKey);			
+				fCurrentSpace -= entry._fSpace;
+				privateNotifyDeletionFromCache(entry);
+			}
 		}
 	}
 	LRUCacheEntry previous = entry._fPrevious;
