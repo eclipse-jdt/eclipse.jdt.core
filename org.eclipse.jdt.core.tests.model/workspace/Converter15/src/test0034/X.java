@@ -8,5 +8,5 @@ enum Bar {
 	Bar value();
 }
 	 
-public @Foo(Bar.CONSTANT) class A {
+public @Foo(Bar.CONSTANT) class X {
 }

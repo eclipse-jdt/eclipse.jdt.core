@@ -4,5 +4,5 @@ interface Convertible<T> {
 	T convert();
 }
 
-public class ReprChange<A extends Convertible<B>, B extends Convertible<A>> {
+public class X<A extends Convertible<B>, B extends Convertible<A>> {
 }

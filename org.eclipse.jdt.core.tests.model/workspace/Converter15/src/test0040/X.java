@@ -1,6 +1,6 @@
 package test0040;
 
-public class A {
+public class X {
 	<T> T foo(){
 		return null;
 	}

@@ -6,7 +6,7 @@ class B {
 	}
 }
 
-public class A {
+public class X {
 	public static void main(String[] args) {
 		B b = new B();
 		b.<String>foo("SUCCESS");

@@ -3,6 +3,6 @@ package test0046;
 class B<T> {
 }
 
-public class A extends B<String> {
+public class X extends B<String> {
 	B<Integer> value;
 }

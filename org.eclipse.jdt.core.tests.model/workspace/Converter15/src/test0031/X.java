@@ -1,4 +1,4 @@
-public class E {
+public class X {
     public static class A {
         public class A1 {
             public int foo() {

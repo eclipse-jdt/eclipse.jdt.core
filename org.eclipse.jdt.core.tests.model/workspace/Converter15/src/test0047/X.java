@@ -1,6 +1,6 @@
 package test0047;
 
-public enum A {
+public enum X {
 	TOTO ;
 
 	private static final long[] overflows = { 

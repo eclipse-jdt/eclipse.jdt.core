@@ -1,9 +1,9 @@
 package test0038;
 
-public class Data22<T> {
+public class X<T> {
 	T x;
 	T get(){
-		Data22<T> s= this;
+		X<T> s= this;
 		return x;
 	}
 	void set(T o1){

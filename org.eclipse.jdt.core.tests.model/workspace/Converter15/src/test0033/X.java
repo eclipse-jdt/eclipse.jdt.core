@@ -1,6 +1,6 @@
 package test0033;
 
-interface A {
+interface X {
     enum Location {
     }
 }
