@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -167,66 +166,6 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 		}
 		return this.fullCharExclusionPatterns;
-	}
-	
-	/**
-	 * Returns the XML encoding of the class path.
-	 *///TODO (olivier) should remove
-	public Element elementEncode(
-		Document document,
-		IPath projectPath) {
-
-		Element element = document.createElement("classpathentry"); //$NON-NLS-1$
-		element.setAttribute("kind", kindToString(this.entryKind));	//$NON-NLS-1$
-		IPath xmlPath = this.path;
-		if (this.entryKind != IClasspathEntry.CPE_VARIABLE && this.entryKind != IClasspathEntry.CPE_CONTAINER) {
-			// translate to project relative from absolute (unless a device path)
-			if (xmlPath.isAbsolute()) {
-				if (projectPath != null && projectPath.isPrefixOf(xmlPath)) {
-					if (xmlPath.segment(0).equals(projectPath.segment(0))) {
-						xmlPath = xmlPath.removeFirstSegments(1);
-						xmlPath = xmlPath.makeRelative();
-					} else {
-						xmlPath = xmlPath.makeAbsolute();
-					}
-				}
-			}
-		}
-		element.setAttribute("path", xmlPath.toString()); //$NON-NLS-1$
-		
-		if (this.sourceAttachmentPath != null) {
-			xmlPath = this.sourceAttachmentPath;
-			// translate to project relative from absolute 
-			if (this.entryKind != IClasspathEntry.CPE_VARIABLE && projectPath != null && projectPath.isPrefixOf(xmlPath)) {
-				if (xmlPath.segment(0).equals(projectPath.segment(0))) {
-					xmlPath = xmlPath.removeFirstSegments(1);
-					xmlPath = xmlPath.makeRelative();
-				}
-			}
-			element.setAttribute("sourcepath", xmlPath.toString()); //$NON-NLS-1$
-		}
-		if (this.sourceAttachmentRootPath != null) {
-			element.setAttribute("rootpath", this.sourceAttachmentRootPath.toString()); //$NON-NLS-1$
-		}
-		if (this.isExported) {
-			element.setAttribute("exported", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		
-		if (this.exclusionPatterns.length > 0) {
-			StringBuffer excludeRule = new StringBuffer(10);
-			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
-				if (i > 0) excludeRule.append('|');
-				excludeRule.append(this.exclusionPatterns[i]);
-			}
-			element.setAttribute("excluding", excludeRule.toString());  //$NON-NLS-1$
-		}
-		
-		if (this.specificOutputLocation != null) {
-			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
-			outputLocation = outputLocation.makeRelative();
-			element.setAttribute("output", outputLocation.toString()); //$NON-NLS-1$ 
-		}
-		return element;
 	}
 	
 	/**
