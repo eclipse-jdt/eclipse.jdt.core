@@ -50,6 +50,8 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The batch compiler now support 5 as a valid version number for -target and -source options.
+5 is equivalent to 1.5.</li>
 <li> Introduced access restrictions so as to control project imports and exports and thus better
 enforce API contracts across components. Usually, only a subset of the types exposed
 on a classpath are part of an API (some internal types are required for the compiler to properly 
@@ -135,7 +137,9 @@ Corresponding problem marker ID is <code>IProblem.ForbiddenReference</code>.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73963">73963</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75489">75489</a>
+Batch compiler should support -target 5 or -source 5
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73963">73963</a>
 [1.5] Wrong errors in widening reference conversion to parameterized class type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75221">75221</a>
 Failure in test for build I200409281200 
