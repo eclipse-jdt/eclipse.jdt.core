@@ -143,7 +143,6 @@ public void evaluateCodeSnippet(
 			// try to retrieve imports from the source
 			SourceMapper sourceMapper = ((ClassFile) declaringType.getClassFile()).getSourceMapper();
 			if (sourceMapper != null) {
-				declaringType.getSource(); // do the mapping and initialize the imports
 				char[][] imports = sourceMapper.getImports((BinaryType) declaringType);
 				if (imports != null) {
 					this.context.setImports(imports);
