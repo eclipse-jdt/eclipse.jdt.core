@@ -415,7 +415,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					problemReporter
 					.createProblem(
 						result.getFileName(),
-						IProblem.UnclassifiedProblem,
+						IProblem.Unclassified,
 						new String[] {
 							Util.bind("compilation.internalError" ) //$NON-NLS-1$
 								+ "\n"  //$NON-NLS-1$

@@ -20,7 +20,7 @@ public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IPr
 }
 public void abortDueToInternalError(String errorMessage) {
 	this.handle(
-		IProblem.UnclassifiedProblem,
+		IProblem.Unclassified,
 		new String[] {errorMessage},
 		Error | Abort,
 		0,
@@ -28,7 +28,7 @@ public void abortDueToInternalError(String errorMessage) {
 }
 public void abortDueToInternalError(String errorMessage, AstNode location) {
 	this.handle(
-		IProblem.UnclassifiedProblem,
+		IProblem.Unclassified,
 		new String[] {errorMessage},
 		Error | Abort,
 		location.sourceStart,
