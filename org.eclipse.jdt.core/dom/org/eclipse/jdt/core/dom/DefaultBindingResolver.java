@@ -266,7 +266,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(stringLiteral.literalType(this.retrieveEnclosingScope(expression)));
 		} else if (expression instanceof TypeLiteral) {
 			ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(classLiteralAccess.targetType);
+			return this.getTypeBinding(retrieveCompilationUnitScope(expression).getJavaLangClass());
 		} else if (expression instanceof BooleanLiteral) {
 			BooleanLiteral booleanLiteral = (BooleanLiteral) expression;
 			if (booleanLiteral.booleanValue()) {
