@@ -852,4 +852,10 @@ public interface IProblem {
     int InvalidUsageOfVarargs = Syntax + Internal + 565;
     /** @since 3.0 */
     int InvalidUsageOfAnnotations = Syntax + Internal + 565;
+    
+    /**
+     * Annotation
+     */
+    /** @since 3.0 */
+    int AnnotationButConstructorName = MethodRelated + 600;
 }

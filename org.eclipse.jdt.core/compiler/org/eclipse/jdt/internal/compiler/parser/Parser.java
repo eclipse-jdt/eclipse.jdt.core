@@ -2200,9 +2200,6 @@ protected void consumeDimWithOrWithOutExprs() {
 	// DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 	concatExpressionLists();
 }
-protected void consumeEmptyAnnotationTypeMemberDeclaration() {
-	// TODO Auto-generated method stub	
-}
 protected void consumeEmptyAnnotationTypeMemberDeclarations() {
 	// TODO Auto-generated method stub	
 }
@@ -2276,6 +2273,9 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyMemberValuePairs() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEmptyMemberValueArrayInitializer() {
 	// TODO Auto-generated method stub	
 }
 protected void consumeEmptyStatement() {
@@ -5368,11 +5368,11 @@ protected void consumeRule(int act) {
 		    consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ;  
 			break;
  
-    case 622 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= Modifiers AT interface..."); }  //$NON-NLS-1$
+    case 622 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= Modifiers AT PushModifiers"); }  //$NON-NLS-1$
 		    consumeAnnotationTypeDeclaration() ;  
 			break;
  
-    case 623 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= AT interface Identifier..."); }  //$NON-NLS-1$
+    case 623 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= AT PushModifiers interface"); }  //$NON-NLS-1$
 		    consumeAnnotationTypeDeclaration() ;  
 			break;
  
@@ -5392,59 +5392,55 @@ protected void consumeRule(int act) {
 		    consumeAnnotationTypeMemberDeclaration() ;  
 			break;
  
-    case 630 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
-		    consumeEmptyAnnotationTypeMemberDeclaration() ;  
-			break;
- 
-    case 636 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
+    case 632 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyDefaultValue() ;  
 			break;
  
-    case 638 : if (DEBUG) { System.out.println("DefaultValue ::= default MemberValue"); }  //$NON-NLS-1$
+    case 634 : if (DEBUG) { System.out.println("DefaultValue ::= default MemberValue"); }  //$NON-NLS-1$
 		    consumeDefaultValue() ;  
 			break;
  
-    case 642 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
+    case 638 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
 		    consumeNormalAnnotation() ;  
 			break;
  
-    case 643 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
+    case 639 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyMemberValuePairs() ;  
 			break;
  
-    case 646 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
+    case 642 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
 		    consumeMemberValuePairs() ;  
 			break;
  
-    case 647 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
+    case 643 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValuePair() ;  
 			break;
  
-    case 651 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+    case 647 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
 		    consumeMemberValueArrayInitializer() ;  
 			break;
  
-    case 652 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+    case 648 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
 		    consumeMemberValueArrayInitializer() ;  
 			break;
  
-    case 653 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
-		    consumeMemberValueArrayInitializer() ;  
+    case 649 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
+		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 654 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
-		    consumeMemberValueArrayInitializer() ;  
+    case 650 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
+		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 656 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
+    case 652 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValues() ;  
 			break;
  
-    case 657 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
+    case 653 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
 		    consumeMarkerAnnotation() ;  
 			break;
  
-    case 658 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
+    case 654 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
 		    consumeSingleMemberAnnotation() ;  
 			break;
  

@@ -2438,6 +2438,14 @@ public void methodNeedingNoBody(MethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void methodWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	this.handle(
+		IProblem.AnnotationButConstructorName,
+		NoArgument,
+		NoArgument,
+		annotationTypeMemberDeclaration.sourceStart,
+		annotationTypeMemberDeclaration.sourceEnd);
+}
 public void methodWithConstructorName(MethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodButWithConstructorName,

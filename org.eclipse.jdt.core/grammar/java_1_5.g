@@ -1959,10 +1959,10 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : annotation - Metadata feature jsr175
 -----------------------------------------------
-AnnotationTypeDeclaration ::= Modifiers '@' interface Identifier AnnotationTypeBody
+AnnotationTypeDeclaration ::= Modifiers '@' PushModifiers interface Identifier AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeDeclaration ::= '@' interface Identifier AnnotationTypeBody
+AnnotationTypeDeclaration ::= '@' PushModifiers interface Identifier AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
 /:$compliance 1.5:/
@@ -1989,18 +1989,9 @@ AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations Annotation
 AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeMemberDeclaration ::= ';'
-/.$putCase consumeEmptyAnnotationTypeMemberDeclaration() ; $break ./
-/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ConstantDeclaration
 /:$compliance 1.5:/
-AnnotationTypeMemberDeclaration -> ClassDeclaration
-/:$compliance 1.5:/
-AnnotationTypeMemberDeclaration -> InterfaceDeclaration
-/:$compliance 1.5:/
-AnnotationTypeMemberDeclaration -> EnumDeclaration
-/:$compliance 1.5:/
-AnnotationTypeMemberDeclaration -> AnnotationTypeDeclaration
+AnnotationTypeMemberDeclaration -> TypeDeclaration
 /:$readableName AnnotationTypeMemberDeclaration:/
 /:$compliance 1.5:/
 
@@ -2063,10 +2054,10 @@ MemberValueArrayInitializer ::= '{' MemberValues '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
 MemberValueArrayInitializer ::= '{' ',' '}'
-/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
 MemberValueArrayInitializer ::= '{' '}'
-/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$readableName MemberValueArrayInitializer:/
 /:$compliance 1.5:/
 

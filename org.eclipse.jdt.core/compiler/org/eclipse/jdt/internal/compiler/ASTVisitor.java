@@ -27,6 +27,26 @@ public abstract class ASTVisitor {
 		BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			ClassScope scope) {
+		// do nothing by default
+	}	
+	public void endVisit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			CompilationUnitScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+			AnnotationTypeMemberDeclaration annotationTypeDeclaration,
+			ClassScope classScope) {
+			// do nothing by default
+	}	
 	public void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -363,8 +383,27 @@ public abstract class ASTVisitor {
 		AllocationExpression allocationExpression,
 		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
-		// do nothing by default
 	}
+	public boolean visit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}	
+	public boolean visit(
+			AnnotationTypeDeclaration annotationTypeDeclaration,
+			CompilationUnitScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+			AnnotationTypeMemberDeclaration annotationTypeDeclaration,
+			ClassScope classScope) {
+		return true; // do nothing by default, keep traversing
+	}	
 	public boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
