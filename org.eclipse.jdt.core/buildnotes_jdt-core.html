@@ -46,7 +46,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=42579">42579</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48353">48353</a>
+Indexes deleted on shutdown 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=42579">42579</a>
 Eclipse allows setting a source folder's parent as output folder, which wipes out source code
 
 <a name="v_390"></a>
@@ -59,20 +61,15 @@ Eclipse SDK 3.0M6 Build - 9th December 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>The classpath validation rules now allow an excluded directory to be used as an output location. 
+<li> The classpath validation rules now allow an excluded directory to be used as an output location. 
 Remember that a source folder can be associated with exclusion rules so as to eliminate portions of the
 source tree. Nested source/library entries were already allowed given proper exclusion rules were specified,
 now we also enable nesting an output folder as well under the same restrictions.
 </li>
-<li>We reverted back the behavior when using the class literal. See bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565">37565</a> and
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48086">48086</a>. As long as javac doesn't clarify this case, we keep
-the old behavior.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48086">48086</a>
-Compiler does not resolve references in static init blocks correctly
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47338">47338</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47338">47338</a>
 CCE in CompletionParser
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45589">45589</a>
 Too many Util classes in JDTCore 

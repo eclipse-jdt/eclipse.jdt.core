@@ -471,7 +471,8 @@ public class SearchEngine {
 			}
 			return participants;
 		}
-		return SearchParticipant.NO_PARTICIPANT;
+		// return default participant (implicitely registered)
+		return new SearchParticipant[] {getDefaultSearchParticipant()};
 	}
 
 	private Parser getParser() {
