@@ -772,7 +772,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static IPath getClasspathVariable(final String variableName) {
 
 		IPath variablePath = (IPath) JavaModelManager.variableGet(variableName);
-
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
 		if (variablePath == null){
@@ -2410,6 +2409,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
 			IPath oldPath = (IPath)JavaModelManager.variableGet(variableNames[i]);
+			if (oldPath == JavaModelManager.VariableInitializationInProgress) oldPath = null;
 			if (oldPath != null && oldPath.equals(variablePaths[i])){
 				variableNames[i] = null;
 				discardCount++;
@@ -2455,6 +2455,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								// also check whether it will be necessary to update proj references and cycle markers
 								if (!needCycleCheck && entry.getPath().segmentCount() ==  1){
 									IPath oldPath = (IPath)JavaModelManager.variableGet(variableName);
+									if (oldPath == JavaModelManager.VariableInitializationInProgress) oldPath = null;
 									if (oldPath != null && oldPath.segmentCount() == 1) {
 										needCycleCheck = true;
 									} else {

@@ -1434,6 +1434,12 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 	
 	public static void variablePut(String varName, IPath varPath){		
+		
+		// do not write out intermediate initialization value
+		if (varPath == JavaModelManager.VariableInitializationInProgress){
+			Variables.put(varName, varPath);
+			return;
+		}
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		String varPref = CP_VARIABLE_PREFERENCES_PREFIX+varName;
 		String varString = varPath == null ? CP_VARIABLE_IGNORE : varPath.toString();
