@@ -493,9 +493,36 @@ public abstract class Scope
 			currentType = currentType.superclass();
 		}
 
+		// if found several candidates, then eliminate those not matching argument types
 		int foundSize = found.size;
-		if (foundSize == 0) {
-			if (matchingMethod != null && areParametersAssignable(matchingMethod.parameters, argumentTypes)) {
+		MethodBinding[] candidates = null;
+		int candidatesCount = 0;
+		boolean checkedMatchingMethod = false; // is matchingMethod meeting argument expectation ?
+		if (foundSize > 0) {
+			// argument type compatibility check
+			for (int i = 0; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				if (areParametersAssignable(methodBinding.parameters, argumentTypes)) {
+					switch (candidatesCount) {
+						case 0: 
+							matchingMethod = methodBinding; // if only one match, reuse matchingMethod
+							checkedMatchingMethod = true; // matchingMethod is known to exist and match params here
+							break;
+						case 1:
+							candidates = new MethodBinding[foundSize]; // only lazily created if more than one match
+							candidates[0] = matchingMethod; // copy back
+							matchingMethod = null;
+							// fall through
+						default:
+							candidates[candidatesCount] = methodBinding;
+					}
+					candidatesCount++;
+				}
+			}
+		}
+		// if only one matching method left (either from start or due to elimination of rivals), then match is in matchingMethod
+		if (matchingMethod != null) {
+			if (checkedMatchingMethod || areParametersAssignable(matchingMethod.parameters, argumentTypes)) {
 				// (if no default abstract) must explicitly look for one instead, which could be a better match
 				if (!matchingMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
@@ -508,26 +535,8 @@ public abstract class Scope
 			return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 		}
 
-		MethodBinding[] candidates = new MethodBinding[foundSize];
-		int candidatesCount = 0;
-		// argument type compatibility check
-		for (int i = 0; i < foundSize; i++) {
-			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-				candidates[candidatesCount++] = methodBinding;
-		}
-		if (candidatesCount == 1) {
-				// (if no default abstract) must explicitly look for one instead, which could be a better match
-				if (!candidates[0].canBeSeenBy(receiverType, invocationSite, this)) {
-					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
-					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
-					if (interfaceMethod != null) return interfaceMethod;
-					compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
-					return candidates[0];
-				}
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, candidates[0], found); // have not checked visibility
-		}
-		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+		// no match was found, try to find a close match when the parameter order is wrong or missing some parameters
+		if (candidatesCount == 0) {
 			MethodBinding interfaceMethod =
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
@@ -550,7 +559,7 @@ public abstract class Scope
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 
-		// visibility check
+		// tiebreak using visibility check
 		int visiblesCount = 0;
 		for (int i = 0; i < candidatesCount; i++) {
 			MethodBinding methodBinding = candidates[i];
