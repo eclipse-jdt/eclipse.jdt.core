@@ -1228,7 +1228,7 @@ public void testClasspathValidation27() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
 		assertEquals(
-			"Incompatible .class files version. Project 'P2' is generating .class files for a 1.1 runtime, but is compiled against 'P1' which requires a 1.4 runtime.",
+			"Incompatible .class files version in required binaries. Project 'P2' is targeting a 1.1 runtime, but is compiled against 'P1' which requires a 1.4 runtime.",
 			status.getMessage());
 	} finally {
 		this.deleteProjects(new String[]{"P1", "P2"});

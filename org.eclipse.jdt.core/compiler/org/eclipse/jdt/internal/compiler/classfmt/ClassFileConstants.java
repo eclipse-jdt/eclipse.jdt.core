@@ -42,7 +42,7 @@ public interface ClassFileConstants extends IConstants {
 	int MAJOR_VERSION_1_2 = 46;
 	int MAJOR_VERSION_1_3 = 47;
 	int MAJOR_VERSION_1_4 = 48;
-	int MAJOR_VERSION_1_5 = 49; // TODO (olivier) 1.5. major version value need to be confirmed
+	int MAJOR_VERSION_1_5 = 49; // TODO : (olivier) 1.5. major version value need to be confirmed
 	
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
