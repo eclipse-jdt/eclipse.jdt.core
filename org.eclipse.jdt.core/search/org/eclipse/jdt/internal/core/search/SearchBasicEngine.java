@@ -485,26 +485,28 @@ public class SearchBasicEngine {
 						if (pos >= 0 && pos > documentPath.lastIndexOf('/')) {
 							extension = documentPath.substring(pos).toCharArray();
 						}
-						int pkgLength = record.pkg==null ? 0 : record.pkg.length;
+						int pkgLength = record.pkg==null ? 0 : record.pkg.length+1;
 						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
 						int extLength = extension==null ? 0 : extension.length;
-						char[] path = new char[pkgLength+nameLength+extLength+1];
+						char[] path = new char[pkgLength+nameLength+extLength];
 						pos = 0;
 						if (pkgLength > 0) {
-							System.arraycopy(record.pkg, 0, path, pos, pkgLength);
+							System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
 							CharOperation.replace(path, '.', '/');
-							path[pkgLength] = '/';
-							pos += pkgLength + 1;
+							path[pkgLength-1] = '/';
+							pos += pkgLength;
 						}
 						if (nameLength > 0) {
 							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
 							pos += nameLength;
+							if (extLength > 0) {
+								System.arraycopy(extension, 0, path, pos, extLength);
+							}
 						}
-						if (extLength > 0) {
-							System.arraycopy(extension, 0, path, pos, extLength);
+						// Update access restriction if path is not empty
+						if (pos > 0) {
+							access = access.getViolatedRestriction(path, null);
 						}
-						// Update access restriction
-						access = access.getViolatedRestriction(path, null);					
 					}
 					switch (record.typeSuffix) {
 						case IIndexConstants.CLASS_SUFFIX :
