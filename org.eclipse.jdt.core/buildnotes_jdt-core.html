@@ -33,7 +33,7 @@ control the default encoding (no support yet for per file custom encoding).
 	<li>default:			"" 
 	</ul>
 </li>
-<li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9035">9035</a> required to increment the index signature 
+<li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9183">9183</a> required to increment the index signature 
 version so as to trigger automatic reindexing on workspace startup (and thus add somme type references that were previously
 from the binary index files). Subsequent startups will not reindex any further (only if inconsistency is detected, 
 e.g. signature version is different).
@@ -47,7 +47,9 @@ is now remembered and will be reused if the working copy is closed then reopen.
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9008">9008</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9084">9084</a>
+NPE in parser during build 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9008">9008</a>
 Code assist on method declaration gives wrong throw exception
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8878">8878</a>
 Code assist provides arbitrary, invalid choice after a space
