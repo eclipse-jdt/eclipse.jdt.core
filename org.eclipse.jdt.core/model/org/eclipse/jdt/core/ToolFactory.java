@@ -302,11 +302,9 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel) {
 		PublicScanner scanner = null;
-		if (JavaCore.VERSION_1_4.equals(sourceLevel)) {
-			scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, CompilerOptions.JDK1_4 /*assert*/, null/*taskTags*/, null/*taskPriorities*/);
-		} else {
-			scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, CompilerOptions.JDK1_3 /*assert*/, null/*taskTags*/, null/*taskPriorities*/);
-		}
+		long level = CompilerOptions.versionToJdkLevel(sourceLevel);
+		if (level == 0) level = CompilerOptions.JDK1_3; // fault-tolerance
+		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,level /*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}	

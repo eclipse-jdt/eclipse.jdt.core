@@ -16,6 +16,8 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.IDocument;
@@ -1607,7 +1609,46 @@ public void _test43() {
 		false, // do not flush previous output dir content
 		null); // no special vm args		
 }
-
+/* 
+ * array.clone() should use array type in methodRef
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36307
+ */
+public void test44() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"		args.clone();	\n"+
+			"		System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"SUCCESS");
+		
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String actualOutput = null;
+	try {
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		assertTrue("IOException", false);
+	}
+	
+	String expectedOutput = 
+		"       1  invokevirtual #21 <Method [Ljava.lang.String;#clone() java.lang.Object>\n";
+		
+	if (actualOutput.indexOf(expectedOutput) == -1) {
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+	}
+	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
