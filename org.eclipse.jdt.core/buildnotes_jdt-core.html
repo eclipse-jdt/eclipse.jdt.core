@@ -38,6 +38,8 @@ Eclipse SDK 2.0 Build - ? July 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Add a new API getRawTokenSource() on org.eclipse.jdt.core.compiler.IScanner. It should be used if the user doesn't
+want the Unicode characters to be processed, otherwise use getCurrentTokenSource().</li>
 </ul> 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21912">21912</a>
