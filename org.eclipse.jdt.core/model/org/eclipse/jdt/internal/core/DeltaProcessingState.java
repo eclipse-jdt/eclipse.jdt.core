@@ -47,23 +47,23 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	private PerThreadObject deltaProcessors = new PerThreadObject();
 	
 	/* A table from IPath (from a classpath entry) to RootInfo */
-	public Hashtable roots;
+	public HashMap roots;
 	
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * Used when an IPath corresponds to more than one root */
-	public Hashtable otherRoots;
+	public HashMap otherRoots;
 	
 	/* A table from IPath (from a classpath entry) to RootInfo
 	 * from the last time the delta processor was invoked. */
-	public Hashtable oldRoots;
+	public HashMap oldRoots;
 	
 	/* A table from IPath (from a classpath entry) to ArrayList of RootInfo
 	 * from the last time the delta processor was invoked.
 	 * Used when an IPath corresponds to more than one root */
-	public Hashtable oldOtherRoots;
+	public HashMap oldOtherRoots;
 	
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
-	public Hashtable sourceAttachments;
+	public HashMap sourceAttachments;
 
 	/* Whether the roots tables should be recomputed */
 	public boolean rootsAreStale = true;
@@ -111,18 +111,26 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		return deltaProcessor;
 	}
 
-	public synchronized void initializeRoots() {
+	public void initializeRoots() {
+		
 		// remember roots infos as old roots infos
-		this.oldRoots = this.roots == null ? new Hashtable() : this.roots;
-		this.oldOtherRoots = this.otherRoots == null ? new Hashtable() : this.otherRoots;
+		HashMap newOldRoots;
+		HashMap newOldOtherRoots;
+		synchronized(this) {
+			newOldRoots = this.roots == null ? new HashMap() : this.roots;
+			newOldOtherRoots = this.otherRoots == null ? new HashMap() : this.otherRoots;
+			// recompute root infos only if necessary
+			if (!this.rootsAreStale) {
+				this.oldRoots = newOldRoots;
+				this.oldOtherRoots = newOldOtherRoots;
+				return;
+			}
+		}
 		
-		// recompute root infos only if necessary
-		if (!this.rootsAreStale) return;
+		HashMap newRoots = new HashMap();
+		HashMap newOtherRoots = new HashMap();
+		HashMap newSourceAttachments = new HashMap();
 
-		this.roots = new Hashtable();
-		this.otherRoots = new Hashtable();
-		this.sourceAttachments = new Hashtable();
-		
 		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		IJavaProject[] projects;
 		try {
@@ -146,13 +154,13 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				
 				// root path
 				IPath path = entry.getPath();
-				if (this.roots.get(path) == null) {
-					this.roots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
+				if (newRoots.get(path) == null) {
+					newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
 				} else {
-					ArrayList rootList = (ArrayList)this.otherRoots.get(path);
+					ArrayList rootList = (ArrayList)newOtherRoots.get(path);
 					if (rootList == null) {
 						rootList = new ArrayList();
-						this.otherRoots.put(path, rootList);
+						newOtherRoots.put(path, rootList);
 					}
 					rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
 				}
@@ -174,11 +182,22 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					sourceAttachmentPath = entry.getSourceAttachmentPath();
 				}
 				if (sourceAttachmentPath != null) {
-					this.sourceAttachments.put(sourceAttachmentPath, path);
+					newSourceAttachments.put(sourceAttachmentPath, path);
 				}
 			}
 		}
-		this.rootsAreStale = false;
+		synchronized(this) {
+			if (this.rootsAreStale) { // double check again
+				this.oldRoots = newOldRoots;
+				this.oldOtherRoots = newOldOtherRoots;			
+				if (newRoots != null) {
+					this.roots = newRoots;
+					this.otherRoots = newOtherRoots;
+					this.sourceAttachments = newSourceAttachments;
+					this.rootsAreStale = false;
+				}
+			}
+		}
 	}
 
 	public void removeElementChangedListener(IElementChangedListener listener) {
