@@ -117,6 +117,7 @@ public int hashCode() {
 				}
 			}
 			
+			IPath projectPath = this.project.getFullPath();
 			Enumeration names = indexedFileNames.keys();
 			while (names.hasMoreElements()) {
 				if (this.isCancelled) return FAILED;
@@ -124,11 +125,15 @@ public int hashCode() {
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
-					manager.addSource((IFile) value, this.project.getFullPath());
+					manager.addSource((IFile) value, projectPath);
 				} else if (value == DELETED) {
-					manager.remove(name, this.project.getFullPath());
+					manager.remove(name, projectPath);
 				}
 			}
+			
+			// request to save index when all cus have been indexed
+			manager.request(new SaveProjectIndex(manager, projectPath));
+			
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
