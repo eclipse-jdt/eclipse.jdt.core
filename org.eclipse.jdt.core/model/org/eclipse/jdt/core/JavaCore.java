@@ -519,30 +519,6 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
-	 * @since 3.1
-	 */
-	public static final String COMPILER_ACCESS_RESTRICTION_IMPORT_INCLUDE = PLUGIN_ID + ".compiler.accessRestriction.import.include"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.1
-	 */
-	public static final String COMPILER_ACCESS_RESTRICTION_IMPORT_EXCLUDE = PLUGIN_ID + ".compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.1
-	 */
-	public static final String COMPILER_ACCESS_RESTRICTION_EXPORT_INCLUDE = PLUGIN_ID + ".compiler.accessRestriction.export.include"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.1
-	 */
-	public static final String COMPILER_ACCESS_RESTRICTION_EXPORT_EXCLUDE = PLUGIN_ID + ".compiler.accessRestriction.export.exclude"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -1915,54 +1891,6 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
-	 * 
-	 * COMPILER / Define the Inclusion Rules for Import Access Restriction
-	 *    When the inclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
-	 *    to type defined outside the current project, and for which the file path does not match the inclusion rule (the file path is
-	 *    considered only relatively to its containing source or library root path, e.g. "java/lang/" would include all types located
-	 *    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
-	 *    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
-	 *    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
-	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.include"
-	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-	 *     - default:           ""
-	 *
-	 * COMPILER / Define the Exclusion Rules for Import Access Restriction
-	 *    When the exclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
-	 *    to a type defined outside the current project, and for which the file path does not match the exclusion rule (the file path is
-	 *    considered only relatively to its containing source or library root path, e.g. "java/lang/" would exclude all types located
-	 *    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
-	 *    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
-	 *    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
-	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"
-	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-	 *     - default:           ""
-	 *
-	 * COMPILER / Define the Inclusion Rules for Export Access Restriction
-	 *    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
-	 *    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
-	 *    inclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
-	 *    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
-	 *    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
-	 *    rules are specified, exclusion rules will prevail.
-	 *    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
-	 *    Export restrictions are checked before considering import ones.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.include"
-	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-	 *     - default:           ""
-	 *
-	 * COMPILER / Define the Exclusion Rules for Export Access Restriction
-	 *    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
-	 *    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
-	 *    exclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
-	 *    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
-	 *    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
-	 *    rules are specified, exclusion rules will prevail.
-	 *    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
-	 *    Export restrictions are checked before considering import ones.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.exclude"
-	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-	 *     - default:           ""
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
@@ -2384,7 +2312,7 @@ public final class JavaCore extends Plugin {
 					
 					case IResource.PROJECT :  
 						// internal project
-						return JavaCore.newProjectEntry(resolvedPath, entry.isExported());
+						return JavaCore.newProjectEntry(resolvedPath, entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.isExported());
 						
 					case IResource.FILE : 
 						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
@@ -2393,6 +2321,8 @@ public final class JavaCore extends Plugin {
 									resolvedPath,
 									getResolvedVariablePath(entry.getSourceAttachmentPath()),
 									getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+									entry.getInclusionPatterns(), 
+									entry.getExclusionPatterns(), 
 									entry.isExported());
 						}
 						break;
@@ -2403,6 +2333,8 @@ public final class JavaCore extends Plugin {
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
 								getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+								entry.getInclusionPatterns(), 
+								entry.getExclusionPatterns(), 
 								entry.isExported());
 				}
 			}
@@ -2418,6 +2350,8 @@ public final class JavaCore extends Plugin {
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),
 							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.getInclusionPatterns(), 
+							entry.getExclusionPatterns(), 
 							entry.isExported());
 				}
 			} else { // external binary folder
@@ -2426,6 +2360,8 @@ public final class JavaCore extends Plugin {
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),
 							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.getInclusionPatterns(), 
+							entry.getExclusionPatterns(), 
 							entry.isExported());
 				}
 			}
@@ -2772,7 +2708,11 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath) {
 			
-		return newContainerEntry(containerPath, false);
+		return newContainerEntry(
+			containerPath,
+			ClasspathEntry.INCLUDE_ALL,
+			ClasspathEntry.EXCLUDE_NONE, 
+			false);
 	}
 
 	/**
@@ -2821,6 +2761,28 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
 			
+		return newContainerEntry(
+			containerPath,
+			ClasspathEntry.INCLUDE_ALL,
+			ClasspathEntry.EXCLUDE_NONE, 
+			isExported);
+	}
+
+	/**
+	 * TODO Add spec
+	 * @param containerPath the path identifying the container, it must be formed of at least
+	 * 	one segment (ID+hints)
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new container classpath entry
+	 * @since 3.1
+	 */	
+	public static IClasspathEntry newContainerEntry(
+			IPath containerPath, 
+			IPath[] inclusionPatterns, 
+			IPath[] exclusionPatterns, 
+			boolean isExported) {
+			
 		if (containerPath == null) Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
 		if (containerPath.segmentCount() < 1) {
 			Assert.isTrue(
@@ -2831,14 +2793,14 @@ public final class JavaCore extends Plugin {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
 			containerPath,
-			ClasspathEntry.INCLUDE_ALL,
-			ClasspathEntry.EXCLUDE_NONE, 
+			inclusionPatterns,
+			exclusionPatterns, 
 			null, // source attachment
 			null, // source attachment root
 			null, // specific output folder
 			isExported);
-	}
-
+	}	
+	
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_LIBRARY</code> for the 
 	 * JAR or folder identified by the given absolute path. This specifies that all package fragments 
@@ -2877,7 +2839,13 @@ public final class JavaCore extends Plugin {
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath) {
 			
-		return newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, false);
+		return newLibraryEntry(
+			path,
+			sourceAttachmentPath,
+			sourceAttachmentRootPath,
+			ClasspathEntry.INCLUDE_ALL, 
+			ClasspathEntry.EXCLUDE_NONE, 
+			false);
 	}
 
 	/**
@@ -2918,6 +2886,31 @@ public final class JavaCore extends Plugin {
 		IPath sourceAttachmentRootPath,
 		boolean isExported) {
 			
+		return newLibraryEntry(
+			path,
+			sourceAttachmentPath,
+			sourceAttachmentRootPath,
+			ClasspathEntry.INCLUDE_ALL, 
+			ClasspathEntry.EXCLUDE_NONE, 
+			isExported);
+	}
+
+	/**
+	 * TODO Add spec
+	 * @param path
+	 * @param sourceAttachmentPath
+	 * @param sourceAttachmentRootPath
+	 * @param isExported
+	 * @since 3.1
+	 */
+	public static IClasspathEntry newLibraryEntry(
+			IPath path,
+			IPath sourceAttachmentPath,
+			IPath sourceAttachmentRootPath,
+			IPath[] inclusionPatterns, 
+			IPath[] exclusionPatterns, 
+			boolean isExported) {
+			
 		if (path == null) Assert.isTrue(false, "Library path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
@@ -2933,14 +2926,13 @@ public final class JavaCore extends Plugin {
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
 			JavaProject.canonicalizedPath(path),
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
+			inclusionPatterns, 
+			exclusionPatterns, 
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
 			null, // specific output folder
 			isExported);
-	}
-	
+	}	
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
@@ -2991,12 +2983,39 @@ public final class JavaCore extends Plugin {
 		
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		
+		return newProjectEntry(
+			path,
+			ClasspathEntry.INCLUDE_ALL, 
+			ClasspathEntry.EXCLUDE_NONE, 
+			isExported);
+	}
+
+	/**
+	 * TODO Add spec
+	 * @param path  the absolute path of the prerequisite project
+	 * @param inclusionPatterns the possibly empty list of import inclusion patterns
+	 *    represented as relative paths
+	 * @param exclusionPatterns the possibly empty list of import exclusion patterns
+	 *    represented as relative paths
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new project classpath entry
+	 * @since 3.1
+	 */
+	public static IClasspathEntry newProjectEntry(
+			IPath path, 
+			IPath[] inclusionPatterns, 
+			IPath[] exclusionPatterns, 
+			boolean isExported) {
+		
+		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_PROJECT,
 			path,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
+			inclusionPatterns, 
+			exclusionPatterns, 
 			null, // source attachment
 			null, // source attachment root
 			null, // specific output folder
@@ -3257,10 +3276,46 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newVariableEntry(
-		IPath variablePath,
-		IPath variableSourceAttachmentPath,
-		IPath variableSourceAttachmentRootPath,
-		boolean isExported) {
+			IPath variablePath,
+			IPath variableSourceAttachmentPath,
+			IPath variableSourceAttachmentRootPath,
+			boolean isExported) {
+
+		return newVariableEntry(
+			variablePath,
+			variableSourceAttachmentPath, // source attachment
+			variableSourceAttachmentRootPath, // source attachment root			
+			ClasspathEntry.INCLUDE_ALL, 
+			ClasspathEntry.EXCLUDE_NONE, 
+			isExported);
+	}
+
+	/**
+	 * TODO Add spec
+	 * @param variablePath the path of the binary archive; first segment is the
+	 *   name of a classpath variable
+	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
+	 *    or <code>null</code> if none; if present, the first segment is the
+	 *    name of a classpath variable (not necessarily the same variable
+	 *    as the one that begins <code>variablePath</code>)
+	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
+	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param inclusionPatterns the possibly empty list of import inclusion patterns
+	 *    represented as relative paths
+	 * @param exclusionPatterns the possibly empty list of import exclusion patterns
+	 *    represented as relative paths
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new variable classpath entry
+	 * @since 3.1
+	 */	
+	public static IClasspathEntry newVariableEntry(
+			IPath variablePath,
+			IPath variableSourceAttachmentPath,
+			IPath variableSourceAttachmentRootPath,
+			IPath[] inclusionPatterns, 
+			IPath[] exclusionPatterns, 
+			boolean isExported) {
 
 		if (variablePath == null) Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
 		if (variablePath.segmentCount() < 1) {
@@ -3273,14 +3328,13 @@ public final class JavaCore extends Plugin {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_VARIABLE,
 			variablePath,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
+			inclusionPatterns, 
+			exclusionPatterns, 
 			variableSourceAttachmentPath, // source attachment
 			variableSourceAttachmentRootPath, // source attachment root			
 			null, // specific output folder
 			isExported);
-	}
-
+	}	
 	/**
 	 * Removed the given classpath variable. Does nothing if no value was
 	 * set for this classpath variable.

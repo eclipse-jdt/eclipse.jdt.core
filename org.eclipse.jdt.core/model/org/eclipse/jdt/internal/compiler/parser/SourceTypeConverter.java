@@ -294,7 +294,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		char[][] argumentTypeNames = sourceMethod.getArgumentTypeNames();
 		char[][] argumentNames = sourceMethod.getArgumentNames();
 		int argumentCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
-		long position = (long) start << 32 + end;
+		long position = ((long) start << 32) + end;
 		method.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
 			method.arguments[i] =
@@ -500,7 +500,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	
 		char[][] qImportName = CharOperation.splitOn('.', importName);
 		long[] positions = new long[qImportName.length];
-		long position = (long) start << 32 + end;
+		long position = ((long) start << 32) + end;
 		for (int i = 0; i < qImportName.length; i++) {
 			positions[i] = position; // dummy positions
 		}
@@ -631,16 +631,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 					} else {
 						nameFragment = typeName;
 					}
-					return new SingleTypeReference(nameFragment, (((long) start )<< 32) + end);
+					return new SingleTypeReference(nameFragment, ((long) start << 32) + end);
 				} else {
 					int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
 					char[] nameFragment = new char[nameFragmentLength];
 					System.arraycopy(typeName, nameFragmentStart, nameFragment, 0, nameFragmentLength);
-					return new ArrayTypeReference(nameFragment, dim, (((long) start) << 32) + end);
+					return new ArrayTypeReference(nameFragment, dim, ((long) start << 32) + end);
 				}
 			} else { // qualified type reference
 				long[] positions = new long[identCount];
-				long pos = (((long) start) << 32) + end;
+				long pos = ((long) start << 32) + end;
 				for (int i = 0; i < identCount; i++) {
 					positions[i] = pos;
 				}
@@ -663,7 +663,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				char[][] firstFragment = (char[][]) fragments.get(0);
 				if (firstFragment.length == 1) {
 					// parameterized single type
-					return new ParameterizedSingleTypeReference(firstFragment[0], (TypeReference[]) fragments.get(1), dim, (((long) start) << 32) + end);
+					return new ParameterizedSingleTypeReference(firstFragment[0], (TypeReference[]) fragments.get(1), dim, ((long) start << 32) + end);
 				}
 			}
 			// parameterized qualified type
@@ -689,7 +689,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				}
 			}
 			long[] positions = new long[identCount];
-			long pos = (((long) start) << 32) + end;
+			long pos = ((long) start << 32) + end;
 			for (int i = 0; i < identCount; i++) {
 				positions[i] = pos;
 			}

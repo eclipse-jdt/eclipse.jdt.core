@@ -217,9 +217,9 @@ public abstract class Scope
 
 		int argLength = arguments.length;
 		int paramLength = parameters.length;
-		boolean varArgCase = method.isVararg();
+		boolean isVarArgs = method.isVarargs();
 		if (argLength != paramLength)
-			if (!varArgCase || argLength < paramLength - 1)
+			if (!isVarArgs || argLength < paramLength - 1)
 				return null; // incompatible
 
 		TypeVariableBinding[] typeVariables = method.typeVariables;
@@ -240,7 +240,7 @@ public abstract class Scope
 
 		argumentCompatibility: {
 			int lastIndex = argLength;
-			if (varArgCase) {
+			if (isVarArgs) {
 				lastIndex = paramLength - 1;
 				if (paramLength == argLength) { // accept both X and X[] but not X[][]
 					TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
@@ -1063,7 +1063,7 @@ public abstract class Scope
 			            if (CharOperation.equals(selector, CLONE))
 							return new UpdatedMethodBinding(
 								environment().options.targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
-								(methodBinding.modifiers ^ AccProtected) | AccPublic,
+								(methodBinding.modifiers & ~AccProtected) | AccPublic,
 								CLONE,
 								methodBinding.returnType,
 								argumentTypes,

@@ -150,14 +150,14 @@ public class TestingEnvironment {
 	}
 
 	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath) throws JavaModelException {
-		addRequiredProject(projectPath, requiredProjectPath, false);
+		addRequiredProject(projectPath, requiredProjectPath, new IPath[]{}/*include all*/, new IPath[]{}/*exclude none*/, false);
 	}
 	
 	/** Adds a project to the classpath of a project.
 	 */
-	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, boolean isExported) throws JavaModelException {
+	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, IPath[] inclusionPatterns, IPath[] exclusionPatterns, boolean isExported) throws JavaModelException {
 		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
-		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, isExported));
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, inclusionPatterns, exclusionPatterns, isExported));
 	}
 
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {

@@ -60,7 +60,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//testsNames = new String[] { "Bug60689" };
+	//testsNames = new String[] { "testExcludePartOfAnotherProject1" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//testsNumbers = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -72,6 +72,29 @@ public static Test suite() {
 }
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
+}
+protected void addClasspathEntries(IClasspathEntry[] entries, boolean enableForbiddenReferences) throws JavaModelException {
+	IJavaProject project = getJavaProject("Reconciler");
+	IClasspathEntry[] oldClasspath = project.getRawClasspath();
+	int oldLength = oldClasspath.length;
+	int length = entries.length;
+	IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+length];
+	System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+	System.arraycopy(entries, 0, newClasspath, oldLength, length);
+	project.setRawClasspath(newClasspath, null);
+	
+	if (enableForbiddenReferences) {
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+	}
+}
+protected void removeClasspathEntries(IClasspathEntry[] entries) throws JavaModelException {
+	IJavaProject project = getJavaProject("Reconciler");
+	IClasspathEntry[] oldClasspath = project.getRawClasspath();
+	int oldLength = oldClasspath.length;
+	int length = entries.length;
+	IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength-length];
+	System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength-length);
+	project.setRawClasspath(newClasspath, null);
 }
 /**
  * Setup for the next test.
@@ -494,6 +517,138 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"	bar()[-]: {}\n" +
 		"	foo()[-]: {}"
 	);
+}
+/*
+ * Ensures that excluded part of prereq project are not visible
+ */
+public void testExcludePartOfAnotherProject1() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/internal/"}, false/*no inclusion*/, true/*has exclusion*/);
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P");
+		createFolder("/P/p/internal");
+		createFile(
+			"/P/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type Y is not imported from required project P  \n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that packages that are not in excluded part of prereq project are visible
+ */
+public void testExcludePartOfAnotherProject2() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/internal/"}, false/*no inclusion*/, true/*has exclusion*/);
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P");
+		createFolder("/P/p/api");
+		createFile(
+			"/P/p/api/Y.java",
+			"package p.api;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.api.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that included part of prereq project are visible
+ */
+public void testIncludePartOfAnotherProject1() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/api/"}, true/*has inclusion*/, false/*no exclusion*/);
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P");
+		createFolder("/P/p/api");
+		createFile(
+			"/P/p/api/Y.java",
+			"package p.api;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.api.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that packages that are not in included part of prereq project are not visible
+ */
+public void testIncludePartOfAnotherProject2() throws CoreException {
+	IClasspathEntry[] newEntries = createClasspath("Reconciler", new String[] {"/P", "**/api/"}, true/*has inclusion*/, false/*no exclusion*/);
+	try {
+		addClasspathEntries(newEntries, true);
+		createJavaProject("P");
+		createFolder("/P/p/internal");
+		createFile(
+			"/P/p/internal/Y.java",
+			"package p.internal;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X extends p.internal.Y {\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type Y is not imported from required project P  \n" + 
+			"----------\n"
+		);
+	} finally {
+		removeClasspathEntries(newEntries);
+		deleteProject("P");
+	}
 }
 /**
  * Start with no imports, add an import, and then append to the import name.

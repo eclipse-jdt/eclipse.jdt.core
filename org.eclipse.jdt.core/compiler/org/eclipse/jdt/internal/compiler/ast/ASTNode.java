@@ -154,7 +154,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean unsafeWildcardInvocation = false;
 		TypeBinding[] params = method.parameters;
-		if (method.isVararg()) {
+		if (method.isVarargs()) {
 			// 4 possibilities exist for a call to the vararg method foo(int i, long ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new long[] {1, 2})
 			int lastIndex = params.length - 1;
 			for (int i = 0; i < lastIndex; i++)

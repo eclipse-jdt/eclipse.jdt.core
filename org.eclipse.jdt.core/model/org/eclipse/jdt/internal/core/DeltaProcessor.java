@@ -906,7 +906,8 @@ public class DeltaProcessor {
 					javaProject, 
 					javaProject.computePackageFragmentRoots(
 						javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
-						false));
+						false,
+						null /*no reverse map*/));
 			}
 			
 			javaProject.close();

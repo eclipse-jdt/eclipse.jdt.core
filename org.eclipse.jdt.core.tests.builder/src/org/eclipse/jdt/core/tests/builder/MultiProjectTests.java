@@ -14,6 +14,8 @@ import java.util.Hashtable;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -26,6 +28,11 @@ public class MultiProjectTests extends Tests {
 	}
 	
 	public static Test suite() {
+		if (false) {
+			TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
+			suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject"));
+			return suite;
+		}
 		return new TestSuite(MultiProjectTests.class);
 	}
 	
@@ -771,6 +778,311 @@ public class MultiProjectTests extends Tests {
 			env.setBuildOrder(null);
 		}
 	}
+	
+	/*
+	 * Full buid case
+	 */
+	public void testExcludePartOfAnotherProject1() throws JavaModelException {
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/*
+	 * Incremental buid case
+	 */
+	public void testExcludePartOfAnotherProject2() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingNoProblems();
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/*
+	 * Fix access restriction problem
+	 * TODO (kent) reenable once incremental builder detects changes in inclusion/exclusion rules
+	 */
+	public void _testExcludePartOfAnotherProject3() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		env.removeRequiredProject(project2Path, project1Path);
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
+		
+		incrementalBuild();
+		expectingNoProblems();
+	}
+		
+	/*
+	 * Full buid case
+	 */
+	public void testIncludePartOfAnotherProject1() throws JavaModelException {
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/*
+	 * Incremental buid case
+	 */
+	public void testIncludePartOfAnotherProject2() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingNoProblems();
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/*
+	 * Fix access restriction problem
+	 * TODO (kent) reenable once incremental builder detects changes in inclusion/exclusion rules
+	 */
+	public void _testIncludePartOfAnotherProject3() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "p.api", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.api;\n" + //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "p.internal", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.internal;\n" + //$NON-NLS-1$
+			"public class B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		IJavaProject project2 = env.getJavaProject(project2Path);
+		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {}, false);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		IPath d = env.addClass(root2, "", "D", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type B is not imported from required project Project1  ", d)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		env.removeRequiredProject(project2Path, project1Path);
+		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
+		
+		incrementalBuild();
+		expectingNoProblems();
+	}
+	
 	public void testMissingRequiredBinaries() throws JavaModelException {
 		
 		IPath p1 = env.addProject("P1"); //$NON-NLS-1$

@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -92,13 +93,13 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 		try {
 			if (root.isArchive()) {
 				ZipFile zipFile = manager.getZipFile(path);
-				cpLocations[index++] = new ClasspathJar(zipFile, javaProject.getProjectImportRestriction());
+				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target);
 				} else {
-					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, javaProject.getProjectImportRestriction());
+					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getImportRestriction());
 				}
 			}
 		} catch (CoreException e1) {

@@ -280,13 +280,19 @@ public char[] genericSignature() {
 		sig.append(this.parameters[i].genericTypeSignature());
 	}
 	sig.append(')').append(this.returnType.genericTypeSignature());
-	// only append thrown exception if any is generic/parameterized
-	for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
+	
+	// only append thrown exceptions if any is generic/parameterized
+	boolean needExceptionSignatures = false;
+	int length = this.thrownExceptions.length;
+	for (int i = 0; i < length; i++) {
 		if((this.thrownExceptions[i].modifiers & AccGenericSignature) != 0) {
-			for (int j = 0; j < length; j++) {
-				sig.append(this.thrownExceptions[j].genericTypeSignature());
-			}
+			needExceptionSignatures = true;
 			break;
+		}
+	}
+	if (needExceptionSignatures) {
+		for (int i = 0; i < length; i++) {
+			sig.append(this.thrownExceptions[i].genericTypeSignature());
 		}
 	}
 	int sigLength = sig.length();
@@ -452,9 +458,9 @@ public final boolean isSynthetic() {
 	return (modifiers & AccSynthetic) != 0;
 }
 
-/* Answer true if the receiver is a vararg method
+/* Answer true if the receiver method has varargs
 */
-public final boolean isVararg() {
+public final boolean isVarargs() {
 	return (modifiers & AccVarargs) != 0;
 }
 

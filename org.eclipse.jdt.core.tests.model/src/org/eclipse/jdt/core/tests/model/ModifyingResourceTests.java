@@ -232,25 +232,40 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
 	getWorkspace().run(runnable, null);
 }
 /*
- * Returns a new classpath from the given source folders and their respective exclusion patterns.
+ * Returns a new classpath from the given folders and their respective exclusion/inclusion patterns.
+ * The folder path is an absolute workspace-relative path.
  * The given array as the following form:
- * [<source folder>, "<pattern>[|<pattern]*"]*
+ * [<folder>, "<pattern>[|<pattern]*"]*
  * E.g. new String[] {
- *   "src1", "p/A.java",
- *   "src2", "*.txt|com.tests/**"
+ *   "/P/src1", "p/A.java",
+ *   "/P", "*.txt|com.tests/**"
  * }
  */
-protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
-	int length = sourceFoldersAndPatterns.length;
+protected IClasspathEntry[] createClasspath(String[] foldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
+	return createClasspath(null, foldersAndPatterns, hasInclusionPatterns, hasExclusionPatterns);
+}
+/*
+ * Returns a new classpath from the given folders and their respective exclusion/inclusion patterns.
+ * The folder path is an absolute workspace-relative path. If the given project name is non-null, 
+ * the folder path is considered a project path if it has 1 segment that is different from the project name.
+ * The given array as the following form:
+ * [<folder>, "<pattern>[|<pattern]*"]*
+ * E.g. new String[] {
+ *   "/P/src1", "p/A.java",
+ *   "/P", "*.txt|com.tests/**"
+ * }
+ */
+protected IClasspathEntry[] createClasspath(String projectName, String[] foldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
+	int length = foldersAndPatterns.length;
 	int increment = 1;
 	if (hasInclusionPatterns) increment++;
 	if (hasExclusionPatterns) increment++;
 	IClasspathEntry[] classpath = new IClasspathEntry[length/increment];
 	for (int i = 0; i < length; i+=increment) {
-		String src = sourceFoldersAndPatterns[i];
+		String src = foldersAndPatterns[i];
 		IPath[] inclusionPatternPaths = new IPath[0];
 		if (hasInclusionPatterns) {
-			String patterns = sourceFoldersAndPatterns[i+1];
+			String patterns = foldersAndPatterns[i+1];
 			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
 			int patternsCount =  tokenizer.countTokens();
 			inclusionPatternPaths = new IPath[patternsCount];
@@ -260,7 +275,7 @@ protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndPatterns, b
 		}
 		IPath[] exclusionPatternPaths = new IPath[0];
 		if (hasExclusionPatterns) {
-			String patterns = sourceFoldersAndPatterns[i+increment-1];
+			String patterns = foldersAndPatterns[i+increment-1];
 			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
 			int patternsCount =  tokenizer.countTokens();
 			exclusionPatternPaths = new IPath[patternsCount];
@@ -268,7 +283,12 @@ protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndPatterns, b
 				exclusionPatternPaths[j] = new Path(tokenizer.nextToken());
 			}
 		}
-		classpath[i/increment] = JavaCore.newSourceEntry(new Path(src), inclusionPatternPaths, exclusionPatternPaths, null); 
+		IPath folderPath = new Path(src);
+		if (projectName != null && folderPath.segmentCount() == 1 && !projectName.equals(folderPath.lastSegment())) {
+			classpath[i/increment] = JavaCore.newProjectEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, false); 
+		} else {
+			classpath[i/increment] = JavaCore.newSourceEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, null); 
+		}
 	}
 	return classpath;
 }

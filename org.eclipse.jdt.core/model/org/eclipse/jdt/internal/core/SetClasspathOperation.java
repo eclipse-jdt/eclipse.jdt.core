@@ -353,9 +353,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 							oldResolvedPath[i], 
 							accumulatedRoots, 
 							rootIDs,
-							true, // inside original project
+							null, // inside original project
 							false, // don't check existency
-							false); // don't retrieve exported roots
+							false, // don't retrieve exported roots
+							null); /*no reverse map*/
 						pkgFragmentRoots = new IPackageFragmentRoot[accumulatedRoots.size()];
 						accumulatedRoots.copyInto(pkgFragmentRoots);
 					} catch (JavaModelException e) {

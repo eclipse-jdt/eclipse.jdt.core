@@ -451,7 +451,7 @@ public ReferenceBinding enclosingType() {
 		return this.enclosingType;
 
 	this.enclosingType = resolveUnresolvedType(this.enclosingType, this.environment, false); // no raw conversion for now
-	this.tagBits ^= HasUnresolvedEnclosingType;
+	this.tagBits &= ~HasUnresolvedEnclosingType;
 
 	// finish resolving the type
 	this.enclosingType = resolveType(this.enclosingType, this.environment, false);
@@ -644,7 +644,7 @@ public ReferenceBinding[] memberTypes() {
 
 	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = resolveUnresolvedType(this.memberTypes[i], this.environment, false); // no raw conversion for now
-	this.tagBits ^= HasUnresolvedMemberTypes;
+	this.tagBits &= ~HasUnresolvedMemberTypes;
 
 	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = resolveType(this.memberTypes[i], this.environment, false); // no raw conversion for now
@@ -658,7 +658,7 @@ public MethodBinding[] methods() {
 
 	for (int i = methods.length; --i >= 0;)
 		resolveTypesFor(methods[i]);
-	modifiers ^= AccUnresolved;
+	modifiers &= ~AccUnresolved;
 	return methods;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
@@ -666,7 +666,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		return field;
 
 	field.type = resolveType(field.type, this.environment, null, 0);
-	field.modifiers ^= AccUnresolved;
+	field.modifiers &= ~AccUnresolved;
 	return field;
 }
 MethodBinding resolveTypesFor(MethodBinding method) {
@@ -681,7 +681,7 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
 	for (int i = method.typeVariables.length; --i >= 0;)
 		resolveTypesFor(method.typeVariables[i]);
-	method.modifiers ^= AccUnresolved;
+	method.modifiers &= ~AccUnresolved;
 	return method;
 }
 private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
@@ -695,7 +695,7 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
 		interfaces[i] = resolveUnresolvedType(interfaces[i], this.environment, true);
-	variable.modifiers ^= AccUnresolved;
+	variable.modifiers &= ~AccUnresolved;
 
 	// finish resolving the types
 	if (variable.superclass != null)
@@ -716,7 +716,7 @@ public ReferenceBinding superclass() {
 		return this.superclass;
 
 	this.superclass = resolveUnresolvedType(this.superclass, this.environment, true);
-	this.tagBits ^= HasUnresolvedSuperclass;
+	this.tagBits &= ~HasUnresolvedSuperclass;
 
 	// finish resolving the type
 	this.superclass = resolveType(this.superclass, this.environment, true);
@@ -730,7 +730,7 @@ public ReferenceBinding[] superInterfaces() {
 
 	for (int i = this.superInterfaces.length; --i >= 0;)
 		this.superInterfaces[i] = resolveUnresolvedType(this.superInterfaces[i], this.environment, true);
-	this.tagBits ^= HasUnresolvedSuperinterfaces;
+	this.tagBits &= ~HasUnresolvedSuperinterfaces;
 
 	for (int i = this.superInterfaces.length; --i >= 0;)
 		this.superInterfaces[i] = resolveType(this.superInterfaces[i], this.environment, true);
@@ -742,7 +742,7 @@ public TypeVariableBinding[] typeVariables() {
 
  	for (int i = this.typeVariables.length; --i >= 0;)
 		resolveTypesFor(this.typeVariables[i]);
-	this.tagBits ^= HasUnresolvedTypeVariables;
+	this.tagBits &= ~HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }
 public String toString() {

@@ -51,9 +51,70 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Introduced access restrictions so as to better enforce API contracts across components.
+<p>
+<i>Problem:</i> Libraries are usually packaged to contain both API for compile-time and implementation for runtime;
+and thus expose a superset of the API contract to client programs, allowing them to make forbidden
+assumptions on internals (a typical restriction for Eclipse developpers is to not use internal classes 
+from prerequisite plug-ins). 
+One solution for solving this issue is to separate the API from its implementation into 2 distinct libraries 
+(compile-time/runtime) and then use the classpath rules to only include the API portion on the classpath
+for compiling. However, this usually proves to be unrealistic, since the API is often mixed with some implementation
+aspects (not officially part of the API) which are carrying references to its internals 
+(supertype hierarchy, field or method signatures). When it happens, then the compiler needs the implementation
+also to be on the classpath in order to resolve all signatures appropriately; which goes back to the original
+problem of exposing too much to unaware clients.
+<p>
+Instead, we allowed classpath rules to be associated with some import restrictions so as to select portions 
+of prerequisite projects or libraries which are legal to use inside this project. 
+Access restrictions are expressed as inclusion/exclusion rules on classpath entries (using Ant fileset notation
+for discriminating on package and/or file names, e.g. <code>excluding='**/internal/'</code> would exclude 
+all types defined any <code>internal</code> package),
+and can be associated to project, library, classpath variable or classpath container classpath entries. 
+Note that restrictions are automatically combined along a classpath chain. For instance, if a classpath container entry is
+associated with some restrictions, then when resolved to a set of entries, these will automatically inherit the
+container restrictions (and could still provide further custom restrictions on a per entry basis).
+<p>
+When a forbidden reference to a restricted type is detected, the compiler will issue a problem which severity
+can be controlled by JavaCore preference "org.eclipse.jdt.core.compiler.problem.forbiddenReference". 
+Corresponding problem marker ID is <code>IProblem.ForbiddenReference</code>.
+<pre>
+* COMPILER / Reporting Forbidden Reference to Type with Restricted Access
+*    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
+*    to the access restriction specifications.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+
+<p>
+In order to challenge this new functionality before leveraged in UI, Eclipse developpers need to perform
+the following two actions:
+<ol>
+<li> edit some .classpath file to exclude all types located in "**/internal/" packages from prerequisites;
+i.e. replace line
+<pre>
+	&lt;classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/&gt;
+</pre>
+with
+<pre>
+	&lt;classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins" excluding="**/internal/"/&gt;
+</pre>
+</li>
+<li> enable compiler warning for forbidden references, i.e. add the following line to the workspace 
+default preferences located in: <code>&lt;workspace&gt;\.metadata\.plugins\org.eclipse.core.runtime\.settings\org.eclipse.jdt.core.prefs</code>
+<pre>
+	org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
+</pre>
+Note: alternatively, it could be specified on a per project basis, by adding line to <code>&lt;project&gt;/.settings/org.eclipse.jdt.core.prefs</code>.
+</li>
+</ol>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75090">75090</a>
+source positions calculated wrongly
 
 
 <a name="v_514"></a>
@@ -122,87 +183,6 @@ What's new in this drop</h2>
 <li>The batch compiler now support 5 as a valid version number for -target and -source options.
 5 is equivalent to 1.5.</li>
 <li>Added support for static imports. Can now import all static members of a type, such as <code>java.lang.Math</code>.</li>
-<!--
-<li> Introduced access restrictions so as to control project imports and exports and thus better
-enforce API contracts across components. Usually, only a subset of the types exposed
-on a classpath are part of an API (some internal types are required for the compiler to properly 
-perform). A typical restriction for Eclipse developpers is to not use internal classes from prerequisite 
-plug-ins). By specifying export rules on a project, one can describe which portion of a project
-contribution can be referenced from dependents. Import rules can be specified on a project so as to further
-control which fraction of the types accessible via its classpath (and not defined as sources in the project)
-can be referenced. 
-Also note that an export restriction on prereq project cannot be overriden by an import restriction on 
-dependent project. Export restrictions are checked before considering import ones.
-<p>
-In order to challenge this, before UI preferences are added, you may edit manually preference files and add
-the following lines (tuned for Eclipse development rules):
-<pre>
-org.eclipse.jdt.core.compiler.accessRestriction.import.exclude=**/internal/
-org.eclipse.jdt.core.compiler.accessRestriction.export.exclude=**/internal/
-org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
-</pre>
-Note that the workspace default preferences are located in: <code>&lt;workspace&gt;\.metadata\.plugins\org.eclipse.core.runtime\.settings\org.eclipse.jdt.core.prefs</code>,
-and can be refined on a project basis (see <code>&lt;project&gt;/.settings/org.eclipse.jdt.core.prefs</code>)
-<p>
-Corresponding problem marker ID is <code>IProblem.ForbiddenReference</code>.
-<pre>
-* COMPILER / Reporting Forbidden Reference to Type with Restricted Access
-*    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
-*    to the access restriction specifications.
-*     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
-*     - possible values:   { "error", "warning", "ignore" }
-*     - default:           "ignore"
-* 
-* COMPILER / Define the Inclusion Rules for Import Access Restriction
-*    When the inclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
-*    to type defined outside the current project, and for which the file path does not match the inclusion rule (the file path is
-*    considered only relatively to its containing source or library root path, e.g. "java/lang/" would include all types located
-*    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
-*    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
-*    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
-*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.include"
-*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-*     - default:           ""
-*
-* COMPILER / Define the Exclusion Rules for Import Access Restriction
-*    When the exclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
-*    to a type defined outside the current project, and for which the file path does not match the exclusion rule (the file path is
-*    considered only relatively to its containing source or library root path, e.g. "java/lang/" would exclude all types located
-*    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
-*    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
-*    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
-*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"
-*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-*     - default:           ""
-*
-* COMPILER / Define the Inclusion Rules for Export Access Restriction
-*    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
-*    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
-*    inclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
-*    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
-*    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
-*    rules are specified, exclusion rules will prevail.
-*    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
-*    Export restrictions are checked before considering import ones.
-*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.include"
-*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-*     - default:           ""
-*
-* COMPILER / Define the Exclusion Rules for Export Access Restriction
-*    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
-*    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
-*    exclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
-*    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
-*    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
-*    rules are specified, exclusion rules will prevail.
-*    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
-*    Export restrictions are checked before considering import ones.
-*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.exclude"
-*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
-*     - default:           ""
-</pre>
-</li>
--->
 <li>Added new API <code>IBinding#getJavaElement()</code> to get the Java element corresponding to a 
      <code>org.eclipse.jdt.core.dom.IBinding</code>.
 </li>

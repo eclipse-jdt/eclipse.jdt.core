@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -46,15 +45,15 @@ public class SearchableEnvironment
 	protected JavaProject project;
 	protected IJavaSearchScope searchScope;
 	
-	protected SimpleLookupTable accessRestrictions = new SimpleLookupTable(3);
+	protected boolean checkAccessRestrictions;
 
 	/**
 	 * Creates a SearchableEnvironment on the given project
 	 */
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this.project = project;
+		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
 		this.nameLookup = project.newNameLookup(workingCopies);
-
 		// Create search scope with visible entry on the project's classpath
 		this.searchScope = SearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
 	}
@@ -64,6 +63,7 @@ public class SearchableEnvironment
 	 */
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
 		this.project = project;
+		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
 		this.nameLookup = project.newNameLookup(owner);
 
 		// Create search scope with visible entry on the project's classpath
@@ -87,34 +87,20 @@ public class SearchableEnvironment
 			boolean isBinary = type instanceof BinaryType;
 			
 			// determine associated access restriction
-			AccessRestriction accessRestriction;
-			if (isBinary) {
-				accessRestriction = (AccessRestriction)this.accessRestrictions.get(this.project);
-				if (accessRestriction == null) {
-					accessRestriction = this.project.getProjectImportRestriction();
+			AccessRestriction accessRestriction = null;
+			
+			if (this.checkAccessRestrictions && (isBinary || !type.getJavaProject().equals(this.project))) {
+				PackageFragmentRoot root = (PackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				ClasspathEntry entry = (ClasspathEntry) this.nameLookup.rootToResolvedEntries.get(root);
+				if (entry != null) { // reverse map always contains resolved CP entry
+					accessRestriction = entry.getImportRestriction();
 					if (accessRestriction != null) {
-						this.accessRestrictions.put(this.project, accessRestriction);
+						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
+						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+						char[] typeChars = typeName.toCharArray();
+						accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'), null);
 					}
 				}
-			} else {
-				JavaProject definingProject = (JavaProject) type.getJavaProject();
-				if (!definingProject.equals(this.project)) {
-					accessRestriction = (AccessRestriction)this.accessRestrictions.get(definingProject);
-					if (accessRestriction == null) {
-						accessRestriction = this.project.getProjectDependencyRestriction(definingProject);
-						if (accessRestriction != null) {
-							this.accessRestrictions.put(definingProject, accessRestriction);
-						}
-					}
-				} else {
-					accessRestriction = null;
-				}
-			}
-			if (accessRestriction != null) {
-				// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-				char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-				char[] typeChars = typeName.toCharArray();
-				accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'), null);
 			}
 			
 			// construct name env answer

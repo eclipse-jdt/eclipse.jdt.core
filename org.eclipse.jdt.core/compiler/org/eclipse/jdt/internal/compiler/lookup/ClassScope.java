@@ -447,9 +447,9 @@ public class ClassScope extends Scope {
 
 					// need to keep the less restrictive
 					if ((realModifiers & AccProtected) != 0)
-						modifiers ^= AccProtected;
+						modifiers &= ~AccProtected;
 					if ((realModifiers & AccPrivate) != 0)
-						modifiers ^= AccPrivate;
+						modifiers &= ~AccPrivate;
 				}
 			} else {
 				int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
@@ -459,13 +459,13 @@ public class ClassScope extends Scope {
 					// need to keep the less restrictive
 					if ((accessorBits & AccPublic) != 0) {
 						if ((accessorBits & AccProtected) != 0)
-							modifiers ^= AccProtected;
+							modifiers &= ~AccProtected;
 						if ((accessorBits & AccPrivate) != 0)
-							modifiers ^= AccPrivate;
+							modifiers &= ~AccPrivate;
 					}
 					if ((accessorBits & AccProtected) != 0)
 						if ((accessorBits & AccPrivate) != 0)
-							modifiers ^= AccPrivate;
+							modifiers &= ~AccPrivate;
 				}
 			}
 
@@ -523,13 +523,13 @@ public class ClassScope extends Scope {
 			// need to keep the less restrictive
 			if ((accessorBits & AccPublic) != 0) {
 				if ((accessorBits & AccProtected) != 0)
-					modifiers ^= AccProtected;
+					modifiers &= ~AccProtected;
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 			}
 			if ((accessorBits & AccProtected) != 0)
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 		}
 
 		if ((realModifiers & (AccFinal | AccVolatile)) == (AccFinal | AccVolatile))

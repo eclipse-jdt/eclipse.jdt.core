@@ -105,19 +105,19 @@ public class MethodScope extends BlockScope {
 			// need to keep the less restrictive
 			if ((accessorBits & AccPublic) != 0) {
 				if ((accessorBits & AccProtected) != 0)
-					modifiers ^= AccProtected;
+					modifiers &= ~AccProtected;
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 			}
 			if ((accessorBits & AccProtected) != 0)
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 		}
 
 		// if the receiver's declaring class is a private nested type, then make sure the receiver is not private (causes problems for inner type emulation)
 		if (methodBinding.declaringClass.isPrivate())
 			if ((modifiers & AccPrivate) != 0)
-				modifiers ^= AccPrivate;
+				modifiers &= ~AccPrivate;
 
 		methodBinding.modifiers = modifiers;
 	}
@@ -171,13 +171,13 @@ public class MethodScope extends BlockScope {
 			// need to keep the less restrictive
 			if ((accessorBits & AccPublic) != 0) {
 				if ((accessorBits & AccProtected) != 0)
-					modifiers ^= AccProtected;
+					modifiers &= ~AccProtected;
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 			}
 			if ((accessorBits & AccProtected) != 0)
 				if ((accessorBits & AccPrivate) != 0)
-					modifiers ^= AccPrivate;
+					modifiers &= ~AccPrivate;
 		}
 
 		// check for modifiers incompatible with abstract modifier

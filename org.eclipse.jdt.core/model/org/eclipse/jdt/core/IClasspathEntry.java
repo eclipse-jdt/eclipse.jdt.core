@@ -180,6 +180,7 @@ public interface IClasspathEntry {
 	int getEntryKind();
 
 	/**
+	 * TODO (jeem) enlarge spec to allow expression import restriction for lib/proj/cont/var entries
 	 * Returns the set of patterns used to exclude resources associated with
 	 * this source entry.
 	 * <p>
@@ -262,6 +263,7 @@ public interface IClasspathEntry {
 	IPath[] getExclusionPatterns();
 	
 	/**
+	 * TODO (jeem) enlarge spec to allow expression import restriction for lib/proj/cont/var entries
 	 * Returns the set of patterns used to explicitly define resources to be
 	 * included with this source entry.
 	 * <p>

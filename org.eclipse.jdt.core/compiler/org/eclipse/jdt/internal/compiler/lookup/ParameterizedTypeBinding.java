@@ -470,7 +470,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    if (this.methods == null) 
 		        this.methods = NoMethods;
 
-			modifiers ^= AccUnresolved;
+			modifiers &= ~AccUnresolved;
 		}		
 		return this.methods;
 	}

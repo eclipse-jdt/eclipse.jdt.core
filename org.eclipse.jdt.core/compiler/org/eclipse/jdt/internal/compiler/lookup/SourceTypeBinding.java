@@ -804,7 +804,7 @@ public MethodBinding[] methods() {
 		// handle forward references to potential default abstract methods
 		addDefaultAbstractMethods();
 
-		modifiers ^= AccUnresolved;
+		modifiers &= ~AccUnresolved;
 	}		
 	return methods;
 }
@@ -825,7 +825,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 				initializationScope.initializedField = field;
 				TypeBinding fieldType = fieldDecls[f].type.resolveType(initializationScope);
 				field.type = fieldType;
-				field.modifiers ^= AccUnresolved;
+				field.modifiers &= ~AccUnresolved;
 				if (fieldType == null) {
 					fieldDecls[f].binding = null;
 					return null;
@@ -945,7 +945,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (foundReturnTypeProblem)
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
-	method.modifiers ^= AccUnresolved;
+	method.modifiers &= ~AccUnresolved;
 	return method;
 }
 public final int sourceEnd() {

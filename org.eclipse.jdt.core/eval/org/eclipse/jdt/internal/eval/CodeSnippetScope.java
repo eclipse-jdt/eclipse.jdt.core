@@ -489,7 +489,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	if (methodBinding != null) {
 		// handle the method clone() specially... cannot be protected or throw exceptions
 		if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
-			return new MethodBinding((methodBinding.modifiers ^ AccProtected) | AccPublic, CLONE, methodBinding.returnType, argumentTypes, null, object);
+			return new MethodBinding((methodBinding.modifiers & ~AccProtected) | AccPublic, CLONE, methodBinding.returnType, argumentTypes, null, object);
 		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
 			return methodBinding;
 	}

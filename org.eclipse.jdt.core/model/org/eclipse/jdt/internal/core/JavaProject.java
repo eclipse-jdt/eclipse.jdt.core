@@ -68,7 +68,6 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
@@ -223,17 +222,6 @@ public class JavaProject
 		return result;
 	}
 	
-	public static char[][] getAccessRestrictionPatterns(IPath[] patternSequence) {
-		if (patternSequence == null) return null;
-		int length = patternSequence.length;
-		if (length == 0) return null;
-		char[][] patternChars = new char[length][];
-		for (int i = 0; i < length; i++) {
-			patternChars[i] = patternSequence[i].toString().toCharArray();
-		}
-		return patternChars;
-	}	
-
 	/**
 	 * Returns true if the given project is accessible and it has
 	 * a java nature, otherwise false.
@@ -355,7 +343,7 @@ public class JavaProject
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 
 		// compute the pkg fragment roots
-		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false));	
+		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/));	
 		
 		// remember the timestamps of external libraries the first time they are looked up
 		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
@@ -398,7 +386,7 @@ public class JavaProject
 		IClasspathEntry[] classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 		IPackageFragmentRoot[] oldRoots = info.allPkgFragmentRootsCache;
 		if (oldRoots != null) {
-			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
+			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true, null /*no reverse map*/);
 			checkIdentical: { // compare all pkg fragment root lists
 				if (oldRoots.length == newRoots.length){
 					for (int i = 0, length = oldRoots.length; i < length; i++){
@@ -413,17 +401,17 @@ public class JavaProject
 		info.resetCaches(); // discard caches (hold onto roots and pkg fragments)
 		info.setNonJavaResources(null);
 		info.setChildren(
-			computePackageFragmentRoots(classpath, false));		
+			computePackageFragmentRoots(classpath, false, null /*no reverse map*/));		
 	}
 	
 
 
 	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
-	 * of exported classpath entries to avoid possible side-effects ever after.
+	 * of exported or restricted classpath entries to avoid possible side-effects ever after.
 	 */			
 	private void computeExpandedClasspath(
-		JavaProject initialProject, 
+		ClasspathEntry referringEntry,
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
 		HashSet rootIDs,
@@ -441,11 +429,11 @@ public class JavaProject
 		IPath preferredOutput = preferredOutputs != null ? (IPath)preferredOutputs.get(this) : null;
 		IClasspathEntry[] immediateClasspath = 
 			preferredClasspath != null 
-				? getResolvedClasspath(preferredClasspath, preferredOutput, ignoreUnresolvedVariable, generateMarkerOnError, null)
+				? getResolvedClasspath(preferredClasspath, preferredOutput, ignoreUnresolvedVariable, generateMarkerOnError, null /*no reverse map*/)
 				: getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError, false/*don't returnResolutionInProgress*/);
 			
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		boolean isInitialProject = this.equals(initialProject);
+		boolean isInitialProject = referringEntry == null;
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			ClasspathEntry entry = (ClasspathEntry) immediateClasspath[i];
 			if (isInitialProject || entry.isExported()){
@@ -453,18 +441,19 @@ public class JavaProject
 				if (rootIDs.contains(rootID)) {
 					continue;
 				}
-				
-				accumulatedEntries.add(entry);
+				// combine restrictions along the project chain
+				ClasspathEntry combinedEntry = entry.combineWith(referringEntry);
+				accumulatedEntries.add(combinedEntry);
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 					IResource member = workspaceRoot.findMember(entry.getPath()); 
 					if (member != null && member.getType() == IResource.PROJECT){ // double check if bound to project (23977)
 						IProject projRsc = (IProject) member;
-						if (JavaProject.hasJavaNature(projRsc)) {				
+						if (JavaProject.hasJavaNature(projRsc)) {
 							JavaProject javaProject = (JavaProject) JavaCore.create(projRsc);
 							javaProject.computeExpandedClasspath(
-								initialProject, 
+								combinedEntry, 
 								ignoreUnresolvedVariable, 
 								false /* no marker when recursing in prereq*/,
 								rootIDs,
@@ -491,7 +480,8 @@ public class JavaProject
 			return 
 				computePackageFragmentRoots(
 					new IClasspathEntry[]{ resolvedEntry }, 
-					false // don't retrieve exported roots
+					false, // don't retrieve exported roots
+					null /* no reverse map */
 				);
 		} catch (JavaModelException e) {
 			return new IPackageFragmentRoot[] {};
@@ -505,7 +495,7 @@ public class JavaProject
 	 * @param resolvedEntry IClasspathEntry
 	 * @param accumulatedRoots ObjectVector
 	 * @param rootIDs HashSet
-	 * @param insideOriginalProject boolean
+	 * @param referringEntry the CP entry (project) referring to this entry, or null if initial project
 	 * @param checkExistency boolean
 	 * @param retrieveExportedRoots boolean
 	 * @throws JavaModelException
@@ -514,9 +504,10 @@ public class JavaProject
 		IClasspathEntry resolvedEntry,
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
-		boolean insideOriginalProject,
+		IClasspathEntry referringEntry,
 		boolean checkExistency,
-		boolean retrieveExportedRoots) throws JavaModelException {
+		boolean retrieveExportedRoots,
+		Map rootToResolvedEntries) throws JavaModelException {
 			
 		String rootID = ((ClasspathEntry)resolvedEntry).rootID();
 		if (rootIDs.contains(rootID)) return;
@@ -524,6 +515,7 @@ public class JavaProject
 		IPath projectPath = this.project.getFullPath();
 		IPath entryPath = resolvedEntry.getPath();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IPackageFragmentRoot root = null;
 		
 		switch(resolvedEntry.getEntryKind()){
 			
@@ -536,16 +528,10 @@ public class JavaProject
 						if (target == null) return;
 	
 						if (target instanceof IFolder || target instanceof IProject){
-							accumulatedRoots.add(
-								getPackageFragmentRoot((IResource)target));
-							rootIDs.add(rootID);
+							root = getPackageFragmentRoot((IResource)target);
 						}
 					} else {
-						IPackageFragmentRoot root = getFolderPackageFragmentRoot(entryPath);
-						if (root != null) {
-							accumulatedRoots.add(root);
-							rootIDs.add(rootID);
-						}
+						root = getFolderPackageFragmentRoot(entryPath);
 					}
 				}
 				break;
@@ -553,7 +539,7 @@ public class JavaProject
 			// internal/external JAR or folder
 			case IClasspathEntry.CPE_LIBRARY :
 			
-				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
+				if (referringEntry != null  && !resolvedEntry.isExported()) return;
 				
 				if (checkExistency) {
 					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
@@ -561,26 +547,15 @@ public class JavaProject
 	
 					if (target instanceof IResource){
 						// internal target
-						IResource resource = (IResource) target;
-						IPackageFragmentRoot root = getPackageFragmentRoot(resource);
-						if (root != null) {
-							accumulatedRoots.add(root);
-							rootIDs.add(rootID);
-						}
+						root = getPackageFragmentRoot((IResource) target);
 					} else {
 						// external target - only JARs allowed
 						if (((java.io.File)target).isFile() && (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))) {
-							accumulatedRoots.add(
-								new JarPackageFragmentRoot(entryPath, this));
-							rootIDs.add(rootID);
+							root = new JarPackageFragmentRoot(entryPath, this);
 						}
 					}
 				} else {
-					IPackageFragmentRoot root = getPackageFragmentRoot(entryPath);
-					if (root != null) {
-						accumulatedRoots.add(root);
-						rootIDs.add(rootID);
-					}
+					root = getPackageFragmentRoot(entryPath);
 				}
 				break;
 
@@ -588,7 +563,7 @@ public class JavaProject
 			case IClasspathEntry.CPE_PROJECT :
 
 				if (!retrieveExportedRoots) return;
-				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
+				if (referringEntry != null && !resolvedEntry.isExported()) return;
 
 				IResource member = workspaceRoot.findMember(entryPath);
 				if (member != null && member.getType() == IResource.PROJECT){// double check if bound to project (23977)
@@ -600,12 +575,18 @@ public class JavaProject
 							requiredProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
 							accumulatedRoots, 
 							rootIDs, 
-							false, 
+							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith(referringEntry), // only combine if need to build the reverse map 
 							checkExistency, 
-							retrieveExportedRoots);
+							retrieveExportedRoots,
+							rootToResolvedEntries);
 					}
 				break;
 			}
+		}
+		if (root != null) {
+			accumulatedRoots.add(root);
+			rootIDs.add(rootID);
+			if (rootToResolvedEntries != null) rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith(referringEntry));
 		}
 	}
 	
@@ -619,16 +600,20 @@ public class JavaProject
 	 * @return IPackageFragmentRoot[]
 	 * @throws JavaModelException
 	 */
-	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry[] resolvedClasspath, boolean retrieveExportedRoots) throws JavaModelException {
+	public IPackageFragmentRoot[] computePackageFragmentRoots(
+					IClasspathEntry[] resolvedClasspath, 
+					boolean retrieveExportedRoots,
+					Map rootToResolvedEntries) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
 		computePackageFragmentRoots(
 			resolvedClasspath, 
 			accumulatedRoots, 
 			new HashSet(5), // rootIDs
-			true, // inside original project
+			null, // inside original project
 			true, // check existency
-			retrieveExportedRoots);
+			retrieveExportedRoots,
+			rootToResolvedEntries);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
@@ -642,7 +627,7 @@ public class JavaProject
 	 * @param resolvedClasspath IClasspathEntry[]
 	 * @param accumulatedRoots ObjectVector
 	 * @param rootIDs HashSet
-	 * @param insideOriginalProject boolean
+	 * @param referringEntry project entry referring to this CP or null if initial project
 	 * @param checkExistency boolean
 	 * @param retrieveExportedRoots boolean
 	 * @throws JavaModelException
@@ -651,11 +636,12 @@ public class JavaProject
 		IClasspathEntry[] resolvedClasspath,
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
-		boolean insideOriginalProject,
+		IClasspathEntry referringEntry,
 		boolean checkExistency,
-		boolean retrieveExportedRoots) throws JavaModelException {
+		boolean retrieveExportedRoots,
+		Map rootToResolvedEntries) throws JavaModelException {
 
-		if (insideOriginalProject){
+		if (referringEntry == null){
 			rootIDs.add(rootID());
 		}	
 		for (int i = 0, length = resolvedClasspath.length; i < length; i++){
@@ -663,9 +649,10 @@ public class JavaProject
 				resolvedClasspath[i],
 				accumulatedRoots,
 				rootIDs,
-				insideOriginalProject,
+				referringEntry,
 				checkExistency,
-				retrieveExportedRoots);
+				retrieveExportedRoots,
+				rootToResolvedEntries);
 		}
 	}
 
@@ -1128,7 +1115,8 @@ public class JavaProject
 					return 
 						computePackageFragmentRoots(
 							getResolvedClasspath(new IClasspathEntry[] {entry}, null, true, false, null/*no reverse map*/), 
-							false); // don't retrieve exported roots
+							false, // don't retrieve exported roots
+							null); /*no reverse map*/
 				}
 			}
 		} catch (JavaModelException e) {
@@ -1343,7 +1331,12 @@ public class JavaProject
 	public IPackageFragmentRoot[] getAllPackageFragmentRoots()
 		throws JavaModelException {
 
-		return computePackageFragmentRoots(getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), true/*retrieveExportedRoots*/);
+		return getAllPackageFragmentRoots(null /*no reverse map*/);
+	}
+	
+	public IPackageFragmentRoot[] getAllPackageFragmentRoots(Map rootToResolvedEntries) throws JavaModelException {
+
+		return computePackageFragmentRoots(getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), true/*retrieveExportedRoots*/, rootToResolvedEntries);
 	}
 
 	/**
@@ -1458,7 +1451,7 @@ public class JavaProject
 		Map preferredOutputs) throws JavaModelException {
 	
 		ObjectVector accumulatedEntries = new ObjectVector();		
-		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new HashSet(5), accumulatedEntries, preferredClasspaths, preferredOutputs);
+		computeExpandedClasspath(null, ignoreUnresolvedVariable, generateMarkerOnError, new HashSet(5), accumulatedEntries, preferredClasspaths, preferredOutputs);
 		
 		IClasspathEntry[] expandedPath = new IClasspathEntry[accumulatedEntries.size()];
 		accumulatedEntries.copyInto(expandedPath);
@@ -1821,53 +1814,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Access restriction rule describing a project dependency. It combines export restrictions of prerequisite
-	 * project with import restrictions of dependent project.
-	 */	
-	public AccessRestriction getProjectDependencyRestriction(JavaProject prereqProject) {
-		
-		if (JavaCore.IGNORE.equals(getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true)))
-				return null;
-		
-		char[][] exportIncludes = getAccessRestrictionPatterns(
-					prereqProject.getAccessRestrictions(JavaCore.COMPILER_ACCESS_RESTRICTION_EXPORT_INCLUDE));
-		char[][] exportExcludes = getAccessRestrictionPatterns(
-					prereqProject.getAccessRestrictions(JavaCore.COMPILER_ACCESS_RESTRICTION_EXPORT_EXCLUDE));
-
-		AccessRestriction importRestriction = getProjectImportRestriction();
-		if (importRestriction == null && exportIncludes == null && exportExcludes == null) 
-			return null;
-		
-		return new AccessRestriction(
-								org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.export", null, prereqProject.getElementName()), //$NON-NLS-1$
-								exportIncludes, 
-								exportExcludes,
-								importRestriction);
-	}	
-	/**
-	 * Defines access restriction rules for project import
-	 */	
-	public AccessRestriction getProjectImportRestriction() {
-		
-		if (JavaCore.IGNORE.equals(getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true)))
-				return null;
-		
-		char[][] importIncludes = getAccessRestrictionPatterns(
-					getAccessRestrictions(JavaCore.COMPILER_ACCESS_RESTRICTION_IMPORT_INCLUDE));
-		char[][] importExcludes = getAccessRestrictionPatterns(
-					getAccessRestrictions(JavaCore.COMPILER_ACCESS_RESTRICTION_IMPORT_EXCLUDE));
-
-		if (importIncludes == null && importExcludes == null) 
-			return null;
-		
-		return new AccessRestriction(
-								org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.import", null, getElementName()), //$NON-NLS-1$
-								importIncludes, 
-								importExcludes,
-								null /* no extra restriction */);
-	}
-
-	/**
 	 * @see IJavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
@@ -1985,7 +1931,7 @@ public class JavaProject
 				}
 			}
 		}
-		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
+		Map rawReverseMap = perProjectInfo == null ? null : new HashMap(5);
 		IClasspathEntry[] resolvedPath = null;
 		boolean nullOldResolvedCP = perProjectInfo != null && perProjectInfo.resolvedClasspath == null;
 		try {
@@ -1996,7 +1942,7 @@ public class JavaProject
 				generateMarkerOnError ? getOutputLocation() : null, 
 				ignoreUnresolvedEntry, 
 				generateMarkerOnError,
-				reverseMap);
+				rawReverseMap);
 		} finally {
 			if (nullOldResolvedCP) perProjectInfo.resolvedClasspath = null;
 		}
@@ -2013,7 +1959,7 @@ public class JavaProject
 			}
 
 			perProjectInfo.resolvedClasspath = resolvedPath;
-			perProjectInfo.resolvedPathToRawEntries = reverseMap;
+			perProjectInfo.resolvedPathToRawEntries = rawReverseMap;
 			manager.setClasspathBeingResolved(this, false);
 		}
 		return resolvedPath;
@@ -2025,7 +1971,7 @@ public class JavaProject
 	 * @param projectOutputLocation IPath
 	 * @param ignoreUnresolvedEntry boolean
 	 * @param generateMarkerOnError boolean
-	 * @param reverseMap Map
+	 * @param rawReverseMap Map
 	 * @return IClasspathEntry[] 
 	 * @throws JavaModelException
 	 */
@@ -2034,7 +1980,7 @@ public class JavaProject
 		IPath projectOutputLocation, // only set if needing full classpath validation (and markers)
 		boolean ignoreUnresolvedEntry, // if unresolved entries are met, should it trigger initializations
 		boolean generateMarkerOnError,
-		Map reverseMap) // can be null if not interested in reverse mapping
+		Map rawReverseMap) // can be null if not interested in reverse mapping
 		throws JavaModelException {
 
 		IJavaModelStatus status;
@@ -2074,7 +2020,9 @@ public class JavaProject
 					if (resolvedEntry == null) {
 						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 					} else {
-						if (reverseMap != null && reverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) reverseMap.put(resolvedPath , rawEntry);
+						if (rawReverseMap != null) {
+							if (rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
+						}
 						resolvedEntries.add(resolvedEntry);
 					}
 					break; 
@@ -2092,27 +2040,25 @@ public class JavaProject
 
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-						IClasspathEntry cEntry = containerEntries[j];
+						ClasspathEntry cEntry = (ClasspathEntry)containerEntries[j];
 						if (generateMarkerOnError) {
 							IJavaModelStatus containerStatus = ClasspathEntry.validateClasspathEntry(this, cEntry, false, true /*recurse*/);
 							if (!containerStatus.isOK()) createClasspathProblemMarker(containerStatus);
 						}
-						// if container is exported, then its nested entries must in turn be exported  (21749)
-						if (rawEntry.isExported()){
-							cEntry = new ClasspathEntry(cEntry.getContentKind(),
-								cEntry.getEntryKind(), cEntry.getPath(),
-								cEntry.getInclusionPatterns(), cEntry.getExclusionPatterns(), 
-								cEntry.getSourceAttachmentPath(), cEntry.getSourceAttachmentRootPath(), 
-								cEntry.getOutputLocation(), true); // duplicate container entry for tagging it as exported
+						// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
+						cEntry = cEntry.combineWith(rawEntry);
+						if (rawReverseMap != null) {
+							if (rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
 						}
-						if (reverseMap != null && reverseMap.get(resolvedPath = cEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
 						resolvedEntries.add(cEntry);
 					}
 					break;
 										
 				default :
 
-					if (reverseMap != null && reverseMap.get(resolvedPath = rawEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
+					if (rawReverseMap != null) {
+						if (rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
+					}
 					resolvedEntries.add(rawEntry);
 				
 			}					
@@ -2385,7 +2331,7 @@ public class JavaProject
 		JavaProjectElementInfo info = getJavaProjectElementInfo();
 		// lock on the project info to avoid race condition while computing the pkg fragment roots and package fragment caches
 		synchronized(info){
-			return new NameLookup(info.getAllPackageFragmentRoots(this), info.getAllPackageFragments(this), workingCopies);
+			return new NameLookup(info.getAllPackageFragmentRoots(this), info.getAllPackageFragments(this), workingCopies, info.pathToResolvedEntries);
 		}
 	}
 

@@ -85,13 +85,19 @@ public class NameLookup implements SuffixConstants {
 	protected HashtableOfArrayToObject packageFragments;
 
 	/**
+	 * Reverse map from root path to corresponding resolved CP entry
+	 * (so as to be able to figure inclusion/exclusion rules)
+	 */
+	protected Map rootToResolvedEntries;
+	
+	/**
 	 * A map from compilation unit handles to units to look inside (compilation
 	 * units or working copies).
 	 * Allows working copies to take precedence over compilation units.
 	 */
 	protected HashMap unitsToLookInside;
 
-	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies) {
+	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
@@ -118,6 +124,7 @@ public class NameLookup implements SuffixConstants {
 				visited.add(root);
 			}
 		}
+		this.rootToResolvedEntries = rootToResolvedEntries;
 	}
 
 	/**

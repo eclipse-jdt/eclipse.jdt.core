@@ -92,7 +92,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		receiver.generateCode(currentScope, codeStream, !isStatic);
 	}
 	// generate arguments
-	if (binding.isVararg()) {
+	if (binding.isVarargs()) {
 		// 4 possibilities exist for a call to the vararg method foo(int i, int ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
 		TypeBinding[] params = binding.parameters;
 		int lastIndex = params.length - 1;

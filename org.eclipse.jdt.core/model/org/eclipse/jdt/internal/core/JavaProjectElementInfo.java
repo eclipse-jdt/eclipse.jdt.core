@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -50,6 +53,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	private HashtableOfArrayToObject allPkgFragmentsCache;
 
+	public Map pathToResolvedEntries;
+	
 	/**
 	 * Create and initialize a new instance of the receiver
 	 */
@@ -163,7 +168,9 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	IPackageFragmentRoot[] getAllPackageFragmentRoots(JavaProject project) {
 		if (this.allPkgFragmentRootsCache == null) {
 			try {
-				this.allPkgFragmentRootsCache = project.getAllPackageFragmentRoots();
+				Map reverseMap = new HashMap(3);
+				this.allPkgFragmentRootsCache = project.getAllPackageFragmentRoots(reverseMap);
+				this.pathToResolvedEntries = reverseMap;
 			} catch (JavaModelException e) {
 				// project does not exist: cannot happend since this is the info of the project
 			}
@@ -239,6 +246,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	void resetCaches() {
 		this.allPkgFragmentRootsCache = null;
 		this.allPkgFragmentsCache = null;
+		this.pathToResolvedEntries = null;
 	}
 	
 	/**
