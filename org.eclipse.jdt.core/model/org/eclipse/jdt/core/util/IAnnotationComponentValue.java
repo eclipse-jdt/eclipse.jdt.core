@@ -104,16 +104,6 @@ public interface IAnnotationComponentValue {
 	IAnnotation getAnnotationValue();
 
 	/**
-	 * Answer back the annotation value as described in the JVM specifications.
-	 * This is initialized only if the tag item is '&#064;'.
-	 * 
-	 * @return the attribute value
-	 * TODO (olivier) remove after 3.1M4
-	 * @deprecated Use getAnnotationValue() instead
-	 */
-	IAnnotation getAttributeValue();
-
-	/**
 	 * Answer back the class info as described in the JVM specifications.
 	 * This is initialized only if the tag item is 'c'.
 	 * 

@@ -142,12 +142,6 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 		return this.annotationValue;
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getAnnotationValue()
-	 */
-	public IAnnotation getAttributeValue() {
-		return this.annotationValue;
-	}
-	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponentValue#getClassInfo()
 	 */
 	public IConstantPoolEntry getClassInfo() {
