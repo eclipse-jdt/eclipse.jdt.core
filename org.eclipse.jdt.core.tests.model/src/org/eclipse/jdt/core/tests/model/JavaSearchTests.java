@@ -13,31 +13,24 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Map;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
-
-import junit.framework.*;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
  */
 public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
+	
+	protected IJavaProject javaProject;
 
 /**
  * Collects results as a string.
@@ -287,13 +280,13 @@ protected void assertSearchResults(String message, String expected, Object colle
 		actual
 	);
 }
-private IJavaSearchScope getJavaSearchScope() {
+IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	setUpJavaProject("JavaSearch");
+	this.javaProject = setUpJavaProject("JavaSearch");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearch");
@@ -306,7 +299,6 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testLocalTypeReference1"));
 		return suite;
 	}
 	
@@ -493,10 +485,6 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSubCUSearchScope2"));
 	suite.addTest(new JavaSearchTests("testSubCUSearchScope3"));
 	suite.addTest(new JavaSearchTests("testExternalJarScope"));
-	
-	// search references in annotations
-	suite.addTest(new JavaSearchTests("testAnnotationTypeReference"));
-	suite.addTest(new JavaSearchTests("testAnnotationTypeReferenceWithJavadocWarnings"));
 	
 	return suite;
 }
@@ -3293,56 +3281,4 @@ public void testReadWriteAccessInQualifiedNameReference() throws CoreException {
 		resultCollector);
 		
 }
-/*
- * Tests fix for bug 45518
- * <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">45518</a>
- */
-/**
- * Test search of type references in annotations.
- * Default compiler options.
- */
-public void testAnnotationTypeReference() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch", "src", "ann01", "YYYY.java").getType("YYYY");
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().search(
-			getWorkspace(), 
-			type,
-			REFERENCES, 
-			getJavaSearchScope(), 
-			resultCollector
-			);
-	assertSearchResults(
-			"src/ann01/XXXX.java boolean ann01.XXXX.foo(int) [YYYY]\n" + 
-			"src/ann01/YYYY.java void ann01.YYYY.foo() [YYYY]",
-			resultCollector);
-}
-
-/**
- * Test search of type references in annotations.
- * Invalid annotation compiler options set to warning.
- */
-public void testAnnotationTypeReferenceWithJavadocWarnings() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch", "src", "ann01", "YYYY.java").getType("YYYY");
-	IJavaProject project = type.getJavaProject();
-	Map originalOptions = project.getOptions(true);
-	try {
-		project.setOption(JavaCore.COMPILER_PB_INVALID_ANNOTATION, JavaCore.WARNING);
-		project.setOption(JavaCore.COMPILER_PB_MISSING_ANNOTATION, JavaCore.ENABLED);
-		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		new SearchEngine().search(
-				getWorkspace(), 
-				type,
-				REFERENCES, 
-				getJavaSearchScope(), 
-				resultCollector
-				);
-		assertSearchResults(
-				"src/ann01/XXXX.java boolean ann01.XXXX.foo(int) [YYYY]\n" + 
-				"src/ann01/YYYY.java void ann01.YYYY.foo() [YYYY]",
-				resultCollector);
-	} finally {
-		project.setOptions(originalOptions);
-	}
-}
-
 }

@@ -52,6 +52,7 @@ public static Test suite() {
 	suite.addTest(JavaSearchTests.suite());
 	suite.addTest(JavaSearchMultipleProjectsTests.suite());
 	suite.addTest(WorkingCopySearchTests.suite());
+	suite.addTest(JavaSearchAnnotationTests.suite());
 	suite.addTest(SearchTests.suite());
 		
 	// Working copy tests
