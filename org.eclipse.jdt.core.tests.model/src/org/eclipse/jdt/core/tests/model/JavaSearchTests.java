@@ -3424,8 +3424,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		IMethod method = type.getMethod("out", new String[0]);
 		search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
 		assertSearchResults(
-			// Reference in A is missed due to indexing (query use parameter count which does not match for import...)
-//			"src/s2/A.java [s2.pack.age.S.out]\n" + 
+			"src/s2/A.java [s2.pack.age.S.out]\n" + 
 			"src/s2/B.java void s2.B.foo() [out()]\n" + 
 			"src/s2/C.java [s2.pack.age.S.out]\n" + 
 			"src/s2/C.java void s2.C.foo() [out()]"
@@ -3450,8 +3449,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		IMethod method = member.getMethod("in", new String[0]);
 		search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
 		assertSearchResults(
-			// Reference in A is missed due to indexing (query use parameter count which does not match for import...)
-//			"src/s2/A.java [s2.pack.age.S.M.in]\n" + 
+			"src/s2/A.java [s2.pack.age.S.M.in]\n" + 
 			"src/s2/B.java void s2.B.foo() [in()]\n" + 
 			"src/s2/C.java [s2.pack.age.S.M.in]\n" + 
 			"src/s2/C.java void s2.C.foo() [in()]\n" + 

@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.EntryResult;
@@ -32,7 +34,7 @@ public char[] declaringSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
-public boolean varargs;
+public int flags = 0;
 
 // Signatures and arguments for generic search
 char[][][] parametersTypeSignatures;
@@ -65,7 +67,6 @@ public ConstructorPattern(
 	char[] declaringQualification,
 	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
-	boolean varargs,
 	int matchRule) {
 
 	this(matchRule);
@@ -86,7 +87,6 @@ public ConstructorPattern(
 	} else {
 		this.parameterCount = -1;
 	}
-	this.varargs = varargs;
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 /*
@@ -101,7 +101,7 @@ public ConstructorPattern(
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	IMethod method,
-	boolean varargs,
+//	boolean varargs,
 	int matchRule) {
 
 	this(findDeclarations,
@@ -110,8 +110,14 @@ public ConstructorPattern(
 		declaringQualification,
 		parameterQualifications, 
 		parameterSimpleNames,
-		varargs,
 		matchRule);
+
+	// Set flags
+	try {
+		this.flags = method.getFlags();
+	} catch (JavaModelException e) {
+		// do nothing
+	}
 
 	// Get unique key for parameterized constructors
 	String genericDeclaringTypeSignature = null;
@@ -159,7 +165,6 @@ public ConstructorPattern(
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
-	boolean varargs,
 	char[][] arguments,
 	int matchRule) {
 
@@ -169,7 +174,6 @@ public ConstructorPattern(
 		declaringQualification,
 		parameterQualifications, 
 		parameterSimpleNames,
-		varargs,
 		matchRule);
 
 	// Store type signature and arguments for declaring type
@@ -226,7 +230,7 @@ boolean hasConstructorParameters() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || !shouldCountParameter())
 		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
@@ -244,7 +248,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (!this.varargs && this.declaringSimpleName != null && this.parameterCount >= 0)
+			if (shouldCountParameter() && this.declaringSimpleName != null && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
 			else // do a prefix query with the declaringSimpleName
 				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
@@ -253,7 +257,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the declaringSimpleName
 			break;
 		case R_PATTERN_MATCH :
-			if (!this.varargs && this.parameterCount >= 0)
+			if (shouldCountParameter() && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
 			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
@@ -290,5 +294,8 @@ protected StringBuffer print(StringBuffer output) {
 	}
 	output.append(')');
 	return super.print(output);
+}
+boolean shouldCountParameter() {
+	return (this.flags & Flags.AccStatic) == 0 && (this.flags & Flags.AccVarargs) == 0;
 }
 }

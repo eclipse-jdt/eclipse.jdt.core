@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.*;
 
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -140,7 +141,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	if (this.categoryOffsets == null)
 		return results; // file is empty
 
-	if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
+	int rule = matchRule & JavaSearchPattern.MATCH_RULE_INDEX_MASK;
+	if (rule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
 			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))

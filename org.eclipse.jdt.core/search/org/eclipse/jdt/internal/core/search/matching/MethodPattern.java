@@ -35,7 +35,7 @@ public char[] returnSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
-public boolean varargs;
+public int flags = 0;
 
 // extra reference info
 protected IType declaringType;
@@ -76,7 +76,6 @@ public MethodPattern(
 	char[] returnSimpleName,
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
-	boolean varargs,
 	IType declaringType,
 	int matchRule) {
 
@@ -101,7 +100,6 @@ public MethodPattern(
 	} else {
 		this.parameterCount = -1;
 	}
-	this.varargs = varargs;
 	this.declaringType = declaringType;
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
@@ -120,7 +118,6 @@ public MethodPattern(
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
-	boolean varargs,
 	IMethod method,
 	int matchRule) {
 
@@ -133,9 +130,15 @@ public MethodPattern(
 		returnSimpleName,
 		parameterQualifications, 
 		parameterSimpleNames,
-		varargs,
 		method.getDeclaringType(),
 		matchRule);
+	
+	// Set flags
+	try {
+		this.flags = method.getFlags();
+	} catch (JavaModelException e) {
+		// do nothing
+	}
 
 	// Get unique key for parameterized constructors
 	String genericDeclaringTypeSignature = null;
@@ -194,7 +197,6 @@ public MethodPattern(
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
-	boolean varargs,
 	char[][] arguments,
 	int matchRule) {
 
@@ -207,7 +209,6 @@ public MethodPattern(
 		returnSimpleName,
 		parameterQualifications, 
 		parameterSimpleNames,
-		varargs,
 		null,
 		matchRule);
 
@@ -269,7 +270,7 @@ boolean isPolymorphicSearch() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	MethodPattern pattern = (MethodPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || !shouldCountParameter())
 		&& matchesName(this.selector, pattern.selector);
 }
 /**
@@ -297,7 +298,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (!this.varargs && this.selector != null && this.parameterCount >= 0)
+			if (shouldCountParameter() && this.selector != null && this.parameterCount >= 0)
 				key = createIndexKey(this.selector, this.parameterCount);
 			else // do a prefix query with the selector
 				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
@@ -306,7 +307,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the selector
 			break;
 		case R_PATTERN_MATCH :
-			if (!this.varargs && this.parameterCount >= 0)
+			if (shouldCountParameter() && this.parameterCount >= 0)
 				key = createIndexKey(this.selector == null ? ONE_STAR : this.selector, this.parameterCount);
 			else if (this.selector != null && this.selector[this.selector.length - 1] != '*')
 				key = CharOperation.concat(this.selector, ONE_STAR, SEPARATOR);
@@ -355,5 +356,8 @@ protected StringBuffer print(StringBuffer output) {
 	else if (returnQualification != null)
 		output.append("*"); //$NON-NLS-1$
 	return super.print(output);
+}
+boolean shouldCountParameter() {
+	return (this.flags & Flags.AccStatic) == 0 && (this.flags & Flags.AccVarargs) == 0;
 }
 }

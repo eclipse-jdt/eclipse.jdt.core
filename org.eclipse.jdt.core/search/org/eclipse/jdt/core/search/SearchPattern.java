@@ -696,7 +696,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
 					parameterTypeSignatures,
-					false,
 					typeArguments,
 					matchRule);
 		} else {
@@ -713,7 +712,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					parameterTypeQualifications,
 					parameterTypeSimpleNames,
 					parameterTypeSignatures,
-					false,
 					typeArguments,
 					matchRule);
 		}
@@ -1018,7 +1016,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				char[] selector = method.getElementName().toCharArray();
 				char[] returnSimpleName;
 				char[] returnQualification;
-				boolean varargs = false;
 				String returnSignature;
 				try {
 					returnSignature = method.getReturnType();
@@ -1036,7 +1033,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							CharOperation.concat(IIndexConstants.ONE_STAR, returnQualification);
 						}
 					}
-					varargs = Flags.isVarargs(method.getFlags());
 				} catch (JavaModelException e) {
 					return null;
 				}
@@ -1087,7 +1083,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							parameterSimpleNames,
 							parameterSignatures,
 							method,
-							varargs,
 							matchRule);
 				} else {
 					searchPattern =
@@ -1103,7 +1098,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							parameterQualifications, 
 							parameterSimpleNames,
 							parameterSignatures,
-							varargs,
 							method,
 							matchRule);
 				}

@@ -449,7 +449,12 @@ protected void consumeSingleStaticImportDeclarationName() {
 		// => accept unknown ref on identifier
 		int length = impt.tokens.length-1;
 		int start = (int) (impt.sourcePositions[length] >>> 32);
-		requestor.acceptUnknownReference(impt.tokens[length], start);
+		char[] last = impt.tokens[length];
+		// accept all possible kind for last name, index users will have to select the right one...
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=86901
+		requestor.acceptFieldReference(last, start);
+		requestor.acceptMethodReference(last, 0,start);
+		requestor.acceptTypeReference(last, start);
 		// accept type name
 		if (length > 0) {
 			char[][] compoundName = new char[length][];
