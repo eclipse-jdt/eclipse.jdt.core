@@ -196,103 +196,102 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	}
 	return pkg.getCompilationUnit(file.getName());
 }
-/**
- * Creates and returns a handle for the given JAR file, its project being the given project.
- * The Java model associated with the JAR's project may be
- * created as a side effect. 
- * Returns <code>null</code> if unable to create a JAR package fragment root.
- * (for example, if the JAR file represents a non-Java resource)
- */
-public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file, IJavaProject project) {
-	if (file == null) {
+	/**
+	 * Creates and returns a handle for the given JAR file, its project being the given project.
+	 * The Java model associated with the JAR's project may be
+	 * created as a side effect. 
+	 * Returns <code>null</code> if unable to create a JAR package fragment root.
+	 * (for example, if the JAR file represents a non-Java resource)
+	 */
+	public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file, IJavaProject project) {
+		if (file == null) {
+			return null;
+		}
+		if (project == null) {
+			project = JavaCore.create(file.getProject());
+		}
+	
+		// Create a jar package fragment root only if on the classpath
+		IPath resourcePath = file.getFullPath();
+		try {
+			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
+			for (int i = 0, length = entries.length; i < length; i++) {
+				IClasspathEntry entry = entries[i];
+				IPath rootPath = entry.getPath();
+				if (rootPath.equals(resourcePath)) {
+					return project.getPackageFragmentRoot(file);
+				}
+			}
+		} catch (JavaModelException e) {
+		}
 		return null;
 	}
-	if (project == null) {
-		project = JavaCore.create(file.getProject());
-	}
-
-	// Create a jar package fragment root only if on the classpath
-	IPath resourcePath = file.getFullPath();
-	try {
-		IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
-		for (int i = 0, length = entries.length; i < length; i++) {
-			IClasspathEntry entry = entries[i];
-			IPath rootPath = entry.getPath();
-			if (rootPath.equals(resourcePath)) {
-				return project.getPackageFragmentRoot(file);
-			}
-		}
-	} catch (JavaModelException e) {
-	}
-	return null;
-}
-/**
- * Returns the package fragment root represented by the resource, or
- * the package fragment the given resource is located in, or <code>null</code>
- * if the given resource is not on the classpath of the given project.
- */
-public static IJavaElement determineIfOnClasspath(
-	IResource resource,
-	IJavaProject project) {
-	IPath resourcePath = resource.getFullPath();
-	try {
-		IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
-		for (int i = 0; i < entries.length; i++) {
-			IClasspathEntry entry = entries[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
-			IPath rootPath = entry.getPath();
-			if (rootPath.equals(resourcePath)) {
-				return project.getPackageFragmentRoot(resource);
-			} else if (rootPath.isPrefixOf(resourcePath)) {
-				IPackageFragmentRoot root =
-					((JavaProject) project).getPackageFragmentRoot(rootPath);
-				if (root == null) return null;
-				IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
-				if (resource.getType() == IResource.FILE) {
-					// if the resource is a file, then remove the last segment which
-					// is the file name in the package
-					pkgPath = pkgPath.removeLastSegments(1);
+	/**
+	 * Returns the package fragment root represented by the resource, or
+	 * the package fragment the given resource is located in, or <code>null</code>
+	 * if the given resource is not on the classpath of the given project.
+	 */
+	public static IJavaElement determineIfOnClasspath(
+		IResource resource,
+		IJavaProject project) {
+		IPath resourcePath = resource.getFullPath();
+		try {
+			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
+			for (int i = 0; i < entries.length; i++) {
+				IClasspathEntry entry = entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+				IPath rootPath = entry.getPath();
+				if (rootPath.equals(resourcePath)) {
+					return project.getPackageFragmentRoot(resource);
+				} else if (rootPath.isPrefixOf(resourcePath)) {
+					IPackageFragmentRoot root =
+						((JavaProject) project).getPackageFragmentRoot(rootPath);
+					if (root == null) return null;
+					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
+					if (resource.getType() == IResource.FILE) {
+						// if the resource is a file, then remove the last segment which
+						// is the file name in the package
+						pkgPath = pkgPath.removeLastSegments(1);
+					}
+					String pkgName = Util.packageName(pkgPath);
+					if (pkgName == null
+						|| JavaConventions.validatePackageName(pkgName.toString()).getSeverity() == IStatus.ERROR) {
+						return null;
+					}
+					return root.getPackageFragment(pkgName.toString());
 				}
-				String pkgName = Util.packageName(pkgPath);
-				if (pkgName == null
-					|| JavaConventions.validatePackageName(pkgName.toString()).getSeverity() == IStatus.ERROR) {
-					return null;
-				}
-				return root.getPackageFragment(pkgName.toString());
 			}
+		} catch (JavaModelException npe) {
+			return null;
 		}
-	} catch (JavaModelException npe) {
 		return null;
 	}
-	return null;
-}
 	
 	/**
 	 * The singleton manager
 	 */
 	protected static JavaModelManager fgManager= null;
-
+
 	/**
 	 * Active Java Model Info
 	 */
 	protected JavaModelInfo fModelInfo= null;
-
+
 	/**
 	 * Turns delta firing on/off. By default it is on.
 	 */
 	protected boolean fFire= true;
-
+
 	/**
 	 * Queue of deltas created explicily by the Java Model that
 	 * have yet to be fired.
 	 */
 	protected ArrayList fJavaModelDeltas= new ArrayList();
-
-	/**
+	/**
 	 * Collection of listeners for Java element deltas
 	 */
 	protected ArrayList fElementChangedListeners= new ArrayList();
-
+
 	/**
 	 * Collection of projects that are in the process of being deleted.
 	 * Project reside in this cache from the time the plugin receives
@@ -304,7 +303,7 @@ public static IJavaElement determineIfOnClasspath(
 	 * fix for 1FW67PA
 	 */
 	protected ArrayList fProjectsBeingDeleted= new ArrayList();
-
+
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
@@ -314,12 +313,12 @@ public static IJavaElement determineIfOnClasspath(
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
 	 */
 	private static final String WKS_PROP_FILENAME= "workspace.properties"; //$NON-NLS-1$
-
+
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
 	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"; //$NON-NLS-1$
-
+
 	/**
 	 * Table from IProject to PerProjectInfo.
 	 */
@@ -853,24 +852,28 @@ public void mergeDeltas() {
 			return fModelInfo.fChildrenCache.get(element);
 		}
 	}
-/**
- * @see ISaveParticipant
- */
-public void prepareToSave(ISaveContext context) throws CoreException {
-}
+	/**
+	 * @see ISaveParticipant
+	 */
+	public void prepareToSave(ISaveContext context) throws CoreException {
+	}
+	
 	protected void putInfo(IJavaElement element, Object info) {
 		int elementType= ((JavaElement) element).fLEType;
 		if (elementType == IJavaElement.JAVA_MODEL) {
 			fModelInfo= (JavaModelInfo) info;
 			return;
 		}
-
+		if (fModelInfo == null) {
+			return;
+		}		
 		if (elementType <= IJavaElement.CLASS_FILE) {
 			fModelInfo.fLRUCache.put(element, info);
 		} else {
 			fModelInfo.fChildrenCache.put(element, info);
 		}
 	}
+
 	/**
 	 * Reads the build state for the relevant project.
 	 */
