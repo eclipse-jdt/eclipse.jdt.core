@@ -94,8 +94,9 @@ public class Assignment extends Expression {
 
 		// due to syntax lhs may be only a NameReference, a FieldReference or an ArrayReference
 		constant = NotAConstant;
-		if (!(this.lhs instanceof Reference)) {
+		if (!(this.lhs instanceof Reference) || this.lhs.isThis()) {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
+			return null;
 		}
 		this.resolvedType = lhs.resolveType(scope); // expressionType contains the assignment type (lhs Type)
 		TypeBinding rhsType = expression.resolveType(scope);

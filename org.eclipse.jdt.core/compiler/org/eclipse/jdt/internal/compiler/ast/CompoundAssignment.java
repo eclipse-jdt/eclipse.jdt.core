@@ -79,8 +79,9 @@ public String operatorToString() {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
-	if (!(this.lhs instanceof Reference)) {
+	if (!(this.lhs instanceof Reference) || this.lhs.isThis()) {
 		scope.problemReporter().expressionShouldBeAVariable(this.lhs);
+		return null;
 	}
 	TypeBinding lhsType = lhs.resolveType(scope);
 	TypeBinding expressionType = expression.resolveType(scope);
