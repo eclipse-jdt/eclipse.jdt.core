@@ -124,6 +124,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
 		return options;
 	}

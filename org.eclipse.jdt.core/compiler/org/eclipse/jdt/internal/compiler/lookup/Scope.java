@@ -1384,7 +1384,8 @@ public abstract class Scope
 			if ((mask & Binding.VARIABLE) != 0) {
 				boolean insideStaticContext = false;
 				boolean insideConstructorCall = false;
-
+				boolean insideTypeAnnotation = false;
+				
 				FieldBinding foundField = null;
 				// can be a problem field which is answered if a valid field is not found
 				ProblemFieldBinding foundInsideProblem = null;
@@ -1399,6 +1400,8 @@ public abstract class Scope
 							MethodScope methodScope = (MethodScope) scope;
 							insideStaticContext |= methodScope.isStatic;
 							insideConstructorCall |= methodScope.isConstructorCall;
+							insideTypeAnnotation = methodScope.insideTypeAnnotation;
+							
 							// Fall through... could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
 							LocalVariableBinding variableBinding = scope.findVariable(name);
@@ -1418,73 +1421,76 @@ public abstract class Scope
 						case CLASS_SCOPE :
 							ClassScope classScope = (ClassScope) scope;
 							SourceTypeBinding enclosingType = classScope.referenceContext.binding;
-							FieldBinding fieldBinding = classScope.findField(enclosingType, name, invocationSite, needResolve);
-							// Use next line instead if willing to enable protected access accross inner types
-							// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
-							
-							if (fieldBinding != null) { // skip it if we did not find anything
-								if (fieldBinding.problemId() == Ambiguous) {
-									if (foundField == null || foundField.problemId() == NotVisible)
-										// supercedes any potential InheritedNameHidesEnclosingName problem
-										return fieldBinding;
-									// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
-									return new ProblemFieldBinding(
-										foundField, // closest match
-										foundField.declaringClass,
-										name,
-										InheritedNameHidesEnclosingName);
-								}
-
-								ProblemFieldBinding insideProblem = null;
-								if (fieldBinding.isValidBinding()) {
-									if (!fieldBinding.isStatic()) {
-										if (insideConstructorCall) {
-											insideProblem =
-												new ProblemFieldBinding(
-													fieldBinding, // closest match
-													fieldBinding.declaringClass,
-													name,
-													NonStaticReferenceInConstructorInvocation);
-										} else if (insideStaticContext) {
-											insideProblem =
-												new ProblemFieldBinding(
-													fieldBinding, // closest match
-													fieldBinding.declaringClass,
-													name,
-													NonStaticReferenceInStaticContext);
-										}
+							if (!insideTypeAnnotation) {
+								FieldBinding fieldBinding = classScope.findField(enclosingType, name, invocationSite, needResolve);
+								// Use next line instead if willing to enable protected access accross inner types
+								// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
+								
+								if (fieldBinding != null) { // skip it if we did not find anything
+									if (fieldBinding.problemId() == Ambiguous) {
+										if (foundField == null || foundField.problemId() == NotVisible)
+											// supercedes any potential InheritedNameHidesEnclosingName problem
+											return fieldBinding;
+										// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
+										return new ProblemFieldBinding(
+											foundField, // closest match
+											foundField.declaringClass,
+											name,
+											InheritedNameHidesEnclosingName);
 									}
-									if (enclosingType == fieldBinding.declaringClass || environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
-										// found a valid field in the 'immediate' scope (ie. not inherited)
-										// OR in 1.4 mode (inherited shadows enclosing)
-										if (foundField == null) {
-											if (depth > 0){
-												invocationSite.setDepth(depth);
-												invocationSite.setActualReceiverType(enclosingType);
+	
+									ProblemFieldBinding insideProblem = null;
+									if (fieldBinding.isValidBinding()) {
+										if (!fieldBinding.isStatic()) {
+											if (insideConstructorCall) {
+												insideProblem =
+													new ProblemFieldBinding(
+														fieldBinding, // closest match
+														fieldBinding.declaringClass,
+														name,
+														NonStaticReferenceInConstructorInvocation);
+											} else if (insideStaticContext) {
+												insideProblem =
+													new ProblemFieldBinding(
+														fieldBinding, // closest match
+														fieldBinding.declaringClass,
+														name,
+														NonStaticReferenceInStaticContext);
 											}
-											// return the fieldBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
-											return insideProblem == null ? fieldBinding : insideProblem;
 										}
-										if (foundField.isValidBinding())
-											// if a valid field was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
-											if (foundField.declaringClass != fieldBinding.declaringClass)
-												// ie. have we found the same field - do not trust field identity yet
-												return new ProblemFieldBinding(
-													foundField, // closest match
-													foundField.declaringClass,
-													name,
-													InheritedNameHidesEnclosingName);
+										if (enclosingType == fieldBinding.declaringClass || environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+											// found a valid field in the 'immediate' scope (ie. not inherited)
+											// OR in 1.4 mode (inherited shadows enclosing)
+											if (foundField == null) {
+												if (depth > 0){
+													invocationSite.setDepth(depth);
+													invocationSite.setActualReceiverType(enclosingType);
+												}
+												// return the fieldBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
+												return insideProblem == null ? fieldBinding : insideProblem;
+											}
+											if (foundField.isValidBinding())
+												// if a valid field was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
+												if (foundField.declaringClass != fieldBinding.declaringClass)
+													// ie. have we found the same field - do not trust field identity yet
+													return new ProblemFieldBinding(
+														foundField, // closest match
+														foundField.declaringClass,
+														name,
+														InheritedNameHidesEnclosingName);
+										}
 									}
-								}
-
-								if (foundField == null || (foundField.problemId() == NotVisible && fieldBinding.problemId() != NotVisible)) {
-									// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
-									foundDepth = depth;
-									foundActualReceiverType = enclosingType;
-									foundInsideProblem = insideProblem;
-									foundField = fieldBinding;
+	
+									if (foundField == null || (foundField.problemId() == NotVisible && fieldBinding.problemId() != NotVisible)) {
+										// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
+										foundDepth = depth;
+										foundActualReceiverType = enclosingType;
+										foundInsideProblem = insideProblem;
+										foundField = fieldBinding;
+									}
 								}
 							}
+							insideTypeAnnotation = false;
 							depth++;
 							insideStaticContext |= enclosingType.isStatic();
 							// 1EX5I8Z - accessing outer fields within a constructor call is permitted
@@ -1724,6 +1730,7 @@ public abstract class Scope
 
 		boolean insideStaticContext = false;
 		boolean insideConstructorCall = false;
+		boolean insideTypeAnnotation = false;
 		MethodBinding foundMethod = null;
 		MethodBinding foundFuzzyProblem = null;
 		// the weird method lookup case (matches method name in scope, then arg types, then visibility)
@@ -1737,118 +1744,122 @@ public abstract class Scope
 					MethodScope methodScope = (MethodScope) scope;
 					insideStaticContext |= methodScope.isStatic;
 					insideConstructorCall |= methodScope.isConstructorCall;
+					insideTypeAnnotation = methodScope.insideTypeAnnotation;
 					break;
 				case CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) scope;
 					SourceTypeBinding receiverType = classScope.referenceContext.binding;
-					boolean isExactMatch = true;
-					// retrieve an exact visible match (if possible)
-					// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
-					MethodBinding methodBinding =
-						(foundMethod == null)
-							? classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite)
-							: classScope.findExactMethod(receiverType, foundMethod.selector, foundMethod.parameters, invocationSite);
-					if (methodBinding == null) {
-						// answers closest approximation, may not check argumentTypes or visibility
-						isExactMatch = false;
-						methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite);
-						// methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite);
-					}
-					if (methodBinding != null) { // skip it if we did not find anything
-						if (methodBinding.problemId() == Ambiguous) {
-							if (foundMethod == null || foundMethod.problemId() == NotVisible) {
-								// supercedes any potential InheritedNameHidesEnclosingName problem
-								return methodBinding;
-							}
-							// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-							return new ProblemMethodBinding(
-								methodBinding, // closest match
-								selector,
-								argumentTypes,
-								InheritedNameHidesEnclosingName);
+					if (!insideTypeAnnotation) {
+						boolean isExactMatch = true;
+						// retrieve an exact visible match (if possible)
+						// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
+						MethodBinding methodBinding =
+							(foundMethod == null)
+								? classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite)
+								: classScope.findExactMethod(receiverType, foundMethod.selector, foundMethod.parameters, invocationSite);
+						if (methodBinding == null) {
+							// answers closest approximation, may not check argumentTypes or visibility
+							isExactMatch = false;
+							methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite);
+							// methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite);
 						}
-						MethodBinding fuzzyProblem = null;
-						MethodBinding insideProblem = null;
-						if (methodBinding.isValidBinding()) {
-							if (!isExactMatch) {
-								MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
-								if (compatibleMethod == null) {
-									if (foundMethod == null || foundMethod.problemId() == NotVisible)
-										// inherited mismatch is reported directly, not looking at enclosing matches
-										return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
-									// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-									fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
-								} else if (!compatibleMethod.isValidBinding()) {
-									fuzzyProblem = compatibleMethod;
-								} else {
-									methodBinding = compatibleMethod;
-									if (!methodBinding.canBeSeenBy(receiverType, invocationSite, classScope)) {
-										// using <classScope> instead of <this> for visibility check does grant all access to innerclass
-										fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, NotVisible);
-									}
-								}
-							}
-							if (fuzzyProblem == null && !methodBinding.isStatic()) {
-								if (insideConstructorCall) {
-									insideProblem =
-										new ProblemMethodBinding(
-											methodBinding, // closest match
-											methodBinding.selector,
-											methodBinding.parameters,
-											NonStaticReferenceInConstructorInvocation);
-								} else if (insideStaticContext) {
-									insideProblem =
-										new ProblemMethodBinding(
-											methodBinding, // closest match
-											methodBinding.selector,
-											methodBinding.parameters,
-											NonStaticReferenceInStaticContext);
-								}
-							}
-
-							if (receiverType == methodBinding.declaringClass
-								|| (receiverType.getMethods(selector)) != NoMethods
-								|| ((fuzzyProblem == null || fuzzyProblem.problemId() != NotVisible) && environment().options.complianceLevel >= ClassFileConstants.JDK1_4)) {
-								// found a valid method in the 'immediate' scope (ie. not inherited)
-								// OR the receiverType implemented a method with the correct name
-								// OR in 1.4 mode (inherited visible shadows enclosing)
-								if (foundMethod == null) {
-									if (depth > 0){
-										invocationSite.setDepth(depth);
-										invocationSite.setActualReceiverType(receiverType);
-									}
-									// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
-									if (fuzzyProblem != null)
-										return fuzzyProblem;
-									if (insideProblem != null)
-										return insideProblem;
+						if (methodBinding != null) { // skip it if we did not find anything
+							if (methodBinding.problemId() == Ambiguous) {
+								if (foundMethod == null || foundMethod.problemId() == NotVisible) {
+									// supercedes any potential InheritedNameHidesEnclosingName problem
 									return methodBinding;
 								}
-								// if a method was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
-								// NOTE: Unlike fields, a non visible method hides a visible method
-								if (foundMethod.declaringClass != methodBinding.declaringClass)
-									// ie. have we found the same method - do not trust field identity yet
-									return new ProblemMethodBinding(
-										methodBinding, // closest match
-										methodBinding.selector,
-										methodBinding.parameters,
-										InheritedNameHidesEnclosingName);
+								// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
+								return new ProblemMethodBinding(
+									methodBinding, // closest match
+									selector,
+									argumentTypes,
+									InheritedNameHidesEnclosingName);
 							}
-						}
-
-						if (foundMethod == null || (foundMethod.problemId() == NotVisible && methodBinding.problemId() != NotVisible)) {
-							// only remember the methodBinding if its the first one found or the previous one was not visible & methodBinding is...
-							// remember that private methods are visible if defined directly by an enclosing class
-							if (depth > 0) {
-								invocationSite.setDepth(depth);
-								invocationSite.setActualReceiverType(receiverType);
+							MethodBinding fuzzyProblem = null;
+							MethodBinding insideProblem = null;
+							if (methodBinding.isValidBinding()) {
+								if (!isExactMatch) {
+									MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
+									if (compatibleMethod == null) {
+										if (foundMethod == null || foundMethod.problemId() == NotVisible)
+											// inherited mismatch is reported directly, not looking at enclosing matches
+											return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
+										// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
+										fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
+									} else if (!compatibleMethod.isValidBinding()) {
+										fuzzyProblem = compatibleMethod;
+									} else {
+										methodBinding = compatibleMethod;
+										if (!methodBinding.canBeSeenBy(receiverType, invocationSite, classScope)) {
+											// using <classScope> instead of <this> for visibility check does grant all access to innerclass
+											fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, methodBinding.parameters, NotVisible);
+										}
+									}
+								}
+								if (fuzzyProblem == null && !methodBinding.isStatic()) {
+									if (insideConstructorCall) {
+										insideProblem =
+											new ProblemMethodBinding(
+												methodBinding, // closest match
+												methodBinding.selector,
+												methodBinding.parameters,
+												NonStaticReferenceInConstructorInvocation);
+									} else if (insideStaticContext) {
+										insideProblem =
+											new ProblemMethodBinding(
+												methodBinding, // closest match
+												methodBinding.selector,
+												methodBinding.parameters,
+												NonStaticReferenceInStaticContext);
+									}
+								}
+	
+								if (receiverType == methodBinding.declaringClass
+									|| (receiverType.getMethods(selector)) != NoMethods
+									|| ((fuzzyProblem == null || fuzzyProblem.problemId() != NotVisible) && environment().options.complianceLevel >= ClassFileConstants.JDK1_4)) {
+									// found a valid method in the 'immediate' scope (ie. not inherited)
+									// OR the receiverType implemented a method with the correct name
+									// OR in 1.4 mode (inherited visible shadows enclosing)
+									if (foundMethod == null) {
+										if (depth > 0){
+											invocationSite.setDepth(depth);
+											invocationSite.setActualReceiverType(receiverType);
+										}
+										// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
+										if (fuzzyProblem != null)
+											return fuzzyProblem;
+										if (insideProblem != null)
+											return insideProblem;
+										return methodBinding;
+									}
+									// if a method was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
+									// NOTE: Unlike fields, a non visible method hides a visible method
+									if (foundMethod.declaringClass != methodBinding.declaringClass)
+										// ie. have we found the same method - do not trust field identity yet
+										return new ProblemMethodBinding(
+											methodBinding, // closest match
+											methodBinding.selector,
+											methodBinding.parameters,
+											InheritedNameHidesEnclosingName);
+								}
 							}
-							foundFuzzyProblem = fuzzyProblem;
-							foundInsideProblem = insideProblem;
-							if (fuzzyProblem == null)
-								foundMethod = methodBinding; // only keep it if no error was found
+	
+							if (foundMethod == null || (foundMethod.problemId() == NotVisible && methodBinding.problemId() != NotVisible)) {
+								// only remember the methodBinding if its the first one found or the previous one was not visible & methodBinding is...
+								// remember that private methods are visible if defined directly by an enclosing class
+								if (depth > 0) {
+									invocationSite.setDepth(depth);
+									invocationSite.setActualReceiverType(receiverType);
+								}
+								foundFuzzyProblem = fuzzyProblem;
+								foundInsideProblem = insideProblem;
+								if (fuzzyProblem == null)
+									foundMethod = methodBinding; // only keep it if no error was found
+							}
 						}
 					}
+					insideTypeAnnotation = false;
 					depth++;
 					insideStaticContext |= receiverType.isStatic();
 					// 1EX5I8Z - accessing outer fields within a constructor call is permitted
@@ -2271,6 +2282,7 @@ public abstract class Scope
 		Scope scope = this;
 		ReferenceBinding foundType = null;
 		boolean insideStaticContext = false;
+		boolean insideTypeAnnotation = false;
 		if ((mask & Binding.TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
@@ -2286,6 +2298,7 @@ public abstract class Scope
 							if (typeVariable != null)	return typeVariable;
 						}
 						insideStaticContext |= methodScope.isStatic;
+						insideTypeAnnotation = methodScope.insideTypeAnnotation;
 					case BLOCK_SCOPE :
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 						if (localType != null) {
@@ -2313,32 +2326,35 @@ public abstract class Scope
 							return typeVariable;
 						}
 						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
-						// 6.5.5.1 - member types have precedence over top-level type in same unit
-						ReferenceBinding memberType = findMemberType(name, sourceType);
-						if (memberType != null) { // skip it if we did not find anything
-							if (memberType.problemId() == Ambiguous) {
-								if (foundType == null || foundType.problemId() == NotVisible)
-									// supercedes any potential InheritedNameHidesEnclosingName problem
-									return memberType;
-								// make the user qualify the type, likely wants the first inherited type
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
-							}
-							if (memberType.isValidBinding()) {
-								if (sourceType == memberType.enclosingType()
-										|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
-									// found a valid type in the 'immediate' scope (ie. not inherited)
-									// OR in 1.4 mode (inherited shadows enclosing)
-									if (foundType == null)
-										return memberType; 
-									// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
-									if (foundType.isValidBinding() && foundType != memberType)
-										return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+						if (!insideTypeAnnotation) {
+							// 6.5.5.1 - member types have precedence over top-level type in same unit
+							ReferenceBinding memberType = findMemberType(name, sourceType);
+							if (memberType != null) { // skip it if we did not find anything
+								if (memberType.problemId() == Ambiguous) {
+									if (foundType == null || foundType.problemId() == NotVisible)
+										// supercedes any potential InheritedNameHidesEnclosingName problem
+										return memberType;
+									// make the user qualify the type, likely wants the first inherited type
+									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
 								}
+								if (memberType.isValidBinding()) {
+									if (sourceType == memberType.enclosingType()
+											|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+										// found a valid type in the 'immediate' scope (ie. not inherited)
+										// OR in 1.4 mode (inherited shadows enclosing)
+										if (foundType == null)
+											return memberType; 
+										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
+										if (foundType.isValidBinding() && foundType != memberType)
+											return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+									}
+								}
+								if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
+									// only remember the memberType if its the first one found or the previous one was not visible & memberType is...
+									foundType = memberType;
 							}
-							if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
-								// only remember the memberType if its the first one found or the previous one was not visible & memberType is...
-								foundType = memberType;
 						}
+						insideTypeAnnotation = false;
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
 								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);

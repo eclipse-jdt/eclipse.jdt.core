@@ -570,6 +570,16 @@ public char[] computeUniqueKey() {
 }
 
 void faultInTypesForFieldsAndMethods() {
+	// check @Deprecated annotation
+	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
+		this.modifiers |= AccDeprecated;
+	} else if ((this.modifiers & AccDeprecated) != 0 && scope != null && scope.environment().options.sourceLevel >= JDK1_5) {
+		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
+	}
+	ReferenceBinding enclosingType = this.enclosingType();
+	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated()) {
+		modifiers |= AccDeprecatedImplicitly;	
+	}
 	fields();
 	methods();
 
@@ -581,10 +591,22 @@ void faultInTypesForFieldsAndMethods() {
 public FieldBinding[] fields() {
 	int failed = 0;
 	try {
+		boolean isViewedAsDeprecated = isViewedAsDeprecated();
+		boolean complyTo15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = fields.length; i < length; i++) {
-			if (resolveTypeFor(fields[i]) == null) {
+			FieldBinding field = fields[i];
+			if (resolveTypeFor(field) == null) {
 				fields[i] = null;
 				failed++;
+			} else {
+				if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
+					field.modifiers |= AccDeprecated;
+				} else if (complyTo15 && (field.modifiers & AccDeprecated) != 0) {
+					scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
+				}
+				if (isViewedAsDeprecated && !field.isDeprecated()) {
+					field.modifiers |= AccDeprecatedImplicitly;	
+				}
 			}
 		}
 	} finally {
@@ -654,7 +676,13 @@ public char[] genericSignature() {
 public long getAnnotationTagBits() {
 	if ((this.tagBits & AnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
-		ASTNode.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		try {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			ASTNode.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+		} finally {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+		}
 	}
 	return this.tagBits;
 }
@@ -844,6 +872,7 @@ public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMe
 	if (accessors == null) return null;
 	return accessors[1];
 }
+
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
@@ -946,15 +975,26 @@ public MethodBinding[] methods() {
 
 	int failed = 0;
 	try {
+		boolean isViewedAsDeprecated = isViewedAsDeprecated();
+		boolean complyTo15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = methods.length; i < length; i++) {
-			if (resolveTypesFor(methods[i]) == null) {
+			MethodBinding method = methods[i];
+			if (resolveTypesFor(method) == null) {
 				methods[i] = null; // unable to resolve parameters
 				failed++;
+			} else {
+				if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
+					method.modifiers |= AccDeprecated;
+				} else if (complyTo15 && (method.modifiers & AccDeprecated) != 0) {
+					scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
+				}
+				if (isViewedAsDeprecated && !method.isDeprecated()) {
+					method.modifiers |= AccDeprecatedImplicitly;
+				}
 			}
 		}
 
 		// find & report collision cases
-		boolean is15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
@@ -962,7 +1002,7 @@ public MethodBinding[] methods() {
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						boolean paramsMatch = is15 && method.returnType == method2.returnType // see 87956
+						boolean paramsMatch = complyTo15 && method.returnType == method2.returnType // see 87956
 							? method.areParameterErasuresEqual(method2)
 							: method.areParametersEqual(method2);
 						if (paramsMatch) {

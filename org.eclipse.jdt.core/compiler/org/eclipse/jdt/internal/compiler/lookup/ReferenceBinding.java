@@ -754,8 +754,7 @@ public boolean isSuperclassOf(ReferenceBinding otherType) {
 */
 
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & AccDeprecated) != 0 ||
-		(modifiers & AccDeprecatedImplicitly) != 0;
+	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
 }
 public ReferenceBinding[] memberTypes() {
 	return NoMemberTypes;

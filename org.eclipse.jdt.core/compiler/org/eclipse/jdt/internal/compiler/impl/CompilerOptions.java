@@ -95,6 +95,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportAutoboxing = "org.eclipse.jdt.core.compiler.problem.autoboxing"; //$NON-NLS-1$
 	public static final String OPTION_ReportAnnotationSuperInterface = "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingOverrideAnnotation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingDeprecatedAnnotation = "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportIncompleteEnumSwitch = "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.include"; //$NON-NLS-1$
@@ -177,6 +178,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long TypeParameterHiding = ASTNode.Bit40L;
 	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
 	public static final long IncompleteEnumSwitch = ASTNode.Bit42L;
+	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -357,6 +359,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
 		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast)); 
 		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
+		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
@@ -637,6 +640,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(Autoboxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
 		
 		// Javadoc options
@@ -799,6 +803,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(Autoboxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
+		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$		
 		return buf.toString();
 	}

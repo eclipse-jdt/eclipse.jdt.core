@@ -698,6 +698,11 @@ public int computeSeverity(int problemId){
 		case IProblem.MissingOverrideAnnotation:
 			return this.options.getSeverity(CompilerOptions.MissingOverrideAnnotation);
 			
+		case IProblem.FieldMissingDeprecatedAnnotation:
+		case IProblem.MethodMissingDeprecatedAnnotation:
+		case IProblem.TypeMissingDeprecatedAnnotation:
+			return this.options.getSeverity(CompilerOptions.MissingDeprecatedAnnotation);
+			
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
@@ -3829,6 +3834,34 @@ public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 		method.sourceStart,
 		method.sourceEnd);
 }
+public void missingDeprecatedAnnotationForField(FieldDeclaration field) {
+	FieldBinding binding = field.binding;
+	this.handle(
+		IProblem.FieldMissingDeprecatedAnnotation,
+		new String[] {new String(binding.declaringClass.readableName()), new String(binding.name), },
+		new String[] {new String(binding.declaringClass.shortReadableName()), new String(binding.name), },
+		field.sourceStart,
+		field.sourceEnd);
+}
+public void missingDeprecatedAnnotationForMethod(AbstractMethodDeclaration method) {
+	MethodBinding binding = method.binding;
+	this.handle(
+		IProblem.MethodMissingDeprecatedAnnotation,
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
+		method.sourceStart,
+		method.sourceEnd);
+}
+public void missingDeprecatedAnnotationForType(TypeDeclaration type) {
+	TypeBinding binding = type.binding;
+	this.handle(
+		IProblem.TypeMissingDeprecatedAnnotation,
+		new String[] {new String(binding.readableName()), },
+		new String[] {new String(binding.shortReadableName()),},
+		type.sourceStart,
+		type.sourceEnd);
+}
+
 public void missingReturnType(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MissingReturnType,

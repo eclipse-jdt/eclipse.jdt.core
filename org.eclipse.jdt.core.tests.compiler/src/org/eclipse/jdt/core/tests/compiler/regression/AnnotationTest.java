@@ -3572,7 +3572,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }            
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
-    public void _test112() {
+    public void test112() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -3584,7 +3584,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"  static final String zzz =  \"\";\n" + 
 				"}\n",
             },
-			"zzz undefined");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@Annot(foo1=zzz)\n" + 
+			"	            ^^^\n" + 
+			"zzz cannot be resolved\n" + 
+			"----------\n");
     }          
     public void test113() {
         this.runNegativeTest(
@@ -3612,7 +3617,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }     	
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
-    public void _test114() {
+    public void test114() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -3625,6 +3630,209 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	\n" + 
 				"}\n",
             },
-			"M undefined");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@Annot( foo = M.class )\n" + 
+			"	              ^\n" + 
+			"M cannot be resolved to a type\n" + 
+			"----------\n");
     }  	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
+    public void test115() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Annot {\n" + 
+				"	Class foo();\n" + 
+				"	String bar() default \"\";\n" + 
+				"}\n" + 
+				"@Annot(foo = M.class, bar = baz()+s)\n" + 
+				"public class X {\n" + 
+				"	class M {\n" + 
+				"	}\n" + 
+				"	final static String s = \"\";\n" + 
+				"	String baz() { return null; }\n" + 
+				"	@Annot(foo = T.class, bar = s)\n" + 
+				"	<T> T foo(T t, String s) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+			"	             ^\n" + 
+			"M cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+			"	                            ^^^\n" + 
+			"The method baz() is undefined for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+			"	                                  ^\n" + 
+			"s cannot be resolved\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	@Annot(foo = T.class, bar = s)\n" + 
+			"	             ^^^^^^^\n" + 
+			"Illegal class literal for the type parameter T\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	<T> T foo(T t, String s) {\n" + 
+			"	                      ^\n" + 
+			"The parameter s is hiding a field from type X\n" + 
+			"----------\n");
+    }  	
+    // check @Deprecated support
+    public void test116() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"/** @deprecated */\n" +
+				"@Deprecated\n" + 
+				"public class X {\n" + 
+				"}\n",
+                "Y.java",
+				"public class Y {\n" + 
+				"	X x;\n" + 
+				"	Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 2)\n" + 
+			"	X x;\n" + 
+			"	^\n" + 
+			"The type X is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  		
+    // check @Deprecated support
+    public void test117() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@Deprecated\n" + 
+				"public class X {\n" + 
+				"}\n",
+                "Y.java",
+				"public class Y {\n" + 
+				"	X x;\n" + 
+				"	Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 2)\n" + 
+			"	X x;\n" + 
+			"	^\n" + 
+			"The type X is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  			
+    // check @Deprecated support
+    public void test118() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Deprecated {}\n" + 
+				"\n" + 
+				"@Deprecated // not the real @Deprecated interface\n" + 
+				"public class X {\n" + 
+				"}\n",
+                "Y.java",
+				"public class Y {\n" + 
+				"	X x;\n" + 
+				"	Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  	
+    // check @Deprecated support
+    public void test119() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@Deprecated\n" + 
+				"public class X {\n" + 
+				"	void foo(){}\n" +
+				"}\n",
+                "Y.java",
+				"public class Y extends X {\n" + 
+				"	void foo(){ super.foo(); }\n" +
+				"	Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	             ^\n" + 
+			"The constructor X() is deprecated\n" + 
+			"----------\n" + 
+			"2. WARNING in Y.java (at line 2)\n" + 
+			"	void foo(){ super.foo(); }\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"3. WARNING in Y.java (at line 2)\n" + 
+			"	void foo(){ super.foo(); }\n" + 
+			"	            ^^^^^^^^^^^\n" + 
+			"The method foo() from the type X is deprecated\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  		
+    // check @Deprecated support
+    public void test120() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@Deprecated\n" + 
+				"public class X {\n" + 
+				"	void foo(){}\n" +
+				"}\n",
+                "Y.java",
+				"public class Y extends X {\n" + 
+				"	void foo(){ super.foo(); }\n" +
+				"	Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	             ^\n" + 
+			"The constructor X() is deprecated\n" + 
+			"----------\n" + 
+			"2. WARNING in Y.java (at line 2)\n" + 
+			"	void foo(){ super.foo(); }\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"3. WARNING in Y.java (at line 2)\n" + 
+			"	void foo(){ super.foo(); }\n" + 
+			"	            ^^^^^^^^^^^\n" + 
+			"The method foo() from the type X is deprecated\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  		
 }

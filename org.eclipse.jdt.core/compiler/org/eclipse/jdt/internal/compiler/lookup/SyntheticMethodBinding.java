@@ -37,6 +37,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
 
 		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
@@ -144,6 +145,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
 	    this.modifiers = overridenMethodToBridge.modifiers | AccBridge | AccSynthetic;
+		this.tagBits |= TagBits.AnnotationResolved;
 	    this.modifiers &= ~(AccAbstract | AccNative);
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
@@ -159,29 +161,23 @@ public class SyntheticMethodBinding extends MethodBinding {
 	 * Construct enum special methods: values or valueOf methods
 	 */
 	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
+	    this.declaringClass = declaringEnum;
+	    this.selector = selector;
+	    this.modifiers = AccFinal | AccPublic | AccStatic;
+		this.tagBits |= TagBits.AnnotationResolved;
+	    this.thrownExceptions = NoExceptions;
 		if (selector == TypeConstants.VALUES) {
-		    this.declaringClass = declaringEnum;
-		    this.selector = selector;
-		    this.modifiers = AccFinal | AccPublic | AccStatic;
 		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
 		    this.parameters = NoParameters;
-		    this.thrownExceptions = NoExceptions;
 		    this.kind = EnumValues;
-			SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
-			int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
-			this.index = methodId;	    
 		} else if (selector == TypeConstants.VALUEOF) {
-		    this.declaringClass = declaringEnum;
-		    this.selector = selector;
-		    this.modifiers = AccFinal | AccPublic | AccStatic;
 		    this.returnType = declaringEnum;
 		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
-		    this.thrownExceptions = NoExceptions;
 		    this.kind = EnumValueOf;
-			SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
-			int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
-			this.index = methodId;	    
 		}
+		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;	    
 		if (declaringEnum.isStrictfp()) {
 			this.modifiers |= AccStrictfp;
 		}
@@ -195,6 +191,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 		this.targetMethod = accessedConstructor;
 		this.modifiers = AccDefault | AccSynthetic;
+		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass; 
 		SyntheticMethodBinding[] knownSyntheticMethods = 
 			sourceType.syntheticMethods(); 
@@ -274,6 +271,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		
 		this.targetMethod = accessedMethod;
 		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;

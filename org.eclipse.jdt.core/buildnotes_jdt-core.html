@@ -47,6 +47,23 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compiler now recognizes <code>@Deprecated</code> annotations, and treats them equivalent
+to doc comment <code>/** @deprecated */</code>.
+</li>
+<li>Added optional compiler diagnosis to flag deprecated constructs missing a proper
+<code>@Deprecated</code> annotation (to encourage using annotations instead of doc comment tag).
+Corresponding problem IDs are: <code>IProblem.FieldMissingDeprecatedAnnotation</code>,
+<code>IProblem.MethodMissingDeprecatedAnnotation</code>,
+<code>IProblem.TypeMissingDeprecatedAnnotation</code>.
+<pre>
+* COMPILER / Reporting Missing @Deprecated Annotation
+*    When enabled, the compiler will issue an error or a warning whenever encountering a declaration
+*    carrying a @deprecated doc tag but has no corresponding @Deprecated annotation.
+*     - option id:        "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"     
+</pre>
+</li>
 <li>JLS2 API have been deprecated (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69657">69657</a>).</li>
 <li>Allow javadoc reference to varargs methods (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87845">87845</a>).<br>
 The 1.5 spec for the Javadoc tool does not mention the possibility
@@ -162,7 +179,9 @@ nodes depending on the form of the given name string.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69657">69657</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86921">86921</a>
+[1.5][compiler] Annotation attribute see members of the annotated type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69657">69657</a>
 [dom] deprecate JLS2 once JLS3 is fully supported
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77349">77349</a>
 [compiler] ClassFormatError when accessing clone() or finalize() methods from an interface

@@ -449,7 +449,7 @@ public class TypeDeclaration
 	 */
 	public FieldDeclaration declarationOf(FieldBinding fieldBinding) {
 
-		if (fieldBinding != null) {
+		if (fieldBinding != null && this.fields != null) {
 			for (int i = 0, max = this.fields.length; i < max; i++) {
 				FieldDeclaration fieldDecl;
 				if ((fieldDecl = this.fields[i]).binding == fieldBinding)
@@ -464,7 +464,7 @@ public class TypeDeclaration
 	 */
 	public TypeDeclaration declarationOf(MemberTypeBinding memberTypeBinding) {
 
-		if (memberTypeBinding != null) {
+		if (memberTypeBinding != null && this.memberTypes != null) {
 			for (int i = 0, max = this.memberTypes.length; i < max; i++) {
 				TypeDeclaration memberTypeDecl;
 				if ((memberTypeDecl = this.memberTypes[i]).binding == memberTypeBinding)
@@ -479,7 +479,7 @@ public class TypeDeclaration
 	 */
 	public AbstractMethodDeclaration declarationOf(MethodBinding methodBinding) {
 
-		if (methodBinding != null) {
+		if (methodBinding != null && this.methods != null) {
 			for (int i = 0, max = this.methods.length; i < max; i++) {
 				AbstractMethodDeclaration methodDecl;
 
@@ -950,7 +950,13 @@ public class TypeDeclaration
 			return;
 		}
 		try {
-			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
+			boolean old = this.staticInitializerScope.insideTypeAnnotation;
+			try {
+				this.staticInitializerScope.insideTypeAnnotation = true;
+				resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
+			} finally {
+				this.staticInitializerScope.insideTypeAnnotation = old;
+			}
 			
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);

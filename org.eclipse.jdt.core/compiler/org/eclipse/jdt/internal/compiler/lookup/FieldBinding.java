@@ -25,11 +25,6 @@ protected FieldBinding() {
 public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant) {
 	super(name, type, modifiers, constant);
 	this.declaringClass = declaringClass;
-
-	// propagate the deprecated modifier
-	if (this.declaringClass != null)
-		if (this.declaringClass.isViewedAsDeprecated() && !isDeprecated())
-			this.modifiers |= AccDeprecatedImplicitly;
 }
 public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, ReferenceBinding declaringClass) {
 	this(field.name, type, modifiers, declaringClass, null);
@@ -190,7 +185,8 @@ public long getAnnotationTagBits() {
 	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
-		ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);
+		if (fieldDecl != null)
+			ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);
 	}
 	return originalField.tagBits;
 }
@@ -253,8 +249,7 @@ public final boolean isTransient() {
 */
 
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & AccDeprecated) != 0 ||
-		(modifiers & AccDeprecatedImplicitly) != 0;
+	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
 }
 /* Answer true if the receiver is a volatile field
 */

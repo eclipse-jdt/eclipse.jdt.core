@@ -49,6 +49,9 @@ public class MethodScope extends BlockScope {
 	public long[] definiteInits = new long[4];
 	public long[][] extraDefiniteInits = new long[4][];
 
+	// annotation support
+	public boolean insideTypeAnnotation = false;
+	
 	// inner-emulation
 	public SyntheticArgumentBinding[] extraSyntheticArguments;
 	

@@ -44,8 +44,6 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 		if (this.declaringClass.isStrictfp())
 			if (!(isNative() || isAbstract()))
 				this.modifiers |= AccStrictfp;
-		if (this.declaringClass.isViewedAsDeprecated() && !isDeprecated())
-			this.modifiers |= AccDeprecatedImplicitly;
 	}
 }
 public MethodBinding(int modifiers, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
@@ -376,7 +374,8 @@ public long getAnnotationTagBits() {
 	if ((originalMethod.tagBits & TagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalMethod.declaringClass).scope.referenceContext;
 		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
-		ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
+		if (methodDecl != null)
+			ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
 	}
 	return originalMethod.tagBits;
 }
@@ -542,8 +541,7 @@ public final boolean isVarargs() {
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & AccDeprecated) != 0 ||
-		(modifiers & AccDeprecatedImplicitly) != 0;
+	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
 }
 
 /**

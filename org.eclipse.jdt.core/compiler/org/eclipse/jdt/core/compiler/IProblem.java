@@ -1038,6 +1038,12 @@ public interface IProblem {
 	int AnnotationTypeUsedAsSuperInterface = TypeRelated + 626;
 	/** @since 3.1 */
 	int MissingOverrideAnnotation = MethodRelated + 627;
+	/** @since 3.1 */
+	int FieldMissingDeprecatedAnnotation = Internal + 628;
+	/** @since 3.1 */
+	int MethodMissingDeprecatedAnnotation = Internal + 629;
+	/** @since 3.1 */
+	int TypeMissingDeprecatedAnnotation = Internal + 630;
 	
 	/**
 	 * Corrupted binaries

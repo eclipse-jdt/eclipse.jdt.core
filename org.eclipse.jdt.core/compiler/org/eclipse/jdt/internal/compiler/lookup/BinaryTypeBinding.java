@@ -272,36 +272,39 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.methods = NoMethods;
 	}
 }
-private void createFields(IBinaryField[] iFields, long sourceLevel) {
-	this.fields = NoFields;
-	if (iFields != null) {
-		int size = iFields.length;
-		if (size > 0) {
-			this.fields = new FieldBinding[size];
-			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-			for (int i = 0; i < size; i++) {
-				IBinaryField binaryField = iFields[i];
-				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-				TypeBinding type = fieldSignature == null
-					? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this)
-					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
-				FieldBinding field =
-					new FieldBinding(
-						binaryField.getName(),
-						type,
-						binaryField.getModifiers() | AccUnresolved,
-						this,
-						binaryField.getConstant());
-				field.id = i; // ordinal
-				if (use15specifics) {
-					field.tagBits |= binaryField.getTagBits();
+	private void createFields(IBinaryField[] iFields, long sourceLevel) {
+		this.fields = NoFields;
+		if (iFields != null) {
+			int size = iFields.length;
+			if (size > 0) {
+				this.fields = new FieldBinding[size];
+				boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
+				boolean isViewedAsDeprecated = isViewedAsDeprecated();
+				for (int i = 0; i < size; i++) {
+					IBinaryField binaryField = iFields[i];
+					char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
+					TypeBinding type = fieldSignature == null 
+							? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this) 
+							: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
+					FieldBinding field = 
+						new FieldBinding(
+								binaryField.getName(), 
+								type, 
+								binaryField.getModifiers() | AccUnresolved, 
+								this, 
+								binaryField.getConstant());
+					field.id = i; // ordinal
+					if (use15specifics) {
+						field.tagBits |= binaryField.getTagBits();
+					}
+					if (isViewedAsDeprecated && !field.isDeprecated()) {
+						field.modifiers |= AccDeprecatedImplicitly;
+					}		
+					this.fields[i] = field;
 				}
-				this.fields[i] = field;
-
 			}
 		}
 	}
-}
 private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	int methodModifiers = method.getModifiers() | AccUnresolved;
 	if (sourceLevel < ClassFileConstants.JDK1_5)
@@ -447,14 +450,25 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 		return;
 	}
 
+	boolean isViewedAsDeprecated = isViewedAsDeprecated();
 	this.methods = new MethodBinding[total];
 	if (total == initialTotal) {
-		for (int i = 0; i < initialTotal; i++)
-			this.methods[i] = createMethod(iMethods[i], sourceLevel);
+		for (int i = 0; i < initialTotal; i++) {
+			MethodBinding method = createMethod(iMethods[i], sourceLevel);
+			if (isViewedAsDeprecated && !method.isDeprecated()) {
+				method.modifiers |= AccDeprecatedImplicitly;
+			}		
+			this.methods[i] = method;
+		}
 	} else {
 		for (int i = 0, index = 0; i < initialTotal; i++)
-			if (iClinit != i && (toSkip == null || toSkip[i] != -1))
-				this.methods[index++] = createMethod(iMethods[i], sourceLevel);
+			if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
+				MethodBinding method = createMethod(iMethods[i], sourceLevel);
+				if (isViewedAsDeprecated && !method.isDeprecated()) {
+					method.modifiers |= AccDeprecatedImplicitly;
+				}		
+				this.methods[index++] = method;
+			}
 	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }

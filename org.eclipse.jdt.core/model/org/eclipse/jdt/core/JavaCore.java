@@ -436,6 +436,12 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
+	public static final String COMPILER_PB_MISSING_DEPRECATED_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingDeprecatedAnnotation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
 	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -1886,6 +1892,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning whenever encountering a method
 	 *    declaration which overrides a superclass method but has no @Override annotation.
 	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"                               
+	 * 
+	 * COMPILER / Reporting Missing @Deprecated Annotation
+	 *    When enabled, the compiler will issue an error or a warning whenever encountering a declaration
+	 *    carrying a @deprecated doc tag but has no corresponding @Deprecated annotation.
+	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"                               
 	 * 

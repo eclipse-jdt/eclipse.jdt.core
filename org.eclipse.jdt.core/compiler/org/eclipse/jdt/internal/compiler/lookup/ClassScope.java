@@ -354,15 +354,12 @@ public class ClassScope extends Scope {
 		int modifiers = sourceType.modifiers;
 		if ((modifiers & AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
-
 		ReferenceBinding enclosingType = sourceType.enclosingType();
 		boolean isMemberType = sourceType.isMemberType();
 		if (isMemberType) {
 			// checks for member types before local types to catch local members
 			if (enclosingType.isStrictfp())
 				modifiers |= AccStrictfp;
-			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
-				modifiers |= AccDeprecatedImplicitly;
 			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
 			if (sourceType.isEnum())
@@ -676,9 +673,11 @@ public class ClassScope extends Scope {
 
 	private void connectMemberTypes() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		if (sourceType.memberTypes != NoMemberTypes)
-			for (int i = 0, size = sourceType.memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) sourceType.memberTypes[i]).scope.connectTypeHierarchy();
+		ReferenceBinding[] memberTypes = sourceType.memberTypes;
+		if (memberTypes != null && memberTypes != NoMemberTypes) {
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.connectTypeHierarchy();
+		}
 	}
 	/*
 		Our current belief based on available JCK tests is:

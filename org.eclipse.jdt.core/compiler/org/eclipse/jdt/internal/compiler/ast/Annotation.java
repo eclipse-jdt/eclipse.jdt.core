@@ -19,11 +19,11 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public abstract class Annotation extends Expression {
 	
-	public TypeReference type;
+	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
 	public int declarationSourceEnd;
 	public Binding recipient;
 	
-	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
+	public TypeReference type;
 	
 	public static long getRetentionPolicy(char[] policyName) {
 		if (policyName == null || policyName.length == 0)
@@ -153,13 +153,13 @@ public abstract class Annotation extends Expression {
 		return tagBits;
 	}
 	
+	public abstract MemberValuePair[] memberValuePairs();
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append('@');
 		this.type.printExpression(0, output);
 		return output;
 	}
-	
-	public abstract MemberValuePair[] memberValuePairs();
 	
 	public TypeBinding resolveType(BlockScope scope) {
 		
