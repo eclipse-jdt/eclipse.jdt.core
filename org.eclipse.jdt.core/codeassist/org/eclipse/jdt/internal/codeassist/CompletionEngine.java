@@ -83,6 +83,8 @@ public final class CompletionEngine
 	int expectedTypesFilter;
 	int uninterestingBindingsPtr = -1;
 	Binding[] uninterestingBindings = new Binding[1];
+	int forbbidenBindingsPtr = -1;
+	Binding[] forbbidenBindings = new Binding[1];
 	
 	boolean assistNodeIsClass;
 	boolean assistNodeIsException;
@@ -528,6 +530,7 @@ public final class CompletionEngine
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
 		
+		scope = computeForbiddenBindings(astNode, astNodeParent, scope);
 		computeUninterestingBindings(astNodeParent, scope);
 		if(astNodeParent != null) {
 			if(!isValidParent(astNodeParent, astNode, scope)) return;
@@ -2287,6 +2290,8 @@ public final class CompletionEngine
 			
 			if (staticOnly && !memberType.isStatic()) continue next;
 			
+			if (isForbidden(memberType)) continue next;
+			
 			if (typeLength > memberType.sourceName.length)
 				continue next;
 
@@ -3434,6 +3439,8 @@ public final class CompletionEngine
 								((ClassScope) blockScope.subscopes[i]).referenceContext.binding;
 
 							if (!localType.isAnonymousType()) {
+								if (this.isForbidden(localType))
+									continue next;
 								if (typeLength > localType.sourceName.length)
 									continue next;
 								if (!CharOperation.prefixEquals(typeName, localType.sourceName, false
@@ -3583,6 +3590,8 @@ public final class CompletionEngine
 				
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 
+				if(isForbidden(sourceType)) continue;
+					
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
@@ -4620,6 +4629,14 @@ public final class CompletionEngine
 			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[length * 2], 0, length);
 		this.expectedTypes[this.expectedTypesPtr] = type;
 	}
+	private void addForbiddenBindings(Binding binding){
+		if (binding == null) return;
+
+		int length = this.forbbidenBindings.length;
+		if (++this.forbbidenBindingsPtr >= length)
+			System.arraycopy(this.forbbidenBindings, 0, this.forbbidenBindings = new Binding[length * 2], 0, length);
+		this.forbbidenBindings[this.forbbidenBindingsPtr] = binding;
+	}
 	private void addUninterestingBindings(Binding binding){
 		if (binding == null) return;
 
@@ -4628,7 +4645,25 @@ public final class CompletionEngine
 			System.arraycopy(this.uninterestingBindings, 0, this.uninterestingBindings = new Binding[length * 2], 0, length);
 		this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
 	}
-	
+
+	private Scope computeForbiddenBindings(ASTNode astNode, ASTNode astNodeParent, Scope scope) {
+		if(scope instanceof ClassScope) {
+			TypeDeclaration typeDeclaration = ((ClassScope)scope).referenceContext;
+			if(typeDeclaration.superclass == astNode) {
+				this.addForbiddenBindings(typeDeclaration.binding);
+				return scope.parent;
+			}
+			TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+			int length = superInterfaces == null ? 0 : superInterfaces.length;
+			for (int i = 0; i < length; i++) {
+				if(superInterfaces[i] == astNode) {
+					this.addForbiddenBindings(typeDeclaration.binding);
+					return scope.parent;
+				}
+			}
+		}
+		return scope;
+	}
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
 		
 		StringBuffer completion = new StringBuffer(10);
@@ -4692,7 +4727,14 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+	private boolean isForbidden(Binding binding) {
+		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
+			if(this.forbbidenBindings[i] == binding) {
+				return true;
+			}
+		}
+		return false;
+	}
 	private boolean isValidParent(ASTNode parent, ASTNode node, Scope scope){
 		
 		if(parent instanceof ParameterizedSingleTypeReference) {

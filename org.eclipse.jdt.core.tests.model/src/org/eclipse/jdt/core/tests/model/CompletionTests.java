@@ -242,6 +242,18 @@ public static Test suite() {
 		suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
 		suite.addTest(new CompletionTests("testCompletion2InterfacesWithSameMethod"));
 		suite.addTest(new CompletionTests("testCompletionExactNameCaseInsensitive"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends1"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends2"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends3"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends4"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends5"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends6"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends7"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends8"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends9"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends10"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends11"));
+		suite.addTest(new CompletionTests("testCompletionInsideExtends12"));
 		
 		// completion keywords tests
 		suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
@@ -1812,7 +1824,6 @@ public void testCompletionSuperType2() throws JavaModelException {
 		"element:CompletionSuperInterface    completion:CompletionSuperInterface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
@@ -1838,7 +1849,6 @@ public void testCompletionSuperType3() throws JavaModelException {
 		"element:CompletionSuperInterface2    completion:CompletionSuperInterface2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType    completion:CompletionSuperType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType2    completion:CompletionSuperType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
@@ -1896,7 +1906,6 @@ public void testCompletionSuperType6() throws JavaModelException {
 		"element:CompletionSuperType3    completion:CompletionSuperType3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType4    completion:CompletionSuperType4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType5    completion:CompletionSuperType5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:CompletionSuperType6    completion:CompletionSuperType6    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType7    completion:CompletionSuperType7    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 		"element:CompletionSuperType8    completion:CompletionSuperType8    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED+ R_NON_RESTRICTED),
 		requestor.getResults());
@@ -8897,6 +8906,301 @@ public void testCompletionInsideGenericClass() throws JavaModelException {
 	assertResults(
 			"CompletionInsideGenericClas[POTENTIAL_METHOD_DECLARATION]{CompletionInsideGenericClas, Ltest.CompletionInsideGenericClass;, ()V, CompletionInsideGenericClas, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
 			"CompletionInsideGenericClass[TYPE_REF]{CompletionInsideGenericClass, test, Ltest.CompletionInsideGenericClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends1() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends1.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends1 extends  {\n" +
+			"  public class CompletionInsideExtends1Inner {}" +
+			"}" +
+			"class CompletionInsideExtends1TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends1TopLevel[TYPE_REF]{CompletionInsideExtends1TopLevel, test, Ltest.CompletionInsideExtends1TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends2() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends2.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends2 extends CompletionInsideExtends {\n" +
+			"  public class CompletionInsideExtends2Inner {}" +
+			"}" +
+			"class CompletionInsideExtends2TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends2TopLevel[TYPE_REF]{CompletionInsideExtends2TopLevel, test, Ltest.CompletionInsideExtends2TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends3() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends3.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends3 {\n" +
+			"  public class CompletionInsideExtends3Inner extends {" +
+			"    public class CompletionInsideExtends3InnerInner {" +
+			"    }" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends3TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends3[TYPE_REF]{CompletionInsideExtends3, test, Ltest.CompletionInsideExtends3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends3TopLevel[TYPE_REF]{CompletionInsideExtends3TopLevel, test, Ltest.CompletionInsideExtends3TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends4() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends4.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends4 {\n" +
+			"  public class CompletionInsideExtends4Inner extends CompletionInsideExtends{" +
+			"    public class CompletionInsideExtends4InnerInner {" +
+			"    }" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends4TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends4[TYPE_REF]{CompletionInsideExtends4, test, Ltest.CompletionInsideExtends4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends4TopLevel[TYPE_REF]{CompletionInsideExtends4TopLevel, test, Ltest.CompletionInsideExtends4TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends5() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends5.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends5 {\n" +
+			"  void foo() {" +
+			"    public class CompletionInsideExtends5Inner extends {" +
+			"      public class CompletionInsideExtends5InnerInner {" +
+			"      }" +
+			"    }" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends5TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends5[TYPE_REF]{CompletionInsideExtends5, test, Ltest.CompletionInsideExtends5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends5TopLevel[TYPE_REF]{CompletionInsideExtends5TopLevel, test, Ltest.CompletionInsideExtends5TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends6() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends6.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends6 {\n" +
+			"  void foo() {" +
+			"    public class CompletionInsideExtends6Inner extends CompletionInsideExtends {" +
+			"      public class CompletionInsideExtends6InnerInner {" +
+			"      }" +
+			"    }" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends6TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends6[TYPE_REF]{CompletionInsideExtends6, test, Ltest.CompletionInsideExtends6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends6TopLevel[TYPE_REF]{CompletionInsideExtends6TopLevel, test, Ltest.CompletionInsideExtends6TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends7() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends7.java",
+			"package test;\n" +
+			"public interface CompletionInsideExtends7 extends  {\n" +
+			"  public interface CompletionInsideExtends7Inner {}" +
+			"}" +
+			"interface CompletionInsideExtends7TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends7TopLevel[TYPE_REF]{CompletionInsideExtends7TopLevel, test, Ltest.CompletionInsideExtends7TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends8() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends8.java",
+			"package test;\n" +
+			"public interface CompletionInsideExtends8 extends CompletionInsideExtends {\n" +
+			"  public interface CompletionInsideExtends8Inner {}" +
+			"}" +
+			"interface CompletionInsideExtends8TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends8TopLevel[TYPE_REF]{CompletionInsideExtends8TopLevel, test, Ltest.CompletionInsideExtends8TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends9() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends9.java",
+			"package test;\n" +
+			"public interface CompletionInsideExtends9 {\n" +
+			"  public interface CompletionInsideExtends9Inner extends {" +
+			"    public interface CompletionInsideExtends9InnerInner {" +
+			"    }" +
+			"  }" +
+			"}" +
+			"interface CompletionInsideExtends9TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends9[TYPE_REF]{CompletionInsideExtends9, test, Ltest.CompletionInsideExtends9;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends9TopLevel[TYPE_REF]{CompletionInsideExtends9TopLevel, test, Ltest.CompletionInsideExtends9TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends10() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends10.java",
+			"package test;\n" +
+			"public interface CompletionInsideExtends10 {\n" +
+			"  public interface CompletionInsideExtends10Inner extends CompletionInsideExtends{" +
+			"    public interface CompletionInsideExtends10InnerInner {" +
+			"    }" +
+			"  }" +
+			"}" +
+			"interface CompletionInsideExtends10TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "extends CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends11() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends11.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends11 implements {\n" +
+			"  public class CompletionInsideExtends11Inner {" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends11TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "implements ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends11TopLevel[TYPE_REF]{CompletionInsideExtends11TopLevel, test, Ltest.CompletionInsideExtends11TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
+public void testCompletionInsideExtends12() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionInsideExtends12.java",
+			"package test;\n" +
+			"public class CompletionInsideExtends12 implements CompletionInsideExtends {\n" +
+			"  public class CompletionInsideExtends12Inner {" +
+			"  }" +
+			"}" +
+			"class CompletionInsideExtends12TopLevel {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "implements CompletionInsideExtends";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionInsideExtends12TopLevel[TYPE_REF]{CompletionInsideExtends12TopLevel, test, Ltest.CompletionInsideExtends12TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }
