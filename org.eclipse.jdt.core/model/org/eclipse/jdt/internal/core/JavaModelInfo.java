@@ -35,16 +35,10 @@ public class JavaModelInfo extends OpenableElementInfo {
 	 */
 	protected JavaModel fJavaModel= null;
 
-	/**
-	 * The workspace this Java Model Info corresponds to
-	 */
-	protected IWorkspace workspace;
-
 /**
  * Constructs a new Java Model Info 
  */
-protected JavaModelInfo(JavaModel javaModel, IWorkspace workspace) {
-	this.workspace = workspace;
+protected JavaModelInfo(JavaModel javaModel) {
 	this.fJavaModel= javaModel;
 }
 

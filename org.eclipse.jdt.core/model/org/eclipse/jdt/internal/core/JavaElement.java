@@ -131,6 +131,7 @@ protected void closing(Object info) throws JavaModelException {
  * @see Object#equals
  */
 public boolean equals(Object o) {
+	if (fParent == null) return super.equals(o);
 	if (this == o)
 		return true;
 	if (o instanceof JavaElement) {
@@ -443,6 +444,7 @@ public IWorkspace getWorkspace() {
  * override this method.
  */
 public int hashCode() {
+	if (fParent == null) return super.hashCode();
 	return Util.combineHashCodes(fName.hashCode(), fParent.hashCode());
 }
 /**

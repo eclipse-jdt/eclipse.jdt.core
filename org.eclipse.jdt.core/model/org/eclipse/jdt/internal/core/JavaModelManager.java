@@ -836,7 +836,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	public JavaModel getJavaModel() {
 		JavaModel javaModel = this.cache.getJavaModel();
 		if (javaModel == null){
-			javaModel = new JavaModel(ResourcesPlugin.getWorkspace());
+			javaModel = new JavaModel();
 		}
 		return javaModel;
 	}

@@ -170,11 +170,19 @@ public void discardJobsUntilNextProjectAddition(String jobFamily) {
 	try {
 		disable();
 		
-		// wait until current active job has finished
-		while (thread != null && executing){
-			try {
-				Thread.currentThread().sleep(50);
-			} catch(InterruptedException e){
+		// cancel current job if it belongs to the given family
+		IJob currentJob = this.currentJob();
+		if (currentJob != null 
+				&& (jobFamily == null || currentJob.belongsTo(jobFamily))) {
+
+			currentJob.cancel();
+		
+			// wait until current active job has finished
+			while (thread != null && executing){
+				try {
+					Thread.currentThread().sleep(50);
+				} catch(InterruptedException e){
+				}
 			}
 		}
 
@@ -182,8 +190,9 @@ public void discardJobsUntilNextProjectAddition(String jobFamily) {
 			// flush and compact awaiting jobs
 			int loc = -1;
 			boolean foundProjectAddition = false;
-			for (int i = jobStart+1; i <= jobEnd; i++){
-				IJob currentJob = awaitingJobs[i];
+			for (int i = jobStart; i <= jobEnd; i++){
+				currentJob = awaitingJobs[i];
+				if (currentJob == null) continue;
 				awaitingJobs[i] = null;
 				boolean discard = jobFamily == null;
 				if (!discard && currentJob.belongsTo(jobFamily)){ // might discard

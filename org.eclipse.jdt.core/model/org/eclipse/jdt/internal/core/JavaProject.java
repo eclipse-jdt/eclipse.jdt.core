@@ -296,6 +296,7 @@ public class JavaProject
 		IClasspathEntry[] immediateClasspath = 
 			getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
 			
+		IWorkspaceRoot workspaceRoot = this.getWorkspace().getRoot();
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
 
@@ -306,7 +307,7 @@ public class JavaProject
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == ClasspathEntry.CPE_PROJECT) {
-					IProject projRsc = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
+					IProject projRsc = (IProject) workspaceRoot.findMember(entry.getPath());
 					if (projRsc != null && projRsc.isOpen()) {				
 						JavaProject project = (JavaProject) JavaCore.create(projRsc);
 						project.computeExpandedClasspath(
