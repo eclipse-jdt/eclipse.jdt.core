@@ -421,8 +421,8 @@ public class JavadocParser extends AbstractCommentParser {
 		// Create param reference
 		ASTNode nameRef = null;
 		if (isTypeParam) {
-			JavadocSingleTypeReference ref = new JavadocSingleTypeReference(this.identifierStack[0],
-				this.identifierPositionStack[0],
+			JavadocSingleTypeReference ref = new JavadocSingleTypeReference(this.identifierStack[1],
+				this.identifierPositionStack[1],
 				this.tagSourceStart,
 				this.tagSourceEnd);
 			nameRef = ref;

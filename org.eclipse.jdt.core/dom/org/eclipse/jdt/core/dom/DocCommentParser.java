@@ -199,9 +199,41 @@ class DocCommentParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTag()
 	 */
 	protected void createTag() {
-		TagElement tag = this.ast.newTagElement();
+		TagElement tagElement = this.ast.newTagElement();
 		int start = this.tagSourceStart;
-		tag.setTagName(new String(this.source, start, this.tagSourceEnd-start+1));
+		String tagName = new String(this.source, start, this.tagSourceEnd-start+1);
+		switch (tagName.charAt(0)) {
+			case 'a':
+				if (tagName.equals(TagElement.TAG_AUTHOR)) {
+					tagName = TagElement.TAG_AUTHOR;
+				}
+				break;
+			case 'd':
+				if (tagName.equals(TagElement.TAG_DOCROOT)) {
+					tagName = TagElement.TAG_DOCROOT;
+				}
+				break;
+			case 'r':
+				if (tagName.equals(TagElement.TAG_RETURN)) {
+					tagName = TagElement.TAG_RETURN;
+				}
+				break;
+			case 's':
+				if (tagName.equals(TagElement.TAG_SERIAL)) {
+					tagName = TagElement.TAG_SERIAL;
+				} else  if (tagName.equals(TagElement.TAG_SERIALDATA)) {
+					tagName = TagElement.TAG_SERIALDATA;
+				} else if (tagName.equals(TagElement.TAG_SERIALFIELD)) {
+					tagName = TagElement.TAG_SERIALFIELD;
+				}
+				break;
+			case 'v':
+				if (tagName.equals(TagElement.TAG_VERSION)) {
+					tagName = TagElement.TAG_VERSION;
+				}
+				break;
+		}
+		tagElement.setTagName(tagName);
 		if (this.inlineTagStarted) {
 			start = this.inlineTagStart;
 			TagElement previousTag = null;
@@ -213,12 +245,12 @@ class DocCommentParser extends AbstractCommentParser {
 				previousTag = (TagElement) this.astStack[this.astPtr];
 			}
 			int previousStart = previousTag.getStartPosition();
-			previousTag.fragments().add(tag);
+			previousTag.fragments().add(tagElement);
 			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
 		} else {
-			pushOnAstStack(tag, true);
+			pushOnAstStack(tagElement, true);
 		}
-		tag.setSourceRange(start, this.tagSourceEnd-start+1);
+		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 //		return true;
 	}
 
@@ -517,14 +549,36 @@ class DocCommentParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushParamName(java.lang.Object)
 	 */
 	protected boolean pushParamName(boolean isTypeParam) {
-		SimpleName name = this.ast.newSimpleName(new String(this.identifierStack[0]));
-		int start = (int) (this.identifierPositionStack[0] >>> 32);
-		int end = (int) (this.identifierPositionStack[0] & 0x00000000FFFFFFFFL);
-		name.setSourceRange(start, end-start+1);
+		int idIndex = isTypeParam ? 1 : 0;
+		SimpleName name = this.ast.newSimpleName(new String(this.identifierStack[idIndex]));
+		int nameStart = (int) (this.identifierPositionStack[idIndex] >>> 32);
+		int nameEnd = (int) (this.identifierPositionStack[idIndex] & 0x00000000FFFFFFFFL);
+		name.setSourceRange(nameStart, nameEnd-nameStart+1);
 		TagElement paramTag = this.ast.newTagElement();
 		paramTag.setTagName(TagElement.TAG_PARAM);
-		paramTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
-		paramTag.fragments().add(name);
+		if (isTypeParam) { // specific storage for @param <E> (see bug 79809)
+			// '<' was stored in identifiers stack
+			TextElement text = this.ast.newTextElement();
+			text.setText(new String(this.identifierStack[0]));
+			int txtStart = (int) (this.identifierPositionStack[0] >>> 32);
+			int txtEnd = (int) (this.identifierPositionStack[0] & 0x00000000FFFFFFFFL);
+			text.setSourceRange(txtStart, txtEnd-txtStart+1);
+			paramTag.fragments().add(text);
+			// add simple name
+			paramTag.fragments().add(name);
+			// '>' was stored in identifiers stack
+			text = this.ast.newTextElement();
+			text.setText(new String(this.identifierStack[2]));
+			txtStart = (int) (this.identifierPositionStack[2] >>> 32);
+			txtEnd = (int) (this.identifierPositionStack[2] & 0x00000000FFFFFFFFL);
+			text.setSourceRange(txtStart, txtEnd-txtStart+1);
+			paramTag.fragments().add(text);
+			// set param tag source range
+			paramTag.setSourceRange(this.tagSourceStart, txtEnd-this.tagSourceStart+1);
+		} else {
+			paramTag.setSourceRange(this.tagSourceStart, nameEnd-this.tagSourceStart+1);
+			paramTag.fragments().add(name);
+		}
 		pushOnAstStack(paramTag, true);
 		return true;
 	}

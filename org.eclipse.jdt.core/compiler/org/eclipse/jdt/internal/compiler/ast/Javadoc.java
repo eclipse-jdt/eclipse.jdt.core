@@ -538,9 +538,11 @@ public class Javadoc extends ASTNode {
 	 * Search node with a given staring position in javadoc objects arrays.
 	 */
 	public ASTNode getNodeStartingAt(int start) {
+		int length = 0;
 		// parameters array
 		if (this.paramReferences != null) {
-			for (int i=0; i<this.paramReferences.length; i++) {
+			length = this.paramReferences.length;
+			for (int i=0; i<length; i++) {
 				JavadocSingleNameReference param = this.paramReferences[i];
 				if (param.sourceStart==start) {
 					return param;
@@ -549,8 +551,19 @@ public class Javadoc extends ASTNode {
 		}
 		// array of invalid syntax tags parameters
 		if (this.invalidParameters != null) {
-			for (int i=0; i<this.invalidParameters.length; i++) {
+			length = this.invalidParameters.length;
+			for (int i=0; i<length; i++) {
 				JavadocSingleNameReference param = this.invalidParameters[i];
+				if (param.sourceStart==start) {
+					return param;
+				}
+			}
+		}
+		// type parameters array
+		if (this.paramTypeParameters != null) {
+			length = this.paramTypeParameters.length;
+			for (int i=0; i<length; i++) {
+				JavadocSingleTypeReference param = this.paramTypeParameters[i];
 				if (param.sourceStart==start) {
 					return param;
 				}
@@ -558,7 +571,8 @@ public class Javadoc extends ASTNode {
 		}
 		// thrown exception array
 		if (this.exceptionReferences != null) {
-			for (int i=0; i<this.exceptionReferences.length; i++) {
+			length = this.exceptionReferences.length;
+			for (int i=0; i<length; i++) {
 				TypeReference typeRef = this.exceptionReferences[i];
 				if (typeRef.sourceStart==start) {
 					return typeRef;
@@ -567,7 +581,8 @@ public class Javadoc extends ASTNode {
 		}
 		// references array
 		if (this.seeReferences != null) {
-			for (int i=0; i<this.seeReferences.length; i++) {
+			length = this.seeReferences.length;
+			for (int i=0; i<length; i++) {
 				org.eclipse.jdt.internal.compiler.ast.Expression expression = this.seeReferences[i];
 				if (expression.sourceStart==start) {
 					return expression;
@@ -576,7 +591,7 @@ public class Javadoc extends ASTNode {
 					// if binding is valid then look at arguments
 					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
 						if (allocationExpr.arguments != null) {
-							for (int j=0; j<allocationExpr.arguments.length; j++) {
+							for (int j=0, l=allocationExpr.arguments.length; j<l; j++) {
 								if (allocationExpr.arguments[j].sourceStart == start) {
 									return allocationExpr.arguments[j];
 								}
@@ -588,7 +603,7 @@ public class Javadoc extends ASTNode {
 					// if binding is valid then look at arguments
 					if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
 						if (messageSend.arguments != null) {
-							for (int j=0; j<messageSend.arguments.length; j++) {
+							for (int j=0, l=messageSend.arguments.length; j<l; j++) {
 								if (messageSend.arguments[j].sourceStart == start) {
 									return messageSend.arguments[j];
 								}

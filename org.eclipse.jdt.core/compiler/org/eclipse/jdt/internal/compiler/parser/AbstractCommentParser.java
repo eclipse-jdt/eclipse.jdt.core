@@ -653,6 +653,8 @@ public abstract class AbstractCommentParser {
 		}
 		
 		// Get first non whitespace token
+		this.identifierPtr = -1;
+		this.identifierLengthPtr = -1;
 		boolean hasMultiLines = this.scanner.currentPosition > (this.lineEnd+1);
 		boolean isTypeParam = false;
 		boolean valid = true, empty = true;
@@ -662,8 +664,6 @@ public abstract class AbstractCommentParser {
 				case TerminalTokens.TokenNameIdentifier :
 					if (valid) { 
 						// store param name id
-						this.identifierPtr = -1;
-						this.identifierLengthPtr = -1;
 						pushIdentifier(true);
 						start = this.scanner.getCurrentTokenStartPosition();
 						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
@@ -672,6 +672,8 @@ public abstract class AbstractCommentParser {
 					// fall through next case to report error
 				case TerminalTokens.TokenNameLESS:
 					if (valid && this.jdk15) {
+						// store '<' in identifiers stack as we need to add it to tag element (bug 79809)
+						pushIdentifier(true);
 						start = this.scanner.getCurrentTokenStartPosition();
 						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 						isTypeParam = true;
@@ -729,9 +731,7 @@ public abstract class AbstractCommentParser {
 						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 						if (valid) {
 							// store param name id
-							this.identifierPtr = -1;
-							this.identifierLengthPtr = -1;
-							pushIdentifier(true);
+							pushIdentifier(false);
 							break nextToken;
 						}
 						break;
@@ -766,6 +766,8 @@ public abstract class AbstractCommentParser {
 					case TerminalTokens.TokenNameGREATER:
 						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 						if (valid) {
+							// store '>' in identifiers stack as we need to add it to tag element (bug 79809)
+							pushIdentifier(false);
 							break nextToken;
 						}
 						break;
@@ -1023,11 +1025,6 @@ public abstract class AbstractCommentParser {
 		this.currentTokenType = -1;
 		return false;
 	}
-
-	/*
-	 * Parse @return tag declaration
-	 */
-	protected abstract boolean parseReturn();
 
 	/*
 	 * Parse tag declaration
