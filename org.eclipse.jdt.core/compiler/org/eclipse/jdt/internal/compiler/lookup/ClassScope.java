@@ -59,7 +59,7 @@ public class ClassScope extends Scope {
 			if (hierarchyIsInconsistent) { // 72468
 				referenceContext.binding.fields = new FieldBinding[1];
 				referenceContext.binding.fields[0] =
-					new FieldBinding(IncompleteHierarchy, VoidBinding, AccPrivate, referenceContext.binding, null);
+					new FieldBinding(IncompleteHierarchy, IntBinding, AccPrivate, referenceContext.binding, null);
 			} else {
 				referenceContext.binding.fields = NoFields;
 			}
