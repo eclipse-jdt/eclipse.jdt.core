@@ -1541,4 +1541,59 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
+	
+	public void test060() { // autoboxing and boolean expr
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.Iterator;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Boolean> list = new ArrayList<Boolean>();\n" + 
+				"		for (int i = 0; i < 5; i++) {\n" + 
+				"			list.add(i % 2 == 0);\n" + 
+				"	    }\n" + 
+				"	    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {\n" + 
+				"	    	if (iterator.next()) {\n" + 
+				"	    		System.out.println(\"SUCCESS\");\n" + 
+				"	    		break;\n" + 
+				"	    	}\n" + 
+				"	    }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	
+	public void test061() { // autoboxing and boolean expr
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.Iterator;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Boolean> list = new ArrayList<Boolean>();\n" + 
+				"		boolean b = true;\n" + 
+				"		for (int i = 0; i < 5; i++) {\n" + 
+				"			list.add((i % 2 == 0) && b);\n" + 
+				"	    }\n" + 
+				"	    for (Iterator<Boolean> iterator = list.iterator(); iterator.hasNext(); ) {\n" + 
+				"	    	if (iterator.next()) {\n" + 
+				"	    		System.out.println(\"SUCCESS\");\n" + 
+				"	    		break;\n" + 
+				"	    	}\n" + 
+				"	    }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
 }
