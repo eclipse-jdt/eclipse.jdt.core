@@ -68,6 +68,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	private char[][] fullCharExclusionPatterns;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 
+	private String rootID;
+	
 	/**
 	 * Default exclusion pattern set
 	 */
@@ -549,19 +551,29 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public String rootID(){
 
-		switch(this.entryKind){
-			case IClasspathEntry.CPE_LIBRARY :
-				return "[LIB]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_PROJECT :
-				return "[PRJ]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_SOURCE :
-				return "[SRC]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_VARIABLE :
-				return "[VAR]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_CONTAINER :
-				return "[CON]"+this.path;  //$NON-NLS-1$
+		if (this.rootID == null) {
+			switch(this.entryKind){
+				case IClasspathEntry.CPE_LIBRARY :
+					this.rootID = "[LIB]"+this.path;  //$NON-NLS-1$
+					break;
+				case IClasspathEntry.CPE_PROJECT :
+					this.rootID = "[PRJ]"+this.path;  //$NON-NLS-1$
+					break;
+				case IClasspathEntry.CPE_SOURCE :
+					this.rootID = "[SRC]"+this.path;  //$NON-NLS-1$
+					break;
+				case IClasspathEntry.CPE_VARIABLE :
+					this.rootID = "[VAR]"+this.path;  //$NON-NLS-1$
+					break;
+				case IClasspathEntry.CPE_CONTAINER :
+					this.rootID = "[CON]"+this.path;  //$NON-NLS-1$
+					break;
+				default :
+					this.rootID = "";  //$NON-NLS-1$
+					break;
+			}
 		}
-		return "";  //$NON-NLS-1$
+		return this.rootID;
 	}
 	
 	/**
