@@ -149,6 +149,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 
+
+
 	/**
 	 * Closes the given element, which removes it from the cache of open elements.
 	 */
@@ -1201,7 +1203,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						} else {
 							this.elementRemoved(element, delta);
 							this.indexManager.discardJobs(element.getElementName());
-							this.indexManager.removeIndex(res.getFullPath());
+							this.indexManager.removeIndexFamily(res.getFullPath());
 						}
 						return false; // when a project's nature is added/removed don't process children
 					}
@@ -1792,32 +1794,5 @@ private void updateRoots(Openable project, IResourceDelta projectDelta) {
 		}
 	}
 }
-/*
- * Update the roots that are affected by the addition or the removal of the given project.
- */
-private void updateRoots(Openable project, IResourceDelta projectDelta) {
-	IPath projectPath = project.getPath();
-	Iterator iterator = this.roots.keySet().iterator();
-	while (iterator.hasNext()) {
-		IPath path = (IPath)iterator.next();
-		if (projectPath.isPrefixOf(path) && !projectPath.equals(path)) {
-			IResourceDelta rootDelta = projectDelta.findMember(path.removeFirstSegments(1));
-			IJavaProject rootProject = (IJavaProject)this.roots.get(path);
-			try {
-				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
-			} catch (JavaModelException e) {
-			}
-			HashSet set = (HashSet)this.otherRoots.get(path);
-			if (set != null) {
-				Iterator otherProjects = set.iterator();
-				while (otherProjects.hasNext()) {
-					rootProject = (IJavaProject)otherProjects.next();
-					try {
-						this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
-					} catch (JavaModelException e) {
-					}
-				}
-			}
-		}
-	}
-}}
+
+}
