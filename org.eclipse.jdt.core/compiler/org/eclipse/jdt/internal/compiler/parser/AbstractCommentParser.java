@@ -121,6 +121,8 @@ public abstract class AbstractCommentParser {
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : javadocStart;
 			this.textStart = -1;
 			char previousChar = 0;
+			int invalidTagLineEnd = -1;
+			int invalidInlineTagLineEnd = -1;
 			
 			// Loop on each comment character
 			while (this.index < this.endComment) {
@@ -163,14 +165,24 @@ public abstract class AbstractCommentParser {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.inlineTagStart, this.inlineTagStart);
+								if (this.sourceParser != null) {
+									int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+								}
 								validComment = false;
-							} else {
+								if (this.lineStarted && this.textStart != -1 && this.textStart < previousPosition) {
+									pushText(this.textStart, previousPosition);
+								}
+								if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
+							} // else {
 								if (previousChar == '{') {
 									if (this.textStart != -1 && this.textStart < this.inlineTagStart) {
 										pushText(this.textStart, this.inlineTagStart);
 									}
 									this.inlineTagStarted = true;
+									invalidInlineTagLineEnd = this.lineEnd;
+								} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
+									pushText(this.textStart, invalidTagLineEnd);
 								}
 								this.scanner.resetTo(this.index, this.endComment);
 								this.currentTokenType = -1; // flush token cache at line begin
@@ -200,12 +212,22 @@ public abstract class AbstractCommentParser {
 											} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
 												valid = parseThrows(false);
 											} else if (CharOperation.equals(tag, TAG_SEE)) {
-												valid = parseSee(false);
+												if (this.inlineTagStarted) {
+//													valid = parseTag();
+													valid = false;
+													if (this.sourceParser != null)
+														this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+												} else {
+													valid = parseSee(false);
+												}
 											} else if (CharOperation.equals(tag, TAG_LINK)) {
 												if (this.inlineTagStarted) {
 													valid = parseSee(false);
 												} else {
-													valid = parseTag();
+//													valid = parseTag();
+													valid = false;
+													if (this.sourceParser != null)
+														this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 												}
 											} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
 												if (this.inlineTagStarted) {
@@ -279,15 +301,24 @@ public abstract class AbstractCommentParser {
 												}
 											}
 									}
-									if (!valid) {
-										this.inlineTagStarted = false;
-										validComment = false;
-									}
 									this.textStart = this.index;
+									if (!valid) {
+										// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+										// do not stop the inline tag when error is encountered to get text after
+//										this.inlineTagStarted = false;
+										validComment = false;
+										// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+										// for DOM AST node, store tag as text in case of invalid syntax
+										if (this.kind == DOM_PARSER) {
+											parseTag();
+											this.textStart = this.tagSourceEnd+1;
+											invalidTagLineEnd  = this.lineEnd;
+										}
+									}
 								} catch (InvalidInputException e) {
 									consumeToken();
 								}
-							}
+							//}
 						}
 						break;
 					case '\r':
@@ -296,7 +327,7 @@ public abstract class AbstractCommentParser {
 							pushText(this.textStart, previousPosition);
 						}
 						this.lineStarted = false;
-						this.inlineTagStarted = false;
+//						this.inlineTagStarted = false;
 						// Fix bug 51650
 						this.textStart = -1;
 						break;
@@ -312,20 +343,28 @@ public abstract class AbstractCommentParser {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
 							}
-							this.lineStarted = true;
+//							this.lineStarted = true;
 						}
+						this.lineStarted = true;
 						break;
 					case '{' :
 						if (this.inlineTagStarted) {
 							this.inlineTagStarted = false;
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, this.index);
-						} else {
+							if (this.sourceParser != null) {
+								int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+								this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+							}
+							if (this.lineStarted && this.textStart != -1 && this.textStart < previousPosition) {
+								pushText(this.textStart, previousPosition);
+							}
+							if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
+						} //else {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
 							}
 							this.lineStarted = true;
 							this.inlineTagStart = previousPosition;
-						}
+						//}
 						break;
 					case '*' :
 						// do nothing for '*' character
@@ -339,7 +378,20 @@ public abstract class AbstractCommentParser {
 						}
 				}
 			}
-			if (this.lineStarted && this.textStart < previousPosition) {
+			if (this.inlineTagStarted) {
+				this.inlineTagStarted = false;
+				if (this.sourceParser != null) {
+					int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+					if (this.index >= this.endComment) end = invalidInlineTagLineEnd;
+					this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+				}
+				if (this.lineStarted && this.textStart != -1 && this.textStart < previousPosition) {
+					pushText(this.textStart, previousPosition);
+				}
+				if (this.kind == DOM_PARSER) {
+					refreshInlineTagPosition(previousPosition);
+				}
+			} else if (this.lineStarted && this.textStart < previousPosition) {
 				pushText(this.textStart, previousPosition);
 			}
 			updateDocComment();
