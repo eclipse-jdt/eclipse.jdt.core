@@ -1,0 +1,404 @@
+package org.eclipse.jdt.core.tests.builder;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+import junit.framework.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.TestVerifier;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.IDebugRequestor;
+
+/**
+ * Base class for Java image builder tests
+ */
+public class Tests extends TestCase {
+	protected static boolean DEBUG = false;
+	protected static TestingEnvironment env = null;
+	protected EfficiencyCompilerRequestor debugRequestor = null;
+	
+	private static String[] EXCLUDED_TESTS = {
+	};
+
+	public Tests(String name) {
+		super(name);
+	}
+	
+	/** Execute the given class. Expecting output and error must be specified.
+	 */
+	protected void executeClass(IPath projectPath, String className, String expectingOutput, String expectedError){
+		TestVerifier verifier = new TestVerifier(false);
+		Vector classpath = new Vector(5);
+			
+		IPath workspacePath = env.getWorkspaceRootPath();
+			
+		classpath.addElement(workspacePath.append(env.getOutputLocation(projectPath)).toOSString());
+		IPath[] cp = env.getClasspath(projectPath);
+		for (int i = 0; i < cp.length; i++) {
+			IPath c = cp[i];
+			String ext = c.getFileExtension();
+			if(ext != null && (ext.equals("zip") || ext.equals("jar"))){
+				if(c.getDevice() == null) {
+					classpath.addElement(workspacePath.append(c).toOSString());
+				} else {
+					classpath.addElement(c.toOSString());
+				}
+			}
+		}
+		
+		verifier.execute(className, (String[])classpath.toArray(new String[0]));
+		
+		if(DEBUG){
+			System.out.println("ERRORS\n");
+			System.out.println(Util.displayString(verifier.getExecutionError()));
+			
+			System.out.println("OUTPUT\n");
+			System.out.println(Util.displayString(verifier.getExecutionOutput()));
+		}
+		String actualError = verifier.getExecutionError();
+		if (!expectedError.equals(actualError)){
+			System.out.println("ERRORS\n");
+			System.out.println(Util.displayString(actualError));
+		}
+		assertTrue("unexpected error", actualError.indexOf(expectedError) != -1);
+
+		String actualOutput = verifier.getExecutionOutput();
+		if (!expectingOutput.equals(actualOutput)){
+			System.out.println("OUTPUT\n");
+			System.out.println(Util.displayString(actualOutput));
+		}
+		assertTrue("unexpected output", actualOutput.indexOf(expectingOutput) != -1);
+		
+	}
+	
+	/** Verifies that given element is not present.
+	 */
+	protected void expectingPresenceOf(IPath path) {
+		expectingPresenceOf(new IPath[]{path});
+	}
+	
+	/** Verifies that given elements are not present.
+	 */
+	protected void expectingPresenceOf(IPath[] paths) {
+		IPath wRoot = env.getWorkspaceRootPath();
+		
+		for (int i = 0; i < paths.length; i++){
+			assertTrue(paths[i] +" is not present", wRoot.append(paths[i]).toFile().exists());
+		}
+	}
+	
+	/** Verifies that given element is not present.
+	 */
+	protected void expectingNoPresenceOf(IPath path) {
+		expectingNoPresenceOf(new IPath[]{path});
+	}
+	
+	/** Verifies that given elements are not present.
+	 */
+	protected void expectingNoPresenceOf(IPath[] paths) {
+		IPath wRoot = env.getWorkspaceRootPath();
+		
+		for (int i = 0; i < paths.length; i++){
+			assertTrue(paths[i] +" is present", !wRoot.append(paths[i]).toFile().exists());
+		}
+	}
+	
+	/** Verifies that given classes have been compiled.
+	 */
+	protected void expectingCompiledClasses(String[] expected){
+		String[] actual = debugRequestor.getCompiledClasses();
+		org.eclipse.jdt.internal.core.Util.sort(actual);
+		org.eclipse.jdt.internal.core.Util.sort(expected);	
+		expectingCompiling(actual, expected, "unexpected recompiled units");
+	}
+	
+	/** Verifies that given classes have been compiled in the specified order.
+	 */
+	protected void expectingCompilingOrder(String[] expected){
+		expectingCompiling(debugRequestor.getCompiledClasses(), expected, "unexpected compiling order");
+	}
+	
+	private void expectingCompiling(String[] actual, String[] expected, String message){
+		if(DEBUG) {
+			for (int i = 0; i < actual.length; i++) {
+				System.out.println(actual[i]);
+			}
+		}	
+		
+		StringBuffer actualBuffer = new StringBuffer("{");
+		for (int i = 0; i < actual.length; i++){
+			if (i > 0) actualBuffer.append(",");
+			actualBuffer.append(actual[i]);
+		}
+		actualBuffer.append('}');
+		StringBuffer expectedBuffer = new StringBuffer("{");
+		for (int i = 0; i < expected.length; i++){
+			if (i > 0) expectedBuffer.append(",");
+			expectedBuffer.append(expected[i]);
+		}
+		expectedBuffer.append('}');		
+		assertEquals(message, expectedBuffer.toString(), actualBuffer.toString());
+	}
+	
+	/** Verifies that the workspace has no problems.
+	 */
+	protected void expectingNoProblems() {				
+		expectingNoProblemsFor(env.getWorkspaceRootPath());
+	}
+	
+	/** Verifies that the given element has no problems.
+	 */
+	protected void expectingNoProblemsFor(IPath root) {
+		expectingNoProblemsFor(new IPath[]{root});
+	}
+	
+	/** Verifies that the given elements have no problems.
+	 */
+	protected void expectingNoProblemsFor(IPath[] roots) {
+		if(DEBUG)
+			printProblemsFor(roots);
+		
+		for (int i = 0; i < roots.length; i++) {
+			IPath root = roots[i];
+			Problem[] problems = env.getProblemsFor(root);
+			
+			if(problems.length != 0) {
+				assertTrue("unexpected problem(s) : " + problems[0], false);
+			}
+		}
+	}
+	
+	/** Verifies that the given element has problems and
+	 * only the given element.
+	 */
+	protected void expectingOnlyProblemsFor(IPath expected) {
+		expectingOnlyProblemsFor(new IPath[]{expected});
+	}
+	
+	/** Verifies that the given elements have problems and
+	 * only the given elements.
+	 */
+	protected void expectingOnlyProblemsFor(IPath[] expected) {
+		if(DEBUG)
+			printProblems();
+		
+		Problem[] rootProblems = env.getProblems();
+		
+		Hashtable actual = new Hashtable(rootProblems.length*2+1);
+		for (int i = 0; i < rootProblems.length; i++) {
+			IPath culprit = rootProblems[i].getResourcePath();
+			actual.put(culprit, culprit);
+		}
+		
+		for (int i = 0; i < expected.length; i++) {
+			if (!actual.containsKey(expected[i])) {
+				assertTrue("missing expected problem with " + expected[i].toString(), false);
+			}
+		}
+
+		if (actual.size() > expected.length) {
+			for (Enumeration e = actual.elements(); e.hasMoreElements();) {
+				IPath path = (IPath)e.nextElement();
+				boolean found = false;
+				for (int i = 0; i < expected.length; ++i) {
+					if (path.equals(expected[i])) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					assertTrue("unexpected problem(s) with " + path.toString(), false);
+				}
+			}
+		}
+	}
+	
+	/** Verifies that the given element has a specific problem and
+	 * only the given problem.
+	 */
+	protected void expectingOnlySpecificProblemFor(IPath root, Problem problem){
+		expectingOnlySpecificProblemsFor(root, new Problem[]{problem});
+	}
+	
+	/** Verifies that the given element has specifics problems and
+	 * only the given problems.
+	 */
+	protected void expectingOnlySpecificProblemsFor(IPath root, Problem[] problems){
+		if(DEBUG)
+			printProblemsFor(root);
+		
+		Problem[] rootProblems = env.getProblemsFor(root);
+				
+		next : for (int i = 0; i < problems.length; i++) {
+			Problem problem = problems[i];
+			for (int j = 0; j < rootProblems.length; j++) {
+				Problem rootProblem = rootProblems[j];
+				if(rootProblem != null){
+					if(problem.equals(rootProblem)){
+						rootProblems[j] = null;
+						continue next;
+					}
+				}
+			}
+			assertTrue("missing expected problem : "+ problem, false);
+		}
+		
+		for (int i = 0; i < rootProblems.length; i++) {
+			if(rootProblems[i] != null) {
+				assertTrue("unexpected problem : "+ rootProblems[i], false);
+			}
+		}
+	}
+	
+	/** Verifies that the given element has problems.
+	 */
+	protected void expectingProblemsFor(IPath expected) {
+		expectingProblemsFor(new IPath[]{expected});
+	}
+	
+	/** Verifies that the given elements have problems.
+	 */
+	protected void expectingProblemsFor(IPath[] expected) {
+		if(DEBUG)
+			printProblemsFor(expected);
+		
+		for (int i = 0; i < expected.length; i++) {
+			IPath path = expected[i];
+			
+			/* get the leaf problems for this type */
+			Problem[] problems = env.getProblemsFor(path);
+			assertTrue("missing expected problem with " + expected[i].toString(), problems.length > 0);
+		}
+	}
+
+	/** Verifies that the given element has a specific problem.
+	 */
+	protected void expectingSpecificProblemFor(IPath root, Problem problem){
+		expectingSpecificProblemsFor(root, new Problem[]{problem});
+	}
+	
+	/** Verifies that the given element has specific problems.
+	 */
+	protected void expectingSpecificProblemsFor(IPath root, Problem[] problems){
+		if(DEBUG)
+			printProblemsFor(root);
+		
+		Problem[] rootProblems = env.getProblemsFor(root);
+				
+		next : for (int i = 0; i < problems.length; i++) {
+			Problem problem = problems[i];
+			for (int j = 0; j < rootProblems.length; j++) {
+				Problem rootProblem = rootProblems[j];
+				if(rootProblem != null){
+					if(problem.equals(rootProblem)){
+						rootProblems[j] = null;
+						continue next;
+					}
+				}
+			}
+			for (int j = 0; j < rootProblems.length; j++) {
+				Problem pb = rootProblems[j];
+				System.out.println("got pb:		new Problem(\""+pb.getLocation()+"\", \""+pb.getMessage()+"\", \""+pb.getResourcePath()+"\")");
+			}
+			assertTrue("missing expected problem : "+ problem, false);
+		}
+	}
+	
+	/** Batch builds the workspace.
+	 */
+	protected void fullBuild(){
+		debugRequestor.clearResult();
+		debugRequestor.activate();
+		env.fullBuild();
+		debugRequestor.deactivate();
+	}
+	
+	/** Batch builds the given project.
+	 */
+	protected void fullBuild(IPath projectPath){
+		debugRequestor.clearResult();
+		debugRequestor.activate();
+		env.fullBuild(projectPath);
+		debugRequestor.deactivate();
+	}
+	
+	/** Incrementally builds the given project.
+	 */
+	protected void incrementalBuild(IPath projectPath){
+		debugRequestor.clearResult();
+		debugRequestor.activate();
+		env.incrementalBuild(projectPath);
+		debugRequestor.deactivate();
+	}
+	
+	/** Incrementally builds the workspace.
+	 */
+	protected void incrementalBuild(){
+		debugRequestor.clearResult();
+		debugRequestor.activate();
+		env.incrementalBuild();
+		debugRequestor.deactivate();
+	}
+	
+	protected void printProblems(){
+		printProblemsFor(env.getWorkspaceRootPath());
+	}
+	
+	protected void printProblemsFor(IPath root){
+		printProblemsFor(new IPath[]{root});
+	}
+	
+	protected void printProblemsFor(IPath[] roots){
+		for (int i = 0; i < roots.length; i++) {
+			IPath path = roots[i];
+			
+			/* get the leaf problems for this type */
+			Problem[] problems = env.getProblemsFor(path);
+			for (int j = 0; j < problems.length; j++) {
+				System.out.println(problems[j].toString());
+			}
+		}
+	}
+	
+	/** Sets up this test.
+	 */
+	protected void setUp() {
+		debugRequestor = new EfficiencyCompilerRequestor();
+		Compiler.DebugRequestor = debugRequestor;
+		if(env == null) {
+			env = new TestingEnvironment();
+			env.openEmptyWorkspace();
+		}
+		env.resetWorkspace();
+		
+	}
+	
+	public static Test suite() {
+		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
+		
+		/* basic tests */
+		suite.addTest(BasicBuildTests.suite());
+		suite.addTest(ErrorsTests.suite());
+		suite.addTest(EfficiencyTests.suite());
+		suite.addTest(ExecutionTests.suite());
+		
+		
+		/* tests */
+		suite.addTest(ClasspathTests.suite());
+		suite.addTest(AbstractMethodTests.suite());
+		suite.addTest(OutputFolderTests.suite());
+		suite.addTest(MultiProjectTests.suite());
+		suite.addTest(JCLTests.suite());
+		suite.addTest(CompilationUnitLocationTests.suite());
+		suite.addTest(PackageTests.suite());
+		suite.addTest(IncrementalTests.suite());
+		
+		return suite;
+	}
+}
