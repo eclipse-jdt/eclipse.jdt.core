@@ -51,74 +51,173 @@ public final class NamingConventions {
 	
 	private static class NamingRequestor implements INamingRequestor {
 		private final static int SIZE = 10;
+		
+		// for acceptNameWithPrefixAndSuffix
+		private char[][] firstPrefixAndFirstSuffixResults = new char[SIZE][];
+		private int firstPrefixAndFirstSuffixResultsCount = 0;
+		private char[][] firstPrefixAndSuffixResults = new char[SIZE][];
+		private int firstPrefixAndSuffixResultsCount = 0;
+		private char[][] prefixAndFirstSuffixResults = new char[SIZE][];
+		private int prefixAndFirstSuffixResultsCount = 0;
 		private char[][] prefixAndSuffixResults = new char[SIZE][];
 		private int prefixAndSuffixResultsCount = 0;
+		
+		// for acceptNameWithPrefix
+		private char[][] firstPrefixResults = new char[SIZE][];
+		private int firstPrefixResultsCount = 0;
 		private char[][] prefixResults = new char[SIZE][];
 		private int prefixResultsCount = 0;
+		
+		// for acceptNameWithSuffix
+		private char[][] firstSuffixResults = new char[SIZE][];
+		private int firstSuffixResultsCount = 0;
 		private char[][] suffixResults = new char[SIZE][];
 		private int suffixResultsCount = 0;
+		
+		// for acceptNameWithoutPrefixAndSuffix
 		private char[][] otherResults = new char[SIZE][];
 		private int otherResultsCount = 0;
-		public void acceptNameWithPrefixAndSuffix(char[] name) {
-			int length = prefixAndSuffixResults.length;
-			if(length == prefixAndSuffixResultsCount) {
-				System.arraycopy(
-					prefixAndSuffixResults,
-					0,
-					prefixAndSuffixResults = new char[length * 2][],
-					0,
-					length);
+		public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix) {
+			if(isFirstPrefix && isFirstSuffix) {
+				int length = firstPrefixAndFirstSuffixResults.length;
+				if(length == firstPrefixAndFirstSuffixResultsCount) {
+					System.arraycopy(
+						firstPrefixAndFirstSuffixResults,
+						0,
+						firstPrefixAndFirstSuffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				firstPrefixAndFirstSuffixResults[firstPrefixAndFirstSuffixResultsCount++] = name;			
+			} else if (isFirstPrefix) {
+				int length = firstPrefixAndSuffixResults.length;
+				if(length == firstPrefixAndSuffixResultsCount) {
+					System.arraycopy(
+						firstPrefixAndSuffixResults,
+						0,
+						firstPrefixAndSuffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				firstPrefixAndSuffixResults[firstPrefixAndSuffixResultsCount++] = name;
+			} else if(isFirstSuffix) {
+				int length = prefixAndFirstSuffixResults.length;
+				if(length == prefixAndFirstSuffixResultsCount) {
+					System.arraycopy(
+						prefixAndFirstSuffixResults,
+						0,
+						prefixAndFirstSuffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				prefixAndFirstSuffixResults[prefixAndFirstSuffixResultsCount++] = name;
+			} else {
+				int length = prefixAndSuffixResults.length;
+				if(length == prefixAndSuffixResultsCount) {
+					System.arraycopy(
+						prefixAndSuffixResults,
+						0,
+						prefixAndSuffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				prefixAndSuffixResults[prefixAndSuffixResultsCount++] = name;
 			}
-			prefixAndSuffixResults[prefixAndSuffixResultsCount++] = name;
 		}
 
-		public void acceptNameWithPrefix(char[] name) {
-			int length = prefixResults.length;
-			if(length == prefixResultsCount) {
-				System.arraycopy(
-					prefixResults,
-					0,
-					prefixResults = new char[length * 2][],
-					0,
-					length);
+		public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix) {
+			if(isFirstPrefix) {
+				int length = firstPrefixResults.length;
+				if(length == firstPrefixResultsCount) {
+					System.arraycopy(
+						firstPrefixResults,
+						0,
+						firstPrefixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				firstPrefixResults[firstPrefixResultsCount++] = name;
+			} else{
+				int length = prefixResults.length;
+				if(length == prefixResultsCount) {
+					System.arraycopy(
+						prefixResults,
+						0,
+						prefixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				prefixResults[prefixResultsCount++] = name;
 			}
-			prefixResults[prefixResultsCount++] = name;
 		}
 
-		public void acceptNameWithSuffix(char[] name) {
-			int length = suffixResults.length;
-			if(length == suffixResultsCount) {
-				System.arraycopy(
-				suffixResults,
-					0,
-				suffixResults = new char[length * 2][],
-					0,
-					length);
+		public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix) {
+			if(isFirstSuffix) {
+				int length = firstSuffixResults.length;
+				if(length == firstSuffixResultsCount) {
+					System.arraycopy(
+						firstSuffixResults,
+						0,
+						firstSuffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				firstSuffixResults[firstSuffixResultsCount++] = name;
+			} else {
+				int length = suffixResults.length;
+				if(length == suffixResultsCount) {
+					System.arraycopy(
+						suffixResults,
+						0,
+						suffixResults = new char[length * 2][],
+						0,
+						length);
+				}
+				suffixResults[suffixResultsCount++] = name;
 			}
-			suffixResults[suffixResultsCount++] = name;
 		}
 
 		public void acceptNameWithoutPrefixAndSuffix(char[] name) {
 			int length = otherResults.length;
 			if(length == otherResultsCount) {
 				System.arraycopy(
-				otherResults,
+					otherResults,
 					0,
-				otherResults = new char[length * 2][],
+					otherResults = new char[length * 2][],
 					0,
 					length);
 			}
 			otherResults[otherResultsCount++] = name;
 		}
 		public char[][] getResults(){
-			int count = prefixAndSuffixResultsCount + prefixResultsCount + suffixResultsCount + otherResultsCount;
+			int count = 
+				firstPrefixAndFirstSuffixResultsCount
+				+ firstPrefixAndSuffixResultsCount
+				+ prefixAndFirstSuffixResultsCount
+				+ prefixAndSuffixResultsCount
+				+ firstPrefixResultsCount
+				+ prefixResultsCount
+				+ firstSuffixResultsCount
+				+ suffixResultsCount
+				+ otherResultsCount;
+				
 			char[][] results = new char[count][];
 			
 			int index = 0;
+			System.arraycopy(firstPrefixAndFirstSuffixResults, 0, results, index, firstPrefixAndFirstSuffixResultsCount);
+			index += firstPrefixAndFirstSuffixResultsCount;
+			System.arraycopy(firstPrefixAndSuffixResults, 0, results, index, firstPrefixAndSuffixResultsCount);
+			index += firstPrefixAndSuffixResultsCount;
+			System.arraycopy(prefixAndFirstSuffixResults, 0, results, index, prefixAndFirstSuffixResultsCount);
+			index += prefixAndFirstSuffixResultsCount;		
 			System.arraycopy(prefixAndSuffixResults, 0, results, index, prefixAndSuffixResultsCount);
 			index += prefixAndSuffixResultsCount;
+			System.arraycopy(firstPrefixResults, 0, results, index, firstPrefixResultsCount);
+			index += firstPrefixResultsCount;
 			System.arraycopy(prefixResults, 0, results, index, prefixResultsCount);
 			index += prefixResultsCount;
+			System.arraycopy(firstSuffixResults, 0, results, index, firstSuffixResultsCount);
+			index += firstSuffixResultsCount;
 			System.arraycopy(suffixResults, 0, results, index, suffixResultsCount);
 			index += suffixResultsCount;
 			System.arraycopy(otherResults, 0, results, index, otherResultsCount);

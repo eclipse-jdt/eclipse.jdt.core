@@ -123,6 +123,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionReturnInInitializer"));
 	suite.addTest(new CompletionTests("testCompletionVariableName1"));
 	suite.addTest(new CompletionTests("testCompletionVariableName2"));
+	suite.addTest(new CompletionTests("testCompletionVariableName3"));
 	suite.addTest(new CompletionTests("testCompletionOnStaticMember1"));
 	suite.addTest(new CompletionTests("testCompletionOnStaticMember2"));
 	suite.addTest(new CompletionTests("testCompletionMemberType2"));
@@ -8088,7 +8089,7 @@ public void testCompletionCatchArgumentName2() throws JavaModelException {
 
 	assertEquals(
 		"element:exception    completion:exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX),
+		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX),
 		requestor.getResults());
 }
 public void testCompletionArrayAccess1() throws JavaModelException {
@@ -8103,6 +8104,48 @@ public void testCompletionArrayAccess1() throws JavaModelException {
 	assertEquals(
 		"element:zzz1    completion:zzz1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
 		"element:zzz2    completion:zzz2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE +R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void testCompletionVariableName3() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"p1,p2"); //$NON-NLS-1$
+	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"s1,s2"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableName3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "OneName ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
+	JavaCore.setOptions(options);
+
+	assertEquals(
+		"element:name    completion:name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:names1    completion:names1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:names2    completion:names2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_SUFFIX)+"\n"+
+		"element:oneName    completion:oneName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:oneNames1    completion:oneNames1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:oneNames2    completion:oneNames2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_SUFFIX)+"\n"+
+		"element:p1Name    completion:p1Name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX)+"\n"+
+		"element:p1Names1    completion:p1Names1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:p1Names2    completion:p1Names2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX + R_NAME_SUFFIX)+"\n"+
+		"element:p1OneName    completion:p1OneName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX)+"\n"+
+		"element:p1OneNames1    completion:p1OneNames1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:p1OneNames2    completion:p1OneNames2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX + R_NAME_SUFFIX)+"\n"+
+		"element:p2Name    completion:p2Name    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX)+"\n"+
+		"element:p2Names1    completion:p2Names1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:p2Names2    completion:p2Names2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_SUFFIX)+"\n"+
+		"element:p2OneName    completion:p2OneName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX)+"\n"+
+		"element:p2OneNames1    completion:p2OneNames1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_FIRST_SUFFIX)+"\n"+
+		"element:p2OneNames2    completion:p2OneNames2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_SUFFIX),
 		requestor.getResults());
 }
 }

@@ -129,7 +129,7 @@ public class InternalNamingConventions {
 				case TerminalTokens.TokenNamefloat :
 				case TerminalTokens.TokenNamedouble :
 				case TerminalTokens.TokenNameboolean :	
-					char[] name = computeBaseNames(typeName[0], prefixes, excludedNames);
+					char[] name = computeBaseTypeNames(typeName[0], excludedNames);
 					if(name != null) {
 						tempNames =  new char[][]{name};
 					}
@@ -181,7 +181,7 @@ public class InternalNamingConventions {
 							suffixes[k],
 							excludedNames);
 					if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-						acceptName(suffixName, prefixes[j], suffixes[k], requestor);
+						acceptName(suffixName, prefixes[j], suffixes[k],  j == 0, k == 0, requestor);
 						acceptDefaultName = false;
 					} else {
 						suffixName = CharOperation.concat(
@@ -196,7 +196,7 @@ public class InternalNamingConventions {
 								suffixes[k],
 								excludedNames);
 						if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
-							acceptName(suffixName, prefixes[j], suffixes[k], requestor);
+							acceptName(suffixName, prefixes[j], suffixes[k], j == 0, k == 0, requestor);
 							acceptDefaultName = false;
 						}
 					}
@@ -211,20 +211,25 @@ public class InternalNamingConventions {
 		}
 	}
 	
-	private static void acceptName(char[] name, char[] prefix, char[] suffix, INamingRequestor requestor) {
+	private static void acceptName(
+		char[] name,
+		char[] prefix,
+		char[] suffix,
+		boolean isFirstPrefix,
+		boolean isFirstSuffix,
+		INamingRequestor requestor) {
 		if(prefix.length > 0 && suffix.length > 0) {
-			requestor.acceptNameWithPrefixAndSuffix(name);
+			requestor.acceptNameWithPrefixAndSuffix(name, isFirstPrefix, isFirstSuffix);
 		} else if(prefix.length > 0){
-			requestor.acceptNameWithPrefix(name);
+			requestor.acceptNameWithPrefix(name, isFirstPrefix);
 		} else if(suffix.length > 0){
-			requestor.acceptNameWithSuffix(name);
+			requestor.acceptNameWithSuffix(name, isFirstSuffix);
 		} else {
 			requestor.acceptNameWithoutPrefixAndSuffix(name);
 		}
 	}
 	
-
-	private static char[] computeBaseNames(char firstName, char[][] prefixes, char[][] excludedNames){
+	private static char[] computeBaseTypeNames(char firstName, char[][] excludedNames){
 		char[] name = new char[]{firstName};
 		
 		for(int i = 0 ; i < excludedNames.length ; i++){

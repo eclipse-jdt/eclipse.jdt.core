@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 public interface INamingRequestor {
-	void acceptNameWithPrefixAndSuffix(char[] name);
-	void acceptNameWithPrefix(char[] name);
-	void acceptNameWithSuffix(char[] name);
+	void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix);
+	void acceptNameWithPrefix(char[] name, boolean isFirstPrefix);
+	void acceptNameWithSuffix(char[] name, boolean isFirstSuffix);
 	void acceptNameWithoutPrefixAndSuffix(char[] name);
 }
