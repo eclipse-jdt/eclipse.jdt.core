@@ -14,6 +14,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
@@ -115,6 +116,33 @@ public void testGetSource() throws CoreException {
 }
 public void testParentExistence() throws CoreException {
 	assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
+}
+/*
+ * Ensure that a working copy created on a .java file in a simple project can be opened.
+ * (regression test for bug 33748 Cannot open working copy on .java file in simple project)
+ */
+public void testSimpleProject() throws CoreException {
+	IParent workingCopy = null;
+	try {
+		createProject("SimpleProject");
+		IFile file = createFile(
+			"/SimpleProject/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		workingCopy = (IParent)cu.getWorkingCopy();
+		try {
+			workingCopy.getChildren();
+		} catch (JavaModelException e) {
+			assertTrue("Should not get JavaModelException", false);
+		}
+	} finally {
+		if (workingCopy != null) {
+			((IWorkingCopy)workingCopy).destroy();
+		}
+		deleteProject("SimpleProject");
+	}
 }
 
 /*

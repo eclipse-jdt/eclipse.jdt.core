@@ -295,7 +295,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		IJavaProject project = getJavaProject();
 		if (project != null && !project.isOpen()) {
 			// TODO: need to revisit, since deadlock could still occur if perProjectInfo is removed concurrent before entering the lock
-			project.getResolvedClasspath(true); // trigger all possible container/variable initialization outside the model lock
+			try {
+				project.getResolvedClasspath(true); // trigger all possible container/variable initialization outside the model lock
+			} catch (JavaModelException e) {
+				// project is not accessible or is not a java project
+			}
 		}
 
 		// element info creation is done inside a lock on the JavaModelManager
