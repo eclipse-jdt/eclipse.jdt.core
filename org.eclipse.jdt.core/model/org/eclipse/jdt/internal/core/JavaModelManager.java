@@ -429,7 +429,9 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			}
 			break;
 		case IResource.PROJECT :
-			if (delta.getKind() == IResourceDelta.ADDED) {
+			int deltaKind = delta.getKind();
+			if (deltaKind == IResourceDelta.ADDED /* case of a project removed then added */
+				|| deltaKind == IResourceDelta.CHANGED /* case of a project removed then added then changed */) {
 				fProjectsBeingDeleted.remove(delta.getResource());
 			}
 	}
@@ -442,14 +444,6 @@ public void closeAffectedElements(IResourceDelta delta) {
 	fDeltaProcessor.closeAffectedElements(delta);
 }
 
-	/**
-	 * Note that the project is now deleted.
-	 *
-	 * fix for 1FW67PA
-	 */
-	public void deleted(IProject project) {
-		fProjectsBeingDeleted.remove(project);
-	}
 	/**
 	 * Note that the project is about to be deleted.
 	 *

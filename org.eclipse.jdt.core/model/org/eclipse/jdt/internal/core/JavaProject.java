@@ -296,15 +296,21 @@ public class JavaProject
 		// register Java builder
 		addToBuildSpec(JavaCore.BUILDER_ID);
 
+		// add project as child of java model
+		JavaModel model = (JavaModel) getJavaModel();
+		JavaElementInfo jmi = model.getElementInfo();
+		jmi.addChild(this);
+
 		// notify Java delta (Java project added) 
 		JavaModelManager manager =
 			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		JavaModel model = (JavaModel) getJavaModel();
-		JavaElementDelta projectDelta = new JavaElementDelta(model);
-		projectDelta.added(this);
-		JavaElementInfo jmi = model.getElementInfo();
-		jmi.addChild(this);
-		manager.registerJavaModelDelta(projectDelta);
+		if (!manager.isBeingDeleted(this.getProject())) { 
+			JavaElementDelta projectDelta = new JavaElementDelta(model);
+			projectDelta.added(this);
+			manager.registerJavaModelDelta(projectDelta);
+		} // else project is removed then added 
+		  // -> it will be a changed delta reported by delta processor
+
 	}
 
 	/**
