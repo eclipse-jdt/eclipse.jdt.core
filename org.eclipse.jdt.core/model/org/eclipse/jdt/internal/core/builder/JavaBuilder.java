@@ -296,18 +296,22 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 		IClasspathEntry[] entries = ((JavaProject) javaProject).getExpandedClasspath(true);
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = JavaCore.getResolvedClasspathEntry(entries[i]);
-			if (entry != null && entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-				IProject p = workspaceRoot.getProject(entry.getPath().lastSegment());
+			if (entry != null) {
+				IPath path = entry.getPath();
+				IProject p = null;
+				switch (entry.getEntryKind()) {
+					case IClasspathEntry.CPE_PROJECT :
+						p = workspaceRoot.getProject(path.lastSegment());
+						break;
+					case IClasspathEntry.CPE_LIBRARY :
+						if (includeBinaryPrerequisites && path.segmentCount() > 1) {
+							// some binary resources on the class path can come from projects that are not included in the project references
+							IResource resource = workspaceRoot.findMember(path.segment(0));
+							if (resource instanceof IProject)
+								p = (IProject) resource;
+						}
+				}
 				if (p != null && !projects.contains(p))
-					projects.add(p);
-			}
-		}
-		if (includeBinaryPrerequisites && binaryResources != null) {
-			// some binary resources on the class path can come from projects that are not included in the project references
-			Object[] keyTable = binaryResources.keyTable;
-			for (int i = 0, l = keyTable.length; i < l; i++) {
-				IProject p = (IProject) keyTable[i];
-				if (p != null && p != currentProject && !projects.contains(p))
 					projects.add(p);
 			}
 		}
