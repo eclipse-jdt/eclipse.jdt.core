@@ -247,32 +247,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
  *	Optimized operations are: == and !=
  */
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
-	int pc = codeStream.position;
 	if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
-		if (constant.booleanValue() == true) {
-			// constant == true
-			if (valueRequired) {
-				if (falseLabel == null) {
-					// implicit falling through the FALSE case
-					if (trueLabel != null) {
-						codeStream.goto_(trueLabel);
-					}
-				}
-			}
-		} else {
-			// constant == false
-			if (valueRequired) {
-				if (falseLabel != null) {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.goto_(falseLabel);
-					}
-				}
-			}
-		}
-		codeStream.recordPositionsFrom(pc, this);
+		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
+	int pc = codeStream.position;
 	if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 		if ((left.implicitConversion & 0xF) /*compile-time*/ == T_boolean) {
 			generateOptimizedBooleanEqual(currentScope, codeStream, trueLabel, falseLabel, valueRequired);

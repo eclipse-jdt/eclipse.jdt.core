@@ -94,7 +94,7 @@ STREAM: 2.0
   1GK7FHB: ITPJCORE:WIN2000 - JCK 1.4 - class from outer and static class from superclass in top-level nested class
   1GK7FCN: ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public static class from superclass in top-level nested class
   1GK7F8L: ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected static class from superclass in top-level nested class
-  1GK7F4S: ITPJCORE:WIN2000 - JCK 1.4 -static class from outer and class from superclass in nested class
+  1GK7F4S: ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and class from superclass in nested class
   1GK7EZB: ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public class from superclass in nested class
   1GK7EVB: ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected class from superclass in nested class
   1GK7ERE: ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and static class from superclass in nested class

@@ -21,6 +21,7 @@ public boolean complainIfUnreachable(Statement statement, BlockScope scope) {
 	return false;
 }
 public static FlowInfo conditional(FlowInfo initsWhenTrue, FlowInfo initsWhenFalse){
+	// if (initsWhenTrue.equals(initsWhenFalse)) return initsWhenTrue; -- could optimize if #equals is defined
 	return new ConditionalFlowInfo(initsWhenTrue, initsWhenFalse);
 }
 abstract public FlowInfo copy();

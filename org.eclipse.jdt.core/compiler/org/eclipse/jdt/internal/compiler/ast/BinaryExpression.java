@@ -519,28 +519,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
 
 	if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
-		int pc = codeStream.position;
-		if (constant.booleanValue() == true) {
-			// constant == true
-			if (valueRequired) {
-				if (falseLabel == null) {
-					// implicit falling through the FALSE case
-					if (trueLabel != null) {
-						codeStream.goto_(trueLabel);
-					}
-				}
-			}
-		} else {
-			if (valueRequired) {
-				if (falseLabel != null) {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.goto_(falseLabel);
-					}
-				}
-			}
-		}
-		codeStream.recordPositionsFrom(pc, this);
+		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
 	switch((bits & OperatorMASK) >> OperatorSHIFT){
@@ -1309,7 +1288,7 @@ public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
 					return;
 				} else { //left is equivalent to false
 					if ((cst = right.conditionalConstant()) != NotAConstant) {
-						optimizedBooleanConstant = Constant.fromValue(!cst.booleanValue()); // the conditional result is equivalent to the opposite of the right conditional value
+						optimizedBooleanConstant = cst;
 					}
 					return;
 				}

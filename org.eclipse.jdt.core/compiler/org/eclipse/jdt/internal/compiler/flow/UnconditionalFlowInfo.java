@@ -233,7 +233,7 @@ final private boolean isPotentiallyAssigned(int position) {
  */
 final public boolean isPotentiallyAssigned(FieldBinding field) {
 	// We do not want to complain in unreachable code
-	if (this == DeadEnd)
+	if ((this == DeadEnd) || (this.isFakeReachable))
 		return false;
 	return isPotentiallyAssigned(field.id); 
 }
