@@ -302,10 +302,14 @@ protected IGenericType createInfoFromClassFile(Openable handle, String osPath) t
 	try {
 		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
 	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-		e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
 		return null;
 	} catch (java.io.IOException e) {
-		e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
 		return null;
 	}						
 	this.infoToHandle.put(info, handle);
@@ -325,13 +329,19 @@ protected IGenericType createInfoFromClassFileInJar(Openable classFile) throws J
 			zipFile,
 			classFilePath);
 	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-		e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
 		return null;
 	} catch (java.io.IOException e) {
-		e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
 		return null;
 	} catch (CoreException e) {
-		e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			e.printStackTrace();
+		}
 		return null;
 	} finally {
 		JavaModelManager.getJavaModelManager().closeZipFile(zipFile);

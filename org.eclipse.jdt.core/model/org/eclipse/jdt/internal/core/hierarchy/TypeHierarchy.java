@@ -961,7 +961,9 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 					((CompilationUnit)element).getAllTypes() :
 					new IType[] {((org.eclipse.jdt.internal.core.ClassFile)element).getType()};
 			} catch (JavaModelException e) {
-				e.printStackTrace();
+				if (DEBUG) {
+					e.printStackTrace();
+				}
 				return false;
 			}
 			for (int i = 0, length = types.length; i < length; i++) {
@@ -994,7 +996,9 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 								((CompilationUnit)element).getAllTypes() :
 								new IType[] {((org.eclipse.jdt.internal.core.ClassFile)element).getType()};
 						} catch (JavaModelException e) {
-							e.printStackTrace();
+							if (DEBUG) {
+								e.printStackTrace();
+							}
 							return false;
 						}
 						for (int j = 0, typesLength = types.length; j < typesLength; j++) {
@@ -1465,7 +1469,9 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
 	try {
 		superclassName = type.getSuperclassName();
 	} catch (JavaModelException e) {
-		e.printStackTrace();
+		if (DEBUG) {
+			e.printStackTrace();
+		}
 		return false;
 	}
 	if (superclassName == null) {

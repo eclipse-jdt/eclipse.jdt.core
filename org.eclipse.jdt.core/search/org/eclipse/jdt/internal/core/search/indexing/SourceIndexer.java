@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * A SourceIndexer indexes java files using a java parser. The following items are indexed:
@@ -78,7 +79,9 @@ protected void indexFile(IDocument document) throws IOException {
 	try {
 		parser.parseCompilationUnit(compilationUnit, true/*full parse*/);
 	} catch (Exception e) {
-		e.printStackTrace();
+		if (JobManager.VERBOSE) {
+			e.printStackTrace();
+		}
 	}
 }
 /**

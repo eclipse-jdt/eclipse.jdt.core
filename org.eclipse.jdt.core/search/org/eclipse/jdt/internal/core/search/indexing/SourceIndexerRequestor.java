@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * This class is used by the JavaParserIndexer. When parsing the java file, the requestor
@@ -247,9 +248,11 @@ public void exitMethod(int declarationEnd) {
 }
 public void popTypeName(){
 	try {
-	enclosingTypeNames[--depth] = null;
+		enclosingTypeNames[--depth] = null;
 	} catch (ArrayIndexOutOfBoundsException e) {
-		e.printStackTrace();
+		if (JobManager.VERBOSE) {
+			e.printStackTrace();
+		}
 	}
 }
 public void pushTypeName(char[] typeName){
