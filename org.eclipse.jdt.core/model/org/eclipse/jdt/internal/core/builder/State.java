@@ -84,10 +84,6 @@ char[][] getDefinedTypeNamesFor(String location) {
 	return null; // means only one type is defined with the same name as the file... saves space
 }
 
-void hasStructuralChanges() {
-	this.lastStructuralBuildTime = System.currentTimeMillis();
-}
-
 boolean isDuplicateLocation(String qualifiedName, String location) {
 	String existingLocation = (String) typeLocations.get(qualifiedName);
 	return existingLocation != null && !existingLocation.equals(location);
@@ -118,20 +114,6 @@ boolean isKnownPackage(String qualifiedPackageName) {
 	return false;
 }
 
-boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
-	if (prereqState != null) {
-		Object o = structuralBuildTimes.get(prereqProject.getName());
-		long previous = o == null ? 0 : ((Long) o).longValue();
-		if (previous == prereqState.lastStructuralBuildTime) return false;
-	}
-	return true;
-}
-
-void locationForType(String qualifiedName, String location) {
-	this.knownPackageNames = null;
-	typeLocations.put(qualifiedName, location);
-}
-
 void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char[] mainTypeName, ArrayList typeNames) {
 	if (typeNames.size() == 1 && CharOperation.equals(mainTypeName, (char[]) typeNames.get(0))) {
 			references.put(location, new ReferenceCollection(qualifiedRefs, simpleRefs));
@@ -140,6 +122,11 @@ void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char
 		typeNames.toArray(definedTypeNames);
 		references.put(location, new AdditionalTypeCollection(definedTypeNames, qualifiedRefs, simpleRefs));
 	}
+}
+
+void recordLocationForType(String qualifiedName, String location) {
+	this.knownPackageNames = null;
+	typeLocations.put(qualifiedName, location);
 }
 
 void recordStructuralDependency(IProject prereqProject, State prereqState) {
@@ -176,8 +163,11 @@ void removeTypeLocation(String locationToRemove) {
 static State read(DataInputStream in) throws IOException {
 	if (JavaBuilder.DEBUG)
 		System.out.println("About to read state..."); //$NON-NLS-1$
-	if (VERSION != in.readByte())
-		throw new IOException(Util.bind("build.unhandledVersionFormat")); //$NON-NLS-1$
+	if (VERSION != in.readByte()) {
+		if (JavaBuilder.DEBUG)
+			System.out.println("Found non-compatible state version... answered null"); //$NON-NLS-1$
+		return null;
+	}
 
 	State newState = new State();
 	newState.javaProjectName = in.readUTF();
@@ -273,6 +263,19 @@ void tagAsNoopBuild() {
 
 boolean wasNoopBuild() {
 	return buildNumber == -1;
+}
+
+void tagAsStructurallyChanged() {
+	this.lastStructuralBuildTime = System.currentTimeMillis();
+}
+
+boolean wasStructurallyChanged(IProject prereqProject, State prereqState) {
+	if (prereqState != null) {
+		Object o = structuralBuildTimes.get(prereqProject.getName());
+		long previous = o == null ? 0 : ((Long) o).longValue();
+		if (previous == prereqState.lastStructuralBuildTime) return false;
+	}
+	return true;
 }
 
 void write(DataOutputStream out) throws IOException {

@@ -122,7 +122,7 @@ public void acceptResult(CompilationResult result) {
 						createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.duplicateClassFile", new String(typeName))); //$NON-NLS-1$
 						continue;
 					}
-					newState.locationForType(qualifiedTypeName, sourceLocation);
+					newState.recordLocationForType(qualifiedTypeName, sourceLocation);
 				}
 				definedTypeNames.add(writeClassFile(classFile, !isNestedType));
 			}

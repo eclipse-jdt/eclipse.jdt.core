@@ -152,7 +152,7 @@ protected void addAffectedSourceFiles() {
 
 protected void addDependentsOf(IPath path, boolean hasStructuralChanges) {
 	if (hasStructuralChanges)
-		newState.hasStructuralChanges();
+		newState.tagAsStructurallyChanged();
 	// the qualifiedStrings are of the form 'p1/p1' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
 	String packageName = path.uptoSegment(path.segmentCount() - 1).toString();
