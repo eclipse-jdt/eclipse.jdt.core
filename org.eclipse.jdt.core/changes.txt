@@ -45,7 +45,8 @@ STREAM: 2.0
   1GK1GJE: ITPJCORE:ALL - Search - StringOutBoundsException when searching references in JAR
 
   PRs Closed in this Release
-  ================================================================================
+  ===============================================================================
+  1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
   1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
 
 **********************************************************************************
