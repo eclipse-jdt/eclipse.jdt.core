@@ -33,7 +33,7 @@ protected BinaryType(IJavaElement parent, String name) {
 	Assert.isTrue(name.indexOf('.') == -1);
 }
 /**
- * @see IOpenable
+ * @see IOpenable#close()
  */
 public void close() throws JavaModelException {
 	
@@ -77,7 +77,7 @@ protected void closing(Object info) throws JavaModelException {
 	}
 }
 /**
- * @see IType
+ * @see IType#codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor)
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
@@ -109,31 +109,31 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	}
 }
 /**
- * @see IType
+ * @see IType#createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
  */
 public IField createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType
+ * @see IType#createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor)
  */
 public IInitializer createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType
+ * @see IType#createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
  */
 public IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType
+ * @see IType# createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
  */
 public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
-/*
- * @see IType
+/**
+ * @see IType#findMethods(IMethod method)
  */
 public IMethod[] findMethods(IMethod method) {
 	try {
@@ -144,7 +144,7 @@ public IMethod[] findMethods(IMethod method) {
 	}
 }
 /**
- * @see IParent 
+ * @see IParent#getChildren()
  */
 public IJavaElement[] getChildren() throws JavaModelException {
 	// ensure present
@@ -161,7 +161,7 @@ protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	return (ClassFileInfo) cf.getElementInfo();
 }
 /**
- * @see IMember
+ * @see IMember#getDeclaringType()
  */
 public IType getDeclaringType() {
 	IClassFile classFile = this.getClassFile();
@@ -212,13 +212,13 @@ public IType getDeclaringType() {
 	}
 }
 /**
- * @see IType#getField
+ * @see IType#getField(String name)
  */
 public IField getField(String name) {
 	return new BinaryField(this, name);
 }
 /**
- * @see IType
+ * @see IType#getFields()
  */
 public IField[] getFields() throws JavaModelException {
 	ArrayList list = getChildrenOfType(FIELD);
@@ -232,20 +232,20 @@ public IField[] getFields() throws JavaModelException {
 	}
 }
 /**
- * @see IMember
+ * @see IMember#getFlags()
  */
 public int getFlags() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
 	return info.getModifiers();
 }
 /**
- * @see IType
+ * @see IType#getFullyQualifiedName()
  */
 public String getFullyQualifiedName() {
 	return this.getFullyQualifiedName('$');
 }
 /**
- * @see IType(char)
+ * @see IType#getFullyQualifiedName(char enclosingTypeSeparator)
  */
 public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	String packageName = getPackageFragment().getElementName();
@@ -255,25 +255,25 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
 	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
 /**
- * @see IType
+ * @see IType#getInitializer(int occurrenceCount)
  */
 public IInitializer getInitializer(int occurrenceCount) {
 	return new Initializer(this, occurrenceCount);
 }
 /**
- * @see IType
+ * @see IType#getInitializers()
  */
 public IInitializer[] getInitializers() {
 	return NO_INITIALIZERS;
 }
 /**
- * @see IType#getMethod
+ * @see IType#getMethod(String name, String[] parameterTypeSignatures)
  */
 public IMethod getMethod(String name, String[] parameterTypeSignatures) {
 	return new BinaryMethod(this, name, parameterTypeSignatures);
 }
 /**
- * @see IType
+ * @see IType#getMethods()
  */
 public IMethod[] getMethods() throws JavaModelException {
 	ArrayList list = getChildrenOfType(METHOD);
@@ -287,7 +287,7 @@ public IMethod[] getMethods() throws JavaModelException {
 	}
 }
 /**
- * @see IType
+ * @see IType#getPackageFragment()
  */
 public IPackageFragment getPackageFragment() {
 	IJavaElement parent = fParent;
@@ -303,7 +303,7 @@ public IPackageFragment getPackageFragment() {
 	return null;
 }
 /**
- * @see IType#getSuperclassName
+ * @see IType#getSuperclassName()
  */
 public String getSuperclassName() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
@@ -314,7 +314,7 @@ public String getSuperclassName() throws JavaModelException {
 	return new String(ClassFile.translatedName(superclassName));
 }
 /**
- * @see IType#getSuperInterfaceNames
+ * @see IType#getSuperInterfaceNames()
  */
 public String[] getSuperInterfaceNames() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
@@ -331,14 +331,14 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	return strings;
 }
 /**
- * @see IType#getType
+ * @see IType#getType(String)
  */
 public IType getType(String name) {
 	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + ".class"); //$NON-NLS-2$ //$NON-NLS-1$
 	return new BinaryType(classFile, name);
 }
 /**
- * @see IType#getTypeQualifiedName
+ * @see IType#getTypeQualifiedName()
  */
 public String getTypeQualifiedName() {
 	return this.getTypeQualifiedName('$');
@@ -365,7 +365,7 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 	}
 }
 /**
- * @see IType
+ * @see IType#getTypes()
  */
 public IType[] getTypes() throws JavaModelException {
 	ArrayList list = getChildrenOfType(TYPE);
@@ -379,26 +379,26 @@ public IType[] getTypes() throws JavaModelException {
 	}
 }
 /**
- * @see IParent 
+ * @see IParent#hasChildren()
  */
 public boolean hasChildren() throws JavaModelException {
 	return getChildren().length > 0;
 }
 /**
- * @see IType
+ * @see IType#isClass()
  */
 public boolean isClass() throws JavaModelException {
 	return !isInterface();
 }
 /**
- * @see IType#isInterface
+ * @see IType#isInterface()
  */
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
 	return info.isInterface();
 }
 /**
- * @see IType
+ * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)
  */
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), false);
@@ -406,7 +406,7 @@ public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws Jav
 	return op.getResult();
 }
 /**
- * @see IType
+ * @see IType#newTypeHierarchy(IProgressMonitor monitor)
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), true);
@@ -414,7 +414,7 @@ public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaMode
 	return op.getResult();
 }
 /**
- * @see IType
+ * @see IType#newTypeHierarchy(IJavaProject project, IProgressMonitor monitor)
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {

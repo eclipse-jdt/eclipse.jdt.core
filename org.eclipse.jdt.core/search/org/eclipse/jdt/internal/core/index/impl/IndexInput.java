@@ -10,15 +10,13 @@ import org.eclipse.jdt.internal.core.index.*;
 
 
 /**
- * This class provides an input on an index, after it has been generated.<br>
+ * This class provides an input on an index, after it has been generated.
  * You can access all the files of an index via getNextFile(), getCurrentFile() 
- * and moveToNextFile() (idem for the word entries).  <br> 
+ * and moveToNextFile() (idem for the word entries). 
  * The usage is the same for every subclass: creation (constructor), opening
  * (the open() method), usage, and closing (the close() method), to release the
  * data source used by this input.
  */
-
-
 public abstract class IndexInput {
 	protected int filePosition;
 	protected WordEntry currentWordEntry;

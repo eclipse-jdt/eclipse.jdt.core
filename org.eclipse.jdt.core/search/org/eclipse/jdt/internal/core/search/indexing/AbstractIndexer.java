@@ -13,9 +13,7 @@ import java.io.*;
 
 public abstract class AbstractIndexer implements IIndexer, IIndexConstants, IJavaSearchConstants {
 	IIndexerOutput output;
-/**
- * AbstractIndexer constructor comment.
- */
+
 public AbstractIndexer() {
 	super();
 }
@@ -164,9 +162,8 @@ public void addTypeReference(char[] typeName){
 	this.output.addRef(CharOperation.concat(TYPE_REF, CharOperation.lastSegment(typeName, '.')));
 }
 /**
- * Constructor declaration entries are encoded as follow: 'constructorDecl/' TypeName '/' Arity
- * 	e.g.	constructorDecl/X/0
- *			constructorDecl/Y/1
+ * Constructor declaration entries are encoded as follow: 'constructorDecl/' TypeName '/' Arity:
+ * 	e.g. &nbsp;constructorDecl/X/0&nbsp;constructorDecl/Y/1
  *
  */
  public static final char[] bestConstructorDeclarationPrefix(char[] typeName, int arity, int matchMode, boolean isCaseSensitive) {
@@ -203,9 +200,8 @@ public void addTypeReference(char[] typeName){
 	}
 }
 /**
- * Constructor reference entries are encoded as follow: 'constructorRef/' TypeName '/' Arity
- * 	e.g.	constructorRef/X/0
- *			constructorRef/Y/1
+ * Constructor reference entries are encoded as follow: 'constructorRef/' TypeName '/' Arity:
+ * 	e.g.&nbsp;constructorRef/X/0&nbsp;constructorRef/Y/1
  *
  */
  public static final char[] bestConstructorReferencePrefix(char[] typeName, int arity, int matchMode, boolean isCaseSensitive) {
@@ -243,7 +239,7 @@ public void addTypeReference(char[] typeName){
 }
 /**
  * Method declaration entries are encoded as follow: 'fieldDecl/' Name
- * 	e.g.	fieldDecl/x
+ * 	e.g.&nbsp;fieldDecl/x
  *
  */
  public static final char[] bestFieldDeclarationPrefix(char[] name, int matchMode, boolean isCaseSensitive) {
@@ -272,8 +268,7 @@ public void addTypeReference(char[] typeName){
 }
 /**
  * Method declaration entries are encoded as follow: 'methodDecl/' Selector '/' Arity
- * 	e.g.	methodDecl/clone/0
- *			methodDecl/append/1
+ * 	e.g.&nbsp;methodDecl/clone/0&nbsp;methodDecl/append/1
  *
  */
  public static final char[] bestMethodDeclarationPrefix(char[] selector, int arity, int matchMode, boolean isCaseSensitive) {
@@ -311,8 +306,7 @@ public void addTypeReference(char[] typeName){
 }
 /**
  * Method reference entries are encoded as follow: 'methodRef/' Selector '/' Arity
- * 	e.g.	methodRef/clone/0
- *			methodRef/append/1
+ * 	e.g.&nbsp;methodRef/clone/0&nbsp;methodRef/append/1
  *
  */
  public static final char[] bestMethodReferencePrefix(char[] selector, int arity, int matchMode, boolean isCaseSensitive) {
@@ -350,8 +344,7 @@ public void addTypeReference(char[] typeName){
 }
 /**
  * Type entries are encoded as follow: '<tag>/' Name 
- * 	e.g.	ref/Object
- *			ref/x
+ * 	e.g.&nbsp;ref/Object&nbsp;ref/x
  */
  public static final char[] bestReferencePrefix(char[] tag, char[] name, int matchMode, boolean isCaseSensitive) {
 
@@ -378,9 +371,8 @@ public void addTypeReference(char[] typeName){
 	}
 }
 /**
- * Type entries are encoded as follow: 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName
- * 	e.g.	typeDecl/C/java.lang/Object
- *			typeDecl/I/java.lang/Cloneable
+ * Type entries are encoded as follow: 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName:
+ * 	e.g.&nbsp;typeDecl/C/java.lang/Object&nbsp;typeDecl/I/java.lang/Cloneable
  *
  * Current encoding is optimized for queries: all classes/interfaces
  */
@@ -509,9 +501,10 @@ protected static final char[] concat(char[] firstWithSeparator, char[] second, c
 }
 /**
  * Type entries are encoded as follow: 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName '/' EnclosingTypeName
- * 	e.g.	typeDecl/C/java.lang/Object/
- *			typeDecl/I/java.lang/Cloneable/
- *			typeDecl/C/javax.swing/LazyValue/UIDefaults
+ * 	e.g.<ul>
+ * 	<li>typeDecl/C/java.lang/Object/</li>
+ *	<li>typeDecl/I/java.lang/Cloneable/</li>
+ *	<li>typeDecl/C/javax.swing/LazyValue/UIDefaults</li>
  * Current encoding is optimized for queries: all classes/interfaces
  */
  protected static final char[] encodeTypeEntry(char[] packageName, char[][] enclosingTypeNames, char[] typeName, boolean isClass) {
@@ -551,7 +544,7 @@ protected static final char[] concat(char[] firstWithSeparator, char[] second, c
 
 public abstract String[] getFileTypes();
 /**
- * @see IIndexer#index
+ * @see IIndexer#index(IDocument document, IIndexerOutput output)
  */
 public void index(IDocument document, IIndexerOutput output) throws IOException {
 	this.output = output;
@@ -559,7 +552,7 @@ public void index(IDocument document, IIndexerOutput output) throws IOException 
 }
 protected abstract void indexFile(IDocument document) throws IOException;
 /**
- * @see IIndexer#shouldIndex
+ * @see IIndexer#shouldIndex(IDocument document)
  */
 public boolean shouldIndex(IDocument document) {
 	String type = document.getType();

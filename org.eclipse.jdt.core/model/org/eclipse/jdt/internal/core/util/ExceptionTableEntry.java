@@ -1,7 +1,13 @@
-/*
- * (c) Copyright 2001 MyCorporation.
- * All Rights Reserved.
- */
+/**********************************************************************
+Copyright (c) 2002 IBM Corp. and others.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Common Public License v0.5
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/cpl-v05.html
+ 
+Contributors:
+     IBM Corporation - initial API and implementation
+**********************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -11,8 +17,8 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionTableEntry;
 
 /**
- * @version 	1.0
- * @author
+ * This class describes an entry in the exception table attribute according
+ * to the JVM specifications.
  */
 public class ExceptionTableEntry
 	extends ClassFileStruct

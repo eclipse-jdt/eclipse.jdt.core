@@ -70,7 +70,7 @@ public class ExceptionAttribute extends ClassFileAttribute implements IException
 	}
 
 	/**
-	 * @see IExceptionAttribute#getExceptionNumber()
+	 * @see IExceptionAttribute#getExceptionsNumber()
 	 */
 	public int getExceptionsNumber() {
 		return this.exceptionsNumber;

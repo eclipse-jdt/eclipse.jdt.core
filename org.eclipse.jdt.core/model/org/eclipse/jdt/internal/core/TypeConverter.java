@@ -3,9 +3,6 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-/**
- * Converter from a type to an AST type declaration.
- */
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -14,8 +11,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
- * @version 	1.0
- * @author
+ * Converter from a type to an AST type declaration.
  */
 public class TypeConverter {
 	

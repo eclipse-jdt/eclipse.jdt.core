@@ -22,9 +22,6 @@ import java.util.Stack;
  */
 public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceElementRequestor {
 
-/**
-
- */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
 	int[] sourceRange = {declarationStart, declarationEnd};
 	String importName = new String(name);
@@ -35,21 +32,19 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
 	addChild(fNode);	
 }
-/**
- */
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
 	int[] sourceRange= new int[] {declarationStart, declarationEnd};
 	fNode= new DOMPackage(fDocument, sourceRange, CharArrayOps.charToString(name));
 	addChild(fNode);	
 }
 /**
- * @see IDOMFactory#createCompilationUnit(String)
+ * @see IDOMFactory#createCompilationUnit(String, String)
  */
 public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name) {
 	return createCompilationUnit(sourceCode.toCharArray(), name.toCharArray());
 }
 /**
- * @see IDOMFactory#createCompilationUnit(String)
+ * @see IDOMFactory#createCompilationUnit(String, String)
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	initializeBuild(compilationUnit.getContents(), true, true);
@@ -157,7 +152,7 @@ protected void enterType(int declarationStart, int modifiers, char[] name,
  * Finishes the configuration of the class DOM object which
  * was created by a previous enterClass call.
  *
- * @see ISourceElementRequestor.exitClass(...);
+ * @see ISourceElementRequestor#exitClass(int)
  */
 public void exitClass(int declarationEnd) {
 	exitType(declarationEnd);
@@ -166,7 +161,7 @@ public void exitClass(int declarationEnd) {
  * Finishes the configuration of the method DOM object which
  * was created by a previous enterConstructor call.
  *
- * @see ISourceElementRequestor.exitConstructor(...);
+ * @see ISourceElementRequestor#exitConstructor(int)
  */
 public void exitConstructor(int declarationEnd) {
 	exitMember(declarationEnd);

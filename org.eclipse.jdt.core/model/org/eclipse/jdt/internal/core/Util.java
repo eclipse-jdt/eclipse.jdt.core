@@ -165,7 +165,7 @@ public static int compare(char[] v1, char[] v2) {
 }
 	/**
 	 * Concatenate two strings with a char in between.
-	 * @see concat(String, String)
+	 * @see #concat(String, String)
 	 */
 	public static String concat(String s1, char c, String s2) {
 		if (s1 == null) s1 = "null"; //$NON-NLS-1$
@@ -201,7 +201,7 @@ public static int compare(char[] v1, char[] v2) {
 
 	/**
 	 * Concatenate three strings.
-	 * @see concat(String, String)
+	 * @see #concat(String, String)
 	 */
 	public static String concat(String s1, String s2, String s3) {
 		if (s1 == null) s1 = "null"; //$NON-NLS-1$

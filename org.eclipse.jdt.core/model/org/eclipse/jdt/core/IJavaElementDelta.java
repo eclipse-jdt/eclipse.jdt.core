@@ -169,7 +169,7 @@ public interface IJavaElementDelta {
 	public int F_SOURCEDETACHED = 0x2000;	
 	
 	/**
-	 * Change flag indicating that this is a fine-grained delta, i.e. an analysis down
+	 * Change flag indicating that this is a fine-grained delta, i.e.&nbsp;an analysis down
 	 * to the members level was done to determine if there were structural changes to
 	 * members.
 	 * <p>

@@ -151,7 +151,7 @@ public interface IWorkingCopy {
 	IJavaElement[] findElements(IJavaElement element);
 	
 	/**
-	 * Finds the primary type of this compilation unit (i.e. the type with the same name as the
+	 * Finds the primary type of this compilation unit (i.e.&nbsp;the type with the same name as the
 	 * compilation unit), or <code>null</code> if no such a type exists.
 	 * 
 	 * @since 2.0

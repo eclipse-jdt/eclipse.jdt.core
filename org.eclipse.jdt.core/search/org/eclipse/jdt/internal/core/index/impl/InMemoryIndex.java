@@ -36,9 +36,7 @@ public class InMemoryIndex {
 	public InMemoryIndex() {
 		init();
 	}
-	/**
-	 * @see IIndex#addFile
-	 */
+
 	public IndexedFile addDocument(IDocument document) {
 		IndexedFile indexedFile= this.files.add(document);
 		this.footprint += indexedFile.footprint() + 4;
@@ -74,43 +72,43 @@ public class InMemoryIndex {
 			this.footprint += entry.addRef(fileNum);
 		}
 	}
-	/**
-	 * @see IIndex#addRef
-	 */
+
 	public void addRef(IndexedFile indexedFile, char[] word) {
 		addRef(word, indexedFile.getFileNumber());
 	}
-	/**
-	 * @see IIndex#addRef
-	 */
+
 	public void addRef(IndexedFile indexedFile, String word) {
 		addRef(word.toCharArray(), indexedFile.getFileNumber());
 	}
+
 	/**
 	 * Returns the footprint of the index.
 	 */
-
 	public long getFootprint() {
 		return this.footprint;
 	}
+
 	/**
 	 * Returns the indexed file with the given path, or null if such file does not exist.
 	 */
 	public IndexedFile getIndexedFile(String path) {
 		return files.get(path);
 	}
+
 	/**
-	 * @see IIndex#getNumFiles
+	 * @see IIndex#getNumDocuments()
 	 */
 	public int getNumFiles() {
 		return files.size();
 	}
+
 	/**
-	 * @see IIndex#getNumWords
+	 * @see IIndex#getNumWords()
 	 */
 	public int getNumWords() {
 		return words.elementSize;
 	}
+	
 	/**
 	 * Returns the words contained in the hashtable of words, sorted by alphabetical order.
 	 */

@@ -773,9 +773,8 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	}
 
 	/**
-	 * Returns the <code>IJavaElement</code> represented by the <code>String</code>
-	 * memento.
-	 * @see getHandleMemento()
+	 * Returns the <code>IJavaElement</code> represented by the 
+	 * <code>String</code> memento.
 	 */
 	public IJavaElement getHandleFromMemento(String memento) throws JavaModelException {
 		if (memento == null) {

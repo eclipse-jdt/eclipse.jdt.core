@@ -7,7 +7,7 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.IOException;
 
 /**
- * An <code>IDocument</code> represent a data source, e.g. a <code>File</code> (<code>FileDocument</code>), 
+ * An <code>IDocument</code> represent a data source, e.g.&nbsp;a <code>File</code> (<code>FileDocument</code>), 
  * an <code>IFile</code> (<code>IFileDocument</code>), 
  * or other kinds of data sources (URL, ...). An <code>IIndexer</code> indexes an<code>IDocument</code>.
  * <br>

@@ -23,15 +23,12 @@ public abstract class IndexBlock extends Block {
 
 	public abstract boolean addEntry(WordEntry entry);
 	/**
-	 * @see Block#clear
+	 * @see Block#clear()
 	 */
 	public void clear() {
 		reset();
 		super.clear();
 	}
-	/**
-	 * @see Block#findEntry
-	 */
 	public WordEntry findEntryMatching(char[] pattern, boolean isCaseSensitive) {
 		reset();
 		WordEntry entry= new WordEntry();
@@ -42,9 +39,6 @@ public abstract class IndexBlock extends Block {
 		}
 		return null;
 	}
-	/**
-	 * @see Block#findEntry
-	 */
 	public WordEntry findEntryPrefixedBy(char[] word, boolean isCaseSensitive) {
 		reset();
 		WordEntry entry= new WordEntry();
@@ -55,9 +49,6 @@ public abstract class IndexBlock extends Block {
 		}
 		return null;
 	}
-	/**
-	 * @see Block#findEntry
-	 */
 	public WordEntry findExactEntry(char[] word) {
 		reset();
 		WordEntry entry= new WordEntry();

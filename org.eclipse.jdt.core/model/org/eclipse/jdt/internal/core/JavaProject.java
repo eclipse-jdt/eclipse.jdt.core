@@ -1828,7 +1828,7 @@ public class JavaProject
 	}
 	
 	/**
-	 * Saves the classpath in a shareable format (VCM-wise) if necessary (i.e. semantically different)
+	 * Saves the classpath in a shareable format (VCM-wise) if necessary (i.e.&nbsp;semantically different).
 	 * Will never write an identical one.
 	 * Returns whether the .classpath file was modified.
 	 */

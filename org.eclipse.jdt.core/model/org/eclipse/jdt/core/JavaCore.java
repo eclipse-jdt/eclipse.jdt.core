@@ -186,8 +186,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param eventMask the bit-wise OR of all event types of interest to the listener
 	 * @see IElementChangeListener
 	 * @see ElementChangeEvent
-	 * @see #removeElementChangeListener
-	 *	@since 2.0
+	 * @see #removeElementChangedListener(IElementChangedListener listener)
+	 * @since 2.0
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener, int eventMask) {
 		JavaModelManager.getJavaModelManager().addElementChangedListener(listener, eventMask);

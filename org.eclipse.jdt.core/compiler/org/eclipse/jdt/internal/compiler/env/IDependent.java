@@ -6,11 +6,12 @@ package org.eclipse.jdt.internal.compiler.env;
 import org.eclipse.jdt.internal.compiler.*;
 
 /**
- * This represents the target (ie. the file) of a type dependency.
+ * This represents the target (i.e.&nbsp;the file) of a type dependency.
  *
  * All implementors of this interface are containers for types or types
  * themselves which must be able to identify their source file name
  * when file dependencies are collected.
+ * 
  * @see IDependencyInfo
  */
 public interface IDependent {
@@ -20,9 +21,9 @@ public interface IDependent {
  * The path part (optional) must be separated from the actual
  * file proper name by a java.io.File.separator.
  *
- * The proper file name includes the suffix extension (e.g. ".java")
+ * The proper file name includes the suffix extension (e.g.&nbsp;".java")
  *
- * e.g. "c:/com/ibm/compiler/java/api/Compiler.java" 
+ * e.g.&nbsp;"c:/com/ibm/compiler/java/api/Compiler.java" 
  */
 
 char[] getFileName();

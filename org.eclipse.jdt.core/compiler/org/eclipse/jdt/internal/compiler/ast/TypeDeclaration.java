@@ -75,7 +75,7 @@ public class TypeDeclaration
 	 * not need to preserve some of the method specific cached entries since this will be the first method).
 	 * inserts the clinit method declaration in the first position.
 	 * 
-	 * @see org.eclipse.jdt.internal.compiler.codegen.ConstantPool.resetForClinit(int, int)
+	 * @see org.eclipse.jdt.internal.compiler.codegen.ConstantPool#resetForClinit(int, int)
 	 */
 	public final void addClinit() {
 

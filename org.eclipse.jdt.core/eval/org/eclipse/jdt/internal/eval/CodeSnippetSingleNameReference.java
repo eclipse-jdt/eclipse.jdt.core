@@ -12,7 +12,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * A single name reference inside a code snippet can denote a field of a remote
- * receiver object (i.e. the one of the context in the stack frame)
+ * receiver object (i.e.&nbsp;the one of the context in the stack frame).
  */
 public class CodeSnippetSingleNameReference extends SingleNameReference implements EvaluationConstants, InvocationSite, ProblemReasons {
 

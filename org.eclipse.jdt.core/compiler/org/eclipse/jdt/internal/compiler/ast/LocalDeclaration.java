@@ -65,8 +65,8 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	}
 
 	/**
-	 * Code generation for a local declaration
-	 *	i.e. normal assignment to a local variable + unused variable handling 
+	 * Code generation for a local declaration:
+	 *	i.e.&nbsp;normal assignment to a local variable + unused variable handling 
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 

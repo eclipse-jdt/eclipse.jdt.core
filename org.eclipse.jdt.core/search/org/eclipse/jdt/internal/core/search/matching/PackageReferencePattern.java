@@ -38,7 +38,7 @@ public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSens
 }
 /**
  * ref/name (where name is the last segment of the package name)
- * @see SearchPattern#decodeIndexEntry
+ * @see SearchPattern#decodeIndexEntry(IEntryResult entryResult)
  */ 
 public void decodeIndexEntry(IEntryResult entryResult){
 
@@ -50,7 +50,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	this.decodedSegment = CharOperation.subarray(word, tagLength, nameLength);
 }
 /**
- * @see SearchPattern#feedIndexRequestor
+ * @see SearchPattern#feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope)
  */
 public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	for (int i = 0, max = references.length; i < max; i++) {
@@ -68,7 +68,7 @@ protected char[][] getPossibleTags() {
 	return TAGS;
 }
 /**
- * @see AndPattern#hasNextQuery
+ * @see AndPattern#hasNextQuery()
  */
 protected boolean hasNextQuery() {
 	if (this.segments.length > 2) {
@@ -80,7 +80,7 @@ protected boolean hasNextQuery() {
 	}
 }
 /**
- * @see SearchPattern#indexEntryPrefix
+ * @see SearchPattern#indexEntryPrefix()
  */
 public char[] indexEntryPrefix() {
 	return AbstractIndexer.bestReferencePrefix(
@@ -90,7 +90,7 @@ public char[] indexEntryPrefix() {
 		isCaseSensitive);
 }
 /**
- * @see SearchPattern#matchContainer
+ * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
 	return COMPILATION_UNIT | CLASS | METHOD | FIELD;
@@ -103,7 +103,7 @@ private boolean matches(char[][] tokens) {
 	return this.matchesName(this.pkgName, name);
 }
 /**
- * @see SearchPattern#matchIndexEntry
+ * @see SearchPattern#matchIndexEntry()
  */
 protected boolean matchIndexEntry() {
 	switch(matchMode){
@@ -125,7 +125,7 @@ protected boolean matchIndexEntry() {
 	return true;
 }
 /**
- * @see SearchPattern#matchReportReference
+ * @see SearchPattern#matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator)
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] tokens = null;
@@ -178,7 +178,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, tokens, element, accuracy);
 }
 /**
- * @see AndPattern#resetQuery
+ * @see AndPattern#resetQuery()
  */
 protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */

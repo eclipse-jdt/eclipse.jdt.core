@@ -131,7 +131,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	}
 
 	/**
-	 * @see ICodeAttribute#traverseBytecodes(IBytecodeVisitor)
+	 * @see ICodeAttribute#traverse(IBytecodeVisitor visitor)
 	 */
 	public void traverse(IBytecodeVisitor visitor) throws ClassFormatException {
 		int pc = this.codeOffset;

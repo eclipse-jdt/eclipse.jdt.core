@@ -128,13 +128,13 @@ protected void addChild(IDOMNode child) {
 	}
 }
 /**
- * @see IDOMFactory#createCompilationUnit(String)
+ * @see IDOMFactory#createCompilationUnit(String, String)
  */
 public IDOMCompilationUnit createCompilationUnit(char[] contents, char[] name) {
 	return createCompilationUnit(new CompilationUnit(contents, name));
 }
 /**
- * @see IDOMFactory#createCompilationUnit(String)
+ * @see IDOMFactory#createCompilationUnit(String, String)
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	if (fAbort) {

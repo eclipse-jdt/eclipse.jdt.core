@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.dom;
  * This interface is not intended to be implemented by clients.
  * </p>
  * 
- * @see ITypeBinding#getDeclaredClasses
+ * @see ITypeBinding#getDeclaredTypes
  * @since 2.0
  */
 public interface ITypeBinding extends IBinding {

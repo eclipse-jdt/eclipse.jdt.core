@@ -10,10 +10,9 @@ import java.io.*;
 
 /**
  * A basic implementation of <code>ICompilationUnit</code>
- * for use in the <code>SourceMapper</code>./
+ * for use in the <code>SourceMapper</code>.
  * @see ICompilationUnit
  */
- 
 public class BasicCompilationUnit implements ICompilationUnit {
 	protected char[] contents;
 	protected char[] fileName;

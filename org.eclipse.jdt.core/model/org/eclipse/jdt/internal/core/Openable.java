@@ -27,7 +27,8 @@ import java.util.Map;
 /**
  * Abstract class for implementations of java elements which are IOpenable.
  *
- * @see IJavaElement, IOpenable
+ * @see IJavaElement
+ * @see IOpenable
  */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
 

@@ -47,7 +47,7 @@ public class ToolFactory {
 	 * will default to using the default code formatter.
 	 * 
 	 * @see ICodeFormatter
-	 * @see ToolFactory#createDefaultCodeFormatter()
+	 * @see ToolFactory#createDefaultCodeFormatter(Map)
 	 */
 	public static ICodeFormatter createCodeFormatter(){
 		

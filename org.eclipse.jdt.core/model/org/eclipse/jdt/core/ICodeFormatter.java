@@ -17,7 +17,7 @@ package org.eclipse.jdt.core;
  * In case none is found, a default formatter can be provided through the ToolFactory.
  * 
  * @see ToolFactory#createCodeFormatter()
- * @see ToolFactory#createDefaultCodeFormatter()
+ * @see ToolFactory#createDefaultCodeFormatter(Map options)
  * @since 2.0
  */
 public interface ICodeFormatter {

@@ -56,7 +56,7 @@ protected void checkBuilderState() throws JavaModelException {
 	return;
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String codeSnippet, int position, ICompletionRequestor requestor)
  */
 public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor) throws JavaModelException {
 	this.context.complete(
@@ -68,7 +68,7 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
 	);
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect.
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String codeSnippet, int offset, int length)
  */
 public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) throws JavaModelException {
 	SelectionRequestor requestor= new SelectionRequestor(this.project.getNameLookup(), null); // null because there is no need to look inside the code snippet itself
@@ -83,7 +83,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 	return requestor.getElements();
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable.
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable(IGlobalVariable variable)
  */
 public void deleteVariable(IGlobalVariable variable) {
 	if (variable instanceof GlobalVariableWrapper) {
@@ -94,7 +94,7 @@ public void deleteVariable(IGlobalVariable variable) {
 	}
 }
 /**
- * @see IEvaluationContext#evaluateCodeSnippet
+ * @see IEvaluationContext#evaluateCodeSnippet(String codeSnippet, String[] localVariableTypeNames, String[] localVariableNames, int[] localVariableModifiers, IType declaringType, boolean isStatic, boolean isConstructorCall, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor)
  */
 public void evaluateCodeSnippet(
 	String codeSnippet, 
@@ -310,7 +310,7 @@ public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelExc
 	}
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) 
  * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
  */
 public void codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
