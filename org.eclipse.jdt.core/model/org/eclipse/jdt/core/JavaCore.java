@@ -619,13 +619,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
 	 * <p>
+	 * Also note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
+	 * In order to create an exported library entry, use <code>JavaCore.newLibraryEntry(IPath, IPath, IPath, boolean)</code>
+	 * <p>
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * 
-	 * @deprecated - use newLibraryEntry(IPath, IPath, IPath, boolean) instead
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -658,7 +659,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location). By default, it should not.
+	 * 	projects (in addition to the output location).
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -691,8 +692,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * 
-	 * @deprecated - use newProjectEntry(IPath, boolean) instead
+	 * <p>
+	 * Note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
+	 * In order to create an exported project entry, use <code>JavaCore.newProjectEntry(IPath, boolean)</code>
+	 * <p>
+	 * @param path the absolute path of the prerequisite project
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path) {
 		return newProjectEntry(path, false);
@@ -713,7 +717,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *  <p>
 	 * @param path the absolute path of the prerequisite project
 	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location). By default, it should not.
+	 * 	projects (in addition to the output location). 
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
 		Assert.isTrue(
@@ -781,6 +785,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
 	 * <p>
+	 * Also note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
+	 * In order to create an exported variable entry, use <code>JavaCore.newVariableEntry(IPath, IPath, IPath, boolean)</code>
+	 * <p>
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
@@ -789,8 +796,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 *
-	 * @deprecated - use newVariableEntry(IPath, IPath, IPath, boolean) instead
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -831,7 +836,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location). By default, it should not.
+	 * 	projects (in addition to the output location). 
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
