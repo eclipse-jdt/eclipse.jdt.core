@@ -2030,7 +2030,7 @@ public final class JavaCore extends Plugin {
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(propertyName).trim();
 		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-			// TODO remove after M7
+			// TODO (olivier) remove after M7
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return getConvertedValue(preferences, propertyName);
 		}
@@ -2099,7 +2099,7 @@ public final class JavaCore extends Plugin {
 					options.put(COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
 				}
 				// end bug 46854
-				// TODO Remove after M7
+				// TODO (olivier) Remove after M7
 				else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
 					convertFormatterOptions(propertyName, value, options);
 				}
