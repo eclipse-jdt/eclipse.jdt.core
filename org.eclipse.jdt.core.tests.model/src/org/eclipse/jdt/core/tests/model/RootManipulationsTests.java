@@ -331,7 +331,7 @@ public void testCopySourceFolder5() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P2/.classpath\n" + 
@@ -376,11 +376,11 @@ public void testCopySourceFolder6() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	src1\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P/.classpath\n" + 
@@ -459,7 +459,7 @@ public void testDeleteJarFile1() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);
@@ -489,7 +489,7 @@ public void testDeleteJarFile3() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);
@@ -523,14 +523,14 @@ public void testDeleteJarFile2() throws CoreException {
 		assertJavaProject(
 			"P1\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P1/.classpath\n" + 
 			"	L/P1/.project",
 			p1);
 		assertJavaProject(
 			"P2\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P2/.classpath\n" + 
 			"	L/P2/.project",
 			p2);
@@ -611,7 +611,7 @@ public void testDeleteSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src1/src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		q\n" + 
 			"			Y.java\n" + 
 			"	L/P/.classpath\n" + 
@@ -661,7 +661,7 @@ public void testMoveSourceFolder1() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P2/.classpath\n" + 
@@ -710,7 +710,7 @@ public void testMoveSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P2/.classpath\n" + 
@@ -764,7 +764,7 @@ public void testMoveSourceFolder3() throws CoreException {
 		assertJavaProject(
 			"P1\n" + 
 			"	src1/src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		q\n" + 
 			"			Y.java\n" + 
 			"	L/P1/.classpath\n" + 
@@ -774,7 +774,7 @@ public void testMoveSourceFolder3() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src1\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P2/.classpath\n" + 
@@ -819,11 +819,11 @@ public void testMoveSourceFolder4() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src1\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P2/.classpath\n" + 
 			"	L/P2/.project",
 			p2);
@@ -865,11 +865,11 @@ public void testMoveSourceFolder5() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src1\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P2/.classpath\n" + 
 			"	L/P2/.project",
 			p2);
@@ -909,11 +909,11 @@ public void testMoveSourceFolder6() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src1\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P2/.classpath\n" + 
 			"	L/P2/.project",
 			p2);
@@ -950,7 +950,7 @@ public void testRenameSourceFolder1() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"		p\n" + 
 			"			X.java\n" + 
 			"	L/P/.classpath\n" + 
@@ -983,11 +983,11 @@ public void testRenameSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src4\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src2\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src3\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);
@@ -1006,11 +1006,11 @@ public void testRenameSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src4\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src5\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src3\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);		
@@ -1029,11 +1029,11 @@ public void testRenameSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src4\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src5\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	src6\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);		
@@ -1064,7 +1064,7 @@ public void testRenameJarFile1() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	myLib2.jar\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
@@ -1101,7 +1101,7 @@ public void testRenameJarFile2() throws CoreException {
 		assertJavaProject(
 			"P1\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	myLib2.jar\n" + 
 			"	L/P1/.classpath\n" + 
 			"	L/P1/.project",
@@ -1109,7 +1109,7 @@ public void testRenameJarFile2() throws CoreException {
 		assertJavaProject(
 			"P2\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	/P1/myLib2.jar\n" + 
 			"	L/P2/.classpath\n" + 
 			"	L/P2/.project",
@@ -1150,7 +1150,7 @@ public void testRenameJarFile3() throws CoreException {
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
-			"		[default]\n" + 
+			"		<default>\n" + 
 			"	myLib2.jar\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",

@@ -178,8 +178,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
-				"		[default][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
 				"			[Working copy] Y.java[+]: {}"
 			);
 		} finally {
@@ -209,8 +209,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
-				"		[default][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
 				"			[Working copy] Y.java[*]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
@@ -242,8 +242,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
-				"		[default][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
 				"			[Working copy] Y.java[-]: {}"
 			);
 		} finally {
@@ -275,8 +275,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
-				"		[default][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
 				"			Y.java[*]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
@@ -312,8 +312,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertDeltas(
 				"Unexpected delta",
 				"P[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
-				"		[default][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
 				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY WORKING COPY}\n" + 
 				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
 				"					x[-]: {}"
@@ -576,7 +576,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy11 = cu1.getWorkingCopy(owner1, null, null);
 			assertSortedElementsEqual(
 				"Unexpected working copies (2)",
-				"[Working copy] X.java [in [default] [in [project root] [in P]]]",
+				"[Working copy] X.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
 			
@@ -585,8 +585,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy12 = cu2.getWorkingCopy(owner1, null, null);
 			assertSortedElementsEqual(
 				"Unexpected working copies (3)",
-				"[Working copy] X.java [in [default] [in [project root] [in P]]]\n" +
-				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				"[Working copy] X.java [in <default> [in <project root> [in P]]]\n" +
+				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
 
@@ -597,15 +597,15 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			// owner2 should have the new working copy
 			assertSortedElementsEqual(
 				"Unexpected working copies (4)",
-				"[Working copy] X.java [in [default] [in [project root] [in P]]]",
+				"[Working copy] X.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner2)
 			);
 			
 			// owner1 should still have the same working copies
 			assertSortedElementsEqual(
 				"Unexpected working copies (5)",
-				"[Working copy] X.java [in [default] [in [project root] [in P]]]\n" +
-				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				"[Working copy] X.java [in <default> [in <project root> [in P]]]\n" +
+				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
 			
@@ -613,7 +613,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy11.discardWorkingCopy();
 			assertSortedElementsEqual(
 				"Unexpected working copies (6)",
-				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
 				JavaCore.getWorkingCopies(owner1)
 			);
 		} finally {

@@ -401,7 +401,7 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			Y.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[+]: {}"
@@ -459,7 +459,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			"Unexpected delta",
 			"P2[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			Y.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[+]: {}"

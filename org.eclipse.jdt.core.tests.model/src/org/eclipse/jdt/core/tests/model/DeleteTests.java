@@ -62,8 +62,8 @@ public void testDeleteAllImports() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				[import container][-]: {}"
 		);
@@ -160,8 +160,8 @@ public void testDeleteCompilationUnit1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
 	} finally {
@@ -189,8 +189,8 @@ public void testDeleteCompilationUnit2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
 	} finally {
@@ -228,8 +228,8 @@ public void testDeleteCompilationUnit3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
 	} finally {
@@ -258,7 +258,7 @@ public void testDeleteCompilationUnit4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
@@ -289,8 +289,8 @@ public void testDeleteConstructor() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					X[-]: {}"
@@ -341,8 +341,8 @@ public void testDeleteField() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					field[-]: {}"
@@ -399,8 +399,8 @@ public void testDeleteImportDeclaration() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				[import container][*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import q.Y[-]: {}"
@@ -430,8 +430,8 @@ public void testDeleteMethod() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}"
@@ -515,7 +515,7 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				[import container][*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -554,7 +554,7 @@ public void testDeletePackageDeclaration() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				package a.b.c[-]: {}"
@@ -583,7 +583,7 @@ public void testDeletePackageFragment1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[-]: {}"
 		);
 	} finally {
@@ -617,7 +617,7 @@ public void testDeletePackageFragment2() throws CoreException {
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
 	} finally {
@@ -650,8 +650,8 @@ public void testDeletePackageFragment3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
 	} finally {
@@ -678,7 +678,7 @@ public void testDeletePackageFragment4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[-]: {}"
 		);
 	} finally {
@@ -705,8 +705,8 @@ public void testDeleteSyntaxErrorField() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					field[-]: {}"
@@ -738,8 +738,8 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}"
@@ -768,8 +768,8 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}"
@@ -799,8 +799,8 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}"
@@ -829,8 +829,8 @@ public void testDeleteSyntaxErrorType() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[-]: {}"
 		);
@@ -857,8 +857,8 @@ public void testDeleteType1() throws CoreException{
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[-]: {}"
 		);
@@ -888,7 +888,7 @@ public void testDeleteType2() throws CoreException {
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[-]: {}"
 		);

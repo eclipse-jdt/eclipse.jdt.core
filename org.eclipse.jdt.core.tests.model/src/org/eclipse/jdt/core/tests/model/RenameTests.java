@@ -266,11 +266,11 @@ public void testRenameCompilationUnitsCheckingDeltas() throws CoreException{
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		[default][*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(NewX.java [in [default] [in src [in P]]])}\n" + 
-		"			NewX.java[+]: {MOVED_FROM(X.java [in [default] [in src [in P]]])}\n" + 
-		"			Y.java[-]: {MOVED_TO(NewY.java [in [default] [in src [in P]]])}\n" + 
-		"			NewY.java[+]: {MOVED_FROM(Y.java [in [default] [in src [in P]]])}"
+		"		<default>[*]: {CHILDREN}\n" + 
+		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
+		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" + 
+		"			Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}\n" + 
+		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}"
 	);
 }
 /**
@@ -321,9 +321,9 @@ public void testRenameCU() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		[default][*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(NewX.java [in [default] [in src [in P]]])}\n" + 
-		"			NewX.java[+]: {MOVED_FROM(X.java [in [default] [in src [in P]]])}"
+		"		<default>[*]: {CHILDREN}\n" + 
+		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
+		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
 	);
 }
 public void testRenameCUForce() throws CoreException {
@@ -354,9 +354,9 @@ public void testRenameCUForce() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		[default][*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(Y.java [in [default] [in src [in P]]])}\n" + 
-		"			Y.java[+]: {MOVED_FROM(X.java [in [default] [in src [in P]]])}"
+		"		<default>[*]: {CHILDREN}\n" + 
+		"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" + 
+		"			Y.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
 	);
 }
 /*
@@ -394,7 +394,7 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		[default][*]: {CHILDREN}\n" + 
+		"		<default>[*]: {CHILDREN}\n" + 
 		"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"					fred[+]: {}\n" + 
@@ -431,7 +431,7 @@ public void testRenameFieldsMultiStatus() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		[default][*]: {CHILDREN}\n" + 
+		"		<default>[*]: {CHILDREN}\n" + 
 		"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"					multiStatusother[+]: {}\n" + 

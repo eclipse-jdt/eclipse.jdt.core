@@ -750,7 +750,7 @@ public void move(
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (getElementName().length() == 0) {
-		buffer.append("[project root]"); //$NON-NLS-1$
+		buffer.append("<project root>"); //$NON-NLS-1$
 	} else {
 		IPath path = getPath();
 		if (getJavaProject().getElementName().equals(path.segment(0))) {

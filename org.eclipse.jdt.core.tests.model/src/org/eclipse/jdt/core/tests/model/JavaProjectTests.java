@@ -192,7 +192,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 		assertDeltas(
 			"Unexpected delta 1",
 			"JavaProjectTests[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		bin[+]: {}\n" + 
 			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
 		);
@@ -205,7 +205,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 			assertDeltas(
 				"Unexpected delta 2",
 				"JavaProjectTests[*]: {CHILDREN}\n" + 
-				"	[project root][*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
 				"		bin[-]: {}\n" + 
 				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
 			);
@@ -262,7 +262,7 @@ public void testDeletePackageWithAutobuild() throws JavaModelException, CoreExce
 		assertDeltas(
 			"Unexpected delta",
 			"JavaProjectTests[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		x.y[-]: {}"
 		);
 	} finally {
@@ -908,7 +908,7 @@ public void testRootGetPackageFragments2() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
 		assertElementsEqual(
 			"Unexpected packages",
-			"[default] [in [project root] [in P]]",
+			"<default> [in <project root> [in P]]",
 			root.getChildren());
 	} finally {
 		this.deleteProject("P");

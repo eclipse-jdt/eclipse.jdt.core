@@ -242,8 +242,8 @@ public void testAddCuInDefaultPkg1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}"
 		);
 	} finally {
@@ -266,7 +266,7 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}"
 		);
 	} finally {
@@ -317,7 +317,7 @@ public void testAddDotClasspathFile() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[+]"
 		);
@@ -356,7 +356,7 @@ public void testAddInvalidSubfolder() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[+]: {}"
 		);
 	} finally {
@@ -548,7 +548,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
 			"	/P1/bin1[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.class[+]: {}"
 			);
 			
@@ -568,7 +568,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 
 			"	/P1/bin1[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.class[*]: {CONTENT}\n" + 
 			"			Y.class[+]: {}"
 			);
@@ -713,7 +713,7 @@ public void testCompilationUnitRemoveAndAdd() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after deleting /P/p/X.java",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
 		);
@@ -729,7 +729,7 @@ public void testCompilationUnitRemoveAndAdd() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after adding /P/p/X.java",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}"
 		);
@@ -752,8 +752,8 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[+]: {}"
 		);
 	} finally {
@@ -775,8 +775,8 @@ public void testCreateWorkingCopy() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[+]: {}"
 		);
 	} finally {
@@ -898,7 +898,7 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 			"Unexpected deltas",
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
+			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[-]: {}"
 		);
@@ -922,8 +922,8 @@ public void testDestroySharedWorkingCopy() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[-]: {}"
 		);
 	} finally {
@@ -945,8 +945,8 @@ public void testDestroyWorkingCopy() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[-]: {}"
 		);
 	} finally {
@@ -976,8 +976,8 @@ public void testListenerAutoBuild() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating CU", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}", 
 			listener.toString());
 		listener.flush();
@@ -992,8 +992,8 @@ public void testListenerAutoBuild() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating type", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[+]: {}", 
 			listener.toString());
@@ -1012,8 +1012,8 @@ public void testListenerAutoBuild() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[+]: {}",
 			listener.toString());
 		listener.flush();
@@ -1046,8 +1046,8 @@ public void testListenerAutoBuild() throws CoreException {
 		assertEquals(
 			"Unexpected delta after destroying shared working copy",
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[-]: {}",
 			listener.toString());
 		listener.flush();
@@ -1082,8 +1082,8 @@ public void testListenerPostChange() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating CU", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}", 
 			listener.toString());
 		listener.flush();
@@ -1098,8 +1098,8 @@ public void testListenerPostChange() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating type", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[+]: {}", 
 			listener.toString());
@@ -1119,8 +1119,8 @@ public void testListenerPostChange() throws CoreException {
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[+]: {}",
 			listener.toString());
 		listener.flush();
@@ -1143,8 +1143,8 @@ public void testListenerPostChange() throws CoreException {
 		assertEquals(
 			"Unexpected delta after committing working copy",
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}\n" +
@@ -1157,8 +1157,8 @@ public void testListenerPostChange() throws CoreException {
 		assertEquals(
 			"Unexpected delta after destroying shared working copy",
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			[Working copy] X.java[-]: {}",
 			listener.toString());
 		listener.flush();
@@ -1294,8 +1294,8 @@ public void testMergeResourceDeltas() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[+]: {}\n" +
 			"	ResourceDelta(/P/Y.txt)[+]"
 		);
@@ -1332,7 +1332,7 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
 			"			A.java[*]: {CONTENT | FINE GRAINED}"
 		);
@@ -1453,7 +1453,7 @@ public void testModifyProjectDescriptionAndRemoveFolder() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT}\n"+
-			"	[project root][*]: {CHILDREN}\n"+
+			"	<project root>[*]: {CHILDREN}\n"+
 			"		folder[-]: {}\n"+
 			"	ResourceDelta(/P/.project)[*]"
 		);
@@ -1482,11 +1482,11 @@ public void testMoveCuInEnclosingPkg() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[-]: {MOVED_TO(A.java [in x [in [project root] [in P]]])}\n" +
+			"			A.java[-]: {MOVED_TO(A.java [in x [in <project root> [in P]]])}\n" +
 			"		x[*]: {CHILDREN}\n" +
-			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}"
+			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in <project root> [in P]]])}"
 		);
 		assertElementDescendants(
 			"Unexpected children for package x",
@@ -1552,7 +1552,7 @@ public void testMoveTwoResInRoot() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}\n" + 
 			"			Y.java[+]: {}\n" + 
 			"	ResourceDelta(/P/X.java)[-]\n" + 
@@ -1690,7 +1690,7 @@ public void testOverwriteClasspath() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" +
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	src[*]: {ADDED TO CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
 			"	ResourceDelta(/P/.classpath2)[-]"
@@ -1809,7 +1809,7 @@ public void testRemoveAddBinaryProject() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
 			"	lib.jar[-]: {}\n" + 
-			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
+			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/.project)[*]"
 		);
@@ -2121,7 +2121,7 @@ public void testRenameMethodAndSave() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
 			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -2175,7 +2175,7 @@ public void testRenameOuterPkgFragment() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
 			"		z[+]: {}"
 		);
 	} finally {
@@ -2207,8 +2207,8 @@ public void testSaveWorkingCopy() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after committing working copy", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
-			"		[default][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}"
@@ -2246,7 +2246,7 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 		assertDeltas(
 			"Should notice src2 and myLib additions to the classpath", 
 			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
 			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]");
@@ -2337,7 +2337,7 @@ public void testWorkingCopyCommit() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after commit", 
 			"P[*]: {CHILDREN}\n" +
-			"	[project root][*]: {CHILDREN}\n" +
+			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
 			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +

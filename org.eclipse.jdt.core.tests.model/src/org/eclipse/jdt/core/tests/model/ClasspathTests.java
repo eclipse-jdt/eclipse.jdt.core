@@ -1529,7 +1529,7 @@ public void testEmptyClasspath() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {

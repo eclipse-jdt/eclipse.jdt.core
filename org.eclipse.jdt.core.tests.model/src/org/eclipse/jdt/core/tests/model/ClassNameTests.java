@@ -438,7 +438,7 @@ public class ClassNameTests extends ModifyingResourceTests {
 			IType type = javaProject.findType("p.X.Y");
 			assertEquals(
 				"Unexpected type found",
-				"class Y [in X [in X.java [in p [in [project root] [in P]]]]]",
+				"class Y [in X [in X.java [in p [in <project root> [in P]]]]]",
 				type == null ? "null" : type.toString()
 			);
 		} finally {

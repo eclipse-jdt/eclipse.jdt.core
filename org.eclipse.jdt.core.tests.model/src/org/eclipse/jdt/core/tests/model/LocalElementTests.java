@@ -191,11 +191,11 @@ public class LocalElementTests extends ModifyingResourceTests {
 		types[4] = topLevelType.getMethod("foo", new String[] {"I", "QString;"}).getType("Z", 1);
 		assertElementsEqual(
 			"Unexpected types",
-			"<anonymous #1> [in <initializer #1> [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
-			"Y [in <initializer #1> [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
-			"<anonymous #1> [in f [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
-			"<anonymous #1> [in foo [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
-			"Z [in foo [in X [in X.java [in [default] [in [project root] [in P]]]]]]",
+			"<anonymous #1> [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"Y [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"<anonymous #1> [in f [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"<anonymous #1> [in foo [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"Z [in foo [in X [in X.java [in <default> [in <project root> [in P]]]]]]",
 			types);
 	}
 

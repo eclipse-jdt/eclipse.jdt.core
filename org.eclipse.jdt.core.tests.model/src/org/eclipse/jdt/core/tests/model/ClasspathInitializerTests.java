@@ -235,8 +235,8 @@ public void testContainerInitializer4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta on startup", 
 			"P2[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}"
 		);
 	} finally {
@@ -271,8 +271,8 @@ public void testContainerInitializer5() throws CoreException {
 		assertDeltas(
 			"Unexpected delta on startup", 
 			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}"
 		);
 		assertTrue("initializer did not run", nullInitializer.hasRun);
@@ -289,8 +289,8 @@ public void testContainerInitializer5() throws CoreException {
 		assertDeltas(
 			"Unexpected delta after setting container", 
 			"P1[*]: {CHILDREN}\n" + 
-			"	[project root][*]: {CHILDREN}\n" + 
-			"		[default][*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[+]: {}\n" + 
 			"\n" + 
 			"P1[*]: {CONTENT}\n" + 
