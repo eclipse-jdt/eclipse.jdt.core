@@ -573,10 +573,11 @@ public abstract class Scope
 			return null; // know it has no member types (nor inherited member types)
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
-		compilationUnitScope().recordReference(enclosingType, typeName);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-			compilationUnitScope().recordTypeReference(memberType);
+			unitScope.recordTypeReference(memberType);
 			if (enclosingSourceType == null
 				? memberType.canBeSeenBy(getCurrentPackage())
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -593,10 +594,11 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-		compilationUnitScope().recordTypeReferences(argumentTypes);
-		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, compilationUnitScope());
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordTypeReferences(argumentTypes);
+		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
 		if (exactMethod != null) {
-			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
+			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 				if (receiverType.id != T_Object
@@ -627,7 +629,8 @@ public abstract class Scope
 	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
 		if (receiverType.isBaseType()) return null;
 
-		compilationUnitScope().recordTypeReference(receiverType);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordTypeReference(receiverType);
 		if (receiverType.isArrayType()) {
 			TypeBinding leafType = receiverType.leafComponentType();
 			if (leafType instanceof ReferenceBinding)
@@ -669,7 +672,7 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
-			compilationUnitScope().recordTypeReference(currentType);
+			unitScope.recordTypeReference(currentType);
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -693,7 +696,7 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
-						compilationUnitScope().recordTypeReference(anInterface);
+						unitScope.recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
 								visibleField = field;
@@ -737,10 +740,11 @@ public abstract class Scope
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();
-		compilationUnitScope().recordReference(enclosingType, typeName);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-			compilationUnitScope().recordTypeReference(memberType);
+			unitScope.recordTypeReference(memberType);
 			if (enclosingSourceType == null
 				? memberType.canBeSeenBy(currentPackage)
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -772,9 +776,9 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
-			compilationUnitScope().recordReference(currentType, typeName);
+			unitScope.recordReference(currentType, typeName);
 			if ((memberType = currentType.getMemberType(typeName)) != null) {
-				compilationUnitScope().recordTypeReference(memberType);
+				unitScope.recordTypeReference(memberType);
 				keepLooking = false;
 				if (enclosingSourceType == null
 					? memberType.canBeSeenBy(currentPackage)
@@ -798,9 +802,9 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
-						compilationUnitScope().recordReference(anInterface, typeName);
+						unitScope.recordReference(anInterface, typeName);
 						if ((memberType = anInterface.getMemberType(typeName)) != null) {
-							compilationUnitScope().recordTypeReference(memberType);
+							unitScope.recordTypeReference(memberType);
 							if (visibleMemberType == null) {
 								visibleMemberType = memberType;
 							} else {
@@ -846,10 +850,11 @@ public abstract class Scope
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector(); //TODO (kent) should rewrite to remove #matchingMethod since found is allocated anyway
 
-		compilationUnitScope().recordTypeReferences(argumentTypes);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordTypeReferences(argumentTypes);
 
 		if (currentType.isInterface()) {
-			compilationUnitScope().recordTypeReference(currentType);
+			unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			if (currentLength == 1) {
@@ -861,11 +866,11 @@ public abstract class Scope
 			currentType = getJavaLangObject();
 		}
 
-		boolean isCompliant14 = compilationUnitScope().environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
+		boolean isCompliant14 = unitScope.environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		while (currentType != null) {
-			compilationUnitScope().recordTypeReference(currentType);
+			unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 
@@ -973,7 +978,7 @@ public abstract class Scope
 					MethodBinding interfaceMethod =
 						findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
 					if (interfaceMethod != null) return interfaceMethod;
-					compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
+					unitScope.recordTypeReferences(matchingMethod.thrownExceptions);
 					return matchingMethod;
 				}
 			} 
@@ -1010,7 +1015,7 @@ public abstract class Scope
 		}
 
 		// check for duplicate parameterized methods
-		if (compilationUnitScope().environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
+		if (unitScope.environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			for (int i = 0; i < candidatesCount; i++) {
 				MethodBinding current = candidates[i];
 				if (current instanceof ParameterizedGenericMethodBinding)
@@ -1035,7 +1040,7 @@ public abstract class Scope
 			}
 		}
 		if (visiblesCount == 1) {
-			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0];
 		}
 		if (visiblesCount == 0) {
@@ -1496,8 +1501,9 @@ public abstract class Scope
 
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
-			compilationUnitScope().recordTypeReference(receiverType);
-			compilationUnitScope().recordTypeReferences(argumentTypes);
+			CompilationUnitScope unitScope = compilationUnitScope();
+			unitScope.recordTypeReference(receiverType);
+			unitScope.recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
 			if (methodBinding != null && methodBinding.canBeSeenBy(invocationSite, this)) {
 			    // targeting a non generic constructor with type arguments ?
@@ -2066,7 +2072,8 @@ public abstract class Scope
 			if (binding != null) return binding;
 		}
 
-		compilationUnitScope().recordQualifiedReference(compoundName);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(compoundName);
 		Binding binding =
 			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? Binding.TYPE : Binding.TYPE | Binding.PACKAGE);
 		if (binding == null)
@@ -2101,7 +2108,7 @@ public abstract class Scope
 
 		// binding is now a ReferenceBinding
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-		compilationUnitScope().recordTypeReference(typeBinding);
+		unitScope.recordTypeReference(typeBinding);
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(

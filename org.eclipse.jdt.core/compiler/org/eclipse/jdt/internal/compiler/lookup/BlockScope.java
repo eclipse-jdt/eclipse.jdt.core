@@ -379,7 +379,8 @@ public class BlockScope extends Scope {
 		Binding binding = getBinding(compoundName[0], mask | Binding.TYPE | Binding.PACKAGE, invocationSite, needResolve);
 		invocationSite.setFieldIndex(1);
 		if (binding instanceof VariableBinding) return binding;
-		compilationUnitScope().recordSimpleReference(compoundName[0]);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordSimpleReference(compoundName[0]);
 		if (!binding.isValidBinding()) return binding;
 
 		int length = compoundName.length;
@@ -387,7 +388,7 @@ public class BlockScope extends Scope {
 		foundType : if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
 			while (currentIndex < length) {
-				compilationUnitScope().recordReference(packageBinding.compoundName, compoundName[currentIndex]);
+				unitScope.recordReference(packageBinding.compoundName, compoundName[currentIndex]);
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
 				invocationSite.setFieldIndex(currentIndex);
 				if (binding == null) {
