@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
@@ -23,20 +24,22 @@ import org.eclipse.jdt.core.JavaModelException;
 public class BecomeWorkingCopyOperation extends JavaModelOperation {
 	
 	Map perFactoryWorkingCopies;
+	IProblemRequestor problemRequestor;
 	
 	/*
 	 * Creates a BecomeWorkingCopyOperation for the given working copy.
 	 * perFactoryWorkingCopies map is not null if the working copy is a shared working copy.
 	 */
-	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perFactoryWorkingCopies) {
+	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perFactoryWorkingCopies, IProblemRequestor problemRequestor) {
 		super(new IJavaElement[] {workingCopy});
 		this.perFactoryWorkingCopies = perFactoryWorkingCopies;
+		this.problemRequestor = problemRequestor;
 	}
 	protected void executeOperation() throws JavaModelException {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		workingCopy.openWhenClosed(new WorkingCopyElementInfo(), fMonitor);
+		workingCopy.openWhenClosed(new WorkingCopyElementInfo(problemRequestor), fMonitor);
 
 		if (this.perFactoryWorkingCopies != null) {
 			this.perFactoryWorkingCopies.put(workingCopy.getOriginalElement(), workingCopy);

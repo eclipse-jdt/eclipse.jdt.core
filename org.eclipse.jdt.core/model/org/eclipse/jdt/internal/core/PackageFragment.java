@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -79,7 +78,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 					if (extension.equalsIgnoreCase(extType)) {
 						IJavaElement childElement;
 						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
-							childElement = new CompilationUnit(this, child.getName(), DefaultCompilationUnitOwner.PRIMARY);
+							childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
 							vChildren.add(childElement);
 						} else if (Util.isValidClassFileName(child.getName())) {
 							childElement = getClassFile(child.getName());
@@ -129,7 +128,7 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 public ICompilationUnit createCompilationUnit(String name, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, name, contents, force);
 	runOperation(op, monitor);
-	return new CompilationUnit(this, name, DefaultCompilationUnitOwner.PRIMARY);
+	return new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see JavaElement
@@ -171,18 +170,11 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  */
 public ICompilationUnit getCompilationUnit(String name) {
-	return getCompilationUnit(name, CompilationUnitOwner.getCurrentOwner());
-}
-/*
- * Returns the shared working copy with the given name for the given owner.
- * Returns the primary compilation unit if not shared.
- */
-protected ICompilationUnit getCompilationUnit(String cuName, CompilationUnitOwner owner) {
-	ICompilationUnit primaryCU =  new CompilationUnit(this, cuName, DefaultCompilationUnitOwner.PRIMARY);
-	if (owner.equals(DefaultCompilationUnitOwner.PRIMARY)) return primaryCU;
+	ICompilationUnit primaryCU =  new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
-	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(owner);
+	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(DefaultWorkingCopyOwner.PRIMARY);
+	if (perOwnerWorkingCopies == null) return primaryCU;
 	ICompilationUnit sharedWC = (ICompilationUnit)perOwnerWorkingCopies.get(primaryCU);
 	if (sharedWC == null) {
 		return primaryCU;

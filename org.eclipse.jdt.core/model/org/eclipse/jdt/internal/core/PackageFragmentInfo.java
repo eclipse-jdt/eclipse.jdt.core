@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.CompilationUnitOwner;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -45,7 +44,7 @@ public IJavaElement[] getChildren() {
 	if (length == 0) return children;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
-	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(CompilationUnitOwner.getCurrentOwner());
+	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(DefaultWorkingCopyOwner.PRIMARY);
 	if (perOwnerWorkingCopies == null) return children;
 	for (int i = 0; i < length; i++) {
 		IJavaElement child = children[i];

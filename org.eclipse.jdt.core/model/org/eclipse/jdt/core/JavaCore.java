@@ -1867,7 +1867,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
 		
-		CompilationUnitOwner owner = new DefaultCompilationUnitOwner(factory, null);
+		WorkingCopyOwner owner = new BufferFactoryWrapper(factory);
 		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(owner);
 		if (perFactoryWorkingCopies == null) return JavaModelManager.NoWorkingCopy;
 		Collection copies = perFactoryWorkingCopies.values();

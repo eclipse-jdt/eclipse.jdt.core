@@ -207,7 +207,7 @@ public void testAddCommentAndCommit() throws CoreException {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getWorkingCopy(null, null, null);
+		copy = (ICompilationUnit)unit.getWorkingCopy(null);
 		
 		// add comment to working copy
 		copy.getBuffer().setContents(
@@ -2195,7 +2195,7 @@ public void testSaveWorkingCopy() throws CoreException {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (ICompilationUnit)unit.getWorkingCopy(null, null, null);
+		copy = (ICompilationUnit)unit.getWorkingCopy(null);
 		copy.getType("X").createMethod("void foo() {}", null, true, null);
 		this.startDeltas();
 		copy.save(null, true);

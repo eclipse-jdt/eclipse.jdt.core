@@ -43,9 +43,9 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	public IBuffer buffer;
 	
 	/*
-	 * @see ICompilationUnit#becomeWorkingCopy(IProgressMonitor)
+	 * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
 	 */
-	public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
+	public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	}
 	
 	/*
@@ -132,7 +132,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	/*
 	 * @see ICompilationUnit#getOwner()
 	 */
-	public CompilationUnitOwner getOwner() {
+	public WorkingCopyOwner getOwner() {
 		return null;
 	}
 
@@ -415,16 +415,26 @@ public IResource getResource() {
 	public IJavaElement getWorkingCopy() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
+	
+	/**
+	 * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
+	 */
+	public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
 
 	/**
 	 * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
 	 * @deprecated
 	 */
-	public IJavaElement getWorkingCopy(
-		IProgressMonitor monitor,
-		IBufferFactory factory,
-		IProblemRequestor problemRequestor) 
-		throws JavaModelException {
+	public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/**
+	 * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+	 */
+	public ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 

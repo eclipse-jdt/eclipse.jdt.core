@@ -10,29 +10,33 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 public class WorkingCopyElementInfo extends CompilationUnitElementInfo implements IProblemRequestor {
-	/* Number of time the compilation unit has been opened for working copy */
+	/* 
+	 * Number of time the compilation unit has been opened for working copy.
+	 * Negative if working copy is closed.
+	 */
 	private int useCount;
-	ArrayList problems;
-	public WorkingCopyElementInfo() {
-		this.useCount = 1;
+	
+	IProblemRequestor problemRequestor;
+	
+	public WorkingCopyElementInfo(IProblemRequestor problemRequestor) {
+		this(1, problemRequestor);
 	}
-	public WorkingCopyElementInfo(int useCount) {
+	public WorkingCopyElementInfo(int useCount, IProblemRequestor problemRequestor) {
 		this.useCount = useCount;
+		this.problemRequestor = problemRequestor;
 	}
 	public void endReporting() {
+		this.problemRequestor.endReporting();
 	}
 	public void acceptProblem(IProblem problem) {
-		if (this.problems != null) {
-			this.problems.add(problem);
-		}
+		this.problemRequestor.acceptProblem(problem);
 	}
 	public void beginReporting() {
+		this.problemRequestor.beginReporting();
 	}
 	public int decrementUseCount() {
 		if (this.useCount > 0) {
@@ -49,7 +53,7 @@ public class WorkingCopyElementInfo extends CompilationUnitElementInfo implement
 		}
 	}
 	public boolean isActive() {
-		return true;
+		return this.problemRequestor != null && this.problemRequestor.isActive();
 	}
 	protected boolean isOpen() {
 		return this.useCount > 0;
