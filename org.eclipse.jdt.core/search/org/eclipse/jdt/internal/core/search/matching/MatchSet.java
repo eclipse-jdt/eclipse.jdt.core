@@ -233,6 +233,10 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 			int level;
 			if (node instanceof ImportReference) {
 				// special case for import refs: they don't know their binding
+				
+				// import ref cannot be in the hirarchy of a type
+				if (this.locator.hierarchyResolver != null) continue;
+				
 				ImportReference importRef = (ImportReference)node;
 				Binding binding;
 				if (importRef.onDemand) {

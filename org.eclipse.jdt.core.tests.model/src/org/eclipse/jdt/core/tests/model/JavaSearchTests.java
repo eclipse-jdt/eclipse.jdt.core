@@ -242,6 +242,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testPatternMatchTypeReference"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceNotCaseSensitive"));
 	suite.addTest(new JavaSearchTests("testAccurateTypeReference"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceInHierarchy"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2441,6 +2442,24 @@ public void testTypeReferenceInCast() throws JavaModelException, CoreException {
 		resultCollector);
 	assertEquals(
 		"src/s3/A.java s3.A.foo() -> Object [B]",
+		resultCollector.toString());
+}
+/**
+ * Type reference in hierarchy test.
+ * (regression test for bug 28236 Search for refs to class in hierarchy matches class outside hierarchy )
+ */
+public void testTypeReferenceInHierarchy() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "d9.p1", "A.java").getType("A");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"",
 		resultCollector.toString());
 }
 /**
