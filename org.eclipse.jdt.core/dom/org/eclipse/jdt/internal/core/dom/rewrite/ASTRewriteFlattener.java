@@ -9,15 +9,13 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
-import java.util.Iterator;
+
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 
 public class ASTRewriteFlattener extends ASTVisitor {
 	
-	
-
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -1202,23 +1200,8 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", EMPTY); //$NON-NLS-1$
 
 		this.result.append('{');
-		BodyDeclaration prev = null;
-		for (Iterator it = getChildList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY).iterator(); it.hasNext(); ) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
-			if (prev instanceof EnumConstantDeclaration) {
-				// enum constant declarations do not include punctuation
-				if (d instanceof EnumConstantDeclaration) {
-					// enum constant declarations are separated by commas
-					this.result.append(',');
-				} else {
-					// semicolon separates last enum constant declaration from 
-					// first class body declarations
-					this.result.append(';');
-				}
-			}
-			d.accept(this);
-			prev= d;
-		}
+		visitList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, String.valueOf(','), EMPTY, EMPTY); //$NON-NLS-1$
+		visitList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, EMPTY, String.valueOf(';'), EMPTY); //$NON-NLS-1$
 		this.result.append('}');
 		return false;
 	}
@@ -1306,6 +1289,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, " & ", " extends ", EMPTY); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.WildcardType)
 	 */

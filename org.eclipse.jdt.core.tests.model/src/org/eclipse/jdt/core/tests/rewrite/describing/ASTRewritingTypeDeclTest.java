@@ -1133,7 +1133,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	        // where fEnumName is a String
 	        SimpleName enumName= ast.newSimpleName("MyEnum");
 	        enumD.setName(enumName);
-	        List enumBody= enumD.bodyDeclarations();
+	        List enumStatements= enumD.enumConstants();
 
 	        String[] names= { "a", "b", "c" };
 	        
@@ -1142,7 +1142,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	            String curr= names[i];
 	            EnumConstantDeclaration constDecl= ast.newEnumConstantDeclaration();
 	            constDecl.setName(ast.newSimpleName(curr));
-	            enumBody.add(constDecl);
+	            enumStatements.add(constDecl);
 	        }
 
 	        ListRewrite declarations= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
