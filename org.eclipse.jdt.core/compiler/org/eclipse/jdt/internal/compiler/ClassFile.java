@@ -1865,6 +1865,14 @@ public class ClassFile
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
+			if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}			
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
 			    * (bytecodePC lineNumber)
@@ -1997,6 +2005,14 @@ public class ClassFile
 		localContentsOffset += 2; // first we handle the linenumber attribute
 
 		if (codeStream.generateLineNumberAttributes) {
+			if (localContentsOffset + 20 >= (contentsLength = localContents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}			
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
 			    * (bytecodePC lineNumber)
