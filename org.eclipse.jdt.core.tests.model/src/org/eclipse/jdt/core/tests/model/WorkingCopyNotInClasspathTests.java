@@ -211,7 +211,7 @@ public void testIsOnClasspath() throws CoreException {
 }
 
 // 42281
-public void _testCommit2() throws CoreException {
+public void testCommit2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("SimpleProject", new String[] {"src"}, "bin");

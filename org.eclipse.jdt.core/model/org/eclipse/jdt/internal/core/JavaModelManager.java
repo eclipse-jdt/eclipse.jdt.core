@@ -400,21 +400,17 @@ public class JavaModelManager implements ISaveParticipant {
 					IPackageFragmentRoot root = ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
 					if (root == null) return null;
 					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
+
 					if (resource.getType() == IResource.FILE) {
 						// if the resource is a file, then remove the last segment which
 						// is the file name in the package
 						pkgPath = pkgPath.removeLastSegments(1);
-						
-						// don't check validity of package name (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=26706)
-						String pkgName = pkgPath.toString().replace('/', '.');
-						return root.getPackageFragment(pkgName);
-					} else {
-						String pkgName = Util.packageName(pkgPath);
-						if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
-							return null;
-						}
-						return root.getPackageFragment(pkgName);
 					}
+					String pkgName = Util.packageName(pkgPath);
+					if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
+						return null;
+					}
+					return root.getPackageFragment(pkgName);
 				}
 			}
 		} catch (JavaModelException npe) {
@@ -1425,10 +1421,12 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Sets the last built state for the given project, or null to reset it.
 	 */
 	public void setLastBuiltState(IProject project, Object state) {
-		if (!JavaProject.hasJavaNature(project)) return; // should never be requested on non-Java projects
-		PerProjectInfo info = getPerProjectInfo(project, true /*create if missing*/);
-		info.triedRead = true; // no point trying to re-read once using setter
-		info.savedState = state;
+		if (JavaProject.hasJavaNature(project)) {
+			// should never be requested on non-Java projects
+			PerProjectInfo info = getPerProjectInfo(project, true /*create if missing*/);
+			info.triedRead = true; // no point trying to re-read once using setter
+			info.savedState = state;
+		}
 		if (state == null) { // delete state file to ensure a full build happens if the workspace crashes
 			try {
 				File file = getSerializationFile(project);
