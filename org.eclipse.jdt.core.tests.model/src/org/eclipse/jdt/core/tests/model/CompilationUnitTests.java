@@ -58,8 +58,19 @@ public void setUpSuite() throws Exception {
 		"}");
 	this.cu = this.getCompilationUnit("/P/src/p/X.java");
 }
+
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+	testsNames = new String[] { "Bug73884" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 13 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { 16, -1 };
+}
 public static Test suite() {
-	return new Suite(CompilationUnitTests.class);
+	return buildTestSuite(CompilationUnitTests.class);
 }
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
@@ -455,6 +466,24 @@ public void testStructureUnknownForCU() throws CoreException {
 		assertTrue("Structure is known for an invalid CU", !badCU.isStructureKnown());
 	} finally {
 		this.deleteFile("/P/src/p/Invalid.java");
+	}
+}
+
+/*
+ * Verify fix for bug 73884: [1.5] Unexpected error for class implementing generic interface
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73884)
+ */
+public void testBug73884() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public interface I<T> {\n" +
+			"}";
+		createFile("/P/src/p/I.java", cuSource);
+		ITypeParameter[] typeParameters = getCompilationUnit("/P/src/p/I.java").getType("I").getTypeParameters();
+		assertEquals("Invalid number of type parameters!", 1, typeParameters.length);
+	} finally {
+		deleteFile("/P/src/p/I.java");
 	}
 }
 }
