@@ -14,9 +14,11 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 /**
  * Internal helper class for comparing bindings.
@@ -65,7 +67,8 @@ class BindingComparator {
 				return false;
 			}
 			return isEqual((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement,
-					(org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement2);
+					(org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement2,
+					false);
 		} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
 			if (!(declaringElement2 instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding)) {
 				return false;
@@ -156,12 +159,7 @@ class BindingComparator {
 		}
 	}
 
-	/**
-	 * @param typeBinding
-	 * @param typeBinding2
-	 * @return true if both parameters are equals, false otherwise
-	 */
-	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2) {
+	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, boolean checkTypeVariables) {
 		if (typeBinding == null) {
 			return typeBinding2 == null;
 		} else if (typeBinding2 == null) {
@@ -183,15 +181,58 @@ class BindingComparator {
 			// reference type
 			ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
 			ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
-			return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-				&& (referenceBinding.isParameterizedType() == referenceBinding2.isParameterizedType())
-				&& (referenceBinding.isWildcard() == referenceBinding2.isWildcard())
-				&& (referenceBinding.isGenericType() == referenceBinding2.isGenericType())
-				&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-				&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
-				&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
-				&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-				&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+			if (referenceBinding.isParameterizedType()) {
+				if (!referenceBinding2.isParameterizedType()) {
+					return false;
+				}
+				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) referenceBinding;
+				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) referenceBinding2;
+				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
+					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
+					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
+					&& (referenceBinding.modifiers == referenceBinding2.modifiers)
+					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments);
+			} else if (referenceBinding.isWildcard()) {
+				if (!referenceBinding2.isWildcard()) {
+					return false;
+				}
+				WildcardBinding wildcardBinding = (WildcardBinding) referenceBinding;
+				WildcardBinding wildcardBinding2 = (WildcardBinding) referenceBinding2;
+				return isEqual(wildcardBinding.bound, wildcardBinding2.bound)
+					&& wildcardBinding.kind == wildcardBinding2.kind;
+			} else if (referenceBinding.isGenericType()) {
+				if (!referenceBinding2.isGenericType()) {
+					return false;
+				}
+				if (checkTypeVariables) {
+					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables())) {
+						return false;
+					}
+				}
+				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+					&& (referenceBinding.isGenericType() == referenceBinding2.isGenericType())
+					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
+					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
+					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
+					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
+					&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+			} else {
+				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
+					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
+					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
+					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
+					&& (referenceBinding.modifiers == referenceBinding2.modifiers);
+			}
 		}
+	}
+	/**
+	 * @param typeBinding
+	 * @param typeBinding2
+	 * @return true if both parameters are equals, false otherwise
+	 */
+	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2) {
+		return isEqual(typeBinding, typeBinding2, true);
 	}
 }

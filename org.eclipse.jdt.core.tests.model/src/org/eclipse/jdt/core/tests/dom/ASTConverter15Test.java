@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0082"));
+		suite.addTest(new ASTConverter15Test("test0083"));
 		return suite;
 	}
 		
@@ -2415,7 +2415,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a member", typeBinding.isMember());
 		assertTrue("Not a nested class", typeBinding.isNested());
-		assertTrue("Not a parameterized", typeBinding.isParameterizedType());
+		assertFalse("Is parameterized", typeBinding.isParameterizedType());
 
 		node = getASTNode(compilationUnit, 0, 3);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -2436,6 +2436,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a member", typeBinding.isMember());
 		assertTrue("Not a nested type", typeBinding.isNested());
-		// TODO (olivier) check if this type binding is parameterized
+		assertFalse("Is parameterized", typeBinding.isParameterizedType());
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79544
+	 */
+	public void test0083() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0083", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		ITypeBinding typeBinding = fieldDeclaration.getType().resolveBinding();
+		
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		ITypeBinding typeBinding2 = fieldDeclaration.getType().resolveBinding();
+
+		node = getASTNode(compilationUnit, 0, 2);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		ITypeBinding typeBinding3 = fieldDeclaration.getType().resolveBinding();
+
+		node = getASTNode(compilationUnit, 0, 3);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		ITypeBinding typeBinding4 = fieldDeclaration.getType().resolveBinding();
+		
+		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
+		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding3));
+		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding4));
+		assertFalse("Binding are equals", typeBinding2.isEqualTo(typeBinding3));
+		assertFalse("Binding are equals", typeBinding2.isEqualTo(typeBinding4));
+		assertFalse("Binding are equals", typeBinding3.isEqualTo(typeBinding4));
 	}
 }
