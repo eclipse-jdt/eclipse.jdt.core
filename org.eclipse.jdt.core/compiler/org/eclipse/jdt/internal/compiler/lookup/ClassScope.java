@@ -145,7 +145,8 @@ public class ClassScope extends Scope {
 		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.switchCase());
 		referenceContext.binding = localType;
 		checkAndSetModifiers();
-
+		buildTypeVariables();
+		
 		// Look at member types
 		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
 		if (referenceContext.memberTypes != null) {
@@ -299,6 +300,7 @@ public class ClassScope extends Scope {
 	
 	private void buildTypeVariables() {
 	    SourceTypeBinding sourceType = referenceContext.binding;
+	    sourceType.typeVariables = NoTypeVariables;
 		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
 		if (referenceContext.typeParameters != null) {
 			int length = referenceContext.typeParameters.length;
@@ -746,6 +748,7 @@ public class ClassScope extends Scope {
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
 			boolean noProblems = true;
 			sourceType.tagBits |= BeginHierarchyCheck;
+			connectTypeVariables();
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
 			noProblems &= connectSuperInterfaces();
@@ -785,10 +788,8 @@ public class ClassScope extends Scope {
 	private boolean connectTypeVariables() {
 	    // TODO connect type parameter bounds
 //		SourceTypeBinding sourceType = referenceContext.binding;
-//		sourceType.typeParameters = NoTypeParameters;
+//		sourceType.typeVariables = NoTypeVariables;
 //		if (referenceContext.typeParameters == null)
-//			return true;
-//		if (isJavaLangObject(sourceType)) // already handled the case of redefining java.lang.Object
 //			return true;
 	    // TODO remember to position slot firstBound for further usage.
 	    return true;
@@ -869,7 +870,12 @@ public class ClassScope extends Scope {
 		ReferenceBinding superType;
 
 		// resolve the first name of the compoundName
-		if (CharOperation.equals(compoundName[0], sourceType.sourceName)) {
+		if ((superType = sourceType.getTypeVariable(compoundName[0])) != null) {
+			// cannot bind to a type variable
+			return new ProblemReferenceBinding(
+					compoundName[0],
+					IllegalTypeVariable);
+		} else if (CharOperation.equals(compoundName[0], sourceType.sourceName)) {
 			superType = sourceType;
 			// match against the sourceType even though nested members cannot be supertypes
 		} else {
