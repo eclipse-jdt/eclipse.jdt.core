@@ -32,14 +32,14 @@ public class Buffer implements IBuffer {
 	protected char[] contents;
 	protected ArrayList changeListeners;
 	protected IOpenable owner;
-	protected int gapStart= -1;
-	protected int gapEnd= -1;
+	protected int gapStart = -1;
+	protected int gapEnd = -1;
 
-	protected Object lock= new Object();
+	protected Object lock = new Object();
 
-	protected static final int F_HAS_UNSAVED_CHANGES= 1;
-	protected static final int F_IS_READ_ONLY= 2;
-	protected static final int F_IS_CLOSED= 4;
+	protected static final int F_HAS_UNSAVED_CHANGES = 1;
+	protected static final int F_IS_READ_ONLY = 2;
+	protected static final int F_IS_CLOSED = 4;
 
 /**
  * Creates a new buffer on an underlying resource.
@@ -359,8 +359,10 @@ public void setContents(char[] newContents) {
 	// allow special case for first initialization 
 	// after creation by buffer factory
 	if (this.contents == null) {
-		this.contents = newContents;
-		this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+		synchronized (this.lock) {
+			this.contents = newContents;
+			this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+		}
 		return;
 	}
 	
