@@ -1273,7 +1273,6 @@ public abstract class Scope
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve) {
 
 		try {
-			SourceTypeBinding initialType = this.enclosingSourceType();
 			Binding binding = null;
 			FieldBinding problemField = null;
 			if ((mask & Binding.VARIABLE) != 0) {
@@ -1317,6 +1316,7 @@ public abstract class Scope
 							// Use next line instead if willing to enable protected access accross inner types
 							// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
 							
+//							SourceTypeBinding initialType = this.enclosingSourceType();
 //							if ((fieldBinding == null || !fieldBinding.isValidBinding()) && enclosingType.hasMemberTypes()) { // check member enums
 //								ReferenceBinding[] memberTypes = enclosingType.memberTypes();
 //								for (int i = 0, length = memberTypes.length; i < length; i++) {
