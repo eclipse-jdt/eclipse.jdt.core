@@ -1256,7 +1256,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * COMPILER / Reporting Non-Static Reference to a Static Member
 	 *    When enabled, the compiler will issue an error or a warning whenever a static field
-	 *    or method is accessed with an expression receiver.
+	 *    or method is accessed with an expression receiver. A reference to a static member should
+	 *    be qualified with a type name.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
@@ -1270,7 +1271,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * COMPILER / Reporting Interface Method not Compatible with non-Inherited Methods
 	 *    When enabled, the compiler will issue an error or a warning whenever an interface
-	 *    defines a method incompatible with a non-inherited Object one.
+	 *    defines a method incompatible with a non-inherited Object method. Until this conflict
+	 *    is resolved, such an interface cannot be implemented, e.g.
+	 *      interface I { 
+	 *         int clone();
+	 *      } 
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
@@ -1331,7 +1336,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    Allow to toggle the builder to abort if the classpath is invalid
 	 *     - option id:         "org.eclipse.jdt.core.builder.invalidClasspath"
 	 *     - possible values:   { "abort", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "abort"
 	 * 
 	 * BUILDER / Cleaning Output Folder(s)
 	 *    Indicate whether the JavaBuilder is allowed to clean the output folders
@@ -1339,6 +1344,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.builder.cleanOutputFolder"
 	 *     - possible values:   { "clean", "ignore" }
 	 *     - default:           "clean"
+	 * 
+	 * BUILDER / Reporting Duplicate Resources
+	 *    Indicate the severity of the problem reported when more than one occurrence
+	 *    of a resource is to be copied into the output location.
+	 *     - option id:         "org.eclipse.jdt.core.builder.duplicateResourceTask"
+	 *     - possible values:   { "error", "warning" }
+	 *     - default:           "warning"
 	 * 
 	 * JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
@@ -1356,7 +1368,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           <platform default>
 	 * 
 	 * JAVACORE / Reporting Incomplete Classpath
-	 *    Indicate the severity of the problem reported when an entry on the classpath doesn't exist 
+	 *    Indicate the severity of the problem reported when an entry on the classpath does not exist, 
 	 *    is not legite or is not visible (e.g. a referenced project is closed).
 	 *     - option id:         "org.eclipse.jdt.core.incompleteClasspath"
 	 *     - possible values:   { "error", "warning"}
@@ -1369,14 +1381,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "error"
 	 * 
 	 * JAVACORE / Enabling Usage of Classpath Exclusion Patterns
-	 *    When set to "disabled", no entry on a project classpath can be associated with
+	 *    When disabled, no entry on a project classpath can be associated with
 	 *    an exclusion pattern.
 	 *     - option id:         "org.eclipse.jdt.core.classpath.exclusionPatterns"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
 	 * JAVACORE / Enabling Usage of Classpath Multiple Output Locations
-	 *    When set to "disabled", no entry on a project classpath can be associated with
+	 *    When disabled, no entry on a project classpath can be associated with
 	 *    a specific output location, preventing thus usage of multiple output locations.
 	 *     - option id:         "org.eclipse.jdt.core.classpath.multipleOutputLocations"
 	 *     - possible values:   { "enabled", "disabled" }
