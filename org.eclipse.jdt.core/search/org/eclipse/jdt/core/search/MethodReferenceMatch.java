@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
  * 
- * @since 3.0
+ * @since 3.1
  */
 public class MethodReferenceMatch extends SearchMatch {
 	private boolean constructor;
@@ -33,12 +33,12 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
 	 * @param offset the offset the match starts at, or -1 if unknown
 	 * @param length the length of the match, or -1 if unknown
-	 * comment, and <code>false</code> otherwise
-	 * @param constructor <code>true</code> if this search match is a constructor
+	 * @param constructor <code>true</code> if this search match a constructor
 	 * <code>false</code> otherwise
-	 * @param synthetic <code>true</code> if this search match is a synthetic element
+	 * @param synthetic <code>true</code> if this search match a synthetic element
 	 * <code>false</code> otherwise
 	 * @param insideDocComment <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
 	 */
@@ -58,7 +58,7 @@ public class MethodReferenceMatch extends SearchMatch {
 	
 	/**
 	 * Returns whether the reference is on a synthetic element.
-	 * Note that for a constructor reference, it can be synthetic when default constructor
+	 * Note that this field is only used for constructor reference. This happens when default constructor
 	 * declaration is used or implicit super constructor is called.
 	 * 
 	 * @return whether the reference is synthetic or not.
