@@ -5350,7 +5350,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
 	 */
@@ -5426,5 +5426,20 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				return false;
 			}
 		});
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77984
+	 * @deprecated
+	 */
+	public void test0579() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0579", "ParserTask.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = AST.parseCompilationUnit(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertEquals("Wrong number of body declarations", 3, typeDeclaration.bodyDeclarations().size());
+	}
 }
