@@ -9240,4 +9240,27 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");
 	}	
+	// 77051
+	public void test352() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface C<A> { }\n" + 
+				"interface PC<X> extends C<X> { } \n" + 
+				"interface PO<Y>  {  \n" + 
+				"	  C<Y> proc1();\n" + 
+				"	  C<? super Y> proc2();\n" + 
+				"	  C<? extends Y> proc3();\n" + 
+				"}\n" + 
+				"abstract class X<Z> implements PO<Z> {\n" + 
+				"	  public C<Z> proc1() { return result1; }\n" + 
+				"	  private final PC<Z> result1 = null;\n" + 
+				"	  public C<? super Z> proc2() { return result2; }\n" + 
+				"	  private final PC<? super Z> result2 = null;\n" + 
+				"	  public C<? extends Z> proc3() { return result3; }\n" + 
+				"	  private final PC<? extends Z> result3 = null;\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }

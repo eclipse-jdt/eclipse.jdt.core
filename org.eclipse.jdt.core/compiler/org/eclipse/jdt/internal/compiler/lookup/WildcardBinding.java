@@ -143,6 +143,12 @@ public class WildcardBinding extends ReferenceBinding {
 	public boolean isEquivalentTo(TypeBinding otherType) {
 	    if (this == otherType) return true;
         if (otherType == null) return false;
+        if (otherType.isWildcard()) {
+        	WildcardBinding otherWildcard = (WildcardBinding) otherType;
+        	if ((otherWildcard.kind == this.kind) 
+        			&& (otherWildcard.bound == this.bound))
+        		return true;
+        }
 	    switch (this.kind) {
 	        case Wildcard.UNBOUND :
 	        default :  // SUPER - cannot use lower bound
