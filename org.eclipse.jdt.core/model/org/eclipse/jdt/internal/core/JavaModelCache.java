@@ -20,12 +20,12 @@ import org.eclipse.jdt.core.IJavaElement;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
-	public static final int BASE_SIZE = 20;
+	public static final int BASE_VALUE = 20;
 	public static final int DEFAULT_PROJECT_SIZE = 5;  // average 25552 bytes per project.
-	public static final int DEFAULT_ROOT_SIZE = BASE_SIZE*10; // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
-	public static final int DEFAULT_PKG_SIZE = BASE_SIZE*100; // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
-	public static final int DEFAULT_OPENABLE_SIZE = BASE_SIZE*100; // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
-	public static final int DEFAULT_CHILDREN_SIZE = BASE_SIZE*10*20; // average 20 children per openable
+	public static final int DEFAULT_ROOT_SIZE = BASE_VALUE*10; // average 2590 bytes per root -> maximum size : 25900*BASE_VALUE bytes
+	public static final int DEFAULT_PKG_SIZE = BASE_VALUE*100; // average 1782 bytes per pkg -> maximum size : 178200*BASE_VALUE bytes
+	public static final int DEFAULT_OPENABLE_SIZE = BASE_VALUE*10; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
+	public static final int DEFAULT_CHILDREN_SIZE = BASE_VALUE*10*20; // average 20 children per openable
 	
 	/**
 	 * Active Java Model Info
