@@ -176,6 +176,7 @@ public class DeltaProcessor {
 	private final static String INTERNAL_JAR_IGNORE = "internal jar ignore"; //$NON-NLS-1$
 	
 	private final static int NON_JAVA_RESOURCE = -1;
+	public static boolean DEBUG = false;
 	public static boolean VERBOSE = false;
 
 	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
@@ -1221,7 +1222,7 @@ public class DeltaProcessor {
 	public void fire(IJavaElementDelta customDelta, int eventType) {
 		if (!this.isFiring) return;
 		
-		if (VERBOSE && eventType == DEFAULT_CHANGE_EVENT) {
+		if (DEBUG) {
 			System.out.println("-----------------------------------------------------------------------------------------------------------------------");//$NON-NLS-1$
 		}
 
@@ -1268,7 +1269,7 @@ public class DeltaProcessor {
 		int listenerCount) {
 			
 		// post change deltas
-		if (VERBOSE){
+		if (DEBUG){
 			System.out.println("FIRING POST_CHANGE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
 			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
 		}
@@ -1286,7 +1287,7 @@ public class DeltaProcessor {
 
 
 		IJavaElementDelta deltaToNotify = mergeDeltas(this.reconcileDeltas.values());
-		if (VERBOSE){
+		if (DEBUG){
 			System.out.println("FIRING POST_RECONCILE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
 			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
 		}
