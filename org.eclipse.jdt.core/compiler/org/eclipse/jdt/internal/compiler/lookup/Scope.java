@@ -200,17 +200,13 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
-	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
-		return computeCompatibleMethod(method, arguments, invocationSite, true);
-	}
-
 	/**
 	 * Internal use only
 	 * Given a method, returns null if arguments cannot be converted to parameters.
 	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
 	 * in case the method was originally compatible, then simply answer it back.
 	 */
-	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite, boolean convertVarargs) {
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
 
 		TypeBinding[] genericTypeArguments = invocationSite.genericTypeArguments();
 		TypeBinding[] parameters = method.parameters;
@@ -252,8 +248,6 @@ public abstract class Scope
 					TypeBinding lastArgument = arguments[lastIndex];
 					if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
 						// expect X[], called with X
-						if (!convertVarargs)
-							break argumentCompatibility;
 						varArgType = ((ArrayBinding) varArgType).elementsType();
 						if (!lastArgument.isCompatibleWith(varArgType))
 							break argumentCompatibility;
@@ -2855,36 +2849,50 @@ public abstract class Scope
 		return problemMethod;
 	}
 
-		protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-			boolean varargsStatus = visible[0].isVarargs();
-			for (int i = 1; i < visibleSize; i++) {
-				if (visible[i].isVarargs() != varargsStatus) {
-					// visible is a mix of fixed & variable arity methods, so double check the varargs methods, but consider their vararg argument as a fixed array
-					MethodBinding[] temp = new MethodBinding[visibleSize];
-					int newSize = 0;
-					for (int j = 0; j < visibleSize; j++)
-						if (!visible[j].isVarargs() || visible[j].areParametersCompatibleWith(argumentTypes))
-							temp[newSize++] = visible[j];
-					visible = temp;
-					visibleSize = newSize;
-					break;
-				}
-			}
-	
-			MethodBinding method = null;
-			nextVisible : for (int i = 0; i < visibleSize; i++) {
-				method = visible[i];
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		boolean varargsStatus = visible[0].isVarargs();
+		for (int i = 1; i < visibleSize; i++) {
+			if (visible[i].isVarargs() != varargsStatus) {
+				// visible can be a mix of fixed & variable arity methods, so re-check the varargs methods but consider their last arg as a fixed array
+				MethodBinding[] temp = new MethodBinding[visibleSize];
+				int newSize = 0;
+				int argLength = argumentTypes.length;
 				for (int j = 0; j < visibleSize; j++) {
-					if (i == j) continue;
-					// tiebkreak generic methods using variant where type params are substituted by their erasures
-					if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters))
-						continue nextVisible;
+					if (visible[j].isVarargs())
+						if (visible[j].parameters.length != argLength
+							|| !argumentTypes[argLength - 1].isCompatibleWith(visible[j].parameters[argLength - 1]))
+								continue; // forget this varargs method since its last arg is not an exact match
+					temp[newSize++] = visible[j];
 				}
-				compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-				return method;
+				visible = temp;
+				visibleSize = newSize;
+				break;
 			}
-			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
-		}	
+		}
+
+		MethodBinding method = null;
+		nextVisible : for (int i = 0; i < visibleSize; i++) {
+			method = visible[i];
+			for (int j = 0; j < visibleSize; j++) {
+				if (i == j) continue;
+				// tiebreak generic methods using variant where type params are substituted by their erasures
+				if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
+					if (method.isVarargs() && visible[j].isVarargs()) {
+						int paramLength = method.parameters.length;
+						if (paramLength == visible[j].parameters.length && paramLength == argumentTypes.length + 1) {
+							TypeBinding elementsType = ((ArrayBinding) visible[j].parameters[paramLength - 1]).elementsType();
+							if (method.parameters[paramLength - 1].isCompatibleWith(elementsType))
+								continue; // special case to choose between 2 varargs methods when the last arg is missing
+						}
+					}
+					continue nextVisible;
+				}
+			}
+			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
+			return method;
+		}
+		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
+	}	
 
 	public final ClassScope outerMostClassScope() {
 		ClassScope lastClassScope = null;

@@ -79,12 +79,11 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 	int lastIndex = argLength;
 	if (isVarargs()) {
 		lastIndex = paramLength - 1;
-		if (paramLength == argLength) { // accept both X and X[] but not X[][]
+		if (paramLength == argLength) { // accept X[] but not X or X[][]
 			TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
 			TypeBinding lastArgument = arguments[lastIndex];
-			if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
+			if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
 				return false;
-			}
 		} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
 			TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
 			for (int i = lastIndex; i < argLength; i++)

@@ -702,4 +702,111 @@ public class VarargsTest extends AbstractComparisonTest {
 			}
 		);
 	}
+
+	public void test013() { // check behaviour of Scope.mostSpecificMethodBinding()
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(1, 1);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(long i, int j) { System.out.print(1); }\n" +
+				"	public static void count(int ... values) { System.out.print(2); }\n" +
+				"}\n",
+			},
+			"1");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(new int[0], 1);\n" +
+				"		Y.count(new int[0], 1, 1);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int[] array, int ... values) { System.out.print(1); }\n" +
+				"	public static void count(Object o, int ... values) { System.out.print(2); }\n" +
+				"}\n",
+			},
+			"11"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(new int[0]);\n" + // for some reason this is not ambiguous
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int[] array, int ... values) { System.out.print(1); }\n" +
+				"	public static void count(int[] array, int[] ... values) { System.out.print(2); }\n" +
+				"}\n",
+			},
+			"1"
+		);
+		this.runNegativeTest( // but this call is ambiguous
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(new int[0]);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int[][]...) in Y match
+				"		Y.count(new int[0], null);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int[]...) in Y match
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int[] array, int ... values) { System.out.print(0); }\n" +
+				"	public static void count(int[] array, int[][] ... values) { System.out.print(1); }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Y.count(new int[0]);\r\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	Y.count(new int[0], null);\r\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(new int[0], 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
+				"		Y.count(new int[0], 1, 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
+				"		Y.count(new int[0], 1, 1, 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int[] array, int ... values) {}\n" +
+				"	public static void count(int[] array, int[] ... values) {}\n" +
+				"	public static void count(int[] array, int i, int ... values) {}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Y.count(new int[0], 1);\r\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	Y.count(new int[0], 1, 1);\r\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\r\n" + 
+			"	Y.count(new int[0], 1, 1, 1);\r\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n"
+		);
+	}
 }
