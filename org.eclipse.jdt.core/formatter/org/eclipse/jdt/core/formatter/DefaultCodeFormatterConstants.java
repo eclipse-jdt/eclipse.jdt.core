@@ -2599,8 +2599,9 @@ public class DefaultCodeFormatterConstants {
 	/*
 	 * All deprecated fields
 	 */
-	/*
+	/**
 	 * TODO remove prior to 3.0
+	 * @deprecated
 	 */
 	public static final String FORMATTER_FILLING_SPACE = JavaCore.PLUGIN_ID + ".formatter.filling_space";	//$NON-NLS-1$
 	/**
