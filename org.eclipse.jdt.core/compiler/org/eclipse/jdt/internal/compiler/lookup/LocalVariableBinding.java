@@ -44,11 +44,6 @@ public class LocalVariableBinding extends VariableBinding {
 
 		this(declaration.name, type, modifiers, isArgument);
 		this.declaration = declaration;
-		if (!isArgument //TODO: final argument should not be blank final
-				&& (modifiers & AccFinal)!= 0 
-				&& declaration.initialization == null) {
-			this.modifiers |= AccBlankFinal;
-		}
 	}
 
 	/* API

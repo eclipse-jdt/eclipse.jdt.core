@@ -166,6 +166,9 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			// the name already exists... may carry on with the first binding...
 			scope.problemReporter().redefineLocal(this);
 		} else {
+			if ((modifiers & AccFinal)!= 0 && this.initialization == null) {
+				modifiers |= AccBlankFinal;
+			}
 			binding = new LocalVariableBinding(this, tb, modifiers, false);
 			scope.addLocalVariable(binding);
 			binding.constant = NotAConstant;

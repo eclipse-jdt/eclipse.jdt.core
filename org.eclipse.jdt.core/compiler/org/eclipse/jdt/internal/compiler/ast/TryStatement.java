@@ -114,7 +114,6 @@ public class TryStatement extends Statement {
 			catchExits = new boolean[catchCount = catchBlocks.length];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				///*
 				FlowInfo catchInfo =
 					flowInfo
 						.copy()
@@ -133,6 +132,8 @@ public class TryStatement extends Statement {
 				"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
+				// TODO: should only tag as unreachable if the catchblock cannot be reached
+				//??? if (!handlingContext.initsOnException(caughtExceptionTypes[i]).isReachable()){
 				if (tryBlock.statements == null) {
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
