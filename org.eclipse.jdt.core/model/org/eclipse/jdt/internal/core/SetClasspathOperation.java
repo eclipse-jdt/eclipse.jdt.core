@@ -488,13 +488,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			IJavaProject[] projects = model.getJavaProjects();
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				JavaProject project = (JavaProject)projects[i];
-				project.flushClasspathProblemMarkers(true);
-				if (project.hasClasspathCycle(project.getResolvedClasspath(true))){
-					project.createClasspathProblemMarker(
-						Util.bind("classpath.cycle"), //$NON-NLS-1$
-						IMarker.SEVERITY_ERROR,
-						true); 
-				}
+				project.updateCycleMarkers(project.getResolvedClasspath(true));
 			}
 		} catch (JavaModelException e) {
 		}

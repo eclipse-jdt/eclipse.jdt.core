@@ -2074,6 +2074,16 @@ public class JavaProject
 
 		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getResolvedClasspath(true), mayChangeProjectDependencies);
 	}
+	
+	public void updateCycleMarkers(IClasspathEntry[] resolvedClasspath) {
+		this.flushClasspathProblemMarkers(true);
+		if (this.hasClasspathCycle(resolvedClasspath)){
+			this.createClasspathProblemMarker(
+				Util.bind("classpath.cycle"), //$NON-NLS-1$
+				IMarker.SEVERITY_ERROR,
+				true); 
+		}
+	}
 
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.

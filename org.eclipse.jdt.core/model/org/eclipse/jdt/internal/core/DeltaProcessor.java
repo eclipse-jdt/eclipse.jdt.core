@@ -75,6 +75,28 @@ public class DeltaProcessor {
 
 	public static boolean VERBOSE = false;
 
+	/*
+	 * Adds the dependents of the given project to the list of the projects
+	 * to update.
+	 */
+	void addDependentsToProjectsToUpdate(IPath projectPath) {
+		try {
+			IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+			for (int i = 0, length = projects.length; i < length; i++) {
+				IJavaProject project = projects[i];
+				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+				for (int j = 0, length2 = classpath.length; j < length2; j++) {
+					IClasspathEntry entry = classpath[j];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
+							&& entry.getPath().equals(projectPath)) {
+						this.projectsToUpdate.add(project);
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+	}
+	
 	/**
 	 * Adds the given child handle to its parent's cache of children. 
 	 */
@@ -100,9 +122,30 @@ public class DeltaProcessor {
 	 * NOTE: It can induce resource changes, and cannot be called during POST_CHANGE notification.
 	 *
 	 */
-	public static void performPreBuildCheck(
+	public void performPreBuildCheck(
 		IResourceDelta delta,
 		IJavaElement parent) {
+
+		try {
+			if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
+				Iterator iterator = this.projectsToUpdate.iterator();
+				while (iterator.hasNext()) {
+					try {
+						JavaProject project = (JavaProject)iterator.next();
+						
+						 // force classpath marker refresh
+						IClasspathEntry[] resolvedClasspath = 
+							project.getResolvedClasspath(true, true);
+						
+						// update cycle markers
+						project.updateCycleMarkers(resolvedClasspath);
+					} catch (JavaModelException e) {
+					}
+				}
+			}
+		} finally {
+			this.projectsToUpdate = new HashSet();
+		}
 
 		IResource resource = delta.getResource();
 		IJavaElement element = JavaCore.create(resource);
@@ -111,19 +154,8 @@ public class DeltaProcessor {
 		switch (resource.getType()) {
 
 			case IResource.ROOT :
-				processChildren = true;
-				break;
 			case IResource.PROJECT :
-				try {
-					if (((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
-						JavaProject project = (JavaProject)JavaCore.create((IProject)resource);
-						if (!ResourcesPlugin.getWorkspace().isAutoBuilding()){
-							project.getResolvedClasspath(true, true); // force marker refresh
-						}
-						processChildren = true;
-					}
-				} catch (CoreException e) {
-				}
+				processChildren = true;
 				break;
 			case IResource.FILE :
 				if (parent.getElementType() == IJavaElement.JAVA_PROJECT) {

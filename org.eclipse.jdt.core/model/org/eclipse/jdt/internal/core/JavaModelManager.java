@@ -449,6 +449,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 */
 	private JavaModelManager() {
 	}
+
 	/**
 	 * @deprecated - discard once debug has converted to not using it
 	 */
@@ -495,24 +496,42 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	}
 	
 	/*
-	 * Checks that the delta contains an added project. In this case,
-	 * removes it from the list of projects being deleted.
+	 * Process the given delta and look for projects being added, opened or closed.
+	 * In this case of a project being added, removes it from the list of projects being deleted.
+	 * In all cases, add the project's dependents to the list of projects to update
+	 * so that the classpath related markers can be updated.
 	 */
-	public void checkProjectBeingAdded(IResourceDelta delta) {
+	public void checkProjectsBeingAddedOpenedOrClosed(IResourceDelta delta) {
 		IResource resource = delta.getResource();
 		switch (resource.getType()) {
 			case IResource.ROOT :
 				IResourceDelta[] children = delta.getAffectedChildren();
 				for (int i = 0, length = children.length; i < length; i++) {
-					this.checkProjectBeingAdded(children[i]);
+					this.checkProjectsBeingAddedOpenedOrClosed(children[i]);
 				}
 				break;
 			case IResource.PROJECT :
+				// NB: No need to check project's nature as if the project is not a java project:
+				//     - if the project is added or changed this is a noop for projectsBeingDeleted
+				//     - if the project is closed, it has already lost its java nature
 				int deltaKind = delta.getKind();
-				if (deltaKind == IResourceDelta.ADDED /* case of a project removed then added */
-					|| deltaKind == IResourceDelta.CHANGED /* case of a project removed then added then changed */) {
-					this.projectsBeingDeleted.remove(delta.getResource());
+				if (deltaKind == IResourceDelta.ADDED) {
+					// in case the project was removed then added
+					this.projectsBeingDeleted.remove(resource);
+					
+					// remember dependents
+					this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+					
+				} else if (deltaKind == IResourceDelta.CHANGED) {
+					// in case the project was removed then added then changed
+					this.projectsBeingDeleted.remove(resource);
+					
+					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+						// project opened or closed: remember dependents
+						this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+					}
 				}
+				break;
 		}
 	}
 
@@ -571,6 +590,8 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		if (!this.projectsBeingDeleted.contains(project)) {
 			this.projectsBeingDeleted.add(project);
 		}
+		
+		this.deltaProcessor.addDependentsToProjectsToUpdate(project.getFullPath());
 	}
 	
 	/**
@@ -1204,6 +1225,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					try {
 						if(resource.getType() == IResource.PROJECT 
 							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+								
 							this.deleting((IProject)resource);
 						}
 					} catch(CoreException e){
@@ -1212,8 +1234,11 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
 					if(delta != null) {
-						this.checkProjectBeingAdded(delta);
-						DeltaProcessor.performPreBuildCheck(delta, null); // will close project if affected by the property file change
+						this.checkProjectsBeingAddedOpenedOrClosed(delta);
+						
+						// the following will close project if affected by the property file change
+						// and update the classpath related markers
+						this.deltaProcessor.performPreBuildCheck(delta, null); 
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
 					fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
