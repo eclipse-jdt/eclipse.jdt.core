@@ -613,7 +613,7 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void searchAllTypeNames(
 		final char[][] qualifications, 
