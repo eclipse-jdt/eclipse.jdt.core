@@ -5759,8 +5759,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 63556 - should resolve all occurrences of A to type variable
-	// TODO (olivier) reenable once fixed
-	public void _test209() {
+	public void test209() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
