@@ -408,6 +408,78 @@ public void testInvalidResolve() throws JavaModelException {
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);
 }
 /**
+ * Resolve the local class 'Y' (field type).
+ */
+public void testLocalClass1() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass1.java");
+	IJavaElement[] elements = codeSelect(cu, "Y[]", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass1 [in ResolveLocalClass1.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local class 'Y' (local variable type).
+ */
+public void testLocalClass2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass2.java");
+	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass2 [in ResolveLocalClass2.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local class 'Y'(array initializer type).
+ */
+public void testLocalClass3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass3.java");
+	IJavaElement[] elements = codeSelect(cu, "Y[]{", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass3 [in ResolveLocalClass3.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local class 'Y' (return type).
+ */
+public void testLocalClass4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass4.java");
+	IJavaElement[] elements = codeSelect(cu, "Y bar()", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass4 [in ResolveLocalClass4.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local class 'Y' (method argument).
+ */
+public void testLocalClass5() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass5.java");
+	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass5 [in ResolveLocalClass5.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve the local class 'SuperClass' (super class).
+ */
+public void testLocalClass6() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass6.java");
+	IJavaElement[] elements = codeSelect(cu, "Y { // superclass", "Y");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y [in foo() [in ResolveLocalClass6 [in ResolveLocalClass6.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
  * Resolve a local declaration name
  */
 public void testLocalName1() throws JavaModelException {

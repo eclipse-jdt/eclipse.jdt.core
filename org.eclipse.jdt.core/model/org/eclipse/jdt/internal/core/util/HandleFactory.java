@@ -208,7 +208,15 @@ public class HandleFactory {
 			}
 
 			public boolean visit(TypeDeclaration node, CompilationUnitScope scope) {
-				currentElement = ((ICompilationUnit)currentElement).getType(new String(node.name));
+				if (currentElement instanceof ICompilationUnit) {
+					currentElement = ((ICompilationUnit)currentElement).getType(new String(node.name));
+				} else {
+					try {
+						currentElement = ((IClassFile)currentElement).getType();
+					} catch (JavaModelException e) {
+						// class file doesn't exit: ignore
+					}
+				}
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}

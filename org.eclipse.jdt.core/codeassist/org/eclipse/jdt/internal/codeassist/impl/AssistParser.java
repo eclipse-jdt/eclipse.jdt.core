@@ -821,11 +821,11 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 		lastAct = ERROR_ACTION;
 	}
 	
-	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+	if (lastAct == ERROR_ACTION) {
 		return;
 	}
 
-	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+	// attach the statements as we might be searching for a reference to a local type
 	cd.explicitDeclarations = realBlockStack[realBlockPtr--];
 	int length;
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
@@ -888,11 +888,11 @@ public void parseBlockStatements(
 		nestedMethod[nestedType]--;
 	}
 	
-	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+	if (lastAct == ERROR_ACTION) {
 		return;
 	}
-	
-	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+
+	// attach the statements as we might be searching for a reference to a local type
 	initializer.block.explicitDeclarations = realBlockStack[realBlockPtr--];
 	int length;
 	if ((length = astLengthStack[astLengthPtr--]) > 0) {
@@ -944,11 +944,11 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 		nestedMethod[nestedType]--;		
 	}
 	
-	if (this.assistNode != null || lastAct == ERROR_ACTION) {
+	if (lastAct == ERROR_ACTION) {
 		return;
 	}
 
-	// if no assist node was found, attach the statements as we might be searching for a declaration in a local type
+	// attach the statements as we might be searching for a reference to a local type
 	md.explicitDeclarations = realBlockStack[realBlockPtr--];
 	int length;
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
