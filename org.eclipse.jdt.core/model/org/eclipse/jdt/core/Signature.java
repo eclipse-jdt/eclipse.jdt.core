@@ -497,7 +497,7 @@ public static String createMethodSignature(String[] parameterTypes, String retur
  * 
  * @since 3.1
  */
-public static char[] createCharArrayTypeParameterSignature(char[] typeParameterName, char[][] boundSignatures) {
+public static char[] createTypeParameterSignature(char[] typeParameterName, char[][] boundSignatures) {
 	int length = boundSignatures.length;
 	if (length == 0) {
 		return CharOperation.append(typeParameterName, C_COLON); // param signature with no bounds still gets trailing colon
@@ -516,7 +516,26 @@ public static char[] createCharArrayTypeParameterSignature(char[] typeParameterN
 		System.arraycopy(boundSignatures[i], 0, result, index, boundLength);
 		index += boundLength;
 	}
-	return result;}
+	return result;
+}
+
+/**
+ * Creates a new type parameter signature with the given name and bounds.
+ *
+ * @param typeParameterName the type parameter name
+ * @param boundSignatures the signatures of associated bounds or empty array if none
+ * @return the encoded type parameter signature
+ * 
+ * @since 3.1
+ */
+public static String createTypeParameterSignature(String typeParameterName, String[] boundSignatures) {
+	int length = boundSignatures.length;
+	char[][] boundSignatureChars = new char[length][];
+	for (int i = 0; i < length; i++) {
+		boundSignatureChars[i] = boundSignatures[i].toCharArray();
+	}
+	return new String(createTypeParameterSignature(typeParameterName.toCharArray(), boundSignatureChars));
+}
 
 /**
  * Creates a new type signature from the given type name encoded as a character
