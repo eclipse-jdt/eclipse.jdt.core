@@ -3639,7 +3639,7 @@ public void test62() {
 		"   public String s;	\n"+
 		"   int foo(){			\n"+
 		"	return 1;			\n"+
-		"   static int y = {	\n"+ // can only be an initializer since type is not array one
+		"   static int y = {;	\n"+ // can only be an initializer since type is not array one
 		" }						\n"+
 		" public int i = 0;		\n"+
 		" 						\n"+
@@ -3674,6 +3674,7 @@ public void test62() {
 		"    public String s;\n" + 
 		"    static int y;\n" + 
 		"    {\n" + 
+		"      ;\n" + 
 		"    }\n" + 
 		"    public int i = 0;\n" + 
 		"    Y() {\n" + 
