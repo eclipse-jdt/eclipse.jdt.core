@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /*
  * A wrapper class arround a binding key (see Binding#computeUniqueKey()).
- * This decodes a binding keys, and optionally creates the corresponding compiler binding.
+ * This decodes a binding key, and optionally creates the corresponding compiler binding.
  */
 public class BindingKey {
 	
