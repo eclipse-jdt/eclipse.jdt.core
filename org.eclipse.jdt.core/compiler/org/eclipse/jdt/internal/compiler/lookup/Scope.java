@@ -200,13 +200,17 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
+		return computeCompatibleMethod(method, arguments, invocationSite, true);
+	}
+
 	/**
 	 * Internal use only
 	 * Given a method, returns null if arguments cannot be converted to parameters.
 	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
 	 * in case the method was originally compatible, then simply answer it back.
 	 */
-	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite, boolean convertVarargs) {
 
 		TypeBinding[] genericTypeArguments = invocationSite.genericTypeArguments();
 		TypeBinding[] parameters = method.parameters;
@@ -247,6 +251,8 @@ public abstract class Scope
 					TypeBinding lastArgument = arguments[lastIndex];
 					if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
 						// expect X[], called with X
+						if (!convertVarargs)
+							break argumentCompatibility;
 						varArgType = ((ArrayBinding) varArgType).elementsType();
 						if (!lastArgument.isCompatibleWith(varArgType))
 							break argumentCompatibility;
@@ -2927,7 +2933,7 @@ public abstract class Scope
 			method = visible[i];
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
+				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite, false);
 				if (compatibleMethod == null)
 					continue nextVisible;
 			}
