@@ -515,8 +515,9 @@ public interface IType extends IMember {
 	 * Returns the type-qualified name of this type, 
 	 * including qualification for any enclosing types,
 	 * but not including package qualification.
-	 * For source types, this consists of the simple names of
-	 * any enclosing types, separated by <code>"$"</code>, followed by the simple name of this type.
+	 * For source types, this consists of the simple names of any enclosing types, 
+	 * separated by <code>'$'</code>, followed by the simple name of this type
+	 * or the occurence count of this type if it is anonymous.
 	 * For binary types, this is the name of the class file without the ".class" suffix.
 	 * This is a handle-only method.
 	 * 
@@ -528,9 +529,10 @@ public interface IType extends IMember {
 	 * Returns the type-qualified name of this type, 
 	 * including qualification for any enclosing types,
 	 * but not including package qualification.
-	 * This consists of the simple names of any enclosing types, 
-	 * separated by the <code>enclosingTypeSeparator</code>, 
-	 * followed by the simple name of this type.
+	 * For source types, this consists of the simple names of any enclosing types, 
+	 * separated by <code>enclosingTypeSeparator</code>, followed by the 
+	 * simple name of this type  or the occurence count of this type if it is anonymous.
+	 * For binary types, this is the name of the class file without the ".class" suffix.
 	 * 
 	 * For example:
 	 * <ul>
