@@ -1177,7 +1177,7 @@ public class DefaultCodeFormatterOptions {
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
-		// TODO Remove berfore 3.0
+		// TODO Remove before 3.0
 		final Object clearBlankLines = settings.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);
 		if (clearBlankLines != null) {
 			if (JavaCore.CLEAR_ALL.equals(clearBlankLines)) {
@@ -1185,7 +1185,7 @@ public class DefaultCodeFormatterOptions {
 			} else if (JavaCore.PRESERVE_ONE.equals(clearBlankLines)) {
 				this.number_of_empty_lines_to_preserve = 1;
 			} else {
-				this.number_of_empty_lines_to_preserve = 9999;
+				this.number_of_empty_lines_to_preserve = 9999; // TODO (olivier) Integer.MAX_VALUE ?
 			}
 		}
 		final Object compactAssignment = settings.get(JavaCore.FORMATTER_COMPACT_ASSIGNMENT);
