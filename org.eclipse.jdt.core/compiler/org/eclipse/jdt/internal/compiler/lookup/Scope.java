@@ -285,7 +285,7 @@ public abstract class Scope
 	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments, ReferenceBinding enclosingType) {
 		valid: {
 			if (!genericType.isValidBinding()) break valid;
-			for (int i = 0, max = arguments.length; i < max; i++){
+			for (int i = 0, max = arguments == null ? 0 : arguments.length; i < max; i++){
 				if (!arguments[i].isValidBinding()) break valid;
 			}
 			return environment().createParameterizedType(genericType, arguments, enclosingType);
