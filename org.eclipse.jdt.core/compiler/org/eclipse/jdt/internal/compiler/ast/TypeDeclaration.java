@@ -155,35 +155,15 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
-				int recursionBalance = 0; // check constructor recursions			
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isConstructor()) { // constructor
-						ConstructorDeclaration constructor = (ConstructorDeclaration) method;
-						constructor.analyseCode(scope, initializerContext, fieldInfo.copy());
-						// compute the recursive invocation balance:
-						//   how many thisReferences vs. superReferences to constructors
-						int refCount;
-						if ((refCount = constructor.referenceCount) > 0) {
-							if ((constructor.constructorCall == null)
-								|| constructor.constructorCall.isSuperAccess()
-								|| !constructor.constructorCall.binding.isValidBinding()) {
-								recursionBalance -= refCount;
-								constructor.referenceCount = -1;
-								// for error reporting propagation																
-							} else {
-								recursionBalance += refCount;
-							}
-						}
+						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, fieldInfo.copy());
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
-				}
-				if (recursionBalance > 0) {
-					// there is one or more cycle(s) amongst constructor invocations
-					scope.problemReporter().recursiveConstructorInvocation(this);
 				}
 			}
 		} catch (AbortType e) {
@@ -254,38 +234,19 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
-				int recursionBalance = 0; // check constructor recursions
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isInitializationMethod()) {
 						if (method.isStatic()) { // <clinit>
-							((Clinit) method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
+							((Clinit)method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
 						} else { // constructor
-							ConstructorDeclaration constructor = (ConstructorDeclaration) method;
-							constructor.analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
-							// compute the recursive invocation balance:
-							//   how many thisReferences vs. superReferences to constructors
-							int refCount;
-							if ((refCount = constructor.referenceCount) > 0) {
-								if ((constructor.constructorCall == null)
-									|| constructor.constructorCall.isSuperAccess()
-									|| !constructor.constructorCall.binding.isValidBinding()) {
-									recursionBalance -= refCount;
-									constructor.referenceCount = -1; // for error reporting propagation								
-								} else {
-									recursionBalance += refCount;
-								}
-							}
+							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
 					}
-				}
-				if (recursionBalance > 0) {
-					// there is one or more cycle(s) amongst constructor invocations
-					scope.problemReporter().recursiveConstructorInvocation(this);
 				}
 			}
 		} catch (AbortType e) {
@@ -349,34 +310,15 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
-				int recursionBalance = 0; // check constructor recursions			
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isConstructor()) { // constructor
-						ConstructorDeclaration constructor = (ConstructorDeclaration) method;
-						constructor.analyseCode(scope, initializerContext, fieldInfo.copy());
-						// compute the recursive invocation balance:
-						//   how many thisReferences vs. superReferences to constructors
-						int refCount;
-						if ((refCount = constructor.referenceCount) > 0) {
-							if ((constructor.constructorCall == null)
-								|| constructor.constructorCall.isSuperAccess()
-								|| !constructor.constructorCall.binding.isValidBinding()) {
-								recursionBalance -= refCount;
-								constructor.referenceCount = -1; // for error reporting propagation								
-							} else {
-								recursionBalance += refCount;
-							}
-						}
+						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, fieldInfo.copy());
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
-				}
-				if (recursionBalance > 0) {
-					// there is one or more cycle(s) amongst constructor invocations
-					scope.problemReporter().recursiveConstructorInvocation(this);
 				}
 			}
 		} catch (AbortType e) {
@@ -444,38 +386,19 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
-				int recursionBalance = 0; // check constructor recursions			
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isInitializationMethod()) {
 						if (method.isStatic()) { // <clinit>
-							((Clinit) method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
+							((Clinit)method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
 						} else { // constructor
-							ConstructorDeclaration constructor = (ConstructorDeclaration) method;
-							constructor.analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
-							// compute the recursive invocation balance:
-							//   how many thisReferences vs. superReferences to constructors
-							int refCount;
-							if ((refCount = constructor.referenceCount) > 0) {
-								if ((constructor.constructorCall == null)
-									|| constructor.constructorCall.isSuperAccess()
-									|| !constructor.constructorCall.binding.isValidBinding()) {
-									recursionBalance -= refCount;
-									constructor.referenceCount = -1; // for error reporting propagation
-								} else {
-									recursionBalance += refCount;
-								}
-							}
+							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
 					}
-				}
-				if (recursionBalance > 0) {
-					// there is one or more cycle(s) amongst constructor invocations
-					scope.problemReporter().recursiveConstructorInvocation(this);
 				}
 			}
 		} catch (AbortType e) {
@@ -929,12 +852,16 @@ public class TypeDeclaration
 					field.resolve(field.isStatic() ? staticInitializerScope : initializerScope);
 				}
 			}
-			if (memberTypes != null)
-				for (int i = 0, count = memberTypes.length; i < count; i++)
+			if (memberTypes != null) {
+				for (int i = 0, count = memberTypes.length; i < count; i++) {
 					memberTypes[i].resolve(scope);
-			if (methods != null)
-				for (int i = 0, count = methods.length; i < count; i++)
+				}
+			}
+			if (methods != null) {
+				for (int i = 0, count = methods.length; i < count; i++) {
 					methods[i].resolve(scope);
+				}
+			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

@@ -27,9 +27,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public final static char[] ConstantPoolName = "<init>".toCharArray(); //$NON-NLS-1$
 	public boolean isDefaultConstructor = false;
 
-	public int referenceCount = 0;
-	// count how many times this constructor is referenced from other local constructors
-
 	public ConstructorDeclaration(CompilationResult compilationResult){
 		super(compilationResult);
 	}
@@ -41,6 +38,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 		if (ignoreFurtherInvestigation)
 			return;
+			
+		// check constructor recursion, once all constructor got resolved
+		if (isRecursive(null /*lazy initialized visited list*/)) {				
+			this.scope.problemReporter().recursiveConstructorInvocation(this.constructorCall);
+		}
+			
 		try {
 			ExceptionHandlingFlowContext constructorContext =
 				new ExceptionHandlingFlowContext(
@@ -321,6 +324,36 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		return true;
 	}
 
+	/**
+	 * Returns true if the constructor is directly involved in a cycle.
+	 * Given most constructors aren't, we only allocate the visited list
+	 * lazily.
+	 */
+	public boolean isRecursive(ArrayList visited) {
+
+		if (this.binding == null
+				|| this.constructorCall == null
+				|| this.constructorCall.binding == null
+				|| this.constructorCall.isSuperAccess()
+				|| !this.constructorCall.binding.isValidBinding()) {
+			return false;
+		}
+		
+		ConstructorDeclaration targetConstructor = 
+			((ConstructorDeclaration)this.scope.referenceType().declarationOf(constructorCall.binding));
+		if (this == targetConstructor) return true; // direct case
+
+		if (visited == null) { // lazy allocation
+			visited = new ArrayList(1);
+		} else {
+			int index = visited.indexOf(this);
+			if (index >= 0) return index == 0; // only blame if directly part of the cycle
+		}
+		visited.add(this);
+
+		return targetConstructor.isRecursive(visited);
+	}
+	
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 
 		//fill up the constructor body with its statements
@@ -342,44 +375,27 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * for recursive constructor invocations.
 	 */
 	public void resolveStatements(ClassScope upperScope) {
-/*
-		// checking for recursive constructor call (protection)
-		if (!ignoreFurtherInvestigation && constructorCall == null){
-			constructorCall = new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
-			constructorCall.sourceStart = sourceStart;
-			constructorCall.sourceEnd = sourceEnd;
-		}
-*/
+
 		if (!CharOperation.equals(scope.enclosingSourceType().sourceName, selector)){
 			scope.problemReporter().missingReturnType(this);
 		}
 
 		// if null ==> an error has occurs at parsing time ....
-		if (constructorCall != null) {
+		if (this.constructorCall != null) {
 			// e.g. using super() in java.lang.Object
-			if (binding != null
-				&& binding.declaringClass.id == T_Object
-				&& constructorCall.accessMode != ExplicitConstructorCall.This) {
-					if (constructorCall.accessMode == ExplicitConstructorCall.Super) {
-						scope.problemReporter().cannotUseSuperInJavaLangObject(constructorCall);
+			if (this.binding != null
+				&& this.binding.declaringClass.id == T_Object
+				&& this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+					if (this.constructorCall.accessMode == ExplicitConstructorCall.Super) {
+						scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
 					}
-					constructorCall = null;
+					this.constructorCall = null;
 			} else {
-				constructorCall.resolve(scope);
+				this.constructorCall.resolve(this.scope);
 			}
 		}
 		
 		super.resolveStatements(upperScope);
-
-		// indirect reference: increment target constructor reference count
-		if (constructorCall != null){
-			if (constructorCall.binding != null
-				&& !constructorCall.isSuperAccess()
-				&& constructorCall.binding.isValidBinding()) {
-				((ConstructorDeclaration)
-						(upperScope.referenceContext.declarationOf(constructorCall.binding))).referenceCount++;
-			}
-		}
 	}
 
 	public String toStringStatements(int tab) {

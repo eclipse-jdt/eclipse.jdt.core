@@ -2324,55 +2324,23 @@ public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
 }
-/*
- * Flag all constructors involved in a cycle, we know we have a cycle.
- */
-public void recursiveConstructorInvocation(TypeDeclaration typeDeclaration) {
 
-	// propagate the reference count, negative counts means leading to a super constructor invocation (directly or indirectly)
-	boolean hasChanged;
-	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-	int max = methods.length;
-	do {
-		hasChanged = false;
-		for(int i = 0; i < max; i++){
-			if (methods[i].isConstructor()){
-				ConstructorDeclaration constructor = (ConstructorDeclaration) methods[i];
-				if (constructor.referenceCount > 0){
-					ConstructorDeclaration targetConstructor = constructor.constructorCall == null
-						? null
-						: (ConstructorDeclaration)(typeDeclaration.declarationOf(constructor.constructorCall.binding));
-					if ((targetConstructor == null) || (targetConstructor.referenceCount < 0)){
-						hasChanged = true;
-						constructor.referenceCount = -1;
-					}	
-				}
-			}
-		}
-	} while (hasChanged);
+public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
 
-	// all remaining constructors with a positive count are still involved in a cycle
-	for(int i = 0; i < max; i++){
-		if (methods[i].isConstructor()){
-			ConstructorDeclaration constructor = (ConstructorDeclaration) methods[i];
-			if (constructor.referenceCount > 0){
-				this.referenceContext = constructor;
-				this.handle(
-					IProblem.RecursiveConstructorInvocation,
-					new String[] {
-						new String(constructor.constructorCall.binding.declaringClass.readableName()), 
-						parametersAsString(constructor.constructorCall.binding)
-					},
-					new String[] {
-						new String(constructor.constructorCall.binding.declaringClass.shortReadableName()), 
-						parametersAsShortString(constructor.constructorCall.binding)
-					},
-					constructor.constructorCall.sourceStart,
-					constructor.constructorCall.sourceEnd);
-			}
-		}
-	}
+	this.handle(
+		IProblem.RecursiveConstructorInvocation,
+		new String[] {
+			new String(constructorCall.binding.declaringClass.readableName()), 
+			parametersAsString(constructorCall.binding)
+		},
+		new String[] {
+			new String(constructorCall.binding.declaringClass.shortReadableName()), 
+			parametersAsShortString(constructorCall.binding)
+		},
+		constructorCall.sourceStart,
+		constructorCall.sourceEnd);
 }
+
 public void redefineArgument(Argument arg) {
 	String[] arguments = new String[] {new String(arg.name)};
 	this.handle(
