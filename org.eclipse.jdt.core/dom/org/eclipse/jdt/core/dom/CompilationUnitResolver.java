@@ -324,7 +324,8 @@ class CompilationUnitResolver extends Compiler {
 			resolve(
 				source, 
 				null/*no package name*/, 
-				unitName, javaProject, 
+				unitName, 
+				javaProject, 
 				null/*no node searcher*/, 
 				cleanUp, 
 				owner, 
