@@ -995,6 +995,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("varargsCast")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}

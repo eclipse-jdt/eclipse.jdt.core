@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tools.ant.BuildException;
@@ -77,8 +76,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	
 	protected Commandline setupJavacCommand() throws BuildException {
 		Commandline cmd = new Commandline();
-		this.customDefaultOptions = new HashMap();
-		
+		this.customDefaultOptions = new CompilerOptions().getMap();
+
 		/*
 		 * This option is used to never exit at the end of the ant task. 
 		 */
@@ -233,80 +232,36 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			}
     	}
     	
-        // disable all warnings by default
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.DISABLED);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef, CompilerOptions.DISABLED);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PUBLIC);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.DISABLED);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, CompilerOptions.PUBLIC);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.DISABLED);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED); 
-		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
-
 		/*
 		 * Handle the nowarn option. If none, then we generate all warnings.
 		 */
 		if (this.attributes.getNowarn()) {
+	        // disable all warnings
+			Object[] entries = this.customDefaultOptions.entrySet().toArray();
+			for (int i = 0, max = entries.length; i < max; i++) {
+				Map.Entry entry = (Map.Entry) entries[i];
+				if (!(entry.getKey() instanceof String))
+					continue;
+				if (!(entry.getValue() instanceof String))
+					continue;
+				if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+					this.customDefaultOptions.put(entry.getKey(), CompilerOptions.IGNORE);
+				}
+			}
+			this.customDefaultOptions.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 			if (this.deprecation) {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING); 
 				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED); 
 				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.ENABLED); 
 			}
-			// no warnings
 		} else if (this.deprecation) {
 			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING); 
 			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED); 
 			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.ENABLED); 
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
 		} else {
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
-			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE); 
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED); 
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED); 
 		}
 
 	   	/*
