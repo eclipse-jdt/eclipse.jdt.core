@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class OptionTests extends ModifyingResourceTests {
 	
@@ -36,11 +37,9 @@ public class OptionTests extends ModifyingResourceTests {
 	public static Test suite() {
 	
 		if (false){
+			System.err.println("Warning: only tests subset is currently running!");
 			TestSuite suite = new Suite(OptionTests.class.getName());
-			suite.addTest(new OptionTests("test02"));
-			suite.addTest(new OptionTests("test03"));
-			suite.addTest(new OptionTests("test07"));
-			suite.addTest(new OptionTests("test08"));
+			suite.addTest(new OptionTests("testBug68993"));
 			return suite;
 		}
 		return new Suite(OptionTests.class);	
@@ -462,6 +461,42 @@ public class OptionTests extends ModifyingResourceTests {
 			assertEquals("projA:unexpected custom value for deprecation option", JavaCore.getOption(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE), projectA.getOptions(true).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
 			assertEquals("projA:unexpected custom value for compliance option", JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE), projectA.getOptions(true).get(JavaCore.COMPILER_COMPLIANCE));
 			assertTrue("projA:preferences should not be reset", eclipsePreferences != projectA.getEclipsePreferences());
+		} finally {
+			this.deleteProject("A");
+		}
+	}
+
+	/**
+	 * Test fix for bug 68993: [Preferences] IAE when opening project preferences
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68993">68993</a>
+	 */
+	public void testBug68993() throws CoreException, BackingStoreException {
+		try {
+			JavaProject projectA = (JavaProject) this.createJavaProject(
+				"A", 
+				new String[] {}, // source folders
+				new String[] {}, // lib folders
+				new String[] {}, // projects
+				"");
+
+			// Store project eclipse prefs
+			IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
+			
+	
+			// set all project options as custom ones: this is what happens when user select
+			// "Use project settings" in project 'Java Compiler' preferences page...
+			Hashtable options = new Hashtable(projectA.getOptions(true));
+			projectA.setOptions(options);
+	
+			// reset all project custom options: this is what happens when user select
+			// "Use workspace settings" in project 'Java Compiler' preferences page...
+			options = new Hashtable();
+			options.put("internal.default.compliance", JavaCore.DEFAULT);
+			projectA.setOptions(options);
+	
+			// verify that 
+			assertFalse("projA: Preferences should have been reset", eclipsePreferences == projectA.getEclipsePreferences());
+			assertEquals("projA: We should not have any custom options!", 0, projectA.getEclipsePreferences().keys().length);
 		} finally {
 			this.deleteProject("A");
 		}
