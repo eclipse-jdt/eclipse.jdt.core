@@ -1341,56 +1341,56 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *  CODEASSIST / Define the Prefixes for Field Name
 	 *    When the prefixes is non empty, completion for field name will begin with
 	 *    one of the proposed prefixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefixes"
 	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Static Field Name
 	 *    When the prefixes is non empty, completion for static field name will begin with
 	 *    one of the proposed prefixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"
 	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Local Variable Name
 	 *    When the prefixes is non empty, completion for local variable name will begin with
 	 *    one of the proposed prefixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefixes"
 	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Argument Name
 	 *    When the prefixes is non empty, completion for argument name will begin with
 	 *    one of the proposed prefixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefixes"
 	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Field Name
 	 *    When the suffixes is non empty, completion for field name will end with
 	 *    one of the proposed suffixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldSuffixes"
 	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Static Field Name
 	 *    When the suffixes is non empty, completion for static field name will end with
 	 *    one of the proposed suffixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"
 	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Local Variable Name
 	 *    When the suffixes is non empty, completion for local variable name will end with
 	 *    one of the proposed suffixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localSuffixes"
 	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Argument Name
 	 *    When the suffixes is non empty, completion for argument name will end with
 	 *    one of the proposed suffixes.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefix"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentSuffixes"
 	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <prefix> is a String without any wild-card 
 	 *     - default:           ""
 	 * </pre>

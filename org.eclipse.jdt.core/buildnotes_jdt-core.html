@@ -40,6 +40,82 @@ Eclipse SDK 2.1 Build - ?th December 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new JavaCore options
+	<ul>
+	<li>CODEASSIST / Define the Prefixes for Field Name<br>
+		When the prefixes is non empty, completion for field name will begin with
+		one of the proposed prefixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.fieldPrefixes"</li>
+		<li>possible values: { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card</li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Prefixes for Static Field Name<br>
+		When the prefixes is non empty, completion for static field name will begin with
+		one of the proposed prefixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"</li>
+		<li>possible values: { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card</li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Prefixes for Local Variable Name<br>
+		When the prefixes is non empty, completion for local variable name will begin with
+		one of the proposed prefixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.localPrefixes"</li>
+		<li>possible values: { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card</li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Prefixes for Argument Name<br>
+		When the prefixes is non empty, completion for argument name will begin with
+		one of the proposed prefixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.argumentPrefixes"</li>
+		<li>possible values: { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card</li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Suffixes for Field Name<br>
+		When the suffixes is non empty, completion for field name will end with
+		one of the proposed suffixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.fieldSuffixes"</li>
+		<li>possible values: { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card </li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>ODEASSIST / Define the Suffixes for Static Field Name<br>
+		When the suffixes is non empty, completion for static field name will end with
+		one of the proposed suffixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"</li>
+		<li>possible values: { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card </li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Suffixes for Local Variable Name<br>
+		When the suffixes is non empty, completion for local variable name will end with
+		one of the proposed suffixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.localSuffixes"</li>
+		<li>possible values: { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card </li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	<li>CODEASSIST / Define the Suffixes for Argument Name<br>
+		When the suffixes is non empty, completion for argument name will end with
+		one of the proposed suffixes.<br>
+		<ul>
+		<li>option id: "org.eclipse.jdt.core.codeComplete.argumentSuffixes"</li>
+		<li>possible values: { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card </li>
+		<li>default: ""</li>
+	 	</ul>
+	</li>
+	</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
