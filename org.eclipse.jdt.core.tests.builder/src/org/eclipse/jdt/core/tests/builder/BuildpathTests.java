@@ -262,15 +262,14 @@ public class BuildpathTests extends Tests {
 		}
 		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n");
 		buffer.append("</classpath>");
-		
 		boolean wasAutoBuilding = env.isAutoBuilding();
 		try {
 			// turn autobuild on
 			env.setAutoBuilding(true);
-			// write new .classpath
+			// write new .classpath, will trigger autobuild
 			env.addFile(projectPath, ".classpath", buffer.toString());
 			// ensures the builder did see the classpath change
-			incrementalBuild();
+			env.waitForAutoBuild();
 			expectingNoProblems();
 		} finally {
 			env.setAutoBuilding(wasAutoBuilding);

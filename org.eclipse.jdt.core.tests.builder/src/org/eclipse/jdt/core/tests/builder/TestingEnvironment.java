@@ -818,9 +818,15 @@ public class TestingEnvironment {
 //	}
 	
 	public void setAutoBuilding(boolean value) {
-		IWorkspace w = getWorkspace();
-		IWorkspaceDescription d = w.getDescription();
-		d.setAutoBuilding(value);
+		try {
+			IWorkspace w = getWorkspace();
+			IWorkspaceDescription d = w.getDescription();
+			d.setAutoBuilding(value);
+			w.setDescription(d);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			checkAssertion("CoreException", false); //$NON-NLS-1$
+		}
 	}
 
 	public void setBuildOrder(String[] projects) {
