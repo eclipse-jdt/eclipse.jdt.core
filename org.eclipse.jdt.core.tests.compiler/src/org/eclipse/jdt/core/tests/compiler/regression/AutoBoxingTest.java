@@ -1891,8 +1891,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"SUCCESS");
-	}		
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81971
 	public void test072() {
 		this.runNegativeTest(
@@ -1914,5 +1914,21 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"	^^^^^\n" + 
 			"The method doFoo(Object) in the type X is not applicable for the arguments (void)\n" + 
 			"----------\n");
-	}		
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81571
+	public void test073() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        a(new Integer(1), 2);\n" + 
+				"    }\n" + 
+				"    public static void a(int a, int b) { System.out.println(\"SUCCESS\"); }\n" + 
+				"    public static void a(Object a, Object b) {}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}
 }

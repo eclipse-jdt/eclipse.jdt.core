@@ -34,8 +34,9 @@ public abstract class Scope
 
 	public final static int NOT_COMPATIBLE = -1;
 	public final static int COMPATIBLE = 0;
-	public final static int AUTOBOX_COMPATIBLE = 1;
-	public final static int VARARGS_COMPATIBLE = 2;
+	public final static int AUTOBOX_EXACT_MATCH = 1;
+	public final static int AUTOBOX_COMPATIBLE = 2;
+	public final static int VARARGS_COMPATIBLE = 3;
 
    /* Answer an int describing the relationship between the given types.
 	*
@@ -104,72 +105,9 @@ public abstract class Scope
 	/*
 	 * Boxing primitive
 	 */
-	public int boxing(int id) {
-		switch (id) {
-			case T_int :
-				return T_JavaLangInteger;
-			case T_byte :
-				return T_JavaLangByte;
-			case T_short :
-				return T_JavaLangShort;
-			case T_char :
-				return T_JavaLangCharacter;
-			case T_long :
-				return T_JavaLangLong;
-			case T_float :
-				return T_JavaLangFloat;
-			case T_double :
-				return T_JavaLangDouble;
-			case T_boolean :
-				return T_JavaLangBoolean;
-			case T_void :
-				return T_JavaLangVoid;
-		}
-		return id;
-	}
-	/*
-	 * Boxing primitive
-	 */
 	public TypeBinding boxing(TypeBinding type) {
-		TypeBinding boxedType;
-		switch (type.id) {
-			case T_int :
-				boxedType = environment().getType(JAVA_LANG_INTEGER);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
-			case T_byte :
-				boxedType = environment().getType(JAVA_LANG_BYTE);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
-			case T_short :
-				boxedType = environment().getType(JAVA_LANG_SHORT);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
-			case T_char :
-				boxedType = environment().getType(JAVA_LANG_CHARACTER);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
-			case T_long :
-				boxedType = environment().getType(JAVA_LANG_LONG);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
-			case T_float :
-				boxedType = environment().getType(JAVA_LANG_FLOAT);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
-			case T_double :
-				boxedType = environment().getType(JAVA_LANG_DOUBLE);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
-			case T_boolean :
-				boxedType = environment().getType(JAVA_LANG_BOOLEAN);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
-			case T_void :
-				boxedType = environment().getType(JAVA_LANG_VOID);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
-		}
+		if (type.isBaseType())
+			return environment().computeBoxingType(type);
 		return type;
 	}	
 
@@ -2847,7 +2785,7 @@ public abstract class Scope
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
 
-		for (int level = 0; level <= 2; level++) {
+		for (int level = 0; level <= VARARGS_COMPATIBLE; level++) {
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
 				if (compatibilityLevels[i] != level) continue nextVisible; // skip this method for now
 				MethodBinding method = visible[i];
@@ -2899,20 +2837,33 @@ public abstract class Scope
 		TypeBinding[] parameters = method.parameters;
 		int paramLength = parameters.length;
 		int argLength = arguments.length;
-		int lastIndex = argLength;
+
+		LookupEnvironment env = environment();
+		if (env.options.sourceLevel < ClassFileConstants.JDK1_5) {
+			if (paramLength != argLength)
+				return NOT_COMPATIBLE;
+			for (int i = 0; i < argLength; i++) {
+				TypeBinding param = parameters[i];
+				TypeBinding arg = arguments[i];
+				if (arg != param && !arg.isCompatibleWith(param))
+					return NOT_COMPATIBLE;
+			}
+			return COMPATIBLE;
+		}
+
 		int level = COMPATIBLE; // no autoboxing or varargs support needed
+		int lastIndex = argLength;
 		if (method.isVarargs()) {
 			lastIndex = paramLength - 1;
 			if (paramLength == argLength) { // accept X or X[] but not X[][]
 				TypeBinding param = parameters[lastIndex]; // is an ArrayBinding by definition
 				TypeBinding arg = arguments[lastIndex];
-				if (param != arg && !arg.isCompatibleWith(param)) {
-					if (isBoxingCompatibleWith(arg, param)) {
-						level = AUTOBOX_COMPATIBLE; // autoboxing support needed
-					} else {
-						// expect X[], called with X
+				if (param != arg) {
+					level = parameterCompatibilityLevel(arg, param, env);
+					if (level == NOT_COMPATIBLE) {
+						// expect X[], is it called with X
 						param = ((ArrayBinding) param).elementsType();
-						if (!arg.isCompatibleWith(param) && !isBoxingCompatibleWith(arg, param))
+						if (parameterCompatibilityLevel(arg, param, env) == NOT_COMPATIBLE)
 							return NOT_COMPATIBLE;
 						level = VARARGS_COMPATIBLE; // varargs support needed
 					}
@@ -2922,7 +2873,7 @@ public abstract class Scope
 					TypeBinding param = ((ArrayBinding) parameters[lastIndex]).elementsType();
 					for (int i = lastIndex; i < argLength; i++) {
 						TypeBinding arg = arguments[i];
-						if (param != arg && !arg.isCompatibleWith(param) && !isBoxingCompatibleWith(arg, param))
+						if (param != arg && parameterCompatibilityLevel(arg, param, env) == NOT_COMPATIBLE)
 							return NOT_COMPATIBLE;
 					}
 				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
@@ -2935,13 +2886,29 @@ public abstract class Scope
 		for (int i = 0; i < lastIndex; i++) {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = arguments[i];
-			if (arg != param && !arg.isCompatibleWith(param)) {
-				if (!isBoxingCompatibleWith(arg, param))
+			if (arg != param) {
+				int newLevel = parameterCompatibilityLevel(arg, param, env);
+				if (newLevel == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
-				level = AUTOBOX_COMPATIBLE; // autoboxing support needed
+				if (newLevel > level)
+					level = newLevel;
 			}
 		}
 		return level;
+	}
+
+	private int parameterCompatibilityLevel(TypeBinding arg, TypeBinding param, LookupEnvironment env) {
+		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
+		if (arg.isCompatibleWith(param))
+			return COMPATIBLE;
+		if (arg.isBaseType() != param.isBaseType()) {
+			TypeBinding convertedType = env.computeBoxingType(arg);
+			if (convertedType == param)
+				return AUTOBOX_EXACT_MATCH;
+			if (convertedType.isCompatibleWith(param))
+				return AUTOBOX_COMPATIBLE;
+		}
+		return NOT_COMPATIBLE;
 	}
 
 	public abstract ProblemReporter problemReporter();
@@ -2969,56 +2936,4 @@ public abstract class Scope
 		} while (scope != null);
 		return null;
 	}
-	/*
-	 * Unboxing primitive
-	 */
-	public int unboxing(int id) {
-		switch (id) {
-			case T_JavaLangInteger :
-				return T_int;
-			case T_JavaLangByte :
-				return T_byte;
-			case T_JavaLangShort :
-				return T_short;
-			case T_JavaLangCharacter :
-				return T_char;
-			case T_JavaLangLong :
-				return T_long;
-			case T_JavaLangFloat :
-				return T_float;
-			case T_JavaLangDouble :
-				return T_double;
-			case T_JavaLangBoolean :
-				return T_boolean;
-			case T_JavaLangVoid :
-				return T_void;
-		}
-		return id;
-	}
-	/*
-	 * Unboxing primitive
-	 */
-	public TypeBinding unboxing(TypeBinding type) {
-		switch (type.id) {
-			case T_JavaLangInteger :
-				return IntBinding;
-			case T_JavaLangByte :
-				return ByteBinding;
-			case T_JavaLangShort :
-				return ShortBinding;		
-			case T_JavaLangCharacter :
-				return CharBinding;				
-			case T_JavaLangLong :
-				return LongBinding;
-			case T_JavaLangFloat :
-				return FloatBinding;
-			case T_JavaLangDouble :
-				return DoubleBinding;
-			case T_JavaLangBoolean :
-				return BooleanBinding;
-			case T_JavaLangVoid :
-				return VoidBinding;
-		}
-		return type;
-	}		
 }

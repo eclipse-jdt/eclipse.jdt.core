@@ -11871,5 +11871,21 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"");
-	}		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81824
+	public void test444() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements I<Integer>, I<String> {}\n" + 
+				"interface I<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public class X implements I<Integer>, I<String> {}\r\n" + 
+			"	             ^\n" + 
+			"Duplicate interface I<T> for the type X\n" + 
+			"----------\n"
+		);
+	}
 }

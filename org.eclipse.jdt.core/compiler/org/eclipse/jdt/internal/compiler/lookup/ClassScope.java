@@ -811,9 +811,8 @@ public class ClassScope extends Scope {
 			superInterfaceRef.resolvedType = superInterface; // hold onto the problem type
 			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (ie : a.b.I and c.d.I)
 			for (int k = 0; k < count; k++) {
-				if (interfaceBindings[k] == superInterface) {
-					// should this be treated as a warning?
-					problemReporter().duplicateSuperinterface(sourceType, referenceContext, superInterface);
+				if (interfaceBindings[k].erasure() == superInterface.erasure()) {
+					problemReporter().duplicateSuperinterface(sourceType, referenceContext, (ReferenceBinding) superInterface.erasure());
 					continue nextInterface;
 				}
 			}

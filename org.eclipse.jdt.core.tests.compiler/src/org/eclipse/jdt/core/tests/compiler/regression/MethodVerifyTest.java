@@ -1367,4 +1367,18 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			""
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81568
+	public void test029() {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" + 
+				"	public I clone();\n" + 
+				"}\n" +
+				"interface J extends I {}\n"
+			},
+			""
+		);
+	}
 }
