@@ -871,7 +871,7 @@ public void testCB_1FHSKQ9_1() {
 		"    int i;\n" + 
 		"    int[] tab1;\n" + 
 		"    int j;\n" + 
-		"    <CompleteOnName:i>;\n" + 
+		"    (\" \" + <CompleteOnName:i>);\n" + 
 		"  }\n" + 
 		"}\n";
 

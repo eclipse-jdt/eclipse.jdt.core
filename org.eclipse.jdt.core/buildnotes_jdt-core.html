@@ -41,7 +41,20 @@ Eclipse SDK 2.1 Build - ?th December 2002
 <h2>
 What's new in this drop</h2>
 <ul> 
-<li>
+<li><b>Code completion enhancement:</b>
+   <ul>
+   <li>Relevance of a proposal is higher if the proposal is after an operator and the type of
+   proposal is compatible with the operator.
+   <br>In the following example <code>var1</code> is more relevant than <code>var2</code>.<pre>
+   public class X {
+      int var1;
+      Object var2;
+      void foo() {
+         int i = 1 + var&lt;cursor&gt;
+      }
+   }</pre>
+   </li>
+   </ul>
 </li>
 </ul> 
 

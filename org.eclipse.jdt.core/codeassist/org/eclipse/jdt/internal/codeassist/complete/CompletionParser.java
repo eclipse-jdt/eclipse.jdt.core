@@ -44,11 +44,12 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_THROW_STATEMENT = COMPLETION_PARSER + 9; // whether we are between the keyword 'throw' and the end of a throw statement
 	protected static final int K_INSIDE_RETURN_STATEMENT = COMPLETION_PARSER + 10; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = COMPLETION_PARSER + 11; // whether we are between ')' and the end of a cast statement
-	protected static final int K_OPERATOR = COMPLETION_PARSER + 12;
-	protected static final int K_LOCAL_INITIALIZER_DELIMITER = COMPLETION_PARSER + 13;
-	protected static final int K_ARRAY_INITIALIZER = COMPLETION_PARSER + 14;
-	protected static final int K_ARRAY_CREATION = COMPLETION_PARSER + 15;
-	protected static final int K_ASSISGNMENT_OPERATOR = COMPLETION_PARSER + 16;
+	protected static final int K_LOCAL_INITIALIZER_DELIMITER = COMPLETION_PARSER + 12;
+	protected static final int K_ARRAY_INITIALIZER = COMPLETION_PARSER + 13;
+	protected static final int K_ARRAY_CREATION = COMPLETION_PARSER + 14;
+	protected static final int K_UNARY_OPERATOR = COMPLETION_PARSER + 15;
+	protected static final int K_BINARY_OPERATOR = COMPLETION_PARSER + 16;
+	protected static final int K_ASSISGNMENT_OPERATOR = COMPLETION_PARSER + 17;
 
 	/* public fields */
 
@@ -288,34 +289,50 @@ private void buildMoreCompletionContext(Expression expression) {
 					assistNodeParent = cast;
 				}
 				break nextElement;
-			case K_OPERATOR :
-//				if(expressionPtr > 0) {
-//					Expression operatorExpression;
-//					switch (info) {
-//						case AND_AND :
-//							operatorExpression = new AND_AND_Expression(this.expressionStack[expressionPtr-1], expression, info);
-//							break;
-//						case OR_OR :
-//							operatorExpression = new OR_OR_Expression(this.expressionStack[expressionPtr-1], expression, info);
-//							break;
-//						case PLUS_PLUS :
-//						case MINUS_MINUS :
-//							operatorExpression = new PrefixExpression(expression,IntLiteral.One,info, expression.sourceStart); ;
-//							break;
-//						case TWIDDLE:
-//						case NOT:
-//							operatorExpression = new UnaryExpression(expression, info);
-//							break;
-//						case PLUS:
-//						case MINUS:
-//							
-//							break;
-//						default :
-//							operatorExpression = new BinaryExpression(this.expressionStack[expressionPtr-1], expression, info);
-//							break;
-//					}
-//					assistNodeParent = operatorExpression;
-//				}
+			case K_UNARY_OPERATOR :
+				if(expressionPtr > -1) {
+					Expression operatorExpression = null;
+					switch (info) {
+						case PLUS_PLUS :
+							operatorExpression = new PrefixExpression(expression,IntLiteral.One, PLUS, expression.sourceStart);
+							break;
+						case MINUS_MINUS :
+							operatorExpression = new PrefixExpression(expression,IntLiteral.One, MINUS, expression.sourceStart);
+							break;
+						default :
+							operatorExpression = new UnaryExpression(expression, info);
+							break;
+					}
+					if(operatorExpression != null) {
+						assistNodeParent = operatorExpression;
+					}
+				}
+				break nextElement;
+			case K_BINARY_OPERATOR :
+				if(expressionPtr > 0) {
+					Expression operatorExpression = null;
+					switch (info) {
+						case AND_AND :
+							operatorExpression = new AND_AND_Expression(this.expressionStack[expressionPtr-1], expression, info);
+							break;
+						case OR_OR :
+							operatorExpression = new OR_OR_Expression(this.expressionStack[expressionPtr-1], expression, info);
+							break;
+						case EQUAL_EQUAL :
+						case NOT_EQUAL :
+							operatorExpression = new EqualExpression(this.expressionStack[expressionPtr-1], expression, info);
+							break;
+						case INSTANCEOF :
+							// should never occur
+							break;
+						default :
+							operatorExpression = new BinaryExpression(this.expressionStack[expressionPtr-1], expression, info);
+							break;
+					}
+					if(operatorExpression != null) {
+						assistNodeParent = operatorExpression;
+					}
+				}
 				break nextElement;
 			case K_ARRAY_INITIALIZER :
 				ArrayInitializer arrayInitializer = new ArrayInitializer();
@@ -825,7 +842,12 @@ protected void consumeAssignmentOperator(int pos) {
 }
 protected void consumeBinaryExpression(int op) {
 	super.consumeBinaryExpression(op);
-	popElement(K_OPERATOR);
+	popElement(K_BINARY_OPERATOR);
+	
+	BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
+	if(assistNode != null && exp.right == assistNode) {
+		assistNodeParent = exp;
+	}
 }
 protected void consumeCastExpression() {
 	popElement(K_CAST_STATEMENT);
@@ -923,6 +945,15 @@ protected void consumeEnterVariable() {
 		}
 	}
 }
+protected void consumeEqualityExpression(int op) {
+	super.consumeEqualityExpression(op);
+	popElement(K_BINARY_OPERATOR);
+	
+	BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
+	if(assistNode != null && exp.right == assistNode) {
+		assistNodeParent = exp;
+	}
+}
 protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
 	
@@ -1004,6 +1035,16 @@ protected void consumeInsideCastExpressionLL1() {
 	super.consumeInsideCastExpressionLL1();
 	pushOnElementStack(K_CAST_STATEMENT);
 }
+protected void consumeInstanceOfExpression(int op) {
+	super.consumeInstanceOfExpression(op);
+	popElement(K_BINARY_OPERATOR);
+	
+	InstanceOfExpression exp = (InstanceOfExpression) expressionStack[expressionPtr];
+	if(assistNode != null && exp.type == assistNode) {
+		assistNodeParent = exp;
+	}
+}
+
 protected void consumeInterfaceType() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_INTERFACE);
 	super.consumeInterfaceType();
@@ -1132,7 +1173,20 @@ protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
 	if(!isInsideBlock()) pushOnElementStack(K_BLOCK_DELIMITER);
 }
+protected void consumePushPosition() {
+	super.consumePushPosition();
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BINARY_OPERATOR) {
+		int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
+		popElement(K_BINARY_OPERATOR);
+		pushOnElementStack(K_UNARY_OPERATOR, info);
+	}
+}
 protected void consumeToken(int token) {
+	if(isFirst) {
+		super.consumeToken(token);
+		return;
+	}
+	
 	int previous = this.previousToken;
 	int previousIdentifierPtr = this.previousIdentifierPtr;
 	
@@ -1296,78 +1350,101 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_INSIDE_RETURN_STATEMENT, this.bracketDepth);
 				break;
 			case TokenNameMULTIPLY:
-				pushOnElementStack(K_OPERATOR, MULTIPLY);
+				pushOnElementStack(K_BINARY_OPERATOR, MULTIPLY);
 				break;
 			case TokenNameDIVIDE:
-				pushOnElementStack(K_OPERATOR, DIVIDE);
+				pushOnElementStack(K_BINARY_OPERATOR, DIVIDE);
 				break;
 			case TokenNameREMAINDER:
-				pushOnElementStack(K_OPERATOR, REMAINDER);
+				pushOnElementStack(K_BINARY_OPERATOR, REMAINDER);
 				break;
 			case TokenNamePLUS:
-				pushOnElementStack(K_OPERATOR, PLUS);
+				pushOnElementStack(K_BINARY_OPERATOR, PLUS);
 				break;
 			case TokenNameMINUS:
-				pushOnElementStack(K_OPERATOR, MINUS);
+				pushOnElementStack(K_BINARY_OPERATOR, MINUS);
 				break;
 			case TokenNameLEFT_SHIFT:
-				pushOnElementStack(K_OPERATOR, LEFT_SHIFT);
+				pushOnElementStack(K_BINARY_OPERATOR, LEFT_SHIFT);
 				break;
 			case TokenNameRIGHT_SHIFT:
-				pushOnElementStack(K_OPERATOR, RIGHT_SHIFT);
+				pushOnElementStack(K_BINARY_OPERATOR, RIGHT_SHIFT);
 				break;
 			case TokenNameUNSIGNED_RIGHT_SHIFT:
-				pushOnElementStack(K_OPERATOR, UNSIGNED_RIGHT_SHIFT);
+				pushOnElementStack(K_BINARY_OPERATOR, UNSIGNED_RIGHT_SHIFT);
 				break;
 			case TokenNameLESS:
-				pushOnElementStack(K_OPERATOR, LESS);
+				pushOnElementStack(K_BINARY_OPERATOR, LESS);
 				break;
 			case TokenNameGREATER:
-				pushOnElementStack(K_OPERATOR, GREATER);
+				pushOnElementStack(K_BINARY_OPERATOR, GREATER);
 				break;
 			case TokenNameLESS_EQUAL:
-				pushOnElementStack(K_OPERATOR, LESS_EQUAL);
+				pushOnElementStack(K_BINARY_OPERATOR, LESS_EQUAL);
 				break;
 			case TokenNameGREATER_EQUAL:
-				pushOnElementStack(K_OPERATOR, GREATER_EQUAL);
+				pushOnElementStack(K_BINARY_OPERATOR, GREATER_EQUAL);
 				break;
 			case TokenNameAND:
-				pushOnElementStack(K_OPERATOR, AND);
+				pushOnElementStack(K_BINARY_OPERATOR, AND);
 				break;
 			case TokenNameXOR:
-				pushOnElementStack(K_OPERATOR, XOR);
+				pushOnElementStack(K_BINARY_OPERATOR, XOR);
 				break;
 			case TokenNameOR:
-				pushOnElementStack(K_OPERATOR, OR);
+				pushOnElementStack(K_BINARY_OPERATOR, OR);
 				break;
 			case TokenNameAND_AND:
-				pushOnElementStack(K_OPERATOR, AND_AND);
+				pushOnElementStack(K_BINARY_OPERATOR, AND_AND);
 				break;
 			case TokenNameOR_OR:
-				pushOnElementStack(K_OPERATOR, OR_OR);
+				pushOnElementStack(K_BINARY_OPERATOR, OR_OR);
 				break;
 			case TokenNamePLUS_PLUS:
-				pushOnElementStack(K_OPERATOR, PLUS_PLUS);
+				pushOnElementStack(K_UNARY_OPERATOR, PLUS_PLUS);
 				break;
 			case TokenNameMINUS_MINUS:
-				pushOnElementStack(K_OPERATOR, MINUS_MINUS);
+				pushOnElementStack(K_UNARY_OPERATOR, MINUS_MINUS);
 				break;
 			case TokenNameTWIDDLE:
-				pushOnElementStack(K_OPERATOR, TWIDDLE);
+				pushOnElementStack(K_UNARY_OPERATOR, TWIDDLE);
 				break;
 			case TokenNameNOT:
-				pushOnElementStack(K_OPERATOR, NOT);
+				pushOnElementStack(K_UNARY_OPERATOR, NOT);
+				break;
+			case TokenNameEQUAL_EQUAL:
+				pushOnElementStack(K_BINARY_OPERATOR, EQUAL_EQUAL);
+				break;
+			case TokenNameNOT_EQUAL:
+				pushOnElementStack(K_BINARY_OPERATOR, NOT_EQUAL);
+				break;
+			case TokenNameinstanceof:
+				pushOnElementStack(K_BINARY_OPERATOR, INSTANCEOF);
 				break;
 		}
 	}
 }
 protected void consumeUnaryExpression(int op) {
 	super.consumeUnaryExpression(op);
-	popElement(K_OPERATOR);
+	popElement(K_UNARY_OPERATOR);
+	
+	if(expressionStack[expressionPtr] instanceof UnaryExpression) {
+		UnaryExpression exp = (UnaryExpression) expressionStack[expressionPtr];
+		if(assistNode != null && exp.expression == assistNode) {
+			assistNodeParent = exp;
+		}
+	}
 }
 protected void consumeUnaryExpression(int op, boolean post) {
 	super.consumeUnaryExpression(op, post);
-	popElement(K_OPERATOR);
+	popElement(K_UNARY_OPERATOR);
+	
+	if(expressionStack[expressionPtr] instanceof UnaryExpression) {
+		UnaryExpression exp = (UnaryExpression) expressionStack[expressionPtr];
+		if(assistNode != null && exp.expression == assistNode) {
+			assistNodeParent = exp;
+		}
+	}
 }
 
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions){

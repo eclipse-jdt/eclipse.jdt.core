@@ -2824,6 +2824,70 @@ public final class CompletionEngine
 					scope,
 					allocationExpression);
 			}
+		} else if(parent instanceof OperatorExpression) {
+			int operator = (parent.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT;
+			if(parent instanceof ConditionalExpression) {
+				// for future use
+			} else if(parent instanceof InstanceOfExpression) {
+				InstanceOfExpression e = (InstanceOfExpression) parent;
+				TypeBinding binding = e.expression.resolvedType;
+				if(binding != null){
+					addExpectedType(binding);
+					expectedTypesFilter = SUBTYPE | SUPERTYPE;
+				}
+			} else if(parent instanceof BinaryExpression) {
+				switch(operator) {
+					case OperatorIds.PLUS :
+						addExpectedType(BaseTypes.ShortBinding);
+						addExpectedType(BaseTypes.IntBinding);
+						addExpectedType(BaseTypes.LongBinding);
+						addExpectedType(BaseTypes.FloatBinding);
+						addExpectedType(BaseTypes.DoubleBinding);
+						addExpectedType(BaseTypes.CharBinding);
+						addExpectedType(BaseTypes.ByteBinding);
+						addExpectedType(scope.getJavaLangString());
+						break;
+					case OperatorIds.AND_AND :
+					case OperatorIds.OR_OR :
+					case OperatorIds.XOR :
+						addExpectedType(BaseTypes.BooleanBinding);
+						break;
+					default :
+						addExpectedType(BaseTypes.ShortBinding);
+						addExpectedType(BaseTypes.IntBinding);
+						addExpectedType(BaseTypes.LongBinding);
+						addExpectedType(BaseTypes.FloatBinding);
+						addExpectedType(BaseTypes.DoubleBinding);
+						addExpectedType(BaseTypes.CharBinding);
+						addExpectedType(BaseTypes.ByteBinding);
+						break;
+				}
+			} else if(parent instanceof UnaryExpression) {
+				switch(operator) {
+					case OperatorIds.NOT :
+						addExpectedType(BaseTypes.BooleanBinding);
+						break;
+					case OperatorIds.TWIDDLE :
+						addExpectedType(BaseTypes.ShortBinding);
+						addExpectedType(BaseTypes.IntBinding);
+						addExpectedType(BaseTypes.LongBinding);
+						addExpectedType(BaseTypes.CharBinding);
+						addExpectedType(BaseTypes.ByteBinding);
+						break;
+					case OperatorIds.PLUS :
+					case OperatorIds.MINUS :
+					case OperatorIds.PLUS_PLUS :
+					case OperatorIds.MINUS_MINUS :
+						addExpectedType(BaseTypes.ShortBinding);
+						addExpectedType(BaseTypes.IntBinding);
+						addExpectedType(BaseTypes.LongBinding);
+						addExpectedType(BaseTypes.FloatBinding);
+						addExpectedType(BaseTypes.DoubleBinding);
+						addExpectedType(BaseTypes.CharBinding);
+						addExpectedType(BaseTypes.ByteBinding);
+						break;
+				}
+			}
 		}
 		
 		if(expectedTypesPtr + 1 != expectedTypes.length) {

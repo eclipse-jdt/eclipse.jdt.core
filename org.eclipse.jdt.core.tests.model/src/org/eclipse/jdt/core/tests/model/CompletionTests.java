@@ -164,6 +164,12 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionMemberType"));
 	suite.addTest(new CompletionTests("testCompletionVoidMethod"));
 	suite.addTest(new CompletionTests("testCompletionQualifiedExpectedType"));
+	suite.addTest(new CompletionTests("testCompletionUnaryOperator1"));
+	suite.addTest(new CompletionTests("testCompletionUnaryOperator2"));
+	suite.addTest(new CompletionTests("testCompletionBinaryOperator1"));
+	suite.addTest(new CompletionTests("testCompletionBinaryOperator2"));
+	suite.addTest(new CompletionTests("testCompletionBinaryOperator3"));
+	suite.addTest(new CompletionTests("testCompletionInstanceofOperator1"));
 	
 	return suite;
 }
@@ -2076,7 +2082,7 @@ public void testCompletionObjectsMethodWithInterfaceReceiver() throws JavaModelE
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_UNQUALIFIED),
+		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
 /*
@@ -2319,6 +2325,98 @@ public void testCompletionQualifiedExpectedType() throws JavaModelException {
 		assertEquals(
 			"element:CompletionQualifiedExpectedType    completion:CompletionQualifiedExpectedType    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 			"element:PX    completion:pack2.PX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE),
+			requestor.getResults());
+}
+public void testCompletionUnaryOperator1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionUnaryOperator1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionUnaryOperator2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionUnaryOperator2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionBinaryOperator1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBinaryOperator1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var4    completion:var4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
+			requestor.getResults());
+}
+public void testCompletionBinaryOperator2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBinaryOperator2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionBinaryOperator3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBinaryOperator3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "var";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:var1    completion:var1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionInstanceofOperator1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionInstanceofOperator1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "x instanceof ZZZCompletionInstanceof";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:ZZZCompletionInstanceof1    completion:ZZZCompletionInstanceof1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
+			"element:ZZZCompletionInstanceof2    completion:ZZZCompletionInstanceof2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:ZZZCompletionInstanceof3    completion:ZZZCompletionInstanceof3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
+			"element:ZZZCompletionInstanceof4    completion:ZZZCompletionInstanceof4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }

@@ -71,6 +71,8 @@ public abstract class AssistParser extends Parser {
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
 	protected static final int SUPER_CONSTRUCTOR = -2;
+	
+	protected boolean isFirst = false;
 
 public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, true, assertMode);
@@ -437,6 +439,11 @@ protected void consumeStaticOnly() {
 }
 protected void consumeToken(int token) {
 	super.consumeToken(token);
+	
+	if(isFirst) {
+		isFirst = false;
+		return;
+	}
 	// register message send selector only if inside a method or if looking at a field initializer 
 	// and if the current token is an open parenthesis
 	if (isInsideMethod() || isInsideFieldInitialization()) {
@@ -629,12 +636,28 @@ public void goForBlockStatementsopt() {
 
 	firstToken = TokenNameTWIDDLE;
 	scanner.recordLineSeparator = false;
+	
+	isFirst = true;
 }
 public void goForConstructorBlockStatementsopt() {
 	//tells the scanner to go for constructor block statements opt parsing
 
 	firstToken = TokenNameNOT;
 	scanner.recordLineSeparator = false;
+	
+	isFirst = true;
+}
+public void goForHeaders(){
+	super.goForHeaders();
+	isFirst = true;
+}
+public void goForCompilationUnit(){
+	super.goForCompilationUnit();
+	isFirst = true;
+}
+public void goForBlockStatementsOrMethodHeaders() {
+	super.goForBlockStatementsOrMethodHeaders();
+	isFirst = true;
 }
 /*
  * Retrieve a partial subset of a qualified name reference up to the completion point.
