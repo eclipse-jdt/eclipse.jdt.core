@@ -278,7 +278,10 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 		this.locator.parser.matchSet = this.matchSet;
 		
 		// diet parse
-		this.parsedUnit = this.locator.dietParse(source);
+		char[] qualifiedName = this.getQualifiedName();
+		if (qualifiedName == null || (this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName)) == null) {
+			this.parsedUnit = this.locator.dietParse(source);
+		}
 	}
 	if (this.parsedUnit != null) {
 		try {
@@ -294,6 +297,12 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 				if (this.parsedUnit.types != null) {
 					if (this.shouldResolve) {
 						try {
+							if (this.parsedUnit.scope == null) {
+								// bindings were not created (case of a FieldReferencePattern that doesn't need resolve, 
+								// but we need to resolve because of a SingleNameReference being a potential match)
+								this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
+								this.locator.lookupEnvironment.completeTypeBindings(this.parsedUnit, true);
+							}
 							if (this.parsedUnit.scope != null) {
 								this.parsedUnit.scope.faultInTypes();
 								this.parsedUnit.resolve();

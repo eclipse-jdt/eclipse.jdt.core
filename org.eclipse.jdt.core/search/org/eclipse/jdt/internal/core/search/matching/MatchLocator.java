@@ -314,7 +314,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 
 			for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
 				IBinaryMethod binaryMethod = methods[i];
-				char[] selector = binaryMethod.getSelector();
+				char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
 				if (CharOperation.equals(selector, method.selector)) {
 					String[] parameterTypes = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
 					if (length != parameterTypes.length) continue;
@@ -1283,9 +1283,9 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 	private void locateMatches(JavaProject javaProject, IProgressMonitor progressMonitor) throws JavaModelException {
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
 	
-		boolean shouldResolve = this.pattern.needsResolve;
+		boolean compilationAborted = false;
 
-		if (shouldResolve) {
+		if (this.pattern.needsResolve) {
 			// binding creation
 			for (int i = 0, length = openables.length; i < length; i++) { 
 				openables[i].buildTypeBindings();
@@ -1304,7 +1304,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
 				// continue reporting innacurate matches (since bindings will be null)
-				shouldResolve = false;
+				compilationAborted = true;
 			}
 		}
 
@@ -1318,18 +1318,18 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 				this.currentMatchingOpenable = openables[i];
 				
 				if (!this.currentMatchingOpenable.hasAlreadyDefinedType()) {
-					this.currentMatchingOpenable.shouldResolve = shouldResolve;
+					this.currentMatchingOpenable.shouldResolve = !compilationAborted;
 					this.currentMatchingOpenable.locateMatches();
 				} // else skip type has it is hidden so not visible
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
 				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
-				shouldResolve = false;
+				compilationAborted = true;
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					// problem with class path: it could not find base classes
 					// continue and try next matching openable reporting innacurate matches (since bindings will be null)
-					shouldResolve = false;
+					compilationAborted = true;
 				} else {
 					// core exception thrown by client's code: let it through
 					throw new JavaModelException(e);
