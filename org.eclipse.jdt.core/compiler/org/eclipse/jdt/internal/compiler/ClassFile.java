@@ -657,9 +657,11 @@ public class ClassFile
 		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
 
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 1 attribute: the code attribute
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 1; // Code attribute
+		int methodAttributeOffset = contentsOffset;
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		
+		// Code attribute
+		attributeNumber++;
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
 		final ProblemReporter problemReporter = method.scope.problemReporter();
@@ -702,6 +704,7 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
+		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
 
 	/**
@@ -744,70 +747,12 @@ public class ClassFile
 		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
 
 		generateMethodInfoHeader(methodBinding);
-		// leave two spaces for the number of attributes
-		int attributeOffset = contentsOffset;
-		contentsOffset += 2;
-		ReferenceBinding[] thrownsExceptions;
-		int attributeNumber = 0;
-		int contentsLength;
-
-		if ((thrownsExceptions = methodBinding.thrownExceptions) != NoExceptions) {
-			// The method has a throw clause. So we need to add an exception attribute
-			// check that there is enough space to write all the bytes for the exception attribute
-			int length = thrownsExceptions.length;
-			if (contentsOffset + (8 + length * 2) >= (contentsLength = contents.length)) {
-				System.arraycopy(
-					contents,
-					0,
-					(contents =
-						new byte[contentsLength + Math.max(INCREMENT_SIZE, (8 + length * 2))]),
-					0,
-					contentsLength);
-			}
-			int exceptionNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.ExceptionsName);
-			contents[contentsOffset++] = (byte) (exceptionNameIndex >> 8);
-			contents[contentsOffset++] = (byte) exceptionNameIndex;
-			// The attribute length = length * 2 + 2 in case of a exception attribute
-			int attributeLength = length * 2 + 2;
-			contents[contentsOffset++] = (byte) (attributeLength >> 24);
-			contents[contentsOffset++] = (byte) (attributeLength >> 16);
-			contents[contentsOffset++] = (byte) (attributeLength >> 8);
-			contents[contentsOffset++] = (byte) attributeLength;
-			contents[contentsOffset++] = (byte) (length >> 8);
-			contents[contentsOffset++] = (byte) length;
-			for (int i = 0; i < length; i++) {
-				int exceptionIndex = constantPool.literalIndex(thrownsExceptions[i]);
-				contents[contentsOffset++] = (byte) (exceptionIndex >> 8);
-				contents[contentsOffset++] = (byte) exceptionIndex;
-			}
-			attributeNumber++;
-		}
-
-		// Deprecated attribute
-		// Check that there is enough space to write the deprecated attribute
-		if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
-		}
-		if (methodBinding.isDeprecated()) {
-			int deprecatedAttributeNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
-			contents[contentsOffset++] = (byte) (deprecatedAttributeNameIndex >> 8);
-			contents[contentsOffset++] = (byte) deprecatedAttributeNameIndex;
-			// the length of a deprecated attribute is equals to 0
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-
-			attributeNumber++;
-		}
-
+		int methodAttributeOffset = contentsOffset;
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		
+		// Code attribute
+		attributeNumber++;
+		
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
 		final ProblemReporter problemReporter = method.scope.problemReporter();
@@ -844,7 +789,6 @@ public class ClassFile
 			codeStream.generateCodeAttributeForProblemMethod(
 				problemReporter.options.runtimeExceptionNameForCompileError,
 				problemString);
-		attributeNumber++; // code attribute
 		completeCodeAttributeForProblemMethod(
 			method,
 			methodBinding,
@@ -855,8 +799,7 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
-		contents[attributeOffset] = (byte) attributeNumber;
+		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
 
 	/**
