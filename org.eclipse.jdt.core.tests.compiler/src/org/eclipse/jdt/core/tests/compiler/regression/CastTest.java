@@ -796,6 +796,35 @@ public void test022() {
 		customOptions);
 }
 		
+// unnecessary cast diagnosis should tolerate array receiver type (40752)
+public void test023() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		final long lgLow32BitMask1 = ~(~((long) 0) << 32);		// necessary\n" + 
+			"		final long lgLow32BitMask2 = ~(~0 << 32);					// necessary\n" + 
+			"		final long lgLow32BitMask3 = ~(~((long) 0L) << 32);	// unnecessary\n" + 
+			"		final long lgLow32BitMask4 = ~(~((int) 0L) << 32);		// necessary\n" + 
+			"		System.out.println(\"lgLow32BitMask1: \"+lgLow32BitMask1);\n" + 
+			"		System.out.println(\"lgLow32BitMask2: \"+lgLow32BitMask2);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	final long lgLow32BitMask3 = ~(~((long) 0L) << 32);	// unnecessary\n" + 
+		"	                                ^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type long for expression of type long\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}		
 public static Class testClass() {
 	return CastTest.class;
 }

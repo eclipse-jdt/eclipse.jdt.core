@@ -240,7 +240,42 @@ public class CastExpression extends Expression {
 			}
 		}
 	}
+
+	/**
+	 * Only complain for identity cast, since other type of casts may be useful: e.g.  ~((~(long) 0) << 32)  is different from: ~((~0) << 32) 
+	 */
+	public static void checkNeedForArgumentCast(BlockScope scope, int operator, int operatorSignature, Expression expression, int expressionTypeId) {
 	
+		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+	
+		// check need for left operand cast
+		int alternateLeftTypeId = expressionTypeId;
+		if ((expression.bits & UnnecessaryCastMask) == 0 && expression.resolvedType.isBaseType()) {
+			// narrowing conversion on base type may change value, thus necessary
+			return;
+		} else  {
+			TypeBinding alternateLeftType = ((CastExpression)expression).expression.resolvedType;
+			if (alternateLeftType == null) return; // cannot do better
+			if ((alternateLeftTypeId = alternateLeftType.id) == expressionTypeId) { // obvious identity cast
+				scope.problemReporter().unnecessaryCast((CastExpression)expression); 
+				return;
+			} else if (alternateLeftTypeId == T_null) {
+				alternateLeftTypeId = expressionTypeId;  // tolerate null argument cast
+				return;
+			}
+		}
+/*		tolerate widening cast in unary expressions, as may be used when combined in binary expressions (41680)
+		int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateLeftTypeId];
+		// (cast)  left   Op (cast)  right --> result
+		//  1111   0000       1111   0000     1111
+		//  <<16   <<12       <<8    <<4       <<0
+		final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
+		if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result
+			scope.problemReporter().unnecessaryCastForArgument((CastExpression)expression,  TypeBinding.wellKnownType(scope, expression.implicitConversion >> 4)); 
+		}
+*/		
+	}
+		
 	/**
 	 * Cast expressions will considered as useful if removing them all would actually bind to a different method
 	 * (no fine grain analysis on per casted argument basis, simply separate widening cast from narrowing ones)
