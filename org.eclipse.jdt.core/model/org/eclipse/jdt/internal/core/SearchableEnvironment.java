@@ -102,10 +102,11 @@ public class SearchableEnvironment
 
 					// in the resulting collection, ensure the requested type is the first one
 					sourceTypes[0] = sourceType;
-					for (int i = 0, index = 1; i < types.length; i++) {
+					int length = types.length;
+					for (int i = 0, index = 1; i < length; i++) {
 						ISourceType otherType =
 							(ISourceType) ((JavaElement) types[i]).getElementInfo();
-						if (!otherType.equals(topLevelType))
+						if (!otherType.equals(topLevelType) && index < length) // check that the index is in bounds (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62861)
 							sourceTypes[index++] = otherType;
 					}
 					return new NameEnvironmentAnswer(sourceTypes);
