@@ -404,7 +404,7 @@ public class CastExpression extends Expression {
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
-				if (!necessary) {
+				if (!necessary && this.expression.resolvedType != null) { // cannot do better if expression is not bound
 					this.bits |= UnnecessaryCastMask;
 					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
 						scope.problemReporter().unnecessaryCast(this);
