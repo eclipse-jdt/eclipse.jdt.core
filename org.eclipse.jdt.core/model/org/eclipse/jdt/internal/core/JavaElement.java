@@ -557,7 +557,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * Creates and returns and not present exception for this element.
 	 */
-	protected JavaModelException newNotPresentException() {
+	public JavaModelException newNotPresentException() {
 		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	/*

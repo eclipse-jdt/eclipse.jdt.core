@@ -114,7 +114,7 @@ public class NameLookup implements SuffixConstants {
 	 * Otherwise, false is returned. 
 	 */
 	protected boolean acceptType(IType type, int acceptFlags) {
-		if (acceptFlags == 0)
+		if (acceptFlags == 0 || acceptFlags == (ACCEPT_CLASSES | ACCEPT_INTERFACES))
 			return true; // no flags, always accepted
 		try {
 			if (type.isClass()) {
