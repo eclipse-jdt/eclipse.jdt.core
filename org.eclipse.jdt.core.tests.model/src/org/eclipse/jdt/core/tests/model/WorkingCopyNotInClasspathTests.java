@@ -199,12 +199,8 @@ public void testIsOnClasspath() throws CoreException {
 		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
 		
 		// working creation will cause it to open, and thus request project options
-		try {
-			workingCopy.getJavaProject().isOnClasspath(workingCopy);
-			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
-			assertTrue("working copy shouldn't answer to isOnClasspath", false);
-		} catch(JavaModelException e) {
-		}
+		boolean isOnClasspath = workingCopy.getJavaProject().isOnClasspath(workingCopy);
+		assertTrue("working copy shouldn't answer to isOnClasspath", !isOnClasspath);
 	} finally {
 		if (workingCopy != null) workingCopy.destroy();
 		this.deleteProject("SimpleProject");
