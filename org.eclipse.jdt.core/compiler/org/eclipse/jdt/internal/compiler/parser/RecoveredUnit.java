@@ -159,8 +159,21 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 			types[typeCount - 1].typeDeclaration.declarationSourceEnd = unitDeclaration.sourceEnd;
 			types[typeCount - 1].typeDeclaration.bodyEnd = unitDeclaration.sourceEnd;
 		}
+		int actualCount = existingCount;
 		for (int i = 0; i < typeCount; i++){
-			typeDeclarations[existingCount + i] = types[i].updatedTypeDeclaration();
+			TypeDeclaration typeDecl = types[i].updatedTypeDeclaration();
+			// filter out local types (12454)
+			if (!(typeDecl instanceof LocalTypeDeclaration)){
+				typeDeclarations[actualCount++] = typeDecl;
+			}
+		}
+		if (actualCount != typeCount){
+			System.arraycopy(
+				typeDeclarations, 
+				0, 
+				typeDeclarations = new TypeDeclaration[existingCount+actualCount], 
+				0, 
+				existingCount+actualCount);
 		}
 		unitDeclaration.types = typeDeclarations;
 	}
