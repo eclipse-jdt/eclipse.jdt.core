@@ -4216,7 +4216,6 @@ protected void consumeToken(int type) {
 				problemReporter().nonExternalizedStringLiteral(literals[i]);
 			}
 		}
-		scanner.currentLine = null;
 		scanner.wasNonExternalizedStringLiteral = false;
 	}
 	// clear the commentPtr of the scanner in case we read something different from a modifier
