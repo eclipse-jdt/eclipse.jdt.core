@@ -17,9 +17,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.Util;
 
 /**
@@ -90,7 +90,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
          * It is emulated using the classpath. We add extdirs entries after the 
          * bootclasspath.
          */
-        addExtdirsToClasspath(classpath);
+        addExtdirs(extdirs, classpath);
 
 		/*
 		 * The java runtime is already handled, so we simply want to retrieve the
@@ -199,4 +199,33 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         logAndAddFilesToCompile(cmd);
 		return cmd;
 	}
+	
+    /**
+     * Emulation of extdirs feature in java >= 1.2.
+     * This method adds all files in the given
+     * directories (but not in sub-directories!) to the classpath,
+     * so that you don't have to specify them all one by one.
+     * @param extdirs - Path to append files to
+     */
+    private void addExtdirs(Path extdirs, Path classpath) {
+        if (extdirs == null) {
+            String extProp = System.getProperty("java.ext.dirs");
+            if (extProp != null) {
+                extdirs = new Path(classpath.getProject(), extProp);
+            } else {
+                return;
+            }
+        }
+
+        String[] dirs = extdirs.list();
+        for (int i = 0; i < dirs.length; i++) {
+            File dir = classpath.getProject().resolveFile(dirs[i]);
+            if (dir.exists() && dir.isDirectory()) {
+                FileSet fs = new FileSet();
+                fs.setDir(dir);
+                fs.setIncludes("*");
+                classpath.addFileset(fs);
+            }
+        }
+    }
 }
