@@ -219,17 +219,13 @@ public class ReturnStatement extends Statement {
 		if (methodType == null) 
 			return;
 	
-		if (expressionType.needsUncheckedConversion(methodType)) {
-		    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
-		}
-		
-		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
-			// dealing with constant
+		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
+				|| expressionType.isCompatibleWith(methodType)) {
+
 			expression.computeConversion(scope, methodType, expressionType);
-			return;
-		}
-		if (expressionType.isCompatibleWith(methodType)) {
-			expression.computeConversion(scope, methodType, expressionType);
+			if (expressionType.needsUncheckedConversion(methodType)) {
+			    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
+			}
 			return;
 		}
 		scope.problemReporter().typeMismatchError(expressionType, methodType, expression);

@@ -656,6 +656,8 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (!(targetType instanceof ReferenceBinding)) 
 		return false;
 	TypeBinding compatible = this.findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
+	if (compatible == null) 
+		return false;
 	do {
 		if (compatible.isRawType() && (targetType.isBoundParameterizedType() || targetType.isGenericType())) {
 			return true;

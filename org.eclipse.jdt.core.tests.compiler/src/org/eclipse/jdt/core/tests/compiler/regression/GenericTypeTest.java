@@ -11096,5 +11096,25 @@ class C extends B implements IDoubles {
 				"}\n",
 			},
 			"");	
-	}			
+	}
+	
+	// 78704
+	public void test422() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"	String foo() {\n" +
+				"		return new X();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	return new X();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X to String\n" + 
+			"----------\n");
+	}
+	
 }
