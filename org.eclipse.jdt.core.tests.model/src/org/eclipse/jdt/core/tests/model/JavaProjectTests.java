@@ -86,6 +86,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
 	suite.addTest(new JavaProjectTests("testGetClasspathOnClosedProject"));
+	suite.addTest(new JavaProjectTests("testGetRequiredProjectNames"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -389,6 +390,35 @@ public void testGetClasspathOnClosedProject() throws CoreException {
 		project.open(null);
 	}
 }
+/*
+ * Ensures that getRequiredProjectNames() returns the project names in the classpath order
+ * (regression test for bug 25605 [API] someJavaProject.getRequiredProjectNames(); API should specify that the array is returned in ClassPath order)
+ */
+public void testGetRequiredProjectNames() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject(
+			"P", 
+			new String[] {}, 
+			new String[] {}, 
+			new String[] {"/JavaProjectTests", "/P1", "/P0", "/P2", "/JavaProjectSrcTests"}, 
+			"");
+		String[] requiredProjectNames = project.getRequiredProjectNames();
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = requiredProjectNames.length; i < length; i++) {
+			buffer.append(requiredProjectNames[i]);
+			if (i != length-1) {
+				buffer.append(", ");
+			}
+		}
+		assertEquals(
+			"Unexpected required project names",
+			"JavaProjectTests, P1, P0, P2, JavaProjectSrcTests",
+			buffer.toString());
+	} finally {
+		this.deleteProject("P");
+	}
+} 
+
 /**
  * Test that an (internal) jar
  * has a corresponding resource.

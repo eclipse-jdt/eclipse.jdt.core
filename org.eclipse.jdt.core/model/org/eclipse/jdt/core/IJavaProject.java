@@ -379,9 +379,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Returns the names of the projects that are directly required by this
 	 * project. A project is required if it is in its classpath.
+	 * <p>
+	 * The project names are returned in the order they appear on the classpath.
 	 *
 	 * @return the names of the projects that are directly required by this
-	 * project
+	 * project in classpath order
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */
