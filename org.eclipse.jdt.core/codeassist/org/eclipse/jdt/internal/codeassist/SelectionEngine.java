@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.*;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
@@ -57,13 +58,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
 	boolean noProposal = true;
 	IProblem problem = null;
-	
-	private class CheckState {
-		public CheckState(int depth) {
-			this.depth = depth;
-		}
-		public int depth = 0;
-	}
 
 	/**
 	 * The SelectionEngine is responsible for computing the selected object.
@@ -365,11 +359,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								return false;
 							break;
 						case TerminalTokens.TokenNameLESS :
-							CheckState state = new CheckState(1);
-							if(!checkTypeArgument(scanner, state))
-								return false;
-							
-							if(state.depth != 0)
+							if(!checkTypeArgument(scanner))
 								return false;
 							break;
 						default :
@@ -388,66 +378,70 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		return false;
 	}
-	private boolean checkTypeArgument(Scanner scanner, CheckState state) throws InvalidInputException {
-		boolean expectingIdentifier = true;
-		
+	private boolean checkTypeArgument(Scanner scanner) throws InvalidInputException {
+		int depth = 1;
 		int token;
+		StringBuffer buffer = new StringBuffer();
 		do {
 			token = scanner.getNextToken();
 	
 			switch(token) {
-				case TerminalTokens.TokenNameDOT :
-					if (expectingIdentifier)
-						return false;
-					expectingIdentifier = true;
-					break;
-				case TerminalTokens.TokenNameIdentifier :
-					if (!expectingIdentifier)
-						return false;
-					expectingIdentifier = false;
-					break;
-				case TerminalTokens.TokenNameCOMMA :
-					if (expectingIdentifier)
-						return false;
-					expectingIdentifier = true;
-					break;
 				case TerminalTokens.TokenNameLESS :
-					int oldDepth = state.depth;
-					state.depth++;
-					if(checkTypeArgument(scanner, state)) {
-						if(state.depth < oldDepth) {
-							return true;
-						}
-					} else {
-						return false;
-					}
+					depth++;
+					buffer.append(scanner.getCurrentTokenSource());
 					break;
 				case TerminalTokens.TokenNameGREATER :
-					state.depth--;
-					return state.depth >= 0;
-				case TerminalTokens.TokenNameRIGHT_SHIFT :
-					state.depth-=2;
-					return state.depth >= 0;
-				case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT :
-					state.depth-=3;
-					return state.depth >= 0;
-				case TerminalTokens.TokenNameQUESTION :	
-					token = scanner.getNextToken();
-					if(token != TerminalTokens.TokenNameextends &&
-							token != TerminalTokens.TokenNamesuper) {
-						return false;
-					}
-					
-					token = scanner.getNextToken();
-					if(token != TerminalTokens.TokenNameIdentifier)
-						return false;
-					
-					expectingIdentifier = false;
+					depth--;
+					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				default:
-					return false;
+				case TerminalTokens.TokenNameRIGHT_SHIFT :
+					depth-=2;
+					buffer.append(scanner.getCurrentTokenSource());
+					break;
+				case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT :
+					depth-=3;
+					buffer.append(scanner.getCurrentTokenSource());
+					break;
+				case TerminalTokens.TokenNameextends :
+				case TerminalTokens.TokenNamesuper :
+					buffer.append(' ');
+					buffer.append(scanner.getCurrentTokenSource());
+					buffer.append(' ');
+					break;
+				case TerminalTokens.TokenNameCOMMA :
+					if(depth == 1) {
+						int length = buffer.length();
+						char[] typeRef = new char[length];
+						buffer.getChars(0, length, typeRef, 0);
+						try {
+							Signature.createTypeSignature(typeRef, true);
+							buffer = new StringBuffer();
+						} catch(IllegalArgumentException e) {
+							return false;
+						}
+					}
+					break;
+				default :
+					buffer.append(scanner.getCurrentTokenSource());
+					break;
+				
 			}
-		} while (token != TerminalTokens.TokenNameEOF);
+			if(depth < 0) {
+				return false;
+			}
+		} while (depth != 0 && token != TerminalTokens.TokenNameEOF);
+		
+		if(depth == 0) {
+			int length = buffer.length() - 1;
+			char[] typeRef = new char[length];
+			buffer.getChars(0, length, typeRef, 0);
+			try {
+				Signature.createTypeSignature(typeRef, true);
+				return true;
+			} catch(IllegalArgumentException e) {
+				return false;
+			}
+		}
 		
 		return false;
 	}

@@ -1669,4 +1669,26 @@ public void test0075() throws JavaModelException {
 		elements
 	);
 }
+public void test0076() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0076/Test.java",
+			"package test0076;\n" +
+			"public class Test<T> {\n" +
+			"  public class Inner<U, V> {\n" +
+			"  }\n" +
+			"  Test<? super String>.Inner<int[][], Test<String[]>> var;\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "Inner";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Inner key=Ltest0076/Test<-Ljava/lang/String;>.Inner<[[ILtest0076/Test<[Ljava/lang/String;>;>; [in Test [in [Working copy] Test.java [in test0076 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
 }
