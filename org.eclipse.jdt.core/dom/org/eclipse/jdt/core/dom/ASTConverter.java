@@ -994,9 +994,6 @@ class ASTConverter {
 		if (expression.initializer != null) {
 			arrayCreation.setInitializer(convert(expression.initializer));
 		}
-		if (expression.initializer != null) {
-			arrayCreation.setInitializer(convert(expression.initializer));
-		}
 		return arrayCreation;
 	}
 
