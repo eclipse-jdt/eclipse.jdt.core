@@ -532,9 +532,24 @@ public class TestingEnvironment {
 	*/
 	private void handleCoreException(CoreException e) {
 		e.printStackTrace();
+		IStatus status = e.getStatus();
+		String message = e.getMessage();
+		if (status.isMultiStatus()) {
+			MultiStatus multiStatus = (MultiStatus) status;
+			IStatus[] children = multiStatus.getChildren();
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0, max = children.length; i < max; i++) {
+				IStatus child = children[i];
+				if (child != null) {
+					buffer.append(child.getMessage());
+					buffer.append(System.getProperty("line.separator"));//$NON-NLS-1$
+				}
+			}
+			message = String.valueOf(buffer);
+		}
 		Assert.isTrue(
 			false,
-			"Core exception in testing environment: " + e.getMessage()); //$NON-NLS-1$
+			"Core exception in testing environment: " + message); //$NON-NLS-1$
 	}
 
 	/** Incrementally builds the workspace.  A workspace must be
