@@ -123,6 +123,38 @@ public final class AST {
 	}
 
 	/**
+	 * Internal method.
+	 * <p>
+	 * This method converts the given internal compiler AST for the given source string
+	 * into a compilation unit. This method is not intended to be called by clients.
+	 * </p>
+	 * 
+	 * @param unit an internal AST node for a compilation unit declaration
+	 * @param source the string of the Java compilation unit
+	 * @param options compiler options
+	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 *     or <code>null</code> if none
+	 * @return the compilation unit node
+	 */
+	public static CompilationUnit convertCompilationUnit(
+		org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
+		char[] source,
+		Map options,
+		IProgressMonitor monitor) {
+		
+		ASTConverter converter = new ASTConverter(options, true, monitor);
+		AST ast = new AST();
+		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+		ast.setBindingResolver(resolver);
+		converter.setAST(ast);
+	
+		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
+		cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		resolver.storeModificationCount(ast.modificationCount());
+		return cu;
+	}
+
+	/**
 	 * Creates a new, empty abstract syntax tree using the given options.
 	 * <p>
 	 * Following option keys are significant:

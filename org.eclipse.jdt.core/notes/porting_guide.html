@@ -208,11 +208,11 @@ we recommend dealing with both at the same time. The detail</p>
           <li>The equivalent functionality is now provided on ICompilationUnit
             directly:
             <ul>
-              <li>public void reconcile(boolean,IProgressMonitor)</li>
+              <li>public void reconcile(boolean,boolean,WorkingCopyOwner,IProgressMonitor)</li>
             </ul>
           </li>
           <li>Replace wc.reconcile() with ((ICompilationUnit)
-            wc).reconcile(false, null)</li>
+            wc).reconcile(false,false,null,null)</li>
           <li>Note: The former method always returned null; the replacement
             method does not return a result.</li>
         </ul>
@@ -221,7 +221,7 @@ we recommend dealing with both at the same time. The detail</p>
         <ul>
           <li>The method is now declared on ICompilationUnit directly.</li>
           <li>Replace wc.reconcile(b,monitor) with ((ICompilationUnit)
-            wc).reconcile(b.monitor)</li>
+            wc).reconcile(false,b,null,monitor)</li>
         </ul>
       </li>
       <li>public void restore() has been deprecated.

@@ -82,6 +82,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
@@ -94,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0520"));
+		suite.addTest(new ASTConverterTest2("test0538d"));
 		return suite;
 	}
 	/**
@@ -4134,5 +4135,103 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0537", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
 		assertNotNull("No compilation unit", result);
+	}
+	/*
+	 * Ensures that an AST can be created during reconcile.
+	 */
+	public void test0538a() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			sourceUnit.becomeWorkingCopy(null, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  int i;\n" +
+				"}"
+			);
+			CompilationUnit unit = sourceUnit.reconcile(true, false, null, null);
+			assertNotNull("No compilation unit", unit);
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
+	/*
+	 * Ensures that no AST is created during reconcile if not requested.
+	 */
+	public void test0538b() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			sourceUnit.becomeWorkingCopy(null, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  int i;\n" +
+				"}"
+			);
+			CompilationUnit unit = sourceUnit.reconcile(false, false, null, null);
+			assertNull("Unexpected compilation unit", unit);
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
+	/*
+	 * Ensures that no AST is created during reconcile if consistent.
+	 */
+	public void test0538c() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			sourceUnit.becomeWorkingCopy(null, null);
+			CompilationUnit unit = sourceUnit.reconcile(true, false, null, null);
+			assertNull("Unexpected compilation unit", unit);
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
+	/*
+	 * Ensures that bindings are created during reconcile if the problem requestor is active.
+	 */
+	public void test0538d() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  Object field;\n" +
+				"}"
+			);
+			CompilationUnit unit = sourceUnit.reconcile(true, false, null, null);
+			ASTNode node = getASTNode(unit, 0, 0);
+			assertNotNull("No node", node);
+			assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+			FieldDeclaration declaration = (FieldDeclaration) node;
+			Type type = declaration.getType();
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertNotNull("No type binding", typeBinding); 
+			assertEquals("Wrong name", "Object", typeBinding.getName());
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
+	/*
+	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
+	 */
+	public void test0538e() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			CompilationUnit unit = sourceUnit.reconcile(true, true/*force pb detection*/, null, null);
+			ASTNode node = getASTNode(unit, 0);
+			assertNotNull("No node", node);
+			assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+			TypeDeclaration declaration = (TypeDeclaration) node;
+			ITypeBinding typeBinding = declaration.resolveBinding();
+			assertNotNull("No type binding", typeBinding); 
+			assertEquals("Wrong name", "A", typeBinding.getName());
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
 	}
 }
