@@ -1224,9 +1224,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
-					if (i != max - 1) {
-						this.scribe.printNewLine();
-					}
+					this.scribe.printNewLine();
 				}
 				ok = true;
 			} catch(AlignmentException e){
@@ -2672,6 +2670,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamestatic);
 		}
 		initializer.block.traverse(this, scope);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 

@@ -284,6 +284,7 @@ public class Scribe {
 				this.scanner.resetTo(lineStartPosition, this.scannerEndPosition - 1);
 				String reduceLine = null;
 				try {
+					// TODO need investigation in term of edits
 					if (this.scanner.getNextToken() == ITerminalSymbols.TokenNameWHITESPACE) {
 						int begin = this.scanner.getCurrentTokenEndPosition() + 1 - lineStartPosition;
 						if (begin < lineContents.length()) {
@@ -334,6 +335,7 @@ public class Scribe {
 			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(this.currentToken) {
 					case ITerminalSymbols.TokenNameWHITESPACE :
+						// TODO add a replace edit
 						int count = 0;
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
@@ -501,6 +503,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameWHITESPACE :
+						// TODO add a remove edit
 					    currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default:
@@ -623,6 +626,7 @@ public class Scribe {
 					case ITerminalSymbols.TokenNameEOF :
 						return;
 					case ITerminalSymbols.TokenNameWHITESPACE :
+						// TODO add a remove edit
 						break;
 					default: 
 						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
@@ -659,6 +663,7 @@ public class Scribe {
 			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(this.currentToken) {
 					case ITerminalSymbols.TokenNameWHITESPACE :
+						// add a replace edit
 						int count = 0;
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
