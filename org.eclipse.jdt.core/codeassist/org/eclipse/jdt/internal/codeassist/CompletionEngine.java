@@ -59,7 +59,6 @@ public final class CompletionEngine
 	boolean assistNodeIsException;
 	boolean assistNodeIsInterface;
 	
-	AssistOptions options;
 	CompletionParser parser;
 	ICompletionRequestor requestor;
 	ProblemReporter problemReporter;
@@ -144,15 +143,13 @@ public final class CompletionEngine
 		ICompletionRequestor requestor,
 		Map settings) {
 
+		super(settings);
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
 
-		options = new AssistOptions(settings);
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-
 		problemReporter = new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-				compilerOptions,
+				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault()) {
 					public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 						if (problem.isError() && (problem.getID() & IProblem.Syntax) != 0) {
@@ -161,11 +158,11 @@ public final class CompletionEngine
 					}
 				});
 		this.parser =
-			new CompletionParser(problemReporter, compilerOptions.assertMode);
+			new CompletionParser(problemReporter, this.compilerOptions.assertMode);
 		this.lookupEnvironment =
-			new LookupEnvironment(this, compilerOptions, problemReporter, nameEnvironment);
+			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 		this.nameScanner =
-			new Scanner(false, false, false, compilerOptions.assertMode);
+			new Scanner(false, false, false, this.compilerOptions.assertMode);
 	}
 
 	/**
@@ -669,7 +666,7 @@ public final class CompletionEngine
 			topLevelType = topLevelType.getDeclaringType();
 		}
 		
-		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1); //$NON-NLS-1$
+		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1, this.compilerOptions.maxProblemsPerUnit); //$NON-NLS-1$
 	
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
@@ -744,7 +741,7 @@ public final class CompletionEngine
 			
 		actualCompletionPosition = prefix.length() + position - 1;
 			
-		CompilationResult fakeResult = new CompilationResult(fakeUnit, 1, 1);
+		CompilationResult fakeResult = new CompilationResult(fakeUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration fakeAST = parser.dietParse(fakeUnit, fakeResult, actualCompletionPosition);
 		
 		parseMethod(fakeAST, actualCompletionPosition);
@@ -780,7 +777,7 @@ public final class CompletionEngine
 			actualCompletionPosition = completionPosition - 1;
 			this.offset = offset;
 			// for now until we can change the UI.
-			CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
+			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, result, actualCompletionPosition);
 
 			//		boolean completionNodeFound = false;

@@ -16,7 +16,16 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-    <li> new </li>
+    <li> New compiler option added to control max number of problems reported on a unit. Default is 100. See <code>JavaCore#getDefaultOptions()</code> </li>
+    <pre>
+	 * COMPILER / Maximum number of problems reported per compilation unit
+	 *    Specify the maximum number of problems reported on each compilation unit.
+	 *     - option id:			"org.eclipse.jdt.core.compiler.maxProblemPerUnit"
+	 *     - possible values:	"<n>" where <n> is zero or a positive integer (if zero then all problems are reported).
+	 *     - default:			"100"
+    </pre>
+    <li>By default, the Java builder is now aborting build process on projects with classpath problems. This option can be disabled through the Java preferences:
+    Window&gt;Preferences&gt;Java&gt;Builder&gt;</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
