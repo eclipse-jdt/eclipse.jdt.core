@@ -8123,4 +8123,27 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Type mismatch: cannot convert from String to boolean\n" + 
 			"----------\n");	
 	}		
+	// 74544
+	public void test303() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public  class X {\n" + 
+				"  	public static void main(String[] args) {\n" + 
+				"  		Y<String> ys = new Y<String>();\n" + 
+				"	    Y<String>.Member m = ys.new Member();\n" + 
+				"	    m.foo();\n" + 
+				"  	}    \n" + 
+				"  }\n" + 
+				"  class Y<T> {\n" + 
+				"    class Member {\n" + 
+				"    	void foo(){\n" + 
+				"    		System.out.println(\"SUCCESS\");\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"\n",
+			},
+			"SUCCESS");	
+	}		
 }

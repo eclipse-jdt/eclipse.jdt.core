@@ -198,6 +198,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						typeIsConsistent = false;
 					}
 	   			    qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
+				} else {
+					qualifiedType = (qualifiedType != null && qualifiedType.isParameterizedType())
+													? scope.createParameterizedType(currentType, null, qualifiedType)
+													: currentType;
 				}
 			}
 		}
