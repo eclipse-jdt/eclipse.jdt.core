@@ -72,7 +72,7 @@ public interface IPackageFragmentRoot
 	 * do not exist yet. If the package fragment already exists, this
 	 * has no effect.
 	 *
-	 * For a descrption of the <code>force</code> flag, see <code>IFolder.create</code>.
+	 * For a description of the <code>force</code> flag, see <code>IFolder.create</code>.
 	 *
 	 * @exception JavaModelException if the element could not be created. Reasons include:
 	 * <ul>
