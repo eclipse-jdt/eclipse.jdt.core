@@ -61,15 +61,25 @@ private void deletePackageFragment(IPackageFragment frag)
 		}
 		deleteResources(actualNonJavaResources, fForce);
 		
-		// remove the folder if it is empty
-		IResource[] members;
+		// delete remaining files in this package (.class file in the case where Proj=src=bin)
+		IResource[] remaingFiles;
 		try {
-			members = ((IFolder) res).members();
+			remaingFiles = ((IFolder) res).members();
 		} catch (CoreException ce) {
 			throw new JavaModelException(ce);
 		}
-		if (members.length == 0) {
-			deleteEmptyPackageFragment(frag, fForce);
+		boolean isEmpty = true;
+		for (int i = 0, length = remaingFiles.length; i < length; i++) {
+			IResource file = remaingFiles[i];
+			if (file instanceof IFile) {
+				this.deleteResource(file, true);
+			} else {
+				isEmpty = false;
+			}
+		}
+		if (isEmpty) {
+			// delete recursively empty folders
+			deleteEmptyPackageFragment(frag, false);
 		}
 	}
 }
