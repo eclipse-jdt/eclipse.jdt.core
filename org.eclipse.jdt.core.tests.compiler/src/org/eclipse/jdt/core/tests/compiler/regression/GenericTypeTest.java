@@ -4133,4 +4133,19 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?\n" + 
 			"----------\n");
 	}		
+	public void test146() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.AbstractList;\n" + 
+				"public class X extends AbstractList {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    public int size() { return 0; }\n" + 
+				"    public Object get(int index) { return null; }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 }
