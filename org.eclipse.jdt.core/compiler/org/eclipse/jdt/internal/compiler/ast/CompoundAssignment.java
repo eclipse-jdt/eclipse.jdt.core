@@ -132,7 +132,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	return this.resolvedType = lhsType;
 }
 public boolean restrainUsageToNumericTypes(){
-	return false ;}
+	return false ;
+}
 public String toStringExpressionNoParenthesis() {
 
 	return 	lhs.toStringExpression() + " " + //$NON-NLS-1$
