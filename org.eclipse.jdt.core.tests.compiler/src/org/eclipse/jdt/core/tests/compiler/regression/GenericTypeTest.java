@@ -5757,5 +5757,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                     ^\n" + 
 			"Cannot use the parameterized type X<X<String>> either in catch block or throws clause\n" + 
 			"----------\n");
-	}		
+	}
+	// 63556 - should resolve all occurrences of A to type variable
+	// TODO (olivier) reenable once fixed
+	public void _test209() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<A,B,C extends java.util.List<A>> {}\n" + 
+				"class X2<A,C extends java.util.List<A>, B> {}\n" + 
+				"class X3<B, A,C extends java.util.List<A>> {}\n", 			
+			},
+			"");
+	}			
 }
