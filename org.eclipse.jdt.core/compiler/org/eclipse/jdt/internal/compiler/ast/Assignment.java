@@ -45,9 +45,7 @@ public class Assignment extends Expression {
 		LocalVariableBinding local = this.lhs.localVariableBinding();
 		int nullStatus = this.expression.nullStatus(flowInfo);
 		if (local != null && nullStatus == FlowInfo.NULL) {
-				if (flowInfo.isDefinitelyNull(local)) {
-					flowContext.recordUsingNullReference(currentScope, local, this.lhs, FlowInfo.NULL, flowInfo);
-				}
+				flowContext.recordUsingNullReference(currentScope, local, this.lhs, FlowInfo.NON_NULL, flowInfo);
 		}
 		flowInfo = ((Reference) lhs)
 			.analyseAssignment(currentScope, flowContext, flowInfo, this, false)

@@ -35,11 +35,7 @@ public class EqualExpression extends BinaryExpression {
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
-				if (flowInfo.isDefinitelyNonNull(local)) {
-					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NON_NULL, flowInfo);
-				} else if (flowInfo.isDefinitelyNull(local)) {
-					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
-				}
+				flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					initsWhenTrue.markAsDefinitelyNull(local); // from thereon it is set
 					initsWhenFalse.markAsDefinitelyNonNull(local); // from thereon it is set
@@ -49,9 +45,7 @@ public class EqualExpression extends BinaryExpression {
 				}
 				break;
 			case FlowInfo.NON_NULL :
-				if (flowInfo.isDefinitelyNull(local)) {
-					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
-				}
+				flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NON_NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set
 				}

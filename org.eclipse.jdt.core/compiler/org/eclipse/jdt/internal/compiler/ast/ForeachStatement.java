@@ -81,16 +81,18 @@ public class ForeachStatement extends Statement {
 
 		// process the element variable and collection
 		flowInfo = this.elementVariable.analyseCode(scope, flowContext, flowInfo);
-		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
+		FlowInfo condInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
+		condInfo = this.collection.analyseCode(scope, flowContext, condInfo);
 
 		// element variable will be assigned when iterating
-		flowInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
+		condInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
 
-		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(condInfo);
 		
 		// process the action
 		LoopingFlowContext loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
-		FlowInfo actionInfo = flowInfo.initsWhenTrue().copy();
+		FlowInfo actionInfo = condInfo.initsWhenTrue().copy();
+		FlowInfo exitBranch;
 		if (!(action == null || (action.isEmptyBlock() 
 		        	&& currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3))) {
 
@@ -99,13 +101,17 @@ public class ForeachStatement extends Statement {
 			}
 
 			// code generation can be optimized when no need to continue in the loop
+			exitBranch = condInfo.initsWhenFalse();
+			exitBranch.addInitializationsFrom(flowInfo); // recover null inits from before condition analysis			
 			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnDeferredChecks(scope, actionInfo);
-				flowInfo.initsWhenFalse().addPotentialInitializationsFrom(actionInfo.unconditionalInits());
+				exitBranch.addPotentialInitializationsFrom(actionInfo.unconditionalInits());
 			}
+		} else {
+			exitBranch = condInfo.initsWhenFalse();
 		}
 
 		// we need the variable to iterate the collection even if the 
@@ -129,7 +135,7 @@ public class ForeachStatement extends Statement {
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				loopingContext.initsOnBreak, 
 				false, 
-				flowInfo.initsWhenFalse(), 
+				exitBranch, 
 				false, 
 				true /*for(;;){}while(true); unreachable(); */);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);

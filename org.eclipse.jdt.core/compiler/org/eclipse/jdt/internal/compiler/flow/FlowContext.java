@@ -169,7 +169,8 @@ public class FlowContext implements TypeConstants {
 				
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 			if (traversedContext.associatedNode instanceof TryStatement){
-				flowInfo = flowInfo.copy().addInitializationsFrom(((TryStatement) traversedContext.associatedNode).subRoutineInits);
+				TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
+				flowInfo = flowInfo.copy().addInitializationsFrom(tryStatement.subRoutineInits);
 			}
 			traversedContext = traversedContext.parent;
 		}
@@ -267,7 +268,8 @@ public class FlowContext implements TypeConstants {
 
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 			if (traversedContext.associatedNode instanceof TryStatement){
-				flowInfo = flowInfo.copy().addInitializationsFrom(((TryStatement) traversedContext.associatedNode).subRoutineInits);
+				TryStatement tryStatement = (TryStatement) traversedContext.associatedNode;
+				flowInfo = flowInfo.copy().addInitializationsFrom(tryStatement.subRoutineInits);
 			}
 			traversedContext = traversedContext.parent;
 		}
@@ -466,6 +468,24 @@ public class FlowContext implements TypeConstants {
 
 		if (!flowInfo.isReachable()) return;
 
+		switch (status) {
+			case FlowInfo.NULL :
+				if (flowInfo.isDefinitelyNull(local)) {
+					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+					return;
+				} else if (flowInfo.isDefinitelyNonNull(local)) {
+					scope.problemReporter().localVariableCannotBeNull(local, reference);				
+					return;
+				}
+				break;
+			case FlowInfo.NON_NULL :
+				if (flowInfo.isDefinitelyNull(local)) {
+					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);				
+					return;
+				}
+				break;
+		}
+		
 		// for initialization inside looping statement that effectively loops
 		FlowContext context = this;
 		while (context != null) {
@@ -473,14 +493,6 @@ public class FlowContext implements TypeConstants {
 				return; // no need to keep going
 			}
 			context = context.parent;
-		}
-		switch (status) {
-			case FlowInfo.NULL :
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
-				break;
-			case FlowInfo.NON_NULL :
-				scope.problemReporter().localVariableCannotBeNull(local, reference);				
-				break;
 		}
 	}
 	

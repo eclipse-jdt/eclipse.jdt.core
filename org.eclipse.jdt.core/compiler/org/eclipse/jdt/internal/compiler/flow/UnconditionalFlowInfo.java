@@ -59,9 +59,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		potentialInits |= otherInits.potentialInits;
 	
 		// union of definitely null variables, 
-		definiteNulls |= otherInits.definiteNulls;
+		definiteNulls = (definiteNulls | otherInits.definiteNulls) & ~otherInits.definiteNonNulls;
 		// union of definitely non null variables,
-		definiteNonNulls |= otherInits.definiteNonNulls;
+		definiteNonNulls = (definiteNonNulls | otherInits.definiteNonNulls) & ~otherInits.definiteNulls;
+		// fix-up null/non-null infos since cannot overlap: <defN1:0,defNoN1:1>  + <defN2:1,defNoN2:0>  --> <defN:0,defNon:0>
 
 		// treating extra storage
 		if (extraDefiniteInits != null) {
@@ -72,27 +73,27 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
 					System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength]), 0, length);
 					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
-					while (i < length) {
+					for (; i < length; i++) {
 						extraDefiniteInits[i] |= otherInits.extraDefiniteInits[i];
 						extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
-						extraDefiniteNulls[i] |= otherInits.extraDefiniteNulls[i];
-						extraDefiniteNonNulls[i] |= otherInits.extraDefiniteNonNulls[i++];
+						extraDefiniteNulls[i] = (extraDefiniteNulls[i] | otherInits.extraDefiniteNulls[i]) & ~otherInits.extraDefiniteNonNulls[i];
+						extraDefiniteNonNulls[i] = (extraDefiniteNonNulls[i] | otherInits.extraDefiniteNonNulls[i]) & ~otherInits.extraDefiniteNulls[i];
 					}
-					while (i < otherLength) {
-						extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
+					for (; i < otherLength; i++) {
+						extraPotentialInits[i] = otherInits.extraPotentialInits[i];
 					}
 				} else {
 					// current storage is longer
-					while (i < otherLength) {
+					for (; i < otherLength; i++) {
 						extraDefiniteInits[i] |= otherInits.extraDefiniteInits[i];
 						extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
-						extraDefiniteNulls[i] |= otherInits.extraDefiniteNulls[i];
-						extraDefiniteNonNulls[i] |= otherInits.extraDefiniteNonNulls[i++];
+						extraDefiniteNulls[i] = (extraDefiniteNulls[i] | otherInits.extraDefiniteNulls[i]) & ~otherInits.extraDefiniteNonNulls[i];
+						extraDefiniteNonNulls[i] = (extraDefiniteNonNulls[i] | otherInits.extraDefiniteNonNulls[i]) & ~otherInits.extraDefiniteNulls[i];
 					}
-					while (i < length) {
+					for (; i < length; i++) {
 						extraDefiniteInits[i] = 0;
 						extraDefiniteNulls[i] = 0;
-						extraDefiniteNonNulls[i++] = 0;
+						extraDefiniteNonNulls[i] = 0;
 					}
 				}
 			} else {
@@ -273,6 +274,19 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return this;
 	}
 	
+	public UnconditionalFlowInfo discardNullRelatedInitializations(){
+		
+		this.definiteNulls = 0;
+		this.definiteNonNulls = 0;
+		
+		int length = this.extraDefiniteInits == null ? 0 : this.extraDefiniteInits.length;
+		for (int i = 0; i < length; i++) {
+			this.extraDefiniteNulls[i] = 0L;
+			this.extraDefiniteNonNulls[i] = 0L;
+		}
+		return this;
+	}
+
 	public FlowInfo initsWhenFalse() {
 		
 		return this;

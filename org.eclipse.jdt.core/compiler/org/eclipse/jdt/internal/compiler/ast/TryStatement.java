@@ -83,7 +83,7 @@ public class TryStatement extends SubRoutineStatement {
 					.analyseCode(
 						currentScope,
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
-						flowInfo.copy())
+						flowInfo.copy().unconditionalInits().discardNullRelatedInitializations())
 					.unconditionalInits();
 			if (subInfo == FlowInfo.DEAD_END) {
 				isSubRoutineEscaping = true;
@@ -129,6 +129,7 @@ public class TryStatement extends SubRoutineStatement {
 
 				// catch var is always set
 				LocalVariableBinding catchArg = catchArguments[i].binding;
+				FlowContext catchContext = insideSubContext == null ? flowContext : insideSubContext;
 				catchInfo.markAsDefinitelyAssigned(catchArg);
 				catchInfo.markAsDefinitelyNonNull(catchArg);
 				/*
@@ -138,15 +139,13 @@ public class TryStatement extends SubRoutineStatement {
 				"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
-				// TODO (philippe) should only tag as unreachable if the catchblock cannot be reached?
-				//??? if (!handlingContext.initsOnException(caughtExceptionTypes[i]).isReachable()){
 				if (tryBlock.statements == null) {
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
 				catchInfo =
 					catchBlocks[i].analyseCode(
 						currentScope,
-						insideSubContext == null ? flowContext : insideSubContext,
+						catchContext,
 						catchInfo);
 				catchExits[i] = !catchInfo.isReachable();
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());

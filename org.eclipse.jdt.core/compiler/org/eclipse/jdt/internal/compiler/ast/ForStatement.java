@@ -83,14 +83,15 @@ public class ForStatement extends Statement {
 		
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
+		FlowInfo condInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
 		if (condition != null) {
 			if (!isConditionTrue) {
-				flowInfo =
+				condInfo =
 					condition.analyseCode(
 						scope,
 						(condLoopContext =
 							new LoopingFlowContext(flowContext, this, null, null, scope)),
-						flowInfo);
+						condInfo);
 			}
 		}
 
@@ -100,28 +101,28 @@ public class ForStatement extends Statement {
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
 			if (condLoopContext != null)
-				condLoopContext.complainOnDeferredChecks(scope, flowInfo);
+				condLoopContext.complainOnDeferredChecks(scope, condInfo);
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;
 			} else {
 				if (isConditionFalse){
 					continueLabel = null; // for(;false;p());
 				}
-				actionInfo = flowInfo.initsWhenTrue().copy();
+				actionInfo = condInfo.initsWhenTrue().copy().unconditionalInits().discardNullRelatedInitializations();
 				loopingContext =
 					new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
 			}
 		} else {
 			loopingContext =
 				new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
-			FlowInfo initsWhenTrue = flowInfo.initsWhenTrue();
+			FlowInfo initsWhenTrue = condInfo.initsWhenTrue();
 			condIfTrueInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(initsWhenTrue);
 
 				if (isConditionFalse) {
 					actionInfo = FlowInfo.DEAD_END;
 				} else {
-					actionInfo = initsWhenTrue.copy();
+					actionInfo = initsWhenTrue.copy().unconditionalInits().discardNullRelatedInitializations();
 					if (isConditionOptimizedFalse){
 						actionInfo.setReachMode(FlowInfo.UNREACHABLE);
 					}
@@ -135,13 +136,14 @@ public class ForStatement extends Statement {
 				continueLabel = null;
 			} else {
 				if (condLoopContext != null)
-					condLoopContext.complainOnDeferredChecks(scope, flowInfo);
+					condLoopContext.complainOnDeferredChecks(scope, condInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnDeferredChecks(scope, actionInfo);
 			}
 		}
 		// for increments
-		FlowInfo exitBranch = flowInfo.initsWhenFalse();
+		FlowInfo exitBranch = condInfo.initsWhenFalse();
+		exitBranch.addInitializationsFrom(flowInfo); // recover null inits from before condition analysis
 		if (continueLabel != null) {
 			if (increments != null) {
 				LoopingFlowContext loopContext =

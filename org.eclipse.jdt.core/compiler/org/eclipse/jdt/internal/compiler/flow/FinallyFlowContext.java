@@ -87,30 +87,31 @@ public class FinallyFlowContext extends FlowContext {
 				case FlowInfo.NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
 						nullReferences[i] = null;
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						this.parent.recordUsingNullReference(scope, local, expression, nullStatus[i], flowInfo);
 					}
 					break;
 				case FlowInfo.NON_NULL :
 					if (flowInfo.isDefinitelyNonNull(local)) {
 						nullReferences[i] = null;
-						scope.problemReporter().localVariableCannotBeNull(local, expression);
+						this.parent.recordUsingNullReference(scope, local, expression, nullStatus[i], flowInfo);
 					}
 					break;
 			}
 		}
 	}
-
+	
 	public String individualToString() {
 		
 		StringBuffer buffer = new StringBuffer("Finally flow context"); //$NON-NLS-1$
-		buffer.append("[finalAssignments count -").append(assignCount).append(']'); //$NON-NLS-1$
+		buffer.append("[finalAssignments count - ").append(assignCount).append(']'); //$NON-NLS-1$
+		buffer.append("[nullReferences count - ").append(nullCount).append(']'); //$NON-NLS-1$
 		return buffer.toString();
 	}
 	
 	public boolean isSubRoutine() {
 		return true;
 	}
-
+	
 	protected boolean recordFinalAssignment(
 		VariableBinding binding,
 		Reference finalAssignment) {
