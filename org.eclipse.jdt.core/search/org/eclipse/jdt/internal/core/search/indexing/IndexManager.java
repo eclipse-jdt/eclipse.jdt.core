@@ -67,9 +67,6 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	/* projects to check consistency for */
 	IProject[] projectsToCheck = null;
 
-	static String IsRunning = "IndexerIsRunning"; //$NON-NLS-1$
-	private File isRunningLock;
-
 /**
  * Before processing all jobs, need to ensure that the indexes are up to date.
  */
@@ -146,11 +143,6 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
  * it is invoked in background when activate the job processing.
  */
 public void checkIndexConsistency() {
-	if (isRunningLock == null) {
-		File fileLock = new File(getJavaPluginWorkingLocation().toFile(), IsRunning);
-		if (!fileLock.exists()) return; // can skip it since the IndexManager was in a safe state
-		isRunningLock = fileLock;
-	}
 
 	if (VERBOSE) JobManager.verbose("STARTING ensuring consistency"); //$NON-NLS-1$
 
@@ -375,16 +367,6 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
 	this.request(new RemoveFolderFromIndex(sourceFolder.toString(), javaProject.getProject().getFullPath(), this));
 }
 
-public synchronized void request(IJob job) {
-	if (isRunningLock == null && jobEnd < jobStart) {// queue is empty, create a temp file so we know the IndexManager was busy
-		try {
-			(isRunningLock = new File(getJavaPluginWorkingLocation().toFile(), IsRunning)).createNewFile();
-		} catch (IOException ignored) {
-		}
-	}
-	super.request(job);
-}
-
 /**
  * Flush current state
  */
@@ -457,9 +439,6 @@ public void saveIndexes(){
 		}
 	}
 	needToSave = false;
-	// remove the nugget since all the indexes have been saved
-	if (isRunningLock != null)
-		isRunningLock.delete();
 }
 
 public void shutdown() {
