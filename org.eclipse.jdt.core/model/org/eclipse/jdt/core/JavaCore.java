@@ -557,49 +557,54 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION,
+	 * DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, 
+	 * DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION,
+	 * DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION,
+	 * DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH,
+	 * DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION instead
 	 */
 	public static final String FORMATTER_NEWLINE_OPENING_BRACE = PLUGIN_ID + ".formatter.newline.openingBrace"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS instead.
 	 */
 	public static final String FORMATTER_NEWLINE_CONTROL = PLUGIN_ID + ".formatter.newline.controlStatement"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF instead
 	 */
 	public static final String FORMATTER_NEWLINE_ELSE_IF = PLUGIN_ID + ".formatter.newline.elseIf"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK instead
 	 */
 	public static final String FORMATTER_NEWLINE_EMPTY_BLOCK = PLUGIN_ID + ".formatter.newline.emptyBlock"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE instead
 	 */
 	public static final String FORMATTER_CLEAR_BLANK_LINES = PLUGIN_ID + ".formatter.newline.clearAll"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT instead
 	 */
 	public static final String FORMATTER_LINE_SPLIT = PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR instead
 	 */
 	public static final String FORMATTER_COMPACT_ASSIGNMENT = PLUGIN_ID + ".formatter.style.assignment"; //$NON-NLS-1$
 	/**
@@ -620,7 +625,7 @@ public final class JavaCore extends Plugin {
 	 * Possible configurable option ID
 	 * @see #getDefaultOptions()
 	 * @since 2.1
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST instead
 	 */
 	public static final String FORMATTER_SPACE_CASTEXPRESSION = PLUGIN_ID + ".formatter.space.castexpression"; //$NON-NLS-1$
 	/**
