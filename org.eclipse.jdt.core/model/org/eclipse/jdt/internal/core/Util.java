@@ -1071,13 +1071,20 @@ public static String bind(String id, String binding1, String binding2) {
 	 * Returns whether the given compilation unit or package fragment is exluded from its classpath.
 	 * All other types of element are considered non-excluded.	 */
 	public static final boolean isExcluded(IJavaElement element) {
-		switch (element.getElementType()) {
+		int elementType = element.getElementType();
+		switch (elementType) {
 			case IJavaElement.PACKAGE_FRAGMENT:
 			case IJavaElement.COMPILATION_UNIT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				char[][] exclusionPatterns = root.getExclusionPatterns();
 				IResource resource = element.getResource();
-				return resource != null && Util.isExcluded(resource, exclusionPatterns);
+				if (resource != null && Util.isExcluded(resource, exclusionPatterns)) {
+					return true;
+				} else if (elementType == IJavaElement.COMPILATION_UNIT) {
+					return isExcluded(element.getParent());
+				} else {
+					return false;
+				}
 			default:
 				return false;
 		}
