@@ -15,6 +15,8 @@ public interface IBufferFactory {
 
 	/**
 	 * Creates a buffer for the given owner.
+	 * The new buffer must be initialized with the expected contents
+	 * for the owner.
 	 * 
 	 * @param owner the owner of the buffer
 	 */
