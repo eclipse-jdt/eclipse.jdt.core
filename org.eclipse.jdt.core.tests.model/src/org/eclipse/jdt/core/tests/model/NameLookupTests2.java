@@ -128,6 +128,47 @@ public void testAddPackageFragment2() throws CoreException {
 	}
 }
 /*
+ * Ensures that a NameLookup can be created with working copies that contain duplicate types
+ * (regression test for bug 63245 findPackageFragment won't return default package)
+ */
+public void testDuplicateTypesInWorkingCopies() throws CoreException {
+	ICompilationUnit[] workingCopies = new ICompilationUnit[3];
+	try {
+		JavaProject project = (JavaProject)createJavaProject("P");
+		workingCopies[0] = getWorkingCopy(
+			"/P/X.java", 
+			"public class X {\n" +
+			"}\n" +
+			"class Other {\n" +
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy(
+			"/P/Y.java", 
+			"public class Y {\n" +
+			"}\n" +
+			"class Other {\n" +
+			"}"
+		);
+		workingCopies[2] = getWorkingCopy(
+			"/P/Z.java", 
+			"public class Z {\n" +
+			"}\n" +
+			"class Other {\n" +
+			"}"
+		);
+		NameLookup nameLookup = project.newNameLookup(workingCopies);
+		IType type = nameLookup.findType("Other", false, NameLookup.ACCEPT_ALL); // TODO (jerome) should use seekTypes
+		assertTypesEqual(
+			"Unepexted types",
+			"Other\n",
+			new IType[] {type}
+		);
+	} finally {
+		discardWorkingCopies(workingCopies);
+		deleteProject("P");
+	}
+}
+/*
  * Find a default package fragment in a non-default root by its path.
  * (regression test for bug 63245 findPackageFragment won't return default package)
  */

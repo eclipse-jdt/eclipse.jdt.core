@@ -1241,6 +1241,28 @@ protected void assertDeltas(String message, String expected) {
 	public String getSourceWorkspacePath() {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
+	public ICompilationUnit getWorkingCopy(String path, boolean computeProblems) throws JavaModelException {
+		return getWorkingCopy(path, "", computeProblems);
+	}	
+	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+		return getWorkingCopy(path, source, false/*don't compute problems*/);
+	}	
+	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
+		IProblemRequestor problemRequestor = computeProblems
+			? new IProblemRequestor() {
+				public void acceptProblem(IProblem problem) {}
+				public void beginReporting() {}
+				public void endReporting() {}
+				public boolean isActive() {
+					return true;
+				}
+			} 
+			: null;
+		ICompilationUnit workingCopy = getCompilationUnit(path).getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null/*no progress monitor*/);
+		workingCopy.getBuffer().setContents(source);
+		workingCopy.makeConsistent(null/*no progress monitor*/);
+		return workingCopy;
+	}
 	/**
 	 * Returns the IWorkspace this test suite is running on.
 	 */
@@ -1250,6 +1272,13 @@ protected void assertDeltas(String message, String expected) {
 	public IWorkspaceRoot getWorkspaceRoot() {
 		return getWorkspace().getRoot();
 	}
+	protected void discardWorkingCopies(ICompilationUnit[] workingCopies) throws JavaModelException {
+		if (workingCopies == null) return;
+		for (int i = 0, length = workingCopies.length; i < length; i++)
+			if (workingCopies[i] != null)
+				workingCopies[i].discardWorkingCopy();
+	}
+	
 	protected String displayString(String toPrint, int indent) {
     	char[] toDisplay = 
     		CharOperation.replace(

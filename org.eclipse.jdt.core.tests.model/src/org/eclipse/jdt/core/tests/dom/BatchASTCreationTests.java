@@ -177,12 +177,6 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		return workingCopies;
 	}
 	
-	private void discardWorkingCopies(ICompilationUnit[] workingCopies) throws JavaModelException {
-		if (workingCopies == null) return;
-		for (int i = 0, length = workingCopies.length; i < length; i++)
-			workingCopies[i].discardWorkingCopy();
-	}
-	
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
 		resolveASTs(cus, new String[0], requestor);
 	}

@@ -157,7 +157,7 @@ public class NameLookup implements SuffixConstants {
 							IType[] existingTypes = (IType[]) existing;
 							int existingTypeLength = existingTypes.length;
 							System.arraycopy(existingTypes, 0, existingTypes = new IType[existingTypeLength+1], 0, existingTypeLength);
-							existingTypes[length] = type;
+							existingTypes[existingTypeLength] = type;
 							typeMap.put(typeName, existingTypes);
 						}
 					}
