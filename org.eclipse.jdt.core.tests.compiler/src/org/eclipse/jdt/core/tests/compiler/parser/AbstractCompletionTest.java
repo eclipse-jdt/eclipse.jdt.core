@@ -48,6 +48,28 @@ public void checkDietParse(
 	String expectedCompletionIdentifier,
 	String expectedReplacedSource,
 	String testName) {
+	this.checkDietParse(
+		source, 
+		cursorLocation, 
+		expectedCompletion,
+		null,
+		expectedUnitToString,
+		expectedCompletionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+/*
+ * DietParse with completionNode check
+ */
+public void checkDietParse(
+	char[] source, 
+	int cursorLocation, 
+	String expectedCompletion, 
+	String expectedParentCompletion,
+	String expectedUnitToString, 
+	String expectedCompletionIdentifier,
+	String expectedReplacedSource,
+	String testName) {
 
 	CompilerOptions options = new CompilerOptions();
 	CompletionParser parser = 
@@ -66,6 +88,9 @@ public void checkDietParse(
 	String computedCompletion = parser.assistNode == null 
 									? NONE
 									: parser.assistNode.toString(0);
+	String computedParentCompletion = parser.assistNodeParent == null 
+								? NONE
+								: parser.assistNodeParent.toString(0);
 	String computedUnitToString = unit.toString();
 	//System.out.println(computedUnitToString);
 	//System.out.println(Util.displayString(computedUnitToString));
@@ -75,6 +100,13 @@ public void checkDietParse(
 		"invalid completion node-" + testName,
 		expectedCompletion,
 		computedCompletion);
+	
+	if(expectedParentCompletion != null) {
+		assertEquals(
+		"invalid completion parent node-" + testName,
+		expectedParentCompletion,
+		computedParentCompletion);
+	}
 
 	assertEquals(
 		"invalid completion tree-" + testName,
@@ -89,6 +121,7 @@ public void checkDietParse(
 			expectedCompletionIdentifier,
 			computedCompletionIdentifier);
 	}
+	
 	if (expectedReplacedSource != null){
 		char[] chars = null;
 		if (parser.assistNode != null){
@@ -121,6 +154,7 @@ public void checkMethodParse(
 		char[] source, 
 		int cursorLocation, 
 		String expectedCompletion, 
+		String expectedParentCompletion,
 		String expectedUnitToString, 
 		String expectedCompletionIdentifier, 
 		String expectedReplacedSource,
@@ -175,6 +209,9 @@ public void checkMethodParse(
 	String computedCompletion = parser.assistNode == null 
 								? NONE
 								: parser.assistNode.toString(0);
+	String computedParentCompletion = parser.assistNodeParent == null 
+								? NONE
+								: parser.assistNodeParent.toString(0);
 	String computedUnitToString = unit.toString();
 	//System.out.println(computedUnitToString);
 	//System.out.println(Util.displayString(computedUnitToString));
@@ -184,6 +221,13 @@ public void checkMethodParse(
 		"invalid completion node-" + testName,
 		expectedCompletion,
 		computedCompletion);
+		
+	if(expectedParentCompletion != null) {
+		assertEquals(
+		"invalid completion parent node-" + testName,
+		expectedParentCompletion,
+		computedParentCompletion);
+	}
 
 	assertEquals(
 		"invalid completion location-"+testName,
@@ -252,11 +296,60 @@ public void checkMethodParse(
 	this.checkMethodParse(
 		source, 
 		cursorLocation, 
-		expectedCompletion, 
+		expectedCompletion,
+		null,
 		expectedUnitToString,
 		expectedCompletionIdentifier,
 		expectedReplacedSource,
 		null,
+		testName);
+}
+/*
+ * Parse a method with completionNode check
+ */
+public void checkMethodParse(
+		char[] source, 
+		int cursorLocation, 
+		String expectedCompletion,
+		String expectedParentCompletion, 
+		String expectedUnitToString, 
+		String expectedCompletionIdentifier, 
+		String expectedReplacedSource, 
+		String testName) {
+
+	this.checkMethodParse(
+		source, 
+		cursorLocation, 
+		expectedCompletion,
+		expectedParentCompletion,
+		expectedUnitToString,
+		expectedCompletionIdentifier,
+		expectedReplacedSource,
+		null,
+		testName);
+}
+/*
+ * Parse a method with completionNode check
+ */
+public void checkMethodParse(
+		char[] source, 
+		int cursorLocation, 
+		String expectedCompletion, 
+		String expectedUnitToString, 
+		String expectedCompletionIdentifier, 
+		String expectedReplacedSource,
+		String[] expectedLabels,
+		String testName) {
+		
+	this.checkMethodParse(
+		source, 
+		cursorLocation, 
+		expectedCompletion,
+		null,
+		expectedUnitToString,
+		expectedCompletionIdentifier,
+		expectedReplacedSource,
+		expectedLabels,
 		testName);
 }
 /*
