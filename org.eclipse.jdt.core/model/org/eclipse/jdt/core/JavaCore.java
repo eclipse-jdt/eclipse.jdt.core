@@ -288,7 +288,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (project == null) {
 			return null;
 		}
-		JavaModel javaModel = JavaModelManager.getJavaModel(project.getWorkspace());
+		JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 		return javaModel.getJavaProject(project);
 	}
 	/**
@@ -319,7 +319,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (root == null) {
 			return null;
 		}
-		return JavaModelManager.getJavaModel(root.getWorkspace());
+		return JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 	/**
 	 * Creates and returns a class file element for
@@ -458,7 +458,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private IJavaProject getJavaProject(IProject project) {
 		try {
 			if (project.hasNature(NATURE_ID)) {
-				JavaModel model = JavaModelManager.getJavaModel(project.getWorkspace());
+				JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 				if (model != null) {
 					return model.getJavaProject(project);
 				}

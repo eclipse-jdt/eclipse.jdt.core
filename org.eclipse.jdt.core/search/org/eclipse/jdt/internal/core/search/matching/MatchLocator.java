@@ -635,7 +635,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 				PackageDeclarationPattern pkgPattern =
 					(PackageDeclarationPattern) searchPattern;
 				IJavaProject[] projects =
-					JavaModelManager.getJavaModel(workspace).getJavaProjects();
+					JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 				for (int i = 0, length = projects.length; i < length; i++) {
 					IJavaProject javaProject = projects[i];
 					IPackageFragmentRoot[] roots = javaProject.getPackageFragmentRoots();

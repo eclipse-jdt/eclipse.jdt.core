@@ -88,7 +88,7 @@ public Object getInfo(IJavaElement element) {
  * Returns the handle to the active Java Model, or <code>null</code> if there
  * is no active Java Model.
  */
-public IJavaModel getJavaModel() {
+public JavaModel getJavaModel() {
 	if (this.modelInfo == null) {
 		return null;
 	} else {

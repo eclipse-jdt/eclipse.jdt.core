@@ -746,7 +746,7 @@ private JavaModelException newInvalidElementType() {
 
 		try {
 			this.currentEventType = eventType;
-			IJavaModel model = JavaModelManager.getJavaModel(ResourcesPlugin.getWorkspace());
+			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 			if (!model.isOpen()) {
 				// force opening of java model so that java element delta are reported
 				try {

@@ -618,11 +618,7 @@ public void doneSaving(ISaveContext context){
 		if (memento == null) {
 			return null;
 		}
-		IWorkspace workspace= ResourcesPlugin.getWorkspace();
-		if (workspace == null) {
-			return null;
-		}
-		JavaModel model= (JavaModel) getJavaModel(workspace);
+		JavaModel model= (JavaModel) getJavaModel();
 		if (memento.equals("")){ // workspace memento //$NON-NLS-1$
 			return model;
 		}
@@ -689,39 +685,14 @@ public void doneSaving(ISaveContext context){
 		return this.cache.getInfo(element);
 	}
 	/**
-	 * Returns the handle to the active Java Model, or <code>null</code> if there
-	 * is no active Java Model.
+	 * Returns the handle to the active Java Model.
 	 */
-	public IJavaModel getJavaModel() {
-		return this.cache.getJavaModel();
-	}
-	/**
-	 * Returns the JavaModel for the given workspace, creating
-	 * it if it does not yet exist.
-	 */
-	public static JavaModel getJavaModel(IWorkspace workspace) {
-		JavaModelCache modelCache = getJavaModelManager().cache;
-		IJavaModel javaModel = modelCache.getJavaModel();
-		if (javaModel != null) {
-			// if the current java model corresponds to a different workspace,
-			// try to close it
-			JavaModelInfo modelInfo = (JavaModelInfo) modelCache.getInfo(javaModel);
-			if (!modelInfo.workspace.equals(workspace)) {
-				try {
-					javaModel.close();
-					javaModel = null;
-				} catch (JavaModelException e) {
-					Assert.isTrue(false, Util.bind("element.onlyOneJavaModel")); //$NON-NLS-1$
-					return null;
-				}
-			}
+	public JavaModel getJavaModel() {
+		JavaModel javaModel = this.cache.getJavaModel();
+		if (javaModel == null){
+			javaModel = new JavaModel(ResourcesPlugin.getWorkspace());
 		}
-		if (javaModel == null) {
-			return new JavaModel(workspace);
-		} else {
-			return (JavaModel)javaModel;
-		}
-
+		return javaModel;
 	}
 	/**
 	 * Returns the singleton JavaModelManager

@@ -33,7 +33,7 @@ public class JavaModelInfo extends OpenableElementInfo {
 	/**
 	 * Backpointer to my Java Model handle
 	 */
-	protected IJavaModel fJavaModel= null;
+	protected JavaModel fJavaModel= null;
 
 	/**
 	 * The workspace this Java Model Info corresponds to
@@ -43,7 +43,7 @@ public class JavaModelInfo extends OpenableElementInfo {
 /**
  * Constructs a new Java Model Info 
  */
-protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
+protected JavaModelInfo(JavaModel javaModel, IWorkspace workspace) {
 	this.workspace = workspace;
 	this.fJavaModel= javaModel;
 }
@@ -51,7 +51,7 @@ protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
 /**
  * Returns the Java Model for this info.
  */
-protected IJavaModel getJavaModel() {
+protected JavaModel getJavaModel() {
 	return fJavaModel;
 }
 }

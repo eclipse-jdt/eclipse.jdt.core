@@ -1855,7 +1855,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 	public void setProject(IProject project) {
 
 		fProject = project;
-		fParent = JavaModelManager.getJavaModel(project.getWorkspace());
+		fParent = JavaModelManager.getJavaModelManager().getJavaModel();
 		fName = project.getName();
 	}
 

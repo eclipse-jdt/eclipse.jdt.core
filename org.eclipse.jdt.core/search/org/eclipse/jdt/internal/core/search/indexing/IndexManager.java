@@ -262,7 +262,7 @@ public void indexAll(IProject project) {
 	// Also request indexing of binaries on the classpath
 	// determine the new children
 	try {
-		IJavaModel model = JavaModelManager.getJavaModel(this.workspace);
+		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		IJavaProject javaProject = ((JavaModel) model).getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
 		IClasspathEntry[] entries;

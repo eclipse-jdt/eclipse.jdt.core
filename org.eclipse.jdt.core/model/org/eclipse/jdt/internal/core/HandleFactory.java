@@ -34,7 +34,7 @@ public class HandleFactory {
 
 	public HandleFactory(IWorkspace workspace) {
 		this.workspace = workspace;
-		this.javaModel = JavaModelManager.getJavaModel(workspace);
+		this.javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 	/**
 	 * Creates an Openable handle from the given resource path.
