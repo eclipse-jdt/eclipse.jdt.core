@@ -3660,7 +3660,7 @@ class ASTConverter {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameGREATER://110
+					case TerminalTokens.TokenNameGREATER:
 						return this.scanner.currentPosition - 1;
 					default:
 						return start;
