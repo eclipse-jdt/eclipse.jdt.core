@@ -17,8 +17,8 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public abstract class ClasspathLocation {
 
-static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder, char[][] exclusionPatterns) {
-	return new ClasspathMultiDirectory(sourceFolder, outputFolder, exclusionPatterns);
+static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
+	return new ClasspathMultiDirectory(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns);
 }
 
 public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder) {

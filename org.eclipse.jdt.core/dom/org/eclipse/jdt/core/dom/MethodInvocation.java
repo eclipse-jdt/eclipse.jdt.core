@@ -18,15 +18,15 @@ import java.util.List;
  * For 2.0 (corresponding to JLS2):
  * <pre>
  * MethodInvocation:
- *		[ Expression <b>.</b> ] Identifier 
- * 			<b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *     [ Expression <b>.</b> ] Identifier 
+ *         <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  * </pre>
  * For 3.0 (corresponding to JLS3), type arguments are added:
  * <pre>
  * MethodInvocation:
- *		[ Expression <b>.</b> ]  
- *          [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
- * 			Identifier <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *     [ Expression <b>.</b> ]  
+ *         [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *         Identifier <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  * </pre>
  * 
  * @since 2.0
@@ -97,7 +97,7 @@ public class MethodInvocation extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

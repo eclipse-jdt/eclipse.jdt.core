@@ -18,17 +18,21 @@ import org.eclipse.jdt.internal.core.util.Util;
 class ClasspathMultiDirectory extends ClasspathDirectory {
 
 IContainer sourceFolder;
+char[][] inclusionPatterns; // used by builders when walking source folders
 char[][] exclusionPatterns; // used by builders when walking source folders
 boolean hasIndependentOutputFolder; // if output folder is not equal to any of the source folders
 
-ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] exclusionPatterns) {
+ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	super(binaryFolder, true);
 
 	this.sourceFolder = sourceFolder;
+	this.inclusionPatterns = inclusionPatterns;
 	this.exclusionPatterns = exclusionPatterns;
 	this.hasIndependentOutputFolder = false;
 
 	// handle the case when a state rebuilds a source folder
+	if (this.inclusionPatterns != null && this.inclusionPatterns.length == 0)
+		this.inclusionPatterns = null;
 	if (this.exclusionPatterns != null && this.exclusionPatterns.length == 0)
 		this.exclusionPatterns = null;
 }
@@ -39,12 +43,13 @@ public boolean equals(Object o) {
 
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
 	return sourceFolder.equals(md.sourceFolder) && binaryFolder.equals(md.binaryFolder)
+		&& CharOperation.equals(inclusionPatterns, md.inclusionPatterns)
 		&& CharOperation.equals(exclusionPatterns, md.exclusionPatterns);
 } 
 
 protected boolean isExcluded(IResource resource) {
 	if (this.exclusionPatterns != null && this.sourceFolder.equals(this.binaryFolder))
-		return Util.isExcluded(resource, this.exclusionPatterns);
+		return Util.isExcluded(resource, this.inclusionPatterns, this.exclusionPatterns);
 	return false;
 }
 

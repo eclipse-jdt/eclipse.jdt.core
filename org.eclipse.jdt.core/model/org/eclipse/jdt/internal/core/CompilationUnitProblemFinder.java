@@ -131,6 +131,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	public static CompilationUnitDeclaration process(
 		CompilationUnitDeclaration unit,
 		ICompilationUnit unitElement, 
+		char[] contents,
 		Parser parser,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
@@ -163,7 +164,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			if (unit == null) {
 				unit = problemFinder.resolve(
 					new BasicCompilationUnit(
-						unitElement.getSource().toCharArray(),
+						contents,
 						expectedPackageName,
 						new String(fileName),
 						unitElement),
@@ -194,13 +195,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 	public static CompilationUnitDeclaration process(
 		ICompilationUnit unitElement, 
+		char[] contents,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
 		boolean cleanupCU,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), cleanupCU, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), cleanupCU, monitor);
 	}
 
 	

@@ -25,13 +25,14 @@ import org.eclipse.jdt.internal.core.util.Util;
 class AddFolderToIndex extends IndexRequest {
 	IPath folderPath;
 	IProject project;
-	char[][] exclusionPattern;
+	char[][] inclusionPatterns;
+	char[][] exclusionPatterns;
 
-	public AddFolderToIndex(IPath folderPath, IProject project, char[][] exclusionPattern, IndexManager manager) {
+	public AddFolderToIndex(IPath folderPath, IProject project, char[][] inclusionPatterns, char[][] exclusionPatterns, IndexManager manager) {
 		super(project.getFullPath(), manager);
 		this.folderPath = folderPath;
 		this.project = project;
-		this.exclusionPattern = exclusionPattern;
+		this.exclusionPatterns = exclusionPatterns;
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
@@ -51,7 +52,6 @@ class AddFolderToIndex extends IndexRequest {
 
 			final IPath container = this.containerPath;
 			final IndexManager indexManager = this.manager;
-			final char[][] pattern = exclusionPattern;
 			folder.accept(
 				new IResourceProxyVisitor() {
 					public boolean visit(IResourceProxy proxy) /* throws CoreException */{
@@ -59,12 +59,12 @@ class AddFolderToIndex extends IndexRequest {
 							case IResource.FILE :
 								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 									IResource resource = proxy.requestResource();
-									if (pattern == null || !Util.isExcluded(resource, pattern))
+									if (!Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
 										indexManager.addSource((IFile)resource, container);
 								}
 								return false;
 							case IResource.FOLDER :
-								if (pattern != null && Util.isExcluded(proxy.requestResource(), pattern))
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
 									return false;
 						}
 						return true;

@@ -174,7 +174,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (i != length-1)buffer.append("\n");
 		}
 		if (!expected.equals(buffer.toString())) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+			System.out.println(",");
 		}
 		assertEquals(
 			message,
@@ -366,6 +367,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/
 			);
 	}
@@ -383,6 +385,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no exported project*/, 
 				output, 
 				sourceOutputs,
+				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/
 			);
 	}
@@ -396,6 +399,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/
 			);
 	}
@@ -409,6 +413,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no exported project*/, 
 				projectOutput,
 				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/
 			);
 	}
@@ -422,10 +427,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				exportedProject, 
 				projectOutput,
 				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/
 			);
 	}
-	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] exclusionPatterns) throws CoreException {
+	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -467,6 +473,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							}
 						}
 					}
+				// inclusion patterns
+				IPath[] inclusionPaths;
+				if (inclusionPatterns == null) {
+					inclusionPaths = new IPath[0];
+				} else {
+					String[] patterns = inclusionPatterns[i];
+					int length = patterns.length;
+					inclusionPaths = new IPath[length];
+					for (int j = 0; j < length; j++) {
+						String inclusionPattern = patterns[j];
+						inclusionPaths[j] = new Path(inclusionPattern);
+					}
+				}
 					// exclusion patterns
 					IPath[] exclusionPaths;
 					if (exclusionPatterns == null) {
@@ -484,6 +503,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					entries[i] = 
 						JavaCore.newSourceEntry(
 							projectPath.append(sourcePath), 
+							inclusionPaths,
 							exclusionPaths, 
 							outputPath == null ? null : projectPath.append(outputPath)
 						);

@@ -207,8 +207,10 @@ protected boolean computeChildren(OpenableElementInfo info, Map newElements) thr
 		IResource underlyingResource = getResource();
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
+			IContainer rootFolder = (IContainer) underlyingResource;
+			char[][] inclusionPatterns = fullInclusionPatternChars();
 			char[][] exclusionPatterns = fullExclusionPatternChars();
-			computeFolderChildren((IContainer) underlyingResource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
+			computeFolderChildren(rootFolder, !Util.isExcluded(rootFolder, inclusionPatterns, exclusionPatterns), "", vChildren, inclusionPatterns, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -227,29 +229,50 @@ protected boolean computeChildren(OpenableElementInfo info, Map newElements) thr
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-protected void computeFolderChildren(IContainer folder, String prefix, ArrayList vChildren, char[][] exclusionPatterns) throws JavaModelException {
-	IPackageFragment pkg = getPackageFragment(prefix);
-	vChildren.add(pkg);
+protected void computeFolderChildren(IContainer folder, boolean isIncluded, String prefix, ArrayList vChildren, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
+
+	if (isIncluded) {
+	    IPackageFragment pkg = getPackageFragment(prefix);
+		vChildren.add(pkg);
+	}
 	try {
 		JavaProject javaProject = (JavaProject)getJavaProject();
 		IResource[] members = folder.members();
+		boolean hasIncluded = isIncluded;
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
 			String memberName = member.getName();
-			if (member.getType() == IResource.FOLDER 
-				&& Util.isValidFolderNameForPackage(memberName)
-				&& !Util.isExcluded(member, exclusionPatterns)) {
-					
-				// eliminate binary output only if nested inside direct subfolders
-				if (javaProject.contains(member)) {
-					String newPrefix;
-					if (prefix.length() == 0) {
-						newPrefix = memberName;
-					} else {
-						newPrefix = prefix + "." + memberName; //$NON-NLS-1$
+			
+			switch(member.getType()) {
+			    
+			    case IResource.FOLDER:
+					if (Util.isValidFolderNameForPackage(memberName)) {
+					    boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
+						// keep looking inside as long as included already, or may have child included due to inclusion patterns
+					    if (isMemberIncluded || inclusionPatterns != null) { 
+							// eliminate binary output only if nested inside direct subfolders
+							if (javaProject.contains(member)) {
+								String newPrefix;
+								if (prefix.length() == 0) {
+									newPrefix = memberName;
+								} else {
+									newPrefix = prefix + "." + memberName; //$NON-NLS-1$
+								}
+								computeFolderChildren((IFolder) member, isMemberIncluded, newPrefix, vChildren, inclusionPatterns, exclusionPatterns);
+							}
+						}
 					}
-					computeFolderChildren((IFolder) member, newPrefix, vChildren, exclusionPatterns);
-				}
+			    	break;
+			    case IResource.FILE:
+			        // inclusion filter may only include files, in which case we still want to include the immediate parent package (lazily)
+					if (!hasIncluded
+								&& Util.isValidCompilationUnitName(memberName)
+								&& !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) {
+						hasIncluded = true;
+					    IPackageFragment pkg = getPackageFragment(prefix);
+					    vChildren.add(pkg); 
+					}
+			        break;
 			}
 		}
 	} catch(IllegalArgumentException e){
@@ -425,6 +448,24 @@ public char[][] fullExclusionPatternChars() {
 		return null;
 	}
 }		
+
+/*
+ * Returns the inclusion patterns from the classpath entry associated with this root.
+ */
+public char[][] fullInclusionPatternChars() {
+	try {
+		if (this.isOpen() && this.getKind() != IPackageFragmentRoot.K_SOURCE) return null;
+		ClasspathEntry entry = (ClasspathEntry)getRawClasspathEntry();
+		if (entry == null) {
+			return null;
+		} else {
+			return entry.fullInclusionPatternChars();
+		}
+	} catch (JavaModelException e) { 
+		return null;
+	}
+}		
+
 /**
  * @see IJavaElement
  */

@@ -95,15 +95,33 @@ public class DeltaProcessor {
 	}
 	
 	static class RootInfo {
+		char[][] inclusionPatterns;
 		char[][] exclusionPatterns;
-		IJavaProject project;
+		JavaProject project;
 		IPath rootPath;
 		int entryKind;
-		RootInfo(IJavaProject project, IPath rootPath, char[][] exclusionPatterns, int entryKind) {
+		IPackageFragmentRoot root;
+		RootInfo(JavaProject project, IPath rootPath, char[][] inclusionPatterns, char[][] exclusionPatterns, int entryKind) {
 			this.project = project;
 			this.rootPath = rootPath;
+			this.inclusionPatterns = inclusionPatterns;
 			this.exclusionPatterns = exclusionPatterns;
 			this.entryKind = entryKind;
+		}
+		IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
+			if (this.root == null) {
+				if (resource != null) {
+					this.root = this.project.getPackageFragmentRoot(resource);
+				} else {
+					Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.rootPath, false/*don't check existence*/);
+					if (target instanceof IResource) {
+						this.root = this.project.getPackageFragmentRoot((IResource)target);
+					} else {
+						this.root = this.project.getPackageFragmentRoot(this.rootPath.toOSString());
+					}
+				}
+			}
+			return this.root;
 		}
 		boolean isRootOfProject(IPath path) {
 			return this.rootPath.equals(path) && this.project.getProject().getFullPath().isPrefixOf(path);
@@ -120,6 +138,17 @@ public class DeltaProcessor {
 				buffer.append("null"); //$NON-NLS-1$
 			} else {
 				buffer.append(this.rootPath.toString());
+			}
+			buffer.append("\nincluding="); //$NON-NLS-1$
+			if (this.inclusionPatterns == null) {
+				buffer.append("null"); //$NON-NLS-1$
+			} else {
+				for (int i = 0, length = this.inclusionPatterns.length; i < length; i++) {
+					buffer.append(new String(this.inclusionPatterns[i]));
+					if (i < length-1) {
+						buffer.append("|"); //$NON-NLS-1$
+					}
+				}
 			}
 			buffer.append("\nexcluding="); //$NON-NLS-1$
 			if (this.exclusionPatterns == null) {
@@ -534,7 +563,7 @@ public class DeltaProcessor {
 						return this.currentElement;
 					}
 					if  (rootInfo != null && rootInfo.project.getProject().equals(resource)){
-						element = (Openable)rootInfo.project;
+						element = rootInfo.project;
 						break;
 					}
 					IProject proj = (IProject)resource;
@@ -548,25 +577,36 @@ public class DeltaProcessor {
 				}
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				element = rootInfo == null ? JavaCore.create(resource) : rootInfo.project.getPackageFragmentRoot(resource);
+				element = rootInfo == null ? JavaCore.create(resource) : rootInfo.getPackageFragmentRoot(resource);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT:
-				// find the element that encloses the resource
-				this.popUntilPrefixOf(path);
-				
-				if (this.currentElement == null) {
-					element = rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
-				} else {
-					// find the root
-					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
-					if (root == null) {
-						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
-					} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
+				if (rootInfo != null) {
+					if (rootInfo.project.contains(resource)) {
+						IPackageFragmentRoot root = rootInfo.getPackageFragmentRoot(null);
 						// create package handle
-						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
+						IPath pkgPath = path.removeFirstSegments(rootInfo.rootPath.segmentCount());
 						String pkg = Util.packageName(pkgPath);
 						if (pkg == null) return null;
 						element = root.getPackageFragment(pkg);
+					}
+				} else {
+					// find the element that encloses the resource
+					this.popUntilPrefixOf(path);
+				
+					if (this.currentElement == null) {
+						element = JavaCore.create(resource);
+					} else {
+						// find the root
+						IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
+						if (root == null) {
+							element =  JavaCore.create(resource);
+						} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
+							// create package handle
+							IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
+							String pkg = Util.packageName(pkgPath);
+							if (pkg == null) return null;
+							element = root.getPackageFragment(pkg);
+						}
 					}
 				}
 				break;
@@ -1127,10 +1167,13 @@ public class DeltaProcessor {
 				if (rootInfo == null) {
 					rootInfo = this.enclosingRootInfo(res.getFullPath(), kind);
 				}
-				if (rootInfo == null || Util.isExcluded(res, rootInfo.exclusionPatterns)) {
+				if (rootInfo == null) {
 					return NON_JAVA_RESOURCE;
 				}
-				if (res instanceof IFolder) {
+				if (Util.isExcluded(res, rootInfo.inclusionPatterns, rootInfo.exclusionPatterns)) {
+					return NON_JAVA_RESOURCE;
+				}
+				if (res.getType() == IResource.FOLDER) {
 					if (Util.isValidFolderNameForPackage(res.getName())) {
 						return IJavaElement.PACKAGE_FRAGMENT;
 					} else {
@@ -1875,7 +1918,7 @@ public class DeltaProcessor {
 	
 		// set stack of elements
 		if (this.currentElement == null && rootInfo != null) {
-			this.currentElement = (Openable)rootInfo.project;
+			this.currentElement = rootInfo.project;
 		}
 		
 		// process current delta
@@ -1948,13 +1991,13 @@ public class DeltaProcessor {
 								if (this.currentElement == null
 										|| !rootInfo.project.equals(this.currentElement.getJavaProject())) { // note if currentElement is the IJavaModel, getJavaProject() is null
 									// force the currentProject to be used
-									this.currentElement = (Openable)rootInfo.project;
+									this.currentElement = rootInfo.project;
 								}
 								if (elementType == IJavaElement.JAVA_PROJECT
 									|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT 
 										&& res instanceof IProject)) { 
 									// NB: attach non-java resource to project (not to its package fragment root)
-									parent = (Openable)rootInfo.project;
+									parent = rootInfo.project;
 								} else {
 									parent = this.createElement(res, elementType, rootInfo);
 								}

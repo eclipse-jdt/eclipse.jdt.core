@@ -258,7 +258,7 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 /**
  * Index the content of the given source folder.
  */
-public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final char[][] exclusionPattern) {
+public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
 	if (this.jobEnd > this.jobStart) {
 		// check if a job to index the project is not already in the queue
@@ -267,7 +267,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 			if (request.equals(this.awaitingJobs[i])) return;
 	}
 
-	this.request(new AddFolderToIndex(sourceFolder, project, exclusionPattern, this));
+	this.request(new AddFolderToIndex(sourceFolder, project, inclusionPatterns, exclusionPatterns, this));
 }
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
@@ -403,7 +403,7 @@ public synchronized void removeIndexFamily(IPath path) {
 /**
  * Remove the content of the given source folder from the index.
  */
-public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] exclusionPatterns) {
+public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
 	if (this.jobEnd > this.jobStart) {
 		// check if a job to index the project is not already in the queue
@@ -412,7 +412,7 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
 			if (request.equals(this.awaitingJobs[i])) return;
 	}
 
-	this.request(new RemoveFolderFromIndex(sourceFolder, exclusionPatterns, project, this));
+	this.request(new RemoveFolderFromIndex(sourceFolder, inclusionPatterns, exclusionPatterns, project, this));
 }
 /**
  * Flush current state

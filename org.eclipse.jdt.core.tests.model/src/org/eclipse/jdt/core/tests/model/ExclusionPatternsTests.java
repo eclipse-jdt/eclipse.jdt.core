@@ -30,7 +30,7 @@ public ExclusionPatternsTests(String name) {
 	super(name);
 }
 protected void setClasspath(String[] sourceFoldersAndExclusionPatterns) throws JavaModelException {
-	this.project.setRawClasspath(createClasspath(sourceFoldersAndExclusionPatterns), null);
+	this.project.setRawClasspath(createClasspath(sourceFoldersAndExclusionPatterns, false/*no inclusion*/, true/*exclusion*/), null);
 }
 protected void setUp() throws Exception {
 	super.setUp();
@@ -54,7 +54,7 @@ protected void tearDown() throws Exception {
 }
 /*
  * Ensure that adding an exclusion on a compilation unit
- * makes it disappears from the children of its package and it is added to the non-java resources.
+ * makes it disappear from the children of its package and it is added to the non-java resources.
  */
 public void testAddExclusionOnCompilationUnit() throws CoreException {
 	this.createFolder("/P/src/p");
@@ -88,7 +88,7 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 }
 /*
  * Ensure that adding an exclusion on a folder directly under a project (and prj=src)
- * makes it appears as a non-java resources.
+ * makes it appear as a non-java resources.
  * (regression test for bug 29374 Excluded folder on project not returned by Java Model)
  */
 public void testAddExclusionOnFolderUnderProject() throws CoreException {
@@ -97,7 +97,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 		this.createFolder("/P1/doc");
 
 		clearDeltas();
-		javaProject.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}), null);
+		javaProject.setRawClasspath(createClasspath(new String[] {"/P1", "doc/"}, false/*no inclusion*/, true/*exclusion*/), null);
 	
 		assertDeltas(
 			"Unexpected deltas",
@@ -124,7 +124,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 }
 /*
  * Ensure that adding an exclusion on a package
- * makes it disappears from the children of its package fragment root 
+ * makes it disappear from the children of its package fragment root 
  * and it is added to the non-java resources.
  */
 public void testAddExclusionOnPackage() throws CoreException {
@@ -671,7 +671,7 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				IJavaProject javaProject = createJavaProject("P2", new String[] {}, "bin");
-				javaProject.setRawClasspath(createClasspath(new String[] {"/P2", "src/", "/P2/src", ""}), null);
+				javaProject.setRawClasspath(createClasspath(new String[] {"/P2", "src/", "/P2/src", ""}, false/*no inclusion*/, true/*exclusion*/), null);
 				createFile(
 					"/P2/bin/X.java",
 					"public class X {\n" +

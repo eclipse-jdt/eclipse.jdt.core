@@ -70,11 +70,11 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 					    CompilationUnitDeclaration unit = null;
 					    try {
 							problemRequestor.beginReporting();
-							unit = CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, false/*don't cleanup cu*/, this.progressMonitor);
+							char[] contents = workingCopy.getContents();
+							unit = CompilationUnitProblemFinder.process(workingCopy, contents, this.workingCopyOwner, problemRequestor, false/*don't cleanup cu*/, this.progressMonitor);
 							problemRequestor.endReporting();
 							if (progressMonitor != null) progressMonitor.worked(1);
 							if (this.createAST && unit != null) {
-								char[] contents = workingCopy.getContents();
 								Map options = workingCopy.getJavaProject().getOptions(true);
 								this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
 								if (progressMonitor != null) progressMonitor.worked(1);

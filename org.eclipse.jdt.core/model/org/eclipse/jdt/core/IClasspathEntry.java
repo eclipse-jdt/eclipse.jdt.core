@@ -258,6 +258,85 @@ public interface IClasspathEntry {
 	 */
 	IPath[] getExclusionPatterns();
 	
+	/** TODO (philippe) fixup spec for inclusion patterns
+	 * Returns the set of patterns used to exclude resources associated with
+	 * this source entry.
+	 * <p>
+	 * Exclusion patterns allow specified portions of the resource tree rooted
+	 * at this source entry's path to be filtered out. If no exclusion patterns
+	 * are specified, this source entry includes all relevent files. Each path
+	 * specified must be a relative path, and will be interpreted relative
+	 * to this source entry's path. File patterns are case-sensitive. A file
+	 * matched by one or more of these patterns is excluded from the 
+	 * corresponding package fragment root.
+	 * </p>
+	 * <p>
+	 * Note that there is no need to supply a pattern to exclude ".class" files
+	 * because a source entry filters these out automatically.
+	 * </p>
+	 * <p>
+	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
+	 * a relative path. The path segments can be regular file or folder names or simple patterns
+	 * involving standard wildcard characters.
+	 * </p>
+	 * <p>
+	 * '*' matches 0 or more characters within a segment. So
+	 * <code>*.java</code> matches <code>.java</code>, <code>a.java</code>
+	 * and <code>Foo.java</code>, but not <code>Foo.properties</code>
+	 * (does not end with <code>.java</code>).
+	 * </p>
+	 * <p>
+	 * '?' matches 1 character within a segment. So <code>?.java</code> 
+	 * matches <code>a.java</code>, <code>A.java</code>, 
+	 * but not <code>.java</code> or <code>xyz.java</code> (neither have
+	 * just one character before <code>.java</code>).
+	 * </p>
+	 * <p>
+	 * Combinations of *'s and ?'s are allowed.
+	 * </p>
+	 * <p>
+	 * The special pattern '**' matches zero or more segments. A path 
+	 * like <code>tests/</code> that ends in a trailing separator is interpreted
+	 * as <code>tests/&#42;&#42;</code>, and would match all files under the 
+	 * the folder named <code>tests</code>.
+	 * </p>
+	 * <p>
+	 * Examples:
+	 * <ul>
+	 * <li>
+	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
+	 * matches all files under a root folder
+	 * named <code>tests</code>. This includes <code>tests/Foo.java</code>
+	 * and <code>tests/com/example/Foo.java</code>, but not 
+	 * <code>com/example/tests/Foo.java</code> (not under a root folder named
+	 * <code>tests</code>).
+	 * </li>
+	 * <li>
+	 * <code>tests/&#42;</code> matches all files directly below a root 
+	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>
+	 * and <code>tests/FooHelp.java</code>
+	 * but not <code>tests/com/example/Foo.java</code> (not directly under
+	 * a folder named <code>tests</code>) or 
+	 * <code>com/Foo.java</code> (not under a folder named <code>tests</code>).
+	 * </li>
+	 * <li>
+	 * <code>&#42;&#42;/tests/&#42;&#42;</code> matches all files under any
+	 * folder named <code>tests</code>. This includes <code>tests/Foo.java</code>,
+	 * <code>com/examples/tests/Foo.java</code>, and 
+	 * <code>com/examples/tests/unit/Foo.java</code>, but not 
+	 * <code>com/example/Foo.java</code> (not under a folder named
+	 * <code>tests</code>).
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @return the possibly empty list of resource exclusion patterns 
+	 *   associated with this source entry, and <code>null</code> for other
+	 *   kinds of classpath entries
+	 * @since 3.0
+	 */
+	IPath[] getInclusionPatterns();
+
 	/**
 	 * Returns the full path to the specific location where the builder writes 
 	 * <code>.class</code> files generated for this source entry 

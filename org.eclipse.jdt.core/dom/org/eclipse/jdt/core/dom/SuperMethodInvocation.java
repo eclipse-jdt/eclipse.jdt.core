@@ -19,14 +19,14 @@ import java.util.List;
  * <pre>
  * SuperMethodInvocation:
  *     [ ClassName <b>.</b> ] <b>super</b> <b>.</b> Identifier
- * 			<b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *         <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  * </pre>
  * For 3.0 (corresponding to JLS3), type arguments are added:
  * <pre>
  * SuperMethodInvocation:
  *     [ ClassName <b>.</b> ] <b>super</b> <b>.</b>
- *          [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
- * 			Identifier <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *         [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *         Identifier <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  * </pre>
  * 
  * @since 2.0
@@ -97,7 +97,7 @@ public class SuperMethodInvocation extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

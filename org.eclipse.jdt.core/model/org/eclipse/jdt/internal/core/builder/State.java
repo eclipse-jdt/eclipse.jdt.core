@@ -40,7 +40,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-static final byte VERSION = 0x0007;
+static final byte VERSION = 0x0008;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -214,7 +214,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in));
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in));
 		if (in.readBoolean())
 			md.hasIndependentOutputFolder = true;
 		newState.sourceLocations[i] = md;
@@ -368,6 +368,7 @@ void write(DataOutputStream out) throws IOException {
 		ClasspathMultiDirectory md = sourceLocations[i];
 		out.writeUTF(md.sourceFolder.getProjectRelativePath().toString());
 		out.writeUTF(md.binaryFolder.getProjectRelativePath().toString());
+		writeNames(md.inclusionPatterns, out);
 		writeNames(md.exclusionPatterns, out);
 		out.writeBoolean(md.hasIndependentOutputFolder);
 	}

@@ -101,11 +101,13 @@ import java.util.Map;
  * for details.
  * </p>
  * <p>
- * Note that there is no built-in way to serialize a modified AST to a source
- * code string. Naive serialization of a newly-constructed AST to a string is
- * a straightforward application of an AST visitor. However, preserving comments
- * and formatting from the originating source code string is a challenging
- * problem (support for this is planned for a future release).
+ * Compilation units created by <code>ASTParser</code> from a
+ * source document can be serialized after arbitrary modifications
+ * with minimal loss of original formatting. See 
+ * {@link CompilationUnit#recordModifications()} for details.
+ * See also {@link org.eclipse.jdt.core.dom.rewrite.ASTRewrite} for
+ * an alternative way to describe and serialize changes to a
+ * read-only AST.
  * </p>
  * 
  * @see ASTParser
@@ -1753,7 +1755,7 @@ public abstract class ASTNode {
 	 * clutter up the API doc.
 	 * </p>
 	 * 
-	 * @param apiLevel the API level; one of the <code>AST.LEVEL_*</code>LEVEL
+	 * @param apiLevel the API level; one of the <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0

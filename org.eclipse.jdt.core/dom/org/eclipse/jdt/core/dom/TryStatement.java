@@ -18,9 +18,9 @@ import java.util.List;
  *
  * <pre>
  * TryStatement:
- *    <b>try</b> Block 
- * 			{ CatchClause }
- * 			[ <b>finally</b> Block ]
+ *     <b>try</b> Block 
+ *         { CatchClause }
+ *         [ <b>finally</b> Block ]
  * </pre>
  * 
  * @since 2.0
@@ -68,7 +68,7 @@ public class TryStatement extends Statement {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0

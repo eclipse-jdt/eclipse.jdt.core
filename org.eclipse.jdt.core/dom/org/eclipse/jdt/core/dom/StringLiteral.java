@@ -49,7 +49,7 @@ public class StringLiteral extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
@@ -190,7 +190,6 @@ public class StringLiteral extends Expression {
 	 * Returns the value of this literal node. 
 	 * <p>
 	 * For example,
-	 * <code>
 	 * <pre>
 	 * StringLiteral s;
 	 * s.setEscapedValue("\"hello\\nworld\"");
@@ -234,7 +233,6 @@ public class StringLiteral extends Expression {
 	 * Sets the value of this literal node. 
 	 * <p>
 	 * For example,
-	 * <code>
 	 * <pre>
 	 * StringLiteral s;
 	 * s.setLiteralValue("hello\nworld");

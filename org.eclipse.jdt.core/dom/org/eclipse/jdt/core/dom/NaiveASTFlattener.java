@@ -222,7 +222,9 @@ class NaiveASTFlattener extends ASTVisitor {
 		for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
 			e.accept(this);
-			this.buffer.append(",");//$NON-NLS-1$
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
 		}
 		this.buffer.append("}");//$NON-NLS-1$
 		return false;
@@ -667,7 +669,9 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(InfixExpression node) {
 		node.getLeftOperand().accept(this);
+		this.buffer.append(' ');  // for cases like x= i - -1; or x= i++ + ++i;
 		this.buffer.append(node.getOperator().toString());
+		this.buffer.append(' ');
 		node.getRightOperand().accept(this);
 		for (Iterator it = node.extendedOperands().iterator(); it.hasNext(); ) {
 			this.buffer.append(node.getOperator().toString());
@@ -852,6 +856,9 @@ class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		this.buffer.append(")");//$NON-NLS-1$
+		for (int i = 0; i < node.getExtraDimensions(); i++) {
+			this.buffer.append("[]"); //$NON-NLS-1$
+		}		
 		if (!node.thrownExceptions().isEmpty()) {
 			this.buffer.append(" throws ");//$NON-NLS-1$
 			for (Iterator it = node.thrownExceptions().iterator(); it.hasNext(); ) {
@@ -1107,6 +1114,9 @@ class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append(" ");//$NON-NLS-1$
 		node.getName().accept(this);
+		for (int i = 0; i < node.getExtraDimensions(); i++) {
+			this.buffer.append("[]"); //$NON-NLS-1$
+		}			
 		if (node.getInitializer() != null) {
 			this.buffer.append("=");//$NON-NLS-1$
 			node.getInitializer().accept(this);
@@ -1429,7 +1439,6 @@ class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
 			node.getDeclaration().accept(this);
 		}
-		this.buffer.append(";");//$NON-NLS-1$
 		return false;
 	}
 
@@ -1484,7 +1493,6 @@ class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append(", ");//$NON-NLS-1$
 			}
 		}
-		this.buffer.append(";");//$NON-NLS-1$
 		return false;
 	}
 

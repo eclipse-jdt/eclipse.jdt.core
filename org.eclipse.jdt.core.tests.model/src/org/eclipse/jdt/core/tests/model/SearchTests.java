@@ -384,7 +384,7 @@ public void testRemoveOuterFolder() throws CoreException {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				IJavaProject project = createJavaProject("P1");
 				project.setRawClasspath(
-					createClasspath(new String[] {"/P1/src1", "src2/", "/P1/src1/src2", ""}), 
+					createClasspath(new String[] {"/P1/src1", "src2/", "/P1/src1/src2", ""}, false/*no inclusion*/, true/*exclusion*/), 
 					new Path("/P1/bin"),
 					null);
 				createFolder("/P1/src1/src2");
@@ -404,7 +404,7 @@ public void testRemoveOuterFolder() throws CoreException {
 		
 		// remove outer folder from classpath
 		project.setRawClasspath(
-			createClasspath(new String[] {"/P1/src1/src2", ""}), 
+			createClasspath(new String[] {"/P1/src1/src2", ""}, false/*no inclusion*/, true/*exclusion*/), 
 			null);
 		assertAllTypes(
 			"Unexpected all types after removing outer folder",
