@@ -1680,7 +1680,7 @@ public final class CompletionEngine
 						}
 						
 						if(mustQualifyType(exceptionPackageName, exceptionTypeName)){
-							completion.append(CharOperation.concat(exceptionPackageName, exceptionTypeName));
+							completion.append(CharOperation.concat(exceptionPackageName, exceptionTypeName, '.'));
 						} else {
 							completion.append(exception.sourceName());
 						}
@@ -2133,6 +2133,10 @@ public final class CompletionEngine
 	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames, boolean forArray){
 			if(sourceName == null || sourceName.length == 0)
 				return;
+				
+			if(nameEnvironment.findType(qualifiedSourceName, CharOperation.splitOn('.', qualifiedPackageName)) == null)
+				return;
+			
 			if(forArray) {
 				sourceName = CharOperation.subarray(sourceName, 0, sourceName.length - 2);
 			}
@@ -2268,7 +2272,7 @@ public final class CompletionEngine
 									return true;
 								}
 							} else {
-								if(CharOperation.endsWith(imports[j].readableName(), typeName)) {
+								if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)) {
 									return true;	
 								}
 							}
