@@ -13,6 +13,7 @@
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.jdt.debug"/>
       <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.test.performance"/>    
    </requires>
 
 

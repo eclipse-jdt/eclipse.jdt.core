@@ -8,6 +8,7 @@
 		<project>org.eclipse.core.runtime</project>
 		<project>org.eclipse.jdt.core</project>
 		<project>org.eclipse.jdt.core.tests.compiler</project>
+		<project>org.eclipse.test.performance</project>
 		<project>org.junit</project>
 	</projects>
 	<buildSpec>

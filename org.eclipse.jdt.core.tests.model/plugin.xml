@@ -15,6 +15,7 @@
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
+      <import plugin="org.eclipse.test.performance"/>    
    </requires>
 
 	<extension point = "org.eclipse.jdt.core.classpathVariableInitializer">

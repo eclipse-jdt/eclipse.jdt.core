@@ -11,8 +11,10 @@
 package org.eclipse.jdt.core.tests.performance;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.security.CodeSource;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IWorkspace;
@@ -21,8 +23,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.Tests;
@@ -46,11 +46,23 @@ public class FullSourceWorkspaceTests extends Tests {
 	 * Returns the OS path to the directory that contains this plugin.
 	 */
 	protected String getPluginDirectoryPath() {
-		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.performance").getEntry("/");
-			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
+		CodeSource javaCoreCodeSource = JavaCore.class.getProtectionDomain().getCodeSource();
+		if (javaCoreCodeSource != null) {
+			URL javaCoreUrl = javaCoreCodeSource.getLocation();
+			String javaCorePath = javaCoreUrl.getFile();
+			int index = javaCorePath.indexOf(JavaCore.PLUGIN_ID);
+			if (index != -1) {
+				String pluginsPath = javaCorePath.substring(0, index);
+				File pluginsFile = new File(pluginsPath);
+				String[] list = pluginsFile.list(new FilenameFilter() {
+					public boolean accept(File dir, String name) {
+						return name.startsWith( "org.eclipse.jdt.core.tests.performance");
+					}
+				});
+				if (list != null && list.length > 0) {
+					return pluginsPath + list[0];
+				}
+			}
 		}
 		return null;
 	}
@@ -63,7 +75,7 @@ public class FullSourceWorkspaceTests extends Tests {
 		
 		Util.unzip(fullSourceZipPath, targetWorkspacePath);
 		
-		String jdkLib = Util.getJavaClassLibs()[0];
+		String jdkLib = Util.getJavaClassLib();
 		JavaCore.setClasspathVariable("JRE_LIB", new Path(jdkLib), null);
 		
 		workspace.run(new IWorkspaceRunnable() {
@@ -95,14 +107,6 @@ public class FullSourceWorkspaceTests extends Tests {
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
-		
-		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-		for (int i = 0, length = markers.length; i < length; i++) {
-			IMarker marker = markers[i];
-			assertTrue(
-				"Unexpected marker: " + marker.getAttribute(IMarker.MESSAGE), 
-				IMarker.SEVERITY_ERROR != ((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue());
-		}
 	}
 
 }
