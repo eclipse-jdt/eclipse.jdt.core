@@ -2105,14 +2105,16 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns the working copies that have the given owner. 
 	 * Only compilation units in working copy mode are returned.
+	 * If the owner is <code>null</code>, primary working copies are returned.
 	 * 
-	 * @param owner the given working copy owner
+	 * @param owner the given working copy owner or <null> for primary working copy owner
 	 * @return the list of working copies for a given owner
 	 * @since 3.0
 	 */
 	public static ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner){
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (owner == null) owner = DefaultWorkingCopyOwner.PRIMARY;
 		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
 		if (result == null) return JavaModelManager.NoWorkingCopy;
 		return result;
