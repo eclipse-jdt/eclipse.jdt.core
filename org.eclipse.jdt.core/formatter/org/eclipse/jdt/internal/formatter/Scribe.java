@@ -64,8 +64,8 @@ public class Scribe {
 	private int textRegionStart;
 	public boolean useTab;
 	
-	private int[] lineEnds;
-	private int[][] commentPositions;
+//	private int[] lineEnds;
+//	private int[][] commentPositions;
 
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
@@ -86,13 +86,14 @@ public class Scribe {
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
 		this.textRegionEnd = offset + length - 1;
-		if (codeSnippetParsingUtil != null) {
-			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
-			if (information != null) {
-				this.lineEnds = information.lineEnds;
-				this.commentPositions = information.commentPositions;
-			}
-		}
+// TODO (Olivier) lineEnds and commentPositions are not used, thus codeSnippetParsingUtil is unused
+//		if (codeSnippetParsingUtil != null) {
+//			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
+//			if (information != null) {
+//				this.lineEnds = information.lineEnds;
+//				this.commentPositions = information.commentPositions;
+//			}
+//		}
 		reset();
 	}
 	
