@@ -154,12 +154,11 @@ public class MatchLocator implements ITypeRequestor {
 	}
 
 	/**
-	 * Creates an IField from the given field declaration and simple type names. 
+	 * Creates an IField from the given field declaration and type. 
 	 */
-	private IField createFieldHandle(
+	public IField createFieldHandle(
 		FieldDeclaration field,
-		char[][] definingTypeNames) {
-		IType type = this.createTypeHandle(definingTypeNames);
+		IType type) {
 		if (type == null) return null;
 		if (type.isBinary()) {
 			IField fieldHandle = type.getField(new String(field.name));
@@ -176,7 +175,7 @@ public class MatchLocator implements ITypeRequestor {
 	/**
 	 * Creates an IImportDeclaration from the given import statement
 	 */
-	private IImportDeclaration createImportHandle(ImportReference importRef) {
+	public IImportDeclaration createImportHandle(ImportReference importRef) {
 		char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 		if (importRef.onDemand) {
 			importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
@@ -186,13 +185,12 @@ public class MatchLocator implements ITypeRequestor {
 	}
 
 	/**
-	 * Creates an IInitializer from the given field declaration and simple type names. 
+	 * Creates an IInitializer from the given field declaration and type. 
 	 */
-	private IInitializer createInitializerHandle(
+	public IInitializer createInitializerHandle(
 		TypeDeclaration typeDecl,
 		FieldDeclaration initializer,
-		char[][] definingTypeNames) {
-		IType type = this.createTypeHandle(definingTypeNames);
+		IType type) {
 		if (type == null) return null;
 
 		// find occurence count of the given initializer in its type declaration
@@ -212,12 +210,11 @@ public class MatchLocator implements ITypeRequestor {
 	}
 
 	/**
-	 * Creates an IMethod from the given method declaration and simple type names. 
+	 * Creates an IMethod from the given method declaration and type. 
 	 */
-	private IMethod createMethodHandle(
+	public IMethod createMethodHandle(
 		AbstractMethodDeclaration method,
-		char[][] definingTypeNames) {
-		IType type = this.createTypeHandle(definingTypeNames);
+		IType type) {
 		if (type == null) return null;
 		Argument[] arguments = method.arguments;
 		int length = arguments == null ? 0 : arguments.length;
@@ -265,21 +262,16 @@ public class MatchLocator implements ITypeRequestor {
 	}
 
 	/**
-	 * Creates an IType from the given simple type names. 
+	 * Creates an IType from the given simple top level type name. 
 	 */
-	private IType createTypeHandle(char[][] simpleTypeNames) {
+	public IType createTypeHandle(char[] simpleTypeName) {
 		Openable currentOpenable = this.getCurrentOpenable();
 		if (currentOpenable instanceof CompilationUnit) {
 			// creates compilation unit
 			CompilationUnit unit = (CompilationUnit)currentOpenable;
 	
 			// create type
-			int length = simpleTypeNames.length;
-			IType type = unit.getType(new String(simpleTypeNames[0]));
-			for (int i = 1; i < length; i++) {
-				type = type.getType(new String(simpleTypeNames[i]));
-			}
-			return type;
+			return unit.getType(new String(simpleTypeName));
 		} else {
 			try {
 				return ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
@@ -287,6 +279,12 @@ public class MatchLocator implements ITypeRequestor {
 				return null;
 			}
 		}
+	}
+	/**
+	 * Creates an IType from the given simple inner type name and parent type. 
+	 */
+	public IType createTypeHandle(IType parent, char[] simpleTypeName) {
+		return parent.getType(new String(simpleTypeName));
 	}
 	protected IResource getCurrentResource() {
 		return this.potentialMatches[this.potentialMatchesIndex].resource;
@@ -482,25 +480,20 @@ public class MatchLocator implements ITypeRequestor {
 
 	/**
 	 * Reports the given field declaration to the search requestor.
-	 * Its defining types have the given simple names.
 	 */
 	public void reportFieldDeclaration(
 		FieldDeclaration fieldDeclaration,
-		char[][] definingTypeNames,
+		IJavaElement parent,
 		int accuracy)
 		throws CoreException {
-
-		// create field handle
-		IType type = this.createTypeHandle(definingTypeNames);
-		if (type == null) return;
-		IField field = type.getField(new String(fieldDeclaration.name));
-		if (field == null) return;
 
 		// accept field declaration
 		this.report(
 			fieldDeclaration.sourceStart,
 			fieldDeclaration.sourceEnd,
-			field,
+			(parent instanceof IType) ?
+				((IType)parent).getField(new String(fieldDeclaration.name)) :
+				parent,
 			accuracy);
 	}
 
@@ -519,17 +512,21 @@ public class MatchLocator implements ITypeRequestor {
 
 	/**
 	 * Reports the given method declaration to the search requestor.
-	 * Its defining types have the given simple names.
 	 */
 	public void reportMethodDeclaration(
 		AbstractMethodDeclaration methodDeclaration,
-		char[][] definingTypeNames,
+		IJavaElement parent,
 		int accuracy)
 		throws CoreException {
 
-		// create method handle
-		IMethod method = this.createMethodHandle(methodDeclaration, definingTypeNames);
-		if (method == null) return;
+		IJavaElement enclosingElement;
+		if (parent instanceof IType) {
+			// create method handle
+			enclosingElement = this.createMethodHandle(methodDeclaration, (IType)parent);
+			if (enclosingElement == null) return;
+		} else {
+			enclosingElement = parent;
+		}
 
 		// compute source positions of the selector 
 		Scanner scanner = parser.scanner;
@@ -544,7 +541,7 @@ public class MatchLocator implements ITypeRequestor {
 		int nameSourceEnd = scanner.currentPosition - 1;
 
 		// accept method declaration
-		this.report(nameSourceStart, nameSourceEnd, method, accuracy);
+		this.report(nameSourceStart, nameSourceEnd, enclosingElement, accuracy);
 	}
 
 	/**
@@ -634,29 +631,34 @@ public class MatchLocator implements ITypeRequestor {
 	public void reportReference(
 		AstNode reference,
 		AbstractMethodDeclaration methodDeclaration,
-		char[][] definingTypeNames,
+		IJavaElement parent,
 		int accuracy)
 		throws CoreException {
 
-		// create defining method handle
-		IMethod method = this.createMethodHandle(methodDeclaration, definingTypeNames);
-		if (method == null) return; // case of a match found in a type other than the current class file
+		IJavaElement enclosingElement;
+		if (parent instanceof IType) {
+			// create defining method handle
+			enclosingElement = this.createMethodHandle(methodDeclaration, (IType)parent);
+			if (enclosingElement == null) return; // case of a match found in a type other than the current class file
+		} else {
+			enclosingElement = parent;
+		}
 
 		// accept reference
 		if (reference instanceof QualifiedNameReference
 			|| reference instanceof QualifiedTypeReference
 			|| reference instanceof ArrayTypeReference) {
-			this.pattern.matchReportReference(reference, method, accuracy, this);
+			this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
 		} else
 			if (reference instanceof MessageSend) {
 				// message ref are starting at the selector start
 				this.report(
 					(int) (((MessageSend) reference).nameSourcePosition >> 32),
 					reference.sourceEnd,
-					method,
+					enclosingElement,
 					accuracy);
 			} else {
-				this.report(reference.sourceStart, reference.sourceEnd, method, accuracy);
+				this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
 			}
 	}
 
@@ -669,39 +671,48 @@ public class MatchLocator implements ITypeRequestor {
 		AstNode reference,
 		TypeDeclaration typeDeclaration,
 		FieldDeclaration fieldDeclaration,
-		char[][] definingTypeNames,
+		IJavaElement parent,
 		int accuracy)
 		throws CoreException {
 
+		IJavaElement enclosingElement;
 		if (fieldDeclaration.isField()) {
-			// create defining field handle
-			IField field = this.createFieldHandle(fieldDeclaration, definingTypeNames);
-			if (field == null) return;
+			if (parent instanceof IType) {
+				// create defining field handle
+				enclosingElement = this.createFieldHandle(fieldDeclaration, (IType)parent);
+				if (enclosingElement == null) return;
+			} else {
+				enclosingElement = parent;
+			}
 
 			// accept reference
 			if (reference instanceof QualifiedNameReference
 				|| reference instanceof QualifiedTypeReference
 				|| reference instanceof ArrayTypeReference) {
-				this.pattern.matchReportReference(reference, field, accuracy, this);
+				this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
 			} else
 				if (reference instanceof MessageSend) {
 					// message ref are starting at the selector start
 					this.report(
 						(int) (((MessageSend) reference).nameSourcePosition >> 32),
 						reference.sourceEnd,
-						field,
+						enclosingElement,
 						accuracy);
 				} else {
-					this.report(reference.sourceStart, reference.sourceEnd, field, accuracy);
+					this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
 				}
 		} else { // initializer
-			// create defining initializer
-			IInitializer initializer =
-				this.createInitializerHandle(
-					typeDeclaration,
-					fieldDeclaration,
-					definingTypeNames);
-			if (initializer == null) return;
+			if (parent instanceof IType) {
+				// create defining initializer
+				enclosingElement =
+					this.createInitializerHandle(
+						typeDeclaration,
+						fieldDeclaration,
+						(IType)parent);
+				if (enclosingElement == null) return;
+			} else {
+				enclosingElement = parent;
+			}
 
 			// accept reference
 			if (reference instanceof QualifiedNameReference
@@ -709,7 +720,7 @@ public class MatchLocator implements ITypeRequestor {
 				|| reference instanceof ArrayTypeReference) {
 				this.pattern.matchReportReference(
 					reference,
-					initializer,
+					enclosingElement,
 					accuracy,
 					this);
 			} else
@@ -718,10 +729,10 @@ public class MatchLocator implements ITypeRequestor {
 					this.report(
 						(int) (((MessageSend) reference).nameSourcePosition >> 32),
 						reference.sourceEnd,
-						initializer,
+						enclosingElement,
 						accuracy);
 				} else {
-					this.report(reference.sourceStart, reference.sourceEnd, initializer, accuracy);
+					this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
 				}
 		}
 	}
@@ -732,13 +743,9 @@ public class MatchLocator implements ITypeRequestor {
 	 */
 	public void reportSuperTypeReference(
 		TypeReference typeRef,
-		char[][] definingTypeNames,
+		IJavaElement type,
 		int accuracy)
 		throws CoreException {
-
-		// create defining type handle
-		IType type = this.createTypeHandle(definingTypeNames);
-		if (type == null) return;
 
 		// accept type reference
 		this.pattern.matchReportReference(typeRef, type, accuracy, this);
@@ -746,23 +753,22 @@ public class MatchLocator implements ITypeRequestor {
 
 	/**
 	 * Reports the given type declaration to the search requestor.
-	 * Its simple names are the names of its outer most type to this type.
 	 */
 	public void reportTypeDeclaration(
 		TypeDeclaration typeDeclaration,
-		char[][] simpleTypeNames,
+		IJavaElement parent,
 		int accuracy)
 		throws CoreException {
-
-		// create type handle
-		IType type = this.createTypeHandle(simpleTypeNames);
-		if (type == null) return;
 
 		// accept class or interface declaration
 		this.report(
 			typeDeclaration.sourceStart,
 			typeDeclaration.sourceEnd,
-			type,
+			(parent == null) ?
+				this.createTypeHandle(typeDeclaration.name) :
+				(parent instanceof IType) ?
+					this.createTypeHandle((IType)parent, typeDeclaration.name) :
+					parent,
 			accuracy);
 	}
 

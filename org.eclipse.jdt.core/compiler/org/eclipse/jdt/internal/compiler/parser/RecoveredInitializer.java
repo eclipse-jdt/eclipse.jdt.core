@@ -176,6 +176,8 @@ public FieldDeclaration updatedFieldDeclaration(){
 		if (block != null){
 			((Initializer)fieldDeclaration).block = block;
 		}
+		if (this.localTypeCount > 0) fieldDeclaration.bits |= AstNode.HasLocalTypeMASK;
+
 	}	
 	return fieldDeclaration;
 }

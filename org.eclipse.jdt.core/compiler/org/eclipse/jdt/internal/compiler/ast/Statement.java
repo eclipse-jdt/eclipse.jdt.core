@@ -52,3 +52,4 @@ public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatem
 }
 public void resetStateForCodeGeneration() {
 }
+}

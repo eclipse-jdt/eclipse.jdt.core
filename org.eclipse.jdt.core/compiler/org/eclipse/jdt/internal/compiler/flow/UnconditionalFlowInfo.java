@@ -124,7 +124,7 @@ public boolean complainIfUnreachable(Statement statement, BlockScope scope) {
 
 	boolean isDeadEnd;
 	if ((isDeadEnd = (this == DeadEnd)) || isFakeReachable) {
-		statement.bits &= ~Statement.IsReachableMASK;
+		statement.bits &= ~AstNode.IsReachableMASK;
 		/* EXTRA REFERENCE RECORDING
 		statement.recordUnreachableReferences(scope.referenceType()); // scopes cannot have an enclosingMethod slot since there are class scopes
 		*/

@@ -346,7 +346,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
 				char[][] tokens = qNameRef.tokens;
 				int lastIndex = tokens.length-1;
-				switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
+				switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 					case BindingIds.FIELD : // reading a field
 						typeBinding = ((FieldBinding)binding).declaringClass;
 						// no valid match amongst fields

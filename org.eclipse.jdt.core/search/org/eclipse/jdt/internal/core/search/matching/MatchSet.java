@@ -6,11 +6,16 @@ package org.eclipse.jdt.internal.core.search.matching;
  */
 import org.eclipse.core.runtime.CoreException;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+
+import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.search.matching.*;
+
 import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.search.matching.*;
 
 import java.util.*;
 
@@ -18,8 +23,6 @@ import java.util.*;
  * A set of matches and potential matches.
  */
 public class MatchSet {
-	
-	private static final char[][] EMPTY_CHAR_CHAR = new char[0][];
 	
 	private MatchLocator locator;
 	int matchContainer;
@@ -36,6 +39,47 @@ public class MatchSet {
 	 * to determine if they really match the search pattern.
 	 */
 	private Hashtable potentialMatchingNodes = new Hashtable(5);
+	
+/**
+ * An ast visitor that visits local type declarations.
+ */
+public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+	IJavaElement enclosingElement;
+	public boolean visit(
+			AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
+			BlockScope scope) {
+		try {
+			reportMatching(anonymousTypeDeclaration, enclosingElement);
+		} catch (CoreException e) {
+			throw new WrappedCoreException(e);
+		}
+		return false; // don't visit members as this was done during reportMatching(...)
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+		try {
+			reportMatching(typeDeclaration, enclosingElement);
+			return false; // don't visit members as this was done during reportMatching(...)
+		} catch (CoreException e) {
+			throw new WrappedCoreException(e);
+		}
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+		try {
+			reportMatching(typeDeclaration, enclosingElement);
+			return false; // don't visit members as this was done during reportMatching(...)
+		} catch (CoreException e) {
+			throw new WrappedCoreException(e);
+		}
+	}
+	
+}	
+
+public class WrappedCoreException extends RuntimeException {
+	public CoreException coreException;
+	public WrappedCoreException(CoreException coreException) {
+		this.coreException = coreException;
+	}
+}
 
 public MatchSet(MatchLocator locator) {
 	this.locator = locator;
@@ -104,20 +148,33 @@ private AstNode[] potentialMatchingNodes(int start, int end) {
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the method declaration has already been checked.
  */
-private void reportMatching(AbstractMethodDeclaration method, char[][] definingTypeNames) throws CoreException {
+private void reportMatching(AbstractMethodDeclaration method, IJavaElement parent) throws CoreException {
 	// references in this method
 	AstNode[] nodes = this.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 	for (int i = 0; i < nodes.length; i++) {
 		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.remove(node);
+		Integer level = (Integer)this.matchingNodes.get(node);
 		if ((this.matchContainer & SearchPattern.METHOD) != 0) {
 			this.locator.reportReference(
 				node, 
 				method, 
-				definingTypeNames, 
+				parent, 
 				level.intValue() == SearchPattern.ACCURATE_MATCH ?
 					IJavaSearchResultCollector.EXACT_MATCH :
 					IJavaSearchResultCollector.POTENTIAL_MATCH);
+			this.matchingNodes.remove(node);
+		}
+	}
+	if ((method.bits & AstNode.HasLocalTypeMASK) != 0) {
+		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
+		localDeclarationVisitor.enclosingElement = 
+			(parent instanceof IType) ?
+				this.locator.createMethodHandle(method, (IType)parent) :
+				parent;
+		try {
+			method.traverse(localDeclarationVisitor, (ClassScope)null);
+		} catch (WrappedCoreException e) {
+			throw e.coreException;
 		}
 	}
 	if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
@@ -177,13 +234,13 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 				if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
 					this.locator.reportTypeDeclaration(
 						type, 
-						new char[][] {type.name}, 
+						null, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
 				}
 			}
-			this.reportMatching(type, EMPTY_CHAR_CHAR);
+			this.reportMatching(type, null);
 		}
 	}
 }
@@ -192,20 +249,33 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the field declaration has already been checked.
  */
-private void reportMatching(FieldDeclaration field, char[][] definingTypeNames, TypeDeclaration type) throws CoreException {
+private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDeclaration type) throws CoreException {
 	AstNode[] nodes = this.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
 	for (int i = 0; i < nodes.length; i++) {
 		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.remove(node);
+		Integer level = (Integer)this.matchingNodes.get(node);
 		if ((this.matchContainer & SearchPattern.FIELD) != 0) {
 			this.locator.reportReference(
 				node, 
 				type, 
 				field, 
-				definingTypeNames, 
+				parent, 
 				level.intValue() == SearchPattern.ACCURATE_MATCH ?
 					IJavaSearchResultCollector.EXACT_MATCH :
 					IJavaSearchResultCollector.POTENTIAL_MATCH);
+			this.matchingNodes.remove(node);
+		}
+	}
+	if ((field.bits & AstNode.HasLocalTypeMASK) != 0) {
+		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
+		localDeclarationVisitor.enclosingElement = 
+			(parent instanceof IType) ?
+				this.locator.createFieldHandle(field, (IType)parent) :
+				parent;
+		try {
+			field.traverse(localDeclarationVisitor, (BlockScope)null);
+		} catch (WrappedCoreException e) {
+			throw e.coreException;
 		}
 	}
 }
@@ -214,8 +284,16 @@ private void reportMatching(FieldDeclaration field, char[][] definingTypeNames, 
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the type declaration has already been checked.
  */
-private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) throws CoreException {
-	char[][] definingTypeNames = CharOperation.arrayConcat(enclosingTypeNames, type.name);
+public void reportMatching(TypeDeclaration type, IJavaElement parent) throws CoreException {
+	IJavaElement enclosingElement;
+	if (parent == null) {
+		enclosingElement = this.locator.createTypeHandle(type.name);
+	} else if (parent instanceof IType) {
+		enclosingElement = this.locator.createTypeHandle((IType)parent, type.name);
+		if (enclosingElement == null) return;
+	} else {
+		enclosingElement = parent;
+	}
 	Integer level;
 	
 	// fields
@@ -227,13 +305,13 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
 					this.locator.reportFieldDeclaration(
 						field, 
-						definingTypeNames, 
+						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
 				}
 			}
-			this.reportMatching(field, definingTypeNames, type);
+			this.reportMatching(field, enclosingElement, type);
 		}
 	}
 
@@ -246,13 +324,13 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
 					this.locator.reportMethodDeclaration(
 						method, 
-						definingTypeNames, 
+						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
 				}
 			}
-			this.reportMatching(method, definingTypeNames);
+			this.reportMatching(method, enclosingElement);
 		}
 	}
 
@@ -263,48 +341,60 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 			MemberTypeDeclaration memberType = memberTypes[i];
 			if ((level = (Integer)this.matchingNodes.remove(memberType)) != null) {
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-					char[][] memberTypeNames = CharOperation.arrayConcat(definingTypeNames, memberType.name);
 					this.locator.reportTypeDeclaration(
 						memberType, 
-						memberTypeNames, 
+						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
 				}
 			}
-			this.reportMatching(memberType, definingTypeNames);
+			this.reportMatching(memberType, enclosingElement);
 		}
 	}
 
 	// super types
-	TypeReference superClass = type.superclass;
-	if (superClass != null && (level = (Integer)this.matchingNodes.remove(superClass)) != null) {
-		if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-			this.locator.reportSuperTypeReference(
-				superClass, 
-				definingTypeNames, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
+	if (type instanceof AnonymousLocalTypeDeclaration) {
+		TypeReference superType = ((AnonymousLocalTypeDeclaration)type).allocation.type;
+		if (superType != null && (level = (Integer)this.matchingNodes.remove(superType)) != null) {
+			if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+				this.locator.reportSuperTypeReference(
+					superType, 
+					enclosingElement, 
+					level.intValue() == SearchPattern.ACCURATE_MATCH ?
+						IJavaSearchResultCollector.EXACT_MATCH :
+						IJavaSearchResultCollector.POTENTIAL_MATCH);
+			}
 		}
-	}
-	TypeReference[] superInterfaces = type.superInterfaces;
-	if (superInterfaces != null) {
-		for (int i = 0; i < superInterfaces.length; i++) {
-			TypeReference superInterface = superInterfaces[i];
-			if ((level = (Integer)this.matchingNodes.get(superInterface)) != null) {
-				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-					this.locator.reportSuperTypeReference(
-						superInterface, 
-						definingTypeNames, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+	} else {
+		TypeReference superClass = type.superclass;
+		if (superClass != null && (level = (Integer)this.matchingNodes.remove(superClass)) != null) {
+			if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+				this.locator.reportSuperTypeReference(
+					superClass, 
+					enclosingElement, 
+					level.intValue() == SearchPattern.ACCURATE_MATCH ?
+						IJavaSearchResultCollector.EXACT_MATCH :
+						IJavaSearchResultCollector.POTENTIAL_MATCH);
+			}
+		}
+		TypeReference[] superInterfaces = type.superInterfaces;
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				TypeReference superInterface = superInterfaces[i];
+				if ((level = (Integer)this.matchingNodes.get(superInterface)) != null) {
+					if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+						this.locator.reportSuperTypeReference(
+							superInterface, 
+							enclosingElement, 
+							level.intValue() == SearchPattern.ACCURATE_MATCH ?
+								IJavaSearchResultCollector.EXACT_MATCH :
+								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					}
 				}
 			}
 		}
 	}
-
 }
 public String toString() {
 	StringBuffer result = new StringBuffer();

@@ -1406,7 +1406,7 @@ protected void consumeClassDeclaration() {
 
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= Statement.AddAssertionMASK;
+		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
@@ -1469,6 +1469,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -1783,6 +1784,7 @@ protected void consumeEnterAnonymousClassBody() {
 		new AnonymousLocalTypeDeclaration(); 
 	alloc = 
 		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
+	markCurrentMethodWithLocalType();
 	pushOnAstStack(anonymousType);
 
 	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
@@ -2153,7 +2155,7 @@ protected void consumeInterfaceDeclaration() {
 	
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= Statement.AddAssertionMASK;
+		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
@@ -2203,6 +2205,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -4594,7 +4597,7 @@ This variable is a type reference and dim will be its dimensions*/
 }
 protected Expression getTypeReference(Expression exp) {
 	
-	exp.bits &= ~NameReference.RestrictiveFlagMASK;
+	exp.bits &= ~AstNode.RestrictiveFlagMASK;
 	exp.bits |= TYPE;
 	return exp;
 }
@@ -4638,7 +4641,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			new SingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
-		ref.bits &= ~NameReference.RestrictiveFlagMASK;
+		ref.bits &= ~AstNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
 	}
@@ -4656,7 +4659,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			tokens, 
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 			(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	ref.bits &= ~NameReference.RestrictiveFlagMASK;
+	ref.bits &= ~AstNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	return ref;
 }
@@ -6171,6 +6174,21 @@ public final void jumpOverMethodBody() {
 
 	if (diet && (dietInt == 0))
 		scanner.diet = true;
+}
+protected void markCurrentMethodWithLocalType() {
+	if (this.currentElement != null) return; // this is already done in the recovery code
+	for (int i = this.astPtr; i >= 0; i--) {
+		AstNode node = this.astStack[i];
+		if (node instanceof AbstractMethodDeclaration 
+				|| node instanceof FieldDeclaration) {
+			node.bits |= AstNode.HasLocalTypeMASK;
+			return;
+		}
+	}
+	// default to reference context (case of parse method body)
+	if (this.referenceContext instanceof AbstractMethodDeclaration) {
+		((AstNode)this.referenceContext).bits |= AstNode.HasLocalTypeMASK;
+	}
 }
 /*
  * Move checkpoint location (current implementation is moving it by one token)

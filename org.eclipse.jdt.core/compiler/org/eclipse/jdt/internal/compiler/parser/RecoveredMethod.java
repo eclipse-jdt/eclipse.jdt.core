@@ -232,6 +232,7 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 			}
 		}
 	}
+	if (localTypeCount > 0) methodDeclaration.bits |= AstNode.HasLocalTypeMASK;
 	return methodDeclaration;
 }
 /*
