@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
 
-	public IWorkspace workspace;
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
 	private Map indexes = new HashMap(5);
 
@@ -306,7 +305,9 @@ public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
 private void rebuildIndex(String indexName, IPath path) {
-	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	if (workspace == null) return;
+	Object target = JavaModel.getTarget(workspace.getRoot(), path, true);
 	if (target == null) return;
 
 	if (VERBOSE)
