@@ -202,6 +202,9 @@ public abstract class ASTVisitor {
 	public boolean visit(InfixExpression node) {
 		return true;
 	}
+	public boolean visit(InstanceofExpression node) {
+		return true;
+	}
 	public boolean visit(Initializer node) {
 		return true;
 	}
@@ -358,6 +361,8 @@ public abstract class ASTVisitor {
 	public void endVisit(ImportDeclaration node) {
 	}
 	public void endVisit(InfixExpression node) {
+	}
+	public void endVisit(InstanceofExpression node) {
 	}
 	public void endVisit(Initializer node) {
 	}

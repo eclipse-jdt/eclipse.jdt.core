@@ -1270,11 +1270,23 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented instanceof expression node 
+	 * owned by this AST. By default, the operator and left and right
+	 * operand are unspecified (but legal).
+	 * 
+	 * @return a new unparented instanceof expression node
+	 */
+	public InstanceofExpression newInstanceofExpression() {
+		InstanceofExpression result = new InstanceofExpression(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented postfix expression node 
 	 * owned by this AST. By default, the operator and operand are 
 	 * unspecified (but legal).
 	 * 
-	 * @return a new unparented infix expression node
+	 * @return a new unparented postfix expression node
 	 */
 	public PostfixExpression newPostfixExpression() {
 		PostfixExpression result = new PostfixExpression(this);
@@ -1286,7 +1298,7 @@ public final class AST {
 	 * owned by this AST. By default, the operator and operand are 
 	 * unspecified (but legal).
 	 * 
-	 * @return a new unparented infix expression node
+	 * @return a new unparented prefix expression node
 	 */
 	public PrefixExpression newPrefixExpression() {
 		PrefixExpression result = new PrefixExpression(this);

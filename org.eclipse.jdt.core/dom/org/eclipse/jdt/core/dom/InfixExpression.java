@@ -47,7 +47,6 @@ public class InfixExpression extends Expression {
 	 *    <b><code>&gt;</code></p>  <code>GREATER</code>
 	 *    <b><code>&lt;=</code></p>  <code>LESS_EQUALS</code>
 	 *    <b><code>&gt;=</code></p>  <code>GREATER_EQUALS</code>
-	 *    <b><code>instanceof</code></p>  <code>INSTANCEOF</code>
 	 *    <b><code>==</code></p>  <code>EQUALS</code>
 	 *    <b><code>!=</code></p>  <code>NOT_EQUALS</code>
 	 *    <b><code>^</code></p>  <code>XOR</code>
@@ -111,7 +110,10 @@ public class InfixExpression extends Expression {
 		public static final Operator LESS_EQUALS = new Operator("<=");//$NON-NLS-1$
 		/** Greater than or equals "&gt=;" operator. */
 		public static final Operator GREATER_EQUALS = new Operator(">=");//$NON-NLS-1$
-		/** "instanceof" operator. */
+		/**
+		 * "instanceof" operator.
+		 * @deprecated Replaced by InstanceofExpression node to allow Type for right operand
+		 * */
 		public static final Operator INSTANCEOF = new Operator("instanceof");//$NON-NLS-1$
 		/** Equals "==" operator. */
 		public static final Operator EQUALS = new Operator("==");//$NON-NLS-1$

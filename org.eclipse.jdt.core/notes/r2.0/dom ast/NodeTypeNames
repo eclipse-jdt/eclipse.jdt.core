@@ -25,6 +25,7 @@
 &start;IfStatement&end;
 &start;ImportDeclaration&end;
 &start;InfixExpression&end;
+&start;InstanceofExpression&end;
 &start;Initializer&end;
 &start;Javadoc&end;
 &start;LabeledStatement&end;

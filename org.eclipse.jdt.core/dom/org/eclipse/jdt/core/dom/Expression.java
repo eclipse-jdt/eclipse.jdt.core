@@ -37,6 +37,7 @@ package org.eclipse.jdt.core.dom;
  *    SuperMethodInvocation
  *    ArrayAccess
  *    InfixExpression
+ *    InstanceofExpression
  *    ConditionalExpression
  *    PostfixExpression
  *    PrefixExpression

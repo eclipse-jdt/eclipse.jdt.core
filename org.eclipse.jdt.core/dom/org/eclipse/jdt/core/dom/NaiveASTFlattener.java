@@ -488,6 +488,16 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(InstanceofExpression)
+	 */
+	public boolean visit(InstanceofExpression node) {
+		node.getLeftOperand().accept(this);
+		buffer.append(" instanceof ");//$NON-NLS-1$
+		node.getRightOperand().accept(this);
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(Initializer)
 	 */
 	public boolean visit(Initializer node) {

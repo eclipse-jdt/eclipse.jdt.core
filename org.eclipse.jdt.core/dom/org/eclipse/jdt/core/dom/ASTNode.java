@@ -532,6 +532,13 @@ public abstract class ASTNode {
 	public static final int WHILE_STATEMENT = 61;
 
 	/**
+	 * Node type constant indicating a node of type 
+	 * <code>InfixExpression</code>.
+	 * @see InfixExpression
+	 */
+	public static final int INSTANCEOF_EXPRESSION = 62;
+
+	/**
 	 * Owning AST.
 	 */
 	private final AST owner;
