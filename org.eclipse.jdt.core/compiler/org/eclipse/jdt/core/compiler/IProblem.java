@@ -71,6 +71,7 @@
  *								   EmptyControlFlowStatement
  *     IBM Corporation - added the following constants
  *								   IllegalUsageOfQualifiedTypeReference
+ *								   InvalidDigit
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -531,6 +532,8 @@ public interface IProblem {
 	int NullSourceString = Syntax + Internal + 258;
 	int UnterminatedString = Syntax + Internal + 259;
 	int UnterminatedComment = Syntax + Internal + 260;
+	/** @since 3.1 */
+	int InvalidDigit = Syntax + Internal + 262;	
 
 	// type related problems
 	int InterfaceCannotHaveInitializers = TypeRelated + 300;

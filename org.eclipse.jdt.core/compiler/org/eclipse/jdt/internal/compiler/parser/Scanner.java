@@ -100,6 +100,7 @@ public class Scanner implements TerminalTokens {
 	public static final String UNTERMINATED_STRING = "Unterminated_String"; //$NON-NLS-1$
 	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"; //$NON-NLS-1$
 	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
+	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$	
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
@@ -668,7 +669,7 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 		return -1;
 	}
 }
-public final boolean getNextCharAsDigit() {
+public final boolean getNextCharAsDigit() throws InvalidInputException {
 	//BOOLEAN
 	//handle the case of unicode.
 	//when a unicode appears then we must use a buffer that holds char internal values
@@ -704,7 +705,7 @@ public final boolean getNextCharAsDigit() {
 			}
 
 			this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-			if (!Character.isDigit(this.currentCharacter)) {
+			if (!isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -719,7 +720,7 @@ public final boolean getNextCharAsDigit() {
 			return true;
 		} //-------------end unicode traitement--------------
 		else {
-			if (!Character.isDigit(this.currentCharacter)) {
+			if (!isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -1490,8 +1491,9 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					if (Character.isJavaIdentifierStart(this.currentCharacter))
 						return scanIdentifierOrKeyword();
-					if (Character.isDigit(this.currentCharacter))
+					if (isDigit(this.currentCharacter)) {
 						return scanNumber(false);
+					}						
 					return TokenNameERROR;
 			}
 		}
@@ -1553,7 +1555,26 @@ public final void getNextUnicodeChar()
 public char[] getSource(){
 	return this.source;
 }
-
+private boolean isDigit(char c) throws InvalidInputException {
+	if (Character.isDigit(c)) {
+		switch(c) {
+			case '0' :
+			case '1' :
+			case '2' :
+			case '3' :
+			case '4' :
+			case '5' :
+			case '6' :
+			case '7' :
+			case '8' :
+			case '9' :
+				return true;
+		}
+		throw new InvalidInputException(Scanner.INVALID_DIGIT);
+	} else {
+		return false;
+	}
+}
 /* Tokenize a method body, assuming that curly brackets are properly balanced.
  */
 public final void jumpOverMethodBody() {
@@ -1881,7 +1902,7 @@ public final void jumpOverMethodBody() {
 						scanIdentifierOrKeyword();
 						break;
 					}
-					if (Character.isDigit(this.currentCharacter)) {
+					if (isDigit(this.currentCharacter)) {
 						try {
 							scanNumber(false);
 						} catch (InvalidInputException ex) {
@@ -2395,11 +2416,11 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 			int number = Character.getNumericValue(this.currentCharacter);
 			if (number >= 0 && number <= 7) {
 				boolean zeroToThreeNot = number > 3;
-				if (Character.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+				if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 					int digit = Character.getNumericValue(this.currentCharacter);
 					if (digit >= 0 && digit <= 7) {
 						number = (number * 8) + digit;
-						if (Character.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+						if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 							if (zeroToThreeNot) {// has read \NotZeroToThree OctalDigit Digit --> ignore last character
 								this.currentPosition--;
 							} else {
@@ -3081,7 +3102,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 							}
 						}
 					}
-					if (!Character.isDigit(this.currentCharacter))
+					if (!isDigit(this.currentCharacter))
 						throw new InvalidInputException(INVALID_FLOAT);
 					while (getNextCharAsDigit()){/*empty*/}
 				}
@@ -3133,7 +3154,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				}
 			}
 		}
-		if (!Character.isDigit(this.currentCharacter))
+		if (!isDigit(this.currentCharacter))
 			throw new InvalidInputException(INVALID_FLOAT);
 		while (getNextCharAsDigit()){/*empty*/}
 	}

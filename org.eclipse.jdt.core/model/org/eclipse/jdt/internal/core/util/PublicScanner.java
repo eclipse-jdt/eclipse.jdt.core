@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.NLSLine;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class PublicScanner implements IScanner, ITerminalSymbols {
 
@@ -30,9 +31,8 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	 - sourceStart gives the position into the stream
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
-
+	private long sourceLevel;
 	// 1.4 feature 
-	private boolean assertMode = false;
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 
@@ -97,6 +97,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final String UNTERMINATED_STRING = "Unterminated_String"; //$NON-NLS-1$
 	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"; //$NON-NLS-1$
 	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
+	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$	
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
@@ -142,6 +143,9 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public boolean checkNonExternalizedStringLiterals = false;
 	public boolean wasNonExternalizedStringLiteral = false;
 	
+	// generic support
+	public boolean returnOnlyGreater = false;
+	
 	/*static*/ {
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < TableSize; j++) {
@@ -179,7 +183,7 @@ public PublicScanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = sourceLevel >= ClassFileConstants.JDK1_4;
+	this.sourceLevel = sourceLevel;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 	this.isTaskCaseSensitive = isTaskCaseSensitive;
@@ -662,7 +666,7 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 		return -1;
 	}
 }
-public final boolean getNextCharAsDigit() {
+public final boolean getNextCharAsDigit() throws InvalidInputException {
 	//BOOLEAN
 	//handle the case of unicode.
 	//when a unicode appears then we must use a buffer that holds char internal values
@@ -698,7 +702,7 @@ public final boolean getNextCharAsDigit() {
 			}
 
 			this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-			if (!Character.isDigit(this.currentCharacter)) {
+			if (!isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -713,7 +717,7 @@ public final boolean getNextCharAsDigit() {
 			return true;
 		} //-------------end unicode traitement--------------
 		else {
-			if (!Character.isDigit(this.currentCharacter)) {
+			if (!isDigit(this.currentCharacter)) {
 				this.currentPosition = temp;
 				return false;
 			}
@@ -921,6 +925,13 @@ public int getNextToken() throws InvalidInputException {
 			// ---------Identify the next token-------------
 
 			switch (this.currentCharacter) {
+				case '@' :
+/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+						return TokenNameAT;
+					} else {
+						return TokenNameERROR;
+					}*/
+					return TokenNameAT;
 				case '(' :
 					return TokenNameLPAREN;
 				case ')' :
@@ -938,9 +949,37 @@ public int getNextToken() throws InvalidInputException {
 				case ',' :
 					return TokenNameCOMMA;
 				case '.' :
-					if (getNextCharAsDigit())
+					if (getNextCharAsDigit()) {
 						return scanNumber(true);
-					return TokenNameDOT;
+					}
+/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+						int temp = this.currentPosition;
+						if (getNextChar('.')) {
+							if (getNextChar('.')) {
+								return TokenNameELLIPSIS;
+							} else {
+								this.currentPosition = temp;
+								return TokenNameDOT;
+							}
+						} else {
+							this.currentPosition = temp;
+							return TokenNameDOT;
+						}
+					} else {
+						return TokenNameDOT;
+					}*/
+					int temp = this.currentPosition;
+					if (getNextChar('.')) {
+						if (getNextChar('.')) {
+							return TokenNameELLIPSIS;
+						} else {
+							this.currentPosition = temp;
+							return TokenNameDOT;
+						}
+					} else {
+						this.currentPosition = temp;
+						return TokenNameDOT;
+					}
 				case '+' :
 					{
 						int test;
@@ -988,6 +1027,9 @@ public int getNextToken() throws InvalidInputException {
 				case '>' :
 					{
 						int test;
+						if (this.returnOnlyGreater) {
+							return TokenNameGREATER;
+						}
 						if ((test = getNextChar('=', '>')) == 0)
 							return TokenNameGREATER_EQUAL;
 						if (test > 0) {
@@ -1446,8 +1488,13 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					if (Character.isJavaIdentifierStart(this.currentCharacter))
 						return scanIdentifierOrKeyword();
-					if (Character.isDigit(this.currentCharacter))
-						return scanNumber(false);
+					if (Character.isDigit(this.currentCharacter)) {
+						if (isDigit(this.currentCharacter)) {
+							return scanNumber(false);
+						} else {
+							throw new InvalidInputException(INVALID_FLOAT);
+						}
+					}						
 					return TokenNameERROR;
 			}
 		}
@@ -1509,7 +1556,26 @@ public final void getNextUnicodeChar()
 public char[] getSource(){
 	return this.source;
 }
-
+private boolean isDigit(char c) throws InvalidInputException {
+	if (Character.isDigit(c)) {
+		switch(c) {
+			case '0' :
+			case '1' :
+			case '2' :
+			case '3' :
+			case '4' :
+			case '5' :
+			case '6' :
+			case '7' :
+			case '8' :
+			case '9' :
+				return true;
+		}
+		throw new InvalidInputException(Scanner.INVALID_DIGIT);
+	} else {
+		return false;
+	}
+}
 /* Tokenize a method body, assuming that curly brackets are properly balanced.
  */
 public final void jumpOverMethodBody() {
@@ -1837,7 +1903,7 @@ public final void jumpOverMethodBody() {
 						scanIdentifierOrKeyword();
 						break;
 					}
-					if (Character.isDigit(this.currentCharacter)) {
+					if (isDigit(this.currentCharacter)) {
 						try {
 							scanNumber(false);
 						} catch (InvalidInputException ex) {
@@ -2351,11 +2417,11 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 			int number = Character.getNumericValue(this.currentCharacter);
 			if (number >= 0 && number <= 7) {
 				boolean zeroToThreeNot = number > 3;
-				if (Character.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+				if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 					int digit = Character.getNumericValue(this.currentCharacter);
 					if (digit >= 0 && digit <= 7) {
 						number = (number * 8) + digit;
-						if (Character.isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
+						if (isDigit(this.currentCharacter = this.source[this.currentPosition++])) {
 							if (zeroToThreeNot) {// has read \NotZeroToThree OctalDigit Digit --> ignore last character
 								this.currentPosition--;
 							} else {
@@ -2436,7 +2502,7 @@ public int scanIdentifierOrKeyword() {
 						&& (data[++index] == 'e')
 						&& (data[++index] == 'r')
 						&& (data[++index] == 't')) {
-							if (this.assertMode) {
+							if (this.sourceLevel >= ClassFileConstants.JDK1_4) {
 								this.containsAssertKeyword = true;
 								return TokenNameassert;
 							} else {
@@ -2561,8 +2627,17 @@ public int scanIdentifierOrKeyword() {
 				case 4 :
 					if ((data[++index] == 'l') && (data[++index] == 's') && (data[++index] == 'e'))
 						return TokenNameelse;
-					else
-						return TokenNameIdentifier;
+					else if ((data[index] == 'n')
+						&& (data[++index] == 'u')
+						&& (data[++index] == 'm')) {
+							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+								return TokenNameenum;
+							} else {
+								return TokenNameIdentifier;								
+							}
+						} else {
+							return TokenNameIdentifier;
+						}
 				case 7 :
 					if ((data[++index] == 'x')
 						&& (data[++index] == 't')
@@ -3028,7 +3103,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 							}
 						}
 					}
-					if (!Character.isDigit(this.currentCharacter))
+					if (!isDigit(this.currentCharacter))
 						throw new InvalidInputException(INVALID_FLOAT);
 					while (getNextCharAsDigit()){/*empty*/}
 				}
@@ -3080,7 +3155,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				}
 			}
 		}
-		if (!Character.isDigit(this.currentCharacter))
+		if (!isDigit(this.currentCharacter))
 			throw new InvalidInputException(INVALID_FLOAT);
 		while (getNextCharAsDigit()){/*empty*/}
 	}

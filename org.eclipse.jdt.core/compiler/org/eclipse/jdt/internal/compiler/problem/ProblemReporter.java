@@ -3317,42 +3317,35 @@ public void scannerError(Parser parser, String errorTokenName) {
 	//special treatment for recognized errors....
 	if (errorTokenName.equals(Scanner.END_OF_SOURCE))
 		flag = IProblem.EndOfSource;
-	else
-		if (errorTokenName.equals(Scanner.INVALID_HEXA))
-			flag = IProblem.InvalidHexa;
-		else
-			if (errorTokenName.equals(Scanner.INVALID_OCTAL))
-				flag = IProblem.InvalidOctal;
-			else
-				if (errorTokenName.equals(Scanner.INVALID_CHARACTER_CONSTANT))
-					flag = IProblem.InvalidCharacterConstant;
-				else
-					if (errorTokenName.equals(Scanner.INVALID_ESCAPE))
-						flag = IProblem.InvalidEscape;
-					else
-						if (errorTokenName.equals(Scanner.INVALID_UNICODE_ESCAPE)){
-							flag = IProblem.InvalidUnicodeEscape;
-							// better locate the error message
-							char[] source = scanner.source;
-							int checkPos = scanner.currentPosition - 1;
-							if (checkPos >= source.length) checkPos = source.length - 1;
-							while (checkPos >= startPos){
-								if (source[checkPos] == '\\') break;
-								checkPos --;
-							}
-							startPos = checkPos;
-						} else
-							if (errorTokenName.equals(Scanner.INVALID_FLOAT))
-								flag = IProblem.InvalidFloat;
-							else
-								if (errorTokenName.equals(Scanner.UNTERMINATED_STRING))
-									flag = IProblem.UnterminatedString;
-								else
-									if (errorTokenName.equals(Scanner.UNTERMINATED_COMMENT))
-										flag = IProblem.UnterminatedComment;
-									else
-										if (errorTokenName.equals(Scanner.INVALID_CHAR_IN_STRING))
-											flag = IProblem.UnterminatedString;
+	else if (errorTokenName.equals(Scanner.INVALID_HEXA))
+		flag = IProblem.InvalidHexa;
+	else if (errorTokenName.equals(Scanner.INVALID_OCTAL))
+		flag = IProblem.InvalidOctal;
+	else if (errorTokenName.equals(Scanner.INVALID_CHARACTER_CONSTANT))
+		flag = IProblem.InvalidCharacterConstant;
+	else if (errorTokenName.equals(Scanner.INVALID_ESCAPE))
+		flag = IProblem.InvalidEscape;
+	else if (errorTokenName.equals(Scanner.INVALID_UNICODE_ESCAPE)){
+		flag = IProblem.InvalidUnicodeEscape;
+		// better locate the error message
+		char[] source = scanner.source;
+		int checkPos = scanner.currentPosition - 1;
+		if (checkPos >= source.length) checkPos = source.length - 1;
+		while (checkPos >= startPos){
+			if (source[checkPos] == '\\') break;
+			checkPos --;
+		}
+		startPos = checkPos;
+	} else if (errorTokenName.equals(Scanner.INVALID_FLOAT))
+		flag = IProblem.InvalidFloat;
+	else if (errorTokenName.equals(Scanner.UNTERMINATED_STRING))
+		flag = IProblem.UnterminatedString;
+	else if (errorTokenName.equals(Scanner.UNTERMINATED_COMMENT))
+		flag = IProblem.UnterminatedComment;
+	else if (errorTokenName.equals(Scanner.INVALID_CHAR_IN_STRING))
+		flag = IProblem.UnterminatedString;
+	else if (errorTokenName.equals(Scanner.INVALID_DIGIT))
+		flag = IProblem.InvalidDigit;
 
 	String[] arguments = flag == IProblem.ParsingErrorNoSuggestion 
 			? new String[] {errorTokenName}
