@@ -1102,7 +1102,7 @@ public void parseCompilationUnit(
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		if (this.localDeclarationVisitor != null || fullParse){
 			diet = false;
@@ -1132,7 +1132,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		int initialStart = this.scanner.initialPosition;
 		int initialEnd = this.scanner.eofPosition;
@@ -1162,11 +1162,11 @@ public void parseTypeMemberDeclarations(
 		unknownRefsCounter = 0;
 	}
 	
+	CompilationResult compilationUnitResult = 
+		new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
-		CompilationResult compilationUnitResult = 
-			new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{type}, 
@@ -1202,7 +1202,7 @@ public void parseTypeMemberDeclarations(
 		// ignore this exception
 	} finally {
 		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+			requestor.acceptLineSeparatorPositions(compilationUnitResult.lineSeparatorPositions);
 		}
 		diet = old;
 	}

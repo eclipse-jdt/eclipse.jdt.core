@@ -4504,9 +4504,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			System.out.println("----------------------------------"); //$NON-NLS-1$
 		}
 	}
-	if (this.scanner.recordLineSeparator) {
-		this.compilationUnit.compilationResult.lineSeparatorPositions = this.scanner.getLineEnds();
-	}
+	persistLineSeparatorPositions();
 	for (int i = 0; i < this.scanner.foundTaskCount; i++){
 		problemReporter().task(
 			new String(this.scanner.foundTaskTags[i]), 
@@ -5772,6 +5770,11 @@ public Expression parseExpression(char[] source, int offset, int length, Compila
 	}
 
 	return this.expressionStack[this.expressionPtr];
+}
+public void persistLineSeparatorPositions() {
+	if (this.scanner.recordLineSeparator) {
+		this.compilationUnit.compilationResult.lineSeparatorPositions = this.scanner.getLineEnds();
+	}
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
