@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+
 import junit.framework.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;

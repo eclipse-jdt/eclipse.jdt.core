@@ -19,8 +19,8 @@ public class AllPerformanceTests extends TestCase {
 
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
+			FullSourceWorkspaceSearchTests.class, // run this test first to be sure that indexing is finished
 			FullSourceWorkspaceBuildTests.class,
-			FullSourceWorkspaceSearchTests.class,
 			FullSourceWorkspaceASTTests.class,
 			FullSourceWorkspaceTypeHierarchyTests.class,
 			BuildBatchCompilerTest.class
