@@ -18,88 +18,91 @@ import java.io.*;
 
 public class SourceFile implements ICompilationUnit {
 
-public char[] fileName;
-public char[] mainTypeName;
-public char[][] packageName;
-String encoding;
+	public char[] fileName;
+	public char[] mainTypeName;
+	public char[][] packageName;
+	public String encoding;
+	
+	public SourceFile(String fileName, String initialTypeName, String encoding) {
 
-public SourceFile(String fileName, String initialTypeName, String encoding) {
-	this.fileName = fileName.toCharArray();
-	CharOperation.replace(this.fileName, '\\', '/');
-
-	char[] typeName = initialTypeName.toCharArray();
-	int lastIndex = CharOperation.lastIndexOf('/', typeName);
-	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
-	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
-
-	this.encoding = encoding;
-}
-
-public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
-	this.fileName = fileName.toCharArray();
-	CharOperation.replace(this.fileName, '\\', '/');
-
-	this.mainTypeName = mainTypeName;
-	this.packageName = packageName;
-
-	this.encoding = encoding;
-}
-
-public char[] getContents() {
-	// otherwise retrieve it
-	BufferedReader reader = null;
-	try {
-		File file = new File(new String(fileName));
-		InputStreamReader streamReader =
-			this.encoding == null
-				? new InputStreamReader(new FileInputStream(file))
-				: new InputStreamReader(new FileInputStream(file), this.encoding);
-		reader = new BufferedReader(streamReader);
-		int length = (int) file.length();
-		char[] contents = new char[length];
-		int len = 0;
-		int readSize = 0;
-		while ((readSize != -1) && (len != length)) {
-			// See PR 1FMS89U
-			// We record first the read size. In this case len is the actual read size.
-			len += readSize;
-			readSize = reader.read(contents, len, length - len);
-		}
-		reader.close();
-		// See PR 1FMS89U
-		// Now we need to resize in case the default encoding used more than one byte for each
-		// character
-		if (len != length)
-			System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
-		if (contents.length == 0) this.packageName = null; // 22418
-		return contents;
-	} catch (FileNotFoundException e) {
-		throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
-	} catch (IOException e) {
-		if (reader != null) {
-			try {
-				reader.close();
-			} catch(IOException ioe) {
-			}
-		}
-		throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
+		this.fileName = fileName.toCharArray();
+		CharOperation.replace(this.fileName, '\\', '/');
+	
+		char[] typeName = initialTypeName.toCharArray();
+		int lastIndex = CharOperation.lastIndexOf('/', typeName);
+		this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
+		this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
+	
+		this.encoding = encoding;
 	}
-}
+	
+	public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
 
-public char[] getFileName() {
-	return fileName;
-}
+		this.fileName = fileName.toCharArray();
+		CharOperation.replace(this.fileName, '\\', '/');
+	
+		this.mainTypeName = mainTypeName;
+		this.packageName = packageName;
+	
+		this.encoding = encoding;
+	}
+	
+	public char[] getContents() {
 
-public char[] getMainTypeName() {
-	return mainTypeName;
-}
-
-public char[][] getPackageName() {
-	return packageName;
-}
-
-public String toString() {
-	return "SourceFile[" //$NON-NLS-1$
-		+ new String(fileName) + "]";  //$NON-NLS-1$
-}
+		// otherwise retrieve it
+		BufferedReader reader = null;
+		try {
+			File file = new File(new String(fileName));
+			InputStreamReader streamReader =
+				this.encoding == null
+					? new InputStreamReader(new FileInputStream(file))
+					: new InputStreamReader(new FileInputStream(file), this.encoding);
+			reader = new BufferedReader(streamReader);
+			int length = (int) file.length();
+			char[] contents = new char[length];
+			int len = 0;
+			int readSize = 0;
+			while ((readSize != -1) && (len != length)) {
+				// See PR 1FMS89U
+				// We record first the read size. In this case len is the actual read size.
+				len += readSize;
+				readSize = reader.read(contents, len, length - len);
+			}
+			reader.close();
+			// See PR 1FMS89U
+			// Now we need to resize in case the default encoding used more than one byte for each
+			// character
+			if (len != length)
+				System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
+			if (contents.length == 0) this.packageName = null; // 22418
+			return contents;
+		} catch (FileNotFoundException e) {
+			throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
+		} catch (IOException e) {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch(IOException ioe) {
+				}
+			}
+			throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
+		}
+	}
+	
+	public char[] getFileName() {
+		return fileName;
+	}
+	
+	public char[] getMainTypeName() {
+		return mainTypeName;
+	}
+	
+	public char[][] getPackageName() {
+		return packageName;
+	}
+	
+	public String toString() {
+		return "SourceFile[" //$NON-NLS-1$
+			+ new String(fileName) + "]";  //$NON-NLS-1$
+	}
 }
