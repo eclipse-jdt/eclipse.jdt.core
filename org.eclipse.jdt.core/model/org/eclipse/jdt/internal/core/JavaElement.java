@@ -91,6 +91,11 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
 public void close() throws JavaModelException {
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
+		if (JavaModelManager.VERBOSE && this instanceof JavaModel) {
+			System.out.println("CLOSING Java Model");  //$NON-NLS-1$
+			// done only when exiting the workbench: disable verbose
+			JavaModelManager.VERBOSE = false;		
+		}
 		if (this instanceof IParent) {
 			IJavaElement[] children = ((JavaElementInfo) info).getChildren();
 			for (int i = 0, size = children.length; i < size; ++i) {
