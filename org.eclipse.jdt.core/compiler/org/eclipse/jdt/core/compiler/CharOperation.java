@@ -465,39 +465,59 @@ public final class CharOperation {
 	 * It answers null if the three arrays are null.
 	 * If the first array is null, then it answers the concatenation of second and third inserting
 	 * the sep2 character between them.
-	 * If the second array is null, then the first array is returned.
+	 * If the second array is null, then it answers the concatenation of first and third inserting
+	 * the sep1 character between them.
+	 * If the third array is null, then it answers the concatenation of first and second inserting
+	 * the sep1 character between them.
 	 * <br>
 	 * <br>
 	 * For example:
 	 * <ol>
 	 * <li><pre>
 	 *    first = null
+	 *    sep1 = '/'
 	 *    second = { 'a' }
-	 *    separator = '/'
-	 *    => result = { ' a' }
+	 *    sep2 = ':'
+	 *    third = { 'b' }
+	 *    => result = { ' a' , ':', 'b' }
 	 * </pre>
 	 * </li>
 	 * <li><pre>
-	 *    first = { ' a' }
+	 *    first = { 'a' }
+	 *    sep1 = '/'
 	 *    second = null
-	 *    separator = '/'
-	 *    => result = { ' a' }
+	 *    sep2 = ':'
+	 *    third = { 'b' }
+	 *    => result = { ' a' , '/', 'b' }
 	 * </pre>
 	 * </li>
 	 * <li><pre>
-	 *    first = { ' a' }
-	 *    second = { ' b' }
-	 *    separator = '/'
+	 *    first = { 'a' }
+	 *    sep1 = '/'
+	 *    second = { 'b' }
+	 *    sep2 = ':'
+	 *    third = null
 	 *    => result = { ' a' , '/', 'b' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
+	 *    sep1 = '/'
+	 *    second = { 'b' }
+	 *    sep2 = ':'
+	 *    third = { 'c' }
+	 *    => result = { ' a' , '/', 'b' , ':', 'c' }
 	 * </pre>
 	 * </li>
 	 * </ol>
 	 * 
 	 * @param first the first array to concatenate
+	 * @param sep1 the character to insert
 	 * @param second the second array to concatenate
-	 * @param separator the character to insert
-	 * @return the concatenation of the two arrays inserting the separator character 
-	 * between the two arrays , or null if the two arrays are null.
+	 * @param sep2 the character to insert
+	 * @param third the second array to concatenate
+	 * @return the concatenation of the three arrays inserting the sep1 character between the 
+	 * two arrays and sep2 between the last two.
 	 */
 	public static final char[] concat(
 		char[] first,
