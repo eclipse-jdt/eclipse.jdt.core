@@ -74,6 +74,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.type.constantPoolName(); // erasure
 	}
 
+	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
+		return new ParameterizedMethodBinding(this, originalMethod);
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
@@ -311,7 +315,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    parameterizedMethods = new MethodBinding[length];
 		    for (int i = 0; i < length; i++)
 		    	// substitute methods, so as to get updated declaring class at least
-	            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
+	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
 		    if (this.methods == null) {
 		    	this.methods = parameterizedMethods;
 		    } else {
@@ -437,7 +441,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    MethodBinding[] parameterizedMethods = new MethodBinding[length];
 		    for (int i = 0; i < length; i++)
 		    	// substitute all methods, so as to get updated declaring class at least
-	            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
+	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
 		    this.methods = parameterizedMethods;
 		} finally {
 			// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods

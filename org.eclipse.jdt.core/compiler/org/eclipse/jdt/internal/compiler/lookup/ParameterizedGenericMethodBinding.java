@@ -44,6 +44,29 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.returnType = this.substitute(originalMethod.returnType);
 	}
 	/**
+	 * Create raw generic method for raw type (double substitution from type vars with raw type arguments, and erasure of method variables)
+	 */
+	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, RawTypeBinding rawType, LookupEnvironment environment) {
+
+		TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+		int length = originalVariables.length;
+		TypeBinding[] rawArguments = new TypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			rawArguments[i] = originalVariables[i].erasure();
+		}		
+	    this.environment = environment;
+		this.modifiers = originalMethod.modifiers;
+		this.selector = originalMethod.selector;
+		this.declaringClass = rawType;
+	    this.typeVariables = NoTypeVariables;
+	    this.typeArguments = rawArguments;
+	    this.originalMethod = originalMethod;
+	    this.parameters = Scope.substitute(this, Scope.substitute(rawType, originalMethod.parameters));
+	    this.thrownExceptions = Scope.substitute(this, Scope.substitute(rawType, originalMethod.thrownExceptions));
+	    this.returnType = this.substitute(rawType.substitute(originalMethod.returnType));
+	}
+	
+	/**
 	 * Perform inference of generic method type parameters and/or expected type
 	 */	
 	public static MethodBinding computeCompatibleMethod(MethodBinding originalMethod, TypeBinding[] arguments, Scope scope, InvocationSite invocationSite) {

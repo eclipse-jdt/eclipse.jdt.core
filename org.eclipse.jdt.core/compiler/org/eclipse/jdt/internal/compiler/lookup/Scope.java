@@ -107,8 +107,13 @@ public abstract class Scope
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
 			parameters = method.parameters; // reacquire them after type inference has performed
-		} else if (genericTypeArguments != null && !(method instanceof ParameterizedGenericMethodBinding)) {
-			return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeParameterArityMismatch);
+		} else if (genericTypeArguments != null) {
+			if (method instanceof ParameterizedGenericMethodBinding) {
+				if (method.declaringClass.isRawType())
+					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeArgumentsForRawGenericMethod); // attempt to invoke generic method of raw type with type hints <String>foo()
+			} else {
+				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeParameterArityMismatch);
+			}
 		}
 		
 		argumentCompatibility: {

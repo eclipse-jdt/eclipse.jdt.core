@@ -30,6 +30,15 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			this.modifiers ^= AccGenericSignature; // only need signature if enclosing needs one
 	}    
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding#createParameterizedMethod(org.eclipse.jdt.internal.compiler.lookup.MethodBinding)
+	 */
+	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
+		if (originalMethod.typeVariables == NoTypeVariables) {
+			return super.createParameterizedMethod(originalMethod);
+		}
+		return new ParameterizedGenericMethodBinding(originalMethod, this, this.environment);
+	}
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	public String debugName() {

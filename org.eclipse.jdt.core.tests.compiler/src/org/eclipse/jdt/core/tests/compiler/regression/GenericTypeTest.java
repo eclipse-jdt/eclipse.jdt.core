@@ -102,7 +102,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	 */
 	String shortTestName() {
 		String fname = getName();
-		int idx = fname.indexOf(" - ");
+		int idx = fname.indexOf(" - "); //$NON-NLS-1$
 		if (idx < 0) {
 			return fname;
 		}
@@ -6741,6 +6741,52 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"	public X foo() { return new X(); }\n" + 
 		"	         ^^^^^\n" + 
 		"The return type is incompatible with A.foo()\n" + 
+		"----------\n");
+	}
+	// generic method of raw type
+	public void test244() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> { \n" + 
+				"	<G> T foo(G g) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X rx = new X();\n" + 
+				"		rx.foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	rx.foo(\"hello\");\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the method foo(G) of raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
+	}
+	// generic method of raw type
+	public void test245() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> { \n" + 
+				"	<G> T foo(G g) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X rx = new X();\n" + 
+				"		rx.<String>foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	rx.<String>foo(\"hello\");\n" + 
+		"	           ^^^\n" + 
+		"The method foo(Object) of raw type X is no more generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 	}		
 }

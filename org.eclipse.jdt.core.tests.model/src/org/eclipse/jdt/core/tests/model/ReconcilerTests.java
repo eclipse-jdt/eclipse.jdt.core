@@ -1136,6 +1136,10 @@ public void testMethodWithError13() throws CoreException {
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
+			"1. WARNING in Y.java (at line 5)\n" + 
+			"	someX.bar(null);\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the method bar(Y1[]) of raw type X. References to generic type X<T,U> should be parameterized\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -1183,7 +1187,7 @@ public void testMethodWithError14() throws CoreException {
 			"1. ERROR in Y.java (at line 5)\n" + 
 			"	someX.bar();\n" + 
 			"	      ^^^\n" + 
-			"The method bar(U) in the type X is not applicable for the arguments ()\n" + 
+			"The method bar(Object) in the type X is not applicable for the arguments ()\n" + 
 			"----------\n"
 		);
 	} finally {
