@@ -1110,6 +1110,60 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printTrailingComment();
 	}	
 
+	private void formatLocalDeclaration(LocalDeclaration localDeclaration, BlockScope scope, boolean insertSpaceBeforeComma, boolean insertSpaceAfterComma) {
+
+		if (!isMultipleLocalDeclaration(localDeclaration)) {
+			if (localDeclaration.modifiers != NO_MODIFIERS) {
+				this.scribe.printModifiers();
+				this.scribe.space();
+			}
+	
+			/*
+			 * Argument type 
+			 */		
+			if (localDeclaration.type != null) {
+				localDeclaration.type.traverse(this, scope);
+			}
+			/*
+			 * Print the argument name
+		 	*/
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
+		} else {
+			/*
+			 * Print the argument name
+		 	*/
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false); 
+		}
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getExtraDimension();
+		if (extraDimensions != 0) {
+			 for (int index = 0; index < extraDimensions; index++) {
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			 }
+		}
+	
+		if (localDeclaration.initialization != null) {
+			/*
+			 * Print the method name
+			 */	
+			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+			if (this.preferences.insert_space_after_assignment_operators) {
+				this.scribe.space();
+			}			 
+			localDeclaration.initialization.traverse(this, scope);
+		}
+
+		if (isPartOfMultipleLocalDeclaration()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, insertSpaceBeforeComma); 
+			if (insertSpaceAfterComma) {
+				this.scribe.space();
+			}
+		}
+	}
+
 	private void formatMessageSend(
 		MessageSend messageSend,
 		BlockScope scope,
@@ -2712,13 +2766,17 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (initializations != null) {
 			int length = initializations.length;
 			for (int i = 0; i < length; i++) {
-				initializations[i].traverse(this, scope);
-				if (i >= 0 && (i < length - 1) && !(initializations[i] instanceof LocalDeclaration)) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
-					if (this.preferences.insert_space_after_comma_in_for_inits) {
-						this.scribe.space();
-					}
-				}				
+				if (initializations[i] instanceof LocalDeclaration) {
+					formatLocalDeclaration((LocalDeclaration) initializations[i], scope, this.preferences.insert_space_before_comma_in_for_inits, this.preferences.insert_space_after_comma_in_for_inits);
+				} else {
+					initializations[i].traverse(this, scope);
+					if (i >= 0 && (i < length - 1)) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
+						if (this.preferences.insert_space_after_comma_in_for_inits) {
+							this.scribe.space();
+						}
+					}				
+				}
 			}
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -2993,56 +3051,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
-		if (!isMultipleLocalDeclaration(localDeclaration)) {
-			if (localDeclaration.modifiers != NO_MODIFIERS) {
-				this.scribe.printModifiers();
-				this.scribe.space();
-			}
-	
-			/*
-			 * Argument type 
-			 */		
-			if (localDeclaration.type != null) {
-				localDeclaration.type.traverse(this, scope);
-			}
-			/*
-			 * Print the argument name
-		 	*/
-			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-		} else {
-			/*
-			 * Print the argument name
-		 	*/
-			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false); 
-		}
-		/*
-		 * Check for extra dimensions
-		 */
-		int extraDimensions = getExtraDimension();
-		if (extraDimensions != 0) {
-			 for (int index = 0; index < extraDimensions; index++) {
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-			 }
-		}
-	
-		if (localDeclaration.initialization != null) {
-			/*
-			 * Print the method name
-			 */	
-			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-			if (this.preferences.insert_space_after_assignment_operators) {
-				this.scribe.space();
-			}			 
-			localDeclaration.initialization.traverse(this, scope);
-		}
-
-		if (isPartOfMultipleLocalDeclaration()) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_local_declarations); 
-			if (this.preferences.insert_space_after_comma_in_multiple_local_declarations) {
-				this.scribe.space();
-			}
-		}
+		formatLocalDeclaration(localDeclaration, scope, this.preferences.insert_space_before_comma_in_multiple_local_declarations, this.preferences.insert_space_after_comma_in_multiple_local_declarations);
 		return false;
 	}
 
