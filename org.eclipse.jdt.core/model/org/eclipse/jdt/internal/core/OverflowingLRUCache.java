@@ -212,7 +212,7 @@ public void printStats() {
 		forwardListLength++;
 		entry = entry._fNext;
 	}
-	System.out.println("Forward length: "/*nonNLS*/ + forwardListLength);
+	System.out.println("Forward length: " + forwardListLength);
 	
 	int backwardListLength = 0;
 	entry = fEntryQueueTail;
@@ -220,7 +220,7 @@ public void printStats() {
 		backwardListLength++;
 		entry = entry._fPrevious;
 	}
-	System.out.println("Backward length: "/*nonNLS*/ + backwardListLength);
+	System.out.println("Backward length: " + backwardListLength);
 
 	Enumeration keys = fEntryTable.keys();
 	java.util.Vector v = new java.util.Vector();
@@ -232,7 +232,7 @@ public void printStats() {
 			fCount = 1;
 		}
 		public String toString() {
-			return "Class: "/*nonNLS*/ + fClass + " has "/*nonNLS*/ + fCount + " entries."/*nonNLS*/;
+			return "Class: " + fClass + " has " + fCount + " entries.";
 		}
 	}
 	java.util.Hashtable h = new java.util.Hashtable();
@@ -369,7 +369,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
 	if(newLoadFactor <= 1.0 && newLoadFactor > 0.0)
 		fLoadFactor = newLoadFactor;
 	else
-		throw new IllegalArgumentException(Util.bind("cache.invalidLoadFactor"/*nonNLS*/));
+		throw new IllegalArgumentException("incorrect load factor");
 }
 	/**
 	 * Sets the maximum amount of space that the cache can store
@@ -397,7 +397,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
  */
 public String toString() {
 	return 
-		"OverflowingLRUCache "/*nonNLS*/ + ((fCurrentSpace + fOverflow) * 100.0 / fSpaceLimit) + "% full\n"/*nonNLS*/ +
+		"OverflowingLRUCache " + ((fCurrentSpace + fOverflow) * 100.0 / fSpaceLimit) + "% full\n" +
 		this.toStringContents();
 }
 /**

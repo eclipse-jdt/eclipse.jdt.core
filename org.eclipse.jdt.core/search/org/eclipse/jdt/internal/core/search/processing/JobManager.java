@@ -6,7 +6,6 @@ package org.eclipse.jdt.internal.core.search.processing;
  */
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.internal.core.search.Util;
 import java.io.*;
 import java.util.*;
 
@@ -25,25 +24,16 @@ public abstract class JobManager implements Runnable, IJobConstants {
 	private boolean enabled = true;
 		
 	public static boolean VERBOSE = false;	
-	/* flag indicating that the activation has completed */
-	public boolean activated = false;
-
 /**
  * Invoked exactly once, in background, before starting processing any job
  */
-public void activateProcessing(){
-	this.activated = true;
-}
+public abstract void activateProcessing();
 /**
  * Answer the amount of awaiting jobs.
  */
 public synchronized int awaitingJobsCount() {
 
-	// pretend busy in case concurrent job attempts performing before activated
-	if(!activated) return 1; 
-	
 	return jobEnd - jobStart + 1;
-
 }
 /**
  * Answers the first job in the queue, or null if there is no job available
@@ -137,24 +127,24 @@ protected void notifyIdle(long idlingTime){
  */
 public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgressMonitor progress) {
 
-	if (VERBOSE) System.out.println("-> performing concurrent job : START - "/*nonNLS*/ + searchJob);
+	if (VERBOSE) System.out.println("-> performing concurrent job : START - "+ searchJob);
 	boolean status = FAILED;
 	if (awaitingJobsCount() > 0){
 		switch(waitingPolicy){
 			
 			case ForceImmediate :
-				if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - ForceImmediate - "/*nonNLS*/ + searchJob);
+				if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - ForceImmediate - "+ searchJob);
 				boolean wasEnabled = isEnabled();
 				try {
 					disable(); // pause indexing
 					status = searchJob.execute();
-				if (VERBOSE) System.out.println("-> performing concurrent job : END - "/*nonNLS*/ + searchJob);
+				if (VERBOSE) System.out.println("-> performing concurrent job : END - "+ searchJob);
 				} finally {
 					if (wasEnabled) enable();
 				}
 				return status;
 			case CancelIfNotReady :
-				if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - CancelIfNotReady - "/*nonNLS*/ + searchJob);
+				if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - CancelIfNotReady - "+ searchJob);
 				progress.setCanceled(true);
 				break; 
 
@@ -166,9 +156,9 @@ public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgress
 						if (progress != null && progress.isCanceled()) throw new OperationCanceledException();
 						currentJob = currentJob(); // currentJob can be null when jobs have been added to the queue but job manager is not enabled
 						if (currentJob != null && currentJob != previousJob){
-							if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - WaitUntilReady - "/*nonNLS*/ + searchJob);
+							if (VERBOSE) System.out.println("-> performing concurrent job : NOT READY - WaitUntilReady - "+ searchJob);
 							if (progress != null){
-								progress.subTask(Util.bind("manager.filesToIndex"/*nonNLS*/, Integer.toString(awaitingWork)));
+								progress.subTask(awaitingWork+" files to index");
 							}
 							previousJob = currentJob;
 						}
@@ -180,7 +170,7 @@ public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgress
 		}
 	}
 	status = searchJob.execute();
-	if (VERBOSE) System.out.println("-> performing concurrent job : END - "/*nonNLS*/ + searchJob);
+	if (VERBOSE) System.out.println("-> performing concurrent job : END - "+ searchJob);
 	return status;
 }
 public abstract String processName();
@@ -194,7 +184,7 @@ public synchronized void request(IJob job) {
 		jobStart = 0;
 	}
 	awaitingJobs[jobEnd] = job;
-	if (VERBOSE) System.out.println("-> requesting job: "/*nonNLS*/ + job);
+	if (VERBOSE) System.out.println("-> requesting job: "+job);
 	
 }
 /**
@@ -230,8 +220,8 @@ public void run(){
 				idlingStart = -1;
 			}
 			if (VERBOSE){
-				System.out.println("-> executing: "/*nonNLS*/ + job);
-				System.out.println("\t"/*nonNLS*/ + awaitingJobsCount() + " awaiting jobs."/*nonNLS*/);
+				System.out.println("-> executing: "+job);
+				System.out.println("\t"+awaitingJobsCount()+" awaiting jobs.");
 			}
 			try {
 				executing = true;

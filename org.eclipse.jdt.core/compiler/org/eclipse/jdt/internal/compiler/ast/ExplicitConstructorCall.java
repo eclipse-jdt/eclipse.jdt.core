@@ -168,9 +168,6 @@ public void resolve(BlockScope scope) {
 
 		// qualification should be from the type of the enclosingType
 		if (qualification != null) {
-			if (accessMode != Super){
-				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(qualification, receiverType);
-			}
 			ReferenceBinding enclosingType = receiverType.enclosingType();
 			if (enclosingType == null) {
 				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(qualification, receiverType);
@@ -224,17 +221,17 @@ public String toString(int tab){
 
 	String s = tabString(tab);
 	if (qualification != null) 
-		s = s + qualification.toStringExpression() + "."/*nonNLS*/ ;
+		s = s + qualification.toStringExpression() + "." ;
 	if (accessMode == This){
-		s = s + "this("/*nonNLS*/;
+		s = s + "this(";
 	} else {
-		s = s + "super("/*nonNLS*/;
+		s = s + "super(";
 	}
 	if (arguments != null)
 		for (int i=0 ; i < arguments.length ; i++)
 		{	s = s + arguments[i].toStringExpression();
-			if (i != arguments.length-1) s = s + ", "/*nonNLS*/;};;
-	s = s+")"/*nonNLS*/ ;
+			if (i != arguments.length-1) s = s + ", ";};;
+	s = s+")" ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

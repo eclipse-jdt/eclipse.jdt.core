@@ -1,15 +1,5 @@
 package org.eclipse.jdt.internal.core.util;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * A <code>DiskCacheEntry</code> represents the results of looking up an
- * entry in a <code>DiskCache</code>.  It is part of the DiskCache API and is
- * not necessarily used as the internal representation.
- */
 public class DiskCacheEntry {
 	String fKey;
 	int fSize;

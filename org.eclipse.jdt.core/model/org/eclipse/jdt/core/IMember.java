@@ -1,18 +1,5 @@
 package org.eclipse.jdt.core;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Common protocol for Java elements that can be members of types.
- * This set consists of <code>IType</code>, <code>IMethod</code>, 
- * <code>IField</code>, and <code>IInitializer</code>.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation {
 /**
  * Returns the class file in which this member is declared, or <code>null</code>
@@ -37,7 +24,7 @@ IType getDeclaringType();
  * <code>Flags</code>.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  *
  * @see Flags
  */
@@ -49,7 +36,7 @@ int getFlags() throws JavaModelException;
  * associated source code (for example, a binary type).
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  */
 ISourceRange getNameRange() throws JavaModelException;
 /**

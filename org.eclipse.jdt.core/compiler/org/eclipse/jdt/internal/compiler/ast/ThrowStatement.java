@@ -56,7 +56,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "throw "/*nonNLS*/;
+	s = s + "throw ";
 	s = s + exception.toStringExpression() ;
 	return s;
 }

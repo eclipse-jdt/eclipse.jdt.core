@@ -4,13 +4,15 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.*;
+
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.jdom.IDOMImport;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.*;
 
 /**
  * DOMImport provides an implementation of IDOMImport.
@@ -27,7 +29,7 @@ class DOMImport extends DOMNode implements IDOMImport {
  * Creates a new empty IMPORT node.
  */
 DOMImport() {
-	fName = "java.lang.*"/*nonNLS*/;
+	fName = "java.lang.*";
 	setMask(MASK_DETAILED_SOURCE_INDEXES, true);
 }
 /**
@@ -78,7 +80,7 @@ DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand) {
 protected void appendFragmentedContents(CharArrayBuffer buffer) {
 	if (fNameRange[0] < 0) {
 		buffer
-			.append("import "/*nonNLS*/)
+			.append("import ")
 			.append(fName)
 			.append(';')
 			.append(JavaModelManager.LINE_SEPARATOR);
@@ -112,7 +114,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getImport(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException("Illegal parent argument");
 	}
 }
 /**
@@ -138,16 +140,16 @@ protected DOMNode newDOMNode() {
  */
 public void setName(String name) {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException("illegal to set name to null");
 	}
 	becomeDetailed();
 	super.setName(name);
-	fOnDemand = name.endsWith(".*"/*nonNLS*/);
+	fOnDemand = name.endsWith(".*");
 }
 /**
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "IMPORT: "/*nonNLS*/ + getName();
+	return "IMPORT: " + getName();
 }
 }

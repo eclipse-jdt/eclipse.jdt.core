@@ -21,7 +21,7 @@ public abstract class AbstractVariableDeclaration extends Statement {
 public AbstractVariableDeclaration(){}
 public String name(){
 
-	return "anonymous storage box"/*nonNLS*/; }
+	return "anonymous storage box"; }
 public String toString(int tab) {
 	/*slow code*/
 
@@ -29,9 +29,9 @@ public String toString(int tab) {
 	if (modifiers != AccDefault) {
 		s += modifiersString(modifiers);
 	}
-	s += type.toString(0) + " "/*nonNLS*/ + new String(name());
+	s += type.toString(0) + " " + new String(name());
 	if (initialization != null)
-		s += " = "/*nonNLS*/ + initialization.toStringExpression(tab);
+		s += " = " + initialization.toStringExpression(tab);
 	return s;
 }
 }

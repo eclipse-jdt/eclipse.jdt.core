@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
@@ -75,7 +74,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 			return name;
 		}
 		public String toString(){
-			StringBuffer buffer = new StringBuffer("Queue:\n"/*nonNLS*/);
+			StringBuffer buffer = new StringBuffer("Queue:\n");
 			for (int i = this.start; i <= this.end; i++){
 				buffer.append(names[i]).append('\n');		
 			}
@@ -269,16 +268,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 		this.buildForProject((JavaProject)currentProject, infos, units);
 	} catch (JavaModelException e) {
 	}
-	
-	// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
-	if (!this.hierarchy.contains(focusType)) {
-		try {
-			currentProject = focusType.getJavaProject();
-			this.buildForProject((JavaProject)currentProject, new Vector(), new Vector());
-		} catch (JavaModelException e) {
-		}
-	}
-	
+
 	// Add focus if not already in (case of a type with no explicit super type)
 	if (!this.hierarchy.contains(focusType)) {
 		this.hierarchy.addRootClass(focusType);
@@ -319,7 +309,7 @@ private void createInfoFromClassFile(Openable handle, String osPath, Vector info
  */
 private void createInfoFromClassFileInJar(Openable classFile, Vector infos) throws JavaModelException {
 	IJavaElement pkg = classFile.getParent();
-	String classFilePath = pkg.getElementName().replace('.', '/') + "/"/*nonNLS*/ + classFile.getElementName();
+	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName();
 	IGenericType info = null;
 	java.util.zip.ZipFile zipFile = null;
 	try {
@@ -443,7 +433,7 @@ public static void searchAllPossibleSubTypes(
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
 			pathRequestor.acceptPath(resourcePath);
-			if (resourcePath.endsWith("class"/*nonNLS*/)){
+			if (resourcePath.endsWith("class")){
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
 				if (binaryType == null){
 					binaryType = new HierarchyBinaryType(modifiers, qualification, typeName, enclosingTypeName, classOrInterface);

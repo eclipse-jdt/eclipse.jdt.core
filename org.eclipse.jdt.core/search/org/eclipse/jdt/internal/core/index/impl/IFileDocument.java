@@ -75,7 +75,7 @@ public class IFileDocument extends PropertyDocument {
 	public String getType() {
 		String extension= file.getFileExtension();
 		if (extension == null)
-			return ""/*nonNLS*/;
+			return "";
 		return extension;
 	}
 }

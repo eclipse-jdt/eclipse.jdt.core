@@ -82,12 +82,12 @@ public void resolve(BlockScope scope) {
 		if ((this.expressionType = this.expression.resolveType(scope)) != null) {
 			TypeBinding javaLangClass = scope.getJavaLangClass();
 			if (!javaLangClass.isValidBinding()) {
-				scope.problemReporter().codeSnippetMissingClass("java.lang.Class"/*nonNLS*/, this.sourceStart, this.sourceEnd);
+				scope.problemReporter().codeSnippetMissingClass("java.lang.Class", this.sourceStart, this.sourceEnd);
 				return;
 			}
 			TypeBinding javaLangObject = scope.getJavaLangObject();
 			if (!javaLangObject.isValidBinding()) {
-				scope.problemReporter().codeSnippetMissingClass("java.lang.Object"/*nonNLS*/, this.sourceStart, this.sourceEnd);
+				scope.problemReporter().codeSnippetMissingClass("java.lang.Object", this.sourceStart, this.sourceEnd);
 				return;
 			}
 			TypeBinding[] argumentTypes = new TypeBinding[] {javaLangObject, javaLangClass};

@@ -119,7 +119,7 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/* slow code */
 	
-	return qualification.toString(0)+".this"/*nonNLS*/ ;
+	return qualification.toString(0)+".this" ;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

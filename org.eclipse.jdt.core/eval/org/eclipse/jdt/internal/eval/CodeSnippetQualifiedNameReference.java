@@ -501,24 +501,17 @@ public TypeBinding reportError(BlockScope scope) {
 		return super.reportError(scope);
 	}
 
-	if ((binding instanceof ProblemFieldBinding && ((ProblemFieldBinding) binding).problemId() == NotFound)
-		|| (binding instanceof ProblemBinding && ((ProblemBinding) binding).problemId() == NotFound)){
+	if (binding instanceof ProblemFieldBinding && ((ProblemFieldBinding) binding).problemId() == NotFound){
+		// will not support innerclass emulation inside delegate
+		binding = scope.getField(delegateThis.type, this.tokens[0], this);
+		if (!binding.isValidBinding()) return super.reportError(scope);
+		return checkFieldAccess(scope);
+	}
+
+	if (binding instanceof ProblemBinding && ((ProblemBinding) binding).problemId() == NotFound){
 		// will not support innerclass emulation inside delegate
 		FieldBinding fieldBinding = scope.getField(delegateThis.type, this.tokens[0], this);
-		if (!fieldBinding.isValidBinding()) {
-			if (((ProblemFieldBinding) fieldBinding).problemId() == NotVisible) {
-				// manage the access to a private field of the enclosing type
-				CodeSnippetScope localScope = new CodeSnippetScope(scope);
-				binding = localScope.getFieldForCodeSnippet(delegateThis.type, this.tokens[0], this);
-				if (binding.isValidBinding()) {
-					return checkFieldAccess(scope);						
-				} else {
-					return super.reportError(scope);
-				}
-			} else {
-				return super.reportError(scope);
-			}
-		}
+		if (!fieldBinding.isValidBinding()) return super.reportError(scope);
 		binding = fieldBinding;
 		return checkFieldAccess(scope);
 	}

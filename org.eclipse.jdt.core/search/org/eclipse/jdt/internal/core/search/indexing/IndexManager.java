@@ -12,7 +12,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
-import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.processing.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -48,7 +47,6 @@ public void activateProcessing() {
 	} catch (InterruptedException ie) {
 	}	
 	checkIndexConsistency();
-	super.activateProcessing();
 }
 /**
  * Trigger addition of a resource to an index
@@ -57,13 +55,13 @@ public void activateProcessing() {
 public void add(IFile resource){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
-	if ("java"/*nonNLS*/.equals(extension)){
+	if ("java".equals(extension)){
 		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
 		}
 		request(job);
-	} else if ("class"/*nonNLS*/.equals(extension)){
+	} else if ("class".equals(extension)){
 		AddClassFileToIndex job = new AddClassFileToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
@@ -77,7 +75,7 @@ public void add(IFile resource){
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING - ensuring consistency"/*nonNLS*/);
+	if (VERBOSE) System.out.println("STARTING - ensuring consistency");
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -94,15 +92,15 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE - ensuring consistency"/*nonNLS*/);
+		if (VERBOSE) System.out.println("DONE - ensuring consistency");
 	}
 }
 private String computeIndexName(String pathString) {
 	byte[] pathBytes = pathString.getBytes();
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
-	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"/*nonNLS*/;
-	if (VERBOSE) System.out.println(" index name: "/*nonNLS*/ + pathString + " <----> "/*nonNLS*/ + fileName);
+	String fileName = Long.toString(checksumCalculator.getValue()) + ".index";
+	if (VERBOSE) System.out.println(" index name: " + pathString + " <----> " + fileName);
 	IPath indexPath = getJavaPluginWorkingLocation();
 	String indexDirectory = indexPath.toOSString();
 	if (indexDirectory.endsWith(File.separator)) {
@@ -183,7 +181,7 @@ public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
 			if (index == null) {
 				// New index: add same index for given path and canonical path
 				String indexPath = computeIndexName(canonicalPath.toOSString());
-				index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
+				index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString());
 				indexes.put(canonicalPath, index);
 				indexes.put(path, index);
 				monitors.put(index, new ReadWriteMonitor());
@@ -257,7 +255,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name"/*nonNLS*/, IndexManager.class.getName());
+	return "Java indexing: " + IndexManager.class.getName();
 }
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
@@ -273,7 +271,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 			// Add same index for given path and canonical path
 			String indexPath = computeIndexName(canonicalPath.toOSString());
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
+			index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString());
 			index.empty();
 			indexes.put(canonicalPath, index);
 			indexes.put(path, index);
@@ -318,7 +316,7 @@ public void saveIndexes(){
 			if (monitor == null) continue; // index got deleted since acquired
 			try {
 				monitor.enterWrite();
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "/*nonNLS*/+index.getIndexFile());
+				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile());
 				index.save();
 			} finally {
 				monitor.exitWrite();

@@ -77,7 +77,7 @@ public String toString(int tab) {
 	/* slow code */
 
 	String s = tabString(tab);
-	s += new String(label) + ": "/*nonNLS*/ + statement.toString(0);
+	s += new String(label) + ": " + statement.toString(0);
 	return s;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {

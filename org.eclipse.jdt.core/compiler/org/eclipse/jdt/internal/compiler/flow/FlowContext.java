@@ -326,7 +326,7 @@ public FlowContext getTargetContextForDefaultContinue() {
 	return null;
 }
 public String individualToString(){
-	return "Flow context"/*nonNLS*/;
+	return "Flow context";
 }
 public FlowInfo initsOnBreak() {
 	return FlowInfo.DeadEnd;

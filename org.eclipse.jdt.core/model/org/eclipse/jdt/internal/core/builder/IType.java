@@ -1,64 +1,10 @@
 package org.eclipse.jdt.internal.core.builder;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * The <code>Type</code> interface represents classes, interfaces, array
- * types, the primitive Java types (boolean, byte, char, short, int, 
- * long, float, and double) and the keyword void.
- * 
- * <p>This interface is based on the <code>java.lang.Class</code> class in JDK 1.1.
- * 
- * <p>The following terminology is used for inner classes, and applies also 
- * to interfaces.
- * This terminology is consistent with the Java Inner Classes Specification.
- * 
- * <p>A 'package member' class is declared as a member of a package.
- * That is, a 'normal' class, as defined in the <em>Java Language Specification</em>.
- * 
- * <p>An 'inner class' is one which is declared in another class, either as a member
- * of that class or within a method or other block within that class.
- * The class in which an inner class is declared is referred to as its 'outer class'.
- * An inner class must be instantiated in the context of an instance of its outer class.
- * The instance of the outer class is referred to as the 'outer instance'.
- * 
- * <p>A 'top-level class' is declared either as a package member or as a 
- * static member of another top-level class.  A top-level class can be referred to 
- * by a fully qualified name (given the right access), and is instanciated 
- * directly; it is not instanciated in the context of an outer instance.  
- * A class can be either a top-level class or an inner class, but cannot be both.
- * 
- * <p>A 'nested class' is one which is not a package member: either an 
- * inner class, or a top-level class declared as a member of a class.
- * 
- * <p>A 'local class' is an inner class declared within a method or other block 
- * within its outer class.  Since a local class is a kind of inner class,
- * it cannot be a top-level class.
- * 
- * <p>An 'anonymous class' is a local inner class with no declared name.
- *
- * Changes from java.lang and java.lang.reflect:
- * <ul>
- * <li>renamed to Type from Class
- * <li>toString() clarified for array types</li>
- * <li>major additions (see below)</li>
- * <li>removed isAssignableFrom(Type)</li>
- * <li>removed getFields()</li>
- * <li>removed getMethods()</li>
- * <li>removed getConstructors()</li>
- * <li>removed getField(String), getMethod(String, Type[]), getConstructor(Type[])</li>
- * <li>removed getDeclaredField(String), getDeclaredMethod(String, Type[]), getDeclaredConstructor(Type[])</li>
- * <li>added handle methods getFieldHandle(String) etc.</li>
- * </ul>
- */
 public interface IType extends IMember {
 
 
 	/**
-	 * Compares this Type handle against the specified object.  Returns
+	 * Compares this Type handle against the specified object.	Returns
 	 * true if the objects are the same.  Two Types handles are the same if
 	 * they both represent a class or interface and have the same fully qualified name,
 	 * or if they both represent the same primitive type,
@@ -97,7 +43,7 @@ public interface IType extends IMember {
 	 * This is a handle-only method; the specified constructor may
 	 * or may not actually be present in the class or interface.
 	 *
-	 * @see     IConstructor
+	 * @see 	IConstructor
 	 */
 	IConstructor getConstructorHandle(IType[] parameterTypes);
 	/**
@@ -209,8 +155,8 @@ public interface IType extends IMember {
 	 * If this does not represent a class or interface, it returns 
 	 * a String of length 0.
 	 *
-	 * @return  the declared name of the class or interface
-	 *          represented by this object.
+	 * @return	the declared name of the class or interface
+	 *			represented by this object.
 	 * @exception NotPresentException if this class or interface is not present.
 	 */
 	String getDeclaredName() throws NotPresentException;
@@ -255,7 +201,7 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * an interface.
 	 * The resulting Types are in no particular order.
-	 * See <em>The Java Language Specification</em> section 8.1.4
+  	 * See <em>The Java Language Specification</em> section 8.1.4
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
@@ -282,10 +228,10 @@ public interface IType extends IMember {
 	 * object represents neither a class nor an interface, this method 
 	 * returns an array of length 0. 
 	 *
-	 * See <em>The Java Language Specification</em> sections 8.1.4 and 9.1.3
+  	 * See <em>The Java Language Specification</em> sections 8.1.4 and 9.1.3
 	 * for more details.
 	 *
-	 * @return  an array of interfaces implemented by this class.
+	 * @return	an array of interfaces implemented by this class.
 	 * @exception NotPresentException if this class or interface is not present.
 	 */
 	IType[] getInterfaces() throws NotPresentException;
@@ -300,7 +246,7 @@ public interface IType extends IMember {
 	 * This is a handle-only method; the specified method may
 	 * or may not actually be present in the class or interface.
 	 *
-	 * @see     IMethod
+	 * @see 	IMethod
 	 */
 	IMethod getMethodHandle(String name, IType[] parameterTypes);
 	/**
@@ -335,7 +281,7 @@ public interface IType extends IMember {
 	 * For primitive types, the name is the keyword for the primitive type.
 	 * This is a handle-only method.
 	 *
-	 * @return  the fully qualified name of the type represented by this object.
+	 * @return	the fully qualified name of the type represented by this object.
 	 */
 	String getName();
 	/**
@@ -353,7 +299,7 @@ public interface IType extends IMember {
 	 * For primitive types, this is the keyword for the primitive type.
 	 * This is a handle-only method.
 	 *
-	 * @return  the simple name of the type represented by this object.
+	 * @return	the simple name of the type represented by this object.
 	 */
 	String getSimpleName();
 	/**
@@ -373,7 +319,7 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * a class.
 	 * The resulting Types are in no particular order.
-	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
+  	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
@@ -387,7 +333,7 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * an interface.
 	 * The resulting Types are in no particular order.
-	 * See <em>The Java Language Specification</em> section 9.1.3
+  	 * See <em>The Java Language Specification</em> section 9.1.3
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
@@ -405,10 +351,10 @@ public interface IType extends IMember {
 	 * If this object represents an array type, then the Type that represents
 	 * class <code>java.lang.Object</code> is returned.
 	 * <p>
-	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
+  	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
 	 * for more details.
 	 *
-	 * @return  the superclass of the class represented by this object.
+	 * @return	the superclass of the class represented by this object.
 	 * @exception NotPresentException if this type is not present.
 	 */
 	IType getSuperclass() throws NotPresentException;
@@ -440,8 +386,8 @@ public interface IType extends IMember {
 	 * A binary type is one which is in .class file format in the workspace.
 	 * Returns <code>false</code> if this represents a primitive type or an array type.
 	 *
-	 * @return  <code>true</code> if this object represents a binary class or interface;
-	 *          <code>false</code> otherwise.
+	 * @return	<code>true</code> if this object represents a binary class or interface;
+	 *			<code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 */
 	boolean isBinary() throws NotPresentException;
@@ -450,8 +396,8 @@ public interface IType extends IMember {
 	 * This returns false if this object represents an interface,
 	 * an array type, or a primitive type.
 	 *
-	 * @return  <code>true</code> if this object represents a class;
-	 *          <code>false</code> otherwise.
+	 * @return	<code>true</code> if this object represents a class;
+	 *			<code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 *
 	 * @see #isArray
@@ -466,8 +412,8 @@ public interface IType extends IMember {
 	 * its doc comment.
 	 * Returns <code>false</code> if this represents a primitive type or an array type.
 	 *
-	 * @return  <code>true</code> if this object represents a deprecated member;
-	 *          <code>false</code> otherwise.
+	 * @return	<code>true</code> if this object represents a deprecated member;
+	 *			<code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 */
 	boolean isDeprecated() throws NotPresentException;
@@ -475,8 +421,8 @@ public interface IType extends IMember {
 	 * Returns true if this object represents an inner class or interface,
 	 * false otherwise.
 	 * An inner class is one which can only be created in the context of
-	 * an instance of its outer class.  This does not include package member
-	 * classes or other top-level classes.  Such a class cannot be static.
+	 * an instance of its outer class.	This does not include package member
+	 * classes or other top-level classes.	Such a class cannot be static.
 	 * <p>
 	 * See the <em>Java Inner Classes Specification</em> for more details.
 	 *
@@ -490,8 +436,8 @@ public interface IType extends IMember {
 	 * This returns false if this object represents a class,
 	 * an array type, or a primitive type.
 	 *
-	 * @return  <code>true</code> if this object represents an interface;
-	 *          <code>false</code> otherwise.
+	 * @return	<code>true</code> if this object represents an interface;
+	 *			<code>false</code> otherwise.
 	 * @exception NotPresentException if this type is not present.
 	 *
 	 * @see #isArray
@@ -608,7 +554,7 @@ public interface IType extends IMember {
 	 * If this represents an array type, the string representation is
 	 * that of its component type followed by <code>"[]"</code>.
 	 *
-	 * @return  a string representation of this class object. 
+	 * @return	a string representation of this class object. 
 	 * @see IHandle#toString
 	 */
 	String toString();

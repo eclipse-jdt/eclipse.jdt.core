@@ -52,7 +52,7 @@ public IGlobalVariable[] allVariables() {
  */
 protected void checkBuilderState() throws JavaModelException {
 	if (!getProject().hasBuildState()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"/*nonNLS*/)));
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, "Cannot evaluate if the project has not been built once"));
 	}
 }
 /**
@@ -75,7 +75,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 	this.context.select(
 		codeSnippet.toCharArray(),
 		offset,
-		offset + length - 1,
+		offset + length,
 		this.project.getSearchableNameEnvironment(),
 		requestor,
 		JavaModelManager.convertConfigurableOptions(JavaCore.getOptions())
@@ -90,7 +90,7 @@ public void deleteVariable(IGlobalVariable variable) {
 		GlobalVariableWrapper wrapper = (GlobalVariableWrapper)variable;
 		this.context.deleteVariable(wrapper.variable);
 	} else {
-		throw new Error("Unknown implementation of IGlobalVariable"/*nonNLS*/);
+		throw new Error("Unknown implementation of IGlobalVariable");
 	}
 }
 /**

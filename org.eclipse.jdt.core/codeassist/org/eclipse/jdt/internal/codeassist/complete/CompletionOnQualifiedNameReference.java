@@ -41,7 +41,7 @@ public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] c
 public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, int sourceStart, int sourceEnd) {
 	super(previousIdentifiers, sourceStart, sourceEnd);
 	this.completionIdentifier = completionIdentifier;
-	this.sourcePositions = new long[] {((long)sourceStart << 32) + sourceEnd};
+	this.sourcePositions = new long[] {(sourceStart << 32) + sourceEnd};
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// it can be a package, type, member type, local variable or field
@@ -61,12 +61,12 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression() {
 
-	StringBuffer buffer = new StringBuffer("<CompleteOnName:"/*nonNLS*/);
+	StringBuffer buffer = new StringBuffer("<CompleteOnName:");
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
-		buffer.append("."/*nonNLS*/);
+		buffer.append(".");
 	}
-	buffer.append(completionIdentifier).append(">"/*nonNLS*/);
+	buffer.append(completionIdentifier).append(">");
 	return buffer.toString();
 }
 }

@@ -51,27 +51,10 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 	int globalErrorsCount;
 	int globalWarningsCount;
 
-	String versionID = "0.125.12 (jck1.3a)"/*nonNLS*/;
-	private static final char[] CLASS_FILE_EXTENSION = ".class"/*nonNLS*/.toCharArray();
+	String versionID = "0.103";
+	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray();
 
 	int exportedClassFilesCounter;
-
-	/**
-	 * Are we running JDK 1.1?
-	 */
-	private static boolean JDK1_1 = false;
-
-	/* Bundle containing messages */
-	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.Messages"/*nonNLS*/;
-	static {
-		String ver = System.getProperty("java.version"/*nonNLS*/);
-		JDK1_1 = ((ver != null) && ver.startsWith("1.1"/*nonNLS*/));
-		relocalize();
-	}
-	
-	private boolean proceed = true;
-	
 protected Main(PrintWriter writer, boolean systemExitWhenFinished) {
 	this.out = writer;
 	this.systemExitWhenFinished = systemExitWhenFinished;
@@ -84,73 +67,69 @@ protected void compile(String[] argv) {
 	// decode command line arguments
 	try {
 		configure(argv);
-		if(proceed){
-			if (showProgress) out.print(Main.bind("progress.compiling"/*nonNLS*/));
-			for (int i = 0; i < repetitions; i++){
-				globalProblemsCount = 0;
-				globalErrorsCount = 0;
-				globalWarningsCount = 0;		
-				lineCount = 0;
-	
-				if (repetitions > 1){
-					out.flush();
-					out.println(Main.bind("compile.repetition"/*nonNLS*/,String.valueOf(i+1),String.valueOf(repetitions)));
-				}
-				long startTime = System.currentTimeMillis();
-				// request compilation
-				performCompilation();
-				if (timer) {
-	
-					time = System.currentTimeMillis() - startTime;
-					if (lineCount != 0){
-						out.println(Main.bind("compile.instantTime"/*nonNLS*/,new String[]{String.valueOf(lineCount),String.valueOf(time),String.valueOf((((int)((lineCount*10000.0)/time))/10.0))}));
-					} else {
-						out.println(Main.bind("compile.totalTime"/*nonNLS*/,String.valueOf(time)));				
-					}
-				}
-				if (globalProblemsCount > 0) {
-					if (globalProblemsCount == 1) {
-						out.print(Main.bind("compile.oneProblem"/*nonNLS*/));
-					} else {
-						out.print(Main.bind("compile.severalProblems"/*nonNLS*/,String.valueOf(globalProblemsCount)));
-					}
-					out.print(" ("/*nonNLS*/);
-					if (globalErrorsCount > 0) {
-						if (globalErrorsCount == 1) {
-							out.print(Main.bind("compile.oneError"/*nonNLS*/));
-						} else {
-							out.print(Main.bind("compile.severalErrors"/*nonNLS*/,String.valueOf(globalErrorsCount)));
-						}
-					}
-					if (globalWarningsCount > 0) {
-						if (globalErrorsCount > 0) {
-							out.print(", "/*nonNLS*/);
-						}
-						if (globalWarningsCount == 1) {
-							out.print(Main.bind("compile.oneWarning"/*nonNLS*/));
-						} else {
-							out.print(Main.bind("compile.severalWarnings"/*nonNLS*/,String.valueOf(globalWarningsCount)));
-						}
-					}
-					out.println(")"/*nonNLS*/);
-				}
-				if (exportedClassFilesCounter != 0 && (this.showProgress || this.timer || this.verbose)) {
-					if (exportedClassFilesCounter == 1) {
-						out.print(Main.bind("compile.oneClassFileGenerated"/*nonNLS*/));
-					} else {
-						out.print(Main.bind("compile.severalClassFilesGenerated"/*nonNLS*/,String.valueOf(exportedClassFilesCounter)));
-					}
+		if (showProgress) System.out.print("Compiling");
+		for (int i = 0; i < repetitions; i++){
+			globalProblemsCount = 0;
+			globalErrorsCount = 0;
+			globalWarningsCount = 0;		
+			lineCount = 0;
+			if (repetitions > 1){
+				out.flush();
+				out.println("Repetition "+(i+1)+"/"+repetitions);
+			}
+			long startTime = System.currentTimeMillis();
+
+			// request compilation
+			performCompilation();
+			if (timer) {
+				time = System.currentTimeMillis() - startTime;
+				if (lineCount != 0){
+					out.println("Compiled " + lineCount + " lines in "+ time + " ms ("+ (((int)((lineCount*10000.0)/time))/10.0) + " lines/s)");
+				} else {
+					out.println("Total compilation time: " + time);
 				}
 			}
-			if (showProgress) System.out.println();
+			if (globalProblemsCount > 0) {
+				if (globalProblemsCount == 1) {
+					out.print("1 problem (");
+				} else {
+					out.print(globalProblemsCount + " problems (");
+				}
+				if (globalErrorsCount > 0) {
+					if (globalErrorsCount == 1) {
+						out.print("1 error");
+					} else {
+						out.print(globalErrorsCount + " errors");
+					}
+				}
+				if (globalWarningsCount > 0) {
+					if (globalErrorsCount > 0) {
+						out.print(", ");
+					}
+					if (globalWarningsCount == 1) {
+						out.print("1 warning");
+					} else {
+						out.print(globalWarningsCount + " warnings");
+					}
+				}
+				out.println(")");
+			}
+			if (exportedClassFilesCounter != 0 && (this.showProgress || this.timer || this.verbose)) {
+				if (exportedClassFilesCounter == 1) {
+					out.println("1 .class file generated");
+				} else {
+					out.println(exportedClassFilesCounter + " .class files generated");
+				}
+			}
 		}
+		if (showProgress) System.out.println();
 		if (systemExitWhenFinished){
 			out.flush();
 			System.exit(globalErrorsCount > 0 ? -1 : 0);
 		}
 	} catch (InvalidInputException e) {
 		out.println(e.getMessage());
-		out.println("------------------------"/*nonNLS*/);
+		out.println("------------------------");
 		printUsage();
 		if (systemExitWhenFinished){
 			System.exit(-1);			
@@ -200,7 +179,7 @@ public static void compile(String commandLine, PrintWriter writer) {
 				argv[count-1] += File.pathSeparator;
 				insideClasspath = true;
 			} else {
-				tokenizer = new StringTokenizer(subCommandLine, File.pathSeparator + " "/*nonNLS*/);
+				tokenizer = new StringTokenizer(subCommandLine, File.pathSeparator + " ");
 				while (tokenizer.hasMoreTokens()) {
 					if (count == argv.length) {
 						System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
@@ -229,7 +208,7 @@ public static void compile(String commandLine, PrintWriter writer) {
 				}
 				argv[count++] = commandLine.substring(startIndex, commandLine.length());
 			} else {
-				tokenizer = new StringTokenizer(commandLine.substring(startIndex, commandLine.length()), File.pathSeparator + " "/*nonNLS*/);
+				tokenizer = new StringTokenizer(commandLine.substring(startIndex, commandLine.length()), File.pathSeparator + " ");
 				while (tokenizer.hasMoreTokens()) {
 					if (count == argv.length) {
 						System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
@@ -247,7 +226,7 @@ Decode the command line arguments
  */
 private void configure(String[] argv) throws InvalidInputException {
 	if ((argv == null) || (argv.length == 0))
-		throw new InvalidInputException(Main.bind("configure.noSourceFile"/*nonNLS*/));
+		throw new InvalidInputException("no source file specified");
 	final int InsideClasspath = 1;
 	final int InsideDestinationPath = 2;
 	final int TargetSetting = 4;
@@ -266,7 +245,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	
 	while (++index < argCount) {
 		String currentArg = argv[index].trim();
-		if (currentArg.endsWith(".java"/*nonNLS*/)) {
+		if (currentArg.endsWith(".java")) {
 			if (filenames == null) {
 				filenames = new String[argCount - index];
 			} else if (filesCount == filenames.length) {
@@ -277,75 +256,75 @@ private void configure(String[] argv) throws InvalidInputException {
 			mode = Default;
 			continue;
 		}
-		if (currentArg.equals("-log"/*nonNLS*/)) {
+		if (currentArg.equals("-log")) {
 			if (log != null)
-				throw new InvalidInputException(Main.bind("configure.duplicateLog"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("duplicate log specification: " + currentArg);
 			mode = InsideLog;
 			continue;
 		}
-		if (currentArg.equals("-repeat"/*nonNLS*/)) {
+		if (currentArg.equals("-repeat")) {
 			if (repetitions > 0)
-				throw new InvalidInputException(Main.bind("configure.duplicateRepeat"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("duplicate repeat specification: " + currentArg);
 			mode = InsideRepetition;
 			continue;
 		}
-		if (currentArg.equals("-d"/*nonNLS*/)) {
+		if (currentArg.equals("-d")) {
 			if (destinationPath != null)
-				throw new InvalidInputException(Main.bind("configure.duplicateOutputPath"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("duplicate output path specification: " + currentArg);
 			mode = InsideDestinationPath;
 			continue;
 		}
-		if (currentArg.equals("-classpath"/*nonNLS*/)) {
+		if (currentArg.equals("-classpath")) {
 			if (pathCount > 0)
-				throw new InvalidInputException(Main.bind("configure.duplicateClasspath"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("duplicate classpath specification: " + currentArg);
 			classpaths = new String[DEFAULT_SIZE_CLASSPATH];
 			mode = InsideClasspath;
 			continue;
 		}
-		if (currentArg.equals("-progress"/*nonNLS*/)) {
+		if (currentArg.equals("-progress")) {
 			mode = Default;
 			showProgress = true;
 			continue;
 		}
-		if (currentArg.equals("-proceedOnError"/*nonNLS*/)) {
+		if (currentArg.equals("-proceedOnError")) {
 			mode = Default;
 			proceedOnError = true;
 			continue;
 		}
-		if (currentArg.equals("-time"/*nonNLS*/)) {
+		if (currentArg.equals("-time")) {
 			mode = Default;
 			timer = true;
 			continue;
 		}
-		if (currentArg.equals("-version"/*nonNLS*/) || currentArg.equals("-v"/*nonNLS*/)) {
+		if (currentArg.equals("-version") || currentArg.equals("-v")) {
 			versionIDRequired = true;
 			continue;
 		}
-		if (currentArg.equals("-help"/*nonNLS*/)) {
+		if (currentArg.equals("-help")) {
 			printUsageRequired = true;
 			continue;
 		}		
-		if (currentArg.equals("-noImportError"/*nonNLS*/)) {
+		if (currentArg.equals("-noImportError")) {
 			mode = Default;
 			importProblemIsError = false;
 			continue;
 		}
-		if (currentArg.equals("-noExit"/*nonNLS*/)) {
+		if (currentArg.equals("-noExit")) {
 			mode = Default;
 			systemExitWhenFinished = false;
 			continue;
 		}		
-		if (currentArg.equals("-verbose"/*nonNLS*/)) {
+		if (currentArg.equals("-verbose")) {
 			mode = Default;
 			verbose = true;
 			continue;
 		}
-		if (currentArg.equals("-referenceInfo"/*nonNLS*/)) {
+		if (currentArg.equals("-referenceInfo")) {
 			mode = Default;
 			produceRefInfo = true;
 			continue;
 		}
-		if (currentArg.startsWith("-g"/*nonNLS*/)) {
+		if (currentArg.startsWith("-g")) {
 			mode = Default;
 			debugMask = 0; // reinitialize the default value
 			String debugOption = currentArg;
@@ -355,91 +334,89 @@ private void configure(String[] argv) throws InvalidInputException {
 				continue;
 			}
 			if (length > 3) {
-				if (length == 7 && debugOption.equals("-g:none"/*nonNLS*/))
+				if (length == 7 && debugOption.equals("-g:none"))
 					continue;
-				StringTokenizer tokenizer = new StringTokenizer(debugOption.substring(3, debugOption.length()), ","/*nonNLS*/);
+				StringTokenizer tokenizer = new StringTokenizer(debugOption.substring(3, debugOption.length()), ",");
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
-					if (token.equals("vars"/*nonNLS*/)) {
+					if (token.equals("vars")) {
 						debugMask |= CompilerOptions.Vars;
-					} else if (token.equals("lines"/*nonNLS*/)) {
+					} else if (token.equals("lines")) {
 						debugMask |= CompilerOptions.Lines;
-					} else if (token.equals("source"/*nonNLS*/)) {
+					} else if (token.equals("source")) {
 						debugMask |= CompilerOptions.Source;
 					} else {
-						throw new InvalidInputException(Main.bind("configure.invalidDebugOption"/*nonNLS*/,debugOption));
+						throw new InvalidInputException("invalid debug option: " + debugOption);
 					}
 				}
 				continue;
 			}
-			throw new InvalidInputException(Main.bind("configure.invalidDebugOption"/*nonNLS*/,debugOption));
+			throw new InvalidInputException("invalid debug option: " + debugOption);
 		}
-		if (currentArg.startsWith("-nowarn"/*nonNLS*/)) {
+		if (currentArg.startsWith("-nowarn")) {
 			noWarnOptionInUsed = true;
 			if (warnOptionInUsed)
-				throw new InvalidInputException(Main.bind("configure.duplicateWarningConfiguration"/*nonNLS*/));
+				throw new InvalidInputException("duplicate usage of warning configuration");
 			mode = Default;
 			warningMask = TemporaryWarning; // reinitialize the default value (still see TemporaryWarning)		
 			continue;
 		}
-		if (currentArg.startsWith("-warn"/*nonNLS*/)) {
+		if (currentArg.startsWith("-warn")) {
 			warnOptionInUsed = true;
 			if (noWarnOptionInUsed)
-				throw new InvalidInputException(Main.bind("configure.duplicateWarningConfiguration"/*nonNLS*/));
+				throw new InvalidInputException("duplicate usage of warning configuration");
 			mode = Default;
 			String warningOption = currentArg;
 			int length = currentArg.length();
-			if (length == 10 && warningOption.equals("-warn:none"/*nonNLS*/)) {
+			if (length == 10 && warningOption.equals("-warn:none")) {
 				warningMask = TemporaryWarning; // reinitialize the default value (still see TemporaryWarning)
 				continue;
 			}
 			if (length < 6)
-				throw new InvalidInputException(Main.bind("configure.invalidWarningConfiguration"/*nonNLS*/,warningOption));
-			StringTokenizer tokenizer = new StringTokenizer(warningOption.substring(6, warningOption.length()), ","/*nonNLS*/);
+				throw new InvalidInputException("invalid warning configuration: " + warningOption);
+			StringTokenizer tokenizer = new StringTokenizer(warningOption.substring(6, warningOption.length()), ",");
 			int tokenCounter = 0;
 			warningMask = 0; // reinitialize the default value				
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
 				tokenCounter++;
-				if (token.equals("constructorName"/*nonNLS*/)) {
+				if (token.equals("constructorName")) {
 					warningMask |= CompilerOptions.MethodWithConstructorName;
-				} else if (token.equals("packageDefaultMethod"/*nonNLS*/)) {
+				} else if (token.equals("packageDefaultMethod")) {
 					warningMask |= CompilerOptions.OverriddenPackageDefaultMethod;
-				} else if (token.equals("maskedCatchBlocks"/*nonNLS*/)) {
+				} else if (token.equals("maskedCatchBlocks")) {
 					warningMask |= CompilerOptions.MaskedCatchBlock;
-				} else if (token.equals("deprecation"/*nonNLS*/)) {
+				} else if (token.equals("deprecation")) {
 					warningMask |= CompilerOptions.UsingDeprecatedAPI;
-				} else if (token.equals("unusedLocals"/*nonNLS*/)) {
+				} else if (token.equals("unusedLocals")) {
 					warningMask |= CompilerOptions.UnusedLocalVariable;
-				} else if (token.equals("unusedArguments"/*nonNLS*/)) {
+				} else if (token.equals("unusedArguments")) {
 					warningMask |= CompilerOptions.UnusedArgument;
-				} else if (token.equals("syntheticAccess"/*nonNLS*/)){
+				} else if (token.equals("syntheticAccess")){
 					warningMask |= CompilerOptions.AccessEmulation;
-				} else if (token.equals("nls"/*nonNLS*/)){
-					warningMask |= CompilerOptions.NonExternalizedString;
 				} else {
-					throw new InvalidInputException(Main.bind("configure.invalidWarning"/*nonNLS*/,token));
+					throw new InvalidInputException("invalid warning: " + token);
 				}
 			}
 			if (tokenCounter == 0)
-				throw new InvalidInputException(Main.bind("configure.invalidWarningOption"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("invalid warning option: " + currentArg);
 			continue;
 		}
-		if (currentArg.equals("-target"/*nonNLS*/)) {
+		if (currentArg.equals("-target")) {
 			mode = TargetSetting;
 			continue;
 		}
-		if (currentArg.equals("-preserveAllLocals"/*nonNLS*/)) {
+		if (currentArg.equals("-preserveAllLocals")) {
 			preserveAllLocalVariables = true;
 			continue;
 		}
 		if (mode == TargetSetting) {
-			if (currentArg.equals("1.1"/*nonNLS*/)) {
+			if (currentArg.equals("1.1")) {
 				targetJDK = CompilerOptions.JDK1_1;
-			} else if (currentArg.equals("1.2"/*nonNLS*/)) {
+			} else if (currentArg.equals("1.2")) {
 				targetJDK = CompilerOptions.JDK1_2;
 			} else {
-				throw new InvalidInputException(Main.bind("configure.targetJDK"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("target JDK is either '1.1' or '1.2': " + currentArg);
 			}
 			mode = Default;
 			continue;
@@ -453,10 +430,10 @@ private void configure(String[] argv) throws InvalidInputException {
 			try {
 				repetitions = Integer.parseInt(currentArg);
 				if (repetitions <= 0){
-					throw new InvalidInputException(Main.bind("configure.repetition"/*nonNLS*/,currentArg));
+					throw new InvalidInputException("repetition must be a positive integer: " + currentArg);
 				}
 			} catch(NumberFormatException e){
-				throw new InvalidInputException(Main.bind("configure.repetition"/*nonNLS*/,currentArg));
+				throw new InvalidInputException("repetition must be a positive integer: " + currentArg);
 			}
 			mode = Default;
 			continue;
@@ -484,12 +461,12 @@ private void configure(String[] argv) throws InvalidInputException {
 			currentArg = currentArg.substring(0, currentArg.length() - File.separator.length());
 		File dir = new File(currentArg);
 		if (!dir.isDirectory())
-			throw new InvalidInputException(Main.bind("configure.directoryNotExist"/*nonNLS*/,currentArg));
+			throw new InvalidInputException("directory does not exist: " + currentArg);
 		FileFinder finder = new FileFinder();
 		try{
-			finder.find(dir, ".JAVA"/*nonNLS*/, verbose);
+			finder.find(dir, ".JAVA", verbose);
 		} catch(Exception e){
-			throw new InvalidInputException(Main.bind("configure.IOError"/*nonNLS*/,currentArg));		
+			throw new InvalidInputException("i/o error : unable to retrieve .JAVA files in directory: " + currentArg);		
 		}
 		if (filenames != null) {
 			// some source files were specified explicitly
@@ -510,25 +487,22 @@ private void configure(String[] argv) throws InvalidInputException {
 	 * Standalone options
 	 */
 	if (versionIDRequired) {
-		out.println(Main.bind("configure.version"/*nonNLS*/,this.versionID));
-		out.println();
-		proceed = false;
+		out.println("Eclipse Java Compiler "+ this.versionID + ", Copyright IBM Corp 2000\n");
 		return;
 	}
 		
 	if (printUsageRequired) {
 		printUsage();
-		proceed = false;
 		return;
 	}	
 	
 	if (filesCount != 0)
 		System.arraycopy(filenames, 0, (filenames = new String[filesCount]), 0, filesCount);
 	if (pathCount == 0) {
-		String classProp = System.getProperty("LFclasspath"/*nonNLS*/);
+		String classProp = System.getProperty("LFclasspath");
 		if ((classProp == null) || (classProp.length() == 0)) {
-			out.println(Main.bind("configure.noClasspath"/*nonNLS*/));
-			classProp = "."/*nonNLS*/;
+			out.println("no classpath defined (LF_CLASSPATH), using default directory instead");
+			classProp = ".";
 		}
 		StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
 		classpaths = new String[tokenizer.countTokens()];
@@ -543,27 +517,26 @@ private void configure(String[] argv) throws InvalidInputException {
 	for (int i = 0, max = classpaths.length; i < max; i++) {
 		File file = new File(classpaths[i]);
 		if (!file.exists())
-			throw new InvalidInputException(Main.bind("configure.incorrectClasspath"/*nonNLS*/,classpaths[i]));
+			throw new InvalidInputException("incorrect classpath: " + classpaths[i]);
 	}
 	if (destinationPath == null) {
-		destinationPath = System.getProperty("user.dir"/*nonNLS*/);
-	} else if ("none"/*nonNLS*/.equals(destinationPath)) {
+		destinationPath = System.getProperty("user.dir");
+	} else if ("none".equals(destinationPath)) {
 		destinationPath = null;
 	}
 		
 	if (filenames == null)
-		throw new InvalidInputException(Main.bind("configure.noSource"/*nonNLS*/));
+		throw new InvalidInputException("no source file specified");
 
 	if (log != null){
 		try {
 			out = new PrintWriter(new FileOutputStream(log, false));
 		} catch(IOException e){
-			throw new InvalidInputException(Main.bind("configure.cannotOpenLog"/*nonNLS*/));
+			throw new InvalidInputException("cannot open .log file");
 		}
 	} else {
 		showProgress = false;
 	}
-
 	if (repetitions == 0) {
 		repetitions = 1;
 	}
@@ -592,22 +565,21 @@ protected ICompilerRequestor getBatchRequestor() {
 					if (problems[i] != null) {
 						globalProblemsCount++;
 						if (localErrorCount == 0)
-							out.println("----------"/*nonNLS*/);
-						out.print(globalProblemsCount + ". "/*nonNLS*/ + (problems[i].isError() ? Main.bind("requestor.error"/*nonNLS*/) : Main.bind("requestor.warning"/*nonNLS*/)));
+							out.println("----------");
+						out.print(globalProblemsCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
 						if (problems[i].isError()) {
 							globalErrorsCount++;
 						} else {
 							globalWarningsCount++;
 						}
-						out.print(" "/*nonNLS*/);
-						out.print(Main.bind("requestor.in"/*nonNLS*/,new String(problems[i].getOriginatingFileName())));
+						out.print(" in " + new String(problems[i].getOriginatingFileName()));
 						try {
 							out.println(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
 							out.println(problems[i].getMessage());
 						} catch (Exception e) {
-							out.println(Main.bind("requestor.notRetrieveErrorMessage"/*nonNLS*/,problems[i].toString()));
+							out.println("Cannot retrieve the error message for " + problems[i].toString());
 						}
-						out.println("----------"/*nonNLS*/);
+						out.println("----------");
 						if (problems[i].isError())
 							localErrorCount++;
 					}
@@ -628,18 +600,19 @@ protected ICompilerRequestor getBatchRequestor() {
 protected CompilationUnit[] getCompilationUnits() throws InvalidInputException {
 	int fileCount = filenames.length;
 	CompilationUnit[] units = new CompilationUnit[fileCount];
+
 	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 	
 	for (int i = 0; i < fileCount; i++) {
 		char[] charName = filenames[i].toCharArray();
 		if (knownFileNames.get(charName) != null){
-			throw new InvalidInputException(Main.bind("unit.more"/*nonNLS*/,filenames[i]));			
+			throw new InvalidInputException("File " + filenames[i] + " is specified more than once");			
 		} else {
 			knownFileNames.put(charName, charName);
 		}
 		File file = new File(filenames[i]);
 		if (!file.exists())
-			throw new InvalidInputException(Main.bind("unit.missing"/*nonNLS*/,filenames[i]));
+			throw new InvalidInputException("File " + filenames[i] + " is missing");
 		units[i] = new CompilationUnit(null, filenames[i]);
 	}
 	return units;
@@ -711,7 +684,10 @@ protected void outputClassFiles(CompilationResult unitResult) {
 				} catch (IOException e) {
 					String fileName = destinationPath + new String(relativeName);
 					e.printStackTrace();
-					System.out.println(Main.bind("output.noClassFileCreated"/*nonNLS*/,fileName));
+					System.out.println(
+						"No .class file created for file named "
+							+ fileName
+							+ " because of a IOException.");
 				}
 				exportedClassFilesCounter++;
 			}
@@ -729,15 +705,16 @@ protected void performCompilation() throws InvalidInputException {
 				getOptions(),
 		 		getBatchRequestor(),
 				getProblemFactory());
+
 	CompilerOptions options = batchCompiler.options;
 	// set the non-externally configurable options.
 	options.setVerboseMode(verbose);
 	options.produceReferenceInfo(produceRefInfo);
+	
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
-	out.println(Main.bind("misc.usage"/*nonNLS*/,this.versionID));
-	/*out.println(
+	out.println(
 		"Eclipse Java Compiler "+ this.versionID + ", Copyright IBM Corp 2000\n\n" +
 		"Usage: <options> <source files | directories>\n\n" +
 					"where options include:\n" +
@@ -765,84 +742,7 @@ private void printUsage() {
 					"-proceedOnError\tkeep compiling when error, \n\t\tdumping class files with problem methods\n" +
 					"-referenceInfo\tcompute reference info\n" +
 					"-preserveAllLocals\trequest code gen preserve all local variables\n" +
-					"-repeat <n>\trepeat compilation process for performance analysis\n");*/
+					"-repeat <n>\trepeat compilation process for performance analysis\n");
 	out.flush();
 }
-
-/**
- * Creates a NLS catalog for the given locale.
- */
-public static void relocalize() {
-	bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
-}
-
-/**
- * Lookup the message with the given ID in this catalog 
- */
-public static String bind(String id) {
-	return bind(id, (String[])null);
-}
-
-/**
- * Lookup the message with the given ID in this catalog and bind its
- * substitution locations with the given string values.
- */
-public static String bind(String id, String[] bindings) {
-	if (id == null)
-		return "No message available"/*nonNLS*/;
-	String message = null;
-	try {
-		message = bundle.getString(id);
-	} catch (MissingResourceException e) {
-		// If we got an exception looking for the message, fail gracefully by just returning
-		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-		return "Missing message: "/*nonNLS*/+id+" in: "/*nonNLS*/+bundleName;
-	}
-	if (bindings == null)
-		return message;
-	int length = message.length();
-	int start = -1;
-	int end = length;
-	StringBuffer output = new StringBuffer(80);
-	while (true) {
-		if ((end = message.indexOf('{', start)) > -1) {
-			output.append(message.substring(start + 1, end));
-			if ((start = message.indexOf('}', end)) > -1) {
-				int index = -1;
-				try {
-					index = Integer.parseInt(message.substring(end + 1, start));
-					output.append(bindings[index]);
-				} catch (NumberFormatException nfe) {
-					output.append(message.substring(end + 1, start + 1));
-				} catch (ArrayIndexOutOfBoundsException e) {
-					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
-				}
-			} else {
-				output.append(message.substring(end, length));
-				break;
-			}
-		} else {
-			output.append(message.substring(start + 1, length));
-			break;
-		}
-	}
-	return output.toString();
-}
-
-/**
- * Lookup the message with the given ID in this catalog and bind its
- * substitution locations with the given string.
- */
-public static String bind(String id, String binding) {
-	return bind(id, new String[] {binding});
-}
-
-/**
- * Lookup the message with the given ID in this catalog and bind its
- * substitution locations with the given strings.
- */
-public static String bind(String id, String binding1, String binding2) {
-	return bind(id, new String[] {binding1, binding2});
-}
-
 }

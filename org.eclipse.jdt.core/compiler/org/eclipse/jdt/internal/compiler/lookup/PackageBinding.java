@@ -190,8 +190,8 @@ public char[] readableName() /*java.lang*/ {
 }
 public String toString() {
 	if (compoundName == NoCharChar)
-		return "The Default Package"/*nonNLS*/;
+		return "The Default Package";
 	else
-		return "package "/*nonNLS*/ + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"/*nonNLS*/);
+		return "package " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED");
 }
 }

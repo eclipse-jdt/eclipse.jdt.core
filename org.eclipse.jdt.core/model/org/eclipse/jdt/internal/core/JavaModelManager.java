@@ -93,12 +93,12 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	/**
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
 	 */
-	private static final String WKS_PROP_FILENAME= "workspace.properties"/*nonNLS*/;
+	private static final String WKS_PROP_FILENAME= "workspace.properties";
 
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
-	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"/*nonNLS*/;
+	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId";
 
 	/**
 	 * Table from IProject to PerProjectInfo.
@@ -129,7 +129,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
 	 */
-	public static String LINE_SEPARATOR = System.getProperty("line.separator"/*nonNLS*/);
+	public static String LINE_SEPARATOR = System.getProperty("line.separator");
 	/**
 	 * Constructs a new JavaModelManager
 	 */
@@ -359,18 +359,6 @@ public static ConfigurableOption[] convertConfigurableOptions(Hashtable optionMa
 			}
 			continue;
 		}
-		if (optionName.equals(JavaCore.COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleNonExternalizedStringLiteralAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleNonExternalizedStringLiteralAsWarning(false);
-				continue;
-			}
-			continue;
-		}
 	}
 	return compilerOptions.getConfigurableOptions(Locale.getDefault());
 }
@@ -483,7 +471,7 @@ public void doneSaving(ISaveContext context){
 			return null;
 		}
 		JavaModel model= (JavaModel) getJavaModel(workspace);
-		if (memento.equals(""/*nonNLS*/)){ // workspace memento
+		if (memento.equals("")){ // workspace memento
 			return model;
 		}
 		int modelEnd= memento.indexOf(JavaElement.JEM_JAVAPROJECT);
@@ -584,7 +572,7 @@ public void doneSaving(ISaveContext context){
 				try {
 					modelInfo.fJavaModel.close();
 				} catch (JavaModelException e) {
-					Assert.isTrue(false, Util.bind("element.onlyOneJavaModel"/*nonNLS*/));
+					Assert.isTrue(false, "Cannot instantiate more than one Java Model");
 					return null;
 				}
 			}
@@ -592,7 +580,7 @@ public void doneSaving(ISaveContext context){
 		if (modelInfo == null || modelInfo.workspace.equals(workspace)) {
 			return new JavaModel(workspace);
 		} else {
-			Assert.isTrue(false, Util.bind("element.onlyOneJavaModel"/*nonNLS*/));
+			Assert.isTrue(false, "Cannot instantiate more than one Java Model");
 			return null;
 		}
 
@@ -618,7 +606,7 @@ public void doneSaving(ISaveContext context){
 		if (state == null && JavaBuilder.SAVE_ENABLED && !info.triedRead) {
 			info.triedRead= true;
 			try {
-				if (monitor != null) monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
+				if (monitor != null) monitor.subTask("Reading saved built state of "+project.getName());
 				state= readState(info);
 				info.setLastBuiltState(state);
 			} catch (CoreException e) {
@@ -663,12 +651,12 @@ public void doneSaving(ISaveContext context){
 		if (!project.exists()) return null;
 		IPluginDescriptor descr= JavaCore.getJavaCore().getDescriptor();
 		IPath workingLocation= project.getPluginWorkingLocation(descr);
-		return workingLocation.append("state.dat"/*nonNLS*/).toFile();
+		return workingLocation.append("state.dat").toFile();
 	}
 	public String getVariablesAsXMLString() throws CoreException {
 
 		Document document = new DocumentImpl();
-		Element rootElement = document.createElement("variables"/*nonNLS*/);
+		Element rootElement = document.createElement("variables");
 		document.appendChild(rootElement);
 
 		String[] variables = JavaCore.getClasspathVariableNames();
@@ -676,9 +664,9 @@ public void doneSaving(ISaveContext context){
 		for (int i= 0; i < variables.length; ++i) {
 			String var = variables[i];
 			IPath varPath = JavaCore.getClasspathVariable(var);
-			Element varElement= document.createElement("variable"/*nonNLS*/);
-			varElement.setAttribute("name"/*nonNLS*/, var);
-			varElement.setAttribute("path"/*nonNLS*/, varPath.toString());			
+			Element varElement= document.createElement("variable");
+			varElement.setAttribute("name", var);
+			varElement.setAttribute("path", varPath.toString());			
 			rootElement.appendChild(varElement);
 		}
 
@@ -720,7 +708,7 @@ public void doneSaving(ISaveContext context){
 		} else if (!path.isAbsolute()) {
 			file= root.getFile(path);
 			if (file == null || file.getType() != IResource.FILE) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"/*nonNLS*/), null));
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "file not found", null));
 			}
 			ensureLocal(file);
 			fileSystemPath= file.getLocation().toOSString();
@@ -731,7 +719,7 @@ public void doneSaving(ISaveContext context){
 		try {
 			return new ZipFile(fileSystemPath);
 		} catch (IOException e) {
-			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"/*nonNLS*/), e));
+			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, "IOException", e));
 		}
 	}
 	/**
@@ -751,7 +739,7 @@ public void doneSaving(ISaveContext context){
 	public void loadVariables() throws CoreException {
 		
 		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
-								new QualifiedName(JavaCore.PLUGIN_ID, "variables"/*nonNLS*/));
+								new QualifiedName(JavaCore.PLUGIN_ID, "variables"));
 		try {
 			if (xmlString != null) readVariables(xmlString);
 		} catch(IOException e){
@@ -846,13 +834,13 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			try {
 				String pluginID= in.readUTF();
 				if (!pluginID.equals(JavaCore.PLUGIN_ID))
-					throw new IOException(Util.bind("build.wrongFileFormat"/*nonNLS*/));
+					throw new IOException("Wrong file format");
 				String kind= in.readUTF();
-				if (!kind.equals("STATE"/*nonNLS*/))
-					throw new IOException(Util.bind("build.wrongFileFormat"/*nonNLS*/));
+				if (!kind.equals("STATE"))
+					throw new IOException("Wrong file format");
 				int version= in.readInt();
 				if (version != 0x0001)
-					throw new IOException(Util.bind("build.unhandledVersionFormat"/*nonNLS*/));
+					throw new IOException("Unhandled version of file format");
 				boolean hasState= in.readBoolean();
 				IState state= null;
 				if (hasState) {
@@ -876,15 +864,15 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch(SAXException e) {
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+			throw new IOException("bad format");
 		} catch(ParserConfigurationException e){
 			reader.close();
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+			throw new IOException("bad format");
 		} finally {
 			reader.close();
 		}
-		if (!cpElement.getNodeName().equalsIgnoreCase("variables"/*nonNLS*/)) {
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+		if (!cpElement.getNodeName().equalsIgnoreCase("variables")) {
+			throw new IOException("bad format");
 		}
 		NodeList list= cpElement.getChildNodes();
 		Vector variables = new Vector();
@@ -894,11 +882,11 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			short type= node.getNodeType();
 			if (type == Node.ELEMENT_NODE) {
 				Element element= (Element) node;
-				if (element.getNodeName().equalsIgnoreCase("variable"/*nonNLS*/)) {
-					String varName = element.getAttribute("name"/*nonNLS*/);
-					String varPath = element.getAttribute("path"/*nonNLS*/);
+				if (element.getNodeName().equalsIgnoreCase("variable")) {
+					String varName = element.getAttribute("name");
+					String varPath = element.getAttribute("path");
 					try {
-						JavaCore.setClasspathVariable(varName, new Path(varPath), null);
+						JavaCore.setClasspathVariable(varName, new Path(varPath));
 					} catch(JavaModelException e){
 					} catch(RuntimeException e){
 					}
@@ -1057,7 +1045,7 @@ public void rollback(ISaveContext context){
 		if (vStats != null) {
 			IStatus[] stats= new IStatus[vStats.size()];
 			vStats.copyInto(stats);
-			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Util.bind("build.cannotSaveStates"/*nonNLS*/), null));
+			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, "Error saving builder states", null));
 		}
 	}
 	/**
@@ -1065,7 +1053,7 @@ public void rollback(ISaveContext context){
 	 */
 	private void saveState(PerProjectInfo info) throws CoreException {
 
-		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress"/*nonNLS*/, info.project.getName()));
+		if (VERBOSE) System.out.println("Saving Java Image Builder state for project " + info.project.getName());
 		long t= System.currentTimeMillis();
 		File file= getSerializationFile(info.project);
 		if (file == null) return;
@@ -1073,7 +1061,7 @@ public void rollback(ISaveContext context){
 			DataOutputStream out= new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			try {
 				out.writeUTF(JavaCore.PLUGIN_ID);
-				out.writeUTF("STATE"/*nonNLS*/);
+				out.writeUTF("STATE");
 				out.writeInt(0x0001);
 				IState state= info.getLastBuiltState();
 				if (state == null) {
@@ -1090,16 +1078,16 @@ public void rollback(ISaveContext context){
 				file.delete();
 			} catch(SecurityException se){
 			}
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("build.cannotSaveState"/*nonNLS*/, info.project.getName()), e));
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error saving last build state for project "+ info.project.getFullPath(), e));
 		} catch (IOException e) {
 			try {
 				file.delete();
 			} catch(SecurityException se){
 			}
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("build.cannotSaveState"/*nonNLS*/, info.project.getName()), e));
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error saving last build state for project "+ info.project.getFullPath(), e));
 		}
 		t= System.currentTimeMillis() - t;
-		if (VERBOSE) System.out.println(Util.bind("build.saveStateComplete"/*nonNLS*/, String.valueOf(t)));
+		if (VERBOSE) System.out.println("  Saved in " + t + "ms");
 	}
 	/**
 	 * Saves the built state for the project if it has been changed since last save.
@@ -1119,7 +1107,7 @@ public void rollback(ISaveContext context){
 	}
 	public void saveVariables() throws CoreException {
 		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
-			new QualifiedName(JavaCore.PLUGIN_ID, "variables"/*nonNLS*/), 
+			new QualifiedName(JavaCore.PLUGIN_ID, "variables"), 
 			getVariablesAsXMLString());
 	}
 /**

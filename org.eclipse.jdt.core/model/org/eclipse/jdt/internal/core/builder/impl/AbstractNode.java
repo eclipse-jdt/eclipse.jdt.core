@@ -5,10 +5,11 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.core.Assert;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.builder.IType;
 import org.eclipse.jdt.internal.core.util.Dumper;
 import org.eclipse.jdt.internal.core.util.IDumpable;
+
+import java.util.*;
 
 /**
  * A node in the image builder dependency graph.
@@ -119,7 +120,7 @@ try {
 		/* add the dependent */
 		fDependents[min] = nodeThatDependsOnMe;
 } catch (ArrayIndexOutOfBoundsException e) {
-	System.out.println("ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()"/*nonNLS*/);
+	System.out.println("ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()");
 }
 	}
 	/**
@@ -148,28 +149,28 @@ try {
  * For debugging only. 
  */
 public void dump(Dumper dumper) {
-	dumper.dump("element"/*nonNLS*/, getElement());
+	dumper.dump("element", getElement());
 	if (getKind() == JCU_NODE) 
-		dumper.dump("types"/*nonNLS*/, getTypes());
+		dumper.dump("types", getTypes());
 		
 	Object[] dependencies = new Object[fDependencies.length];
 	for (int i = 0; i < fDependencies.length; ++i) {
 		dependencies[i] = fDependencies[i].getElement();
 	}
-	dumper.dump("dependencies"/*nonNLS*/, dependencies);
+	dumper.dump("dependencies", dependencies);
 		
 	Object[] dependents = new Object[fNumDependents];
 	for (int i = 0; i < fDependents.length; ++i) {
 		dependents[i] = fDependents[i].getElement();
 	}
-	dumper.dump("dependents"/*nonNLS*/, dependents);
+	dumper.dump("dependents", dependents);
 	
 }
 	/**
 	 * Make sure equality tests are never carried out on nodes
 	 */
 	public boolean equals(Object o) {
-		Assert.isTrue(false, "Internal Error - Equality not defined for dependency graph nodes"/*nonNLS*/);
+		Assert.isTrue(false, "Equality not defined for dependency graph nodes");
 		return false;
 	}
 	/**
@@ -239,8 +240,10 @@ public void dump(Dumper dumper) {
 	/**
 	 * Returns the types that belong to this node
 	 */
-	public abstract IType[] getTypes();
-	
+	public IType[] getTypes() {
+		Assert.isTrue(false, "My subclass should have implemented this");
+		return null;
+	}
 	/**
 	 * Invalidates the order number, for this node and all dependents.
 	 */
@@ -338,7 +341,7 @@ public void dump(Dumper dumper) {
 		for (int i = 0; i < recursionLevel; ++i)
 			sb.append(' ');
 		sb.append(this);
-		sb.append(": "/*nonNLS*/);
+		sb.append(": ");
 		sb.append(refCount);
 		System.out.println(sb.toString());
 	}

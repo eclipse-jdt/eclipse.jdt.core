@@ -6,7 +6,7 @@ package org.eclipse.jdt.internal.compiler.codegen;
  */
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-    public class ExceptionLabel extends Label {
+  public class ExceptionLabel extends Label {
 	public int start = POS_NOT_SET;
 	public int end = POS_NOT_SET;
 	public TypeBinding exceptionType;

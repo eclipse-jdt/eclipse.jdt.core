@@ -1,10 +1,5 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
- 
+
 abstract public class ClassFileStruct implements ClassFileConstants {
 	byte[] reference;
 	int structOffset;
@@ -114,12 +109,12 @@ public static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 
-	if ((modifiers & AccPublic) != 0) print.print("public "/*nonNLS*/);
-	if ((modifiers & AccPrivate) != 0) print.print("private "/*nonNLS*/);
-	if ((modifiers & AccFinal) != 0) print.print("final "/*nonNLS*/);
-	if ((modifiers & AccSuper) != 0) print.print("super "/*nonNLS*/);
-	if ((modifiers & AccInterface) != 0) print.print("interface "/*nonNLS*/);
-	if ((modifiers & AccAbstract) != 0) print.print("abstract "/*nonNLS*/);
+	if ((modifiers & AccPublic) != 0) print.print("public ");
+	if ((modifiers & AccPrivate) != 0) print.print("private ");
+	if ((modifiers & AccFinal) != 0) print.print("final ");
+	if ((modifiers & AccSuper) != 0) print.print("super ");
+	if ((modifiers & AccInterface) != 0) print.print("interface ");
+	if ((modifiers & AccAbstract) != 0) print.print("abstract ");
 	print.flush();
 	return out.toString();
 }
@@ -270,7 +265,7 @@ public static void verifyMethodNameAndSignature(char[] name, char[] signature) t
 
 	// if name begins with the < character it must be clinit or init
 	if (name[0] == '<') {
-		if (new String(name).equals("<clinit>"/*nonNLS*/) || new String(name).equals("<init>"/*nonNLS*/)) {
+		if (new String(name).equals("<clinit>") || new String(name).equals("<init>")) {
 			int signatureLength = signature.length;
 			if (!((signatureLength > 2)
 				&& (signature[0] == '(')

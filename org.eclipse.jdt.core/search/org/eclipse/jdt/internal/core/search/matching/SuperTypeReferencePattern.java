@@ -16,8 +16,6 @@ import org.eclipse.jdt.internal.core.search.*;
 
 import java.io.*;
 
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-
 public class SuperTypeReferencePattern extends SearchPattern {
 
 	public char[] superQualification;
@@ -109,6 +107,51 @@ protected int matchContainer() {
 	return CLASS;
 }
 /**
+ * @see SearchPattern#matches(AstNode, boolean)
+ */
+protected boolean matches(AstNode node, boolean resolve) {
+	if (!(node instanceof TypeReference)) return false;
+
+	TypeReference typeRef = (TypeReference)node;
+	if (!resolve) {
+		if (this.superSimpleName != null) {
+			char[] typeRefSimpleName = null;
+			if (typeRef instanceof SingleTypeReference) {
+				typeRefSimpleName = ((SingleTypeReference)typeRef).token;
+			} else { // QualifiedTypeReference
+				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
+				typeRefSimpleName = tokens[tokens.length-1];
+			}				
+			if (!this.matchesName(this.superSimpleName, typeRefSimpleName))
+				return false;
+		}
+	} else {
+		TypeBinding binding = typeRef.binding;
+		if (binding != null && !this.matchesType(this.superSimpleName, this.superQualification, binding))
+			return false;
+	}
+	return true;
+}
+/**
+ * @see SearchPattern#matches(Binding)
+ */
+public boolean matches(Binding binding) {
+	if (!(binding instanceof ReferenceBinding)) return false;
+
+	ReferenceBinding type = (ReferenceBinding) binding;
+	if (this.matchesType(this.superSimpleName, this.superQualification, type.superclass())){
+		return true;
+	}
+	
+	ReferenceBinding[] superInterfaces = type.superInterfaces();
+	for (int i = 0, max = superInterfaces.length; i < max; i++){
+		if (this.matchesType(this.superSimpleName, this.superQualification, superInterfaces[i])){
+			return true;
+		}
+	}
+	return false;
+}
+/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -136,122 +179,24 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("SuperTypeReferencePattern: <"/*nonNLS*/);
+	buffer.append("SuperTypeReferencePattern: <");
 	if (superSimpleName != null) buffer.append(superSimpleName);
-	buffer.append(">, "/*nonNLS*/);
+	buffer.append(">, ");
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, ");
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, ");
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, ");
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive");
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive");
 	return buffer.toString();
-}
-
-/**
- * @see SearchPattern#matchesBinary
- */
-public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	if (!(binaryInfo instanceof IBinaryType)) return false;
-	IBinaryType type = (IBinaryType)binaryInfo;
-
-	char[] vmName = type.getSuperclassName();
-	if (vmName != null) {
-		char[] superclassName = (char[])vmName.clone();
-		CharOperation.replace(vmName, '/', '.');
-		if (this.matchesType(this.superSimpleName, this.superQualification, superclassName)){
-			return true;
-		}
-	}
-	
-	char[][] superInterfaces = type.getInterfaceNames();
-	if (superInterfaces != null) {
-		for (int i = 0, max = superInterfaces.length; i < max; i++) {
-			char[] superInterfaceName = (char[])superInterfaces[i].clone();
-			CharOperation.replace(superInterfaceName, '/', '.');
-			if (this.matchesType(this.superSimpleName, this.superQualification, superInterfaceName)){
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (!(node instanceof TypeReference)) return IMPOSSIBLE_MATCH;
-
-	TypeReference typeRef = (TypeReference)node;
-	if (resolve) {
-		TypeBinding binding = typeRef.binding;
-		if (binding == null) {
-			return INACCURATE_MATCH;
-		} else {
-			return this.matchLevelForType(this.superSimpleName, this.superQualification, binding);
-		}
-	} else {
-		if (this.superSimpleName == null) {
-			return POSSIBLE_MATCH;
-		} else {
-			char[] typeRefSimpleName = null;
-			if (typeRef instanceof SingleTypeReference) {
-				typeRefSimpleName = ((SingleTypeReference)typeRef).token;
-			} else { // QualifiedTypeReference
-				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
-				typeRefSimpleName = tokens[tokens.length-1];
-			}				
-			if (this.matchesName(this.superSimpleName, typeRefSimpleName))
-				return POSSIBLE_MATCH;
-			else
-				return IMPOSSIBLE_MATCH;
-		}
-	}
-}
-
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof ReferenceBinding)) return IMPOSSIBLE_MATCH;
-
-	// super class
-	ReferenceBinding type = (ReferenceBinding) binding;
-	int level = this.matchLevelForType(this.superSimpleName, this.superQualification, type.superclass());
-	switch (level) {
-		case IMPOSSIBLE_MATCH:
-			break; // try to find match in super interfaces
-		case ACCURATE_MATCH:
-			return ACCURATE_MATCH;
-		default: // ie. INACCURATE_MATCH
-			break; // try to find accurate match in super interfaces
-	}
-
-	// super interfaces
-	ReferenceBinding[] superInterfaces = type.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++){
-		int newLevel = this.matchLevelForType(this.superSimpleName, this.superQualification, superInterfaces[i]);
-		switch (newLevel) {
-			case IMPOSSIBLE_MATCH:
-				break;
-			case ACCURATE_MATCH:
-				return ACCURATE_MATCH;
-			default: // ie. INACCURATE_MATCH
-				level = newLevel;
-				break;
-		}
-	}
-	return level;
 }
 }

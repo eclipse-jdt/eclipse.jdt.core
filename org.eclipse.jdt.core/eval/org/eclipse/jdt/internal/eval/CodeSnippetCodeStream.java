@@ -65,7 +65,7 @@ public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
 	// swap  the field with the receiver
 	this.swap();
 	localCodeStream.invokeJavaLangReflectFieldGetter(fieldBinding.type.id);
-	if (!fieldBinding.type.isBaseType()) {
+	if (fieldBinding.type.isArrayType()) {
 		this.checkcast(fieldBinding.type);
 	}
 }

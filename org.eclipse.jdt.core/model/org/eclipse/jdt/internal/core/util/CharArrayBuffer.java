@@ -1,26 +1,5 @@
 package org.eclipse.jdt.internal.core.util;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * The <code>CharArrayBuffer</code> is intended as a lightweight partial implementation
- * of the StringBuffer class, but using <code>char[]'s</code> instead of Strings.
- *
- * <p>The <code>CharArrayBuffer</code> maintains a list of <code>char[]'s</code>
- * which don't get appended until the user asks for them.  The following
- * code illustrates how to use the class.
- *
- * <code>
- * CharArrayBuffer buffer = new CharArrayBuffer(myCharArray);
- * buffer.append(moreBytes, 0, someLength);
- * myCharArray = buffer.getContents();
- * </code>
- *
- * <p>NOTE: This class is not Thread safe!
- */
 public class CharArrayBuffer {
 	/**
 	 * This is the buffer of char arrays which must be appended together

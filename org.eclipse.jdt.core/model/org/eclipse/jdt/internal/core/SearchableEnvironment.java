@@ -94,7 +94,7 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 	for(int i = 0; i < lengthM1; i++) {
 		buffer.append(compoundTypeName[i]);
 		if (i + 1 != lengthM1)
-			buffer.append('.');
+			buffer.append(".");
 	}
 	String className = new String(compoundTypeName[lengthM1]);
 	return find(className, buffer.toString());
@@ -114,7 +114,7 @@ public NameEnvironmentAnswer findType(char[] name, char[][] packages) {
 	for(int i = 0; i < length; i++) {
 		buffer.append(packages[i]);
 		if (i + 1 != length)
-			buffer.append('.');
+			buffer.append(".");
 	}
 	String className = new String(name);
 	return find(className, buffer.toString());
@@ -238,7 +238,7 @@ public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
 		if (parentPackageName[i] == null || isQualified(parentPackageName[i]))
 			return false;
 		buffer.append(parentPackageName[i]);
-		buffer.append('.');
+		buffer.append(".");
 	}
 	if (isQualified(subPackageName)) {
 		return false;
@@ -272,7 +272,7 @@ public boolean isTopLevelPackage(char[] packageName) {
  * Returns a printable string for the array.
  */
 protected String toStringChar(char[] name) {
-	return "["/*nonNLS*/ + new String(name) + "]"/*nonNLS*/;
+	return "[" + new String(name) + "]";
 }
 /**
  * Returns a printable string for the array.

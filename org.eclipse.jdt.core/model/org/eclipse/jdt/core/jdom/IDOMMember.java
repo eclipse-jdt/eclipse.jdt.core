@@ -1,22 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * An <code>IDOMMember</code> defines functionality common to nodes which
- * can be members of types.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- *
- * @see IDOMType
- * @see IDOMMethod
- * @see IDOMField
- * @see IDOMInitializer
- */
 public interface IDOMMember extends IDOMNode {
 /**
  * Returns the comment associated with this member (including comment delimiters).

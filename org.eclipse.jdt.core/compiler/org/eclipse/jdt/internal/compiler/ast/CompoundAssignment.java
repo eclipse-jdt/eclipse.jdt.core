@@ -48,29 +48,29 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public String operatorToString() {
 	switch (operator) {
 		case PLUS :
-			return "+="/*nonNLS*/;
+			return "+=";
 		case MINUS :
-			return "-="/*nonNLS*/;
+			return "-=";
 		case MULTIPLY :
-			return "*="/*nonNLS*/;
+			return "*=";
 		case DIVIDE :
-			return "/="/*nonNLS*/;
+			return "/=";
 		case AND :
-			return "&="/*nonNLS*/;
+			return "&=";
 		case OR :
-			return "|="/*nonNLS*/;
+			return "|=";
 		case XOR :
-			return "^="/*nonNLS*/;
+			return "^=";
 		case REMAINDER :
-			return "%="/*nonNLS*/;
+			return "%=";
 		case LEFT_SHIFT :
-			return "<<="/*nonNLS*/;
+			return "<<=";
 		case RIGHT_SHIFT :
-			return ">>="/*nonNLS*/;
+			return ">>=";
 		case UNSIGNED_RIGHT_SHIFT :
-			return ">>>="/*nonNLS*/;
+			return ">>>=";
 	};
-	return "unknown operator"/*nonNLS*/;
+	return "unknown operator";
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
@@ -119,8 +119,8 @@ public boolean restrainUsageToNumericTypes(){
 	return false ;}
 public String toStringExpressionNoParenthesis() {
 
-	return 	lhs.toStringExpression() + " "/*nonNLS*/ +
-			operatorToString() + " "/*nonNLS*/ +
+	return 	lhs.toStringExpression() + " " +
+			operatorToString() + " " +
 			expression.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

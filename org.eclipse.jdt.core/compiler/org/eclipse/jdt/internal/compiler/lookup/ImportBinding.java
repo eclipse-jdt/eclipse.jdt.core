@@ -25,11 +25,11 @@ public final int bindingType() {
 }
 public char[] readableName() {
 	if (onDemand)
-		return CharOperation.concat(CharOperation.concatWith(compoundName, '.'), ".*"/*nonNLS*/.toCharArray());
+		return CharOperation.concat(CharOperation.concatWith(compoundName, '.'), ".*".toCharArray());
 	else
 		return CharOperation.concatWith(compoundName, '.');
 }
 public String toString() {
-	return "import : "/*nonNLS*/ + new String(readableName());
+	return "import : " + new String(readableName());
 }
 }

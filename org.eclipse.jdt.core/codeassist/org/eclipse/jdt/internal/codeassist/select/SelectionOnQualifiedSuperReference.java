@@ -45,9 +45,9 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression(){
 	
-	StringBuffer buffer = new StringBuffer("<SelectOnQualifiedSuper:"/*nonNLS*/);
+	StringBuffer buffer = new StringBuffer("<SelectOnQualifiedSuper:");
 	buffer.append(super.toStringExpression());
-	buffer.append(">"/*nonNLS*/);
+	buffer.append(">");
 	return buffer.toString();
 }
 }

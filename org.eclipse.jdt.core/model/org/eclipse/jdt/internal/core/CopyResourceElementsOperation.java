@@ -159,7 +159,7 @@ private JavaElementDelta getDeltaFor(IJavaProject javaProject) {
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.copyResourceProgress"/*nonNLS*/);
+	return "Copying resources...";
 }
 /**
  * Sets the deltas to register the changes resulting from this operation
@@ -223,9 +223,7 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 
 	// update new resource content
 	try {
-		if (newContent != null){
-			destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
-		}
+		destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -342,7 +340,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 			}
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
 				for (int i = 0; i < resources.length; i++) {
-					if (resources[i].getName().endsWith(".java"/*nonNLS*/)) {
+					if (resources[i].getName().endsWith(".java")) {
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
@@ -428,7 +426,7 @@ private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) t
 	if (!seenPackageNode && !defaultPackage) {
 		//the cu was in a default package...no package declaration
 		//create the new package declaration as the first child of the cu
-		IDOMPackage pkg = fFactory.createPackage("package "/*nonNLS*/ + pkgName + ";"/*nonNLS*/ + JavaModelManager.LINE_SEPARATOR);
+		IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + JavaModelManager.LINE_SEPARATOR);
 		domCU.getFirstChild().insertSibling(pkg);
 	}
 }

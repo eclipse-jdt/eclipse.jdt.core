@@ -80,6 +80,6 @@ public NameEnvironmentAnswer readJavaFile(String filename, char[][] packageName)
 	}
 }
 public String toString() {
-	return "Classpath for jar file "/*nonNLS*/ + zipFile;
+	return "Classpath for jar file " + zipFile;
 }
 }

@@ -1,14 +1,5 @@
 package org.eclipse.jdt.internal.core.search.indexing;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * Monitor ensuring no more than one writer working concurrently.
- * Multiple readers are allowed to perform simultaneously.
- */
 public class ReadWriteMonitor {
 
 	/**

@@ -26,18 +26,17 @@ public ConditionalExpression(Expression condition, Expression valueIfTrue, Expre
 	sourceEnd = valueIfFalse.sourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	Constant inlinedCondition = condition.constant;
-	if (inlinedCondition == NotAConstant) inlinedCondition = condition.conditionalConstant();
-	if (inlinedCondition != NotAConstant) {
-		if (inlinedCondition.booleanValue() == true) {
+	Constant inlinedCondition;
+	if ((inlinedCondition = condition.constant) != NotAConstant) {
+		if (inlinedCondition.booleanValue()) {
 			FlowInfo resultInfo = valueIfTrue.analyseCode(currentScope, flowContext, flowInfo);
 			// analyse valueIfFalse, but do not take into account any of its infos
-			valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.copy().markAsFakeReachable(true));
+			valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.copy());
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(resultInfo);
 			return resultInfo;
 		} else {
 			// analyse valueIfTrue, but do not take into account any of its infos			
-			valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.copy().markAsFakeReachable(true));
+			valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.copy());
 			FlowInfo mergeInfo = valueIfFalse.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergeInfo);
 			return mergeInfo;
@@ -254,8 +253,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
 
-	return	condition.toStringExpression() + " ? "/*nonNLS*/ +
-			valueIfTrue.toStringExpression() + " : "/*nonNLS*/ +
+	return	condition.toStringExpression() + " ? " +
+			valueIfTrue.toStringExpression() + " : " +
 			valueIfFalse.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

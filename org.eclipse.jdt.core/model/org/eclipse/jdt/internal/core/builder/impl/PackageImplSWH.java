@@ -5,13 +5,10 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.builder.IHandle;
-import org.eclipse.jdt.internal.core.builder.IImageContext;
-import org.eclipse.jdt.internal.core.builder.IPackage;
-import org.eclipse.jdt.internal.core.builder.ISourceFragment;
-import org.eclipse.jdt.internal.core.builder.IType;
-import org.eclipse.jdt.internal.core.builder.NotPresentException;
+
+import org.eclipse.jdt.internal.core.builder.*;
+
+import java.util.*;
 
 public class PackageImplSWH extends StateSpecificHandleImpl implements IPackage {
 	PackageImpl fHandle;
@@ -146,7 +143,7 @@ public IPackage[] getReferencedPackages() throws NotPresentException {
 	public IPackage[] getReferencingPackages(IImageContext context) 
 	  throws NotPresentException {
 		if (!isPresent())
-			throw new NotPresentException(Util.bind("element.notPresent"/*nonNLS*/));
+			throw new NotPresentException("Not present");
 
 		IPackage[] pkgs = fState.getReferencingPackages(fHandle, context);
 

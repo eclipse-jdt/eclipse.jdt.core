@@ -1,13 +1,8 @@
 package org.eclipse.jdt.internal.compiler.util;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
 public final class SimpleNameVector {
 	static int INITIAL_SIZE = 10;
-    
+	
 	public int size;
 	int maxSize;
 	char[][] elements;
@@ -17,13 +12,13 @@ public SimpleNameVector() {
 	elements = new char[maxSize][];
 }
 public void add(char[] newElement) {
-	if (size == maxSize)    // knows that size starts <= maxSize
+	if (size == maxSize)	// knows that size starts <= maxSize
 		System.arraycopy(elements, 0, (elements = new char[maxSize *= 2][]), 0, size);
 	elements[size++] = newElement;
 }
 public void addAll(char[][] newElements) {
 	if (size + newElements.length >= maxSize) {
-		maxSize = size + newElements.length;    // assume no more elements will be added
+		maxSize = size + newElements.length;	// assume no more elements will be added
 		System.arraycopy(elements, 0, (elements = new char[maxSize][]), 0, size);
 	}
 	System.arraycopy(newElements, 0, elements, size, newElements.length);
@@ -57,7 +52,7 @@ public void removeAll() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < size; i++) {
-		buffer.append(elements[i]).append("\n"/*nonNLS*/);
+		buffer.append(elements[i]).append("\n");
 	}
 	return buffer.toString();
 }

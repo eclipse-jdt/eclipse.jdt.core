@@ -79,11 +79,11 @@ public final class HashtableOfObject {
 		return elementSize;
 	}
 	public String toString() {
-		String s= ""/*nonNLS*/;
+		String s= "";
 		Object object;
 		for (int i= 0, length= valueTable.length; i < length; i++)
 			if ((object= valueTable[i]) != null)
-				s += new String(keyTable[i]) + " -> "/*nonNLS*/ + object.toString() + "\n"/*nonNLS*/;
+				s += new String(keyTable[i]) + " -> " + object.toString() + "\n";
 		return s;
 	}
 }

@@ -85,45 +85,45 @@ public String toString(){
 	if (declaringQualification != null) buffer.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
 		buffer.append(declaringSimpleName).append('.');
-	else if (declaringQualification != null) buffer.append("*."/*nonNLS*/);
+	else if (declaringQualification != null) buffer.append("*.");
 	if (selector != null) {
 		buffer.append(selector);
 	} else {
-		buffer.append("*"/*nonNLS*/);
+		buffer.append("*");
 	}
 	buffer.append('(');
 	if (parameterSimpleNames == null) {
-		buffer.append("..."/*nonNLS*/);
+		buffer.append("...");
 	} else {
 		for (int i = 0, max = parameterSimpleNames.length; i < max; i++){
-			if (i > 0) buffer.append(", "/*nonNLS*/);
+			if (i > 0) buffer.append(", ");
 			if (parameterQualifications[i] != null) buffer.append(parameterQualifications[i]).append('.');
 			if (parameterSimpleNames[i] == null) buffer.append('*'); else buffer.append(parameterSimpleNames[i]);
 		}
 	}
 	buffer.append(')');
 	if (returnQualification != null) 
-		buffer.append(" --> "/*nonNLS*/).append(returnQualification).append('.');
-	else if (returnSimpleName != null) buffer.append(" --> "/*nonNLS*/);
+		buffer.append(" --> ").append(returnQualification).append('.');
+	else if (returnSimpleName != null) buffer.append(" --> ");
 	if (returnSimpleName != null) 
 		buffer.append(returnSimpleName);
-	else if (returnQualification != null) buffer.append("*"/*nonNLS*/);
-	buffer.append(", "/*nonNLS*/);
+	else if (returnQualification != null) buffer.append("*");
+	buffer.append(", ");
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, ");
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, ");
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, ");
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive");
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive");
 	return buffer.toString();
 }
 }

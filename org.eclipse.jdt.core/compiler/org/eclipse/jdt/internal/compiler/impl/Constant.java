@@ -16,10 +16,10 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	public static final IntConstant Two = new IntConstant(2);
 	public static final IntConstant One = new IntConstant(1);
 public boolean booleanValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"boolean"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName() + " constant cannot be casted into boolean");
 }
 public byte byteValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"byte"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into byte");
 }
 public final Constant castTo(int conversionToTargetType){
 	//the cast is an int of the form
@@ -218,7 +218,7 @@ public final Constant castTo(int conversionToTargetType){
 	return NotAConstant ;
 }
 public char charValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"char"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into char");
 }
 public static final Constant computeConstantOperation(Constant cst, int id, int operator) {
 	//this method  assumes that the TC has been done . 
@@ -1416,10 +1416,10 @@ public static final Constant computeConstantOperationXOR(Constant left, int left
 
 	return NotAConstant ;}  // should not get here 
 public double doubleValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"double"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into double");
 }
 public float floatValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"float"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into float");
 }
 public static Constant fromValue(byte value) {
 	return new ByteConstant(value);
@@ -1450,36 +1450,36 @@ public static Constant fromValue(boolean value) {
 	return new BooleanConstant(value);
 }
 public int intValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"int"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into int");
 }
 public long longValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"long"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be casted into long");
 }
 public short shortValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo"/*nonNLS*/,typeName(),"short"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be converted to short");
 }
 /** Deprecated
 */
 public String stringValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo"/*nonNLS*/,typeName(),"String"/*nonNLS*/));
+	throw new ShouldNotImplement(typeName()+ " constant cannot be converted to String");
 }
 public String toString(){
 
-	if (this == NotAConstant) return "(Constant) NotAConstant"/*nonNLS*/ ;
+	if (this == NotAConstant) return "(Constant) NotAConstant" ;
 	return super.toString(); }
 public abstract int typeID();
 public String typeName() {
 	switch (typeID()) {
-		case T_int : return "int"/*nonNLS*/;
-		case T_byte : return "byte"/*nonNLS*/;
-		case T_short : return "short"/*nonNLS*/;
-		case T_char : return "char"/*nonNLS*/;
-		case T_float : return "float"/*nonNLS*/;
-		case T_double : return "double"/*nonNLS*/;
-		case T_boolean : return "boolean"/*nonNLS*/;
-		case T_String : return "java.lang.String"/*nonNLS*/;
-		case T_null : return "null"/*nonNLS*/;	
-		default: return "unknown"/*nonNLS*/;
+		case T_int : return "int";
+		case T_byte : return "byte";
+		case T_short : return "short";
+		case T_char : return "char";
+		case T_float : return "float";
+		case T_double : return "double";
+		case T_boolean : return "boolean";
+		case T_String : return "java.lang.String";
+		case T_null : return "null";		
+		default: return "unknown";
 	}
 }
 }

@@ -197,18 +197,18 @@ public void tagAsHavingErrors(){
 public String toString(int tab) {
 	/*very slow code*/
 
-	String s = ""/*nonNLS*/;
+	String s = "";
 	if (currentPackage != null)
-		s = tabString(tab) + "package "/*nonNLS*/ + currentPackage.toString(0, false) + ";\n"/*nonNLS*/;
+		s = tabString(tab) + "package " + currentPackage.toString(0, false) + ";\n";
 
 	if (imports != null)
 		for (int i = 0; i < imports.length; i++) {
-			s += tabString(tab) + "import "/*nonNLS*/ + imports[i].toString() + ";\n"/*nonNLS*/;
+			s += tabString(tab) + "import " + imports[i].toString() + ";\n";
 		};
 
 	if (types != null)
 		for (int i = 0; i < types.length; i++) {
-			s +=  types[i].toString(tab) + "\n"/*nonNLS*/;
+			s +=  types[i].toString(tab) + "\n";
 		}
 	return s;
 }

@@ -45,151 +45,151 @@ public String toString() {
 
 	switch (currentOperator){
 		case TokenNameextends:
-			operatorString="extends"/*nonNLS*/;
+			operatorString="extends";
 			break;
 		case TokenNameimplements:
-			operatorString="implements"/*nonNLS*/;
+			operatorString="implements";
 			break;
 		case TokenNamethrows:
-			operatorString="throws"/*nonNLS*/;
+			operatorString="throws";
 			break;
 		case TokenNameSEMICOLON : // ;
-			operatorString=";"/*nonNLS*/;
+			operatorString=";";
 			break;
 		case TokenNameCOMMA : // ,
-			operatorString=","/*nonNLS*/;
+			operatorString=",";
 			break;
 		case TokenNameEQUAL : // =
-			operatorString="="/*nonNLS*/;
+			operatorString="=";
 			break;
 		case TokenNameAND_AND : // && (15.22)
-			operatorString="&&"/*nonNLS*/;
+			operatorString="&&";
 			break;
 		case TokenNameOR_OR : // || (15.23)
-			operatorString="||"/*nonNLS*/;
+			operatorString="||";
 			break;
 		case TokenNameQUESTION : // ? (15.24)
-			operatorString="?"/*nonNLS*/;
+			operatorString="?";
 			break;
 
 		case TokenNameCOLON : // : (15.24)
-			operatorString=":"/*nonNLS*/;
+			operatorString=":";
 			break;
 		case TokenNameEQUAL_EQUAL : // == (15.20, 15.20.1, 15.20.2, 15.20.3)
-			operatorString="=="/*nonNLS*/;
+			operatorString="==";
 			break;
 
 		case TokenNameNOT_EQUAL : // != (15.20, 15.20.1, 15.20.2, 15.20.3)
-			operatorString="!="/*nonNLS*/;
+			operatorString="!=";
 			break;
 
 		case TokenNameLESS : // < (15.19.1)
-			operatorString="<"/*nonNLS*/;
+			operatorString="<";
 			break;
 
 		case TokenNameLESS_EQUAL : // <= (15.19.1)
-			operatorString="<="/*nonNLS*/;
+			operatorString="<=";
 			break;
 
 		case TokenNameGREATER : // > (15.19.1)
-			operatorString=">"/*nonNLS*/;
+			operatorString=">";
 			break;
 
 		case TokenNameGREATER_EQUAL : // >= (15.19.1)
-			operatorString=">="/*nonNLS*/;
+			operatorString=">=";
 			break;
 
 		case TokenNameinstanceof : // instanceof
-			operatorString="instanceof"/*nonNLS*/;
+			operatorString="instanceof";
 			break;
 		case TokenNamePLUS : // + (15.17, 15.17.2)
-			operatorString="+"/*nonNLS*/;
+			operatorString="+";
 			break;
 
 		case TokenNameMINUS : // - (15.17.2)
-			operatorString="-"/*nonNLS*/;
+			operatorString="-";
 			break;
 		case TokenNameMULTIPLY : // * (15.16.1)
-			operatorString="*"/*nonNLS*/;
+			operatorString="*";
 			break;
 
 		case TokenNameDIVIDE : // / (15.16.2)
-			operatorString="/"/*nonNLS*/;
+			operatorString="/";
 			break;
 
 		case TokenNameREMAINDER : // % (15.16.3)
-			operatorString="%"/*nonNLS*/;
+			operatorString="%";
 			break;
 		case TokenNameLEFT_SHIFT : // << (15.18)
-			operatorString="<<"/*nonNLS*/;
+			operatorString="<<";
 			break;
 
 		case TokenNameRIGHT_SHIFT : // >> (15.18)
-			operatorString=">>"/*nonNLS*/;
+			operatorString=">>";
 			break;
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT : // >>> (15.18)
-			operatorString=">>>"/*nonNLS*/;
+			operatorString=">>>";
 			break;
 		case TokenNameAND : // & (15.21, 15.21.1, 15.21.2)
-			operatorString="&"/*nonNLS*/;
+			operatorString="&";
 			break;
 
 		case TokenNameOR : // | (15.21, 15.21.1, 15.21.2)
-			operatorString="|"/*nonNLS*/;
+			operatorString="|";
 			break;
 
 		case TokenNameXOR : // ^ (15.21, 15.21.1, 15.21.2)
-			operatorString="^"/*nonNLS*/;
+			operatorString="^";
 			break;
 		case TokenNameMULTIPLY_EQUAL : // *= (15.25.2)
-			operatorString="*="/*nonNLS*/;
+			operatorString="*=";
 			break;
 
 		case TokenNameDIVIDE_EQUAL : // /= (15.25.2)
-			operatorString="/="/*nonNLS*/;
+			operatorString="/=";
 			break;
 		case TokenNameREMAINDER_EQUAL : // %= (15.25.2)
-			operatorString="%="/*nonNLS*/;
+			operatorString="%=";
 			break;
 
 		case TokenNamePLUS_EQUAL : // += (15.25.2)
-			operatorString="+="/*nonNLS*/;
+			operatorString="+=";
 			break;
 
 		case TokenNameMINUS_EQUAL : // -= (15.25.2)
-			operatorString="-="/*nonNLS*/;
+			operatorString="-=";
 			break;
 
 		case TokenNameLEFT_SHIFT_EQUAL : // <<= (15.25.2)
-			operatorString="<<="/*nonNLS*/;
+			operatorString="<<=";
 			break;
 
 		case TokenNameRIGHT_SHIFT_EQUAL : // >>= (15.25.2)
-			operatorString=">>="/*nonNLS*/;
+			operatorString=">>=";
 			break;
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : // >>>= (15.25.2)
-			operatorString=">>>="/*nonNLS*/;
+			operatorString=">>>=";
 			break;
 
 		case TokenNameAND_EQUAL : // &= (15.25.2)
-			operatorString="&="/*nonNLS*/;
+			operatorString="&=";
 			break;
 
 		case TokenNameXOR_EQUAL : // ^= (15.25.2)
-			operatorString="^="/*nonNLS*/;
+			operatorString="^=";
 			break;
 
 		case TokenNameOR_EQUAL : // |= (15.25.2)
-			operatorString="|="/*nonNLS*/;
+			operatorString="|=";
 			break;
 		case TokenNameDOT : // .
-			operatorString="."/*nonNLS*/;
+			operatorString=".";
 			break;
 
 		default:
-			operatorString=""/*nonNLS*/;
+			operatorString="";
 	}
 		if (placeOperatorAhead){
 			result.append(operatorString);
@@ -200,6 +200,6 @@ public String toString() {
 		}
 		result.append('\n');
 	}
-	return ""/*nonNLS*/;
+	return "";
 }
 }

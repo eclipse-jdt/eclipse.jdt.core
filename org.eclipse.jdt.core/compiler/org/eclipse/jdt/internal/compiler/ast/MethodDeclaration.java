@@ -70,8 +70,8 @@ public String returnTypeToString(int tab) {
 	/*slow code */
 
 	if (returnType == null)
-		return ""/*nonNLS*/;
-	return returnType.toString(tab)+" "/*nonNLS*/;
+		return "";
+	return returnType.toString(tab)+" ";
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {
 	if (visitor.visit(this, classScope)) {

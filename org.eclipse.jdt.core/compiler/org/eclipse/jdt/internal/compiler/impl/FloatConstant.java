@@ -1,9 +1,4 @@
 package org.eclipse.jdt.internal.compiler.impl;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
 public class FloatConstant extends Constant {
 	float value;
@@ -36,13 +31,13 @@ public String stringValue() {
 	
 	String s = new Float(value).toString() ;
 	if (s == null)
-		return "null"/*nonNLS*/;
+		return "null";
 	else
 		return s;
 }
 public String toString(){
 
-	return "(float)"/*nonNLS*/ + value ; }
+	return "(float)" + value ; }
 public int typeID() {
 	return T_float;
 }

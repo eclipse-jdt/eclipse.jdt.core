@@ -1,23 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents a source type in a compilation unit, either as a top-level type or a member type.
- * The corresponding syntactic units are ClassDeclaration (JLS2 8.1) and InterfaceDeclaration (JLS2 9.1).
- * <p>
- * Allowable child types for a type are <code>IDOMType</code>, <code>IDOMField</code>, 
- * <code>IDOMMethod</code>, and <code>IDOMInitializer</code>.
- * Children are listed in the order in which they appear in the source. The parent of a type
- * is a type (in the case of a member type) or a compilation unit (in the case of a top-level type).
- * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IDOMType extends IDOMMember {
 /**
  * Adds the given interface name to the names of interfaces that this type implements or extends

@@ -148,13 +148,13 @@ public TypeBinding resolveType(BlockScope scope) {
 				if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
 					argHasError = true;
 			if (argHasError)
-				return recType;
+				return null;
 		}
 		if (recType == null)
 			return null;
 		if (!recType.canBeInstantiated()) {
 			scope.problemReporter().cannotInstantiate(type, recType);
-			return recType;
+			return null;
 		}
 		if ((binding = scope.getConstructor((ReferenceBinding) recType, argumentTypes, this)).isValidBinding()) {
 			if (isMethodUseDeprecated(binding, scope))
@@ -167,7 +167,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (binding.declaringClass == null)
 				binding.declaringClass = (ReferenceBinding) recType;
 			scope.problemReporter().invalidConstructor(this, binding);
-			return recType;
+			return null;
 		}
 
 		// The enclosing instance must be compatible with the innermost enclosing type
@@ -175,7 +175,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (scope.areTypesCompatible(enclosingInstTb, expectedType))
 			return recType;
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(enclosingInstance, enclosingInstTb, expectedType);
-		return recType;
+		return null;
 	}
 
 	//--------------there is an anonymous type declaration-----------------
@@ -238,9 +238,9 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(int tab) {
 	/*slow code */
 
-	String s = ""/*nonNLS*/;
+	String s = "";
 	if (enclosingInstance != null)
-		s += enclosingInstance.toString() + "."/*nonNLS*/;
+		s += enclosingInstance.toString() + ".";
 	s += super.toStringExpression(tab);
 	if (anonymousType != null) {
 		s += anonymousType.toString(tab);

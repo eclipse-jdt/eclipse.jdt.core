@@ -1,15 +1,5 @@
 package org.eclipse.jdt.internal.core.index;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * An <code>IIndexer</code> indexes ONE document at each time. It adds the document names and
- * the words references to an IIndex. Each IIndexer can index certain types of document, and should
- * not index the other files. 
- */
 public interface IIndexer {
 	/**
 	 * Returns the file types the <code>IIndexer</code> handles.

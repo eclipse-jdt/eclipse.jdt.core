@@ -148,6 +148,27 @@ public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actual
 			return outerLocalVariables[i];
 	return null;
 }
+/* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
+*/
+
+public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, BlockScope scope) {
+	if (enclosingInstances == null) return null;		// is null if no enclosing instances are known
+
+	// exact match
+	for (int i = enclosingInstances.length; --i >= 0;)
+		if (enclosingInstances[i].type == targetEnclosingType)
+			if (enclosingInstances[i].actualOuterLocalVariable == null)
+				return enclosingInstances[i];
+
+	// type compatibility : to handle cases such as
+	// class T { class M{}}
+	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
+	for (int i = enclosingInstances.length; --i >= 0;)
+		if (enclosingInstances[i].actualOuterLocalVariable == null)
+			if (targetEnclosingType.isSuperclassOf((ReferenceBinding) enclosingInstances[i].type))
+				return enclosingInstances[i];
+	return null;
+}
 public SyntheticArgumentBinding[] syntheticEnclosingInstances() {
 	return enclosingInstances;		// is null if no enclosing instances are required
 }
@@ -170,29 +191,5 @@ public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
  */
 public void updateInnerEmulationDependents() {
 	// nothing to do in general, only local types are doing anything
-}
-
-/* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
-*/
-
-public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
-	if (enclosingInstances == null) return null;		// is null if no enclosing instances are known
-
-	// exact match
-	for (int i = enclosingInstances.length; --i >= 0;)
-		if (enclosingInstances[i].type == targetEnclosingType)
-			if (enclosingInstances[i].actualOuterLocalVariable == null)
-				return enclosingInstances[i];
-
-	// type compatibility : to handle cases such as
-	// class T { class M{}}
-	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
-	if (!onlyExactMatch){
-		for (int i = enclosingInstances.length; --i >= 0;)
-			if (enclosingInstances[i].actualOuterLocalVariable == null)
-				if (targetEnclosingType.isSuperclassOf((ReferenceBinding) enclosingInstances[i].type))
-					return enclosingInstances[i];
-	}
-	return null;
 }
 }

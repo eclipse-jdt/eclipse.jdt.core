@@ -47,7 +47,7 @@ public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name)
  * Method declared on IDOMFactory.
  */
 public IDOMField createField() {
-	return createField("Object aField;"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR);
+	return createField("Object aField;"+ JavaModelManager.LINE_SEPARATOR);
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -77,7 +77,7 @@ public IDOMImport createImport(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMInitializer createInitializer() {
-	return createInitializer("static {}"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR);
+	return createInitializer("static {}"+ JavaModelManager.LINE_SEPARATOR);
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -92,7 +92,7 @@ public IDOMInitializer createInitializer(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMMethod createMethod() {
-	return createMethod("public void newMethod() {"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR+"}"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR);
+	return createMethod("public void newMethod() {"+ JavaModelManager.LINE_SEPARATOR+"}"+ JavaModelManager.LINE_SEPARATOR);
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -122,7 +122,7 @@ public IDOMPackage createPackage(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMType createType() {
-	return createType("public class AClass {"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR +"}"/*nonNLS*/+ JavaModelManager.LINE_SEPARATOR);
+	return createType("public class AClass {"+ JavaModelManager.LINE_SEPARATOR +"}"+ JavaModelManager.LINE_SEPARATOR);
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.

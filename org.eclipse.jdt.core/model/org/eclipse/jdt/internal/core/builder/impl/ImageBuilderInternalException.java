@@ -1,14 +1,5 @@
 package org.eclipse.jdt.internal.core.builder.impl;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * Exception thrown when there is an internal error in the image builder.
- * May wrapper another exception.
- */
 public class ImageBuilderInternalException extends RuntimeException {
 	protected Throwable fThrowable;
 /**
@@ -40,7 +31,7 @@ public Throwable getThrowable() {
 	public void printStackTrace() {
 		if (fThrowable != null) {
 			System.err.println(this);
-			System.err.println("Stack trace of embedded throwable:"/*nonNLS*/);
+			System.err.println("Stack trace of embedded throwable:");
 			fThrowable.printStackTrace();
 		} else {
 			super.printStackTrace();

@@ -96,7 +96,7 @@ public class HandleFactory {
 				this.packageHandles.put(packageName, pkgFragment);
 			}
 			String simpleName= resourcePath.substring(lastSlash + 1);
-			if (Util.isJavaFileName(simpleName)) {
+			if (simpleName.endsWith(".java")) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
 			} else {

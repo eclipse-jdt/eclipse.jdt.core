@@ -211,41 +211,41 @@ public String toString(int tab){
 	
 	String inFront , s = tabString(tab) ;
 	inFront = s ;
-	s = s + "switch ("/*nonNLS*/ + testExpression.toStringExpression() + ") "/*nonNLS*/;
+	s = s + "switch (" + testExpression.toStringExpression() + ") ";
 	if (statements == null)
-	{ 	s = s + "{}"/*nonNLS*/ ; 
+	{ 	s = s + "{}" ; 
 		return s;}
 	else
-		s = s + "{"/*nonNLS*/;
+		s = s + "{";
 
 	s = s + (explicitDeclarations != 0
-				? "// ---scope needed for "/*nonNLS*/+String.valueOf(explicitDeclarations) +" locals------------ \n"/*nonNLS*/
-				: "// ---NO scope needed------ \n"/*nonNLS*/) ;
+				? "// ---scope needed for "+String.valueOf(explicitDeclarations) +" locals------------ \n"
+				: "// ---NO scope needed------ \n") ;
 		
 	int i = 0;
-	String tabulation = "  "/*nonNLS*/;
+	String tabulation = "  ";
 	try	{while(true){
 		//use instanceof in order not to polluate classes with behavior only needed for printing purpose.
 		if ( statements[i]  instanceof Expression)
-			s = s + "\n"/*nonNLS*/ + inFront + tabulation;
+			s = s + "\n" + inFront + tabulation;
 		if ( statements[i]  instanceof Break)
 			s = s + statements[i].toString(0) ;
 		else	
-			s = s + "\n"/*nonNLS*/ + statements[i].toString(tab+2) ;
+			s = s + "\n" + statements[i].toString(tab+2) ;
 		//=============	
 		if ( (statements[i] instanceof Case) || (statements[i] instanceof DefaultCase))
 		{	i++;
 			while(! ((statements[i] instanceof Case) || (statements[i] instanceof DefaultCase)))
 			{	if ( (statements[i] instanceof Expression) || (statements[i] instanceof Break))
-					s = s +  statements[i].toString(0) +" ; "/*nonNLS*/;
+					s = s +  statements[i].toString(0) +" ; ";
 				else
-					s = s + "\n"/*nonNLS*/ + statements[i].toString(tab+6) + " ; "/*nonNLS*/;
+					s = s + "\n" + statements[i].toString(tab+6) + " ; ";
 				i++;}}
 		else
-		{	s = s + " ;"/*nonNLS*/ ;
+		{	s = s + " ;" ;
 			i++;}}}
 	catch(IndexOutOfBoundsException e){};
-	s = s + "}"/*nonNLS*/;
+	s = s + "}";
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

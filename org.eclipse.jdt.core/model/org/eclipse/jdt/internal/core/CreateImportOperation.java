@@ -72,7 +72,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createImportsProgress"/*nonNLS*/);
+	return "Creating imports...";
 }
 /**
  * Sets the correct position for the new import:<ul>

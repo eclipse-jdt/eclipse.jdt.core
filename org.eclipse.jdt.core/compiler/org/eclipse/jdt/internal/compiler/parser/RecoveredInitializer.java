@@ -161,10 +161,10 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered initializer:\n"/*nonNLS*/);
+	result.append("Recovered initializer:\n");
 	result.append(this.fieldDeclaration.toString(tab + 1));
 	if (this.initializerBody != null) {
-		result.append("\n"/*nonNLS*/);
+		result.append("\n");
 		result.append(this.initializerBody.toString(tab + 1));
 	}
 	return result.toString();

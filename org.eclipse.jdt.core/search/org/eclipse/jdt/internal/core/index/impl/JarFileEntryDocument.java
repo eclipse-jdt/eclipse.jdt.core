@@ -19,7 +19,7 @@ public class JarFileEntryDocument extends PropertyDocument {
 	protected ZipEntry zipEntry;
 	protected byte[] byteContents;
 	protected Path zipFilePath;
-	public static final String JAR_FILE_ENTRY_SEPARATOR = "|"/*nonNLS*/;
+	public static final String JAR_FILE_ENTRY_SEPARATOR = "|";
 /**
  * JarFileEntryDocument constructor comment.
  */
@@ -59,7 +59,7 @@ public String getStringContent() throws java.io.IOException {
 	 * @see IDocument#getType
 	 */
 	public String getType() {
-		return "class"/*nonNLS*/;
+		return "class";
 	}
 public void setBytes(byte[] byteContents) {
 	this.byteContents = byteContents;

@@ -1,18 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents an import declaration.
- * The corresponding syntactic unit is ImportDeclaration (JLS2 7.5).
- * An import has no children and its parent is a compilation unit.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IDOMImport extends IDOMNode {
 /**
  * The <code>IDOMImport</code> refinement of this <code>IDOMNode</code>

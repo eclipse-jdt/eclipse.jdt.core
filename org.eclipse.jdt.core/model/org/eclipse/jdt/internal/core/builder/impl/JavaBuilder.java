@@ -60,7 +60,7 @@ public JavaBuilder() {
 			if (e.getThrowable() instanceof CoreException) {
 				throw (CoreException) e.getThrowable();
 			} else {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("build.builderName"/*nonNLS*/), e));
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, "Java Builder", e));
 			}
 		} catch (OperationCanceledException e) {
 			// Do nothing for now, and avoid propagating the exception.  
@@ -74,7 +74,7 @@ public JavaBuilder() {
 				// forcing a full build next time.
 				setLastBuiltState(null);
 			}
-			if (monitor != null) monitor.subTask(Util.bind("build.completed"/*nonNLS*/));
+			if (monitor != null) monitor.subTask("Java build completed");
 		}
 		return getRequiredProjects(getLastBuiltState(monitor));
 	}
@@ -93,28 +93,28 @@ public JavaBuilder() {
 		Hashtable deltas = new Hashtable(11);
 		IProject project = getProject();
 
-		if (monitor != null) monitor.subTask(Util.bind("build.readingDelta"/*nonNLS*/, project.getName()));
+		if (monitor != null) monitor.subTask("Reading resource change information for :"+ project.getName());
 		IResourceDelta delta = getDelta(project);
 		if (delta == null){
 			//System.out.println("Missing delta for: "+ project.getName());			
-			if (monitor != null) monitor.subTask(""/*nonNLS*/);
+			if (monitor != null) monitor.subTask("");
 			return null;
 		} else {
 			deltas.put(project, delta);
 		}
 		IProject[] prereqs = getRequiredProjects(oldState);
 		for (int i = 0; i < prereqs.length; ++i) {
-			if (monitor != null)  monitor.subTask(Util.bind("build.readingDelta"/*nonNLS*/, prereqs[i].getName()));
+			if (monitor != null)  monitor.subTask("Reading resource change information for :"+ prereqs[i].getName());
 			delta = getDelta(prereqs[i]);
 			if (delta == null){
 				//System.out.println("Missing delta for: "+ prereqs[i].getName());			
-				if (monitor != null) monitor.subTask(""/*nonNLS*/);
+				if (monitor != null) monitor.subTask("");
 				return null;
 			} else {
 				deltas.put(prereqs[i], delta);
 			}
 		}
-		if (monitor != null) monitor.subTask(""/*nonNLS*/);
+		if (monitor != null) monitor.subTask("");
 		return deltas;
 	}
 /**
@@ -127,7 +127,7 @@ protected boolean classpathChanged(IState lastBuiltState) throws CoreException {
 		return !Util.equalArraysOrNull(oldRoots, newRoots);
 	} catch (JavaModelException e) {
 		throw new CoreException(
-				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("element.projectDoesNotExist"/*nonNLS*/, getProject().getFullPath().toString()), e));
+				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Project "+ getProject().getFullPath() +" not present", e));
 	}
 }
 	/**
@@ -237,8 +237,8 @@ protected boolean isEmpty(IResourceDelta change) {
 	int flags = change.getFlags();
 	boolean contentChanged = isChanged && (flags & IResourceDelta.CONTENT) != 0;
 	String extension = change.getFullPath().getFileExtension();
-	boolean isJavaOrClassFile = extension != null && (extension.equalsIgnoreCase("java"/*nonNLS*/) || extension.equalsIgnoreCase("class"/*nonNLS*/));
-	boolean isArchive = extension != null && (extension.equalsIgnoreCase("zip"/*nonNLS*/) || extension.equalsIgnoreCase("jar"/*nonNLS*/));
+	boolean isJavaOrClassFile = extension != null && (extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("class"));
+	boolean isArchive = extension != null && (extension.equalsIgnoreCase("zip") || extension.equalsIgnoreCase("jar"));
 	
 	// care about added, removed and modified (content actually modified) .java and .class files
 	if (isJavaOrClassFile && (isAdded || isRemoved || contentChanged))
@@ -288,7 +288,7 @@ protected boolean outputLocationChanged(IState lastBuiltState) throws CoreExcept
 		IPath newOutputLocation = getJavaProject().getOutputLocation();
 		return !oldOutputLocation.equals(newOutputLocation);
 	} catch (JavaModelException e) {
-		throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("element.projectDoesNotExist"/*nonNLS*/, getProject().getFullPath().toString()), e));
+		throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Project "+ getProject().getFullPath() +" not present", e));
 	}
 }
 protected void setLastBuiltState(IState state) {
@@ -300,9 +300,9 @@ protected void setLastBuiltState(IState state) {
 public String toString() {
 	IState lastBuiltState = getLastBuiltState(null);
 	if (lastBuiltState == null) {
-		return "JavaBuilder(no built state)"/*nonNLS*/;
+		return "JavaBuilder(no built state)";
 	} else {
-		return "JavaBuilder("/*nonNLS*/ + lastBuiltState + ")"/*nonNLS*/;
+		return "JavaBuilder(" + lastBuiltState + ")";
 	}
 }
 }
