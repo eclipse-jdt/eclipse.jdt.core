@@ -203,7 +203,7 @@ public void resolve(BlockScope scope) {
 		return;
 	}
 	if (expression == null) {
-		scope.problemReporter().shouldReturn(methodType, this);
+		if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 		return;
 	}
 	if ((expressionType = expression.resolveType(scope)) == null)
