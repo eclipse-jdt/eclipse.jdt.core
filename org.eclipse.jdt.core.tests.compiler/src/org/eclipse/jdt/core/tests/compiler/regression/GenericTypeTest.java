@@ -8088,4 +8088,33 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");	
 	}		
+	// 74514
+	public void test302() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //---------------------------
+				"import java.util.ArrayList;\n" + 
+				"import java.util.Enumeration;\n" + 
+				"import java.util.Iterator;\n" + 
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"	public void test2() {\n" + 
+				"		List<String> l= new ArrayList<String>();\n" + 
+				"		for (Iterator<String> i= l.iterator(); i.next(); ) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	import java.util.Enumeration;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.util.Enumeration is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	for (Iterator<String> i= l.iterator(); i.next(); ) {\n" + 
+			"	                                       ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to boolean\n" + 
+			"----------\n");	
+	}		
 }

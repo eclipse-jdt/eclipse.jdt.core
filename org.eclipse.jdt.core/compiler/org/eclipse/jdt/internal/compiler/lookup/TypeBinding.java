@@ -75,6 +75,12 @@ public TypeBinding genericCast(TypeBinding otherType) {
 	if (otherErasure == this.erasure()) return null;
 	return otherErasure;
 }
+
+/**
+ * Answer the receiver classfile signature.
+ * Arrays & base types do not distinguish between signature() & constantPoolName().
+ * NOTE: This method should only be used during/after code gen.
+ */
 public char[] genericTypeSignature() {
     return signature();
 }
@@ -234,13 +240,11 @@ public boolean isRawType() {
     return false;
 }
 
-/* Answer the receiver's signature.
-*
-* Arrays & base types do not distinguish between signature() & constantPoolName().
-*
-* NOTE: This method should only be used during/after code gen.
-*/
-
+/**
+ * Answer the receiver classfile signature.
+ * Arrays & base types do not distinguish between signature() & constantPoolName().
+ * NOTE: This method should only be used during/after code gen.
+ */
 public char[] signature() {
 	return constantPoolName();
 }
