@@ -194,6 +194,7 @@ class VariableBinding implements IVariableBinding {
 			return null;
 		}
 		Constant c = this.binding.constant;
+		if (c == Constant.NotAConstant) return null;
 		switch (c.typeID()) {
 			case TypeIds.T_boolean:
 				return Boolean.valueOf(c.booleanValue());
@@ -213,8 +214,6 @@ class VariableBinding implements IVariableBinding {
 				return new Short(c.shortValue());
 			case TypeIds.T_String:
 				return c.stringValue();
-			default:
-				return null;
 		}
 	}
 
