@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public class JavaSearchDocument extends SearchDocument {
 	
@@ -32,7 +33,9 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(getLocation().toFile());
 		} catch (IOException e) {
-			/// TODO (jerome) log in VERBOSE mode e.printStackTrace();
+			if (SearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+				e.printStackTrace();
+			}
 			return null;
 		}
 	}
@@ -41,7 +44,9 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(getLocation().toFile(), getEncoding());
 		} catch (IOException e) {
-			/// TODO (jerome) log in VERBOSE mode e.printStackTrace();
+			if (SearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+				e.printStackTrace();
+			}
 			return null;
 		}
 	}
