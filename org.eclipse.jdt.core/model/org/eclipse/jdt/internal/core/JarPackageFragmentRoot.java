@@ -513,21 +513,8 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	 * of this jar.
 	 */
 	protected QualifiedName getSourceAttachmentPropertyName() throws JavaModelException {
-		ZipFile jarFile = null;
-		try {
-			jarFile = getJar();
-			return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + jarFile.getName()); //$NON-NLS-1$
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		} finally {
-			try {
-				if (jarFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-					jarFile.close();
-				}
-			} catch(IOException e) {
-				// ignore 
-			}
-		}
+		String jarPath = fResource == null ? fJarPath.toOSString() : fResource.getLocation().toOSString();
+		return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + jarPath); //$NON-NLS-1$
 	}
 	/**
 	 * @see IPackageFragmentRoot
