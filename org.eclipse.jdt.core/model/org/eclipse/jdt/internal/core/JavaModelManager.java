@@ -53,6 +53,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Classpath variables pool
 	 */
 	private static HashMap Variables = new HashMap(5);
+	public static HashMap PreviouslyPersistedVariables = new HashMap(5);
 	public static HashSet OptionNames = new HashSet(20);
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_VARIABLE_IGNORE = " ##<cp var ignore>## "; //$NON-NLS-1$
@@ -86,6 +87,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
+	public final static IPath VariablePreviouslyPersisted = new Path("Variable Previously Persisted"); //$NON-NLS-1$
 	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
 		public IClasspathEntry[] getClasspathEntries() { return null; }
 		public String getDescription() { return null; }
@@ -1045,7 +1047,8 @@ public class JavaModelManager implements ISaveParticipant {
 			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
 				String varName = propertyName.substring(prefixLength);
 				IPath varPath = new Path(preferences.getString(propertyName).trim());
-				Variables.put(varName, varPath);
+				Variables.put(varName, VariablePreviouslyPersisted); // special value to allow cached value in case no initializer is available
+				PreviouslyPersistedVariables.put(varName, varPath);
 			}
 		}		
 	}
@@ -1413,10 +1416,16 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 	
 	public static void variablePut(String varName, IPath varPath){		
-		
+
+		// update cache - do not only rely on listener refresh		
+		if (varPath == null) {
+			Variables.remove(varName);
+		} else {
+			Variables.put(varName, varPath);
+		}
+
 		// do not write out intermediate initialization value
 		if (varPath == JavaModelManager.VariableInitializationInProgress){
-			Variables.put(varName, varPath);
 			return;
 		}
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();

@@ -760,6 +760,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * Note that classpath variables can be contributed registered initializers for,
 	 * using the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * If an initializer is registered for a variable, its persisted value will be ignored:
+	 * its initializer will thus get the opportunity to rebind the variable differently on
+	 * each session.
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @return the path, or <code>null</code> if none 
@@ -767,26 +770,36 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
 
-		IPath variablePath = (IPath) JavaModelManager.variableGet(variableName);
+		IPath variablePath = JavaModelManager.variableGet(variableName);
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
-		if (variablePath == null){
-			final ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
-			if (initializer != null){
-				JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
-				// wrap initializer call with Safe runnable in case initializer would be causing some grief
-				Platform.run(new ISafeRunnable() {
-					public void handleException(Throwable exception) {
-						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer); //$NON-NLS-1$
-					}
-					public void run() throws Exception {
-						initializer.initialize(variableName);
-					}
-				});
-				variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
-				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
+		if (variablePath != null && variablePath != JavaModelManager.VariablePreviouslyPersisted) {
+			return variablePath;
+		}
+		// even if persisted value exists, initializer is given priority, only if no initializer is found the persisted value is reused
+		final ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
+		if (initializer != null){
+			JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
+			// wrap initializer call with Safe runnable in case initializer would be causing some grief
+			Platform.run(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer); //$NON-NLS-1$
+				}
+				public void run() throws Exception {
+					initializer.initialize(variableName);
+				}
+			});
+			variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
+			if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
+			if (JavaModelManager.CP_RESOLVE_VERBOSE){
+				System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+			}
+		} else {
+			if (variablePath == JavaModelManager.VariablePreviouslyPersisted){
+				IPath persistedPath = (IPath)JavaModelManager.PreviouslyPersistedVariables.get(variableName);
+				JavaModelManager.variablePut(variableName, persistedPath);
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+					System.out.println("CPVariable INIT - reusing cached value: " + variableName + " --> " + persistedPath); //$NON-NLS-2$//$NON-NLS-1$
 				}
 			}
 		}
