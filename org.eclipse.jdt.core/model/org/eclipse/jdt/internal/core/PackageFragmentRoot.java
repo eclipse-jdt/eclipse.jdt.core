@@ -160,6 +160,19 @@ SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
 		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
 	return mapper;
 }
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#delete
+ */
+public void delete(
+	int updateFlags,
+	boolean updateClasspath,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	DeletePackageFragmentRootOperation op = new DeletePackageFragmentRootOperation(this, updateFlags, updateClasspath);
+	runOperation(op, monitor);
+}
+
 /**
  * This root is being closed.  If this root has an associated source attachment, 
  * close it too.
@@ -252,6 +265,22 @@ public IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) throws 
 	if (mapper.rootPath == null) return null;
 	return new Path(mapper.rootPath);
 }
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#copy
+ */
+public void copy(
+	IPath destination,
+	int updateFlags,
+	boolean updateClasspath,
+	IClasspathEntry sibling,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+		
+	CopyPackageFragmentRootOperation op = 
+		new CopyPackageFragmentRootOperation(this, destination, updateFlags, updateClasspath, sibling);
+	runOperation(op, monitor);
+}
+
 
 
 /**
@@ -706,6 +735,22 @@ protected boolean isOnClasspath() {
 	}
 	return false;
 }
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#move
+ */
+public void move(
+	IPath destination,
+	int updateFlags,
+	boolean updateClasspath,
+	IClasspathEntry sibling,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	MovePackageFragmentRootOperation op = 
+		new MovePackageFragmentRootOperation(this, destination, updateFlags, updateClasspath, sibling);
+	runOperation(op, monitor);
+}
+
 
 protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	if (!this.resourceExists() 

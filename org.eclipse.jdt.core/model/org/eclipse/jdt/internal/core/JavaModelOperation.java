@@ -306,6 +306,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			fMonitor.done();
 		}
 	}
+	/*
+	 * Returns whether the given path is equals to one of the given other paths.
+	 */
+	protected boolean equalsOneOf(IPath path, IPath[] otherPaths) {
+		for (int i = 0, length = otherPaths.length; i < length; i++) {
+			if (path.equals(otherPaths[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
 	/**
 	 * Verifies the operation can proceed and executes the operation.
 	 * Subclasses should override <code>#verify</code> and
@@ -408,6 +419,23 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		} else {
 			return fElementsToProcess[0].getJavaModel();
 		}
+	}
+	protected IPath[] getNestedFolders(IPackageFragmentRoot root) throws JavaModelException {
+		IPath rootPath = root.getPath();
+		IClasspathEntry[] classpath = root.getJavaProject().getRawClasspath();
+		int length = classpath.length;
+		IPath[] result = new IPath[length];
+		int index = 0;
+		for (int i = 0; i < length; i++) {
+			IPath path = classpath[i].getPath();
+			if (rootPath.isPrefixOf(path) && !rootPath.equals(path)) {
+				result[index++] = path;
+			}
+		}
+		if (index < length) {
+			System.arraycopy(result, 0, result = new IPath[index], 0, index);
+		}
+		return result;
 	}
 	/**
 	 * Returns the parent element to which this operation applies,
@@ -589,6 +617,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			}
 		}
 	}
+	/*
+	 * Returns whether the given path is the prefix of one of the given other paths.
+	 */
+	protected boolean prefixesOneOf(IPath path, IPath[] otherPaths) {
+		for (int i = 0, length = otherPaths.length; i < length; i++) {
+			if (path.isPrefixOf(otherPaths[i])) {
+				return true;
+			}
+		}
+		return false;
+	}	
 	/*
 	 * Pushes the given operation on the stack of operations currently running in this thread.	 */
 	protected void pushOperation(JavaModelOperation operation) {

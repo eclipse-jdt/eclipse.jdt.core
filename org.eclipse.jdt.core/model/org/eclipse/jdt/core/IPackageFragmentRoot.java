@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - specified that a source archive or a source folder can be attached to a binary
  *                               package fragment root.
+ *     IBM Corporation - added root manipulation APIs: copy, delete, move
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -83,6 +84,39 @@ public interface IPackageFragmentRoot
 	 */
 	IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) 
 		throws JavaModelException;
+	/**
+	 * Copies the resource of this package fragment root to the destination path as specified by
+	 * <code>IResource.copy(IPath, int, IProgressMonitor)</code> but excluding nested source folders.
+	 * <p>
+	 * If specified, update the classpath of the destination's project. If a non <code>null</code> 
+	 * sibling is specified, a copy of this root's classpath entry is inserted before the sibling on the 
+	 * destination project's raw classpath. If <code>null></code> is specified, the classpath entry 
+	 * is added at the end of the raw classpath.
+	 * </p>
+	 * 
+	 * @param destination the destination path
+	 * @param updateFlags bit-wise or of update flag constants
+	 *   (<code>FORCE</code> and <code>SHALLOW</code>)
+	 * @param updateClasspath whether the classpath of the destination project should be updated
+	 * @param sibling the classpath entry before which a copy of the classpath entry should be inserted
+	 * @param monitor a progress monitor
+	 * 
+	 * @exception JavaModelException if this root could not be copied. Reasons include:
+	 * <ul>
+	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> A <code>CoreException</code> occurred while copying the resource
+	 * <li> This root is external (INVALID_RESOURCE_TYPE)
+	 * <li> The destination is not in a Java project and <code>updateClasspath</code> was specified
+	 *        (INVALID_PROJECT)
+	 * <li> The sibling is not a classpath entry on the destination project's raw classpath (INVALID_SIBLING)
+	 * <li> The same classpath entry already exists on the destination project's classpath 
+	 *        (NAME_COLLISION) and <code>updateFlags</code> has not been specified 
+	 * 	   as <code>FORCE</code>
+	 * </ul>
+	 * @see IResource#copy
+	 * @since 2.1
+	 */
+	public void copy(IPath destination, int updateFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 		
 	/**
 	 * Creates and returns a package fragment in this root with the 
@@ -113,6 +147,30 @@ public interface IPackageFragmentRoot
 		boolean force,
 		IProgressMonitor monitor)
 		throws JavaModelException;
+	/**
+	 * Deletes the resource of this package fragment root as specified by
+	 * <code>IResource.delete(int, IProgressMonitor)</code> but excluding nested source folders.
+	 * <p>
+	 * If specified, update the raw classpaths of all Java projects refering to this root's resource 
+	 * by removing the corresponding classpath entries on the raw classpaths.
+	 * </p>
+	 * 
+	 * @param updateFlags bit-wise or of update flag constants
+	 *   (<code>FORCE</code> and <code>KEEP_HISTORY</code>)
+	 * @param updateClasspath whether the classpaths of the refering projects should be updated
+	 * @param monitor a progress monitor
+	 * 
+	 * @exception JavaModelException if this root could not be deleted. Reasons include:
+	 * <ul>
+	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> A <code>CoreException</code> occurred while deleting the resource
+	 * <li> This root is external (INVALID_RESOURCE_TYPE)
+	 * <li> This root is read-only (READ_ONLY) 
+	 * </ul>
+	 * @see IResource#delete
+	 * @since 2.1
+	 */
+	void delete(int updateFlags, boolean updateClasspath, IProgressMonitor monitor) throws JavaModelException;
 		
 	/**
 	 * Returns this package fragment root's kind encoded as an integer.
@@ -215,4 +273,41 @@ public interface IPackageFragmentRoot
 	 * underlying resource, false otherwise
 	 */
 	boolean isExternal();
+	/**
+	 * Moves the resource of this package fragment root to the destination path as specified by
+	 * <code>IResource.move(IPath, int, IProgressMonitor)</code> but excluding nested source folders.
+	 * <p>
+	 * If specified, update the raw classpaths of all Java projects refering to this root's resource 
+	 * by removing the corresponding classpath entries on the raw classpaths and update the 
+	 * classpath of the destination's project. If a non <code>null</code> sibling is specified, 
+	 * a copy of this root's classpath entry is inserted before the sibling on the destination project's 
+	 * raw classpath. If <code>null></code> is specified, the classpath entry is added at the end of
+	 * the destination project's raw classpath.
+	 * </p>
+	 * 
+	 * @param destination the destination path
+	 * @param updateFlags bit-wise or of update flag constants
+	 *   (<code>FORCE</code>, <code>KEEP_HISTORY</code> and <code>SHALLOW</code>)
+	 * @param updateClasspath whether the classpaths of the refering projects and destination project 
+	 * 			should be updated
+	 * @param sibling the classpath entry before which a copy of the classpath entry should be inserted
+	 * @param monitor a progress monitor
+	 * 
+	 * @exception JavaModelException if this root could not be copied. Reasons include:
+	 * <ul>
+	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> A <code>CoreException</code> occurred while copying the resource
+	 * <li> This root is external (INVALID_RESOURCE_TYPE)
+	 * <li> The destination is not in a Java project and <code>updateClasspath</code> was specified 
+	 *       (INVALID_DESTINATION)
+	 * <li> The sibling is not a classpath entry on the destination project's raw classpath (INVALID_SIBLING)
+	 * <li> The same classpath entry already exists on the destination project's classpath 
+	 *        (NAME_COLLISION) and <code>updateFlags</code> has not been specified 
+	 * 	  as <code>FORCE</code>
+	 * <li> This root is read-only (READ_ONLY) 
+	 * </ul>
+	 * @see IResource#move
+	 * @since 2.1
+	 */
+	void move(IPath destination, int updateFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 }

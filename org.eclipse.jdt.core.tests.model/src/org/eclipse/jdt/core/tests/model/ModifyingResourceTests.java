@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
@@ -262,6 +263,31 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
 		}
 	};
 	getWorkspace().run(runnable, null);
+}
+/*
+ * Returns a new classpath from the given source folders and their respective exclusion patterns.
+ * The given array as the following form:
+ * [<source folder>, "<pattern>[|<pattern]*"]*
+ * E.g. new String[] {
+ *   "src1", "p/A.java",
+ *   "src2", "*.txt|com.tests/**"
+ * }
+ */
+protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndExclusionPatterns) {
+	int length = sourceFoldersAndExclusionPatterns.length;
+	IClasspathEntry[] classpath = new IClasspathEntry[length/2];
+	for (int i = 0; i < length; i+=2) {
+		String src = sourceFoldersAndExclusionPatterns[i];
+		String patterns = sourceFoldersAndExclusionPatterns[i+1];
+		StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
+		int patternsCount =  tokenizer.countTokens();
+		IPath[] patternPaths = new IPath[patternsCount];
+		for (int j = 0; j < patternsCount; j++) {
+			patternPaths[j] = new Path(tokenizer.nextToken());
+		}
+		classpath[i/2] = JavaCore.newSourceEntry(new Path(src), patternPaths); 
+	}
+	return classpath;
 }
 
 }

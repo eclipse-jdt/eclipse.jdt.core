@@ -57,12 +57,18 @@ protected void addJavaNature(String projectName) throws CoreException {
 	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 	project.setDescription(description, null);
 }
-protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
+protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
 	this.sortElements(elements);
+	assertElementsEqual(message, expected, elements);
+}
+
+
+protected void assertResourcesEqual(String message, String expected, Object[] resources) {
+	this.sortResources(resources);
 	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = elements.length; i < length; i++){
-		buffer.append(elements[i].getElementName());
-		if (i != length-1) buffer.append("\n");
+	for (int i = 0, length = resources.length; i < length; i++){
+		buffer.append(((IResource)resources[i]).getName());
+		if (i != length-1)buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
 		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));
@@ -73,14 +79,11 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 		buffer.toString()
 	);
 }
-
-
-protected void assertResourcesEqual(String message, String expected, Object[] resources) {
-	this.sortResources(resources);
+protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
 	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = resources.length; i < length; i++){
-		buffer.append(((IResource)resources[i]).getName());
-		if (i != length-1)buffer.append("\n");
+	for (int i = 0, length = elements.length; i < length; i++){
+		buffer.append(elements[i].getElementName());
+		if (i != length-1) buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
 		System.out.println(AbstractJavaModelTests.displayString(buffer.toString(), 2));

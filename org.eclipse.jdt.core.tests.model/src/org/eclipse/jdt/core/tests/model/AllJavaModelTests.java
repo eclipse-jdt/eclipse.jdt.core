@@ -121,9 +121,13 @@ public static Test suite() {
 			
 	// Java Element persistence tests
 	suite.addTest(MementoTests.suite());
-
+	
 	// Java Element sorting tests
 	suite.addTest(SortCompilationUnitElementsTests.suite());
+
+	// Package fragment root manipulation tests
+	suite.addTest(RootManipulationsTests.suite());
+
 	return suite;
 }
 

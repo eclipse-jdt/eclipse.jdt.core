@@ -10,17 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.StringTokenizer;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 
@@ -31,32 +26,6 @@ public class ExclusionPatternsTests extends ModifyingResourceTests {
 public ExclusionPatternsTests(String name) {
 	super(name);
 }
-/*
- * Returns a new classpath from the given source folders and their respective exclusion patterns.
- * The given array as the following form:
- * [<source folder>, "<pattern>[|<pattern]*"]*
- * E.g. new String[] {
- *   "src1", "p/A.java",
- *   "src2", "*.txt|com.tests/**"
- * } */
-protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndExclusionPatterns) {
-	int length = sourceFoldersAndExclusionPatterns.length;
-	IClasspathEntry[] classpath = new IClasspathEntry[length/2];
-	for (int i = 0; i < length; i+=2) {
-		String src = sourceFoldersAndExclusionPatterns[i];
-		String patterns = sourceFoldersAndExclusionPatterns[i+1];
-		StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
-		int patternsCount =  tokenizer.countTokens();
-		IPath[] patternPaths = new IPath[patternsCount];
-		for (int j = 0; j < patternsCount; j++) {
-			patternPaths[j] = new Path(tokenizer.nextToken());
-		}
-		classpath[i/2] = JavaCore.newSourceEntry(new Path(src), patternPaths); 
-	}
-	return classpath;
-}
-/*
- * @see getClasspath for the format of sourceFoldersAndExclusionPatterns */
 protected void setClasspath(String[] sourceFoldersAndExclusionPatterns) throws JavaModelException {
 	this.project.setRawClasspath(createClasspath(sourceFoldersAndExclusionPatterns), null);
 }
@@ -99,7 +68,7 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 	);
 	
 	IPackageFragment pkg = getPackage("/P/src/p");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
@@ -130,7 +99,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 		);
 	
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P1");
-		assertElementsEqual(
+		assertSortedElementsEqual(
 			"Unexpected children",
 			"",
 			root.getChildren());
@@ -164,7 +133,7 @@ public void testAddExclusionOnPackage() throws CoreException {
 	);
 	
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		root.getChildren());
@@ -228,7 +197,7 @@ public void testCreateExcludedCompilationUnit() throws CoreException {
 		"			ResourceDelta(/P/src/p/A.java)[+]"
 	);
 	
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
@@ -256,7 +225,7 @@ public void testCreateExcludedPackage() throws CoreException {
 		"		ResourceDelta(/P/src/p)[+]"
 	);
 	
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		root.getChildren());
@@ -291,7 +260,7 @@ public void testCreateResourceExcludedCompilationUnit() throws CoreException {
 	);
 	
 	IPackageFragment pkg = getPackage("/P/src/p");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		pkg.getChildren());
@@ -319,7 +288,7 @@ public void testCreateResourceExcludedPackage() throws CoreException {
 	);
 	
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"",
 		root.getChildren());
@@ -521,7 +490,7 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
 		"			ResourceDelta(/P/src/p/A.java)[-]"
 	);
 	
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"B.java",
 		pkg.getChildren());
@@ -552,7 +521,7 @@ public void testRenameExcludedPackage() throws CoreException {
 		"		ResourceDelta(/P/src/p)[-]"
 	);
 	
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"\n" + // default package
 		"q",
@@ -590,7 +559,7 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
 	);
 	
 	IPackageFragment pkg = getPackage("/P/src/p");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"B.java",
 		pkg.getChildren());
@@ -675,7 +644,7 @@ public void testRenameResourceExcludedPackage() throws CoreException {
 	);
 	
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"\n" + // default package
 		"q",
@@ -711,7 +680,7 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 	);
 	
 	IPackageFragment pkg = getPackage("/P/src/p");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"A.java",
 		pkg.getChildren());
@@ -741,7 +710,7 @@ public void testRemoveExclusionOnPackage() throws CoreException {
 	);
 	
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"Unexpected children",
 		"\n" + // default package		"p",
 		root.getChildren());

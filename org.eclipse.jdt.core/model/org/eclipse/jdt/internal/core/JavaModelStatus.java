@@ -198,7 +198,11 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case INVALID_RESOURCE_TYPE:
 					return Util.bind("status.invalidResourceType", fString); //$NON-NLS-1$
 				case INVALID_SIBLING:
-					return Util.bind("status.invalidSibling", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+					if (fString != null) {
+						return Util.bind("status.invalidSibling", fString); //$NON-NLS-1$
+					} else {
+						return Util.bind("status.invalidSibling", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+					}
 				case IO_EXCEPTION:
 					return Util.bind("status.IOException"); //$NON-NLS-1$
 				case NAME_COLLISION:
