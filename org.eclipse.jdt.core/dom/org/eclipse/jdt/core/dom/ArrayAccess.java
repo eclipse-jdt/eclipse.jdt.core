@@ -52,6 +52,13 @@ public class ArrayAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ARRAY_ACCESS;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ArrayAccess result = new ArrayAccess(target);
 		result.setArray((Expression) getArray().clone(target));

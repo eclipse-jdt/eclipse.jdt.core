@@ -44,6 +44,13 @@ public class BreakStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return BREAK_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		BreakStatement result = new BreakStatement(target);
 		result.setLeadingComment(getLeadingComment());

@@ -38,6 +38,13 @@ public class EmptyStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return EMPTY_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		EmptyStatement result = new EmptyStatement(target);
 		result.setLeadingComment(getLeadingComment());

@@ -167,6 +167,13 @@ public class PrimitiveType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return PRIMITIVE_TYPE;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		PrimitiveType result = new PrimitiveType(target);
 		result.setPrimitiveTypeCode(getPrimitiveTypeCode());

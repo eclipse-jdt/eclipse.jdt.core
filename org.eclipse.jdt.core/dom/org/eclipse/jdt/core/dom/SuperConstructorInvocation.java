@@ -51,6 +51,13 @@ public class SuperConstructorInvocation extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return SUPER_CONSTRUCTOR_INVOCATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		SuperConstructorInvocation result = new SuperConstructorInvocation(target);
 		result.setLeadingComment(getLeadingComment());

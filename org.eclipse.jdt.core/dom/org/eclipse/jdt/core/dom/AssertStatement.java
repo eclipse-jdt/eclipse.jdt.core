@@ -51,6 +51,13 @@ public class AssertStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ASSERT_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		AssertStatement result = new AssertStatement(target);
 		result.setLeadingComment(getLeadingComment());

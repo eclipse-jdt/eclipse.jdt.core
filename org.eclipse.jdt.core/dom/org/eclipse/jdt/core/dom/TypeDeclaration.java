@@ -115,6 +115,13 @@ public class TypeDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return TYPE_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		TypeDeclaration result = new TypeDeclaration(target);
 		result.setModifiers(getModifiers());

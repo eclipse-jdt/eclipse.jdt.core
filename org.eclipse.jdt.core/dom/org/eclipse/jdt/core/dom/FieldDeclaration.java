@@ -82,6 +82,13 @@ public class FieldDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return FIELD_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		FieldDeclaration result = new FieldDeclaration(target);
 		result.setJavadoc(

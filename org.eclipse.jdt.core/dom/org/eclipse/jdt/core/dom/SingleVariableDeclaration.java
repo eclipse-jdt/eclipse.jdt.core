@@ -94,6 +94,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return SINGLE_VARIABLE_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setModifiers(getModifiers());

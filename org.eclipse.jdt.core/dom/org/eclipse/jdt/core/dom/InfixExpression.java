@@ -217,6 +217,13 @@ public class InfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return INFIX_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		InfixExpression result = new InfixExpression(target);
 		result.setOperator(getOperator());

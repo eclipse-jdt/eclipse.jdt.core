@@ -72,6 +72,13 @@ public class ArrayCreation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ARRAY_CREATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ArrayCreation result = new ArrayCreation(target);
 		result.setType((ArrayType) getType().clone(target));

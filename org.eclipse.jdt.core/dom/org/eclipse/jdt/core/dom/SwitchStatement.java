@@ -63,6 +63,13 @@ public class SwitchStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return SWITCH_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		SwitchStatement result = new SwitchStatement(target);
 		result.setLeadingComment(getLeadingComment());

@@ -48,6 +48,13 @@ public class Block extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return BLOCK;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		Block result = new Block(target);
 		result.setLeadingComment(getLeadingComment());

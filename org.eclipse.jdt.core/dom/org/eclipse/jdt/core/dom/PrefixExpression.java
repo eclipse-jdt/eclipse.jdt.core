@@ -143,6 +143,13 @@ public class PrefixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return PREFIX_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		PrefixExpression result = new PrefixExpression(target);
 		result.setOperator(getOperator());

@@ -58,6 +58,13 @@ public class MethodInvocation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return METHOD_INVOCATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		MethodInvocation result = new MethodInvocation(target);
 		result.setName((SimpleName) getName().clone(target));

@@ -45,6 +45,13 @@ public class ParenthesizedExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return PARENTHESIZED_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ParenthesizedExpression result = new ParenthesizedExpression(target);
 		result.setExpression((Expression) getExpression().clone(target));

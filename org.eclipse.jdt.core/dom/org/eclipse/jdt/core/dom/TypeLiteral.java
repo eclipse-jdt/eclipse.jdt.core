@@ -45,6 +45,13 @@ public class TypeLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return TYPE_LITERAL;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		TypeLiteral result = new TypeLiteral(target);
 		result.setType((Type) getType().clone(target));

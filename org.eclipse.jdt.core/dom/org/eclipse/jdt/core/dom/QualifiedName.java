@@ -55,6 +55,13 @@ public class QualifiedName extends Name {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return QUALIFIED_NAME;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		QualifiedName result = new QualifiedName(target);
 		result.setQualifier((Name) getQualifier().clone(target));

@@ -44,6 +44,13 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return BOOLEAN_LITERAL;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		BooleanLiteral result = new BooleanLiteral(target);
 		result.setBooleanValue(booleanValue());

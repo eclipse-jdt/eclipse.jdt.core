@@ -43,6 +43,13 @@ public class NumberLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return NUMBER_LITERAL;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		NumberLiteral result = new NumberLiteral(target);
 		result.setToken(getToken());

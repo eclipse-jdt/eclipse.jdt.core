@@ -42,6 +42,13 @@ public class Javadoc extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return JAVADOC;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		Javadoc result = new Javadoc(target);
 		result.setComment(getComment());

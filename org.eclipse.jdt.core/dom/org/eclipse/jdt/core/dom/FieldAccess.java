@@ -50,6 +50,13 @@ public class FieldAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return FIELD_ACCESS;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		FieldAccess result = new FieldAccess(target);
 		result.setExpression((Expression) getExpression().clone(target));

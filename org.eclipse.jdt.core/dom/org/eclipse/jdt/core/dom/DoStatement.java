@@ -51,6 +51,13 @@ public class DoStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return DO_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		DoStatement result = new DoStatement(target);
 		result.setLeadingComment(getLeadingComment());

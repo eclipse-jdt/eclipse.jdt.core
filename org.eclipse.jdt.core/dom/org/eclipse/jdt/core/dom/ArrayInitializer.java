@@ -45,6 +45,13 @@ public class ArrayInitializer extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ARRAY_INITIALIZER;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ArrayInitializer result = new ArrayInitializer(target);
 		result.expressions().addAll(ASTNode.copySubtrees(target, expressions()));

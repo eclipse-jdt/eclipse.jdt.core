@@ -56,6 +56,13 @@ public class StringLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return STRING_LITERAL;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		StringLiteral result = new StringLiteral(target);
 		result.setEscapedValue(getEscapedValue());

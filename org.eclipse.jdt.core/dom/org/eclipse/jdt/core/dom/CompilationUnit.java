@@ -108,6 +108,13 @@ public class CompilationUnit extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return COMPILATION_UNIT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
 		// n.b do not copy line number table or messages

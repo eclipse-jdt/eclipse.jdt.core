@@ -72,6 +72,13 @@ public class ClassInstanceCreation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return CLASS_INSTANCE_CREATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ClassInstanceCreation result = new ClassInstanceCreation(target);
 		result.setExpression(

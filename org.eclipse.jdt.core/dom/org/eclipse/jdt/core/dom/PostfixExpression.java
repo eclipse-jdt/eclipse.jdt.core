@@ -127,6 +127,13 @@ public class PostfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return POSTFIX_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		PostfixExpression result = new PostfixExpression(target);
 		result.setOperator(getOperator());

@@ -41,6 +41,13 @@ public class ReturnStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return RETURN_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ReturnStatement result = new ReturnStatement(target);
 		result.setLeadingComment(getLeadingComment());

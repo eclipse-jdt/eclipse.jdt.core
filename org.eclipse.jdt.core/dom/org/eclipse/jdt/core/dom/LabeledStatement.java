@@ -52,6 +52,13 @@ public class LabeledStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return LABELED_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		LabeledStatement result = new LabeledStatement(target);
 		result.setLabel(

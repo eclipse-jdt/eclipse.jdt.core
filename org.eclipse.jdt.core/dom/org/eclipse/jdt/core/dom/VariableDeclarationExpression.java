@@ -74,6 +74,13 @@ public class VariableDeclarationExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return VARIABLE_DECLARATION_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		VariableDeclarationExpression result = 
 			new VariableDeclarationExpression(target);

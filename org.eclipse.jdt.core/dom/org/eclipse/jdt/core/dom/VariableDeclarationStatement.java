@@ -72,6 +72,13 @@ public class VariableDeclarationStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return VARIABLE_DECLARATION_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		VariableDeclarationStatement result = 
 			new VariableDeclarationStatement(target);

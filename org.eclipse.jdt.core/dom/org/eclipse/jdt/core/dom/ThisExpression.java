@@ -41,6 +41,13 @@ public class ThisExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return THIS_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ThisExpression result = new ThisExpression(target);
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));

@@ -51,6 +51,13 @@ public class CastExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return CAST_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		CastExpression result = new CastExpression(target);
 		result.setType((Type) getType().clone(target));

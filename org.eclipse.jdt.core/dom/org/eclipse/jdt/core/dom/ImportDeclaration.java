@@ -52,6 +52,13 @@ public class ImportDeclaration extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return IMPORT_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setOnDemand(isOnDemand());

@@ -49,6 +49,13 @@ public class ExpressionStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return EXPRESSION_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ExpressionStatement result = new ExpressionStatement(target);
 		result.setLeadingComment(getLeadingComment());

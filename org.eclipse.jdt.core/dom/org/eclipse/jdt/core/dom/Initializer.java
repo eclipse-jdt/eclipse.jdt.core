@@ -56,6 +56,13 @@ public class Initializer extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return INITIALIZER;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		Initializer result = new Initializer(target);
 		result.setModifiers(getModifiers());

@@ -51,6 +51,13 @@ public class SuperFieldAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return SUPER_FIELD_ACCESS;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		SuperFieldAccess result = new SuperFieldAccess(target);
 		result.setName((SimpleName) ASTNode.copySubtree(target, getName()));

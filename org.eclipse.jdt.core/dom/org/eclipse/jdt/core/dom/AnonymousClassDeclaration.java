@@ -51,6 +51,13 @@ public class AnonymousClassDeclaration extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ANONYMOUS_CLASS_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		AnonymousClassDeclaration result = new AnonymousClassDeclaration(target);
 		result.bodyDeclarations().addAll(

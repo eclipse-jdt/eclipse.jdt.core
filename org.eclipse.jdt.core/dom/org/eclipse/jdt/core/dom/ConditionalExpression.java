@@ -58,6 +58,13 @@ public class ConditionalExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return CONDITIONAL_EXPRESSION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		ConditionalExpression result = new ConditionalExpression(target);
 		result.setExpression((Expression) getExpression().clone(target));

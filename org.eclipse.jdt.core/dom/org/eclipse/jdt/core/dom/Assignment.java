@@ -175,6 +175,13 @@ public class Assignment extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return ASSIGNMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		Assignment result = new Assignment(target);
 		result.setOperator(getOperator());

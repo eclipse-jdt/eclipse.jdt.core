@@ -50,6 +50,13 @@ public class CatchClause extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return CATCH_CLAUSE;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		CatchClause result = new CatchClause(target);
 		result.setBody((Block) getBody().clone(target));

@@ -52,6 +52,13 @@ public class WhileStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return WHILE_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		WhileStatement result = new WhileStatement(target);
 		result.setLeadingComment(getLeadingComment());

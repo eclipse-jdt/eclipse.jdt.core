@@ -43,6 +43,13 @@ public class SimpleType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return SIMPLE_TYPE;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		SimpleType result = new SimpleType(target);
 		result.setName((Name) ((ASTNode) getName()).clone(target));

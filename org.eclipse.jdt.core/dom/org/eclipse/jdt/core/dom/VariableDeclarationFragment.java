@@ -62,6 +62,13 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return VARIABLE_DECLARATION_FRAGMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		VariableDeclarationFragment result = new VariableDeclarationFragment(target);
 		result.setName((SimpleName) getName().clone(target));

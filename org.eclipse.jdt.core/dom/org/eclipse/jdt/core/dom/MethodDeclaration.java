@@ -132,6 +132,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return METHOD_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		MethodDeclaration result = new MethodDeclaration(target);
 		result.setJavadoc(

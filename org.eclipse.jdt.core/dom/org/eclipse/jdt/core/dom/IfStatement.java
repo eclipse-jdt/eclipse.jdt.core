@@ -63,6 +63,13 @@ public class IfStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return IF_STATEMENT;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		IfStatement result = new IfStatement(target);
 		result.setLeadingComment(getLeadingComment());

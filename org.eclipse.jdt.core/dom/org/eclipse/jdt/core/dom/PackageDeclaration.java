@@ -47,6 +47,13 @@ public class PackageDeclaration extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	public int getNodeType() {
+		return PACKAGE_DECLARATION;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setName((Name) getName().clone(target));
