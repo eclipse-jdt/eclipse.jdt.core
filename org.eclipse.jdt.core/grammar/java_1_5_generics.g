@@ -586,13 +586,13 @@ ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderT
 /.$putCase consumeConstructorHeader(); $break ./
 /:$readableName ConstructorHeader:/
 
-ConstructorHeaderName ::=  Modifiers TypeParameters 'Identifier' '('
+ConstructorHeaderName ::=  Modifiers TypeParameters 'Identifier' PushModifiers '('
 /.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  Modifiers 'Identifier' '('
+ConstructorHeaderName ::=  Modifiers 'Identifier' PushModifiers '('
 /.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  TypeParameters 'Identifier' '('
+ConstructorHeaderName ::=  TypeParameters 'Identifier' PushModifiers '('
 /.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  'Identifier' '('
+ConstructorHeaderName ::=  'Identifier' PushModifiers '('
 /.$putCase consumeConstructorHeaderName(); $break ./
 /:$readableName ConstructorHeaderName:/
 
