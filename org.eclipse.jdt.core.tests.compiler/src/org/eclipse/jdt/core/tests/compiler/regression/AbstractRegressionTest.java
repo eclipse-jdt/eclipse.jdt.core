@@ -164,6 +164,15 @@ protected void runConformTest(String[] testFiles, String expectedSuccessOutputSt
 			this.createdVerifier = true;
 		}		
 		boolean passed = this.verifier.verifyClassFiles(sourceFile, className, expectedSuccessOutputString, this.classpaths, null, vmArguments);
+		if (!passed) {
+			System.out.println(this.getClass().getName() + '#' + this.getName());
+		 	for (int i = 0; i < testFiles.length; i+=2) {
+		 		System.out.print(testFiles[i]);
+		 		System.out.println(" ["); //$NON-NLS-1$
+		 		System.out.println(testFiles[i+1]);
+		 		System.out.println("]"); //$NON-NLS-1$
+		 	}
+		}
 		assertTrue(
 			this.verifier.failureReason, // computed by verifyClassFiles(...) action
 			passed
@@ -176,6 +185,14 @@ protected void runConformTest(String[] testFiles, String expectedSuccessOutputSt
 			this.createdVerifier = true;
 		}		
 	} else {
+		System.out.println(this.getClass().getName() + '#' + this.getName());
+	 	System.out.println(Util.displayString(requestor.problemLog, 2));
+	 	for (int i = 0; i < testFiles.length; i+=2) {
+	 		System.out.print(testFiles[i]);
+	 		System.out.println(" ["); //$NON-NLS-1$
+	 		System.out.println(testFiles[i+1]);
+	 		System.out.println("]"); //$NON-NLS-1$
+	 	}
 		assertTrue("Unexpected problems: " + requestor.problemLog, false);
 	}
 }
