@@ -389,35 +389,39 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    return true;
 	    if (otherType == null) 
 	        return false;
-        if (otherType.isRawType())
-            return erasure() == otherType.erasure();
-        if (otherType.isParameterizedType()) {
-            if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
-            	return false; // should have been identical
-            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-            if (this.type != otherParamType.type) 
-                return false;
-            ReferenceBinding enclosing = enclosingType();
-            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
-                return false;
-            int length = this.arguments == null ? 0 : this.arguments.length;
-            TypeBinding[] otherArguments = otherParamType.arguments;
-            int otherLength = otherArguments == null ? 0 : otherArguments.length;
-            if (otherLength != length) 
-                return false;
-            // argument must be identical, only equivalence is allowed if wildcard other type
-            for (int i = 0; i < length; i++) {
-            	TypeBinding argument = this.arguments[i];
-            	TypeBinding otherArgument = otherArguments[i];
-				if (!(argument == otherArgument
-						|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
-					return false;
-				}
-            }
-            return true;
-        }
-        if (otherType.isWildcard())
-        	return ((WildcardBinding) otherType).boundCheck(this);
+	    switch(otherType.bindingType()) {
+	
+	    	case Binding.WILDCARD_TYPE :
+	        	return ((WildcardBinding) otherType).boundCheck(this);
+	    		
+	    	case Binding.PARAMETERIZED_TYPE :
+	            if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+	            	return false; // should have been identical
+	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+	            if (this.type != otherParamType.type) 
+	                return false;
+	            ReferenceBinding enclosing = enclosingType();
+	            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
+	                return false;
+	            int length = this.arguments == null ? 0 : this.arguments.length;
+	            TypeBinding[] otherArguments = otherParamType.arguments;
+	            int otherLength = otherArguments == null ? 0 : otherArguments.length;
+	            if (otherLength != length) 
+	                return false;
+	            // argument must be identical, only equivalence is allowed if wildcard other type
+	            for (int i = 0; i < length; i++) {
+	            	TypeBinding argument = this.arguments[i];
+	            	TypeBinding otherArgument = otherArguments[i];
+					if (!(argument == otherArgument
+							|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
+						return false;
+					}
+	            }
+	            return true;
+	    	
+	    	case Binding.RAW_TYPE :
+	            return erasure() == otherType.erasure();
+	    }
         return false;
 	}
 

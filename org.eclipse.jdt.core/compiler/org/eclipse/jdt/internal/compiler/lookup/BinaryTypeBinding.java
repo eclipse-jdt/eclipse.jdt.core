@@ -635,13 +635,17 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
  * or for generic types, true if compared to its raw type.
  */
 public boolean isEquivalentTo(TypeBinding otherType) {
+	
     if (this == otherType) return true;
     if (otherType == null) return false;
-    if (otherType.isWildcard()) // wildcard
-		return ((WildcardBinding) otherType).boundCheck(this);
-    if (this.typeVariables == NoTypeVariables) return false;
-    if (otherType.isRawType())
-        return otherType.erasure() == this;
+    switch(otherType.bindingType()) {
+
+    	case Binding.WILDCARD_TYPE :
+			return ((WildcardBinding) otherType).boundCheck(this);
+
+		case Binding.RAW_TYPE :
+			return otherType.erasure() == this;
+    }
 	return false;
 }
 public boolean isGenericType() {
