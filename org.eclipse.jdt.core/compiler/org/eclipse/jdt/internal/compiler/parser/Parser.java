@@ -4382,7 +4382,6 @@ protected void consumeToken(int type) {
 		case TokenNameimport :
 		case TokenNamepackage :
 		case TokenNamethrow :
-		case TokenNamenew :
 		case TokenNamedo :
 		case TokenNameif :
 		case TokenNamefor :
@@ -4393,6 +4392,11 @@ protected void consumeToken(int type) {
 		case TokenNamecontinue :
 		case TokenNamereturn :
 		case TokenNamecase :
+			pushOnIntStack(scanner.startPosition);
+			break;
+		case TokenNamenew :
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=40954
+			resetModifiers();
 			pushOnIntStack(scanner.startPosition);
 			break;
 		case TokenNameclass :
