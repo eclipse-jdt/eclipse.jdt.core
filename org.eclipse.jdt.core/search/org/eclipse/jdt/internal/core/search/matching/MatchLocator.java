@@ -134,14 +134,19 @@ public class MatchLocator implements ITypeRequestor {
 public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
 	final IFile file = (IFile)compilationUnit.getUnderlyingResource();
 	CompilationUnitDeclaration unit = null;
-	final char[] source = Util.getResourceContentsAsCharArray(file);
 	
 	// get main type name
 	final String fileName = file.getFullPath().lastSegment();
 	final char[] mainTypeName =
 		fileName.substring(0, fileName.length() - 5).toCharArray();
 	
+	// find out if unit is already known
+	char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	unit = (CompilationUnitDeclaration)this.parsedUnits.get(qualifiedName);
+	if (unit != null) return unit;
+
 	// source unit
+	final char[] source = Util.getResourceContentsAsCharArray(file);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getContents() {
 			return source;
@@ -183,7 +188,6 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	if (unit != null) {
 		this.lookupEnvironment.buildTypeBindings(unit);
 		this.lookupEnvironment.completeTypeBindings(unit, true);
-		char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 		this.parsedUnits.put(qualifiedName, unit);
 	}
 	return unit;
