@@ -2044,6 +2044,20 @@ public void testInvalidClasspath2() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/*
+ * Ensures that an external class folder cannot be put on the classpath.
+ */
+public void testInvalidExternalClassFolder() throws CoreException {
+	try {
+		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {EXTERNAL_JAR_DIR_PATH}, "bin");
+		assertMarkers(
+			"Unexpected markers",
+			"Required library cannot denote external folder: \'" + EXTERNAL_JAR_DIR_PATH + "\' for project P",
+			proj);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Ensures that only one marker is created if building a project that is
  * missing its .classpath file multiple times.

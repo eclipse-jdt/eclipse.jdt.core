@@ -43,6 +43,9 @@ public PossibleMatch(MatchLocator locator, IResource resource, Openable openable
 }
 public void cleanUp() {
 	this.source = null;
+	this.parsedUnit.cleanUp();
+	this.parsedUnit = null;
+	this.nodeSet = null;
 }
 public boolean equals(Object obj) {
 	if (this.compoundName == null) return super.equals(obj);

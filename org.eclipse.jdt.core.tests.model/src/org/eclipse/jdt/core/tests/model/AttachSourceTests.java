@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -300,6 +302,96 @@ public void testPersistence() throws JavaModelException {
 	testClassRetrieval();
 	testMethodRetrieval();
 }
+
+/*
+ * Ensures that having a project as a class folder and attaching its sources finds the source
+ * of a class in a non-default package.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=65186)
+ */
+public void testProjectAsClassFolder1() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IProject p1 = getProject("P1");
+		p1.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IJavaProject javaProject = createJavaProject("P2", new String[]{""}, new String[]{"/P1"}, null, null, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(p1);
+		attachSource(root, "/P1", null);
+		IClassFile cf = root.getPackageFragment("p").getClassFile("X.class");
+		assertSourceEquals(
+			"Unexpected source for class file P1/p/X.class",
+			"package p;\n" +
+			"public class X {\n" +
+			"}",
+			cf.getSource());		
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that having a project as a class folder and attaching its sources finds the source
+ * of a class in the default package.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=65186)
+ */
+public void testProjectAsClassFolder2() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		IProject p1 = getProject("P1");
+		p1.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IJavaProject javaProject = createJavaProject("P2", new String[]{""}, new String[]{"/P1"}, null, null, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(p1);
+		attachSource(root, "/P1", null);
+		IClassFile cf = root.getPackageFragment("").getClassFile("X.class");
+		assertSourceEquals(
+			"Unexpected source for class file P1/X.class",
+			"public class X {\n" +
+			"}",
+			cf.getSource());		
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that having a project as source attachement finds the source
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=65186)
+ */
+public void testProjectAsSourceAttachment() throws CoreException {
+	try {
+		IJavaProject javaProject = createJavaProject("Test", new String[]{""}, new String[]{"/AttachSourceTests/test.jar"}, null, null, "");
+		createFolder("/Test/test1");
+		createFile("/Test/test1/Test.java",
+			"package test1;\n" + 
+			"\n" + 
+			"public class Test {}");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/AttachSourceTests/test.jar"));
+		attachSource(root, "/Test", null);
+		IClassFile cf = root.getPackageFragment("test1").getClassFile("Test.class");
+		assertSourceEquals(
+			"Unexpected source for class file test1/Test.class",
+			"package test1;\n" + 
+			"\n" + 
+			"public class Test {}",
+			cf.getSource());		
+	} finally {
+		deleteProject("Test");
+	}
+}
+
 /**
  * Attaches a source zip to a jar.  The source zip has
  * a nested root structure and exists as a resource.  Tests that

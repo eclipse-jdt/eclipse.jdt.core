@@ -368,15 +368,16 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 			entry = parentProject.getClasspathEntryFor(rootPath);
 			if (entry != null){
 				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
-				if (target instanceof IFile){
-					IFile file = (IFile) target;
-					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
+				if (target instanceof IResource) {
+					if (target instanceof IFile) {
+						IFile file = (IFile) target;
+						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
+							return entry;
+						}
+					} else if (target instanceof IContainer) {
 						return entry;
 					}
-				} else if (target instanceof IFolder) {
-					return entry;
-				}
-				if (target instanceof java.io.File){
+				} else if (target instanceof java.io.File){
 					java.io.File file = (java.io.File) target;
 					if (file.isFile()) {
 						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
@@ -402,15 +403,16 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				entry = jProject.getClasspathEntryFor(rootPath);
 				if (entry != null){
 					Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
-					if (target instanceof IFile){
-						IFile file = (IFile) target;
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
+					if (target instanceof IResource) {
+						if (target instanceof IFile){
+							IFile file = (IFile) target;
+							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
+								return entry;
+							}
+						} else if (target instanceof IContainer) {
 							return entry;
 						}
-					} else if (target instanceof IFolder) {
-						return entry;
-					}
-					if (target instanceof java.io.File){
+					} else if (target instanceof java.io.File){
 						java.io.File file = (java.io.File) target;
 						if (file.isFile()) {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){

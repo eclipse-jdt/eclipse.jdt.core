@@ -314,7 +314,11 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 	if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile)target, this);
 	} else if (target instanceof java.io.File) {
-		request = new AddJarFileToIndex(path, this);
+		if (((java.io.File)target).isFile()) {
+			request = new AddJarFileToIndex(path, this);
+		} else {
+			return;
+		}
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder)target, this);
 	} else {
