@@ -488,17 +488,7 @@ public void searchAllTypeNames(
  *	</ul>
  */	
 public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	SearchPattern pattern = 
-		new DeclarationOfAccessedFieldsPattern(
-			null, 
-			IJavaSearchConstants.PATTERN_MATCH, 
-			false, 
-			null, 
-			null, 
-			null, 
-			null,
-			true,  // read access
-			true); // write access
+	SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = enclosingElement.getUnderlyingResource();
 	if (resource instanceof IFile) {
@@ -551,12 +541,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
  *	</ul>
  */	
 public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	SearchPattern pattern = 
-		new DeclarationOfReferencedTypesPattern(
-			null, 
-			null, 
-			IJavaSearchConstants.PATTERN_MATCH, 
-			false);
+	SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = enclosingElement.getUnderlyingResource();
 	if (resource instanceof IFile) {
@@ -612,18 +597,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
  *	</ul>
  */	
 public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	SearchPattern pattern = 
-		new DeclarationOfReferencedMethodsPattern(
-			null, 
-			IJavaSearchConstants.PATTERN_MATCH, 
-			false, 
-			null, 
-			null, 
-			null, 
-			null,
-			null,  
-			null,
-			null);
+	SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 	IResource resource = enclosingElement.getUnderlyingResource();
 	if (resource instanceof IFile) {

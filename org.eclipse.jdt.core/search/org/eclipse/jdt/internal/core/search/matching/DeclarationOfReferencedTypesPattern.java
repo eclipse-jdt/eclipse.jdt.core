@@ -27,13 +27,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
 	HashSet knownTypes;
-public DeclarationOfReferencedTypesPattern(
-	char[] qualification,
-	char[] simpleName,
-	int matchMode, 
-	boolean isCaseSensitive) {
-		
-	super(qualification, simpleName, matchMode, isCaseSensitive);
+	IJavaElement enclosingElement;
+public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
+	super(null, null, PATTERN_MATCH, false);
+	this.enclosingElement = enclosingElement;
 	this.needsResolve = true;
 	this.knownTypes = new HashSet();
 }
@@ -45,6 +42,12 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	// need accurate match to be able to open on type ref
 	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
 	
+	// element that references the type must be included in the enclosing element
+	while (element != null && !this.enclosingElement.equals(element)) {
+		element = element.getParent();
+	}
+	if (element == null) return;
+
 	int maxType = -1;
 	TypeBinding typeBinding = null;
 	if (reference instanceof TypeReference) {

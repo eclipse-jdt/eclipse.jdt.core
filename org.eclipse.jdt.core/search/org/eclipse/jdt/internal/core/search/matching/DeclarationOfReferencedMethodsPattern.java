@@ -25,30 +25,21 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodReferencePattern {
 	HashSet knownMethods;
+	IJavaElement enclosingElement;
 	
-public DeclarationOfReferencedMethodsPattern(
-	char[] selector, 
-	int matchMode, 
-	boolean isCaseSensitive,
-	char[] declaringQualification,
-	char[] declaringSimpleName,	
-	char[] returnQualification, 
-	char[] returnSimpleName,
-	char[][] parameterQualifications, 
-	char[][] parameterSimpleNames,
-	IType declaringType) {
-		
+public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
 	super(
-		selector, 
-		matchMode, 
-		isCaseSensitive, 
-		declaringQualification, 
-		declaringSimpleName,
-		returnQualification,
-		returnSimpleName,
-		parameterQualifications,
-		parameterSimpleNames,
-		declaringType);
+		null, 
+		PATTERN_MATCH, 
+		false, 
+		null, 
+		null,
+		null,
+		null,
+		null,
+		null,
+		null);
+	this.enclosingElement = enclosingElement;
 	this.needsResolve = true;
 	this.knownMethods = new HashSet();
 }
@@ -60,6 +51,12 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	// need accurate match to be able to open on type ref
 	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
 	
+	// element that references the method must be included in the enclosing element
+	while (element != null && !this.enclosingElement.equals(element)) {
+		element = element.getParent();
+	}
+	if (element == null) return;
+
 	this.reportDeclaration(((MessageSend)reference).binding, locator);
 }
 private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator) throws CoreException {

@@ -26,27 +26,19 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class DeclarationOfAccessedFieldsPattern extends FieldReferencePattern {
 	HashSet knownFields;
-public DeclarationOfAccessedFieldsPattern(
-	char[] name, 
-	int matchMode, 
-	boolean isCaseSensitive,
-	char[] declaringQualification,
-	char[] declaringSimpleName,	
-	char[] typeQualification, 
-	char[] typeSimpleName,
-	boolean readAccess,
-	boolean writeAccess) {
-		
+	IJavaElement enclosingElement;
+public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
 	super(
-		name, 
-		matchMode, 
-		isCaseSensitive, 
-		declaringQualification, 
-		declaringSimpleName,
-		typeQualification,
-		typeSimpleName,
-		readAccess,
-		writeAccess);
+		null, 
+		PATTERN_MATCH, 
+		false, 
+		null, 
+		null,
+		null,
+		null,
+		true,  // read access
+		true); // write access
+	this.enclosingElement = enclosingElement;
 	this.needsResolve = true;
 	this.knownFields = new HashSet();
 }
@@ -57,6 +49,12 @@ public DeclarationOfAccessedFieldsPattern(
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	// need accurate match to be able to open on type ref
 	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
+	
+	// element that references the field must be included in the enclosing element
+	while (element != null && !this.enclosingElement.equals(element)) {
+		element = element.getParent();
+	}
+	if (element == null) return;
 	
 	if (reference instanceof FieldReference) {
 		this.reportDeclaration(((FieldReference)reference).binding, locator);

@@ -49,7 +49,6 @@ public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSe
 
 	this.addEnclosingProjectOrJar(project.getFullPath());
 
-	IWorkspaceRoot root = project.getWorkspace().getRoot();
 	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
 	IJavaModel model = javaProject.getJavaModel();
 	for (int i = 0, length = entries.length; i < length; i++) {

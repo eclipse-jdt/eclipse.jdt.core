@@ -494,12 +494,15 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 public IType lookupType(TypeBinding typeBinding) {
 	char[] packageName = typeBinding.qualifiedPackageName();
 	char[] typeName = typeBinding.qualifiedSourceName();
+	
+	// find package fragments
 	IPackageFragment[] pkgs = 
 		this.nameLookup.findPackageFragments(
 			(packageName == null || packageName.length == 0) ? 
 				IPackageFragment.DEFAULT_PACKAGE_NAME : 
 				new String(packageName), 
 			false);
+			
 	// iterate type lookup in each package fragment
 	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
 		IType type = 
@@ -512,6 +515,19 @@ public IType lookupType(TypeBinding typeBinding) {
 					NameLookup.ACCEPT_INTERFACES);
 		if (type != null) return type;	
 	}
+	
+	// search inside enclosing element
+	char[][] qualifiedName = CharOperation.splitOn('.', typeName);
+	int length = qualifiedName.length;
+	if (length == 0) return null;
+	IType type = this.createTypeHandle(qualifiedName[0]);
+	if (type == null) return null;
+	for (int i = 1; i < length; i++) {
+		type = this.createTypeHandle(type, qualifiedName[i]);
+		if (type == null) return null;
+	}
+	if (type.exists()) return type;	
+	
 	return null;
 }
 	public void report(
