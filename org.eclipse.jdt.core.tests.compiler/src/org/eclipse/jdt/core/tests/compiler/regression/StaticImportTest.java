@@ -983,7 +983,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"package p; \n" + 
 				"public class ST {\n" + 
 				"	public static int foo;\n" + 
-				"}\n"				
+				"}\n"	,			
 			},
 			"----------\n" + 
 			"1. WARNING in X.java (at line 1)\r\n" + 
@@ -997,4 +997,42 @@ public class StaticImportTest extends AbstractComparableTest {
 			"foo cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490
+	public void test028() {
+		this.runConformTest(
+			new String[] {
+				"p1/Z.java",//====================
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"	public interface I {\n" + 
+				"	}\n" + 
+				"}\n",
+				"q/Y.java",//====================
+				"package q;\n" + 
+				"import static p.X.I;\n" + 
+				"import static p1.Z.I;\n" + 
+				"public class Y implements I {\n" + 
+				"}\n",
+				"X.java",//====================
+				"package p;\n" + 
+				"public enum X {\n" + 
+				"	I, J, K\n" + 
+				"}\n"	,			
+			},
+			"");
+		// recompile Y against binaries
+		this.runConformTest(
+			new String[] {
+				"q/Y.java",//====================
+				"package q;\n" + 
+				"import static p.X.I;\n" + 
+				"import static p1.Z.I;\n" + 
+				"public class Y implements I {\n" + 
+				"}\n",
+			},
+			"",
+			null,
+			false,
+			null);
+	}		
 }
