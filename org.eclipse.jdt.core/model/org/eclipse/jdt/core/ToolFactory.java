@@ -110,6 +110,8 @@ public class ToolFactory {
 	 * according to the decoding flag used to initialize the reader.
 	 * Answer null if the file named fileName doesn't represent a valid .class file.
 	 * 
+	 * The decoding flags are described in IClassFileReader.
+	 * 
 	 * @param fileName the name of the file to be read
 	 * @param decodingFlag the flag used to decode the class file reader.
 	 * @return IClassFileReader
@@ -132,6 +134,8 @@ public class ToolFactory {
 	 * Answer null if the file named zipFileName doesn't represent a valid zip file or if the zipEntryName
 	 * is not a valid entry name for the specified zip file or if the bytes don't represent a valid
 	 * .class file according to the JVM specifications.
+	 * 
+	 * The decoding flags are described in IClassFileReader.
 	 * 
 	 * @param zipFileName the name of the zip file
 	 * @param zipEntryName the name of the entry in the zip file to be read
