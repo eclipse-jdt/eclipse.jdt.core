@@ -40,7 +40,7 @@ public class Argument extends LocalDeclaration {
 			if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
 				scope.problemReporter().deprecatedType(typeBinding, this.type);
 			this.binding.declaration = this;
-			this.binding.used = used;
+			this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 		}
 	}
 

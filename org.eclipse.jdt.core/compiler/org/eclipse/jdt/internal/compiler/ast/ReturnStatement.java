@@ -91,7 +91,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// secret local variable for return value (note that this can only occur in a real method)
 	if (saveValueNeeded) {
 		if (this.saveValueVariable != null) {
-			this.saveValueVariable.used = true;
+			this.saveValueVariable.useFlag = LocalVariableBinding.USED;
 		}
 	} else {
 		this.saveValueVariable = null;

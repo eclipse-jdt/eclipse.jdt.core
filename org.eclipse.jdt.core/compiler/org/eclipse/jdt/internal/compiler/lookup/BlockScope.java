@@ -230,29 +230,36 @@ public class BlockScope extends Scope {
 
 				// check if variable is actually used, and may force it to be preserved
 				boolean generatesLocal =
-					(local.used && (local.constant == Constant.NotAConstant)) || local.isArgument;
-				if (!local.used
+					(local.useFlag == LocalVariableBinding.USED && (local.constant == Constant.NotAConstant)) || local.isArgument;
+					
+				// do not report fake used variable
+				if (local.useFlag == LocalVariableBinding.UNUSED
 					&& (local.declaration != null) // unused (and non secret) local
 					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+						
 					if (local.isArgument) // method argument
 						this.problemReporter().unusedArgument(local.declaration);
 					else if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
 						this.problemReporter().unusedLocalVariable(local.declaration);
 				}
+				
+				// need to preserve unread variables ?
 				if (!generatesLocal) {
 					if (local.declaration != null
 						&& environment().options.preserveAllLocalVariables) {
+							
 						generatesLocal = true; // force it to be preserved in the generated code
-						local.used = true;
+						local.useFlag = LocalVariableBinding.USED;
 					}
 				}
+				
+				// allocate variable
 				if (generatesLocal) {
 
 					if (local.declaration != null) {
-						codeStream.record(local);
-						// record user local variables for attribute generation
+						codeStream.record(local); // record user-defined local variables for attribute generation
 					}
-					// allocate variable position
+					// assign variable position
 					local.resolvedPosition = this.offset;
 
 					// check for too many arguments/local variables
@@ -263,7 +270,8 @@ public class BlockScope extends Scope {
 					} else {
 						if (this.offset > 0xFFFF) { // no more than 65535 words of locals
 							this.problemReporter().noMoreAvailableSpaceForLocal(
-								local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
+								local, 
+								local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
 						}
 					}
 

@@ -43,7 +43,7 @@ public class SynchronizedStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		// mark the synthetic variable as being used
-		synchroVariable.used = true;
+		synchroVariable.useFlag = LocalVariableBinding.USED;
 
 		// simple propagation to subnodes
 		flowInfo =

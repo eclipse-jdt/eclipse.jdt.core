@@ -60,10 +60,10 @@ public class TryStatement extends Statement {
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 
 		if (anyExceptionVariable != null) {
-			anyExceptionVariable.used = true;
+			anyExceptionVariable.useFlag = LocalVariableBinding.USED;
 		}
 		if (returnAddressVariable != null) {
-			returnAddressVariable.used = true;
+			returnAddressVariable.useFlag = LocalVariableBinding.USED;
 		}
 		InsideSubRoutineFlowContext insideSubContext;
 		FinallyFlowContext finallyContext;

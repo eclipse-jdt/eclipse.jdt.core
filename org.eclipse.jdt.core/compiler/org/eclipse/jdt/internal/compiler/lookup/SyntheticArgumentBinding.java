@@ -27,7 +27,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 
 	{	
 		this.isArgument = true;
-		this.used = true;
+		this.useFlag = USED;
 	}
 	// if the argument is mapping to an outer local variable, this denotes the outer actual variable
 	public LocalVariableBinding actualOuterLocalVariable;

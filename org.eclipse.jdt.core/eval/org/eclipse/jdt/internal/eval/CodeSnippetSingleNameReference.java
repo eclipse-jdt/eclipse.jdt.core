@@ -42,6 +42,7 @@ public class CodeSnippetSingleNameReference extends SingleNameReference implemen
 
 	EvaluationContext evaluationContext;
 	FieldBinding delegateThis;
+	
 public CodeSnippetSingleNameReference(char[] source, long pos, EvaluationContext evaluationContext) {
 	super(source, pos);
 	this.evaluationContext = evaluationContext;
@@ -63,7 +64,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 			}
-			if (!flowInfo.isFakeReachable()) localBinding.used = true;			
+			localBinding.useFlag = flowInfo.isFakeReachable() ? LocalVariableBinding.FAKE_USED : LocalVariableBinding.USED;
 	}
 	return flowInfo;
 }
