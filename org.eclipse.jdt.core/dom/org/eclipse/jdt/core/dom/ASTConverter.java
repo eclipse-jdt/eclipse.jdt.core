@@ -132,7 +132,20 @@ class ASTConverter {
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
 		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
-		typeDecl.setModifiers(modifiers);
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built nodes with invalid modifiers.
+		 */
+		try {
+			typeDecl.setModifiers(modifiers);
+		} catch(IllegalArgumentException e) {
+			int legalModifiers =
+				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
+				| Modifier.STATIC | Modifier.FINAL | Modifier.ABSTRACT
+				| Modifier.STRICTFP;
+			typeDecl.setModifiers(modifiers & legalModifiers);
+			typeDecl.setFlags(ASTNode.MALFORMED);
+		}
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -444,7 +457,20 @@ class ASTConverter {
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
 		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
-		typeDecl.setModifiers(modifiers);
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built nodes with invalid modifiers.
+		 */
+		try {
+			typeDecl.setModifiers(modifiers);
+		} catch(IllegalArgumentException e) {
+			int legalModifiers =
+				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
+				| Modifier.STATIC | Modifier.FINAL | Modifier.ABSTRACT
+				| Modifier.STRICTFP;
+			typeDecl.setModifiers(modifiers & legalModifiers);
+			typeDecl.setFlags(ASTNode.MALFORMED);
+		}
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -551,7 +577,20 @@ class ASTConverter {
 		
 	public MethodDeclaration convert(AbstractMethodDeclaration methodDeclaration) {
 		MethodDeclaration methodDecl = this.ast.newMethodDeclaration();
-		methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built nodes with invalid modifiers.
+		 */
+		try {
+			methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
+		} catch(IllegalArgumentException e) {
+			int legalModifiers =
+				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
+				| Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED
+				| Modifier.NATIVE | Modifier.ABSTRACT | Modifier.STRICTFP;
+			methodDecl.setModifiers(methodDeclaration.modifiers & legalModifiers);
+			methodDecl.setFlags(ASTNode.MALFORMED);
+		}
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
 		SimpleName methodName = this.ast.newSimpleName(new String(methodDeclaration.selector));
@@ -887,6 +926,21 @@ class ASTConverter {
 
 	public SingleVariableDeclaration convert(Argument argument) {
 		SingleVariableDeclaration variableDecl = this.ast.newSingleVariableDeclaration();
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built nodes with invalid modifiers.
+		 */
+		try {
+			variableDecl.setModifiers(argument.modifiers);
+		} catch(IllegalArgumentException e) {
+			int legalModifiers =
+				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
+				| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
+				| Modifier.TRANSIENT;
+			variableDecl.setModifiers(argument.modifiers & legalModifiers);
+			variableDecl.setFlags(ASTNode.MALFORMED);
+		}
+		
 		variableDecl.setModifiers(argument.modifiers);
 		SimpleName name = this.ast.newSimpleName(argument.name());
 		name.setSourceRange(argument.sourceStart, argument.sourceEnd - argument.sourceStart + 1);
@@ -1762,7 +1816,18 @@ class ASTConverter {
 				recordNodes(variableDeclarationFragment, localDeclaration);
 			}
 			variableDeclarationExpression.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
-			variableDeclarationExpression.setModifiers(localDeclaration.modifiers);
+			/**
+			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+			 * This handles cases where the parser built variables with invalid modifiers.
+			 * The compilation unit is tagged as having wrong modifiers for the local.
+			 * Only final is allowed in this case.
+			 */
+			try {
+				variableDeclarationExpression.setModifiers(localDeclaration.modifiers);
+			} catch(IllegalArgumentException e) {
+				variableDeclarationExpression.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
+				variableDeclarationExpression.setFlags(ASTNode.MALFORMED);
+			}
 			variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
 			Type type = convertType(localDeclaration.type);
 			setTypeForVariableDeclarationExpression(localDeclaration, variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
@@ -2365,7 +2430,20 @@ class ASTConverter {
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDecl, fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
-		fieldDeclaration.setModifiers(fieldDecl.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built nodes with invalid modifiers.
+		 */
+		try {
+			fieldDeclaration.setModifiers(fieldDecl.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
+		} catch(IllegalArgumentException e) {
+			int legalModifiers = 
+				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
+				| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
+				| Modifier.TRANSIENT;
+			fieldDeclaration.setModifiers(fieldDecl.modifiers & legalModifiers);
+			fieldDeclaration.setFlags(ASTNode.MALFORMED);
+		}
 		setJavaDocComment(fieldDeclaration);
 		return fieldDeclaration;
 	}
@@ -2379,7 +2457,18 @@ class ASTConverter {
 		variableDeclarationStatement.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
 		Type type = convertType(localDeclaration.type);
 		setTypeForVariableDeclarationStatement(localDeclaration, variableDeclarationStatement, type, variableDeclarationFragment.getExtraDimensions());
-		variableDeclarationStatement.setModifiers(localDeclaration.modifiers);
+		/**
+		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
+		 * This handles cases where the parser built variables with invalid modifiers.
+		 * The compilation unit is tagged as having wrong modifiers for the local.
+		 * Only final is allowed in this case.
+		 */
+		try {
+			variableDeclarationStatement.setModifiers(localDeclaration.modifiers);
+		} catch(IllegalArgumentException e) {
+			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
+			variableDeclarationStatement.setFlags(ASTNode.MALFORMED);
+		}
 		retrieveSemiColonPosition(variableDeclarationStatement);
 		return variableDeclarationStatement;
 	}
