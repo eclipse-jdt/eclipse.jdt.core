@@ -122,26 +122,33 @@ public void checkComment() {
 		int seeTagsNbre = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			Expression reference = references[i];
-			if (reference instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) reference;
-				this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (reference instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) reference;
-				this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
-			} else if (reference instanceof JavadocFieldReference) {
+			acceptJavadocTypeReference(reference);
+			if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+				acceptJavadocTypeReference(fieldRef.receiver);
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+				acceptJavadocTypeReference(messageSend.receiver);
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
 				char[][] compoundName = constructor.type.getTypeName();
 				this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+				acceptJavadocTypeReference(constructor.type);
 			}
 		}
+	}
+}
+private void acceptJavadocTypeReference(Expression expression) {
+	if (expression instanceof JavadocSingleTypeReference) {
+		JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) expression;
+		this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+	} else if (expression instanceof JavadocQualifiedTypeReference) {
+		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
+		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
