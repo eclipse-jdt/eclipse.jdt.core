@@ -29,7 +29,7 @@ public class MessageSend extends Expression implements InvocationSite {
 
 	public long nameSourcePosition ; //(start<<32)+end
 
-	public TypeBinding receiverType, qualifyingType;
+	public TypeBinding receiverType, qualifyingType; // TODO (philippe) could remove this field, and simply reuse receiverType
 	public TypeBinding genericCast;
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
