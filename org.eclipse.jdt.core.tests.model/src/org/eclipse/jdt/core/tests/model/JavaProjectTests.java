@@ -599,7 +599,6 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"p [in <project root> [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]",
@@ -883,7 +882,6 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 	assertElementsEqual(
 		"unexpected package fragments",
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"p [in <project root> [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]\n" + 
@@ -905,7 +903,6 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	assertElementsEqual(
 		"unexpected package fragments in source folder",
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
-		"p [in <project root> [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]",
