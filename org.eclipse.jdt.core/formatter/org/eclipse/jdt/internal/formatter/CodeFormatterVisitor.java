@@ -1676,9 +1676,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(arrayReference, numberOfParens);
 		}
 		arrayReference.receiver.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET, this.preferences.insert_space_before_bracket_in_array_reference);
+		if (this.preferences.insert_space_between_brackets_in_array_reference) {
+			this.scribe.space();
+		}
 		arrayReference.position.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET, this.preferences.insert_space_between_brackets_in_array_reference);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(arrayReference, numberOfParens);
@@ -2602,6 +2605,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		
 		if (elseStatement != null) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameelse, true);
+			this.scribe.printTrailingComment();
 			if (elseStatement instanceof Block) {
 				elseStatement.traverse(this, scope);
 			} else if (elseStatement instanceof IfStatement) {
@@ -2625,6 +2629,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.printNewLine();
 			} else {
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 				this.scribe.indent();
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {

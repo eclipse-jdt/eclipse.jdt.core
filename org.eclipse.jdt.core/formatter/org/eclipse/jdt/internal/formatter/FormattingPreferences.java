@@ -165,6 +165,8 @@ public class FormattingPreferences {
 	public static final String PRESERVE_USER_LINEBREAKS = "preserve_user_linebreaks";//$NON-NLS-1$
 	public static final String INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = "insert_new_line_before_closing_brace_in_array_initializer";//$NON-NLS-1$
 	public static final String MULTIPLE_FIELDS_ALIGNMENT = "multiple_fields_alignment";//$NON-NLS-1$
+	public static final String INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE = "insert_space_between_brackets_in_array_reference";//$NON-NLS-1$
+	public static final String INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE = "insert_space_before_bracket_in_array_reference";//$NON-NLS-1$
 
 	/**
 	 * Preferences defaults value	 */	
@@ -286,15 +288,15 @@ public class FormattingPreferences {
 	public static final int DEFAULT_COMPACT_IF_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 	public static final int DEFAULT_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
 	public static final int DEFAULT_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = Alignment.M_NEXT_SHIFTED_SPLIT;
-	public static final int DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
-	public static final int DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT;
-	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
+	public static final int DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
+	public static final int DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
+	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_METHOD_THROWS_CLAUSE_ALIGNMENT = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
 	public static final int DEFAULT_TYPE_MEMBER_ALIGNMENT = Alignment.M_NO_ALIGNMENT;
-	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
-	public static final int DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
+	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
+	public static final int DEFAULT_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN;
+	public static final int DEFAULT_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_CONDITIONAL_EXPRESSION_ALIGNMENT = Alignment.M_NEXT_PER_LINE_SPLIT;
 	public static final int DEFAULT_BINARY_EXPRESSION_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY = true;
@@ -305,6 +307,8 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;//$NON-NLS-1$
+	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE = false;
 
 	public int page_width;
 	public boolean use_tab;
@@ -443,6 +447,8 @@ public class FormattingPreferences {
 	public boolean preserve_user_linebreaks;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
 	public int multiple_fields_alignment;
+	public boolean insert_space_between_brackets_in_array_reference;
+	public boolean insert_space_before_bracket_in_array_reference;
 
 	private FormattingPreferences() {
 		// default implementation: make instanciation impossible
@@ -1114,7 +1120,6 @@ public class FormattingPreferences {
 		} else {
 			this.number_of_empty_lines_to_preserve = DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE;
 		}
-		
 		if (map.get(INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER) != null) {
 			this.insert_new_line_before_closing_brace_in_array_initializer = Boolean.valueOf((String)map.get(INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER)).booleanValue();
 		} else {
@@ -1124,6 +1129,16 @@ public class FormattingPreferences {
 			this.multiple_fields_alignment = Integer.parseInt((String)map.get(MULTIPLE_FIELDS_ALIGNMENT));
 		} else {
 			this.multiple_fields_alignment = DEFAULT_MULTIPLE_FIELDS_ALIGNMENT;
+		}
+		if (map.get(INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE) != null) {
+			this.insert_space_before_bracket_in_array_reference = Boolean.valueOf((String)map.get(INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE)).booleanValue();
+		} else {
+			this.insert_space_before_bracket_in_array_reference = DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE;
+		}
+		if (map.get(INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE) != null) {
+			this.insert_space_between_brackets_in_array_reference = Boolean.valueOf((String)map.get(INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE)).booleanValue();
+		} else {
+			this.insert_space_between_brackets_in_array_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE;
 		}
 	}
 		
@@ -1264,6 +1279,8 @@ public class FormattingPreferences {
 		defaults.preserve_user_linebreaks = DEFAULT_PRESERVE_USER_LINEBREAKS;
 		defaults.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
 		defaults.multiple_fields_alignment = DEFAULT_MULTIPLE_FIELDS_ALIGNMENT;
+		defaults.insert_space_between_brackets_in_array_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE;
+		defaults.insert_space_before_bracket_in_array_reference = DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE;
 		return defaults;
 	}
 
@@ -1404,6 +1421,8 @@ public class FormattingPreferences {
 		sunSettings.preserve_user_linebreaks = false;
 		sunSettings.insert_new_line_before_closing_brace_in_array_initializer = false;
 		sunSettings.multiple_fields_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.insert_space_between_brackets_in_array_reference = false;
+		sunSettings.insert_space_before_bracket_in_array_reference = false;
 		return sunSettings;
 	}
 }

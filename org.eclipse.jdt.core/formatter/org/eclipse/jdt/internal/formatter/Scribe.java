@@ -85,7 +85,7 @@ public class Scribe {
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
 		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
 		// adjust break indentation
-		if (this.currentAlignment != null) {
+/*		if (this.currentAlignment != null) {
 			Alignment current = this.currentAlignment;
 			while (current.enclosing != null) {
 				current = current.enclosing;
@@ -99,7 +99,7 @@ public class Scribe {
 					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? 1 : this.tabSize);
 					break;
 			}
-		}
+		}*/
 		return alignment; 
 	}
 	
