@@ -18,6 +18,9 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AnnotationTest extends AbstractComparisonTest {
@@ -1119,6 +1122,14 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 
+		try {
+			ClassFileReader fileReader = ClassFileReader.read(new File(OUTPUT_DIR + File.separator  +"I.class"));
+			assertEquals("Not an annotation type declaration", IGenericType.ANNOTATION_TYPE_DECL, fileReader.getKind());
+		} catch (ClassFormatException e1) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e1) {
+			assertTrue("IOException", false);
+		}
 	}		
 	
 	// check invalid constant in array initializer
