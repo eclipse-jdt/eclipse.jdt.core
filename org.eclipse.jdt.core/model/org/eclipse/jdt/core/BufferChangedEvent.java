@@ -80,7 +80,7 @@ public BufferChangedEvent(IBuffer buffer, int offset, int length, String text) {
  * @return the buffer affected by the change
  */
 public IBuffer getBuffer() {
-	return (IBuffer) source;
+	return (IBuffer) this.source;
 }
 /**
  * Returns the length of text removed or replaced in the buffer, or

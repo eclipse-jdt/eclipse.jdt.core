@@ -25,59 +25,59 @@ public CodeSnippetTypeDeclaration(CompilationResult compilationResult){
  * Generic bytecode generation for type
  */
 public void generateCode(ClassFile enclosingClassFile) {
-	if (hasBeenGenerated) return;
-	hasBeenGenerated = true;
+	if (this.hasBeenGenerated) return;
+	this.hasBeenGenerated = true;
 	
-	if (ignoreFurtherInvestigation) {
-		if (binding == null)
+	if (this.ignoreFurtherInvestigation) {
+		if (this.binding == null)
 			return;
-		CodeSnippetClassFile.createProblemType(this, scope.referenceCompilationUnit().compilationResult);
+		CodeSnippetClassFile.createProblemType(this, this.scope.referenceCompilationUnit().compilationResult);
 		return;
 	}
 	try {
 		// create the result for a compiled type
-		ClassFile classFile = new CodeSnippetClassFile(binding, enclosingClassFile, false);
+		ClassFile classFile = new CodeSnippetClassFile(this.binding, enclosingClassFile, false);
 		// generate all fiels
 		classFile.addFieldInfos();
 
 		// record the inner type inside its own .class file to be able
 		// to generate inner classes attributes
-		if (binding.isMemberType())
-			classFile.recordEnclosingTypeAttributes(binding);
-		if (binding.isLocalType()) {
-			enclosingClassFile.recordNestedLocalAttribute(binding);
-			classFile.recordNestedLocalAttribute(binding);
+		if (this.binding.isMemberType())
+			classFile.recordEnclosingTypeAttributes(this.binding);
+		if (this.binding.isLocalType()) {
+			enclosingClassFile.recordNestedLocalAttribute(this.binding);
+			classFile.recordNestedLocalAttribute(this.binding);
 		}
-		if (memberTypes != null) {
-			for (int i = 0, max = memberTypes.length; i < max; i++) {
+		if (this.memberTypes != null) {
+			for (int i = 0, max = this.memberTypes.length; i < max; i++) {
 				// record the inner type inside its own .class file to be able
 				// to generate inner classes attributes
-				classFile.recordNestedMemberAttribute(memberTypes[i].binding);
-				memberTypes[i].generateCode(scope, classFile);
+				classFile.recordNestedMemberAttribute(this.memberTypes[i].binding);
+				this.memberTypes[i].generateCode(this.scope, classFile);
 			}
 		}
 		// generate all methods
 		classFile.setForMethodInfos();
-		if (methods != null) {
-			for (int i = 0, max = methods.length; i < max; i++) {
-				methods[i].generateCode(scope, classFile);
+		if (this.methods != null) {
+			for (int i = 0, max = this.methods.length; i < max; i++) {
+				this.methods[i].generateCode(this.scope, classFile);
 			}
 		}
 		
 		// generate all methods
 		classFile.addSpecialMethods();
 
-		if (ignoreFurtherInvestigation){ // trigger problem type generation for code gen errors
-			throw new AbortType(scope.referenceCompilationUnit().compilationResult);
+		if (this.ignoreFurtherInvestigation){ // trigger problem type generation for code gen errors
+			throw new AbortType(this.scope.referenceCompilationUnit().compilationResult);
 		}
 
 		// finalize the compiled type result
 		classFile.addAttributes();
-		scope.referenceCompilationUnit().compilationResult.record(binding.constantPoolName(), classFile);
+		this.scope.referenceCompilationUnit().compilationResult.record(this.binding.constantPoolName(), classFile);
 	} catch (AbortType e) {
-		if (binding == null)
+		if (this.binding == null)
 			return;
-		CodeSnippetClassFile.createProblemType(this, scope.referenceCompilationUnit().compilationResult);
+		CodeSnippetClassFile.createProblemType(this, this.scope.referenceCompilationUnit().compilationResult);
 	}
 }
 }

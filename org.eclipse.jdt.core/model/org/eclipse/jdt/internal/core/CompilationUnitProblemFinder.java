@@ -101,7 +101,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
 				| SourceTypeConverter.MEMBER_TYPE // need member types
 				| SourceTypeConverter.FIELD_INITIALIZATION, // need field initialization
-				lookupEnvironment.problemReporter,
+				this.lookupEnvironment.problemReporter,
 				result);
 
 		if (unit != null) {

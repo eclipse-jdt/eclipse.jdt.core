@@ -42,7 +42,7 @@ public class CodeSnippetCompiler extends Compiler {
 		super(environment, policy, settings, requestor, problemFactory);
 		this.parser =
 			new CodeSnippetParser(
-				problemReporter,
+				this.problemReporter,
 				evaluationContext,
 				this.options.parseLiteralExpressionsAsConstants,
 				codeSnippetStart,

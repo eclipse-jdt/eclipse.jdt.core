@@ -149,7 +149,7 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 			typeInfo = (IBinaryType) newElements.get(type);
 			if (typeInfo == null) {
 				// create a classfile reader 
-			    typeInfo = classFile.getBinaryTypeInfo((IFile)classFile.getResource());
+			    typeInfo = this.classFile.getBinaryTypeInfo((IFile)this.classFile.getResource());
 			}
 		}
 	} catch (JavaModelException npe) {

@@ -100,14 +100,14 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest);
 			case IJavaElement.TYPE :
 				if (isRenamingMainType(element, dest)) {
-					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + SUFFIX_STRING_java}, force); //$NON-NLS-1$
+					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + SUFFIX_STRING_java}, this.force); //$NON-NLS-1$
 				} else {
-					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, force);
+					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
 				}
 			case IJavaElement.METHOD :
-				return new CreateMethodOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, force);
+				return new CreateMethodOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
 			case IJavaElement.FIELD :
-				return new CreateFieldOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, force);
+				return new CreateFieldOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
 			case IJavaElement.INITIALIZER :
 				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR);
 			default :
@@ -121,7 +121,7 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
  * Returns the cached source for this element or compute it if not already cached.
  */
 private String getSourceFor(IJavaElement element) throws JavaModelException {
-	String source = (String) sources.get(element);
+	String source = (String) this.sources.get(element);
 	if (source == null && element instanceof IMember) {
 		IMember member = (IMember)element;
 		ICompilationUnit cu = member.getCompilationUnit();
@@ -129,7 +129,7 @@ private String getSourceFor(IJavaElement element) throws JavaModelException {
 		IDOMCompilationUnit domCU = new DOMFactory().createCompilationUnit(cuSource, cu.getElementName());
 		IDOMNode node = ((JavaElement)element).findNode(domCU);
 		source = new String(node.getCharacters());
-		sources.put(element, source);
+		this.sources.put(element, source);
 	}
 	return source;
 }
@@ -183,7 +183,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	}
 
 	if (createElementInCUOperation && isMove() && !isRenamingMainType(element, destination)) {
-		DeleteElementsOperation deleteOp = new DeleteElementsOperation(new IJavaElement[] { element }, force);
+		DeleteElementsOperation deleteOp = new DeleteElementsOperation(new IJavaElement[] { element }, this.force);
 		executeNestedOperation(deleteOp, 1);
 	}
 }
@@ -216,7 +216,7 @@ protected IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
-	if (this.renamingsList != null && this.renamingsList.length != elementsToProcess.length) {
+	if (this.renamingsList != null && this.renamingsList.length != this.elementsToProcess.length) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 	}
 	return JavaModelStatus.VERIFIED_OK;

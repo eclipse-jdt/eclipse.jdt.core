@@ -320,7 +320,7 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 	int length = parameterTypeNames.length;
 	
 	char[] typeName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
-	Object cachedType = completionEngine.typeCache.get(typeName);
+	Object cachedType = this.completionEngine.typeCache.get(typeName);
 	
 	IType type = null;
 	if(cachedType != null) {
@@ -328,12 +328,12 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 			type = (BinaryType)cachedType;
 		}
 	} else { 
-		type = nameLookup.findType(new String(typeName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
+		type = this.nameLookup.findType(new String(typeName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
 		if(type instanceof BinaryType){
 			if(((BinaryType)type).getSourceMapper() != null) {
-				completionEngine.typeCache.put(typeName, type);
+				this.completionEngine.typeCache.put(typeName, type);
 			} else {
-				completionEngine.typeCache.put(typeName, NO_ATTACHED_SOURCE);
+				this.completionEngine.typeCache.put(typeName, NO_ATTACHED_SOURCE);
 				type = null;
 			}
 		} else {

@@ -695,14 +695,14 @@ public int literalIndex(MethodBinding aMethodBinding) {
 		if ((indexWellKnownMethod = indexOfWellKnownMethods(aMethodBinding)) == -1) {
 			if (aMethodBinding.declaringClass.isInterface()) {
 				// Lookinf into the interface method ref table
-				if ((index = interfaceMethodCache.get(aMethodBinding)) < 0) {
+				if ((index = this.interfaceMethodCache.get(aMethodBinding)) < 0) {
 					classIndex = literalIndex(aMethodBinding.declaringClass);
 					nameAndTypeIndex =
 						literalIndexForMethods(
 							literalIndex(aMethodBinding.constantPoolName()),
 							literalIndex(aMethodBinding.signature()),
 							aMethodBinding);
-					index = interfaceMethodCache.put(aMethodBinding, currentIndex++);
+					index = this.interfaceMethodCache.put(aMethodBinding, this.currentIndex++);
 					// Write the interface method ref constant into the constant pool
 					// First add the tag
 					writeU1(InterfaceMethodRefTag);
@@ -713,14 +713,14 @@ public int literalIndex(MethodBinding aMethodBinding) {
 				}
 			} else {
 				// Lookinf into the method ref table
-				if ((index = methodCache.get(aMethodBinding)) < 0) {
+				if ((index = this.methodCache.get(aMethodBinding)) < 0) {
 					classIndex = literalIndex(aMethodBinding.declaringClass);
 					nameAndTypeIndex =
 						literalIndexForMethods(
 							literalIndex(aMethodBinding.constantPoolName()),
 							literalIndex(aMethodBinding.signature()),
 							aMethodBinding);
-					index = methodCache.put(aMethodBinding, currentIndex++);
+					index = this.methodCache.put(aMethodBinding, this.currentIndex++);
 					// Write the method ref constant into the constant pool
 					// First add the tag
 					writeU1(MethodRefTag);
@@ -732,7 +732,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 			}
 		} else {
 			// This is a well known method
-			if ((index = wellKnownMethods[indexWellKnownMethod]) == 0) {
+			if ((index = this.wellKnownMethods[indexWellKnownMethod]) == 0) {
 				// this methods was not inserted yet
 				if (aMethodBinding.declaringClass.isInterface()) {
 					// Lookinf into the interface method ref table
@@ -742,7 +742,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 							literalIndex(aMethodBinding.constantPoolName()),
 							literalIndex(aMethodBinding.signature()),
 							aMethodBinding);
-					index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
+					index = this.wellKnownMethods[indexWellKnownMethod] = this.currentIndex++;
 					// Write the interface method ref constant into the constant pool
 					// First add the tag
 					writeU1(InterfaceMethodRefTag);
@@ -758,7 +758,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 							literalIndex(aMethodBinding.constantPoolName()),
 							literalIndex(aMethodBinding.signature()),
 							aMethodBinding);
-					index = wellKnownMethods[indexWellKnownMethod] = currentIndex++;
+					index = this.wellKnownMethods[indexWellKnownMethod] = this.currentIndex++;
 					// Write the method ref constant into the constant pool
 					// First add the tag
 					writeU1(MethodRefTag);
@@ -786,19 +786,19 @@ public int literalIndex(TypeBinding aTypeBinding) {
 	int indexWellKnownType;
 	if ((indexWellKnownType = super.indexOfWellKnownTypes(aTypeBinding)) == -1) {
 		if ((indexWellKnownType = indexOfWellKnownTypes(aTypeBinding)) == -1) {
-			if ((index = classCache.get(aTypeBinding)) < 0) {
+			if ((index = this.classCache.get(aTypeBinding)) < 0) {
 				// The entry doesn't exit yet
 				nameIndex = literalIndex(aTypeBinding.constantPoolName());
-				index = classCache.put(aTypeBinding, currentIndex++);
+				index = this.classCache.put(aTypeBinding, this.currentIndex++);
 				writeU1(ClassTag);
 				// Then add the 8 bytes representing the long
 				writeU2(nameIndex);
 			}
 		} else {
-			if ((index = wellKnownTypes[indexWellKnownType]) == 0) {
+			if ((index = this.wellKnownTypes[indexWellKnownType]) == 0) {
 				// Need to insert that binding
 				nameIndex = literalIndex(aTypeBinding.constantPoolName());
-				index = wellKnownTypes[indexWellKnownType] = currentIndex++;
+				index = this.wellKnownTypes[indexWellKnownType] = this.currentIndex++;
 				writeU1(ClassTag);
 				// Then add the 8 bytes representing the long
 				writeU2(nameIndex);
@@ -821,17 +821,17 @@ public int literalIndexForJavaLangBooleanBooleanValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[BOOLEANVALUE_BOOLEAN_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[BOOLEANVALUE_BOOLEAN_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangBoolean();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(BOOLEANVALUE_BOOLEAN_METHOD_NAME);
 			int typeIndex = literalIndex(BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE] = currentIndex++;
+		index = this.wellKnownMethods[BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -854,17 +854,17 @@ public int literalIndexForJavaLangByteByteValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[BYTEVALUE_BYTE_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[BYTEVALUE_BYTE_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangByte();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(BYTEVALUE_BYTE_METHOD_NAME);
 			int typeIndex = literalIndex(BYTEVALUE_BYTE_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[BYTEVALUE_BYTE_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[BYTEVALUE_BYTE_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -887,17 +887,17 @@ public int literalIndexForJavaLangCharacterCharValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[CHARVALUE_CHARACTER_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[CHARVALUE_CHARACTER_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangCharacter();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(CHARVALUE_CHARACTER_METHOD_NAME);
 			int typeIndex = literalIndex(CHARVALUE_CHARACTER_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[CHARVALUE_CHARACTER_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[CHARVALUE_CHARACTER_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -920,17 +920,17 @@ public int literalIndexForJavaLangClassGetDeclaredConstructor() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[GETDECLAREDCONSTRUCTOR_CLASS_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[GETDECLAREDCONSTRUCTOR_CLASS_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangClass();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(GETDECLAREDCONSTRUCTOR_NAME);
 			int typeIndex = literalIndex(GETDECLAREDCONSTRUCTOR_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[GETDECLAREDCONSTRUCTOR_CLASS_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[GETDECLAREDCONSTRUCTOR_CLASS_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -953,17 +953,17 @@ public int literalIndexForJavaLangClassGetDeclaredField() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[GETDECLAREDFIELD_CLASS_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[GETDECLAREDFIELD_CLASS_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangClass();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDFIELD_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDFIELD_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(GETDECLAREDFIELD_NAME);
 			int typeIndex = literalIndex(GETDECLAREDFIELD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDFIELD_CLASS_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDFIELD_CLASS_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[GETDECLAREDFIELD_CLASS_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[GETDECLAREDFIELD_CLASS_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -986,17 +986,17 @@ public int literalIndexForJavaLangClassGetDeclaredMethod() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[GETDECLAREDMETHOD_CLASS_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[GETDECLAREDMETHOD_CLASS_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangClass();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDMETHOD_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDMETHOD_CLASS_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(GETDECLAREDMETHOD_NAME);
 			int typeIndex = literalIndex(GETDECLAREDMETHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[GETDECLAREDMETHOD_CLASS_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[GETDECLAREDMETHOD_CLASS_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[GETDECLAREDMETHOD_CLASS_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[GETDECLAREDMETHOD_CLASS_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1019,17 +1019,17 @@ public int literalIndexForJavaLangDoubleDoubleValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[DOUBLEVALUE_DOUBLE_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[DOUBLEVALUE_DOUBLE_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangDouble();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(DOUBLEVALUE_DOUBLE_METHOD_NAME);
 			int typeIndex = literalIndex(DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[DOUBLEVALUE_DOUBLE_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[DOUBLEVALUE_DOUBLE_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1052,17 +1052,17 @@ public int literalIndexForJavaLangFloatFloatValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[FLOATVALUE_FLOAT_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[FLOATVALUE_FLOAT_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangFloat();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(FLOATVALUE_FLOAT_METHOD_NAME);
 			int typeIndex = literalIndex(FLOATVALUE_FLOAT_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[FLOATVALUE_FLOAT_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[FLOATVALUE_FLOAT_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1085,17 +1085,17 @@ public int literalIndexForJavaLangIntegerIntValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[INTVALUE_INTEGER_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[INTVALUE_INTEGER_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangInteger();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[INTVALUE_INTEGER_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[INTVALUE_INTEGER_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(INTVALUE_INTEGER_METHOD_NAME);
 			int typeIndex = literalIndex(INTVALUE_INTEGER_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[INTVALUE_INTEGER_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[INTVALUE_INTEGER_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[INTVALUE_INTEGER_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[INTVALUE_INTEGER_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1118,17 +1118,17 @@ public int literalIndexForJavaLangLongLongValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[LONGVALUE_LONG_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[LONGVALUE_LONG_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangLong();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[LONGVALUE_LONG_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[LONGVALUE_LONG_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(LONGVALUE_LONG_METHOD_NAME);
 			int typeIndex = literalIndex(LONGVALUE_LONG_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[LONGVALUE_LONG_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[LONGVALUE_LONG_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[LONGVALUE_LONG_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[LONGVALUE_LONG_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1148,11 +1148,11 @@ public int literalIndexForJavaLangLongLongValue() {
  */
 public int literalIndexForJavaLangReflectAccessibleObject() {
 	int index;
-	if ((index = wellKnownTypes[JAVA_LANG_REFLECT_ACCESSIBLEOBJECT_TYPE]) == 0) {
+	if ((index = this.wellKnownTypes[JAVA_LANG_REFLECT_ACCESSIBLEOBJECT_TYPE]) == 0) {
 		int nameIndex;
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(JAVALANGREFLECTACCESSIBLEOBJECT_CONSTANTPOOLNAME);
-		index = wellKnownTypes[JAVA_LANG_REFLECT_ACCESSIBLEOBJECT_TYPE] = currentIndex++;
+		index = this.wellKnownTypes[JAVA_LANG_REFLECT_ACCESSIBLEOBJECT_TYPE] = this.currentIndex++;
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1171,17 +1171,17 @@ public int literalIndexForJavaLangReflectAccessibleObjectSetAccessible() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangReflectAccessibleObject();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(SETACCESSIBLE_NAME);
 			int typeIndex = literalIndex(SETACCESSIBLE_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[SETACCESSIBLE_ACCESSIBLEOBJECT_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1201,11 +1201,11 @@ public int literalIndexForJavaLangReflectAccessibleObjectSetAccessible() {
  */
 public int literalIndexForJavaLangReflectArray() {
 	int index;
-	if ((index = wellKnownTypes[JAVA_LANG_REFLECT_ARRAY_TYPE]) == 0) {
+	if ((index = this.wellKnownTypes[JAVA_LANG_REFLECT_ARRAY_TYPE]) == 0) {
 		int nameIndex;
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(JAVALANGREFLECTARRAY_CONSTANTPOOLNAME);
-		index = wellKnownTypes[JAVA_LANG_REFLECT_ARRAY_TYPE] = currentIndex++;
+		index = this.wellKnownTypes[JAVA_LANG_REFLECT_ARRAY_TYPE] = this.currentIndex++;
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1224,17 +1224,17 @@ public int literalIndexForJavaLangReflectArrayNewInstance() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[NEWINSTANCE_ARRAY_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[NEWINSTANCE_ARRAY_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangReflectArray();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[ARRAY_NEWINSTANCE_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[ARRAY_NEWINSTANCE_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(ARRAY_NEWINSTANCE_NAME);
 			int typeIndex = literalIndex(ARRAY_NEWINSTANCE_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[ARRAY_NEWINSTANCE_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[ARRAY_NEWINSTANCE_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[NEWINSTANCE_ARRAY_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[NEWINSTANCE_ARRAY_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1254,11 +1254,11 @@ public int literalIndexForJavaLangReflectArrayNewInstance() {
  */
 public int literalIndexForJavaLangReflectField() {
 	int index;
-	if ((index = wellKnownTypes[JAVA_LANG_REFLECT_FIELD_TYPE]) == 0) {
+	if ((index = this.wellKnownTypes[JAVA_LANG_REFLECT_FIELD_TYPE]) == 0) {
 		int nameIndex;
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(JAVALANGREFLECTFIELD_CONSTANTPOOLNAME);
-		index = wellKnownTypes[JAVA_LANG_REFLECT_FIELD_TYPE] = currentIndex++;
+		index = this.wellKnownTypes[JAVA_LANG_REFLECT_FIELD_TYPE] = this.currentIndex++;
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1274,11 +1274,11 @@ public int literalIndexForJavaLangReflectField() {
  */
 public int literalIndexForJavaLangReflectMethod() {
 	int index;
-	if ((index = wellKnownTypes[JAVA_LANG_REFLECT_METHOD_TYPE]) == 0) {
+	if ((index = this.wellKnownTypes[JAVA_LANG_REFLECT_METHOD_TYPE]) == 0) {
 		int nameIndex;
 		// The entry doesn't exit yet
 		nameIndex = literalIndex(JAVALANGREFLECTMETHOD_CONSTANTPOOLNAME);
-		index = wellKnownTypes[JAVA_LANG_REFLECT_METHOD_TYPE] = currentIndex++;
+		index = this.wellKnownTypes[JAVA_LANG_REFLECT_METHOD_TYPE] = this.currentIndex++;
 		writeU1(ClassTag);
 		// Then add the 8 bytes representing the long
 		writeU2(nameIndex);
@@ -1297,17 +1297,17 @@ public int literalIndexForJavaLangReflectMethodInvoke() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[INVOKE_METHOD_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[INVOKE_METHOD_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangReflectMethod();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[INVOKE_METHOD_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[INVOKE_METHOD_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(INVOKE_METHOD_METHOD_NAME);
 			int typeIndex = literalIndex(INVOKE_METHOD_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[INVOKE_METHOD_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[INVOKE_METHOD_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[INVOKE_METHOD_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[INVOKE_METHOD_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1330,17 +1330,17 @@ public int literalIndexForJavaLangShortShortValue() {
 	int nameAndTypeIndex;
 	int classIndex;
 	// Looking into the method ref table
-	if ((index = wellKnownMethods[SHORTVALUE_SHORT_METHOD]) == 0) {
+	if ((index = this.wellKnownMethods[SHORTVALUE_SHORT_METHOD]) == 0) {
 		classIndex = literalIndexForJavaLangShort();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE]) == 0) {
+		if ((nameAndTypeIndex = this.wellKnownMethodNameAndTypes[SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE]) == 0) {
 			int nameIndex = literalIndex(SHORTVALUE_SHORT_METHOD_NAME);
 			int typeIndex = literalIndex(SHORTVALUE_SHORT_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE] = currentIndex++;
+			nameAndTypeIndex = this.wellKnownMethodNameAndTypes[SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 			writeU1(NameAndTypeTag);
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[SHORTVALUE_SHORT_METHOD] = currentIndex++;
+		index = this.wellKnownMethods[SHORTVALUE_SHORT_METHOD] = this.currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
@@ -1366,16 +1366,16 @@ public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding ke
 	if ((indexOfWellKnownMethodNameAndType = super.indexOfWellKnownMethodNameAndType(key)) == -1) {
 		if ((indexOfWellKnownMethodNameAndType = indexOfWellKnownMethodNameAndType(key)) == -1) {
 			// check if the entry exists
-			if ((index = nameAndTypeCacheForMethods.get(key)) == -1) {
+			if ((index = this.nameAndTypeCacheForMethods.get(key)) == -1) {
 				// The entry doesn't exit yet
-				index = nameAndTypeCacheForMethods.put(key, currentIndex++);
+				index = this.nameAndTypeCacheForMethods.put(key, this.currentIndex++);
 				writeU1(NameAndTypeTag);
 				writeU2(nameIndex);
 				writeU2(typeIndex);
 			}
 		} else {
-			if ((index = wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType]) == 0) {
-				index = wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType] = currentIndex++;
+			if ((index = this.wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType]) == 0) {
+				index = this.wellKnownMethodNameAndTypes[indexOfWellKnownMethodNameAndType] = this.currentIndex++;
 				writeU1(NameAndTypeTag);
 				writeU2(nameIndex);
 				writeU2(typeIndex);
@@ -1399,20 +1399,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 	int classIndex = 0;
 	switch (typeID) {
 		case T_int :
-			if ((index = wellKnownMethods[GET_INT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_INT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_INT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_INT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_INT_METHOD_NAME);
 					int typeIndex = literalIndex(GET_INT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_INT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_INT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_INT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_INT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1423,20 +1423,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_byte :
-			if ((index = wellKnownMethods[GET_BYTE_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_BYTE_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_BYTE_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_BYTE_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_BYTE_METHOD_NAME);
 					int typeIndex = literalIndex(GET_BYTE_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_BYTE_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_BYTE_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_BYTE_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_BYTE_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1447,20 +1447,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_short :
-			if ((index = wellKnownMethods[GET_SHORT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_SHORT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_SHORT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_SHORT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_SHORT_METHOD_NAME);
 					int typeIndex = literalIndex(GET_SHORT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_SHORT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_SHORT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_SHORT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_SHORT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1471,20 +1471,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_long :
-			if ((index = wellKnownMethods[GET_LONG_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_LONG_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_LONG_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_LONG_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_LONG_METHOD_NAME);
 					int typeIndex = literalIndex(GET_LONG_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_LONG_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_LONG_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_LONG_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_LONG_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1495,20 +1495,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_float :
-			if ((index = wellKnownMethods[GET_FLOAT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_FLOAT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_FLOAT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_FLOAT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_FLOAT_METHOD_NAME);
 					int typeIndex = literalIndex(GET_FLOAT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_FLOAT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_FLOAT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_FLOAT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_FLOAT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1519,21 +1519,21 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_double :
-			if ((index = wellKnownMethods[GET_DOUBLE_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_DOUBLE_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_DOUBLE_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_DOUBLE_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_DOUBLE_METHOD_NAME);
 					int typeIndex = literalIndex(GET_DOUBLE_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_DOUBLE_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_DOUBLE_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_DOUBLE_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_DOUBLE_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1544,20 +1544,20 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_char :
-			if ((index = wellKnownMethods[GET_CHAR_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_CHAR_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_CHAR_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_CHAR_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_CHAR_METHOD_NAME);
 					int typeIndex = literalIndex(GET_CHAR_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_CHAR_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_CHAR_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_CHAR_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_CHAR_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1568,21 +1568,21 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		case T_boolean :
-			if ((index = wellKnownMethods[GET_BOOLEAN_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_BOOLEAN_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_BOOLEAN_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_BOOLEAN_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_BOOLEAN_METHOD_NAME);
 					int typeIndex = literalIndex(GET_BOOLEAN_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_BOOLEAN_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_BOOLEAN_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_BOOLEAN_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_BOOLEAN_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1593,21 +1593,21 @@ public int literalIndexJavaLangReflectFieldGetter(int typeID) {
 			}
 			break;
 		default :
-			if ((index = wellKnownMethods[GET_OBJECT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[GET_OBJECT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[GET_OBJECT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[GET_OBJECT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(GET_OBJECT_METHOD_NAME);
 					int typeIndex = literalIndex(GET_OBJECT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[GET_OBJECT_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[GET_OBJECT_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[GET_OBJECT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[GET_OBJECT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1632,20 +1632,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 	int classIndex = 0;
 	switch (typeID) {
 		case T_int :
-			if ((index = wellKnownMethods[SET_INT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_INT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_INT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_INT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_INT_METHOD_NAME);
 					int typeIndex = literalIndex(SET_INT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_INT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_INT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_INT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_INT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1656,20 +1656,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_byte :
-			if ((index = wellKnownMethods[SET_BYTE_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_BYTE_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_BYTE_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_BYTE_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_BYTE_METHOD_NAME);
 					int typeIndex = literalIndex(SET_BYTE_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_BYTE_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_BYTE_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_BYTE_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_BYTE_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1680,20 +1680,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_short :
-			if ((index = wellKnownMethods[SET_SHORT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_SHORT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_SHORT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_SHORT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_SHORT_METHOD_NAME);
 					int typeIndex = literalIndex(SET_SHORT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_SHORT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_SHORT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_SHORT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_SHORT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1704,20 +1704,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_long :
-			if ((index = wellKnownMethods[SET_LONG_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_LONG_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_LONG_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_LONG_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_LONG_METHOD_NAME);
 					int typeIndex = literalIndex(SET_LONG_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_LONG_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_LONG_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_LONG_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_LONG_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1728,20 +1728,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_float :
-			if ((index = wellKnownMethods[SET_FLOAT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_FLOAT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_FLOAT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_FLOAT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_FLOAT_METHOD_NAME);
 					int typeIndex = literalIndex(SET_FLOAT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_FLOAT_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_FLOAT_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_FLOAT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_FLOAT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1752,21 +1752,21 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_double :
-			if ((index = wellKnownMethods[SET_DOUBLE_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_DOUBLE_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_DOUBLE_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_DOUBLE_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_DOUBLE_METHOD_NAME);
 					int typeIndex = literalIndex(SET_DOUBLE_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_DOUBLE_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_DOUBLE_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_DOUBLE_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_DOUBLE_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1777,20 +1777,20 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_char :
-			if ((index = wellKnownMethods[SET_CHAR_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_CHAR_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_CHAR_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_CHAR_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_CHAR_METHOD_NAME);
 					int typeIndex = literalIndex(SET_CHAR_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_CHAR_METHOD_NAME_AND_TYPE] = currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_CHAR_METHOD_NAME_AND_TYPE] = this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_CHAR_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_CHAR_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1801,21 +1801,21 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		case T_boolean :
-			if ((index = wellKnownMethods[SET_BOOLEAN_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_BOOLEAN_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_BOOLEAN_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_BOOLEAN_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_BOOLEAN_METHOD_NAME);
 					int typeIndex = literalIndex(SET_BOOLEAN_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_BOOLEAN_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_BOOLEAN_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_BOOLEAN_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_BOOLEAN_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);
@@ -1826,21 +1826,21 @@ public int literalIndexJavaLangReflectFieldSetter(int typeID) {
 			}
 			break;
 		default :
-			if ((index = wellKnownMethods[SET_OBJECT_METHOD]) == 0) {
+			if ((index = this.wellKnownMethods[SET_OBJECT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangReflectField();
 				if ((nameAndTypeIndex =
-					wellKnownMethodNameAndTypes[SET_OBJECT_METHOD_NAME_AND_TYPE])
+					this.wellKnownMethodNameAndTypes[SET_OBJECT_METHOD_NAME_AND_TYPE])
 					== 0) {
 					int nameIndex = literalIndex(SET_OBJECT_METHOD_NAME);
 					int typeIndex = literalIndex(SET_OBJECT_METHOD_SIGNATURE);
 					nameAndTypeIndex =
-						wellKnownMethodNameAndTypes[SET_OBJECT_METHOD_NAME_AND_TYPE] =
-							currentIndex++;
+						this.wellKnownMethodNameAndTypes[SET_OBJECT_METHOD_NAME_AND_TYPE] =
+							this.currentIndex++;
 					writeU1(NameAndTypeTag);
 					writeU2(nameIndex);
 					writeU2(typeIndex);
 				}
-				index = wellKnownMethods[SET_OBJECT_METHOD] = currentIndex++;
+				index = this.wellKnownMethods[SET_OBJECT_METHOD] = this.currentIndex++;
 				// Write the method ref constant into the constant pool
 				// First add the tag
 				writeU1(MethodRefTag);

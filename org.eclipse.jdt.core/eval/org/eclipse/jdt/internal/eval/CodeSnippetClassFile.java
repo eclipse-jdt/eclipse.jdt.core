@@ -41,25 +41,25 @@ public CodeSnippetClassFile(
 	 * @param enclosingClassFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 * @param creatingProblemType <CODE>boolean</CODE>
 	 */
-	referenceBinding = aType;
-	header = new byte[INITIAL_HEADER_SIZE];
+	this.referenceBinding = aType;
+	this.header = new byte[INITIAL_HEADER_SIZE];
 	// generate the magic numbers inside the header
-	header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
-	header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
-	header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
-	header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
+	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 24);
+	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 16);
+	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 8);
+	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-	long targetJDK = referenceBinding.scope.environment().options.targetJDK;
+	long targetJDK = this.referenceBinding.scope.environment().options.targetJDK;
 	// TODO[1.5]  until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
 	if (targetJDK == ClassFileConstants.JDK1_5) targetJDK = ClassFileConstants.JDK1_4;
-	header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
-	header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
-	header[headerOffset++] = (byte) (targetJDK >> 24); // major high
-	header[headerOffset++] = (byte) (targetJDK >> 16); // major low
+	this.header[this.headerOffset++] = (byte) (targetJDK >> 8); // minor high
+	this.header[this.headerOffset++] = (byte) (targetJDK >> 0); // minor low
+	this.header[this.headerOffset++] = (byte) (targetJDK >> 24); // major high
+	this.header[this.headerOffset++] = (byte) (targetJDK >> 16); // major low
 
-	constantPoolOffset = headerOffset;
-	headerOffset += 2;
-	constantPool = new CodeSnippetConstantPool(this);
+	this.constantPoolOffset = this.headerOffset;
+	this.headerOffset += 2;
+	this.constantPool = new CodeSnippetConstantPool(this);
 	int accessFlags = aType.getAccessFlags();
 	
 	if (aType.isClass()) {
@@ -84,45 +84,45 @@ public CodeSnippetClassFile(
 	accessFlags &= ~AccStrictfp;
 
 	this.enclosingClassFile = enclosingClassFile;
-	contents = new byte[INITIAL_CONTENTS_SIZE];
+	this.contents = new byte[INITIAL_CONTENTS_SIZE];
 	// now we continue to generate the bytes inside the contents array
-	contents[contentsOffset++] = (byte) (accessFlags >> 8);
-	contents[contentsOffset++] = (byte) accessFlags;
-	int classNameIndex = constantPool.literalIndex(aType);
-	contents[contentsOffset++] = (byte) (classNameIndex >> 8);
-	contents[contentsOffset++] = (byte) classNameIndex;
+	this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
+	this.contents[this.contentsOffset++] = (byte) accessFlags;
+	int classNameIndex = this.constantPool.literalIndex(aType);
+	this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
+	this.contents[this.contentsOffset++] = (byte) classNameIndex;
 	int superclassNameIndex;
 	if (aType.isInterface()) {
-		superclassNameIndex = constantPool.literalIndexForJavaLangObject();
+		superclassNameIndex = this.constantPool.literalIndexForJavaLangObject();
 	} else {
 		superclassNameIndex =
-			(aType.superclass == null ? 0 : constantPool.literalIndex(aType.superclass));
+			(aType.superclass == null ? 0 : this.constantPool.literalIndex(aType.superclass));
 	}
-	contents[contentsOffset++] = (byte) (superclassNameIndex >> 8);
-	contents[contentsOffset++] = (byte) superclassNameIndex;
+	this.contents[this.contentsOffset++] = (byte) (superclassNameIndex >> 8);
+	this.contents[this.contentsOffset++] = (byte) superclassNameIndex;
 	ReferenceBinding[] superInterfacesBinding = aType.superInterfaces();
 	int interfacesCount = superInterfacesBinding.length;
-	contents[contentsOffset++] = (byte) (interfacesCount >> 8);
-	contents[contentsOffset++] = (byte) interfacesCount;
+	this.contents[this.contentsOffset++] = (byte) (interfacesCount >> 8);
+	this.contents[this.contentsOffset++] = (byte) interfacesCount;
 	if (superInterfacesBinding != null) {
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = constantPool.literalIndex(superInterfacesBinding[i]);
-			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
-			contents[contentsOffset++] = (byte) interfaceIndex;
+			int interfaceIndex = this.constantPool.literalIndex(superInterfacesBinding[i]);
+			this.contents[this.contentsOffset++] = (byte) (interfaceIndex >> 8);
+			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}
 	}
-	produceDebugAttributes = referenceBinding.scope.environment().options.produceDebugAttributes;
-	innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
+	this.produceDebugAttributes = this.referenceBinding.scope.environment().options.produceDebugAttributes;
+	this.innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 	this.creatingProblemType = creatingProblemType;
-	codeStream = new CodeSnippetCodeStream(this);
+	this.codeStream = new CodeSnippetCodeStream(this);
 
 	// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 	// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
 	ClassFile outermostClassFile = this.outerMostEnclosingClassFile();
 	if (this == outermostClassFile) {
-		codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
+		this.codeStream.maxFieldCount = aType.scope.referenceType().maxFieldCount;
 	} else {
-		codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
+		this.codeStream.maxFieldCount = outermostClassFile.codeStream.maxFieldCount;
 	}
 }
 /**

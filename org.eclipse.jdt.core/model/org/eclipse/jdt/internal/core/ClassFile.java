@@ -60,7 +60,7 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
  */
 protected ClassFile(PackageFragment parent, String name) {
 	super(parent, name);
-	checkAutomaticSourceMapping = false;
+	this.checkAutomaticSourceMapping = false;
 }
 
 /**
@@ -465,7 +465,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
 		return mapSource(mapper);
-	} else if (!checkAutomaticSourceMapping) {
+	} else if (!this.checkAutomaticSourceMapping) {
 		/*
 		 * We try to see if we can automatically attach a source
 		 * source files located inside the same folder than its .class file
@@ -490,7 +490,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				}
 				if (zipEntry != null) {
 					// found a source file
-					checkAutomaticSourceMapping = true;
+					this.checkAutomaticSourceMapping = true;
 					root.attachSource(root.getPath(), null, null);
 					SourceMapper sourceMapper = getSourceMapper();
 					if (sourceMapper != null) {
@@ -515,7 +515,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension(EXTENSION_java);
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				if (workspace == null) {
-					checkAutomaticSourceMapping = true; // we don't want to check again
+					this.checkAutomaticSourceMapping = true; // we don't want to check again
 					return null; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
 				}
 				if (JavaModel.getTarget(
@@ -525,7 +525,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 							
 					// found a source file
 					 // we don't need to check again. The source will be attached.
-					checkAutomaticSourceMapping = true;
+					this.checkAutomaticSourceMapping = true;
 					root.attachSource(root.getPath(), null, null);
 					SourceMapper sourceMapper = getSourceMapper();
 					if (sourceMapper != null) {
