@@ -274,7 +274,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		for (int i = 0; i < varCount; i++){
 			finallyBlock.statements[i] = new Assignment(
 				new SingleNameReference(CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position),
-				new SingleNameReference(this.evaluationContext.localVariableNames[i], position));
+				new SingleNameReference(this.evaluationContext.localVariableNames[i], position),
+				(int) position);
 		}
 		tryStatement.finallyBlock = finallyBlock;
 

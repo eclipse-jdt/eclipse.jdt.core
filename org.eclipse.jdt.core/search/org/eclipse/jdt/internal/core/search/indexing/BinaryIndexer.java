@@ -433,6 +433,10 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 			name = reader.getInnerSourceName();
 			char[] fullEnclosingName = reader.getEnclosingTypeName();
 			int nameLength = fullEnclosingName.length - packageNameIndex - 1;
+			if (nameLength <= 0) {
+				// See PR 1GIR345: ITPJCORE:ALL - Indexer: NegativeArraySizeException
+				return;
+			}
 			enclosingTypeName = new char[nameLength]; 
 			System.arraycopy(fullEnclosingName, packageNameIndex + 1, enclosingTypeName, 0, nameLength); 
 		}
@@ -440,29 +444,11 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 		if (name == null) return;
 		
 		char[][] superinterfaces = replace('/', '.', reader.getInterfaceNames());
-		if (DEBUG) {
-			if (packageName != null) {
-				System.out.println("package name = " + new String(packageName)); //$NON-NLS-1$
-			}
-			if (name != null) {
-				System.out.println("class name = " + new String(name)); //$NON-NLS-1$
-			}
-			if (superinterfaces != null) {
-				for (int i = 0, max = superinterfaces.length; i < max; i++) {
-					System.out.println("superinterfaces[" + i + "]= " + new String(superinterfaces[i])); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			} 
-		}
 		char[][] enclosingTypeNames = enclosingTypeName == null ? null : new char[][] {enclosingTypeName};
 		if (reader.isInterface()) {
 			addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
 		} else {
 			char[] superclass = replace('/', '.', reader.getSuperclassName());
-			if (DEBUG) {
-				if (superclass != null) {
-					System.out.println("superclass name = " + new String(superclass)); //$NON-NLS-1$
-				}
-			}
 			addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
 		}
 
@@ -475,24 +461,6 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 				char[][] parameterTypes = decodeParameterTypes(descriptor);
 				char[] returnType = decodeReturnType(descriptor);
 				char[][] exceptionTypes = replace('/', '.', method.getExceptionTypeNames());
-				if (DEBUG) {
-					if (method.getSelector() != null) {
-						System.out.println("method selector = " + new String(method.getSelector())); //$NON-NLS-1$
-					}
-					if (parameterTypes != null) {
-						for (int j = 0, max2 = parameterTypes.length; j < max2; j++) {
-							System.out.println("parameterTypes[" + j + "]= " + new String(parameterTypes[j])); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-					}
-					if (returnType != null) {
-						System.out.println("return type = " + new String(returnType)); //$NON-NLS-1$
-					}
-					if (exceptionTypes != null) {
-						for (int j = 0, max2 = exceptionTypes.length; j < max2; j++) {
-							System.out.println("exceptionTypes[" + j + "]= " + new String(exceptionTypes[j])); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-					}
-				}
 				if (method.isConstructor()) {
 					addConstructorDeclaration(className, parameterTypes, exceptionTypes);
 				} else {
@@ -508,14 +476,6 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 				FieldInfo field = fields[i];
 				char[] fieldName = field.getName();
 				char[] fieldType = decodeFieldType(replace('/', '.', field.getTypeName()));
-				if (DEBUG) {
-					if (fieldName != null) {
-						System.out.println("field name = " + new String(fieldName)); //$NON-NLS-1$
-					}
-					if (fieldType != null) {
-						System.out.println("field type = " + new String(fieldType)); //$NON-NLS-1$
-					}
-				}
 				addFieldDeclaration(fieldType, fieldName);
 			}
 		}

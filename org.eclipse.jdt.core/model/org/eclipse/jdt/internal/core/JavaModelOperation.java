@@ -269,8 +269,10 @@ public void executeNestedOperation(JavaModelOperation operation, int subWorkAmou
 		operation.setNested(true);
 		operation.run(subProgressMonitor);
 		//accumulate the nested operation deltas
-		for (int i = 0; i < operation.fDeltas.length; i++) {
-			addDelta(operation.fDeltas[i]);
+		if (operation.fDeltas != null) {
+			for (int i = 0; i < operation.fDeltas.length; i++) {
+				addDelta(operation.fDeltas[i]);
+			}
 		}
 	} catch (CoreException ce) {
 		if (ce instanceof JavaModelException) {

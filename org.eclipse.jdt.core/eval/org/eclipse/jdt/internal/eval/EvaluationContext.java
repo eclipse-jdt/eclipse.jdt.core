@@ -76,7 +76,7 @@ public GlobalVariable[] allVariables() {
  *  @param options com.ibm.compiler.java.api.ConfigurableOptions
  *		set of options used to configure the code assist engine.
  */
-public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, ConfigurableOption[] options) {
+public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, Map options) {
 	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
@@ -157,7 +157,7 @@ public void evaluate(
 	boolean isStatic,
 	boolean isConstructorCall,
 	INameEnvironment environment, 
-	ConfigurableOption[] options, 
+	Map options, 
 	final IRequestor requestor, 
 	IProblemFactory problemFactory) throws InstallException {
 
@@ -234,7 +234,7 @@ public void evaluate(
  * @see org.eclipse.jdt.internal.eval.IEvaluationContext
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
-public void evaluate(char[] codeSnippet, INameEnvironment environment, ConfigurableOption[] options, final IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluate(char[] codeSnippet, INameEnvironment environment, Map options, final IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	this.evaluate(
 		codeSnippet,
 		null,
@@ -294,14 +294,14 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  * @exception java.lang.IllegalArgumentException if the global has not been installed yet.
  */
-public void evaluateVariable(GlobalVariable variable, INameEnvironment environment, ConfigurableOption[] options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluateVariable(GlobalVariable variable, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	this.evaluate(variable.getName(), environment, options, requestor, problemFactory);
 }
 /**
  * @see org.eclipse.jdt.internal.eval.IEvaluationContext
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
-public void evaluateVariables(INameEnvironment environment, ConfigurableOption[] options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluateVariables(INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	this.deployCodeSnippetClassIfNeeded(requestor);
 	VariablesEvaluator evaluator = new VariablesEvaluator(this, environment, options, requestor, problemFactory);
 	ClassFile[] classes = evaluator.getClasses();
@@ -485,7 +485,7 @@ public void select(
 	int selectionSourceEnd,
 	ISearchableNameEnvironment environment, 
 	ISelectionRequestor requestor,
-	ConfigurableOption[] options) {
+	Map options) {
 		
 	final char[] className = "CodeSnippetSelection".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(

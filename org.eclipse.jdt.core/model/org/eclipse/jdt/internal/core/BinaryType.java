@@ -12,7 +12,6 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 
 /**
  * Parent is an IClassFile.

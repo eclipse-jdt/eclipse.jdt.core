@@ -65,7 +65,7 @@ public DocumentElementParser(
 public DocumentElementParser(
 	final IDocumentElementRequestor requestor, 
 	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
+		this(requestor, problemFactory, new CompilerOptions());
 }
 /**
  *

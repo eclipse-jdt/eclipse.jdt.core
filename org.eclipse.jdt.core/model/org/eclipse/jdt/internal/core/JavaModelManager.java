@@ -1,14 +1,14 @@
 package org.eclipse.jdt.internal.core;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
-
+
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.core.*;
@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.builder.IState;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.builder.impl.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
-
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -27,9 +27,9 @@ import org.apache.xerces.dom.*;
 import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-
+
 import org.eclipse.jdt.internal.core.builder.NotPresentException;
-
+
 /**
  * The <code>JavaModelManager</code> manages instances of <code>IJavaModel</code>.
  * <code>IElementChangedListener</code>s register with the <code>JavaModelManager</code>,
@@ -39,48 +39,39 @@ import org.eclipse.jdt.internal.core.builder.NotPresentException;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
-	/**
-	 * JavaCore options (don't use this field to add an new option,
-	 * use JavaModelManager#addOption method.
-	 */
-	public static Hashtable fOptions;
-	/**
-	 * JavaCore options IDs
-	 */
-	private static ArrayList fOptionIDs;
-
+
 	/**
 	 * The singleton manager
 	 */
 	protected static JavaModelManager fgManager= null;
-
+
 	/**
 	 * Active Java Model Info
 	 */
 	protected JavaModelInfo fModelInfo= null;
-
+
 	/**
 	 * Turns delta firing on/off. By default it is on.
 	 */
 	protected boolean fFire= true;
-
+
 	/**
 	 * Queue of deltas created explicily by the Java Model that
 	 * have yet to be fired.
 	 */
 	protected Vector fJavaModelDeltas= new Vector();
-
+
 	/**
 	 * Queue of deltas created as translations of ResourceDeltas that
 	 * have yet to be fired.
 	 */
 	protected Vector fResourceDeltas= new Vector();
-
+
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
 	protected Vector fElementChangedListeners= new Vector();
-
+
 	/**
 	 * Collection of projects that are in the process of being deleted.
 	 * Project reside in this cache from the time the plugin receives
@@ -92,28 +83,28 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * fix for 1FW67PA
 	 */
 	protected Vector fProjectsBeingDeleted= new Vector();
-
+
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
 	protected DeltaProcessor fDeltaProcessor= new DeltaProcessor();
-
+
 	public static boolean ENABLE_INDEXING= true;
 	/**
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
 	 */
 	private static final String WKS_PROP_FILENAME= "workspace.properties"; //$NON-NLS-1$
-
+
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
 	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"; //$NON-NLS-1$
-
+
 	/**
 	 * Table from IProject to PerProjectInfo.
 	 */
 	protected Hashtable perProjectInfo = new Hashtable(5);
-
+
 	static class PerProjectInfo {
 		IProject project;
 		IDevelopmentContext developmentContext = new JavaDevelopmentContextImpl();
@@ -134,7 +125,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		}
 	};
 	public final static boolean VERBOSE = false;
-
+
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
 	 */
@@ -177,7 +168,7 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 public void closeAffectedElements(IResourceDelta delta) {
 	fDeltaProcessor.closeAffectedElements(delta);
 }
-
+
 	/**
 	 * Note that the project is now deleted.
 	 *
@@ -209,10 +200,10 @@ public void doneSaving(ISaveContext context){
 	 * Make sure the resource content is available locally
 	 */
 	public void ensureLocal(IResource resource) throws CoreException {
-
+
 		// need to be tuned once having VCM support
 		// resource.ensureLocal(IResource.DEPTH_ZERO, null);
-
+
 		if (!resource.isLocal(IResource.DEPTH_ZERO) || !resource.exists()) { // project is always local but might not exist
 			throw new CoreException(new JavaModelStatus(IJavaModelStatusConstants.NO_LOCAL_CONTENTS, resource.getFullPath()));
 		}
@@ -325,7 +316,7 @@ public void doneSaving(ISaveContext context){
 		}
 		if (root == null)
 			return null;
-
+
 		int end= memento.indexOf(JavaElement.JEM_COMPILATIONUNIT, rootEnd);
 		if (end == -1) {
 			end= memento.indexOf(JavaElement.JEM_CLASSFILE, rootEnd);
@@ -339,7 +330,7 @@ public void doneSaving(ISaveContext context){
 			//deal with class file and binary members
 			return model.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, end);
 		}
-
+
 		//deal with compilation units and source members
 		return model.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
 	}
@@ -379,7 +370,7 @@ public void doneSaving(ISaveContext context){
 	 * it if it does not yet exist.
 	 */
 	public static JavaModel getJavaModel(IWorkspace workspace) {
-
+
 		JavaModelInfo modelInfo= getJavaModelManager().fModelInfo;
 		if (modelInfo != null) {
 			// if the current java model corresponds to a different workspace,
@@ -399,7 +390,7 @@ public void doneSaving(ISaveContext context){
 			Assert.isTrue(false, Util.bind("element.onlyOneJavaModel")); //$NON-NLS-1$
 			return null;
 		}
-
+
 	}
 	/**
 	 * Returns the singleton JavaModelManager
@@ -470,11 +461,11 @@ public void doneSaving(ISaveContext context){
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
 	}
 	public String getVariablesAsXMLString() throws CoreException {
-
+
 		Document document = new DocumentImpl();
 		Element rootElement = document.createElement("variables"); //$NON-NLS-1$
 		document.appendChild(rootElement);
-
+
 		String[] variables = JavaCore.getClasspathVariableNames();
 		
 		for (int i= 0; i < variables.length; ++i) {
@@ -485,7 +476,7 @@ public void doneSaving(ISaveContext context){
 			varElement.setAttribute("path", varPath.toString());			 //$NON-NLS-1$
 			rootElement.appendChild(varElement);
 		}
-
+
 		// produce a String output
 		StringWriter writer = new StringWriter();
 		try {
@@ -500,41 +491,6 @@ public void doneSaving(ISaveContext context){
 			
 	}
 	
-	public String getOptionsAsXMLString() throws CoreException {
-
-		Document document = new DocumentImpl();
-		Element rootElement = document.createElement("options"); //$NON-NLS-1$
-		document.appendChild(rootElement);
-
-		String[] ids = JavaCore.getOptionIDs();
-		
-		for (int i= 0; i < ids.length; ++i) {
-			ConfigurableOption option = (ConfigurableOption)fOptions.get(ids[i]);
-			
-			Element optionElement= document.createElement("option"); //$NON-NLS-1$
-			optionElement.setAttribute("id", ids[i]); //$NON-NLS-1$
-			if(option.getPossibleValues() == ConfigurableOption.NoDiscreteValue){
-				optionElement.setAttribute("value", option.getValue());	 //$NON-NLS-1$
-			}
-			else{
-				optionElement.setAttribute("index", String.valueOf(option.getValueIndex()));	 //$NON-NLS-1$
-			}
-			rootElement.appendChild(optionElement);
-		}
-
-		// produce a String output
-		StringWriter writer = new StringWriter();
-		try {
-			OutputFormat format = new OutputFormat();
-			format.setIndenting(true);
-			Serializer serializer = SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(writer, format);
-			serializer.asDOMSerializer().serialize(document);
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
-		return writer.toString();	
-			
-	}
 /**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -546,7 +502,7 @@ public void doneSaving(ISaveContext context){
 		if (fModelInfo == null) {
 			return null;
 		}
-
+
 		String fileSystemPath= null;
 		IWorkspaceRoot root = getJavaModel().getWorkspace().getRoot();
 		IResource file = root.findMember(path);
@@ -567,7 +523,7 @@ public void doneSaving(ISaveContext context){
 		} else {
 			fileSystemPath= path.toOSString();
 		}
-
+
 		try {
 			return new ZipFile(fileSystemPath);
 		} catch (IOException e) {
@@ -599,15 +555,6 @@ public void doneSaving(ISaveContext context){
 		}
 	}
 	
-	public void loadOptions() throws CoreException {	
-		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
-								new QualifiedName(JavaCore.PLUGIN_ID, "options")); //$NON-NLS-1$
-		try {
-			if (xmlString != null) readOptions(xmlString);
-		} catch(IOException e){
-			return;
-		}
-	}
 /**
  * Merged all awaiting deltas.
  */
@@ -677,7 +624,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			fModelInfo= (JavaModelInfo) info;
 			return;
 		}
-
+
 		if (elementType <= IJavaElement.CLASS_FILE) {
 			fModelInfo.fLRUCache.put(element, info);
 		} else {
@@ -753,60 +700,11 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 					} catch(RuntimeException e){
 					}
 				}
-
+
 			}
 		}
 	}
 	
-	public void readOptions(String xmlString) throws IOException {
-		if(fOptions == null)
-			JavaCore.resetOptions();
-		
-		StringReader reader = new StringReader(xmlString);
-		Element cpElement;
-		try {
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		} catch(SAXException e) {
-			return;
-		} catch(ParserConfigurationException e){
-			return;
-		} finally {
-			reader.close();
-		}
-		if (cpElement == null) return;
-		if (!cpElement.getNodeName().equalsIgnoreCase("options")) { //$NON-NLS-1$
-			return;
-		}
-		NodeList list= cpElement.getChildNodes();
-		int length= list.getLength();
-		for (int i= 0; i < length; ++i) {
-			Node node= list.item(i);
-			short type= node.getNodeType();
-			if (type == Node.ELEMENT_NODE) {
-				Element element= (Element) node;
-				if (element.getNodeName().equalsIgnoreCase("option")) { //$NON-NLS-1$
-					String id = element.getAttribute("id"); //$NON-NLS-1$
-					ConfigurableOption option = (ConfigurableOption) fOptions.get(id);
-					
-					String[] possible = option.getPossibleValues();
-					if(possible == ConfigurableOption.NoDiscreteValue){
-						String value = element.getAttribute("value"); //$NON-NLS-1$
-						option.setValue(value);
-					}
-					else {
-						try {
-							int valueIndex = Integer.parseInt(element.getAttribute("index")); //$NON-NLS-1$
-							option.setValueIndex(valueIndex);
-						} catch(NumberFormatException e){
-						}
-					}
-					
-				}
-
-			}
-		}
-	}
 	/**
 	 * Registers the given delta with this manager. This API is to be
 	 * used to registerd deltas that are created explicitly by the Java
@@ -860,7 +758,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	 * @see IResource 
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
-
+
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
@@ -910,7 +808,7 @@ public void rollback(ISaveContext context){
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-
+
 		boolean wasFiring = isFiring();
 		try {
 			if (wasFiring) stopDeltas();
@@ -964,7 +862,7 @@ public void rollback(ISaveContext context){
 	 * Saves the built state for the project.
 	 */
 	private void saveState(PerProjectInfo info) throws CoreException {
-
+
 		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
 		long t= System.currentTimeMillis();
 		File file= getSerializationFile(info.project);
@@ -1023,18 +921,12 @@ public void rollback(ISaveContext context){
 			getVariablesAsXMLString());
 	}
 	
-	public void saveOptions() throws CoreException {
-		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
-			new QualifiedName(JavaCore.PLUGIN_ID, "options"),  //$NON-NLS-1$
-			getOptionsAsXMLString());
-	}
 /**
  * @see ISaveParticipant
  */
 public void saving(ISaveContext context) throws CoreException {
-
+
 	this.saveVariables();
-	this.saveOptions();
 	
 	if (context.getKind() == ISaveContext.FULL_SAVE){
 		this.saveBuildState();	// build state
@@ -1045,17 +937,16 @@ public void saving(ISaveContext context) throws CoreException {
 	 * on the projects classpath settings.
 	 */
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
-
-		// optional behaviour
+		// optional behaviour
 		// possible value of index 0 is Compute
-		if (!JavaCore.getOptionPossibleValues(JavaCore.OPTION_ComputeBuildOrder)[0].equals(JavaCore.getOptionValue(JavaCore.OPTION_ComputeBuildOrder))) return;
+		if (!"compute".equals(JavaCore.getOptions().get("org.eclipse.jdt.core.computeJavaBuildOrder"))) return;
 		
 		if (javaBuildOrder == null || javaBuildOrder.length <= 1) return;
 		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription description = workspace.getDescription();
 		String[] wksBuildOrder = description.getBuildOrder();
-
+
 		String[] newOrder;
 		if (wksBuildOrder == null){
 			newOrder = javaBuildOrder;
@@ -1077,7 +968,7 @@ public void saving(ISaveContext context) throws CoreException {
 			// add Java ones first
 			newOrder = new String[oldCount - removed + javaCount];
 			System.arraycopy(javaBuildOrder, 0, newOrder, 0, javaCount); // java projects are built first
-
+
 			// copy previous items in their respective order
 			int index = javaCount;
 			for (int i = 0; i < oldCount; i++){
@@ -1130,37 +1021,4 @@ public void saving(ISaveContext context) throws CoreException {
 		fFire= false;
 	}
 	
-	/**
- 	* Answers a copy of the current set of options supported by the Java core.
- 	* These options allow to configure the behavior of the underlying components.
- 	*
- 	* Changes on the set of options are not committed until invoking <code>JavaCore.setOptionValue</code>
- 	*/
-	public static ConfigurableOption[] getOptions(){
-		if(fOptions == null)
-			JavaCore.resetOptions();
-		
-		return (ConfigurableOption[])fOptions.values().toArray(new ConfigurableOption[0]);
-	}
-	
-	/**
-	 * Answers a set of option'IDs which are in option set of JavaCore
-	 */
-	public static String[] getOptionIDs(){
-		if(fOptionIDs == null)
-			JavaCore.resetOptions();
-			
-		return (String [])fOptionIDs.toArray(new String[0]);
-	}
-	
-	public static void initializeOptions(){
-		fOptions = new Hashtable(10);
-		fOptionIDs = new ArrayList(10);
-	}
-	
-	public static void addOption(ConfigurableOption option){
-		String id = option.getID();
-		fOptions.put(id,option);
-		fOptionIDs.add(id);
-	}
 }

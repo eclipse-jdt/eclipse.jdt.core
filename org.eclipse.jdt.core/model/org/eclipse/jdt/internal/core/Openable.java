@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 
@@ -104,7 +103,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
 	environment.unitToSkip = unitToSkip;
 
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor), JavaModelManager.getOptions());
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor), JavaCore.getOptions());
 	engine.complete(cu, position);
 	environment.unitToSkip = null;
 }
@@ -135,7 +134,7 @@ protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 	ISearchableNameEnvironment environment = ((JavaProject)getJavaProject()).getSearchableNameEnvironment();
 	
 	// fix for 1FVXGDK
-	SelectionEngine engine = new SelectionEngine(environment, requestor, JavaModelManager.getOptions());
+	SelectionEngine engine = new SelectionEngine(environment, requestor, JavaCore.getOptions());
 	engine.select(cu, offset, offset + length - 1);
 }
 /**

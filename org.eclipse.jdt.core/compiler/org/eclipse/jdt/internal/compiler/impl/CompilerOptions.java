@@ -1,38 +1,54 @@
 package org.eclipse.jdt.internal.compiler.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-
+
 public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, ProblemReasons, ProblemSeverities {
 	
 	/**
 	 * Option IDs
 	 */
-	public static final String OPTION_LocalVariableAttribute = Compiler.class.getName() + ".localVariableAttribute"; //$NON-NLS-1$
-	public static final String OPTION_LineNumberAttribute = Compiler.class.getName() + ".lineNumberAttribute"; //$NON-NLS-1$
-	public static final String OPTION_SourceFileAttribute = Compiler.class.getName() + ".sourceFileAttribute"; //$NON-NLS-1$
-	public static final String OPTION_PreserveUnusedLocal = Compiler.class.getName() + ".preserveUnusedLocal"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnreachableCode = Compiler.class.getName() + ".reportUnreachableCode"; //$NON-NLS-1$
-	public static final String OPTION_ReportInvalidImport = Compiler.class.getName() + ".reportInvalidImport"; //$NON-NLS-1$
-	public static final String OPTION_ReportMethodWithConstructorName = Compiler.class.getName() + ".reportMethodWithConstructorName"; //$NON-NLS-1$
-	public static final String OPTION_ReportOverridingPackageDefaultMethod = Compiler.class.getName() + ".reportOverridingPackageDefaultMethod"; //$NON-NLS-1$
-	public static final String OPTION_ReportDeprecation = Compiler.class.getName() + ".reportDeprecation"; //$NON-NLS-1$
-	public static final String OPTION_ReportHiddenCatchBlock = Compiler.class.getName() + ".reportHiddenCatchBlock"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnusedLocal = Compiler.class.getName() + ".reportUnusedLocal"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnusedParameter = Compiler.class.getName() + ".reportUnusedParameter"; //$NON-NLS-1$
-	public static final String OPTION_ReportSyntheticAccessEmulation = Compiler.class.getName() + ".reportSyntheticAccessEmulation"; //$NON-NLS-1$
-	public static final String OPTION_ReportNonExternalizedStringLiteral = Compiler.class.getName() + ".reportNonExternalizedStringLiteral"; //$NON-NLS-1$
-	public static final String OPTION_Source = Compiler.class.getName() + ".source"; //$NON-NLS-1$
-	public static final String OPTION_TargetPlatform = Compiler.class.getName() + ".targetPlatform"; //$NON-NLS-1$
-	public static final String OPTION_ReportAssertIdentifier = Compiler.class.getName() + ".reportAssertIdentifier"; //$NON-NLS-1$
-
+	public static final String OPTION_LocalVariableAttribute = "org.eclipse.jdt.core.compiler.debug.localVariable"; //$NON-NLS-1$
+	public static final String OPTION_LineNumberAttribute = "org.eclipse.jdt.core.compiler.debug.lineNumber"; //$NON-NLS-1$
+	public static final String OPTION_SourceFileAttribute = "org.eclipse.jdt.core.compiler.debug.sourceFile"; //$NON-NLS-1$
+	public static final String OPTION_PreserveUnusedLocal = "org.eclipse.jdt.core.compiler.codegen.unusedLocal"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnreachableCode = "org.eclipse.jdt.core.compiler.problem.unreachableCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidImport = "org.eclipse.jdt.core.compiler.problem.invalidImport"; //$NON-NLS-1$
+	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
+	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
+	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
+	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
+	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
+	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
+	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
+	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
+	/**
+	 * Possible values for configurable options
+	 */
+	public static final String GENERATE = "generate";//$NON-NLS-1$
+	public static final String DO_NOT_GENERATE = "do not generate"; //$NON-NLS-1$
+	public static final String PRESERVE = "preserve"; //$NON-NLS-1$
+	public static final String OPTIMIZE_OUT = "optimize out"; //$NON-NLS-1$
+	public static final String VERSION_1_1 = "1.1"; //$NON-NLS-1$
+	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
+	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
+	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
+	public static final String ERROR = "error"; //$NON-NLS-1$
+	public static final String WARNING = "warning"; //$NON-NLS-1$
+	public static final String IGNORE = "ignore"; //$NON-NLS-1$
+	
 	// class file output
 	// these are the bits used to buld a mask to know which debug 
 	// attributes should be included in the .class file
@@ -40,9 +56,9 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public static final int Source = 1; // SourceFileAttribute
 	public static final int Lines = 2; // LineNumberAttribute
 	public static final int Vars = 4; // LocalVariableTableAttribute
-
+
 	public int produceDebugAttributes = Lines | Source;
-
+
 	// default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
 	public int warningThreshold = 
@@ -50,12 +66,15 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 		UsingDeprecatedAPI | MaskedCatchBlock |
 		UnusedLocalVariable | AssertUsedAsAnIdentifier |
 		TemporaryWarning;
-
-	// target JDK 1.1 or 1.2
+
+	// target JDK 1.1, 1.2, 1.3 or 1.4
 	public static final int JDK1_1 = 0;
 	public static final int JDK1_2 = 1;
+	public static final int JDK1_3 = 2;
+	public static final int JDK1_4 = 3;
+	
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
-
+
 	// 1.4 feature
 	public boolean assertMode = false; //1.3 behavior by default
 	
@@ -67,11 +86,10 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public boolean preserveAllLocalVariables = false;
 	// indicates whether literal expressions are inlined at parse-time or not
 	public boolean parseLiteralExpressionsAsConstants = true;
-
+
 	// exception raised for unresolved compile errors
 	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
-
-	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
+	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 /** 
  * Initializing the compiler options with defaults
@@ -81,14 +99,229 @@ public CompilerOptions(){
 /** 
  * Initializing the compiler options with external settings
  */
-public CompilerOptions(ConfigurableOption[] settings){
+public CompilerOptions(Map settings){
 	if (settings == null) return;
 	
 	// filter options which are related to the compiler component
-	String componentName = Compiler.class.getName();
-	for (int i = 0, max = settings.length; i < max; i++){
-		if (settings[i].getComponentName().equals(componentName)){
-			this.setOption(settings[i]);
+	Object[] entries = settings.entrySet().toArray();
+	for (int i = 0, max = entries.length; i < max; i++){
+		Map.Entry entry = (Map.Entry)entries[i];
+		if (!(entry.getKey() instanceof String)) continue;
+		if (!(entry.getValue() instanceof String)) continue;
+		String optionID = (String) entry.getKey();
+		String optionValue = (String) entry.getValue();
+		
+		// Local variable attribute
+		if(optionID.equals(OPTION_LocalVariableAttribute)){
+			if (optionValue.equals(GENERATE)) {
+				this.produceDebugAttributes |= Vars;
+			} else if (optionValue.equals(DO_NOT_GENERATE)){
+				this.produceDebugAttributes &= ~Vars;
+			}
+			continue;
+		}  
+		// Line number attribute	
+		if(optionID.equals(OPTION_LineNumberAttribute)) {
+			if (optionValue.equals(GENERATE)) {
+				this.produceDebugAttributes |= Lines;
+			} else if (optionValue.equals(DO_NOT_GENERATE)) {
+				this.produceDebugAttributes &= ~Lines;
+			}
+			continue;
+		} 
+		// Source file attribute	
+		if(optionID.equals(OPTION_SourceFileAttribute)) {
+			if (optionValue.equals(GENERATE)) {
+				this.produceDebugAttributes |= Source;
+			} else if (optionValue.equals(DO_NOT_GENERATE)) {
+				this.produceDebugAttributes &= ~Source;
+			}
+			continue;
+		} 
+		// Preserve unused local	
+		if(optionID.equals(OPTION_PreserveUnusedLocal)){
+			if (optionValue.equals(PRESERVE)) {
+				this.preserveAllLocalVariables = true;
+			} else if (optionValue.equals(OPTIMIZE_OUT)) {
+				this.preserveAllLocalVariables = false;
+			}
+			continue;
+		} 
+		// Report unreachable code				
+		if(optionID.equals(OPTION_ReportUnreachableCode)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= UnreachableCode;
+				this.warningThreshold &= ~UnreachableCode;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~UnreachableCode;
+				this.warningThreshold |= UnreachableCode;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~UnreachableCode;
+				this.warningThreshold &= ~UnreachableCode;
+			}
+			continue;
+		} 
+		// Report invalid import	
+		if(optionID.equals(OPTION_ReportInvalidImport)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= ImportProblem;
+				this.warningThreshold &= ~ImportProblem;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~ImportProblem;
+				this.warningThreshold |= ImportProblem;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~ImportProblem;
+				this.warningThreshold &= ~ImportProblem;
+			}
+			continue;
+		} 
+		// Define the target JDK tag for .classfiles
+		if(optionID.equals(OPTION_TargetPlatform)){
+			if (optionValue.equals(VERSION_1_1)) {
+				this.targetJDK = JDK1_1;
+			} else if (optionValue.equals(VERSION_1_2)) {
+				this.targetJDK = JDK1_2;
+			} else if (optionValue.equals(VERSION_1_3)) {
+				this.targetJDK = JDK1_3;
+			} else if (optionValue.equals(VERSION_1_4)) {
+				this.targetJDK = JDK1_4;
+			}
+			continue;
+		} 
+		// Report method with constructor name
+		if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= MethodWithConstructorName;
+				this.warningThreshold &= ~MethodWithConstructorName;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~MethodWithConstructorName;
+				this.warningThreshold |= MethodWithConstructorName;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~MethodWithConstructorName;
+				this.warningThreshold &= ~MethodWithConstructorName;
+			}
+			continue;
+		} 
+		// Report overriding package default method
+		if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= OverriddenPackageDefaultMethod;
+				this.warningThreshold &= ~OverriddenPackageDefaultMethod;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~OverriddenPackageDefaultMethod;
+				this.warningThreshold |= OverriddenPackageDefaultMethod;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~OverriddenPackageDefaultMethod;
+				this.warningThreshold &= ~OverriddenPackageDefaultMethod;
+			}
+			continue;
+		} 
+		// Report deprecation
+		if(optionID.equals(OPTION_ReportDeprecation)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= UsingDeprecatedAPI;
+				this.warningThreshold &= ~UsingDeprecatedAPI;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~UsingDeprecatedAPI;
+				this.warningThreshold |= UsingDeprecatedAPI;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~UsingDeprecatedAPI;
+				this.warningThreshold &= ~UsingDeprecatedAPI;
+			}
+			continue;
+		} 
+		// Report hidden catch block
+		if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= MaskedCatchBlock;
+				this.warningThreshold &= ~MaskedCatchBlock;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~MaskedCatchBlock;
+				this.warningThreshold |= MaskedCatchBlock;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~MaskedCatchBlock;
+				this.warningThreshold &= ~MaskedCatchBlock;
+			}
+			continue;
+		} 
+		// Report unused local variable
+		if(optionID.equals(OPTION_ReportUnusedLocal)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= UnusedLocalVariable;
+				this.warningThreshold &= ~UnusedLocalVariable;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~UnusedLocalVariable;
+				this.warningThreshold |= UnusedLocalVariable;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~UnusedLocalVariable;
+				this.warningThreshold &= ~UnusedLocalVariable;
+			}
+			continue;
+		} 
+		// Report unused parameter
+		if(optionID.equals(OPTION_ReportUnusedParameter)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= UnusedArgument;
+				this.warningThreshold &= ~UnusedArgument;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~UnusedArgument;
+				this.warningThreshold |= UnusedArgument;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~UnusedArgument;
+				this.warningThreshold &= ~UnusedArgument;
+			}
+			continue;
+		} 
+		// Report synthetic access emulation
+		if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= AccessEmulation;
+				this.warningThreshold &= ~AccessEmulation;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~AccessEmulation;
+				this.warningThreshold |= AccessEmulation;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~AccessEmulation;
+				this.warningThreshold &= ~AccessEmulation;
+			}
+			continue;
+		}
+		// Report non-externalized string literals
+		if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= NonExternalizedString;
+				this.warningThreshold &= ~NonExternalizedString;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~NonExternalizedString;
+				this.warningThreshold |= NonExternalizedString;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~NonExternalizedString;
+				this.warningThreshold &= ~NonExternalizedString;
+			}
+			continue;
+	}
+		// Report usage of 'assert' as an identifier
+		if(optionID.equals(OPTION_ReportAssertIdentifier)){
+			if (optionValue.equals(ERROR)) {
+				this.errorThreshold |= AssertUsedAsAnIdentifier;
+				this.warningThreshold &= ~AssertUsedAsAnIdentifier;
+			} else if (optionValue.equals(WARNING)) {
+				this.errorThreshold &= ~AssertUsedAsAnIdentifier;
+				this.warningThreshold |= AssertUsedAsAnIdentifier;
+			} else if (optionValue.equals(IGNORE)) {
+				this.errorThreshold &= ~AssertUsedAsAnIdentifier;
+				this.warningThreshold &= ~AssertUsedAsAnIdentifier;
+			}
+			continue;
+		}
+		// Set the source compatibility mode (assertions)
+		if(optionID.equals(OPTION_Source)){
+			if (optionValue.equals(VERSION_1_3)) {
+				this.assertMode = false;
+			} else if (optionValue.equals(VERSION_1_4)) {
+				this.assertMode = true;
+			}
+			continue;
 		}
 	}
 }
@@ -101,139 +334,6 @@ public int getTargetJDK() {
 }
 public boolean getAssertMode() {
 	return this.assertMode;
-}
-public void setAccessEmulationSeverity(int flag) {
-	errorThreshold &= ~AccessEmulation;
-	warningThreshold &= ~AccessEmulation;
-	switch(flag){
-		case Error : 
-			errorThreshold |= AccessEmulation;
-			break;
-		case Warning : 
-			warningThreshold |= AccessEmulation;
-			break;
-	}
-}
-public void setDeprecationUseSeverity(int flag) {
-	errorThreshold &= ~UsingDeprecatedAPI;
-	warningThreshold &= ~UsingDeprecatedAPI;
-	switch(flag){
-		case Error : 
-			errorThreshold |= UsingDeprecatedAPI;
-			break;
-		case Warning : 
-			warningThreshold |= UsingDeprecatedAPI;
-			break;
-	}
-}
-public void setImportProblemSeverity(int flag) {
-	errorThreshold &= ~ImportProblem;
-	warningThreshold &= ~ImportProblem;
-	switch(flag){
-		case Error : 
-			errorThreshold |= ImportProblem;
-			break;
-		case Warning : 
-			warningThreshold |= ImportProblem;
-			break;
-	}
-}
-public void setMaskedCatchBlockSeverity(int flag) {
-	errorThreshold &= ~MaskedCatchBlock;
-	warningThreshold &= ~MaskedCatchBlock;
-	switch(flag){
-		case Error : 
-			errorThreshold |= MaskedCatchBlock;
-			break;
-		case Warning : 
-			warningThreshold |= MaskedCatchBlock;
-			break;
-	}
-}
-public void setMethodWithConstructorNameSeverity(int flag) {
-	errorThreshold &= ~MethodWithConstructorName;
-	warningThreshold &= ~MethodWithConstructorName;
-	switch(flag){
-		case Error : 
-			errorThreshold |= MethodWithConstructorName;
-			break;
-		case Warning : 
-			warningThreshold |= MethodWithConstructorName;
-			break;
-	}
-}
-
-public void setOverriddenPackageDefaultMethodSeverity(int flag) {
-	errorThreshold &= ~OverriddenPackageDefaultMethod;
-	warningThreshold &= ~OverriddenPackageDefaultMethod;
-	switch(flag){
-		case Error : 
-			errorThreshold |= OverriddenPackageDefaultMethod;
-			break;
-		case Warning : 
-			warningThreshold |= OverriddenPackageDefaultMethod;
-			break;
-	}
-}
-public void setUnreachableCodeSeverity(int flag) {
-	errorThreshold &= ~UnreachableCode;
-	warningThreshold &= ~UnreachableCode;
-	switch(flag){
-		case Error : 
-			errorThreshold |= UnreachableCode;
-			break;
-		case Warning : 
-			warningThreshold |= UnreachableCode;
-			break;
-	}	
-}
-public void setUnusedArgumentSeverity(int flag) {
-	errorThreshold &= ~UnusedArgument;
-	warningThreshold &= ~UnusedArgument;
-	switch(flag){
-		case Error : 
-			errorThreshold |= UnusedArgument;
-			break;
-		case Warning : 
-			warningThreshold |= UnusedArgument;
-			break;
-	}
-}
-public void setUnusedLocalVariableSeverity(int flag) {
-	errorThreshold &= ~UnusedLocalVariable;
-	warningThreshold &= ~UnusedLocalVariable;
-	switch(flag){
-		case Error : 
-			errorThreshold |= UnusedLocalVariable;
-			break;
-		case Warning : 
-			warningThreshold |= UnusedLocalVariable;
-			break;
-	}
-}
-public void setNonExternalizedStringLiteralSeverity(int flag) {
-	errorThreshold &= ~NonExternalizedString;
-	warningThreshold &= ~NonExternalizedString;
-	switch(flag){
-		case Error : 
-			errorThreshold |= NonExternalizedString;
-			break;
-		case Warning : 
-			warningThreshold |= NonExternalizedString;
-			break;
-	}	
-}
-public void setAssertIdentifierSeverity(int flag) {
-	errorThreshold &= ~AssertUsedAsAnIdentifier;
-	warningThreshold &= ~AssertUsedAsAnIdentifier;
-	switch(flag){
-		case Error : 
-			errorThreshold |= AssertUsedAsAnIdentifier;
-			break;
-		case Warning : 
-			warningThreshold |= AssertUsedAsAnIdentifier;
-			break;
-	}	
 }
 public int getAccessEmulationSeverity() {
 	if((warningThreshold & AccessEmulation) != 0)
@@ -270,7 +370,7 @@ public int getMethodWithConstructorNameSeverity() {
 		return Error;
 	return Ignore;
 }
-
+
 public int getOverriddenPackageDefaultMethodSeverity() {
 	if((warningThreshold & OverriddenPackageDefaultMethod) != 0)
 		return Warning;
@@ -319,9 +419,6 @@ public int getAssertIdentifierSeverity() {
 		return Error;
 	return Ignore;
 }
-public void preserveAllLocalVariables(boolean flag) {
-	this.preserveAllLocalVariables = flag;
-}
 public void privateConstructorAccessChangesVisibility(boolean flag) {
 	isPrivateConstructorAccessChangingVisibility = flag;
 }
@@ -331,193 +428,12 @@ public void produceDebugAttributes(int mask) {
 public void produceReferenceInfo(boolean flag) {
 	this.produceReferenceInfo = flag;
 }
-public void setErrorThreshold(int errorMask) {
-	this.errorThreshold = errorMask;
-}
-/**
- * Change the value of the option corresponding to the option ID
- */
-void setOption(ConfigurableOption setting) {
-	String componentName = Compiler.class.getName();
-	
-	String optionID = setting.getID();
-	
-	if(optionID.equals(OPTION_LocalVariableAttribute)){
-		if (setting.getValueIndex() == 0) {
-			// set the debug flag with Vars.
-			produceDebugAttributes |= Vars;
-		} else {
-			produceDebugAttributes &= ~Vars;
-		}
-	} else if(optionID.equals(OPTION_LineNumberAttribute)) {
-		if (setting.getValueIndex() == 0) {
-			// set the debug flag with Lines
-			produceDebugAttributes |= Lines;
-		} else {
-			produceDebugAttributes &= ~Lines;
-		}
-	}else if(optionID.equals(OPTION_SourceFileAttribute)) {
-		if (setting.getValueIndex() == 0) {
-			// set the debug flag with Source.
-			produceDebugAttributes |= Source;
-		} else {
-			produceDebugAttributes &= ~Source;
-		}
-	}else if(optionID.equals(OPTION_PreserveUnusedLocal)){
-		preserveAllLocalVariables(setting.getValueIndex() == 0);
-	}else if(optionID.equals(OPTION_ReportUnreachableCode)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setUnreachableCodeSeverity(Error);
-				break;
-			case 1 :
-				setUnreachableCodeSeverity(Warning);
-				break;
-			case 2 : 
-				setUnreachableCodeSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportInvalidImport)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setImportProblemSeverity(Error);
-				break;
-			case 1 :
-				setImportProblemSeverity(Warning);
-				break;
-			case 2 :
-				setImportProblemSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_TargetPlatform)){
-		setTargetJDK(setting.getValueIndex() == 0 ? JDK1_1 : JDK1_2);
-	}else if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setMethodWithConstructorNameSeverity(Error);
-				break;
-			case 1 :
-				setMethodWithConstructorNameSeverity(Warning);
-				break;
-			case 2 :
-				setMethodWithConstructorNameSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setOverriddenPackageDefaultMethodSeverity(Error);
-				break;
-			case 1 :
-				setOverriddenPackageDefaultMethodSeverity(Warning);
-				break;
-			case 2 :
-				setOverriddenPackageDefaultMethodSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportDeprecation)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setDeprecationUseSeverity(Error);
-				break;
-			case 1 :
-				setDeprecationUseSeverity(Warning);
-				break;
-			case 2 :
-				setDeprecationUseSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setMaskedCatchBlockSeverity(Error);
-				break;
-			case 1 :
-				setMaskedCatchBlockSeverity(Warning);
-				break;
-			case 2 :
-				setMaskedCatchBlockSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportUnusedLocal)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setUnusedLocalVariableSeverity(Error);
-				break;
-			case 1 :
-				setUnusedLocalVariableSeverity(Warning);
-				break;
-			case 2 :
-				setUnusedLocalVariableSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportUnusedParameter)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setUnusedArgumentSeverity(Error);
-				break;
-			case 1 :
-				setUnusedArgumentSeverity(Warning);
-				break;
-			case 2 :
-				setUnusedArgumentSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setAccessEmulationSeverity(Error);
-				break;
-			case 1 :
-				setAccessEmulationSeverity(Warning);
-				break;
-			case 2 :
-				setAccessEmulationSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setNonExternalizedStringLiteralSeverity(Error);
-				break;
-			case 1 :
-				setNonExternalizedStringLiteralSeverity(Warning);
-				break;
-			case 2 :
-				setNonExternalizedStringLiteralSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_ReportAssertIdentifier)){
-		switch(setting.getValueIndex()){
-			case 0 : 
-				setAssertIdentifierSeverity(Error);
-				break;
-			case 1 :
-				setAssertIdentifierSeverity(Warning);
-				break;
-			case 2 :
-				setAssertIdentifierSeverity(Ignore);
-				break;
-		}
-	}else if(optionID.equals(OPTION_Source)){
-		setAssertMode(setting.getValueIndex() == 1);
-	}
-}
-
-public void setTargetJDK(int vmID) {
-	this.targetJDK = vmID;
-}
 public void setVerboseMode(boolean flag) {
 	this.verbose = flag;
 }
-public void setAssertMode(boolean assertMode) {
-	this.assertMode = assertMode;
-}
-public void setWarningThreshold(int warningMask) {
-	this.warningThreshold = warningMask;
-}
+
 public String toString() {
-
+
 	StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
 	if ((produceDebugAttributes & Vars) != 0){
 		buf.append("\n-local variables debug attributes: ON"); //$NON-NLS-1$
