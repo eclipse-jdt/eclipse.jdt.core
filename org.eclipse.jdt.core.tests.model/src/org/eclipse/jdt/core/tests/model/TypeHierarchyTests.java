@@ -198,7 +198,7 @@ public void testMissingInterface() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p4", "X.java").getType("X");
 	ITypeHierarchy hierarchy = null;
 	try {
-		hierarchy = type.newSupertypeHierarchy(null);
+		hierarchy = type.newTypeHierarchy(null);
 	} catch (IllegalArgumentException iae) {
 		assertTrue("IllegalArgumentException", false);
 	}

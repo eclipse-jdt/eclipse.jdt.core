@@ -1260,6 +1260,9 @@ public String toString() {
 				IType type = roots[i];
 				toString(buffer, type, 1, false);
 			}
+		} else if (this.rootClasses.size == 0) {
+			// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24691
+			buffer.append("No root classes"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("(Hierarchy became stale)"); //$NON-NLS-1$
