@@ -87,11 +87,11 @@ private IResource[] collectResourcesOfInterest(IPackageFragment source) throws J
 	if (source.getKind() == IPackageFragmentRoot.K_BINARY) {
 		childOfInterest = IJavaElement.CLASS_FILE;
 	}
-	Vector correctKindChildren = new Vector(children.length);
+	ArrayList correctKindChildren = new ArrayList(children.length);
 	for (int i = 0; i < children.length; i++) {
 		IJavaElement child = children[i];
 		if (child.getElementType() == childOfInterest) {
-			correctKindChildren.addElement(child.getUnderlyingResource());
+			correctKindChildren.add(child.getUnderlyingResource());
 		}
 	}
 	// Gather non-java resources
@@ -108,12 +108,12 @@ private IResource[] collectResourcesOfInterest(IPackageFragment source) throws J
 	if (actualNonJavaResourceCount != 0) {
 		int correctKindChildrenSize = correctKindChildren.size();
 		IResource[] result = new IResource[correctKindChildrenSize + actualNonJavaResourceCount];
-		correctKindChildren.copyInto(result);
+		correctKindChildren.toArray(result);
 		System.arraycopy(actualNonJavaResources, 0, result, correctKindChildrenSize, actualNonJavaResourceCount);
 		return result;
 	} else {
 		IResource[] result = new IResource[correctKindChildren.size()];
-		correctKindChildren.copyInto(result);
+		correctKindChildren.toArray(result);
 		return result;
 	}
 }

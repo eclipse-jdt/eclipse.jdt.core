@@ -7,7 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 /**
@@ -20,7 +20,7 @@ class JarPackageFragmentInfo extends PackageFragmentInfo {
 	 * The names of the zip entries that are the class files associated
 	 * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
 	 */
-	protected Vector fEntryNames= new Vector();
+	protected ArrayList fEntryNames= new ArrayList();
 /**
  */
 boolean containsJavaResources() {
@@ -36,7 +36,7 @@ Object[] getNonJavaResources() {
  * Set the names of the zip entries that are the types associated
  * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
  */
-protected void setEntryNames(Vector entries) {
+protected void setEntryNames(ArrayList entries) {
 	fEntryNames = entries;
 }
 }

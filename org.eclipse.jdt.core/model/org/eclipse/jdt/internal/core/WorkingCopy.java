@@ -4,14 +4,13 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.core.*;
-
-import java.util.Vector;
 
 /**
  * Implementation of a working copy compilation unit. A working
@@ -80,14 +79,14 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 		return null;
 	}
 	IJavaElement parent = workingCopyElement.getParent();
-	Vector hierarchy = new Vector(4);
+	ArrayList hierarchy = new ArrayList(4);
 	
 	while (parent.getElementType() > COMPILATION_UNIT) {
-		hierarchy.addElement(parent);
+		hierarchy.add(parent);
 		parent = parent.getParent();
 	}
 	if (parent.getElementType() == COMPILATION_UNIT) {
-		hierarchy.addElement(((ICompilationUnit)parent).getOriginalElement());
+		hierarchy.add(((ICompilationUnit)parent).getOriginalElement());
 	}
 	
 	ICompilationUnit cu = (ICompilationUnit) getOriginalElement();
@@ -112,7 +111,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 		case METHOD :
 			IType type;
 			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.elementAt(0)).getElementName();
+				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
 				type = cu.getType(typeName);
 			} else {
 				//inner type
@@ -121,7 +120,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 			return type.getMethod(workingCopyElement.getElementName(), ((IMethod) workingCopyElement).getParameterTypes());
 		case FIELD :
 			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.elementAt(0)).getElementName();
+				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
 				type = cu.getType(typeName);
 			} else {
 				//inner type
@@ -130,7 +129,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 			return type.getField(workingCopyElement.getElementName());
 		case INITIALIZER :
 			if (hierarchy.size() == 2) {
-				String typeName = ((IJavaElement) hierarchy.elementAt(0)).getElementName();
+				String typeName = ((IJavaElement) hierarchy.get(0)).getElementName();
 				type = cu.getType(typeName);
 			} else {
 				//inner type
@@ -149,14 +148,14 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 public IJavaElement getOriginalElement() {
 	return new CompilationUnit((IPackageFragment)getParent(), getElementName());
 }
-protected IType getOriginalType(Vector hierarchy) {
+protected IType getOriginalType(ArrayList hierarchy) {
 	int size = hierarchy.size() - 1;
-	ICompilationUnit typeCU = (ICompilationUnit) hierarchy.elementAt(size);
-	String typeName = ((IJavaElement) hierarchy.elementAt(size - 1)).getElementName();
+	ICompilationUnit typeCU = (ICompilationUnit) hierarchy.get(size);
+	String typeName = ((IJavaElement) hierarchy.get(size - 1)).getElementName();
 	IType type = typeCU.getType(typeName);
 	size= size - 2;
 	while (size > -1) {
-		typeName = ((IJavaElement) hierarchy.elementAt(size)).getElementName();
+		typeName = ((IJavaElement) hierarchy.get(size)).getElementName();
 		type = ((IType) type).getType(typeName);
 		size--;
 	}

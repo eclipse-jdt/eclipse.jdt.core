@@ -403,15 +403,15 @@ protected IType getHandle(IGenericType genericType) {
 			CompilationUnit unit = (CompilationUnit)this.cuToHandle.get(hierarchyType.originatingUnit);
 
 			// collect enclosing type names
-			Vector enclosingTypeNames = new Vector();
+			ArrayList enclosingTypeNames = new ArrayList();
 			HierarchyType enclosingType = hierarchyType;
 			do {
-				enclosingTypeNames.addElement(enclosingType.name);
+				enclosingTypeNames.add(enclosingType.name);
 				enclosingType = enclosingType.enclosingType;
 			} while (enclosingType != null);
 			int length = enclosingTypeNames.size();
 			char[][] simpleTypeNames = new char[length][];
-			enclosingTypeNames.copyInto(simpleTypeNames);
+			enclosingTypeNames.toArray(simpleTypeNames);
 
 			// build handle
 			type = unit.getType(new String(simpleTypeNames[length-1]));

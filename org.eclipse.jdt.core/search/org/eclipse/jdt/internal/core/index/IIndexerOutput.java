@@ -4,8 +4,6 @@ package org.eclipse.jdt.internal.core.index;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.io.*;
-import java.util.Vector;
 
 /**
  * This class represents the output from an indexer to an index 

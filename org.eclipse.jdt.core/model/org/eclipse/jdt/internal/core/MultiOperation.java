@@ -5,10 +5,9 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.resources.*;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.eclipse.jdt.core.*;
 
 /**
@@ -31,25 +30,25 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * Keyed by elements being processed, and
 	 * values are the corresponding destination parent.
 	 */
-	protected Hashtable fParentElements;
+	protected Map fParentElements;
 	/**
 	 * Table specifying insertion positions for elements being 
 	 * copied/moved/renamed. Keyed by elements being processed, and
 	 * values are the corresponding insertion point.
 	 * @see processElements(IProgressMonitor)
 	 */
-	protected Hashtable fInsertBeforeElements= new Hashtable(1);
+	protected Map fInsertBeforeElements= new HashMap(1);
 	/**
 	 * This table presents the data in <code>fRenamingList</code> in a more
 	 * convenient way.
 	 */
-	protected Hashtable fRenamings;
+	protected Map fRenamings;
 /**
  * Creates a new <code>MultiOperation</code>.
  */
 protected MultiOperation(IJavaElement[] elementsToProcess, IJavaElement[] parentElements, boolean force) {
 	super(elementsToProcess, parentElements, force);
-	fParentElements = new Hashtable(elementsToProcess.length);
+	fParentElements = new HashMap(elementsToProcess.length);
 	if (elementsToProcess.length == parentElements.length) {
 		for (int i = 0; i < elementsToProcess.length; i++) {
 			fParentElements.put(elementsToProcess[i], parentElements[i]);
@@ -116,7 +115,7 @@ protected String getNewNameFor(IJavaElement element) {
  */
 private void initializeRenamings() {
 	if (fRenamingsList != null && fRenamingsList.length == fElementsToProcess.length) {
-		fRenamings = new Hashtable(fRenamingsList.length);
+		fRenamings = new HashMap(fRenamingsList.length);
 		for (int i = 0; i < fRenamingsList.length; i++) {
 			if (fRenamingsList[i] != null) {
 				fRenamings.put(fElementsToProcess[i], fRenamingsList[i]);

@@ -4,11 +4,10 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
-
-import java.util.Vector;
 
 /**
  * @see IJavaElementDelta
@@ -177,7 +176,7 @@ public void closed(IJavaElement element) {
  */
 protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelta delta) {
 	JavaElementDelta childDelta = delta;
-	Vector ancestors= getAncestors(element);
+	ArrayList ancestors= getAncestors(element);
 	if (ancestors == null) {
 		if (this.equalsAndSameParent(delta.getElement(), getElement())) { // handle case of two jars that can be equals but not in the same project
 			// the element being changed is the root element
@@ -191,7 +190,7 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 		}
 	} else {
 		for (int i = 0, size = ancestors.size(); i < size; i++) {
-			IJavaElement ancestor = (IJavaElement) ancestors.elementAt(i);
+			IJavaElement ancestor = (IJavaElement) ancestors.get(i);
 			JavaElementDelta ancestorDelta = new JavaElementDelta(ancestor);
 			ancestorDelta.addAffectedChild(childDelta);
 			childDelta = ancestorDelta;
@@ -241,14 +240,14 @@ public IJavaElementDelta[] getAffectedChildren() {
  * element is not a descendant of the root of this tree, <code>null</code>
  * is returned.
  */
-private Vector getAncestors(IJavaElement element) {
+private ArrayList getAncestors(IJavaElement element) {
 	IJavaElement parent = element.getParent();
 	if (parent == null) {
 		return null;
 	}
-	Vector parents = new Vector();
+	ArrayList parents = new ArrayList();
 	while (!parent.equals(fChangedElement)) {
-		parents.addElement(parent);
+		parents.add(parent);
 		parent = parent.getParent();
 		if (parent == null) {
 			return null;
@@ -271,15 +270,15 @@ protected IJavaElementDelta[] getChildrenOfType(int type) {
 	if (length == 0) {
 		return new IJavaElementDelta[] {};
 	}
-	Vector children= new Vector(length);
+	ArrayList children= new ArrayList(length);
 	for (int i = 0; i < length; i++) {
 		if (fAffectedChildren[i].getKind() == type) {
-			children.addElement(fAffectedChildren[i]);
+			children.add(fAffectedChildren[i]);
 		}
 	}
 
 	IJavaElementDelta[] childrenOfType = new IJavaElementDelta[children.size()];
-	children.copyInto(childrenOfType);
+	children.toArray(childrenOfType);
 	
 	return childrenOfType;
 }

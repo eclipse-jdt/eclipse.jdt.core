@@ -7,10 +7,10 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.core.resources.*;
-import java.util.Vector;
-import java.util.Hashtable;
 import java.io.File;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -54,7 +54,7 @@ public class NameLookup {
 	 * with the same name, values are arrays of package fragments
 	 * ordered as they appear on the classpath.
 	 */
-	protected Hashtable fPackageFragments;
+	protected Map fPackageFragments;
 
 	/**
 	 * Singleton <code>SingleTypeRequestor</code>.
@@ -112,7 +112,7 @@ public class NameLookup {
 	private void configureFromProject(IJavaProject project) throws JavaModelException {
 		workspace= project.getJavaModel().getWorkspace();
 		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
-		fPackageFragments= new Hashtable();
+		fPackageFragments= new HashMap();
 		IPackageFragment[] frags= ((JavaProject) project).getPackageFragmentsInRoots(fPackageFragmentRoots);
 		for (int i= 0; i < frags.length; i++) {
 			IPackageFragment fragment= frags[i];

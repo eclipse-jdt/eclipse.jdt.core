@@ -112,15 +112,15 @@ public boolean needsResolve() {
  */
 private AstNode[] nodesInRange(int start, int end, Hashtable set) {
 	// collect nodes in the given range
-	Vector nodes = new Vector();
+	ArrayList nodes = new ArrayList();
 	for (Enumeration keys = set.keys(); keys.hasMoreElements();) {
 		AstNode node = (AstNode)keys.nextElement();
 		if (start <= node.sourceStart && node.sourceEnd <= end) {
-			nodes.addElement(node);
+			nodes.add(node);
 		}
 	}
 	AstNode[] result = new AstNode[nodes.size()];
-	nodes.copyInto(result);
+	nodes.toArray(result);
 
 	// sort nodes by source starts
 	Util.Comparer comparer = new Util.Comparer() {

@@ -15,7 +15,9 @@ import org.eclipse.jdt.core.IJavaModel;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 /**
@@ -36,12 +38,12 @@ public class JavaModelInfo extends OpenableElementInfo {
 	/**
 	 * Cache of open children of openable Java Model Java elements
 	 */
-	protected Hashtable fChildrenCache= null;
+	protected Map fChildrenCache= null;
 
 	/**
 	 * Set of elements which are out of sync with their buffers.
 	 */
-	protected Hashtable fElementsOutOfSynchWithBuffers = new Hashtable(11);
+	protected Map fElementsOutOfSynchWithBuffers = new HashMap(11);
 
 	/**
 	 * Backpointer to my Java Model handle
@@ -60,7 +62,7 @@ protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
 	this.workspace = workspace;
 	this.fJavaModel= javaModel;
 	this.fLRUCache = new ElementCache(5000);
-	this.fChildrenCache= new Hashtable(30000);
+	this.fChildrenCache= new HashMap(30000);
 }
 /**
  * @see IJavaModel#close()

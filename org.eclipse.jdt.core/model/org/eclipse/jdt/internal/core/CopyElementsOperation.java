@@ -4,12 +4,13 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.jdom.*;
-import java.util.Hashtable;
 
 /**
  * This operation copies/moves a collection of elements from their current
@@ -47,7 +48,7 @@ import java.util.Hashtable;
 public class CopyElementsOperation extends MultiOperation {
 
 	
-	private Hashtable fSources = new Hashtable();
+	private Map fSources = new HashMap();
 /**
  * When executed, this operation will copy the given elements to the
  * given containers.  The elements and destination containers must be in

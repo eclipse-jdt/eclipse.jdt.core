@@ -99,18 +99,18 @@ try {
 	 * Queue of deltas created explicily by the Java Model that
 	 * have yet to be fired.
 	 */
-	protected Vector fJavaModelDeltas= new Vector();
+	protected ArrayList fJavaModelDeltas= new ArrayList();
 
 	/**
 	 * Queue of deltas created as translations of ResourceDeltas that
 	 * have yet to be fired.
 	 */
-	protected Vector fResourceDeltas= new Vector();
+	protected ArrayList fResourceDeltas= new ArrayList();
 
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
-	protected Vector fElementChangedListeners= new Vector();
+	protected ArrayList fElementChangedListeners= new ArrayList();
 
 	/**
 	 * Collection of projects that are in the process of being deleted.
@@ -122,7 +122,7 @@ try {
 	 *
 	 * fix for 1FW67PA
 	 */
-	protected Vector fProjectsBeingDeleted= new Vector();
+	protected ArrayList fProjectsBeingDeleted= new ArrayList();
 
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
@@ -182,7 +182,7 @@ try {
 	 */
 	public void addElementChangedListener(IElementChangedListener listener) {
 		if (fElementChangedListeners.indexOf(listener) < 0) {
-			fElementChangedListeners.addElement(listener);
+			fElementChangedListeners.add(listener);
 		}
 	}
 /*
@@ -218,7 +218,7 @@ public void closeAffectedElements(IResourceDelta delta) {
 	 * fix for 1FW67PA
 	 */
 	public void deleted(IProject project) {
-		fProjectsBeingDeleted.removeElement(project);
+		fProjectsBeingDeleted.remove(project);
 	}
 	/**
 	 * Note that the project is about to be deleted.
@@ -231,7 +231,7 @@ public void closeAffectedElements(IResourceDelta delta) {
 		if (indexManager != null) indexManager.deleting(project);
 		
 		if (!fProjectsBeingDeleted.contains(project)) {
-			fProjectsBeingDeleted.addElement(project);
+			fProjectsBeingDeleted.add(project);
 		}
 	}
 /**
@@ -258,24 +258,24 @@ public void doneSaving(ISaveContext context){
 	 */
 	public void fire() {
 		if (fFire) {
-			Enumeration deltas= null;
+			Iterator deltas= null;
 			if (fJavaModelDeltas.isEmpty()) {
-				deltas= fResourceDeltas.elements();
+				deltas= fResourceDeltas.iterator();
 			} else {
-				deltas= fJavaModelDeltas.elements();
+				deltas= fJavaModelDeltas.iterator();
 			}
 			try {
-				while (deltas.hasMoreElements()) {
-					IJavaElementDelta delta= (IJavaElementDelta) deltas.nextElement();
+				while (deltas.hasNext()) {
+					IJavaElementDelta delta= (IJavaElementDelta) deltas.next();
 					if (DeltaProcessor.VERBOSE){
 						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
 					}
 					ElementChangedEvent event= new ElementChangedEvent(delta);
 					// Clone the listeners since they could remove themselves when told about the event 
 					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
-					Vector listeners= (Vector) fElementChangedListeners.clone();
+					ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
 					for (int i= 0; i < listeners.size(); i++) {
-						IElementChangedListener listener= (IElementChangedListener) listeners.elementAt(i);
+						IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
 						listener.elementChanged(event);
 					}
 				}
@@ -289,8 +289,8 @@ public void doneSaving(ISaveContext context){
 	 * Flushes all deltas without firing them.
 	 */
 	protected void flush() {
-		fJavaModelDeltas= new Vector();
-		fResourceDeltas= new Vector();
+		fJavaModelDeltas= new ArrayList();
+		fResourceDeltas= new ArrayList();
 	}
 	/**
 	 * Returns the development context to use for the given project.
@@ -303,9 +303,9 @@ public void doneSaving(ISaveContext context){
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
-	protected Hashtable getElementsOutOfSynchWithBuffers() {
+	protected Map getElementsOutOfSynchWithBuffers() {
 		if (fModelInfo == null) {
-			return new Hashtable(1);
+			return new HashMap(1);
 		} else {
 			return fModelInfo.fElementsOutOfSynchWithBuffers;
 		}
@@ -621,18 +621,18 @@ public void doneSaving(ISaveContext context){
  * Merged all awaiting deltas.
  */
 public void mergeDeltas() {
-	Enumeration deltas = null;
+	Iterator deltas = null;
 	if (fJavaModelDeltas.isEmpty()) {
 		//deltas = fResourceDeltas.elements();
 		return;
 	} else {
-		deltas = fJavaModelDeltas.elements();
+		deltas = fJavaModelDeltas.iterator();
 	}	
 	if (deltas != null) {
 		JavaElementDelta rootDelta = new JavaElementDelta(getJavaModel());
 		boolean insertedTree = false;
-		while (deltas.hasMoreElements()) {
-			IJavaElementDelta delta = (IJavaElementDelta)deltas.nextElement();
+		while (deltas.hasNext()) {
+			IJavaElementDelta delta = (IJavaElementDelta)deltas.next();
 			IJavaElementDelta[] children = delta.getAffectedChildren();
 			for (int j = 0; j < children.length; j++) {
 				JavaElementDelta projectDelta = (JavaElementDelta) children[j];
@@ -642,18 +642,18 @@ public void mergeDeltas() {
 		}
 		if (insertedTree){
 			if (fJavaModelDeltas.isEmpty()) {
-				fResourceDeltas = new Vector(1);
-				fResourceDeltas.addElement(rootDelta);
+				fResourceDeltas = new ArrayList(1);
+				fResourceDeltas.add(rootDelta);
 			} else {
-				fJavaModelDeltas = new Vector(1);
-				fJavaModelDeltas.addElement(rootDelta);
+				fJavaModelDeltas = new ArrayList(1);
+				fJavaModelDeltas.add(rootDelta);
 			}	
 		}
 		else {
 			if (fJavaModelDeltas.isEmpty()) {
-				fResourceDeltas = new Vector(0);
+				fResourceDeltas = new ArrayList(0);
 			} else {
-				fJavaModelDeltas = new Vector(0);
+				fJavaModelDeltas = new ArrayList(0);
 			}	
 		}
 	}
@@ -746,7 +746,6 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			return;
 		}
 		NodeList list= cpElement.getChildNodes();
-		Vector variables = new Vector();
 		int length= list.getLength();
 		for (int i= 0; i < length; ++i) {
 			Node node= list.item(i);
@@ -762,7 +761,6 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 					} catch(RuntimeException e){
 					}
 				}
-
 			}
 		}
 	}
@@ -774,7 +772,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	 * are to be registered with <code>#registerResourceDelta</code>.
 	 */
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
-		fJavaModelDeltas.addElement(delta);
+		fJavaModelDeltas.add(delta);
 	}
 	/**
 	 * Registers the given delta with this manager. This API is to be
@@ -785,13 +783,13 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	 * are registered.
 	 */
 	public void registerResourceDelta(IJavaElementDelta delta) {
-		fResourceDeltas.addElement(delta);
+		fResourceDeltas.add(delta);
 	}
 	/**
 	 * removeElementChangedListener method comment.
 	 */
 	public void removeElementChangedListener(IElementChangedListener listener) {
-		fElementChangedListeners.removeElement(listener);
+		fElementChangedListeners.remove(listener);
 	}
 	protected void removeInfo(IJavaElement element) {
 		if (fModelInfo == null) {
@@ -853,7 +851,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 						} finally {
 							// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
 							if (!fProjectsBeingDeleted.isEmpty()) {
-								fProjectsBeingDeleted= new Vector(1);
+								fProjectsBeingDeleted= new ArrayList(1);
 							}
 						}
 					}				
@@ -903,20 +901,20 @@ public void rollback(ISaveContext context){
 	private void saveBuildState() throws CoreException {
 		if (!JavaBuilder.SAVE_ENABLED)
 			return;
-		Vector vStats= null; // lazy initialized
+		ArrayList vStats= null; // lazy initialized
 		for (Enumeration enum= perProjectInfo.elements(); enum.hasMoreElements();) {
 			PerProjectInfo info= (PerProjectInfo) enum.nextElement();
 			try {
 				saveStateIfNecessary(info);
 			} catch (CoreException e) {
 				if (vStats == null)
-					vStats= new Vector();
-				vStats.addElement(e.getStatus());
+					vStats= new ArrayList();
+				vStats.add(e.getStatus());
 			}
 		}
 		if (vStats != null) {
 			IStatus[] stats= new IStatus[vStats.size()];
-			vStats.copyInto(stats);
+			vStats.toArray(stats);
 			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Util.bind("build.cannotSaveStates"), null)); //$NON-NLS-1$
 		}
 	}

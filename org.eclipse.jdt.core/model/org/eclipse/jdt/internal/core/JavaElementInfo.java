@@ -9,8 +9,6 @@ import org.eclipse.core.runtime.IAdaptable;
 
 import org.eclipse.jdt.core.*;
 
-import java.util.Vector;
-
 /**
  * Holds cached structure and properties for a Java element.
  * Subclassed to carry properties for specific kinds of elements.

@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
+import java.util.Vector;
 import javax.xml.parsers.*;
 import org.apache.xerces.dom.*;
 import org.apache.xml.serialize.*;
@@ -545,6 +545,7 @@ public class JavaProject
 	 *   <li>the binary roots (output locations) for the required projects
 	 *   <li>the binary roots for any jar/lib used by this project
 	 * </li>
+	 * 
 	 */
 	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta)
 		throws JavaModelException {

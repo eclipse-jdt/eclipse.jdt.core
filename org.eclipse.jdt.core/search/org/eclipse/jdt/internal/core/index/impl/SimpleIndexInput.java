@@ -5,8 +5,8 @@ package org.eclipse.jdt.internal.core.index.impl;
  * All Rights Reserved.
  */
 import java.io.IOException;
+import java.util.ArrayList;
 import org.eclipse.jdt.internal.core.index.*;
-import java.util.Vector;
 
 /**
  * A simpleIndexInput is an input on an in memory Index. 
@@ -143,15 +143,15 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 	 */
 	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
 		setFirstFile();
-		Vector matches= new Vector();
+		ArrayList matches= new ArrayList();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
 			if (file.getPath().indexOf(word) != -1)
-				matches.addElement(file.getPath());
+				matches.add(file.getPath());
 			moveToNextFile();
 		}
 		IQueryResult[] match= new IQueryResult[matches.size()];
-		matches.copyInto(match);
+		matches.toArray(match);
 		return match;
 	}
 	/**

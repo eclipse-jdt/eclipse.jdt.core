@@ -41,7 +41,7 @@ protected PackageFragment(IPackageFragmentRoot root, String name) {
  * @see JarPackageFragment).
  */
 protected boolean computeChildren(OpenableElementInfo info, IResource resource) throws JavaModelException {
-	Vector vChildren = new Vector();
+	ArrayList vChildren = new ArrayList();
 	int kind = getKind();
 	String extType;
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
@@ -60,10 +60,10 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 						IJavaElement childElement;
 						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
 							childElement = getCompilationUnit(child.getName());
-							vChildren.addElement(childElement);
+							vChildren.add(childElement);
 						} else if (Util.isValidClassFileName(child.getName())) {
 							childElement = getClassFile(child.getName());
-							vChildren.addElement(childElement);
+							vChildren.add(childElement);
 						}
 					}
 				}
@@ -72,9 +72,8 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
-	vChildren.trimToSize();
 	IJavaElement[] children = new IJavaElement[vChildren.size()];
-	vChildren.copyInto(children);
+	vChildren.toArray(children);
 	info.setChildren(children);
 	return true;
 }

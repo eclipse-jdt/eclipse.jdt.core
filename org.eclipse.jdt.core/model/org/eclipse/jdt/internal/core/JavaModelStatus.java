@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.runtime.IPath;
-import java.util.Vector;
 
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.core.runtime.Status;

@@ -29,16 +29,15 @@ protected JarPackageFragment(IPackageFragmentRoot root, String name) {
  * can only be IClassFile (representing .class files).
  */
 protected boolean computeChildren(OpenableElementInfo info) {
-	Vector vChildren = new Vector();
+	ArrayList vChildren = new ArrayList();
 	JarPackageFragmentInfo jInfo= (JarPackageFragmentInfo)info;
-	for (Enumeration e = jInfo.fEntryNames.elements(); e.hasMoreElements();) {
-		String child = (String) e.nextElement();
+	for (Iterator iter = jInfo.fEntryNames.iterator(); iter.hasNext();) {
+		String child = (String) iter.next();
 		IClassFile classFile = getClassFile(child);
-		vChildren.addElement(classFile);
+		vChildren.add(classFile);
 	}
-	vChildren.trimToSize();
 	IJavaElement[] children= new IJavaElement[vChildren.size()];
-	vChildren.copyInto(children);
+	vChildren.toArray(children);
 	info.setChildren(children);
 	return true;
 }

@@ -182,10 +182,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * Has the side effect of opening the package fragment children.
 	 */
 	protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
-		Vector vChildren= new Vector();
+		ArrayList vChildren= new ArrayList();
 		computeJarChildren((JarPackageFragmentRootInfo) info, vChildren);
 		IJavaElement[] children= new IJavaElement[vChildren.size()];
-		vChildren.copyInto(children);
+		vChildren.toArray(children);
 		info.setChildren(children);
 		return true;
 	}
@@ -197,26 +197,26 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
  *
  * @exception JavaModelException The resource (the jar) associated with this package fragment root does not exist
  */
-protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChildren) throws JavaModelException {
+protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vChildren) throws JavaModelException {
 	ZipFile jar= null;
 	try {
 		jar= getJar();
-		Hashtable packageFragToTypes= new Hashtable();
+		HashMap packageFragToTypes= new HashMap();
 
 		// always create the default package
-		packageFragToTypes.put(IPackageFragment.DEFAULT_PACKAGE_NAME, new Vector[] { new Vector(), new Vector()
+		packageFragToTypes.put(IPackageFragment.DEFAULT_PACKAGE_NAME, new ArrayList[] { new ArrayList(), new ArrayList()
 		});
 
-		Vector[] temp;
+		ArrayList[] temp;
 		for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 			ZipEntry member= (ZipEntry) e.nextElement();
 			String eName= member.getName();
 			if (member.isDirectory()) {
 				eName= eName.substring(0, eName.length() - 1);
 				eName= eName.replace('/', '.');
-				temp= (Vector[]) packageFragToTypes.get(eName);
+				temp= (ArrayList[]) packageFragToTypes.get(eName);
 				if (temp == null) {
-					temp= new Vector[] { new Vector(), new Vector()
+					temp= new ArrayList[] { new ArrayList(), new ArrayList()
 				 };
 					packageFragToTypes.put(eName, temp);
 				}
@@ -225,7 +225,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChild
 					//only interested in class files
 					//store the class file entry name to be cached in the appropriate package fragment
 					//zip entries only use '/'
-					Vector classTemp;
+					ArrayList classTemp;
 					int lastSeparator= eName.lastIndexOf('/');
 					String key= IPackageFragment.DEFAULT_PACKAGE_NAME;
 					String value= eName;
@@ -235,28 +235,28 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChild
 						value= eName.substring(lastSeparator + 1);
 						key= eName.substring(0, lastSeparator);
 					}
-					temp= (Vector[]) packageFragToTypes.get(key);
+					temp= (ArrayList[]) packageFragToTypes.get(key);
 					if (temp == null) {
 						// build all package fragments in the key
 						lastSeparator= key.indexOf('.');
 						while (lastSeparator > 0) {
 							String prefix= key.substring(0, lastSeparator);
 							if (packageFragToTypes.get(prefix) == null) {
-								packageFragToTypes.put(prefix, new Vector[] { new Vector(), new Vector()
+								packageFragToTypes.put(prefix, new ArrayList[] { new ArrayList(), new ArrayList()
 							 });
 							}
 							lastSeparator= key.indexOf('.', lastSeparator + 1);
 						}
-						classTemp= new Vector();
-						classTemp.addElement(value);
-						packageFragToTypes.put(key, new Vector[] {classTemp, new Vector()
+						classTemp= new ArrayList();
+						classTemp.add(value);
+						packageFragToTypes.put(key, new ArrayList[] {classTemp, new ArrayList()
 					 });
 					} else {
 						classTemp= temp[0];
-						classTemp.addElement(value);
+						classTemp.add(value);
 					}
 				} else {
-					Vector resTemp;
+					ArrayList resTemp;
 					int lastSeparator= eName.lastIndexOf('/');
 					String key= IPackageFragment.DEFAULT_PACKAGE_NAME;
 					String value= eName;
@@ -265,34 +265,34 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChild
 						eName= eName.replace('/', '.');
 						key= eName.substring(0, lastSeparator);
 					}
-					temp= (Vector[]) packageFragToTypes.get(key);
+					temp= (ArrayList[]) packageFragToTypes.get(key);
 					if (temp == null) {
 						// build all package fragments in the key
 						lastSeparator= key.indexOf('.');
 						while (lastSeparator > 0) {
 							String prefix= key.substring(0, lastSeparator);
 							if (packageFragToTypes.get(prefix) == null) {
-								packageFragToTypes.put(prefix, new Vector[] { new Vector(), new Vector()
+								packageFragToTypes.put(prefix, new ArrayList[] { new ArrayList(), new ArrayList()
 							 });
 							}
 							lastSeparator= key.indexOf('.', lastSeparator + 1);
 						}
-						resTemp= new Vector();
-						resTemp.addElement(value);
-						packageFragToTypes.put(key, new Vector[] { new Vector(), resTemp });
+						resTemp= new ArrayList();
+						resTemp.add(value);
+						packageFragToTypes.put(key, new ArrayList[] { new ArrayList(), resTemp });
 					} else {
 						resTemp= temp[1];
-						resTemp.addElement(value);
+						resTemp.add(value);
 					}
 				}
 			}
 		}
 		//loop through all of referenced packages, creating package fragments if necessary
 		// and cache the entry names in the infos created for those package fragments
-		Enumeration packages= packageFragToTypes.keys();
-		while (packages.hasMoreElements()) {
-			String packName= (String) packages.nextElement();
-			Vector[] entries= (Vector[]) packageFragToTypes.get(packName);
+		Iterator packages = packageFragToTypes.keySet().iterator();
+		while (packages.hasNext()) {
+			String packName= (String) packages.next();
+			ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(packName);
 			JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(packName);
 			JarPackageFragmentInfo fragInfo= (JarPackageFragmentInfo) packFrag.createElementInfo();
 			fragInfo.setEntryNames(entries[0]);
@@ -301,12 +301,12 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChild
 				packFrag.computeNonJavaResources(new String[] {}, fragInfo, jar.getName());
 			} else {
 				String[] resNames= new String[resLength];
-				entries[1].copyInto(resNames);
+				entries[1].toArray(resNames);
 				packFrag.computeNonJavaResources(resNames, fragInfo, jar.getName());
 			}
 			packFrag.computeChildren(fragInfo);
 			fgJavaModelManager.putInfo(packFrag, fragInfo);
-			vChildren.addElement(packFrag);
+			vChildren.add(packFrag);
 		}
 	} catch (CoreException e) {
 		throw new JavaModelException(e);

@@ -43,7 +43,7 @@ public class DiskCache {
 	 * List of files to be deleted later, due to failures to delete
 	 * or because file is still open.
 	 */
-	Vector fFilesToBeDeleted = new Vector();
+	ArrayList fFilesToBeDeleted = new ArrayList();
 	
 	/**
 	 * Extends the LRU cache entry to add extra fields needed by disk cache.
@@ -326,7 +326,7 @@ public DiskCache(File directory, int spaceLimit) {
 		// Could have already been deleted.
 		boolean success = !fileToDelete.exists();
 		if(success && fFilesToBeDeleted.contains(fileName))
-			fFilesToBeDeleted.removeElement(fileName);
+			fFilesToBeDeleted.remove(fileName);
 		return success; 
 	}
 /**
@@ -341,7 +341,7 @@ public int deleteFilesToBeDeleted() {
 			String fileName = (String) e.nextElement();
 			boolean success = deleteFile(fileName);
 			if (success) 
-				fFilesToBeDeleted.removeElement(fileName);
+				fFilesToBeDeleted.remove(fileName);
 		}
 		return fFilesToBeDeleted.size();
 	}
@@ -547,10 +547,10 @@ public int getNumberOfFilesToBeDeleted() {
 				/* We're at the end of file, so it's a pre-existing format. */
 			}
 			if(moreToRead) {
-				fFilesToBeDeleted = new Vector();
+				fFilesToBeDeleted = new ArrayList();
 				for (int i = 0; i < numFilesToBeDeleted; i++) {
 					String fileName = in.readUTF();
-					fFilesToBeDeleted.addElement(fileName);
+					fFilesToBeDeleted.add(fileName);
 				}
 			}
 				
@@ -581,7 +581,7 @@ public int getNumberOfFilesToBeDeleted() {
 	 */
 	protected void rememberToDelete(String fileName) {
 		if (!fFilesToBeDeleted.contains(fileName))
-			fFilesToBeDeleted.addElement(fileName);
+			fFilesToBeDeleted.add(fileName);
 	}
 	/**
 	 * Remove an entry from the cache and delete its contents.  
@@ -659,9 +659,9 @@ public synchronized void removeAll(Vector keys) {
 				}
 				int numFilesToBeDeleted = fFilesToBeDeleted.size();
 				out.writeInt(numFilesToBeDeleted);
-				Enumeration e = fFilesToBeDeleted.elements();
-				while(e.hasMoreElements()) {
-					String fileName = (String) e.nextElement();
+				Iterator iter = fFilesToBeDeleted.iterator();
+				while(iter.hasNext()) {
+					String fileName = (String) iter.next();
 					out.writeUTF(fileName);
 				}
 			}
