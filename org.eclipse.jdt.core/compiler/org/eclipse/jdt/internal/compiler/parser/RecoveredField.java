@@ -130,6 +130,9 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 		bracketBalance--;
 		if (bracketBalance == 0) alreadyCompletedFieldInitialization = true;
 		return this;
+	} else if (bracketBalance == 0) {
+		alreadyCompletedFieldInitialization = true;
+		updateSourceEndIfNecessary(braceEnd - 1);
 	}
 	if (parent != null){
 		return parent.updateOnClosingBrace(braceStart, braceEnd);
