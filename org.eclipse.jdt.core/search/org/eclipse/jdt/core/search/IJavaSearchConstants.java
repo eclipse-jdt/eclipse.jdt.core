@@ -32,7 +32,8 @@ public interface IJavaSearchConstants {
 	/* Nature of searched element */
 	
 	/**
-	 * The searched element is a type.
+	 * The searched element is a type, which may include classes, interfaces,
+	 * enums, and annotation types.
 	 */
 	int TYPE= 0;
 
@@ -58,27 +59,43 @@ public interface IJavaSearchConstants {
 
 	/**
 	 * The searched element is a class. 
-	 * More selective than using TYPE
+	 * More selective than using {@link #TYPE}.
 	 */
 	int CLASS= 5;
 
 	/**
 	 * The searched element is an interface.
-	 * More selective than using TYPE
+	 * More selective than using {@link #TYPE}.
 	 */
 	int INTERFACE= 6;
 
 	/**
 	 * The searched element is an enum.
-	 * More selective than using TYPE
+	 * More selective than using {@link #TYPE}.
+	 * @since 3.1
 	 */
 	int ENUM= 7;
 
 	/**
 	 * The searched element is an annotation type.
-	 * More selective than using TYPE
+	 * More selective than using {@link #TYPE}.
+	 * @since 3.1
 	 */
 	int ANNOTATION_TYPE= 8;
+
+	/**
+	 * The searched element is a class or enum type.
+	 * More selective than using {@link #TYPE}.
+	 * @since 3.1
+	 */
+	int CLASS_AND_ENUM= 9;
+
+	/**
+	 * The searched element is a class or interface type.
+	 * More selective than using {@link #TYPE}.
+	 * @since 3.1
+	 */
+	int CLASS_AND_INTERFACE= 10;
 
 	/* Nature of match */
 
