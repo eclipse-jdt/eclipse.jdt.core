@@ -193,6 +193,7 @@ class TypeBinding implements ITypeBinding {
 		} catch (AbortCompilation e) {
 			// in case the superclass cannot be resolvable due to missing jars on the classpath
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+			return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 		}
 		if (superclass == null) {
 			return null;

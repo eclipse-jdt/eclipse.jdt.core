@@ -102,7 +102,7 @@ class BindingResolver {
 	 * Resolves the given well known type by name and returns the type binding
 	 * for it.
 	 * <p>
-	 * The implementation of <code>ASTNode.resolveWellKnownType</code>
+	 * The implementation of <code>AST.resolveWellKnownType</code>
 	 * forwards to this method.
 	 * </p>
 	 * <p>
