@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 public class SourceTypeElementInfo extends MemberElementInfo implements ISourceType {
 
 	protected static final ISourceImport[] NO_IMPORTS = new ISourceImport[0];
+	protected static final InitializerElementInfo[] NO_INITIALIZERS = new InitializerElementInfo[0];
 	protected static final ISourceField[] NO_FIELDS = new ISourceField[0];
 	protected static final ISourceMethod[] NO_METHODS = new ISourceMethod[0];
 	protected static final ISourceType[] NO_TYPES = new ISourceType[0];
@@ -138,6 +139,30 @@ public ISourceImport[] getImports() {
 		}
 	}
 	return this.imports;
+}
+/*
+ * Returns the InitializerElementInfos for this type.
+ * Returns an empty array if none.
+ */
+public InitializerElementInfo[] getInitializers() {
+	int length = this.children.length;
+	if (length == 0) return NO_INITIALIZERS;
+	InitializerElementInfo[] initializers = new InitializerElementInfo[length];
+	int initializerIndex = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = this.children[i];
+		if (child instanceof Initializer) {
+			try {
+				InitializerElementInfo initializer = (InitializerElementInfo)((Initializer)child).getElementInfo();
+				initializers[initializerIndex++] = initializer;
+			} catch (JavaModelException e) {
+				// ignore
+			}
+		}
+	}
+	if (initializerIndex == 0) return NO_INITIALIZERS;
+	System.arraycopy(initializers, 0, initializers = new InitializerElementInfo[initializerIndex], 0, initializerIndex);
+	return initializers;
 }
 /**
  * @see ISourceType

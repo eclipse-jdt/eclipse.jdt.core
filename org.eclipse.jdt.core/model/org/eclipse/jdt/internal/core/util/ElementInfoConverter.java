@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
@@ -48,15 +49,6 @@ import org.eclipse.jdt.internal.core.SourceFieldElementInfo;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 
 public class ElementInfoConverter implements CompilerModifiers {
-	
-	private boolean needLocalTypes; // local and anoymous types
-	private CompilationUnitDeclaration unit;
-	private ProblemReporter problemReporter;
-	
-	private ElementInfoConverter(boolean needLocalTypes, ProblemReporter problemReporter) {
-		this.needLocalTypes = needLocalTypes;
-		this.problemReporter = problemReporter;
-	}
 
 	/*
 	 * Convert a set of source type infos into a parsed compilation unit declaration
@@ -75,58 +67,68 @@ public class ElementInfoConverter implements CompilerModifiers {
 				sourceTypes, 
 				compilationResult);
 	}
-
-	/*
-	 * Convert a set of source element types into a parsed compilation unit declaration
-	 * The argument types are then all grouped in the same unit. The argument types must 
-	 * at least contain one type.
-	 */
-	private CompilationUnitDeclaration convert(
-		SourceTypeElementInfo[] sourceTypes,
-		CompilationResult compilationResult) {
-		
-		SourceTypeElementInfo sourceType = sourceTypes[0];
-		if (sourceType.getName() == null)
-			return null; // do a basic test that the sourceType is valid
-
-		this.unit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
-		// not filled at this point
-
-		/* only positions available */
-		int start = sourceType.getNameSourceStart();
-		int end = sourceType.getNameSourceEnd();
-
-		/* convert package and imports */
-		if (sourceType.getPackageName() != null
-			&& sourceType.getPackageName().length > 0)
-			// if its null then it is defined in the default package
-			this.unit.currentPackage =
-				createImportReference(sourceType.getPackageName(), start, end, false, AccDefault);
-		ISourceImport[]  sourceImports = sourceType.getImports();
-		int importCount = sourceImports == null ? 0 : sourceImports.length;
-		this.unit.imports = new ImportReference[importCount];
-		for (int i = 0; i < importCount; i++) {
-			ISourceImport sourceImport = sourceImports[i];
-			this.unit.imports[i] = createImportReference(
-				sourceImport.getName(), 
-				sourceImport.getDeclarationSourceStart(),
-				sourceImport.getDeclarationSourceEnd(),
-				sourceImport.onDemand(),
-				sourceImport.getModifiers());
-		}
-		/* convert type(s) */
-		int typeCount = sourceTypes.length;
-		this.unit.types = new TypeDeclaration[typeCount];
-		for (int i = 0; i < typeCount; i++) {
-			this.unit.types[i] = convert(sourceTypes[i], compilationResult);
-		}
-		return this.unit;
+	
+	private boolean needLocalTypes; // local and anoymous types
+	private ProblemReporter problemReporter;
+	private CompilationUnitDeclaration unit;
+	
+	private ElementInfoConverter(boolean needLocalTypes, ProblemReporter problemReporter) {
+		this.needLocalTypes = needLocalTypes;
+		this.problemReporter = problemReporter;
 	}
 	
 	/*
+	 * Convert an initializerinfo into a parsed initializer declaration
+	 */
+	private Initializer convert(InitializerElementInfo initializerInfo, CompilationResult compilationResult) {
+
+		Block block = new Block(0);
+		Initializer initializer = new Initializer(block, IConstants.AccDefault);
+
+		int start = initializerInfo.getNameSourceStart();
+		int end = initializerInfo.getNameSourceEnd();
+
+		initializer.name = initializerInfo.getName();
+		initializer.sourceStart = start;
+		initializer.sourceEnd = end;
+		initializer.declarationSourceStart = initializerInfo.getDeclarationSourceStart();
+		initializer.declarationSourceEnd = initializerInfo.getDeclarationSourceEnd();
+		initializer.modifiers = initializerInfo.getModifiers();
+
+		/* convert local and anonymous types */
+		IJavaElement[] children = initializerInfo.getChildren();
+		int typesLength = children.length;
+		if (typesLength > 0) {
+			Statement[] statements = new Statement[typesLength];
+			for (int i = 0; i < typesLength; i++) {
+				JavaElement type = (JavaElement)children[i];
+				try {
+					TypeDeclaration localType = convert((SourceTypeElementInfo)type.getElementInfo(), compilationResult);
+					if (localType instanceof AnonymousLocalTypeDeclaration) {
+						AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)localType;
+						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
+						expression.type = anonymousLocalTypeDeclaration.superclass;
+						anonymousLocalTypeDeclaration.superclass = null;
+						anonymousLocalTypeDeclaration.superInterfaces = null;
+						anonymousLocalTypeDeclaration.allocation = expression;
+						statements[i] = expression;
+					} else {
+						statements[i] = localType;
+					}
+				} catch (JavaModelException e) {
+					// ignore
+				}
+			}
+			block.statements = statements;
+		}
+		
+		return initializer;
+	}
+
+	/*
 	 * Convert a source field info into a parsed field declaration
 	 */
-	private FieldDeclaration convert(SourceFieldElementInfo sourceField, TypeDeclaration type, CompilationResult compilationResult) {
+	private FieldDeclaration convert(SourceFieldElementInfo sourceField, CompilationResult compilationResult) {
 
 		FieldDeclaration field = new FieldDeclaration();
 
@@ -259,13 +261,10 @@ public class ElementInfoConverter implements CompilerModifiers {
 
 	/*
 	 * Convert a source type info into a parsed type declaration
-	 *
-	 * Can optionally ignore fields & methods
 	 */
-	private TypeDeclaration convert(
-		SourceTypeElementInfo sourceType,
-		CompilationResult compilationResult) {
-		/* create type declaration - can be member type */
+	private TypeDeclaration convert(SourceTypeElementInfo sourceType, CompilationResult compilationResult) {
+		
+		/* create type declaration - can be member type, local type or anonymous type */
 		TypeDeclaration type;
 		boolean isAnonymous = false;
 		if (sourceType.getEnclosingType() == null) {
@@ -319,14 +318,25 @@ public class ElementInfoConverter implements CompilerModifiers {
 				(MemberTypeDeclaration) convert((SourceTypeElementInfo)sourceMemberTypes[i], compilationResult);
 		}
 		
-		// TODO (jerome) convert initializers if need local types
-		
-		/* convert fields */
+		/* convert fields and initializers */
 		ISourceField[] sourceFields = sourceType.getFields();
 		int sourceFieldCount = sourceFields == null ? 0 : sourceFields.length;
-		type.fields = new FieldDeclaration[sourceFieldCount];
-		for (int i = 0; i < sourceFieldCount; i++) {
-			type.fields[i] = convert((SourceFieldElementInfo)sourceFields[i], type, compilationResult);
+		InitializerElementInfo[] initializers = null;
+		int initializerCount = 0;
+		if (this.needLocalTypes) {
+			initializers = sourceType.getInitializers();
+			initializerCount = initializers.length;
+			type.fields = new FieldDeclaration[initializerCount + sourceFieldCount];
+			for (int i = 0; i < initializerCount; i++) {
+				type.fields[i] = convert(initializers[i], compilationResult);
+			}
+		} else {
+			type.fields = new FieldDeclaration[sourceFieldCount];
+		}
+		int length = initializerCount + sourceFieldCount;
+		int index = 0;
+		for (int i = initializerCount; i < length; i++) {
+			type.fields[i] = convert((SourceFieldElementInfo)sourceFields[index++], compilationResult);
 		}
 
 		/* convert methods - need to add default constructor if necessary */
@@ -360,6 +370,51 @@ public class ElementInfoConverter implements CompilerModifiers {
 		}
 
 		return type;
+	}
+
+	/*
+	 * Convert a set of source element types into a parsed compilation unit declaration
+	 * The argument types are then all grouped in the same unit. The argument types must 
+	 * at least contain one type.
+	 */
+	private CompilationUnitDeclaration convert(SourceTypeElementInfo[] sourceTypes, CompilationResult compilationResult) {
+		
+		SourceTypeElementInfo sourceType = sourceTypes[0];
+		if (sourceType.getName() == null)
+			return null; // do a basic test that the sourceType is valid
+
+		this.unit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
+		// not filled at this point
+
+		/* only positions available */
+		int start = sourceType.getNameSourceStart();
+		int end = sourceType.getNameSourceEnd();
+
+		/* convert package and imports */
+		if (sourceType.getPackageName() != null
+			&& sourceType.getPackageName().length > 0)
+			// if its null then it is defined in the default package
+			this.unit.currentPackage =
+				createImportReference(sourceType.getPackageName(), start, end, false, AccDefault);
+		ISourceImport[]  sourceImports = sourceType.getImports();
+		int importCount = sourceImports == null ? 0 : sourceImports.length;
+		this.unit.imports = new ImportReference[importCount];
+		for (int i = 0; i < importCount; i++) {
+			ISourceImport sourceImport = sourceImports[i];
+			this.unit.imports[i] = createImportReference(
+				sourceImport.getName(), 
+				sourceImport.getDeclarationSourceStart(),
+				sourceImport.getDeclarationSourceEnd(),
+				sourceImport.onDemand(),
+				sourceImport.getModifiers());
+		}
+		/* convert type(s) */
+		int typeCount = sourceTypes.length;
+		this.unit.types = new TypeDeclaration[typeCount];
+		for (int i = 0; i < typeCount; i++) {
+			this.unit.types[i] = convert(sourceTypes[i], compilationResult);
+		}
+		return this.unit;
 	}
 
 	/*
