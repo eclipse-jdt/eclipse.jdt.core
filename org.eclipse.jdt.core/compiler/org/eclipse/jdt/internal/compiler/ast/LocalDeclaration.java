@@ -84,15 +84,17 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
+		// even if not reachable, variable must be added to visible if allocated (28298)
+		if (binding.resolvedPosition != -1) {
+			codeStream.addVisibleLocalVariable(binding);
+		}
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
 		Constant inlinedValue;
+
 		// something to initialize?
-		if (binding.resolvedPosition != -1) {
-			codeStream.addVisibleLocalVariable(binding);
-		}
 		if (initialization != null) {
 			// initialize to constant value?
 			if ((inlinedValue = initialization.constant) != NotAConstant) {
