@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test363"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test020"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -138,7 +138,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	private void assertLineEquals(String actualContents, String originalSource, String expectedContents, boolean checkNull) {
 		if (actualContents == null) {
-			assertTrue(checkNull);
+			assertTrue("actualContents is null", checkNull);
 			assertEquals(originalSource, expectedContents);
 			return;
 		}
@@ -155,7 +155,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			if (!expectedContentsArray[i].equals(actualContentsArray[i])) {
 				System.out.println("line " + i + " is different");
 				System.out.println(Util.displayString(actualContents, 2));
-				assertTrue(false);
+				assertTrue("Different line", false);
 			}
 		}
 	}
