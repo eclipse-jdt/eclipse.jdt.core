@@ -329,8 +329,7 @@ public void test008() {
 		"Type mismatch: cannot convert from element type Object to X\n" + 
 		"----------\n");
 }
-// TODO (kent) disabled until binary support is added for generics
-public void _test009() { 
+public void test009() { 
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

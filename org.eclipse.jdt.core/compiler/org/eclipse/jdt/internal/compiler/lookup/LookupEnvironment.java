@@ -588,6 +588,65 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 	else
 		return createArrayType(binding, dimension);
 }
+TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] variables, TypeVariableBinding[] secondaryVariables) {
+	// TypeVariableSignature = 'T' Identifier ';'
+	// ArrayTypeSignature = '[' TypeSignature
+	// ClassTypeSignature = 'L' Identifier TypeArgs(optional) ';'
+	//   or ClassTypeSignature '.' 'L' Identifier TypeArgs(optional) ';'
+	// TypeArgs = '<' VariantTypeSignature VariantTypeSignatures '>'
+	int dimension = 0;
+	while (wrapper.signature[wrapper.start] == '[') {
+		wrapper.start++;
+		dimension++;
+	}
+
+	if (wrapper.signature[wrapper.start] == 'T') {
+		char[] variableName = CharOperation.subarray(wrapper.signature, wrapper.start + 1, wrapper.computeEnd());
+		for (int i = variables.length; --i >= 0;)
+			if (CharOperation.equals(variables[i].sourceName, variableName))
+				return dimension == 0 ? (TypeBinding) variables[i] : createArrayType(variables[i], dimension);
+		for (int i = secondaryVariables.length; --i >= 0;)
+			if (CharOperation.equals(secondaryVariables[i].sourceName, variableName))
+				return dimension == 0 ? (TypeBinding) secondaryVariables[i] : createArrayType(secondaryVariables[i], dimension);
+		throw new Error(Util.bind("error.undefinedTypeVariable", new String(variableName))); //$NON-NLS-1$
+	}
+
+	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd());
+	if (wrapper.end != wrapper.bracket)
+		return dimension == 0 ? type : createArrayType(type, dimension);
+
+	java.util.ArrayList args = new java.util.ArrayList(2);
+	do {
+		args.add(getTypeFromVariantTypeSignature(wrapper, variables, secondaryVariables));
+	} while (wrapper.signature[wrapper.start] != '>');
+	wrapper.start += 2; // skip '>' and ';'
+	TypeBinding[] typeArguments = new TypeBinding[args.size()];
+	args.toArray(typeArguments);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType((ReferenceBinding) type, typeArguments);
+
+	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
+}
+TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] variables, TypeVariableBinding[] secondaryVariables) {
+	// VariantTypeSignature = '-' TypeSignature
+	//   or '+' TypeSignature
+	//   or TypeSignature
+	//   or '*'
+	switch (wrapper.signature[wrapper.start]) {
+		case '-' :
+			// ? super aType
+			wrapper.start++;
+			return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+		case '+' :
+			// ? extends aType
+			wrapper.start++;
+			return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+		case '*' :
+			// ?
+			wrapper.start++;
+			return null;
+	}
+	return getTypeFromTypeSignature(wrapper, variables, secondaryVariables);
+}
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
 
