@@ -148,7 +148,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		this.generateCode(classFile);
 	} catch (AbortMethod e) {
 		// a fatal error was detected during code generation, need to restart code gen if possible
-		if (e.compilationResult == null) {
+		if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
 			// a branch target required a goto_w, restart code gen in wide mode.
 			try {
 				if (statements != null) {

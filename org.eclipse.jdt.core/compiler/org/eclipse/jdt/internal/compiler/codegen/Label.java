@@ -200,7 +200,7 @@ public void place() { // Currently lacking wide support.
 							int forwardPosition = label.forwardReferences[j];
 							int offset = position - forwardPosition + 1;
 							if (offset > 0x7FFF && !this.codeStream.wideMode) {
-								throw new AbortMethod(null); // no compilation unit means wide code gen issue.
+								throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
 							}
 							if (this.codeStream.wideMode) {
 								if (this.isWide) {

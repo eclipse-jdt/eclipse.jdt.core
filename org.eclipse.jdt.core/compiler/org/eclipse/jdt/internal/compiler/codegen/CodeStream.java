@@ -63,6 +63,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	
 	// to handle goto_w
 	public boolean wideMode = false;
+	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0);
 	
 public CodeStream(ClassFile classFile) {
 	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
