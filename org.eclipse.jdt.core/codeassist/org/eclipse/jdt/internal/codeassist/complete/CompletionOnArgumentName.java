@@ -24,9 +24,9 @@ public class CompletionOnArgumentName extends Argument {
 	public char[] realName;
 	public boolean isCatchArgument = false;
 
-	public CompletionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
+	public CompletionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers, boolean isVarArgs){
 
-		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);
+		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers, isVarArgs);
 		this.realName = name;
 	}
 	

@@ -26,7 +26,7 @@ public class AnnotationArgumentExpression extends Expression {
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, false);
 		this.bits |= InsideAnnotation;
 	}
 

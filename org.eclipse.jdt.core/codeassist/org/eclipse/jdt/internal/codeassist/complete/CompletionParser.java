@@ -1020,6 +1020,17 @@ protected void consumeBinaryExpression(int op) {
 		}
 	}
 }
+protected void consumeBinaryExpressionWithName(int op) {
+	super.consumeBinaryExpressionWithName(op);
+	popElement(K_BINARY_OPERATOR);
+	
+	if(expressionStack[expressionPtr] instanceof BinaryExpression) {
+		BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
+		if(assistNode != null && exp.right == assistNode) {
+			assistNodeParent = exp;
+		}
+	}
+}
 protected void consumeCaseLabel() {
 	super.consumeCaseLabel();
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
@@ -1121,6 +1132,14 @@ protected void consumeClassHeaderExtends() {
 		}
 	}
 }
+protected void consumeClassOrInterfaceType() {
+	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
+		// potential receiver is being poped, so reset potential receiver
+		this.invocationType = NO_RECEIVER;
+		this.qualifier = -1;
+	}
+	super.consumeClassOrInterfaceType();
+}
 protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeClassTypeElt();
@@ -1129,6 +1148,10 @@ protected void consumeClassTypeElt() {
 protected void consumeConditionalExpression(int op) {
 	popElement(K_CONDITIONAL_OPERATOR);
 	super.consumeConditionalExpression(op);
+}
+protected void consumeConditionalExpressionWithName(int op) {
+	popElement(K_CONDITIONAL_OPERATOR);
+	super.consumeConditionalExpressionWithName(op);
 }
 protected void consumeConstructorBody() {
 	popElement(K_BLOCK_DELIMITER);
@@ -1246,6 +1269,15 @@ protected void consumeEqualityExpression(int op) {
 		assistNodeParent = exp;
 	}
 }
+protected void consumeEqualityExpressionWithName(int op) {
+	super.consumeEqualityExpressionWithName(op);
+	popElement(K_BINARY_OPERATOR);
+	
+	BinaryExpression exp = (BinaryExpression) expressionStack[expressionPtr];
+	if(assistNode != null && exp.right == assistNode) {
+		assistNodeParent = exp;
+	}
+}
 protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
 	
@@ -1288,9 +1320,9 @@ protected void consumeForceNoDiet() {
 		pushOnElementStack(K_LOCAL_INITIALIZER_DELIMITER);
 	}
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter();
+		super.consumeFormalParameter(isVarArgs);
 	} else {
 
 		identifierLengthPtr--;
@@ -1303,7 +1335,8 @@ protected void consumeFormalParameter() {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				intStack[intPtr + 1] & ~AccDeprecated,
+				isVarArgs); // modifiers
 				
 		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
 		pushOnAstStack(arg);
@@ -1332,6 +1365,15 @@ protected void consumeInsideCastExpressionLL1() {
 }
 protected void consumeInstanceOfExpression(int op) {
 	super.consumeInstanceOfExpression(op);
+	popElement(K_BINARY_OPERATOR);
+	
+	InstanceOfExpression exp = (InstanceOfExpression) expressionStack[expressionPtr];
+	if(assistNode != null && exp.type == assistNode) {
+		assistNodeParent = exp;
+	}
+}
+protected void consumeInstanceOfExpressionWithName(int op) {
+	super.consumeInstanceOfExpressionWithName(op);
 	popElement(K_BINARY_OPERATOR);
 	
 	InstanceOfExpression exp = (InstanceOfExpression) expressionStack[expressionPtr];
@@ -1556,14 +1598,6 @@ protected void consumeModifiers() {
 	// save from stack values
 	this.lastModifiersStart = intStack[intPtr];
 	this.lastModifiers = 	intStack[intPtr-1];
-}
-protected void consumeReferenceType() {
-	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
-		// potential receiver is being poped, so reset potential receiver
-		this.invocationType = NO_RECEIVER;
-		this.qualifier = -1;
-	}
-	super.consumeReferenceType();
 }
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();

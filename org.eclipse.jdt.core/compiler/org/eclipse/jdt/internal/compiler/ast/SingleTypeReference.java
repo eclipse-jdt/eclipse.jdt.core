@@ -25,16 +25,11 @@ public class SingleTypeReference extends TypeReference {
 		
 	}
 
-	public SingleTypeReference(char[] source ,TypeBinding type, long pos) {
-		this(source, pos) ;
-		this.resolvedType = type ;
-	}
-
 	public TypeReference copyDims(int dim){
 		//return a type reference copy of me with some dimensions
 		//warning : the new type ref has a null binding
 		
-		return new ArrayTypeReference(token,null,dim,(((long)sourceStart)<<32)+sourceEnd) ;
+		return new ArrayTypeReference(token, dim,(((long)sourceStart)<<32)+sourceEnd) ;
 	}
 
 	public TypeBinding getTypeBinding(Scope scope) {

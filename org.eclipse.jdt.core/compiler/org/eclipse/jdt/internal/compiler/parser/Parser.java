@@ -12,6 +12,10 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -33,118 +37,61 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Parser implements BindingIds, ParserBasicInformation, TerminalTokens, CompilerModifiers, OperatorIds, TypeIds {
-	protected ProblemReporter problemReporter;
-	protected CompilerOptions options;
-	public int firstToken ; // handle for multiple parsing goals
-	public int lastAct ; //handle for multiple parsing goals
-	public ReferenceContext referenceContext;
-	public int currentToken;
-	private int synchronizedBlockSourceStart;
+	public static char asb[] = null;
+	public static char asr[] = null;
+	//ast stack
+	final static int AstStackIncrement = 100;
+	public static char base_action[] = null;
+	public static final int BracketKinds = 3;
+    
+	public static short check_table[] = null;
+	public static final int CurlyBracket = 2;
+	// TODO remove once testing is done
+	private static final boolean DEBUG = true;
+	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
+	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
+	//expression stack
+	final static int ExpressionStackIncrement = 100;
+    
+	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
+    public static char in_symb[] = null;
+	private static final String INVALID_CHARACTER = "Invalid Character" ; //$NON-NLS-1$
+	public static char lhs[] =  null;
 
-	//error recovery management
-	protected int lastCheckPoint;
-	protected RecoveredElement currentElement;
-	public static boolean VERBOSE_RECOVERY = false;
-	protected boolean restartRecovery;
-	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
-	protected boolean hasError;
-	protected boolean hasReportedError;
-	public boolean reportSyntaxErrorIsRequired = true;
-	public boolean reportOnlyOneSyntaxError = false;
-	protected int recoveredStaticInitializerStart;
-	protected int lastIgnoredToken, nextIgnoredToken;
-	protected int lastErrorEndPosition;
-	protected boolean ignoreNextOpeningBrace;
+	public static String name[] = null;
+	public static char nasb[] = null;
+	public static char nasr[] = null;
+	public static char non_terminal_index[] = null;
+	private final static String READABLE_NAMES_FILE = "readableNames"; //$NON-NLS-1$
+	private final static String READABLE_NAMES =
+		"org.eclipse.jdt.internal.compiler.parser." + READABLE_NAMES_FILE; //$NON-NLS-1$
+	public static String readableName[] = null;
+	
+	public static byte rhs[] = null;
+
+	public static final int RoundBracket = 0;
+    
+    public static byte scope_la[] = null;
+    public static char scope_lhs[] = null;
+	
+	public static char scope_prefix[] = null;
+    public static char scope_rhs[] = null;
+    public static char scope_state[] = null;
+
+    public static char scope_state_set[] = null;
+    public static char scope_suffix[] = null;
+	public static final int SquareBracket = 1;
 		
 	//internal data for the automat 
 	protected final static int StackIncrement = 255;
-	protected int stateStackTop;
-	protected int[] stack = new int[StackIncrement];
-	//scanner token 
-	public Scanner scanner;
-	//ast stack
-	final static int AstStackIncrement = 100;
-	protected int astPtr;
-	protected AstNode[] astStack = new AstNode[AstStackIncrement];
-	protected int astLengthPtr;
-	protected int[] astLengthStack;
-	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
-	AstNode [] noAstNodes = new AstNode[AstStackIncrement];
-	//expression stack
-	final static int ExpressionStackIncrement = 100;
-	protected int expressionPtr;
-	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
-	protected int expressionLengthPtr;
-	protected int[] expressionLengthStack;
-	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
-	//identifiers stacks 
-	protected int identifierPtr;
-	protected char[][] identifierStack;
-	protected int identifierLengthPtr;
-	protected int[] identifierLengthStack;
-	protected long[] identifierPositionStack;
-	//positions , dimensions , .... (int stacks)
-	protected int intPtr;
-	protected int[] intStack;
-	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
-	protected int endStatementPosition;
-	protected int lParenPos,rParenPos; //accurate only when used !
-	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
-	//modifiers dimensions nestedType etc.......
-	protected boolean optimizeStringLiterals =true;
-	protected int modifiers;
-	protected int modifiersSourceStart;
-	protected int nestedType, dimensions;
-	protected int[] nestedMethod; //the ptr is nestedType
-	protected int[] realBlockStack;
-	protected int realBlockPtr;
-	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
-	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
-	protected int[] variablesCounter;
-
-	// annotation
-	public AnnotationParser annotationParser;
-	public Annotation annotation;
-	
-	public static byte rhs[] = null;
-	public static char asb[] = null;
-	public static char asr[] = null;
-	public static char nasb[] = null;
-	public static char nasr[] = null;
-
-	public static char terminal_index[] = null;
-	public static char non_terminal_index[] = null;
 	
 	public static char term_action[] = null;
 	public static byte term_check[] = null;
 
+	public static char terminal_index[] = null;
+
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
-	private static final String INVALID_CHARACTER = "Invalid Character" ; //$NON-NLS-1$
-	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
-	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
-
-	public static String name[] = null;
-	public static String readableName[] = null;
-    
-	public static short check_table[] = null;
-	public static char lhs[] =  null;
-	public static char base_action[] = lhs;
-	
-	public static char scope_prefix[] = null;
-    public static char scope_suffix[] = null;
-    public static char scope_lhs[] = null;
-    
-    public static byte scope_la[] = null;
-
-    public static char scope_state_set[] = null;
-    public static char scope_rhs[] = null;
-    public static char scope_state[] = null;
-    public static char in_symb[] = null;
-    
-	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
-	private final static String READABLE_NAMES_FILE = "readableNames"; //$NON-NLS-1$
-	private final static String READABLE_NAMES =
-		"org.eclipse.jdt.internal.compiler.parser." + READABLE_NAMES_FILE; //$NON-NLS-1$
+	public static boolean VERBOSE_RECOVERY = false;
 
 	static {
 		try{
@@ -153,69 +100,126 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 			throw new ExceptionInInitializerError(ex.getMessage());
 		}
 	}
-
-	public static final int RoundBracket = 0;
-	public static final int SquareBracket = 1;
-	public static final int CurlyBracket = 2;
-	public static final int BracketKinds = 3;
-
-public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
-		
-	this.problemReporter = problemReporter;
-	this.options = problemReporter.options;
-	this.optimizeStringLiterals = optimizeStringLiterals;
-	this.initializeScanner();
-	astLengthStack = new int[50];
-	expressionLengthStack = new int[30];
-	intStack = new int[50];
-	identifierStack = new char[30][];
-	identifierLengthStack = new int[30];
-	nestedMethod = new int[30];
-	realBlockStack = new int[30];
-	identifierPositionStack = new long[30];
-	variablesCounter = new int[30];
-	
-	// annotation support
-	this.annotationParser = new AnnotationParser(this);	
-}
-/**
- *
- * INTERNAL USE-ONLY
- */
-protected void adjustInterfaceModifiers() {
-	intStack[intPtr - 1] |= AccInterface;
-}
-public final void arrayInitializer(int length) {
-	//length is the size of the array Initializer
-	//expressionPtr points on the last elt of the arrayInitializer, 
-	// in other words, it has not been decremented yet.
-
-	ArrayInitializer ai = new ArrayInitializer();
-	if (length != 0) {
-		expressionPtr -= length;
-		System.arraycopy(expressionStack, expressionPtr + 1, ai.expressions = new Expression[length], 0, length);
-	}
-	pushOnExpressionStack(ai);
-	//positionning
-	ai.sourceEnd = endStatementPosition;
-	int searchPosition = length == 0 ? endPosition + 1 : ai.expressions[0].sourceStart;
-	try {
-		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (scanner.source[--searchPosition] != '{');
-	} catch (IndexOutOfBoundsException ex) {
-		//should never occur (except for strange cases like whose describe above)
-		searchPosition = (length == 0 ? endPosition : ai.expressions[0].sourceStart) - 1;
-	}
-	ai.sourceStart = searchPosition;
-}
 public static int asi(int state) {
 
 	return asb[original_state(state)]; 
 }
-protected void blockReal() {
-	// See consumeLocalVariableDeclarationStatement in case of change: duplicated code
-	// increment the amount of declared variables for this block
-	realBlockStack[realBlockPtr]++;
+public final static short base_check(int i) {
+	return check_table[i - (NUM_RULES + 1)];
+}
+private final static void buildFile(String filename, List listToDump) throws java.io.IOException {
+	BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
+		writer.write(String.valueOf(iterator.next()));
+	}
+	writer.flush();
+	writer.close();
+	System.out.println(filename + " creation complete"); //$NON-NLS-1$
+}
+private final static String[] buildFileForName(String filename, String contents) throws java.io.IOException {
+	String[] result = new String[contents.length()];
+	result[0] = null;
+	int resultCount = 1;
+	
+	StringBuffer buffer = new StringBuffer();
+	
+	int start = contents.indexOf("name[]"); //$NON-NLS-1$
+	start = contents.indexOf('\"', start); 
+	int end = contents.indexOf("};", start); //$NON-NLS-1$
+	
+	contents = contents.substring(start, end);
+	
+	boolean addLineSeparator = false;
+	int tokenStart = -1;
+	StringBuffer currentToken = new StringBuffer();
+	for (int i = 0; i < contents.length(); i++) {
+		char c = contents.charAt(i);
+		if(c == '\"') {
+			if(tokenStart == -1) {
+				tokenStart = i + 1;	
+			} else {
+				if(addLineSeparator) {
+					buffer.append('\n');
+					result[resultCount++] = currentToken.toString();
+					currentToken = new StringBuffer();
+				}
+				String token = contents.substring(tokenStart, i);
+				if(token.equals(ERROR_TOKEN)){
+					token = INVALID_CHARACTER;
+				} else if(token.equals(EOF_TOKEN)) {
+					token = UNEXPECTED_EOF;
+				}
+				buffer.append(token);
+				currentToken.append(token);
+				addLineSeparator = true;
+				tokenStart = -1;
+			}
+		}
+		if(tokenStart == -1 && c == '+'){
+			addLineSeparator = false;
+		}
+	}
+	if(currentToken.length() > 0) {
+		result[resultCount++] = currentToken.toString();
+	}
+	
+	buildFileForTable(filename, buffer.toString().toCharArray());
+	
+	System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
+	return result;
+}
+private static void buildFileForReadableName(
+	String file,
+	char[] newLhs,
+	char[] newNonTerminalIndex,
+	String[] newName,
+	String[] tokens) throws java.io.IOException {
+
+	ArrayList entries = new ArrayList();
+	
+	boolean[] alreadyAdded = new boolean[newName.length];
+	
+	for (int i = 0; i < tokens.length; i = i + 2) {
+		int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i])]];
+		StringBuffer buffer = new StringBuffer();
+		if(!alreadyAdded[index]) {
+			alreadyAdded[index] = true;
+			buffer.append(newName[index]);
+			buffer.append('=');
+			buffer.append(tokens[i+1].trim());
+			buffer.append('\n');
+			entries.add(String.valueOf(buffer));
+		}
+	}
+	int i = 1;
+	while(!INVALID_CHARACTER.equals(newName[i])) i++;
+	i++;
+	for (; i < alreadyAdded.length; i++) {
+		if(!alreadyAdded[i]) {
+			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
+		}
+	}
+	Collections.sort(entries);
+	buildFile(file, entries);
+}
+private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
+	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
+	stream.write(bytes);
+	stream.close();
+	System.out.println(filename + " creation complete"); //$NON-NLS-1$
+}
+private final static void buildFileForTable(String filename, char[] chars) throws java.io.IOException {
+
+	byte[] bytes = new byte[chars.length * 2];
+	for (int i = 0; i < chars.length; i++) {
+		bytes[2 * i] = (byte) (chars[i] >>> 8);
+		bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
+	}
+
+	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
+	stream.write(bytes);
+	stream.close();
+	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
 private final static void buildFileOfByteFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
@@ -284,114 +288,6 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	buildFileForTable(filename, chars);
 }
-private final static String[] buildFileForName(String filename, String contents) throws java.io.IOException {
-	String[] result = new String[contents.length()];
-	result[0] = null;
-	int resultCount = 1;
-	
-	StringBuffer buffer = new StringBuffer();
-	
-	int start = contents.indexOf("name[]"); //$NON-NLS-1$
-	start = contents.indexOf('\"', start); 
-	int end = contents.indexOf("};", start); //$NON-NLS-1$
-	
-	contents = contents.substring(start, end);
-	
-	boolean addLineSeparator = false;
-	int tokenStart = -1;
-	StringBuffer currentToken = new StringBuffer();
-	for (int i = 0; i < contents.length(); i++) {
-		char c = contents.charAt(i);
-		if(c == '\"') {
-			if(tokenStart == -1) {
-				tokenStart = i + 1;	
-			} else {
-				if(addLineSeparator) {
-					buffer.append('\n');
-					result[resultCount++] = currentToken.toString();
-					currentToken = new StringBuffer();
-				}
-				String token = contents.substring(tokenStart, i);
-				if(token.equals(ERROR_TOKEN)){
-					token = INVALID_CHARACTER;
-				} else if(token.equals(EOF_TOKEN)) {
-					token = UNEXPECTED_EOF;
-				}
-				buffer.append(token);
-				currentToken.append(token);
-				addLineSeparator = true;
-				tokenStart = -1;
-			}
-		}
-		if(tokenStart == -1 && c == '+'){
-			addLineSeparator = false;
-		}
-	}
-	if(currentToken.length() > 0) {
-		result[resultCount++] = currentToken.toString();
-	}
-	
-	buildFileForTable(filename, buffer.toString().toCharArray());
-	
-	System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
-	return result;
-}
-private static void buildFileForReadableName(
-	String file,
-	char[] newLhs,
-	char[] newNonTerminalIndex,
-	String[] newName,
-	String[] tokens) throws java.io.IOException {
-		
-	StringBuffer buffer = new StringBuffer();
-	
-	boolean[] alreadyAdded = new boolean[newName.length];
-	
-	for (int i = 0; i < tokens.length; i = i + 2) {
-		int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i])]];
-		if(!alreadyAdded[index]) {
-			alreadyAdded[index] = true;
-			buffer.append(newName[index]);
-			buffer.append('=');
-			buffer.append(tokens[i+1].trim());
-			buffer.append('\n');
-		}
-	}
-	int i = 1;
-	while(!INVALID_CHARACTER.equals(newName[i])) i++;
-	i++;
-	for (; i < alreadyAdded.length; i++) {
-		if(!alreadyAdded[i]) {
-			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
-		}
-	}
-	buildFile(file, buffer.toString());//$NON-NLS-1$
-}
-private final static void buildFile(String filename, String content) throws java.io.IOException {
-	java.io.FileWriter stream = new FileWriter(filename);
-	stream.write(content);
-	stream.close();
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
-private final static void buildFileForTable(String filename, char[] chars) throws java.io.IOException {
-
-	byte[] bytes = new byte[chars.length * 2];
-	for (int i = 0; i < chars.length; i++) {
-		bytes[2 * i] = (byte) (chars[i] >>> 8);
-		bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
-	}
-
-	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
-	stream.write(bytes);
-	stream.close();
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
-private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
-	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
-	stream.write(bytes);
-	stream.close();
-	System.out.println(filename + " creation complete"); //$NON-NLS-1$
-}
 public final static void buildFilesFromLPG(String dataFilename, String dataFilename2)	throws java.io.IOException {
 
 	//RUN THIS METHOD TO GENERATE PARSER*.RSC FILES
@@ -458,6 +354,273 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
 	System.out.println(Util.bind("parser.moveFiles")); //$NON-NLS-1$
+}
+public static int in_symbol(int state) {
+	return in_symb[original_state(state)];
+}
+public final static void initTables() throws java.io.IOException {
+
+	final String prefix = FILEPREFIX;
+	int i = 0;
+	lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	char[] chars = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	check_table = new short[chars.length];
+	for (int c = chars.length; c-- > 0;) {
+		check_table[c] = (short) (chars[c] - 32768);
+	}
+	asb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	asr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	nasb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	nasr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	non_terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	term_action = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+	scope_prefix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_suffix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_state_set = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_rhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_state = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	in_symb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+	rhs = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	term_check = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	readableName = readReadableNameTable(READABLE_NAMES);
+	
+	base_action = lhs;
+}
+public static int nasi(int state) {
+	return nasb[original_state(state)];
+}
+public static int ntAction(int state, int sym) {
+	return base_action[state + sym];
+}
+protected static int original_state(int state) {
+	return -base_check(state);
+}
+protected static byte[] readByteTable(String filename) throws java.io.IOException {
+
+	//files are located at Parser.class directory
+
+	InputStream stream = Parser.class.getResourceAsStream(filename);
+	if (stream == null) {
+		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+	}
+	byte[] bytes = null;
+	try {
+		stream = new BufferedInputStream(stream);
+		bytes = Util.getInputStreamAsByteArray(stream, -1);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+			// ignore
+		}
+	}
+	return bytes;
+}
+	
+protected static String[] readNameTable(String filename) throws java.io.IOException {
+	char[] contents = readTable(filename);
+	char[][] nameAsChar = CharOperation.splitOn('\n', contents);
+
+	String[] result = new String[nameAsChar.length + 1];
+	result[0] = null;
+	for (int i = 0; i < nameAsChar.length; i++) {
+		result[i + 1] = new String(nameAsChar[i]);
+	}
+	
+	return result;
+}
+protected static String[] readReadableNameTable(String filename) {
+	String[] result = new String[name.length];
+
+	ResourceBundle bundle;
+	try {
+		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
+	for (int i = 0; i < NT_OFFSET + 1; i++) {
+		result[i] = name[i];
+	}
+	for (int i = NT_OFFSET; i < name.length; i++) {
+		try {
+			String n = bundle.getString(name[i]);
+			if(n != null && n.length() > 0) {
+				result[i] = n;
+			} else {
+				result[i] = name[i];
+			}
+		} catch(MissingResourceException e) {
+			result[i] = name[i];
+		}
+	}
+	return result;
+}
+protected static char[] readTable(String filename) throws java.io.IOException {
+
+	//files are located at Parser.class directory
+
+	InputStream stream = Parser.class.getResourceAsStream(filename);
+	if (stream == null) {
+		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+	}
+	byte[] bytes = null;
+	try {
+		stream = new BufferedInputStream(stream);
+		bytes = Util.getInputStreamAsByteArray(stream, -1);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+			// ignore
+		}
+	}
+
+	//minimal integrity check (even size expected)
+	int length = bytes.length;
+	if (length % 2 != 0)
+		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
+
+	// convert bytes into chars
+	char[] chars = new char[length / 2];
+	int i = 0;
+	int charIndex = 0;
+
+	while (true) {
+		chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
+		if (i == length)
+			break;
+	}
+	return chars;
+}
+public static int tAction(int state, int sym) {
+	return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
+}
+	public Annotation annotation;
+
+	// annotation
+	public AnnotationParser annotationParser;
+	protected int astLengthPtr;
+	protected int[] astLengthStack;
+	protected int astPtr;
+	protected AstNode[] astStack = new AstNode[AstStackIncrement];
+	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
+	protected RecoveredElement currentElement;
+	public int currentToken;
+	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
+	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
+	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
+	protected int endStatementPosition;
+	protected int expressionLengthPtr;
+	protected int[] expressionLengthStack;
+	protected int expressionPtr;
+	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
+	public int firstToken ; // handle for multiple parsing goals
+	protected boolean hasError;
+	protected boolean hasReportedError;
+	protected int identifierLengthPtr;
+	protected int[] identifierLengthStack;
+	protected long[] identifierPositionStack;
+	//identifiers stacks 
+	protected int identifierPtr;
+	protected char[][] identifierStack;
+	protected boolean ignoreNextOpeningBrace;
+	//positions , dimensions , .... (int stacks)
+	protected int intPtr;
+	protected int[] intStack;
+	public int lastAct ; //handle for multiple parsing goals
+
+	//error recovery management
+	protected int lastCheckPoint;
+	protected int lastErrorEndPosition;
+	protected int lastIgnoredToken, nextIgnoredToken;
+	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
+	protected int lParenPos,rParenPos; //accurate only when used !
+	protected int modifiers;
+	protected int modifiersSourceStart;
+	protected int[] nestedMethod; //the ptr is nestedType
+	protected int nestedType, dimensions;
+	AstNode [] noAstNodes = new AstNode[AstStackIncrement];
+	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
+	//modifiers dimensions nestedType etc.......
+	protected boolean optimizeStringLiterals =true;
+	protected CompilerOptions options;
+	protected ProblemReporter problemReporter;
+	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
+	protected int realBlockPtr;
+	protected int[] realBlockStack;
+	protected int recoveredStaticInitializerStart;
+	public ReferenceContext referenceContext;
+	public boolean reportOnlyOneSyntaxError = false;
+	public boolean reportSyntaxErrorIsRequired = true;
+	protected boolean restartRecovery;
+	//scanner token 
+	public Scanner scanner;
+	protected int[] stack = new int[StackIncrement];
+	protected int stateStackTop;
+	private int synchronizedBlockSourceStart;
+	protected int[] variablesCounter;
+
+public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
+		
+	this.problemReporter = problemReporter;
+	this.options = problemReporter.options;
+	this.optimizeStringLiterals = optimizeStringLiterals;
+	this.initializeScanner();
+	astLengthStack = new int[50];
+	expressionLengthStack = new int[30];
+	intStack = new int[50];
+	identifierStack = new char[30][];
+	identifierLengthStack = new int[30];
+	nestedMethod = new int[30];
+	realBlockStack = new int[30];
+	identifierPositionStack = new long[30];
+	variablesCounter = new int[30];
+	
+	// annotation support
+	this.annotationParser = new AnnotationParser(this);	
+}
+/**
+ *
+ * INTERNAL USE-ONLY
+ */
+protected void adjustInterfaceModifiers() {
+	intStack[intPtr - 1] |= AccInterface;
+}
+public final void arrayInitializer(int length) {
+	//length is the size of the array Initializer
+	//expressionPtr points on the last elt of the arrayInitializer, 
+	// in other words, it has not been decremented yet.
+
+	ArrayInitializer ai = new ArrayInitializer();
+	if (length != 0) {
+		expressionPtr -= length;
+		System.arraycopy(expressionStack, expressionPtr + 1, ai.expressions = new Expression[length], 0, length);
+	}
+	pushOnExpressionStack(ai);
+	//positionning
+	ai.sourceEnd = endStatementPosition;
+	int searchPosition = length == 0 ? endPosition + 1 : ai.expressions[0].sourceStart;
+	try {
+		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
+		while (scanner.source[--searchPosition] != '{');
+	} catch (IndexOutOfBoundsException ex) {
+		//should never occur (except for strange cases like whose describe above)
+		searchPosition = (length == 0 ? endPosition : ai.expressions[0].sourceStart) - 1;
+	}
+	ai.sourceStart = searchPosition;
+}
+protected void blockReal() {
+	// See consumeLocalVariableDeclarationStatement in case of change: duplicated code
+	// increment the amount of declared variables for this block
+	realBlockStack[realBlockPtr]++;
 }
 /*
  * Build initial recovery state.
@@ -576,9 +739,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	}
 	return element;
 }
-public final static short base_check(int i) {
-	return check_table[i - (NUM_RULES + 1)];
-}
+
 public final void checkAndSetModifiers(int flag){
 	/*modify the current modifiers buffer.
 	When the startPosition of the modifiers is 0
@@ -646,25 +807,7 @@ protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 		}
 	}
 }
-protected char getNextCharacter(char[] comment, int[] index) {
-	char nextCharacter = comment[index[0]++];
-	switch(nextCharacter) {
-		case '\\' :
-			int c1, c2, c3, c4;
-			index[0]++;
-			while (comment[index[0]] == 'u') index[0]++;
-			if (!(((c1 = Character.getNumericValue(comment[index[0]++])) > 15
-				|| c1 < 0)
-				|| ((c2 = Character.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
-				|| ((c3 = Character.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
-				|| ((c4 = Character.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
-					nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-			}
-			break;
-	}
-	return nextCharacter;
-}
-protected void classInstanceCreation(boolean alwaysQualified) {
+protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
@@ -693,6 +836,12 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				length); 
 		}
 		alloc.type = getTypeReference(0);
+		
+		if (hasTypeArguments) {
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+		}
+		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
 		alloc.sourceStart = intStack[intPtr--];
@@ -710,7 +859,12 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		astPtr--;
 		astLengthPtr--;
-		
+
+		if (hasTypeArguments) {
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+		}
+
 		// mark initializers with local type mark if needed
 		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
@@ -733,6 +887,17 @@ private final void concatNodeLists() {
 	 */
 
 	astLengthStack[astLengthPtr - 1] += astLengthStack[astLengthPtr--];
+}
+protected void consumeAdditionalBound() {
+	pushOnAstStack(getTypeReference(0));
+}
+protected void consumeAdditionalBound1() {
+}
+protected void consumeAdditionalBoundList() {
+	concatNodeLists();
+}
+protected void consumeAdditionalBoundList1() {
+	concatNodeLists();
 }
 protected void consumeAllocationHeader() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -757,9 +922,24 @@ protected void consumeAllocationHeader() {
 	lastCheckPoint = scanner.startPosition; // force to restart at this exact position
 	restartRecovery = true; // request to restart from here on
 }
+protected void consumeAnnotationTypeBody() {
+	// TODO Auto-generated method stub
+}
+protected void consumeAnnotationTypeDeclaration() {
+	// TODO Auto-generated method stub
+}
+protected void consumeAnnotationTypeMemberDeclaration() {
+	// TODO Auto-generated method stub
+}
+protected void consumeAnnotationTypeMemberDeclarations() {
+	// TODO Auto-generated method stub
+}
 protected void consumeArgumentList() {
 	// ArgumentList ::= ArgumentList ',' Expression
 	concatExpressionLists();
+}
+protected void consumeArguments() {
+	// TODO Auto-generated method stub
 }
 protected void consumeArrayAccess(boolean unspecifiedReference) {
 	// ArrayAccess ::= Name '[' Expression ']' ==> true
@@ -784,6 +964,32 @@ protected void consumeArrayAccess(boolean unspecifiedReference) {
 					expressionStack[expressionPtr + 1]);
 	}
 	exp.sourceEnd = endPosition;
+}
+protected void consumeArrayCreationExpressionWithInitializer() {
+	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
+
+	int length;
+	ArrayAllocationExpression aae = new ArrayAllocationExpression();
+	expressionLengthPtr -- ;
+	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
+		
+	aae.type = getTypeReference(0);
+	length = (expressionLengthStack[expressionLengthPtr--]);
+	expressionPtr -= length ;
+	System.arraycopy(
+		expressionStack,
+		expressionPtr+1,
+		aae.dimensions = new Expression[length],
+		0,
+		length);
+	aae.sourceStart = intStack[intPtr--];
+	if (aae.initializer == null) {
+		aae.sourceEnd = endPosition;
+	} else {
+		aae.sourceEnd = aae.initializer.sourceEnd ;
+	}
+	pushOnExpressionStack(aae);
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
@@ -811,32 +1017,6 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 
 protected void consumeArrayCreationHeader() {
 	// nothing to do
-}
-protected void consumeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
-
-	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	expressionLengthPtr -- ;
-	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
-		
-	aae.type = getTypeReference(0);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
-	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
-		aae.dimensions = new Expression[length],
-		0,
-		length);
-	aae.sourceStart = intStack[intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
-	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
-	}
-	pushOnExpressionStack(aae);
 }
 protected void consumeArrayInitializer() {
 	// ArrayInitializer ::= '{' VariableInitializers '}'
@@ -960,6 +1140,55 @@ protected void consumeBinaryExpression(int op) {
 		}
 	}
 }
+/**
+ * @param op binary operator
+ */
+protected void consumeBinaryExpressionWithName(int op) {
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	expressionPtr--;
+	expressionLengthPtr--;
+	if (op == OR_OR) {
+		expressionStack[expressionPtr] = 
+			new OR_OR_Expression(
+				expressionStack[expressionPtr + 1], 
+				expressionStack[expressionPtr], 
+				op); 
+	} else {
+		if (op == AND_AND) {
+			expressionStack[expressionPtr] = 
+				new AND_AND_Expression(
+					expressionStack[expressionPtr + 1], 
+					expressionStack[expressionPtr], 
+					op);
+		} else {
+			// look for "string1" + "string2"
+			if ((op == PLUS) && optimizeStringLiterals) {
+				Expression expr1, expr2;
+				expr1 = expressionStack[expressionPtr + 1];
+				expr2 = expressionStack[expressionPtr];
+				if (expr1 instanceof StringLiteral) {
+					if (expr2 instanceof CharLiteral) { // string+char
+						expressionStack[expressionPtr] = 
+							((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
+					} else if (expr2 instanceof StringLiteral) { //string+string
+						expressionStack[expressionPtr] = 
+							((StringLiteral) expr1).extendWith((StringLiteral) expr2); 
+					} else {
+						expressionStack[expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+					}
+				} else {
+					expressionStack[expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+				}
+			} else {
+				expressionStack[expressionPtr] = 
+					new BinaryExpression(
+						expressionStack[expressionPtr + 1], 
+						expressionStack[expressionPtr], 
+						op);
+			}
+		}
+	}
+}
 protected void consumeBlock() {
 	// Block ::= OpenBlock '{' BlockStatementsopt '}'
 	// simpler action for empty blocks
@@ -1029,6 +1258,37 @@ protected void consumeCastExpressionLL1() {
 	expressionLengthPtr -- ;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
+}
+protected void consumeCastExpressionWithGenerics() {
+	// CastExpression ::= PushLPAREN Name TypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(0));
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+protected void consumeCastExpressionWithGenericsArray() {
+	// CastExpression ::= PushLPAREN Name TypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+protected void consumeCastExpressionWithNameArray() {
+	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+	pushOnAstLengthStack(-1);
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	cast.sourceEnd = exp.sourceEnd;
 }
 protected void consumeCatches() {
 	// Catches ::= Catches CatchClause
@@ -1143,10 +1403,11 @@ protected void consumeClassHeader() {
 }
 protected void consumeClassHeaderExtends() {
 	// ClassHeaderExtends ::= 'extends' ClassType
+	//superclass
+	TypeReference superClass = getTypeReference(0);
 	// There is a class declaration on the top of stack
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
-	//superclass
-	typeDecl.superclass = getTypeReference(0);
+	typeDecl.superclass = superClass;
 	typeDecl.bodyStart = typeDecl.superclass.sourceEnd + 1;
 	// recovery
 	if (currentElement != null){
@@ -1222,9 +1483,65 @@ protected void consumeClassHeaderName() {
 	typeDecl.annotation = this.annotation;
 	this.annotation = null;
 }
+protected void consumeClassHeaderNameWithTypeParameters() {
+
+	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier' TypeParameters
+	TypeDeclaration typeDecl;
+	if (nestedMethod[nestedType] == 0) {
+		if (nestedType != 0) {
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
+		} else {
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+		}
+	} else {
+		// Record that the block has a declaration for local types
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		markEnclosingMemberWithLocalType();
+		blockReal();
+	}
+
+	// consume type parameters
+	astPtr-= astLengthStack[astLengthPtr--];
+	//highlight the name of the type
+	long pos = identifierPositionStack[identifierPtr];
+	typeDecl.sourceEnd = (int) pos;
+	typeDecl.sourceStart = (int) (pos >>> 32);
+	typeDecl.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+
+	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
+	typeDecl.declarationSourceStart = intStack[intPtr--]; 
+	intPtr--; // remove the end position of the class token
+
+	typeDecl.modifiersSourceStart = intStack[intPtr--];
+	typeDecl.modifiers = intStack[intPtr--];
+	if (typeDecl.modifiersSourceStart >= 0) {
+		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
+	}
+	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
+	pushOnAstStack(typeDecl);
+
+	listLength = 0; // will be updated when reading super-interfaces
+	// recovery
+	if (currentElement != null){ 
+		lastCheckPoint = typeDecl.bodyStart;
+		currentElement = currentElement.add(typeDecl, 0);
+		lastIgnoredToken = -1;
+	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
+}
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
-	classInstanceCreation(false);
+	classInstanceCreation(false, false);
+}
+protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
+	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+	classInstanceCreation(false, true);
 }
 protected void consumeClassInstanceCreationExpressionName() {
 	// ClassInstanceCreationExpressionName ::= Name '.'
@@ -1234,7 +1551,7 @@ protected void consumeClassInstanceCreationExpressionQualified() {
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 
-	classInstanceCreation(true); //  <-- push the Qualifed....
+	classInstanceCreation(true, false); //  <-- push the Qualifed....
 
 	expressionLengthPtr--;
 	QualifiedAllocationExpression qae = 
@@ -1242,6 +1559,26 @@ protected void consumeClassInstanceCreationExpressionQualified() {
 	qae.enclosingInstance = expressionStack[expressionPtr];
 	expressionStack[expressionPtr] = qae;
 	qae.sourceStart = qae.enclosingInstance.sourceStart;
+}
+protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
+	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+
+	classInstanceCreation(true, true); //  <-- push the Qualifed....
+
+	expressionLengthPtr--;
+	QualifiedAllocationExpression qae = 
+		(QualifiedAllocationExpression) expressionStack[expressionPtr--]; 
+	qae.enclosingInstance = expressionStack[expressionPtr];
+	expressionStack[expressionPtr] = qae;
+	qae.sourceStart = qae.enclosingInstance.sourceStart;
+}
+protected void consumeClassOrInterfaceType() {
+	pushOnAstLengthStack(-1); // handle type arguments
+	pushOnIntStack(0); // handle array type
+}
+protected void consumeClassOrInterfaceTypeWithTypeArguments() {
+	pushOnIntStack(0); // handle array type
 }
 protected void consumeClassTypeElt() {
 	// ClassTypeElt ::= ClassType
@@ -1269,6 +1606,20 @@ protected void consumeConditionalExpression(int op) {
 			expressionStack[expressionPtr],
 			expressionStack[expressionPtr + 1],
 			expressionStack[expressionPtr + 2]);
+}
+/**
+ * @param op
+ */
+protected void consumeConditionalExpressionWithName(int op) {
+	// ConditionalExpression ::= Name '?' Expression ':' ConditionalExpression
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	expressionPtr -= 2;
+	expressionLengthPtr -= 2;
+	expressionStack[expressionPtr] =
+		new ConditionalExpression(
+			expressionStack[expressionPtr + 2],
+			expressionStack[expressionPtr],
+			expressionStack[expressionPtr + 1]);
 }
 protected void consumeConstructorBlockStatements() {
 	// ConstructorBody ::= NestedMethod '{' ExplicitConstructorInvocation BlockStatements '}'
@@ -1362,18 +1713,6 @@ protected void consumeConstructorDeclaration() {
 	cd.bodyEnd = endPosition;
 	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
-
-protected void consumeInvalidConstructorDeclaration() {
-	// ConstructorDeclaration ::= ConstructorHeader ';'
-	// now we know that the top of stack is a constructorDeclaration
-	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
-
-	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
-	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
-	// report the problem and continue the parsing - narrowing the problem onto the method
-	
-	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
-}
 protected void consumeConstructorHeader() {
 	// ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderThrowsClauseopt
 
@@ -1438,6 +1777,52 @@ protected void consumeConstructorHeaderName() {
 		}
 	}	
 }
+protected void consumeConstructorHeaderNameWithTypeParameters() {
+
+	/* recovering - might be an empty message send */
+	if (currentElement != null){
+		if (lastIgnoredToken == TokenNamenew){ // was an allocation expression
+			lastCheckPoint = scanner.startPosition; // force to restart at this exact position				
+			restartRecovery = true;
+			return;
+		}
+	}
+	
+	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
+
+	//name -- this is not really revelant but we do .....
+	cd.selector = identifierStack[identifierPtr];
+	long selectorSource = identifierPositionStack[identifierPtr--];
+	identifierLengthPtr--;
+
+	// consume type parameters
+	astPtr-= astLengthStack[astLengthPtr--];
+	
+	//modifiers
+	cd.declarationSourceStart = intStack[intPtr--];
+	cd.modifiers = intStack[intPtr--];
+	// annotation
+	cd.annotation = this.annotation;
+	this.annotation = null;
+
+	//highlight starts at the selector starts
+	cd.sourceStart = (int) (selectorSource >>> 32);
+	pushOnAstStack(cd);
+	cd.sourceEnd = lParenPos;
+	cd.bodyStart = lParenPos+1;
+	listLength = 0; // initialize listLength before reading parameters/throws
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = cd.bodyStart;
+		if ((currentElement instanceof RecoveredType && lastIgnoredToken != TokenNameDOT)
+			|| cd.modifiers != 0){
+			currentElement = currentElement.add(cd, 0);
+			lastIgnoredToken = -1;
+		}
+	}	
+}
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
 	pushOnAstStack(new CaseStatement(null, intStack[intPtr--], intStack[intPtr--]));
@@ -1448,6 +1833,9 @@ protected void consumeDefaultModifiers() {
 	pushOnIntStack(
 		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition); 
 	resetModifiers();
+}
+protected void consumeDefaultValue() {
+	// TODO Auto-generated method stub	
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
@@ -1474,9 +1862,18 @@ protected void consumeDimWithOrWithOutExprs() {
 	// DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 	concatExpressionLists();
 }
+protected void consumeEmptyAnnotationTypeMemberDeclaration() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEmptyAnnotationTypeMemberDeclarations() {
+	// TODO Auto-generated method stub	
+}
 protected void consumeEmptyArgumentListopt() {
 	// ArgumentListopt ::= $empty
 	pushOnExpressionStackLengthStack(0);
+}
+protected void consumeEmptyArguments() {
+	// TODO Auto-generated method stub	
 }
 protected void consumeEmptyArrayInitializer() {
 	// ArrayInitializer ::= '{' ,opt '}'
@@ -1504,9 +1901,15 @@ protected void consumeEmptyClassMemberDeclaration() {
 	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
 	this.scanner.commentPtr = -1;
 }
+protected void consumeEmptyDefaultValue() {
+	// TODO Auto-generated method stub	
+}
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
 	pushOnIntStack(0);
+}
+protected void consumeEmptyEnumDeclarations() {
+	// TODO Auto-generated method stub	
 }
 protected void consumeEmptyExpression() {
 	// Expressionopt ::= $empty
@@ -1532,6 +1935,9 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
+protected void consumeEmptyMemberValuePairs() {
+	// TODO Auto-generated method stub	
+}
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
 	if (this.scanner.source[endStatementPosition] == ';') {
@@ -1555,8 +1961,48 @@ protected void consumeEmptyTypeDeclarationsopt() {
 	// TypeDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0); 
 }
+protected void consumeEmptyWildcardBounds() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEnhancedForStatement() {
+	// ForStatement ::= 'for' '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' Statement
+	// ForStatementNoShortIf ::= 'for' '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' StatementNoShortIf
+
+	Expression collection = null;
+	TypeReference type;
+	//statements
+	astLengthPtr--;
+	Statement statement = (Statement) astStack[astPtr--];
+
+	//updates are on the expresion stack
+	if (expressionLengthStack[expressionLengthPtr--] == 1) {
+		expressionPtr--;
+		collection = expressionStack[expressionPtr + 1];
+	}
+
+	char[] identifierName = identifierStack[identifierPtr];
+	long namePosition = identifierPositionStack[identifierPtr];
+	
+	identifierPtr--;
+	identifierLengthPtr--;
+	// remove fake modifiers/modifiers start
+	intPtr-=2;
+	
+	type = getTypeReference(intStack[intPtr--]); // type dimension
+
+	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, type.sourceStart, (int) namePosition);
+	pushOnAstStack(
+		new IteratorForStatement(
+			localDeclaration,
+			collection,
+			statement, 
+			intStack[intPtr--], 
+			endStatementPosition)); 
+}
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
+	TypeReference typeReference = getTypeReference(0);
+
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 
 		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
@@ -1576,7 +2022,7 @@ protected void consumeEnterAnonymousClassBody() {
 			0, 
 			argumentLength); 
 	}
-	alloc.type = getTypeReference(0);
+	alloc.type = typeReference;
 
 	anonymousType.sourceEnd = alloc.sourceEnd;
 	//position at the type while it impacts the anonymous declaration
@@ -1697,6 +2143,18 @@ protected void consumeEnterVariable() {
 		lastIgnoredToken = -1;
 	}
 }
+protected void consumeEnumBody() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEnumConstant() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEnumConstants() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeEnumDeclaration() {
+	// TODO Auto-generated method stub	
+}
 protected void consumeEqualityExpression(int op) {
 	// EqualityExpression ::= EqualityExpression '==' RelationalExpression
 	// EqualityExpression ::= EqualityExpression '!=' RelationalExpression
@@ -1709,6 +2167,21 @@ protected void consumeEqualityExpression(int op) {
 		new EqualExpression(
 			expressionStack[expressionPtr],
 			expressionStack[expressionPtr + 1],
+			op);
+}
+/*
+ * @param op
+ */
+protected void consumeEqualityExpressionWithName(int op) {
+	// EqualityExpression ::= Name '==' RelationalExpression
+	// EqualityExpression ::= Name '!=' RelationalExpression
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	expressionPtr--;
+	expressionLengthPtr--;
+	expressionStack[expressionPtr] =
+		new EqualExpression(
+			expressionStack[expressionPtr + 1],
+			expressionStack[expressionPtr],
 			op);
 }
 protected void consumeExitVariableWithInitialization() {
@@ -1765,6 +2238,48 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 			ecc.sourceStart = (ecc.qualification = getUnspecifiedReferenceOptimized()).sourceStart;
 			break;
 	}
+	pushOnAstStack(ecc);
+	ecc.sourceEnd = endPosition;
+}
+protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, int recFlag) {
+
+	/* flag allows to distinguish 3 cases :
+	(0) :   
+	ExplicitConstructorInvocation ::= TypeArguments 'this' '(' ArgumentListopt ')' ';'
+	ExplicitConstructorInvocation ::= TypeArguments 'super' '(' ArgumentListopt ')' ';'
+	(1) :
+	ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+	ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+	(2) :
+	ExplicitConstructorInvocation ::= Name '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+	ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+	*/
+	int startPosition = intStack[intPtr--];
+	ExplicitConstructorCall ecc = new ExplicitConstructorCall(recFlag);
+	int length;
+	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
+		expressionPtr -= length;
+		System.arraycopy(expressionStack, expressionPtr + 1, ecc.arguments = new Expression[length], 0, length);
+	}
+	switch (flag) {
+		case 0 :
+			ecc.sourceStart = startPosition;
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+			break;
+		case 1 :
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+			expressionLengthPtr--;
+			ecc.sourceStart = (ecc.qualification = expressionStack[expressionPtr--]).sourceStart;
+			break;
+		case 2 :
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+			ecc.sourceStart = (ecc.qualification = getUnspecifiedReferenceOptimized()).sourceStart;
+			break;
+	}
+	
 	pushOnAstStack(ecc);
 	ecc.sourceEnd = endPosition;
 }
@@ -1859,7 +2374,7 @@ protected void consumeForInit() {
 	// ForInit ::= StatementExpressionList
 	pushOnAstLengthStack(-1);
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	// FormalParameter ::= Type VariableDeclaratorId ==> false
 	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
 	/*
@@ -1883,7 +2398,8 @@ protected void consumeFormalParameter() {
 			identifierName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+			intStack[intPtr + 1] & ~AccDeprecated,
+			isVarArgs); // modifiers
 	arg.declarationSourceStart = modifierPositions;
 	pushOnAstStack(arg);
 
@@ -1898,6 +2414,29 @@ protected void consumeFormalParameterList() {
 protected void consumeFormalParameterListopt() {
 	// FormalParameterListopt ::= $empty
 	pushOnAstLengthStack(0);
+}
+protected void consumeGenericTypeArrayType() {
+}
+protected void consumeGenericTypeNameArrayType() {
+	pushOnAstLengthStack(-1); // handle type arguments
+}
+protected void consumeImportDeclaration() {
+	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
+	resetModifiers();
+	ImportReference impt = (ImportReference) astStack[astPtr];
+	// flush annotations defined prior to import statements
+	impt.declarationEnd = endStatementPosition;
+	impt.declarationSourceEnd = 
+		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
+
+	// recovery
+	if (currentElement != null) {
+		lastCheckPoint = impt.declarationSourceEnd + 1;
+		currentElement = currentElement.add(impt, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; 
+		// used to avoid branching back into the regular automaton
+	}
 }
 protected void consumeImportDeclarations() {
 	// ImportDeclarations ::= ImportDeclarations ImportDeclaration 
@@ -1921,8 +2460,8 @@ protected void consumeInsideCastExpression() {
 }
 protected void consumeInsideCastExpressionLL1() {
 	// InsideCastExpressionLL1 ::= $empty
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 }
-
 protected void consumeInstanceOfExpression(int op) {
 	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
 	//optimize the push/pop
@@ -1933,6 +2472,28 @@ protected void consumeInstanceOfExpression(int op) {
 		new InstanceOfExpression(
 			expressionStack[expressionPtr],
 			getTypeReference(intStack[intPtr--]),
+			op);
+	if (exp.sourceEnd == 0) {
+		//array on base type....
+		exp.sourceEnd = scanner.startPosition - 1;
+	}
+	//the scanner is on the next token already....
+}
+/**
+ * @param op
+ */
+protected void consumeInstanceOfExpressionWithName(int op) {
+	// RelationalExpression_NotName ::= Name instanceof ReferenceType
+	//optimize the push/pop
+
+	//by construction, no base type may be used in getTypeReference
+	TypeReference reference = getTypeReference(intStack[intPtr--]);
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	Expression exp;
+	expressionStack[expressionPtr] = exp =
+		new InstanceOfExpression(
+			expressionStack[expressionPtr],
+			reference,
 			op);
 	if (exp.sourceEnd == 0) {
 		//array on base type....
@@ -2048,6 +2609,56 @@ protected void consumeInterfaceHeaderName() {
 	typeDecl.annotation = this.annotation;
 	this.annotation = null;
 }
+protected void consumeInterfaceHeaderNameWithTypeParameters() {
+	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier' TypeParameters
+	TypeDeclaration typeDecl;
+	if (nestedMethod[nestedType] == 0) {
+		if (nestedType != 0) {
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
+		} else {
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
+		}
+	} else {
+		// Record that the block has a declaration for local types
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
+		markEnclosingMemberWithLocalType();
+		blockReal();
+	}
+
+	// consume type parameters
+	astPtr-= astLengthStack[astLengthPtr--];
+	
+	//highlight the name of the type
+	long pos = identifierPositionStack[identifierPtr];
+	typeDecl.sourceEnd = (int) pos;
+	typeDecl.sourceStart = (int) (pos >>> 32);
+	typeDecl.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+
+	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
+	typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--; // remove the end position of the class token
+	typeDecl.modifiersSourceStart = intStack[intPtr--];
+	typeDecl.modifiers = intStack[intPtr--];
+	if (typeDecl.modifiersSourceStart >= 0) {
+		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
+	}
+	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
+	pushOnAstStack(typeDecl);
+	listLength = 0; // will be updated when reading super-interfaces
+	// recovery
+	if (currentElement != null){ // is recovering
+		lastCheckPoint = typeDecl.bodyStart;
+		currentElement = currentElement.add(typeDecl, 0);
+		lastIgnoredToken = -1;		
+	}
+	// annotation
+	typeDecl.annotation = this.annotation;
+	this.annotation = null;
+}
 protected void consumeInterfaceMemberDeclarations() {
 	// InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
 	concatNodeLists();
@@ -2066,6 +2677,18 @@ protected void consumeInterfaceType() {
 protected void consumeInterfaceTypeList() {
 	// InterfaceTypeList ::= InterfaceTypeList ',' InterfaceType
 	optimizedConcatNodeLists();
+}
+
+protected void consumeInvalidConstructorDeclaration() {
+	// ConstructorDeclaration ::= ConstructorHeader ';'
+	// now we know that the top of stack is a constructorDeclaration
+	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
+
+	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
+	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
+	// report the problem and continue the parsing - narrowing the problem onto the method
+	
+	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
 }
 protected void consumeLeftParen() {
 	// PushLPAREN ::= '('
@@ -2114,6 +2737,21 @@ protected void consumeLocalVariableDeclarationStatement() {
 		localDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
 	}
 
+}
+protected void consumeMarkerAnnotation() {
+	// TODO Auto-generated method stub
+}
+protected void consumeMemberValueArrayInitializer() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeMemberValuePair() {
+	// TODO Auto-generated method stub
+}
+protected void consumeMemberValuePairs() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeMemberValues() {
+	// TODO Auto-generated method stub	
 }
 protected void consumeMethodBody() {
 	// MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
@@ -2266,6 +2904,49 @@ protected void consumeMethodHeaderName() {
 		}
 	}		
 }
+protected void consumeMethodHeaderNameWithTypeParameters() {
+	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
+
+	//name
+	md.selector = identifierStack[identifierPtr];
+	long selectorSource = identifierPositionStack[identifierPtr--];
+	identifierLengthPtr--;
+	//type
+	md.returnType = getTypeReference(intStack[intPtr--]);
+	
+	// consume type parameters
+	astPtr-= astLengthStack[astLengthPtr--];
+	
+	//modifiers
+	md.declarationSourceStart = intStack[intPtr--];
+	md.modifiers = intStack[intPtr--];
+	// annotation
+	md.annotation = this.annotation;
+	this.annotation = null;
+
+	//highlight starts at selector start
+	md.sourceStart = (int) (selectorSource >>> 32);
+	pushOnAstStack(md);
+	md.sourceEnd = lParenPos;
+	md.bodyStart = lParenPos+1;
+	listLength = 0; // initialize listLength before reading parameters/throws
+	
+	// recovery
+	if (currentElement != null){
+		if (currentElement instanceof RecoveredType 
+			//|| md.modifiers != 0
+			|| (scanner.getLineNumber(md.returnType.sourceStart)
+					== scanner.getLineNumber(md.sourceStart))){
+			lastCheckPoint = md.bodyStart;
+			currentElement = currentElement.add(md, 0);
+			lastIgnoredToken = -1;
+		} else {
+			lastCheckPoint = md.sourceStart;
+			restartRecovery = true;
+		}
+	}		
+}
 protected void consumeMethodHeaderParameters() {
 	// MethodHeaderParameters ::= FormalParameterListopt ')'
 	int length = astLengthStack[astLengthPtr--];
@@ -2338,6 +3019,30 @@ protected void consumeMethodInvocationName() {
 	}
 	pushOnExpressionStack(m);
 }
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	// MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+
+	// when the name is only an identifier...we have a message send to "this" (implicit)
+
+	MessageSend m = newMessageSend();
+	m.sourceEnd = rParenPos;
+	m.sourceStart = 
+		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
+	m.selector = identifierStack[identifierPtr--];
+
+	// handle type arguments
+	astPtr -= astLengthStack[astLengthPtr--];
+	
+	if (identifierLengthStack[identifierLengthPtr] == 1) {
+		m.receiver = ThisReference.implicitThis();
+		identifierLengthPtr--;
+	} else {
+		identifierLengthStack[identifierLengthPtr]--;
+		m.receiver = getUnspecifiedReference();
+		m.sourceStart = m.receiver.sourceStart;		
+	}
+	pushOnExpressionStack(m);
+}
 protected void consumeMethodInvocationPrimary() {
 	//optimize the push/pop
 	//MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
@@ -2347,6 +3052,24 @@ protected void consumeMethodInvocationPrimary() {
 		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
 	m.selector = identifierStack[identifierPtr--];
 	identifierLengthPtr--;
+	m.receiver = expressionStack[expressionPtr];
+	m.sourceStart = m.receiver.sourceStart;
+	m.sourceEnd = rParenPos;
+	expressionStack[expressionPtr] = m;
+}
+protected void consumeMethodInvocationPrimaryWithTypeArguments() {
+	//optimize the push/pop
+	//MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+
+	MessageSend m = newMessageSend();
+	m.sourceStart = 
+		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
+	m.selector = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	// handle type arguments
+	astPtr -= astLengthStack[astLengthPtr--];
+
 	m.receiver = expressionStack[expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
 	m.sourceEnd = rParenPos;
@@ -2364,6 +3087,22 @@ protected void consumeMethodInvocationSuper() {
 	m.receiver = new SuperReference(m.sourceStart, endPosition);
 	pushOnExpressionStack(m);
 }
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+
+	MessageSend m = newMessageSend();
+	m.sourceStart = intStack[intPtr--];
+	m.sourceEnd = rParenPos;
+	m.nameSourcePosition = identifierPositionStack[identifierPtr];
+	m.selector = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	// handle type arguments
+	astPtr -= astLengthStack[astLengthPtr--];
+
+	m.receiver = new SuperReference(m.sourceStart, endPosition);
+	pushOnExpressionStack(m);
+}
 protected void consumeModifiers() {
 	int savedModifiersSourceStart = modifiersSourceStart;	
 	checkAnnotation(); // might update modifiers with AccDeprecated
@@ -2373,6 +3112,9 @@ protected void consumeModifiers() {
 	}
 	pushOnIntStack(modifiersSourceStart);
 	resetModifiers();
+}
+protected void consumeNameArrayType() {
+	pushOnAstLengthStack(-1); // handle type arguments
 }
 protected void consumeNestedMethod() {
 	// NestedMethod ::= $empty
@@ -2395,6 +3137,9 @@ protected void consumeNestedType() {
 		System.arraycopy(variablesCounter, 0, (variablesCounter = new int[oldL + 30]), 0, oldL);
 	}
 	variablesCounter[nestedType] = 0;
+}
+protected void consumeNormalAnnotation() {
+	// TODO Auto-generated method stub	
 }
 protected void consumeOneDimLoop() {
 	// OneDimLoop ::= '[' ']'
@@ -2480,20 +3225,20 @@ protected void consumePrimaryNoNewArray() {
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'
-	intPtr--;
+	intPtr--; // remove the class start position
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
-		getTypeReference(intStack[intPtr--])));
+		new ClassLiteralAccess(intStack[intPtr--], getTypeReference(intStack[intPtr--])));
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
-	intPtr--;
+	intPtr--; // remove the class start position
+	pushOnAstLengthStack(-1); // handle type arguments
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
-		getTypeReference(0)));
+		new ClassLiteralAccess(intStack[intPtr--], getTypeReference(0)));
 }
 protected void consumePrimaryNoNewArrayNameSuper() {
 	// PrimaryNoNewArray ::= Name '.' 'super'
+	pushOnAstLengthStack(-1); // handle type arguments
 	pushOnExpressionStack(
 		new QualifiedSuperReference(
 			getTypeReference(0),
@@ -2502,6 +3247,7 @@ protected void consumePrimaryNoNewArrayNameSuper() {
 }
 protected void consumePrimaryNoNewArrayNameThis() {
 	// PrimaryNoNewArray ::= Name '.' 'this'
+	pushOnAstLengthStack(-1); // handle type arguments
 	pushOnExpressionStack(
 		new QualifiedThisReference(
 			getTypeReference(0),
@@ -2510,14 +3256,24 @@ protected void consumePrimaryNoNewArrayNameThis() {
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
-	intPtr--;
+	intPtr--; // remove the class start position
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
-		getTypeReference(0)));
+		new ClassLiteralAccess(intStack[intPtr--], getTypeReference(0)));
 }
 protected void consumePrimaryNoNewArrayThis() {
 	// PrimaryNoNewArray ::= 'this'
 	pushOnExpressionStack(new ThisReference(intStack[intPtr--], endPosition));
+}
+protected void consumePrimaryNoNewArrayWithName() {
+	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	final Expression parenthesizedExpression = expressionStack[expressionPtr];
+	updateSourcePosition(parenthesizedExpression);
+	int numberOfParenthesis = (parenthesizedExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+	parenthesizedExpression.bits &= ~AstNode.ParenthesizedMASK;
+	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << AstNode.ParenthesizedSHIFT;
+}
+protected void consumePrimitiveArrayType() {
 }
 protected void consumePrimitiveType() {
 	// Type ::= PrimitiveType
@@ -2541,8 +3297,16 @@ protected void consumeQualifiedName() {
 	identifierLengthStack[--identifierLengthPtr]++;
 }
 protected void consumeReferenceType() {
-	// ReferenceType ::= ClassOrInterfaceType
-	pushOnIntStack(0);
+	pushOnAstStack(getTypeReference(0));	
+}
+protected void consumeReferenceType1() {
+	pushOnAstStack(getTypeReference(0));	
+}
+protected void consumeReferenceType2() {
+	pushOnAstStack(getTypeReference(0));	
+}
+protected void consumeReferenceType3() {
+	pushOnAstStack(getTypeReference(0));	
 }
 protected void consumeRestoreDiet() {
 	// RestoreDiet ::= $empty
@@ -2555,888 +3319,1474 @@ protected void consumeRightParen() {
 // This method is part of an automatic generation : do NOT edit-modify  
 protected void consumeRule(int act) {
   switch ( act ) {
-    case 26 : // System.out.println("Type ::= PrimitiveType");  //$NON-NLS-1$
+    case 26 : if (DEBUG) { System.out.println("Type ::= PrimitiveType"); }  //$NON-NLS-1$
 		    consumePrimitiveType();  
 			break ;
  
-    case 40 : // System.out.println("ReferenceType ::= ClassOrInterfaceType");  //$NON-NLS-1$
-		    consumeReferenceType();   
+    case 42 : if (DEBUG) { System.out.println("ClassOrInterfaceType ::= ClassOrInterface"); }  //$NON-NLS-1$
+		    consumeClassOrInterfaceType();   
 			break ;
  
-    case 49 : // System.out.println("QualifiedName ::= Name DOT SimpleName");  //$NON-NLS-1$
+    case 43 : if (DEBUG) { System.out.println("ClassOrInterfaceType ::= ClassOrInterface TypeArguments"); }  //$NON-NLS-1$
+		    consumeClassOrInterfaceTypeWithTypeArguments();   
+			break ;
+ 
+    case 46 : if (DEBUG) { System.out.println("ArrayType ::= PrimitiveType Dims"); }  //$NON-NLS-1$
+		    consumePrimitiveArrayType();   
+			break ;
+ 
+    case 47 : if (DEBUG) { System.out.println("ArrayType ::= Name Dims"); }  //$NON-NLS-1$
+		    consumeNameArrayType();   
+			break ;
+ 
+    case 48 : if (DEBUG) { System.out.println("ArrayType ::= ClassOrInterface TypeArguments DOT Name..."); }  //$NON-NLS-1$
+		    consumeGenericTypeNameArrayType();   
+			break ;
+ 
+    case 49 : if (DEBUG) { System.out.println("ArrayType ::= ClassOrInterface TypeArguments Dims"); }  //$NON-NLS-1$
+		    consumeGenericTypeArrayType();   
+			break ;
+ 
+    case 54 : if (DEBUG) { System.out.println("QualifiedName ::= Name DOT SimpleName"); }  //$NON-NLS-1$
 		    consumeQualifiedName();  
 			break ;
  
-    case 50 : // System.out.println("CompilationUnit ::= EnterCompilationUnit PackageDeclarationopt...");  //$NON-NLS-1$
+    case 55 : if (DEBUG) { System.out.println("CompilationUnit ::= EnterCompilationUnit..."); }  //$NON-NLS-1$
 		    consumeCompilationUnit();  
 			break ;
  
-    case 51 : // System.out.println("EnterCompilationUnit ::=");  //$NON-NLS-1$
+    case 56 : if (DEBUG) { System.out.println("EnterCompilationUnit ::="); }  //$NON-NLS-1$
 		    consumeEnterCompilationUnit();  
 			break ;
  
-    case 64 : // System.out.println("CatchHeader ::= catch LPAREN FormalParameter RPAREN LBRACE");  //$NON-NLS-1$
+    case 67 : if (DEBUG) { System.out.println("CatchHeader ::= catch LPAREN FormalParameter RPAREN..."); }  //$NON-NLS-1$
 		    consumeCatchHeader();  
 			break ;
  
-    case 66 : // System.out.println("ImportDeclarations ::= ImportDeclarations ImportDeclaration");  //$NON-NLS-1$
+    case 69 : if (DEBUG) { System.out.println("ImportDeclarations ::= ImportDeclarations..."); }  //$NON-NLS-1$
 		    consumeImportDeclarations();  
 			break ;
  
-    case 68 : // System.out.println("TypeDeclarations ::= TypeDeclarations TypeDeclaration");  //$NON-NLS-1$
+    case 71 : if (DEBUG) { System.out.println("TypeDeclarations ::= TypeDeclarations TypeDeclaration"); }  //$NON-NLS-1$
 		    consumeTypeDeclarations();  
 			break ;
  
-    case 69 : // System.out.println("PackageDeclaration ::= PackageDeclarationName SEMICOLON");  //$NON-NLS-1$
+    case 72 : if (DEBUG) { System.out.println("PackageDeclaration ::= PackageDeclarationName SEMICOLON"); }  //$NON-NLS-1$
 		     consumePackageDeclaration();  
 			break ;
  
-    case 70 : // System.out.println("PackageDeclarationName ::= package Name");  //$NON-NLS-1$
+    case 73 : if (DEBUG) { System.out.println("PackageDeclarationName ::= package Name"); }  //$NON-NLS-1$
 		     consumePackageDeclarationName();  
 			break ;
  
-    case 73 : // System.out.println("SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName...");  //$NON-NLS-1$
-		    consumeSingleTypeImportDeclaration();  
+    case 78 : if (DEBUG) { System.out.println("SingleTypeImportDeclaration ::=..."); }  //$NON-NLS-1$
+		    consumeImportDeclaration();  
 			break ;
  
-    case 74 : // System.out.println("SingleTypeImportDeclarationName ::= import Name");  //$NON-NLS-1$
+    case 79 : if (DEBUG) { System.out.println("SingleTypeImportDeclarationName ::= import Name"); }  //$NON-NLS-1$
 		    consumeSingleTypeImportDeclarationName();  
 			break ;
  
-    case 75 : // System.out.println("TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName");  //$NON-NLS-1$
-		    consumeTypeImportOnDemandDeclaration();  
+    case 80 : if (DEBUG) { System.out.println("TypeImportOnDemandDeclaration ::=..."); }  //$NON-NLS-1$
+		    consumeImportDeclaration();  
 			break ;
  
-    case 76 : // System.out.println("TypeImportOnDemandDeclarationName ::= import Name DOT MULTIPLY");  //$NON-NLS-1$
+    case 81 : if (DEBUG) { System.out.println("TypeImportOnDemandDeclarationName ::= import Name DOT..."); }  //$NON-NLS-1$
 		    consumeTypeImportOnDemandDeclarationName();  
 			break ;
  
-     case 79 : // System.out.println("TypeDeclaration ::= SEMICOLON");  //$NON-NLS-1$
+     case 84 : if (DEBUG) { System.out.println("TypeDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyTypeDeclaration();  
 			break ;
  
-    case 93 : // System.out.println("ClassDeclaration ::= ClassHeader ClassBody");  //$NON-NLS-1$
+    case 100 : if (DEBUG) { System.out.println("ClassDeclaration ::= ClassHeader ClassBody"); }  //$NON-NLS-1$
 		    consumeClassDeclaration();  
 			break ;
  
-    case 94 : // System.out.println("ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt...");  //$NON-NLS-1$
+    case 101 : if (DEBUG) { System.out.println("ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt..."); }  //$NON-NLS-1$
 		    consumeClassHeader();  
 			break ;
  
-    case 95 : // System.out.println("ClassHeaderName ::= Modifiersopt class Identifier");  //$NON-NLS-1$
+    case 102 : if (DEBUG) { System.out.println("ClassHeaderName ::= Modifiersopt class Identifier..."); }  //$NON-NLS-1$
+		    consumeClassHeaderNameWithTypeParameters();  
+			break ;
+ 
+    case 103 : if (DEBUG) { System.out.println("ClassHeaderName ::= Modifiersopt class Identifier"); }  //$NON-NLS-1$
 		    consumeClassHeaderName();  
 			break ;
  
-    case 96 : // System.out.println("ClassHeaderExtends ::= extends ClassType");  //$NON-NLS-1$
+    case 104 : if (DEBUG) { System.out.println("ClassHeaderExtends ::= extends ClassType"); }  //$NON-NLS-1$
 		    consumeClassHeaderExtends();  
 			break ;
  
-    case 97 : // System.out.println("ClassHeaderImplements ::= implements InterfaceTypeList");  //$NON-NLS-1$
+    case 105 : if (DEBUG) { System.out.println("ClassHeaderImplements ::= implements InterfaceTypeList"); }  //$NON-NLS-1$
 		    consumeClassHeaderImplements();  
 			break ;
  
-    case 99 : // System.out.println("InterfaceTypeList ::= InterfaceTypeList COMMA InterfaceType");  //$NON-NLS-1$
+    case 107 : if (DEBUG) { System.out.println("InterfaceTypeList ::= InterfaceTypeList COMMA..."); }  //$NON-NLS-1$
 		    consumeInterfaceTypeList();  
 			break ;
  
-    case 100 : // System.out.println("InterfaceType ::= ClassOrInterfaceType");  //$NON-NLS-1$
+    case 108 : if (DEBUG) { System.out.println("InterfaceType ::= ClassOrInterfaceType"); }  //$NON-NLS-1$
 		    consumeInterfaceType();  
 			break ;
  
-    case 103 : // System.out.println("ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration");  //$NON-NLS-1$
+    case 111 : if (DEBUG) { System.out.println("ClassBodyDeclarations ::= ClassBodyDeclarations..."); }  //$NON-NLS-1$
 		    consumeClassBodyDeclarations();  
 			break ;
  
-    case 107 : // System.out.println("ClassBodyDeclaration ::= Diet NestedMethod Block");  //$NON-NLS-1$
+    case 115 : if (DEBUG) { System.out.println("ClassBodyDeclaration ::= Diet NestedMethod Block"); }  //$NON-NLS-1$
 		    consumeClassBodyDeclaration();  
 			break ;
  
-    case 108 : // System.out.println("Diet ::=");  //$NON-NLS-1$
+    case 116 : if (DEBUG) { System.out.println("Diet ::="); }  //$NON-NLS-1$
 		    consumeDiet();  
 			break ;
 
-    case 109 : // System.out.println("Initializer ::= Diet NestedMethod Block");  //$NON-NLS-1$
+    case 117 : if (DEBUG) { System.out.println("Initializer ::= Diet NestedMethod Block"); }  //$NON-NLS-1$
 		    consumeClassBodyDeclaration();  
 			break ;
  
-    case 116 : // System.out.println("ClassMemberDeclaration ::= SEMICOLON");  //$NON-NLS-1$
+    case 125 : if (DEBUG) { System.out.println("ClassMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyClassMemberDeclaration();  
 			break ;
 
-    case 117 : // System.out.println("FieldDeclaration ::= Modifiersopt Type VariableDeclarators SEMICOLON");  //$NON-NLS-1$
+    case 126 : if (DEBUG) { System.out.println("FieldDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
 		    consumeFieldDeclaration();  
 			break ;
  
-    case 119 : // System.out.println("VariableDeclarators ::= VariableDeclarators COMMA VariableDeclarator");  //$NON-NLS-1$
+    case 128 : if (DEBUG) { System.out.println("VariableDeclarators ::= VariableDeclarators COMMA..."); }  //$NON-NLS-1$
 		    consumeVariableDeclarators();  
 			break ;
  
-    case 122 : // System.out.println("EnterVariable ::=");  //$NON-NLS-1$
+    case 131 : if (DEBUG) { System.out.println("EnterVariable ::="); }  //$NON-NLS-1$
 		    consumeEnterVariable();  
 			break ;
  
-    case 123 : // System.out.println("ExitVariableWithInitialization ::=");  //$NON-NLS-1$
+    case 132 : if (DEBUG) { System.out.println("ExitVariableWithInitialization ::="); }  //$NON-NLS-1$
 		    consumeExitVariableWithInitialization();  
 			break ;
  
-    case 124 : // System.out.println("ExitVariableWithoutInitialization ::=");  //$NON-NLS-1$
+    case 133 : if (DEBUG) { System.out.println("ExitVariableWithoutInitialization ::="); }  //$NON-NLS-1$
 		    consumeExitVariableWithoutInitialization();  
 			break ;
  
-    case 125 : // System.out.println("ForceNoDiet ::=");  //$NON-NLS-1$
+    case 134 : if (DEBUG) { System.out.println("ForceNoDiet ::="); }  //$NON-NLS-1$
 		    consumeForceNoDiet();  
 			break ;
  
-    case 126 : // System.out.println("RestoreDiet ::=");  //$NON-NLS-1$
+    case 135 : if (DEBUG) { System.out.println("RestoreDiet ::="); }  //$NON-NLS-1$
 		    consumeRestoreDiet();  
 			break ;
  
-    case 131 : // System.out.println("MethodDeclaration ::= MethodHeader MethodBody");  //$NON-NLS-1$
+    case 140 : if (DEBUG) { System.out.println("MethodDeclaration ::= MethodHeader MethodBody"); }  //$NON-NLS-1$
 		    // set to true to consume a method with a body
   consumeMethodDeclaration(true);   
 			break ;
  
-    case 132 : // System.out.println("AbstractMethodDeclaration ::= MethodHeader SEMICOLON");  //$NON-NLS-1$
+    case 141 : if (DEBUG) { System.out.println("AbstractMethodDeclaration ::= MethodHeader SEMICOLON"); }  //$NON-NLS-1$
 		    // set to false to consume a method without body
   consumeMethodDeclaration(false);  
 			break ;
  
-    case 133 : // System.out.println("MethodHeader ::= MethodHeaderName MethodHeaderParameters...");  //$NON-NLS-1$
+    case 142 : if (DEBUG) { System.out.println("MethodHeader ::= MethodHeaderName MethodHeaderParameters"); }  //$NON-NLS-1$
 		    consumeMethodHeader();  
 			break ;
  
-    case 134 : // System.out.println("MethodHeaderName ::= Modifiersopt Type Identifier LPAREN");  //$NON-NLS-1$
+    case 143 : if (DEBUG) { System.out.println("MethodHeaderName ::= Modifiersopt TypeParameters Type..."); }  //$NON-NLS-1$
+		    consumeMethodHeaderNameWithTypeParameters();  
+			break ;
+ 
+    case 144 : if (DEBUG) { System.out.println("MethodHeaderName ::= Modifiersopt Type Identifier LPAREN"); }  //$NON-NLS-1$
 		    consumeMethodHeaderName();  
 			break ;
  
-    case 135 : // System.out.println("MethodHeaderParameters ::= FormalParameterListopt RPAREN");  //$NON-NLS-1$
+    case 145 : if (DEBUG) { System.out.println("MethodHeaderParameters ::= FormalParameterListopt RPAREN"); }  //$NON-NLS-1$
 		    consumeMethodHeaderParameters();  
 			break ;
  
-    case 136 : // System.out.println("MethodHeaderExtendedDims ::= Dimsopt");  //$NON-NLS-1$
+    case 146 : if (DEBUG) { System.out.println("MethodHeaderExtendedDims ::= Dimsopt"); }  //$NON-NLS-1$
 		    consumeMethodHeaderExtendedDims();  
 			break ;
  
-    case 137 : // System.out.println("MethodHeaderThrowsClause ::= throws ClassTypeList");  //$NON-NLS-1$
+    case 147 : if (DEBUG) { System.out.println("MethodHeaderThrowsClause ::= throws ClassTypeList"); }  //$NON-NLS-1$
 		    consumeMethodHeaderThrowsClause();  
 			break ;
  
-    case 138 : // System.out.println("ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters");  //$NON-NLS-1$
+    case 148 : if (DEBUG) { System.out.println("ConstructorHeader ::= ConstructorHeaderName..."); }  //$NON-NLS-1$
 		    consumeConstructorHeader();  
 			break ;
  
-    case 139 : // System.out.println("ConstructorHeaderName ::= Modifiersopt Identifier LPAREN");  //$NON-NLS-1$
+    case 149 : if (DEBUG) { System.out.println("ConstructorHeaderName ::= Modifiersopt TypeParameters..."); }  //$NON-NLS-1$
+		    consumeConstructorHeaderNameWithTypeParameters();  
+			break ;
+ 
+    case 150 : if (DEBUG) { System.out.println("ConstructorHeaderName ::= Modifiersopt Identifier LPAREN"); }  //$NON-NLS-1$
 		    consumeConstructorHeaderName();  
 			break ;
  
-    case 141 : // System.out.println("FormalParameterList ::= FormalParameterList COMMA FormalParameter");  //$NON-NLS-1$
+    case 152 : if (DEBUG) { System.out.println("FormalParameterList ::= FormalParameterList COMMA..."); }  //$NON-NLS-1$
 		    consumeFormalParameterList();  
 			break ;
  
-    case 142 : // System.out.println("FormalParameter ::= Modifiersopt Type VariableDeclaratorId");  //$NON-NLS-1$
-		    // the boolean is used to know if the modifiers should be reset
- 	consumeFormalParameter();  
+    case 153 : if (DEBUG) { System.out.println("FormalParameter ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+		    consumeFormalParameter(false);  
 			break ;
  
-    case 144 : // System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt");  //$NON-NLS-1$
+    case 154 : if (DEBUG) { System.out.println("FormalParameter ::= Modifiersopt Type ELLIPSIS..."); }  //$NON-NLS-1$
+		    consumeFormalParameter(true);  
+			break ;
+ 
+    case 156 : if (DEBUG) { System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt"); }  //$NON-NLS-1$
 		    consumeClassTypeList();  
 			break ;
  
-    case 145 : // System.out.println("ClassTypeElt ::= ClassType");  //$NON-NLS-1$
+    case 157 : if (DEBUG) { System.out.println("ClassTypeElt ::= ClassType"); }  //$NON-NLS-1$
 		    consumeClassTypeElt();  
 			break ;
  
-    case 146 : // System.out.println("MethodBody ::= NestedMethod LBRACE BlockStatementsopt RBRACE");  //$NON-NLS-1$
+    case 158 : if (DEBUG) { System.out.println("MethodBody ::= NestedMethod LBRACE BlockStatementsopt..."); }  //$NON-NLS-1$
 		    consumeMethodBody();  
 			break ;
  
-    case 147 : // System.out.println("NestedMethod ::=");  //$NON-NLS-1$
+    case 159 : if (DEBUG) { System.out.println("NestedMethod ::="); }  //$NON-NLS-1$
 		    consumeNestedMethod();  
 			break ;
  
-    case 148 : // System.out.println("StaticInitializer ::= StaticOnly Block");  //$NON-NLS-1$
+    case 160 : if (DEBUG) { System.out.println("StaticInitializer ::= StaticOnly Block"); }  //$NON-NLS-1$
 		    consumeStaticInitializer();  
 			break ;
 
-    case 149 : // System.out.println("StaticOnly ::= static");  //$NON-NLS-1$
+    case 161 : if (DEBUG) { System.out.println("StaticOnly ::= static"); }  //$NON-NLS-1$
 		    consumeStaticOnly();  
 			break ;
  
-    case 150 : // System.out.println("ConstructorDeclaration ::= ConstructorHeader MethodBody");  //$NON-NLS-1$
+    case 162 : if (DEBUG) { System.out.println("ConstructorDeclaration ::= ConstructorHeader MethodBody"); }  //$NON-NLS-1$
 		    consumeConstructorDeclaration() ;  
 			break ;
  
-    case 151 : // System.out.println("ConstructorDeclaration ::= ConstructorHeader SEMICOLON");  //$NON-NLS-1$
+    case 163 : if (DEBUG) { System.out.println("ConstructorDeclaration ::= ConstructorHeader SEMICOLON"); }  //$NON-NLS-1$
 		    consumeInvalidConstructorDeclaration() ;  
 			break ;
  
-    case 152 : // System.out.println("ExplicitConstructorInvocation ::= this LPAREN ArgumentListopt RPAREN");  //$NON-NLS-1$
+    case 164 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= this LPAREN..."); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This);  
 			break ;
  
-    case 153 : // System.out.println("ExplicitConstructorInvocation ::= super LPAREN ArgumentListopt...");  //$NON-NLS-1$
+    case 165 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= TypeArguments this..."); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.This);  
+			break ;
+ 
+    case 166 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= super LPAREN..."); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super);  
 			break ;
  
-    case 154 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT super LPAREN...");  //$NON-NLS-1$
+    case 167 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= TypeArguments super..."); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(0,ExplicitConstructorCall.Super);  
+			break ;
+ 
+    case 168 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT super..."); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super);  
 			break ;
  
-    case 155 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT super LPAREN...");  //$NON-NLS-1$
+    case 169 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT..."); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.Super);  
+			break ;
+ 
+    case 170 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT super LPAREN"); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super);  
 			break ;
  
-    case 156 : // System.out.println("ExplicitConstructorInvocation ::= Primary DOT this LPAREN...");  //$NON-NLS-1$
+    case 171 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT TypeArguments"); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.Super);  
+			break ;
+ 
+    case 172 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT this..."); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This);  
 			break ;
  
-    case 157 : // System.out.println("ExplicitConstructorInvocation ::= Name DOT this LPAREN...");  //$NON-NLS-1$
+    case 173 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT..."); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(1, ExplicitConstructorCall.This);  
+			break ;
+ 
+    case 174 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT this LPAREN"); }  //$NON-NLS-1$
 		    consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This);  
 			break ;
  
-    case 158 : // System.out.println("InterfaceDeclaration ::= InterfaceHeader InterfaceBody");  //$NON-NLS-1$
+    case 175 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT TypeArguments"); }  //$NON-NLS-1$
+		    consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.This);  
+			break ;
+ 
+    case 176 : if (DEBUG) { System.out.println("InterfaceDeclaration ::= InterfaceHeader InterfaceBody"); }  //$NON-NLS-1$
 		    consumeInterfaceDeclaration();  
 			break ;
  
-    case 159 : // System.out.println("InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt");  //$NON-NLS-1$
+    case 177 : if (DEBUG) { System.out.println("InterfaceHeader ::= InterfaceHeaderName..."); }  //$NON-NLS-1$
 		    consumeInterfaceHeader();  
 			break ;
  
-    case 160 : // System.out.println("InterfaceHeaderName ::= Modifiersopt interface Identifier");  //$NON-NLS-1$
+    case 178 : if (DEBUG) { System.out.println("InterfaceHeaderName ::= Modifiersopt interface..."); }  //$NON-NLS-1$
+		    consumeInterfaceHeaderNameWithTypeParameters();  
+			break ;
+ 
+    case 179 : if (DEBUG) { System.out.println("InterfaceHeaderName ::= Modifiersopt interface..."); }  //$NON-NLS-1$
 		    consumeInterfaceHeaderName();  
 			break ;
  
-    case 162 : // System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList");  //$NON-NLS-1$
+    case 181 : if (DEBUG) { System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList"); }  //$NON-NLS-1$
 		    consumeInterfaceHeaderExtends();  
 			break ;
  
-    case 165 : // System.out.println("InterfaceMemberDeclarations ::= InterfaceMemberDeclarations...");  //$NON-NLS-1$
+    case 184 : if (DEBUG) { System.out.println("InterfaceMemberDeclarations ::=..."); }  //$NON-NLS-1$
 		    consumeInterfaceMemberDeclarations();  
 			break ;
  
-    case 166 : // System.out.println("InterfaceMemberDeclaration ::= SEMICOLON");  //$NON-NLS-1$
+    case 185 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyInterfaceMemberDeclaration();  
 			break ;
  
-    case 169 : // System.out.println("InterfaceMemberDeclaration ::= InvalidMethodDeclaration");  //$NON-NLS-1$
+    case 188 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= InvalidMethodDeclaration"); }  //$NON-NLS-1$
 		    ignoreMethodBody();  
 			break ;
  
-    case 170 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader MethodBody");  //$NON-NLS-1$
+    case 189 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
 		    ignoreInvalidConstructorDeclaration(true);   
 			break ;
  
-    case 171 : // System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader SEMICOLON");  //$NON-NLS-1$
+    case 190 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
 		    ignoreInvalidConstructorDeclaration(false);   
 			break ;
  
-    case 177 : // System.out.println("ArrayInitializer ::= LBRACE ,opt RBRACE");  //$NON-NLS-1$
+    case 196 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE ,opt RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyArrayInitializer();  
 			break ;
  
-    case 178 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers RBRACE");  //$NON-NLS-1$
+    case 197 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE VariableInitializers RBRACE"); }  //$NON-NLS-1$
 		    consumeArrayInitializer();  
 			break ;
  
-    case 179 : // System.out.println("ArrayInitializer ::= LBRACE VariableInitializers COMMA RBRACE");  //$NON-NLS-1$
+    case 198 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE VariableInitializers COMMA"); }  //$NON-NLS-1$
 		    consumeArrayInitializer();  
 			break ;
  
-    case 181 : // System.out.println("VariableInitializers ::= VariableInitializers COMMA...");  //$NON-NLS-1$
+    case 200 : if (DEBUG) { System.out.println("VariableInitializers ::= VariableInitializers COMMA..."); }  //$NON-NLS-1$
 		    consumeVariableInitializers();  
 			break ;
  
-    case 182 : // System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE");  //$NON-NLS-1$
+    case 201 : if (DEBUG) { System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE"); }  //$NON-NLS-1$
 		    consumeBlock();  
 			break ;
  
-    case 183 : // System.out.println("OpenBlock ::=");  //$NON-NLS-1$
+    case 202 : if (DEBUG) { System.out.println("OpenBlock ::="); }  //$NON-NLS-1$
 		    consumeOpenBlock() ;  
 			break ;
  
-    case 185 : // System.out.println("BlockStatements ::= BlockStatements BlockStatement");  //$NON-NLS-1$
+    case 204 : if (DEBUG) { System.out.println("BlockStatements ::= BlockStatements BlockStatement"); }  //$NON-NLS-1$
 		    consumeBlockStatements() ;  
 			break ;
  
-    case 189 : // System.out.println("BlockStatement ::= InvalidInterfaceDeclaration");  //$NON-NLS-1$
+    case 208 : if (DEBUG) { System.out.println("BlockStatement ::= InvalidInterfaceDeclaration"); }  //$NON-NLS-1$
 		    ignoreInterfaceDeclaration();  
 			break ;
  
-    case 190 : // System.out.println("LocalVariableDeclarationStatement ::= LocalVariableDeclaration...");  //$NON-NLS-1$
+    case 209 : if (DEBUG) { System.out.println("LocalVariableDeclarationStatement ::=..."); }  //$NON-NLS-1$
 		    consumeLocalVariableDeclarationStatement();  
 			break ;
  
-    case 191 : // System.out.println("LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators");  //$NON-NLS-1$
+    case 210 : if (DEBUG) { System.out.println("LocalVariableDeclaration ::= Type PushModifiers..."); }  //$NON-NLS-1$
 		    consumeLocalVariableDeclaration();  
 			break ;
  
-    case 192 : // System.out.println("LocalVariableDeclaration ::= Modifiers Type PushModifiers...");  //$NON-NLS-1$
+    case 211 : if (DEBUG) { System.out.println("LocalVariableDeclaration ::= Modifiers Type..."); }  //$NON-NLS-1$
 		    consumeLocalVariableDeclaration();  
 			break ;
  
-    case 193 : // System.out.println("PushModifiers ::=");  //$NON-NLS-1$
+    case 212 : if (DEBUG) { System.out.println("PushModifiers ::="); }  //$NON-NLS-1$
 		    consumePushModifiers();  
 			break ;
  
-    case 217 : // System.out.println("EmptyStatement ::= SEMICOLON");  //$NON-NLS-1$
+    case 238 : if (DEBUG) { System.out.println("EmptyStatement ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyStatement();  
 			break ;
  
-    case 218 : // System.out.println("LabeledStatement ::= Identifier COLON Statement");  //$NON-NLS-1$
+    case 239 : if (DEBUG) { System.out.println("LabeledStatement ::= Identifier COLON Statement"); }  //$NON-NLS-1$
 		    consumeStatementLabel() ;  
 			break ;
  
-    case 219 : // System.out.println("LabeledStatementNoShortIf ::= Identifier COLON StatementNoShortIf");  //$NON-NLS-1$
+    case 240 : if (DEBUG) { System.out.println("LabeledStatementNoShortIf ::= Identifier COLON..."); }  //$NON-NLS-1$
 		    consumeStatementLabel() ;  
 			break ;
  
-     case 220 : // System.out.println("ExpressionStatement ::= StatementExpression SEMICOLON");  //$NON-NLS-1$
+     case 241 : if (DEBUG) { System.out.println("ExpressionStatement ::= StatementExpression SEMICOLON"); }  //$NON-NLS-1$
 		    consumeExpressionStatement();  
 			break ;
  
-    case 229 : // System.out.println("IfThenStatement ::= if LPAREN Expression RPAREN Statement");  //$NON-NLS-1$
+    case 250 : if (DEBUG) { System.out.println("IfThenStatement ::= if LPAREN Expression RPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementIfNoElse();  
 			break ;
  
-    case 230 : // System.out.println("IfThenElseStatement ::= if LPAREN Expression RPAREN...");  //$NON-NLS-1$
+    case 251 : if (DEBUG) { System.out.println("IfThenElseStatement ::= if LPAREN Expression RPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementIfWithElse();  
 			break ;
  
-    case 231 : // System.out.println("IfThenElseStatementNoShortIf ::= if LPAREN Expression RPAREN...");  //$NON-NLS-1$
+    case 252 : if (DEBUG) { System.out.println("IfThenElseStatementNoShortIf ::= if LPAREN Expression..."); }  //$NON-NLS-1$
 		    consumeStatementIfWithElse();  
 			break ;
  
-    case 232 : // System.out.println("SwitchStatement ::= switch LPAREN Expression RPAREN OpenBlock...");  //$NON-NLS-1$
+    case 253 : if (DEBUG) { System.out.println("SwitchStatement ::= switch LPAREN Expression RPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementSwitch() ;  
 			break ;
  
-    case 233 : // System.out.println("SwitchBlock ::= LBRACE RBRACE");  //$NON-NLS-1$
+    case 254 : if (DEBUG) { System.out.println("SwitchBlock ::= LBRACE RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptySwitchBlock() ;  
 			break ;
  
-    case 236 : // System.out.println("SwitchBlock ::= LBRACE SwitchBlockStatements SwitchLabels RBRACE");  //$NON-NLS-1$
+    case 257 : if (DEBUG) { System.out.println("SwitchBlock ::= LBRACE SwitchBlockStatements..."); }  //$NON-NLS-1$
 		    consumeSwitchBlock() ;  
 			break ;
  
-    case 238 : // System.out.println("SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement");  //$NON-NLS-1$
+    case 259 : if (DEBUG) { System.out.println("SwitchBlockStatements ::= SwitchBlockStatements..."); }  //$NON-NLS-1$
 		    consumeSwitchBlockStatements() ;  
 			break ;
  
-    case 239 : // System.out.println("SwitchBlockStatement ::= SwitchLabels BlockStatements");  //$NON-NLS-1$
+    case 260 : if (DEBUG) { System.out.println("SwitchBlockStatement ::= SwitchLabels BlockStatements"); }  //$NON-NLS-1$
 		    consumeSwitchBlockStatement() ;  
 			break ;
  
-    case 241 : // System.out.println("SwitchLabels ::= SwitchLabels SwitchLabel");  //$NON-NLS-1$
+    case 262 : if (DEBUG) { System.out.println("SwitchLabels ::= SwitchLabels SwitchLabel"); }  //$NON-NLS-1$
 		    consumeSwitchLabels() ;  
 			break ;
  
-     case 242 : // System.out.println("SwitchLabel ::= case ConstantExpression COLON");  //$NON-NLS-1$
+     case 263 : if (DEBUG) { System.out.println("SwitchLabel ::= case ConstantExpression COLON"); }  //$NON-NLS-1$
 		    consumeCaseLabel();  
 			break ;
  
-     case 243 : // System.out.println("SwitchLabel ::= default COLON");  //$NON-NLS-1$
+     case 264 : if (DEBUG) { System.out.println("SwitchLabel ::= default COLON"); }  //$NON-NLS-1$
 		    consumeDefaultLabel();  
 			break ;
  
-    case 244 : // System.out.println("WhileStatement ::= while LPAREN Expression RPAREN Statement");  //$NON-NLS-1$
+    case 265 : if (DEBUG) { System.out.println("WhileStatement ::= while LPAREN Expression RPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementWhile() ;  
 			break ;
  
-    case 245 : // System.out.println("WhileStatementNoShortIf ::= while LPAREN Expression RPAREN...");  //$NON-NLS-1$
+    case 266 : if (DEBUG) { System.out.println("WhileStatementNoShortIf ::= while LPAREN Expression..."); }  //$NON-NLS-1$
 		    consumeStatementWhile() ;  
 			break ;
  
-    case 246 : // System.out.println("DoStatement ::= do Statement while LPAREN Expression RPAREN...");  //$NON-NLS-1$
+    case 267 : if (DEBUG) { System.out.println("DoStatement ::= do Statement while LPAREN Expression..."); }  //$NON-NLS-1$
 		    consumeStatementDo() ;  
 			break ;
  
-    case 247 : // System.out.println("ForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt...");  //$NON-NLS-1$
+    case 268 : if (DEBUG) { System.out.println("ForStatement ::= for LPAREN ForInitopt SEMICOLON..."); }  //$NON-NLS-1$
 		    consumeStatementFor() ;  
 			break ;
  
-    case 248 : // System.out.println("ForStatementNoShortIf ::= for LPAREN ForInitopt SEMICOLON...");  //$NON-NLS-1$
+    case 269 : if (DEBUG) { System.out.println("ForStatementNoShortIf ::= for LPAREN ForInitopt..."); }  //$NON-NLS-1$
 		    consumeStatementFor() ;  
 			break ;
  
-    case 249 : // System.out.println("ForInit ::= StatementExpressionList");  //$NON-NLS-1$
+    case 270 : if (DEBUG) { System.out.println("ForInit ::= StatementExpressionList"); }  //$NON-NLS-1$
 		    consumeForInit() ;  
 			break ;
  
-    case 253 : // System.out.println("StatementExpressionList ::= StatementExpressionList COMMA...");  //$NON-NLS-1$
+    case 274 : if (DEBUG) { System.out.println("StatementExpressionList ::= StatementExpressionList..."); }  //$NON-NLS-1$
 		    consumeStatementExpressionList() ;  
 			break ;
  
-    case 254 : // System.out.println("AssertStatement ::= assert Expression SEMICOLON");  //$NON-NLS-1$
+    case 275 : if (DEBUG) { System.out.println("AssertStatement ::= assert Expression SEMICOLON"); }  //$NON-NLS-1$
 		    consumeSimpleAssertStatement() ;  
 			break ;
  
-    case 255 : // System.out.println("AssertStatement ::= assert Expression COLON Expression SEMICOLON");  //$NON-NLS-1$
+    case 276 : if (DEBUG) { System.out.println("AssertStatement ::= assert Expression COLON Expression"); }  //$NON-NLS-1$
 		    consumeAssertStatement() ;  
 			break ;
  
-    case 256 : // System.out.println("BreakStatement ::= break SEMICOLON");  //$NON-NLS-1$
+    case 277 : if (DEBUG) { System.out.println("BreakStatement ::= break SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementBreak() ;  
 			break ;
  
-    case 257 : // System.out.println("BreakStatement ::= break Identifier SEMICOLON");  //$NON-NLS-1$
+    case 278 : if (DEBUG) { System.out.println("BreakStatement ::= break Identifier SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementBreakWithLabel() ;  
 			break ;
  
-    case 258 : // System.out.println("ContinueStatement ::= continue SEMICOLON");  //$NON-NLS-1$
+    case 279 : if (DEBUG) { System.out.println("ContinueStatement ::= continue SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementContinue() ;  
 			break ;
  
-    case 259 : // System.out.println("ContinueStatement ::= continue Identifier SEMICOLON");  //$NON-NLS-1$
+    case 280 : if (DEBUG) { System.out.println("ContinueStatement ::= continue Identifier SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementContinueWithLabel() ;  
 			break ;
  
-    case 260 : // System.out.println("ReturnStatement ::= return Expressionopt SEMICOLON");  //$NON-NLS-1$
+    case 281 : if (DEBUG) { System.out.println("ReturnStatement ::= return Expressionopt SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementReturn() ;  
 			break ;
  
-    case 261 : // System.out.println("ThrowStatement ::= throw Expression SEMICOLON");  //$NON-NLS-1$
-		    consumeStatementThrow();
- 
+    case 282 : if (DEBUG) { System.out.println("ThrowStatement ::= throw Expression SEMICOLON"); }  //$NON-NLS-1$
+		    consumeStatementThrow();  
 			break ;
  
-    case 262 : // System.out.println("SynchronizedStatement ::= OnlySynchronized LPAREN Expression RPAREN");  //$NON-NLS-1$
+    case 283 : if (DEBUG) { System.out.println("SynchronizedStatement ::= OnlySynchronized LPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementSynchronized();  
 			break ;
  
-    case 263 : // System.out.println("OnlySynchronized ::= synchronized");  //$NON-NLS-1$
+    case 284 : if (DEBUG) { System.out.println("OnlySynchronized ::= synchronized"); }  //$NON-NLS-1$
 		    consumeOnlySynchronized();  
 			break ;
  
-    case 264 : // System.out.println("TryStatement ::= try Block Catches");  //$NON-NLS-1$
+    case 285 : if (DEBUG) { System.out.println("TryStatement ::= try Block Catches"); }  //$NON-NLS-1$
 		    consumeStatementTry(false);  
 			break ;
  
-    case 265 : // System.out.println("TryStatement ::= try Block Catchesopt Finally");  //$NON-NLS-1$
+    case 286 : if (DEBUG) { System.out.println("TryStatement ::= try Block Catchesopt Finally"); }  //$NON-NLS-1$
 		    consumeStatementTry(true);  
 			break ;
  
-    case 267 : // System.out.println("Catches ::= Catches CatchClause");  //$NON-NLS-1$
+    case 288 : if (DEBUG) { System.out.println("Catches ::= Catches CatchClause"); }  //$NON-NLS-1$
 		    consumeCatches();  
 			break ;
  
-    case 268 : // System.out.println("CatchClause ::= catch LPAREN FormalParameter RPAREN Block");  //$NON-NLS-1$
+    case 289 : if (DEBUG) { System.out.println("CatchClause ::= catch LPAREN FormalParameter RPAREN..."); }  //$NON-NLS-1$
 		    consumeStatementCatch() ;  
 			break ;
  
-    case 270 : // System.out.println("PushLPAREN ::= LPAREN");  //$NON-NLS-1$
+    case 291 : if (DEBUG) { System.out.println("PushLPAREN ::= LPAREN"); }  //$NON-NLS-1$
 		    consumeLeftParen();  
 			break ;
  
-    case 271 : // System.out.println("PushRPAREN ::= RPAREN");  //$NON-NLS-1$
+    case 292 : if (DEBUG) { System.out.println("PushRPAREN ::= RPAREN"); }  //$NON-NLS-1$
 		    consumeRightParen();  
 			break ;
  
-    case 276 : // System.out.println("PrimaryNoNewArray ::= this");  //$NON-NLS-1$
+    case 297 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= this"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayThis();  
 			break ;
  
-    case 277 : // System.out.println("PrimaryNoNewArray ::= PushLPAREN Expression PushRPAREN");  //$NON-NLS-1$
+    case 298 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= PushLPAREN Expression_NotName..."); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArray();  
 			break ;
  
-    case 280 : // System.out.println("PrimaryNoNewArray ::= Name DOT this");  //$NON-NLS-1$
+    case 299 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= PushLPAREN Name PushRPAREN"); }  //$NON-NLS-1$
+		    consumePrimaryNoNewArrayWithName();  
+			break ;
+ 
+    case 302 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= Name DOT this"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayNameThis();  
 			break ;
  
-    case 281 : // System.out.println("PrimaryNoNewArray ::= Name DOT super");  //$NON-NLS-1$
+    case 303 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= Name DOT super"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayNameSuper();  
 			break ;
  
-    case 282 : // System.out.println("PrimaryNoNewArray ::= Name DOT class");  //$NON-NLS-1$
+    case 304 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= Name DOT class"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayName();  
 			break ;
  
-    case 283 : // System.out.println("PrimaryNoNewArray ::= ArrayType DOT class");  //$NON-NLS-1$
+    case 305 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= Name Dims DOT class"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayArrayType();  
 			break ;
  
-    case 284 : // System.out.println("PrimaryNoNewArray ::= PrimitiveType DOT class");  //$NON-NLS-1$
+    case 306 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= PrimitiveType Dims DOT class"); }  //$NON-NLS-1$
+		    consumePrimaryNoNewArrayArrayType();  
+			break ;
+ 
+    case 307 : if (DEBUG) { System.out.println("PrimaryNoNewArray ::= PrimitiveType DOT class"); }  //$NON-NLS-1$
 		    consumePrimaryNoNewArrayPrimitiveType();  
 			break ;
  
-    case 287 : // System.out.println("AllocationHeader ::= new ClassType LPAREN ArgumentListopt RPAREN");  //$NON-NLS-1$
+    case 310 : if (DEBUG) { System.out.println("AllocationHeader ::= new ClassType LPAREN..."); }  //$NON-NLS-1$
 		    consumeAllocationHeader();  
 			break ;
  
-    case 288 : // System.out.println("ClassInstanceCreationExpression ::= new ClassType LPAREN...");  //$NON-NLS-1$
+    case 311 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::= new TypeArguments..."); }  //$NON-NLS-1$
+		    consumeClassInstanceCreationExpressionWithTypeArguments();  
+			break ;
+ 
+    case 312 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::= new ClassType LPAREN"); }  //$NON-NLS-1$
 		    consumeClassInstanceCreationExpression();  
 			break ;
  
-    case 289 : // System.out.println("ClassInstanceCreationExpression ::= Primary DOT new SimpleName...");  //$NON-NLS-1$
+    case 313 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::= Primary DOT new..."); }  //$NON-NLS-1$
+		    consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ;  
+			break ;
+ 
+    case 314 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::= Primary DOT new..."); }  //$NON-NLS-1$
 		    consumeClassInstanceCreationExpressionQualified() ;  
 			break ;
  
-    case 290 : // System.out.println("ClassInstanceCreationExpression ::=...");  //$NON-NLS-1$
+    case 315 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::=..."); }  //$NON-NLS-1$
 		    consumeClassInstanceCreationExpressionQualified() ;  
 			break ;
  
-    case 291 : // System.out.println("ClassInstanceCreationExpressionName ::= Name DOT");  //$NON-NLS-1$
+    case 316 : if (DEBUG) { System.out.println("ClassInstanceCreationExpression ::=..."); }  //$NON-NLS-1$
+		    consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ;  
+			break ;
+ 
+    case 317 : if (DEBUG) { System.out.println("ClassInstanceCreationExpressionName ::= Name DOT"); }  //$NON-NLS-1$
 		    consumeClassInstanceCreationExpressionName() ;  
 			break ;
  
-    case 292 : // System.out.println("ClassBodyopt ::=");  //$NON-NLS-1$
+    case 318 : if (DEBUG) { System.out.println("ClassBodyopt ::="); }  //$NON-NLS-1$
 		    consumeClassBodyopt();  
 			break ;
  
-    case 294 : // System.out.println("EnterAnonymousClassBody ::=");  //$NON-NLS-1$
+    case 320 : if (DEBUG) { System.out.println("EnterAnonymousClassBody ::="); }  //$NON-NLS-1$
 		    consumeEnterAnonymousClassBody();  
 			break ;
  
-    case 296 : // System.out.println("ArgumentList ::= ArgumentList COMMA Expression");  //$NON-NLS-1$
+    case 322 : if (DEBUG) { System.out.println("ArgumentList ::= ArgumentList COMMA Expression"); }  //$NON-NLS-1$
 		    consumeArgumentList();  
 			break ;
  
-    case 297 : // System.out.println("ArrayCreationHeader ::= new PrimitiveType DimWithOrWithOutExprs");  //$NON-NLS-1$
+    case 323 : if (DEBUG) { System.out.println("ArrayCreationHeader ::= new PrimitiveType..."); }  //$NON-NLS-1$
 		    consumeArrayCreationHeader();  
 			break ;
  
-    case 298 : // System.out.println("ArrayCreationHeader ::= new ClassOrInterfaceType...");  //$NON-NLS-1$
+    case 324 : if (DEBUG) { System.out.println("ArrayCreationHeader ::= new ClassOrInterfaceType..."); }  //$NON-NLS-1$
 		    consumeArrayCreationHeader();  
 			break ;
  
-    case 299 : // System.out.println("ArrayCreationWithoutArrayInitializer ::= new PrimitiveType...");  //$NON-NLS-1$
+    case 325 : if (DEBUG) { System.out.println("ArrayCreationWithoutArrayInitializer ::= new..."); }  //$NON-NLS-1$
 		    consumeArrayCreationExpressionWithoutInitializer();  
 			break ;
  
-    case 300 : // System.out.println("ArrayCreationWithArrayInitializer ::= new PrimitiveType...");  //$NON-NLS-1$
+    case 326 : if (DEBUG) { System.out.println("ArrayCreationWithArrayInitializer ::= new PrimitiveType"); }  //$NON-NLS-1$
 		    consumeArrayCreationExpressionWithInitializer();  
 			break ;
  
-    case 301 : // System.out.println("ArrayCreationWithoutArrayInitializer ::= new ClassOrInterfaceType...");  //$NON-NLS-1$
+    case 327 : if (DEBUG) { System.out.println("ArrayCreationWithoutArrayInitializer ::= new..."); }  //$NON-NLS-1$
 		    consumeArrayCreationExpressionWithoutInitializer();  
 			break ;
  
-    case 302 : // System.out.println("ArrayCreationWithArrayInitializer ::= new ClassOrInterfaceType...");  //$NON-NLS-1$
+    case 328 : if (DEBUG) { System.out.println("ArrayCreationWithArrayInitializer ::= new..."); }  //$NON-NLS-1$
 		    consumeArrayCreationExpressionWithInitializer();  
 			break ;
  
-    case 304 : // System.out.println("DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr");  //$NON-NLS-1$
+    case 330 : if (DEBUG) { System.out.println("DimWithOrWithOutExprs ::= DimWithOrWithOutExprs..."); }  //$NON-NLS-1$
 		    consumeDimWithOrWithOutExprs();  
 			break ;
  
-     case 306 : // System.out.println("DimWithOrWithOutExpr ::= LBRACKET RBRACKET");  //$NON-NLS-1$
+     case 332 : if (DEBUG) { System.out.println("DimWithOrWithOutExpr ::= LBRACKET RBRACKET"); }  //$NON-NLS-1$
 		    consumeDimWithOrWithOutExpr();  
 			break ;
  
-     case 307 : // System.out.println("Dims ::= DimsLoop");  //$NON-NLS-1$
+     case 333 : if (DEBUG) { System.out.println("Dims ::= DimsLoop"); }  //$NON-NLS-1$
 		    consumeDims();  
 			break ;
  
-     case 310 : // System.out.println("OneDimLoop ::= LBRACKET RBRACKET");  //$NON-NLS-1$
+     case 336 : if (DEBUG) { System.out.println("OneDimLoop ::= LBRACKET RBRACKET"); }  //$NON-NLS-1$
 		    consumeOneDimLoop();  
 			break ;
  
-    case 311 : // System.out.println("FieldAccess ::= Primary DOT Identifier");  //$NON-NLS-1$
+    case 337 : if (DEBUG) { System.out.println("FieldAccess ::= Primary DOT Identifier"); }  //$NON-NLS-1$
 		    consumeFieldAccess(false);  
 			break ;
  
-    case 312 : // System.out.println("FieldAccess ::= super DOT Identifier");  //$NON-NLS-1$
+    case 338 : if (DEBUG) { System.out.println("FieldAccess ::= super DOT Identifier"); }  //$NON-NLS-1$
 		    consumeFieldAccess(true);  
 			break ;
  
-    case 313 : // System.out.println("MethodInvocation ::= Name LPAREN ArgumentListopt RPAREN");  //$NON-NLS-1$
+    case 339 : if (DEBUG) { System.out.println("MethodInvocation ::= Name LPAREN ArgumentListopt RPAREN"); }  //$NON-NLS-1$
 		    consumeMethodInvocationName();  
 			break ;
  
-    case 314 : // System.out.println("MethodInvocation ::= Primary DOT Identifier LPAREN ArgumentListopt");  //$NON-NLS-1$
+    case 340 : if (DEBUG) { System.out.println("MethodInvocation ::= Name DOT TypeArguments Identifier"); }  //$NON-NLS-1$
+		    consumeMethodInvocationNameWithTypeArguments();  
+			break ;
+ 
+    case 341 : if (DEBUG) { System.out.println("MethodInvocation ::= Primary DOT TypeArguments..."); }  //$NON-NLS-1$
+		    consumeMethodInvocationPrimaryWithTypeArguments();  
+			break ;
+ 
+    case 342 : if (DEBUG) { System.out.println("MethodInvocation ::= Primary DOT Identifier LPAREN..."); }  //$NON-NLS-1$
 		    consumeMethodInvocationPrimary();  
 			break ;
  
-    case 315 : // System.out.println("MethodInvocation ::= super DOT Identifier LPAREN ArgumentListopt...");  //$NON-NLS-1$
+    case 343 : if (DEBUG) { System.out.println("MethodInvocation ::= super DOT TypeArguments Identifier"); }  //$NON-NLS-1$
+		    consumeMethodInvocationSuperWithTypeArguments();  
+			break ;
+ 
+    case 344 : if (DEBUG) { System.out.println("MethodInvocation ::= super DOT Identifier LPAREN..."); }  //$NON-NLS-1$
 		    consumeMethodInvocationSuper();  
 			break ;
  
-    case 316 : // System.out.println("ArrayAccess ::= Name LBRACKET Expression RBRACKET");  //$NON-NLS-1$
+    case 345 : if (DEBUG) { System.out.println("ArrayAccess ::= Name LBRACKET Expression RBRACKET"); }  //$NON-NLS-1$
 		    consumeArrayAccess(true);  
 			break ;
  
-    case 317 : // System.out.println("ArrayAccess ::= PrimaryNoNewArray LBRACKET Expression RBRACKET");  //$NON-NLS-1$
+    case 346 : if (DEBUG) { System.out.println("ArrayAccess ::= PrimaryNoNewArray LBRACKET Expression..."); }  //$NON-NLS-1$
 		    consumeArrayAccess(false);  
 			break ;
  
-    case 318 : // System.out.println("ArrayAccess ::= ArrayCreationWithArrayInitializer LBRACKET...");  //$NON-NLS-1$
+    case 347 : if (DEBUG) { System.out.println("ArrayAccess ::= ArrayCreationWithArrayInitializer..."); }  //$NON-NLS-1$
 		    consumeArrayAccess(false);  
 			break ;
  
-    case 320 : // System.out.println("PostfixExpression ::= Name");  //$NON-NLS-1$
+    case 349 : if (DEBUG) { System.out.println("PostfixExpression ::= Name"); }  //$NON-NLS-1$
 		    consumePostfixExpression();  
 			break ;
  
-    case 323 : // System.out.println("PostIncrementExpression ::= PostfixExpression PLUS_PLUS");  //$NON-NLS-1$
+    case 352 : if (DEBUG) { System.out.println("PostIncrementExpression ::= PostfixExpression PLUS_PLUS"); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.PLUS,true);  
 			break ;
  
-    case 324 : // System.out.println("PostDecrementExpression ::= PostfixExpression MINUS_MINUS");  //$NON-NLS-1$
+    case 353 : if (DEBUG) { System.out.println("PostDecrementExpression ::= PostfixExpression..."); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.MINUS,true);  
 			break ;
  
-    case 325 : // System.out.println("PushPosition ::=");  //$NON-NLS-1$
+    case 354 : if (DEBUG) { System.out.println("PushPosition ::="); }  //$NON-NLS-1$
 		    consumePushPosition();  
 			break ;
  
-    case 328 : // System.out.println("UnaryExpression ::= PLUS PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 357 : if (DEBUG) { System.out.println("UnaryExpression ::= PLUS PushPosition UnaryExpression"); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.PLUS);  
 			break ;
  
-    case 329 : // System.out.println("UnaryExpression ::= MINUS PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 358 : if (DEBUG) { System.out.println("UnaryExpression ::= MINUS PushPosition UnaryExpression"); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.MINUS);  
 			break ;
  
-    case 331 : // System.out.println("PreIncrementExpression ::= PLUS_PLUS PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 360 : if (DEBUG) { System.out.println("PreIncrementExpression ::= PLUS_PLUS PushPosition..."); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.PLUS,false);  
 			break ;
  
-    case 332 : // System.out.println("PreDecrementExpression ::= MINUS_MINUS PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 361 : if (DEBUG) { System.out.println("PreDecrementExpression ::= MINUS_MINUS PushPosition..."); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.MINUS,false);  
 			break ;
  
-    case 334 : // System.out.println("UnaryExpressionNotPlusMinus ::= TWIDDLE PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 363 : if (DEBUG) { System.out.println("UnaryExpressionNotPlusMinus ::= TWIDDLE PushPosition..."); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.TWIDDLE);  
 			break ;
  
-    case 335 : // System.out.println("UnaryExpressionNotPlusMinus ::= NOT PushPosition UnaryExpression");  //$NON-NLS-1$
+    case 364 : if (DEBUG) { System.out.println("UnaryExpressionNotPlusMinus ::= NOT PushPosition..."); }  //$NON-NLS-1$
 		    consumeUnaryExpression(OperatorIds.NOT);  
 			break ;
  
-    case 337 : // System.out.println("CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN...");  //$NON-NLS-1$
+    case 366 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN PrimitiveType Dimsopt..."); }  //$NON-NLS-1$
 		    consumeCastExpression();  
 			break ;
  
-    case 338 : // System.out.println("CastExpression ::= PushLPAREN Name Dims PushRPAREN...");  //$NON-NLS-1$
-		    consumeCastExpression();  
+    case 367 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name Dims PushRPAREN..."); }  //$NON-NLS-1$
+		    consumeCastExpressionWithNameArray();  
 			break ;
  
-    case 339 : // System.out.println("CastExpression ::= PushLPAREN Expression PushRPAREN...");  //$NON-NLS-1$
+    case 368 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name TypeArguments Dims..."); }  //$NON-NLS-1$
+		    consumeCastExpressionWithGenericsArray();  
+			break ;
+ 
+    case 369 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name TypeArguments..."); }  //$NON-NLS-1$
+		    consumeCastExpressionWithGenerics();  
+			break ;
+ 
+    case 370 : if (DEBUG) { System.out.println("CastExpression ::= PushLPAREN Name PushRPAREN..."); }  //$NON-NLS-1$
 		    consumeCastExpressionLL1();  
 			break ;
  
-    case 340 : // System.out.println("InsideCastExpression ::=");  //$NON-NLS-1$
+    case 371 : if (DEBUG) { System.out.println("InsideCastExpression ::="); }  //$NON-NLS-1$
 		    consumeInsideCastExpression();  
 			break ;
  
-    case 341 : // System.out.println("InsideCastExpressionLL1 ::=");  //$NON-NLS-1$
+    case 372 : if (DEBUG) { System.out.println("InsideCastExpressionLL1 ::="); }  //$NON-NLS-1$
 		    consumeInsideCastExpressionLL1();  
 			break ;
  
-    case 343 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression MULTIPLY...");  //$NON-NLS-1$
+    case 374 : if (DEBUG) { System.out.println("MultiplicativeExpression ::= MultiplicativeExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.MULTIPLY);  
 			break ;
  
-    case 344 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression DIVIDE...");  //$NON-NLS-1$
+    case 375 : if (DEBUG) { System.out.println("MultiplicativeExpression ::= MultiplicativeExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.DIVIDE);  
 			break ;
  
-    case 345 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression REMAINDER...");  //$NON-NLS-1$
+    case 376 : if (DEBUG) { System.out.println("MultiplicativeExpression ::= MultiplicativeExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.REMAINDER);  
 			break ;
  
-    case 347 : // System.out.println("AdditiveExpression ::= AdditiveExpression PLUS...");  //$NON-NLS-1$
+    case 378 : if (DEBUG) { System.out.println("AdditiveExpression ::= AdditiveExpression PLUS..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.PLUS);  
 			break ;
  
-    case 348 : // System.out.println("AdditiveExpression ::= AdditiveExpression MINUS...");  //$NON-NLS-1$
+    case 379 : if (DEBUG) { System.out.println("AdditiveExpression ::= AdditiveExpression MINUS..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.MINUS);  
 			break ;
  
-    case 350 : // System.out.println("ShiftExpression ::= ShiftExpression LEFT_SHIFT AdditiveExpression");  //$NON-NLS-1$
+    case 381 : if (DEBUG) { System.out.println("ShiftExpression ::= ShiftExpression LEFT_SHIFT..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.LEFT_SHIFT);  
 			break ;
  
-    case 351 : // System.out.println("ShiftExpression ::= ShiftExpression RIGHT_SHIFT AdditiveExpression");  //$NON-NLS-1$
+    case 382 : if (DEBUG) { System.out.println("ShiftExpression ::= ShiftExpression RIGHT_SHIFT..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.RIGHT_SHIFT);  
 			break ;
  
-    case 352 : // System.out.println("ShiftExpression ::= ShiftExpression UNSIGNED_RIGHT_SHIFT...");  //$NON-NLS-1$
+    case 383 : if (DEBUG) { System.out.println("ShiftExpression ::= ShiftExpression UNSIGNED_RIGHT_SHIFT"); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT);  
 			break ;
  
-    case 354 : // System.out.println("RelationalExpression ::= RelationalExpression LESS ShiftExpression");  //$NON-NLS-1$
+    case 385 : if (DEBUG) { System.out.println("RelationalExpression ::= ShiftExpression LESS..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.LESS);  
 			break ;
  
-    case 355 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER...");  //$NON-NLS-1$
+    case 386 : if (DEBUG) { System.out.println("RelationalExpression ::= RelationalExpression GREATER..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.GREATER);  
 			break ;
  
-    case 356 : // System.out.println("RelationalExpression ::= RelationalExpression LESS_EQUAL...");  //$NON-NLS-1$
+    case 387 : if (DEBUG) { System.out.println("RelationalExpression ::= RelationalExpression LESS_EQUAL"); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.LESS_EQUAL);  
 			break ;
  
-    case 357 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER_EQUAL...");  //$NON-NLS-1$
+    case 388 : if (DEBUG) { System.out.println("RelationalExpression ::= RelationalExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.GREATER_EQUAL);  
 			break ;
  
-    case 358 : // System.out.println("RelationalExpression ::= RelationalExpression instanceof...");  //$NON-NLS-1$
+    case 390 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression instanceof"); }  //$NON-NLS-1$
 		    consumeInstanceOfExpression(OperatorIds.INSTANCEOF);  
 			break ;
  
-    case 360 : // System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL...");  //$NON-NLS-1$
+    case 392 : if (DEBUG) { System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL..."); }  //$NON-NLS-1$
 		    consumeEqualityExpression(OperatorIds.EQUAL_EQUAL);  
 			break ;
  
-    case 361 : // System.out.println("EqualityExpression ::= EqualityExpression NOT_EQUAL...");  //$NON-NLS-1$
+    case 393 : if (DEBUG) { System.out.println("EqualityExpression ::= EqualityExpression NOT_EQUAL..."); }  //$NON-NLS-1$
 		    consumeEqualityExpression(OperatorIds.NOT_EQUAL);  
 			break ;
  
-    case 363 : // System.out.println("AndExpression ::= AndExpression AND EqualityExpression");  //$NON-NLS-1$
+    case 395 : if (DEBUG) { System.out.println("AndExpression ::= AndExpression AND EqualityExpression"); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.AND);  
 			break ;
  
-    case 365 : // System.out.println("ExclusiveOrExpression ::= ExclusiveOrExpression XOR AndExpression");  //$NON-NLS-1$
+    case 397 : if (DEBUG) { System.out.println("ExclusiveOrExpression ::= ExclusiveOrExpression XOR..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.XOR);  
 			break ;
  
-    case 367 : // System.out.println("InclusiveOrExpression ::= InclusiveOrExpression OR...");  //$NON-NLS-1$
+    case 399 : if (DEBUG) { System.out.println("InclusiveOrExpression ::= InclusiveOrExpression OR..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.OR);  
 			break ;
  
-    case 369 : // System.out.println("ConditionalAndExpression ::= ConditionalAndExpression AND_AND...");  //$NON-NLS-1$
+    case 401 : if (DEBUG) { System.out.println("ConditionalAndExpression ::= ConditionalAndExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.AND_AND);  
 			break ;
  
-    case 371 : // System.out.println("ConditionalOrExpression ::= ConditionalOrExpression OR_OR...");  //$NON-NLS-1$
+    case 403 : if (DEBUG) { System.out.println("ConditionalOrExpression ::= ConditionalOrExpression..."); }  //$NON-NLS-1$
 		    consumeBinaryExpression(OperatorIds.OR_OR);  
 			break ;
  
-    case 373 : // System.out.println("ConditionalExpression ::= ConditionalOrExpression QUESTION...");  //$NON-NLS-1$
+    case 405 : if (DEBUG) { System.out.println("ConditionalExpression ::= ConditionalOrExpression..."); }  //$NON-NLS-1$
 		    consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ;  
 			break ;
  
-    case 376 : // System.out.println("Assignment ::= PostfixExpression AssignmentOperator...");  //$NON-NLS-1$
+    case 408 : if (DEBUG) { System.out.println("Assignment ::= PostfixExpression AssignmentOperator..."); }  //$NON-NLS-1$
 		    consumeAssignment();  
 			break ;
  
-    case 378 : // System.out.println("Assignment ::= InvalidArrayInitializerAssignement");  //$NON-NLS-1$
+    case 410 : if (DEBUG) { System.out.println("Assignment ::= InvalidArrayInitializerAssignement"); }  //$NON-NLS-1$
 		    ignoreExpressionAssignment(); 
 			break ;
  
-    case 379 : // System.out.println("AssignmentOperator ::= EQUAL");  //$NON-NLS-1$
+    case 411 : if (DEBUG) { System.out.println("AssignmentOperator ::= EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(EQUAL);  
 			break ;
  
-    case 380 : // System.out.println("AssignmentOperator ::= MULTIPLY_EQUAL");  //$NON-NLS-1$
+    case 412 : if (DEBUG) { System.out.println("AssignmentOperator ::= MULTIPLY_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(MULTIPLY);  
 			break ;
  
-    case 381 : // System.out.println("AssignmentOperator ::= DIVIDE_EQUAL");  //$NON-NLS-1$
+    case 413 : if (DEBUG) { System.out.println("AssignmentOperator ::= DIVIDE_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(DIVIDE);  
 			break ;
  
-    case 382 : // System.out.println("AssignmentOperator ::= REMAINDER_EQUAL");  //$NON-NLS-1$
+    case 414 : if (DEBUG) { System.out.println("AssignmentOperator ::= REMAINDER_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(REMAINDER);  
 			break ;
  
-    case 383 : // System.out.println("AssignmentOperator ::= PLUS_EQUAL");  //$NON-NLS-1$
+    case 415 : if (DEBUG) { System.out.println("AssignmentOperator ::= PLUS_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(PLUS);  
 			break ;
  
-    case 384 : // System.out.println("AssignmentOperator ::= MINUS_EQUAL");  //$NON-NLS-1$
+    case 416 : if (DEBUG) { System.out.println("AssignmentOperator ::= MINUS_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(MINUS);  
 			break ;
  
-    case 385 : // System.out.println("AssignmentOperator ::= LEFT_SHIFT_EQUAL");  //$NON-NLS-1$
+    case 417 : if (DEBUG) { System.out.println("AssignmentOperator ::= LEFT_SHIFT_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(LEFT_SHIFT);  
 			break ;
  
-    case 386 : // System.out.println("AssignmentOperator ::= RIGHT_SHIFT_EQUAL");  //$NON-NLS-1$
+    case 418 : if (DEBUG) { System.out.println("AssignmentOperator ::= RIGHT_SHIFT_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(RIGHT_SHIFT);  
 			break ;
  
-    case 387 : // System.out.println("AssignmentOperator ::= UNSIGNED_RIGHT_SHIFT_EQUAL");  //$NON-NLS-1$
+    case 419 : if (DEBUG) { System.out.println("AssignmentOperator ::= UNSIGNED_RIGHT_SHIFT_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(UNSIGNED_RIGHT_SHIFT);  
 			break ;
  
-    case 388 : // System.out.println("AssignmentOperator ::= AND_EQUAL");  //$NON-NLS-1$
+    case 420 : if (DEBUG) { System.out.println("AssignmentOperator ::= AND_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(AND);  
 			break ;
  
-    case 389 : // System.out.println("AssignmentOperator ::= XOR_EQUAL");  //$NON-NLS-1$
+    case 421 : if (DEBUG) { System.out.println("AssignmentOperator ::= XOR_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(XOR);  
 			break ;
  
-    case 390 : // System.out.println("AssignmentOperator ::= OR_EQUAL");  //$NON-NLS-1$
+    case 422 : if (DEBUG) { System.out.println("AssignmentOperator ::= OR_EQUAL"); }  //$NON-NLS-1$
 		    consumeAssignmentOperator(OR);  
 			break ;
  
-    case 397 : // System.out.println("Expressionopt ::=");  //$NON-NLS-1$
+    case 428 : if (DEBUG) { System.out.println("Expressionopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyExpression();  
 			break ;
  
-    case 401 : // System.out.println("ImportDeclarationsopt ::=");  //$NON-NLS-1$
+    case 433 : if (DEBUG) { System.out.println("ImportDeclarationsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyImportDeclarationsopt();  
 			break ;
  
-    case 402 : // System.out.println("ImportDeclarationsopt ::= ImportDeclarations");  //$NON-NLS-1$
+    case 434 : if (DEBUG) { System.out.println("ImportDeclarationsopt ::= ImportDeclarations"); }  //$NON-NLS-1$
 		    consumeImportDeclarationsopt();  
 			break ;
  
-    case 403 : // System.out.println("TypeDeclarationsopt ::=");  //$NON-NLS-1$
+    case 435 : if (DEBUG) { System.out.println("TypeDeclarationsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyTypeDeclarationsopt();  
 			break ;
  
-    case 404 : // System.out.println("TypeDeclarationsopt ::= TypeDeclarations");  //$NON-NLS-1$
+    case 436 : if (DEBUG) { System.out.println("TypeDeclarationsopt ::= TypeDeclarations"); }  //$NON-NLS-1$
 		    consumeTypeDeclarationsopt();  
 			break ;
  
-    case 405 : // System.out.println("ClassBodyDeclarationsopt ::=");  //$NON-NLS-1$
+    case 437 : if (DEBUG) { System.out.println("ClassBodyDeclarationsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyClassBodyDeclarationsopt();  
 			break ;
  
-    case 406 : // System.out.println("ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations");  //$NON-NLS-1$
+    case 438 : if (DEBUG) { System.out.println("ClassBodyDeclarationsopt ::= NestedType..."); }  //$NON-NLS-1$
 		    consumeClassBodyDeclarationsopt();  
 			break ;
  
-     case 407 : // System.out.println("Modifiersopt ::=");  //$NON-NLS-1$
+     case 439 : if (DEBUG) { System.out.println("Modifiersopt ::="); }  //$NON-NLS-1$
 		    consumeDefaultModifiers();  
 			break ;
  
-    case 408 : // System.out.println("Modifiersopt ::= Modifiers");  //$NON-NLS-1$
+    case 440 : if (DEBUG) { System.out.println("Modifiersopt ::= Modifiers"); }  //$NON-NLS-1$
 		    consumeModifiers();  
 			break ;
  
-    case 409 : // System.out.println("BlockStatementsopt ::=");  //$NON-NLS-1$
+    case 441 : if (DEBUG) { System.out.println("BlockStatementsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyBlockStatementsopt();  
 			break ;
  
-     case 411 : // System.out.println("Dimsopt ::=");  //$NON-NLS-1$
+     case 443 : if (DEBUG) { System.out.println("Dimsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyDimsopt();  
 			break ;
  
-     case 413 : // System.out.println("ArgumentListopt ::=");  //$NON-NLS-1$
+     case 445 : if (DEBUG) { System.out.println("ArgumentListopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyArgumentListopt();  
 			break ;
  
-    case 417 : // System.out.println("FormalParameterListopt ::=");  //$NON-NLS-1$
+    case 449 : if (DEBUG) { System.out.println("FormalParameterListopt ::="); }  //$NON-NLS-1$
 		    consumeFormalParameterListopt();  
 			break ;
  
-     case 421 : // System.out.println("InterfaceMemberDeclarationsopt ::=");  //$NON-NLS-1$
+     case 453 : if (DEBUG) { System.out.println("InterfaceMemberDeclarationsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyInterfaceMemberDeclarationsopt();  
 			break ;
  
-     case 422 : // System.out.println("InterfaceMemberDeclarationsopt ::= NestedType...");  //$NON-NLS-1$
+     case 454 : if (DEBUG) { System.out.println("InterfaceMemberDeclarationsopt ::= NestedType..."); }  //$NON-NLS-1$
 		    consumeInterfaceMemberDeclarationsopt();  
 			break ;
  
-    case 423 : // System.out.println("NestedType ::=");  //$NON-NLS-1$
+    case 455 : if (DEBUG) { System.out.println("NestedType ::="); }  //$NON-NLS-1$
 		    consumeNestedType();  
 			break ;
 
-     case 424 : // System.out.println("ForInitopt ::=");  //$NON-NLS-1$
+     case 456 : if (DEBUG) { System.out.println("ForInitopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyForInitopt();  
 			break ;
  
-     case 426 : // System.out.println("ForUpdateopt ::=");  //$NON-NLS-1$
+     case 458 : if (DEBUG) { System.out.println("ForUpdateopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyForUpdateopt();  
 			break ;
  
-     case 430 : // System.out.println("Catchesopt ::=");  //$NON-NLS-1$
+     case 462 : if (DEBUG) { System.out.println("Catchesopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyCatchesopt();  
+			break ;
+ 
+     case 464 : if (DEBUG) { System.out.println("EnumDeclaration ::= Modifiersopt enum Identifier..."); }  //$NON-NLS-1$
+		    consumeEnumDeclaration();  
+			break ;
+ 
+     case 465 : if (DEBUG) { System.out.println("EnumBody ::= LBRACE EnumBodyDeclarationsopt RBRACE"); }  //$NON-NLS-1$
+		    consumeEnumBody();  
+			break ;
+ 
+     case 466 : if (DEBUG) { System.out.println("EnumBody ::= LBRACE COMMA EnumBodyDeclarationsopt..."); }  //$NON-NLS-1$
+		    consumeEnumBody();  
+			break ;
+ 
+     case 467 : if (DEBUG) { System.out.println("EnumBody ::= LBRACE EnumConstants COMMA..."); }  //$NON-NLS-1$
+		    consumeEnumBody();  
+			break ;
+ 
+     case 468 : if (DEBUG) { System.out.println("EnumBody ::= LBRACE EnumConstants..."); }  //$NON-NLS-1$
+		    consumeEnumBody();  
+			break ;
+ 
+    case 470 : if (DEBUG) { System.out.println("EnumConstants ::= EnumConstants COMMA EnumConstant"); }  //$NON-NLS-1$
+		    consumeEnumConstants();  
+			break ;
+ 
+    case 471 : if (DEBUG) { System.out.println("EnumConstant ::= Identifier Argumentsopt ClassBodyopt"); }  //$NON-NLS-1$
+		    consumeEnumConstant();  
+			break ;
+ 
+    case 472 : if (DEBUG) { System.out.println("Arguments ::= LPAREN ArgumentListopt RPAREN"); }  //$NON-NLS-1$
+		    consumeArguments();  
+			break ;
+ 
+    case 473 : if (DEBUG) { System.out.println("Argumentsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyArguments();  
+			break ;
+ 
+    case 476 : if (DEBUG) { System.out.println("EnumBodyDeclarationsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyEnumDeclarations();  
+			break ;
+ 
+    case 478 : if (DEBUG) { System.out.println("EnhancedForStatement ::= for LPAREN Type PushModifiers"); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement();  
+			break ;
+ 
+    case 479 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::= for LPAREN Type..."); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement();  
+			break ;
+ 
+    case 480 : if (DEBUG) { System.out.println("SingleStaticImportDeclaration ::=..."); }  //$NON-NLS-1$
+		    consumeImportDeclaration();  
+			break ;
+ 
+    case 481 : if (DEBUG) { System.out.println("SingleStaticImportDeclarationName ::= import static Name"); }  //$NON-NLS-1$
+		    consumeSingleStaticImportDeclarationName();  
+			break ;
+ 
+    case 482 : if (DEBUG) { System.out.println("StaticImportOnDemandDeclaration ::=..."); }  //$NON-NLS-1$
+		    consumeImportDeclaration();  
+			break ;
+ 
+    case 483 : if (DEBUG) { System.out.println("StaticImportOnDemandDeclarationName ::= import static..."); }  //$NON-NLS-1$
+		    consumeStaticImportOnDemandDeclarationName();  
+			break ;
+ 
+    case 484 : if (DEBUG) { System.out.println("TypeArguments ::= LESS TypeArgumentList1"); }  //$NON-NLS-1$
+		    consumeTypeArguments();  
+			break ;
+ 
+    case 486 : if (DEBUG) { System.out.println("TypeArgumentList1 ::= TypeArgumentList COMMA..."); }  //$NON-NLS-1$
+		    consumeTypeArgumentList1();  
+			break ;
+ 
+    case 488 : if (DEBUG) { System.out.println("TypeArgumentList ::= TypeArgumentList COMMA TypeArgument"); }  //$NON-NLS-1$
+		    consumeTypeArgumentList();  
+			break ;
+ 
+    case 489 : if (DEBUG) { System.out.println("TypeArgument ::= ReferenceType"); }  //$NON-NLS-1$
+		    consumeReferenceType();  
+			break ;
+ 
+    case 493 : if (DEBUG) { System.out.println("ReferenceType1 ::= ReferenceType GREATER"); }  //$NON-NLS-1$
+		    consumeReferenceType1();  
+			break ;
+ 
+    case 494 : if (DEBUG) { System.out.println("ReferenceType1 ::= ClassOrInterface LESS..."); }  //$NON-NLS-1$
+		    consumeReferenceType1();  
+			break ;
+ 
+    case 496 : if (DEBUG) { System.out.println("TypeArgumentList2 ::= TypeArgumentList COMMA..."); }  //$NON-NLS-1$
+		    consumeTypeArgumentList2();  
+			break ;
+ 
+    case 499 : if (DEBUG) { System.out.println("ReferenceType2 ::= ReferenceType RIGHT_SHIFT"); }  //$NON-NLS-1$
+		    consumeReferenceType2();  
+			break ;
+ 
+    case 500 : if (DEBUG) { System.out.println("ReferenceType2 ::= ClassOrInterface LESS..."); }  //$NON-NLS-1$
+		    consumeReferenceType2();  
+			break ;
+ 
+    case 502 : if (DEBUG) { System.out.println("TypeArgumentList3 ::= TypeArgumentList COMMA..."); }  //$NON-NLS-1$
+		    consumeTypeArgumentList3();  
+			break ;
+ 
+    case 505 : if (DEBUG) { System.out.println("ReferenceType3 ::= ReferenceType UNSIGNED_RIGHT_SHIFT"); }  //$NON-NLS-1$
+		    consumeReferenceType3();  
+			break ;
+ 
+    case 506 : if (DEBUG) { System.out.println("Wildcard ::= QUESTION"); }  //$NON-NLS-1$
+		    consumeWildcard();  
+			break ;
+ 
+    case 507 : if (DEBUG) { System.out.println("Wildcard ::= QUESTION WildcardBounds"); }  //$NON-NLS-1$
+		    consumeWildcardWithBounds();  
+			break ;
+ 
+    case 508 : if (DEBUG) { System.out.println("WildcardBounds ::= extends ReferenceType"); }  //$NON-NLS-1$
+		    consumeWildcardBoundsExtends();  
+			break ;
+ 
+    case 509 : if (DEBUG) { System.out.println("WildcardBounds ::= super ReferenceType"); }  //$NON-NLS-1$
+		    consumeWildcardBoundsSuper();  
+			break ;
+ 
+    case 510 : if (DEBUG) { System.out.println("Wildcard1 ::= QUESTION GREATER"); }  //$NON-NLS-1$
+		    consumeWildcard1();  
+			break ;
+ 
+    case 511 : if (DEBUG) { System.out.println("Wildcard1 ::= QUESTION WildcardBounds1"); }  //$NON-NLS-1$
+		    consumeWildcard1WithBounds();  
+			break ;
+ 
+    case 512 : if (DEBUG) { System.out.println("WildcardBounds1 ::= extends ReferenceType1"); }  //$NON-NLS-1$
+		    consumeWildcardBounds1Extends();  
+			break ;
+ 
+    case 513 : if (DEBUG) { System.out.println("WildcardBounds1 ::= super ReferenceType1"); }  //$NON-NLS-1$
+		    consumeWildcardBounds1Super();  
+			break ;
+ 
+    case 514 : if (DEBUG) { System.out.println("Wildcard2 ::= QUESTION RIGHT_SHIFT"); }  //$NON-NLS-1$
+		    consumeWildcard2();  
+			break ;
+ 
+    case 515 : if (DEBUG) { System.out.println("Wildcard2 ::= QUESTION WildcardBounds2"); }  //$NON-NLS-1$
+		    consumeWildcard2WithBounds();  
+			break ;
+ 
+    case 516 : if (DEBUG) { System.out.println("WildcardBounds2 ::= extends ReferenceType2"); }  //$NON-NLS-1$
+		    consumeWildcardBounds2Extends();  
+			break ;
+ 
+    case 517 : if (DEBUG) { System.out.println("WildcardBounds2 ::= super ReferenceType2"); }  //$NON-NLS-1$
+		    consumeWildcardBounds2Super();  
+			break ;
+ 
+    case 518 : if (DEBUG) { System.out.println("Wildcard3 ::= QUESTION UNSIGNED_RIGHT_SHIFT"); }  //$NON-NLS-1$
+		    consumeWildcard3();  
+			break ;
+ 
+    case 519 : if (DEBUG) { System.out.println("Wildcard3 ::= QUESTION WildcardBounds3"); }  //$NON-NLS-1$
+		    consumeWildcard3WithBounds();  
+			break ;
+ 
+    case 520 : if (DEBUG) { System.out.println("WildcardBounds3 ::= extends ReferenceType3"); }  //$NON-NLS-1$
+		    consumeWildcardBounds3Extends();  
+			break ;
+ 
+    case 521 : if (DEBUG) { System.out.println("WildcardBounds3 ::= super ReferenceType3"); }  //$NON-NLS-1$
+		    consumeWildcardBounds3Super();  
+			break ;
+ 
+    case 522 : if (DEBUG) { System.out.println("TypeParameters ::= LESS TypeParameterList1"); }  //$NON-NLS-1$
+		    consumeTypeParameters();  
+			break ;
+ 
+    case 524 : if (DEBUG) { System.out.println("TypeParameterList ::= TypeParameterList COMMA..."); }  //$NON-NLS-1$
+		    consumeTypeParameterList();  
+			break ;
+ 
+    case 525 : if (DEBUG) { System.out.println("TypeParameter ::= Identifier"); }  //$NON-NLS-1$
+		    consumeTypeParameter();  
+			break ;
+ 
+    case 526 : if (DEBUG) { System.out.println("TypeParameter ::= Identifier extends ReferenceType"); }  //$NON-NLS-1$
+		    consumeTypeParameterWithExtends();  
+			break ;
+ 
+    case 527 : if (DEBUG) { System.out.println("TypeParameter ::= Identifier extends ReferenceType..."); }  //$NON-NLS-1$
+		    consumeTypeParameterWithExtendsAndBounds();  
+			break ;
+ 
+    case 529 : if (DEBUG) { System.out.println("AdditionalBoundList ::= AdditionalBoundList..."); }  //$NON-NLS-1$
+		    consumeAdditionalBoundList();  
+			break ;
+ 
+    case 530 : if (DEBUG) { System.out.println("AdditionalBound ::= AND ReferenceType"); }  //$NON-NLS-1$
+		    consumeAdditionalBound();  
+			break ;
+ 
+    case 532 : if (DEBUG) { System.out.println("TypeParameterList1 ::= TypeParameterList COMMA..."); }  //$NON-NLS-1$
+		    consumeTypeParameterList1();  
+			break ;
+ 
+    case 533 : if (DEBUG) { System.out.println("TypeParameter1 ::= Identifier GREATER"); }  //$NON-NLS-1$
+		    consumeTypeParameter1();  
+			break ;
+ 
+    case 534 : if (DEBUG) { System.out.println("TypeParameter1 ::= Identifier extends ReferenceType1"); }  //$NON-NLS-1$
+		    consumeTypeParameter1WithExtends();  
+			break ;
+ 
+    case 535 : if (DEBUG) { System.out.println("TypeParameter1 ::= Identifier extends ReferenceType..."); }  //$NON-NLS-1$
+		    consumeTypeParameter1WithExtendsAndBounds();  
+			break ;
+ 
+    case 537 : if (DEBUG) { System.out.println("AdditionalBoundList1 ::= AdditionalBoundList1..."); }  //$NON-NLS-1$
+		    consumeAdditionalBoundList1();  
+			break ;
+ 
+    case 538 : if (DEBUG) { System.out.println("AdditionalBound1 ::= AND ReferenceType1"); }  //$NON-NLS-1$
+		    consumeAdditionalBound1();  
+			break ;
+ 
+    case 544 : if (DEBUG) { System.out.println("UnaryExpression_NotName ::= PLUS PushPosition..."); }  //$NON-NLS-1$
+		    consumeUnaryExpression(OperatorIds.PLUS);  
+			break ;
+ 
+    case 545 : if (DEBUG) { System.out.println("UnaryExpression_NotName ::= MINUS PushPosition..."); }  //$NON-NLS-1$
+		    consumeUnaryExpression(OperatorIds.MINUS);  
+			break ;
+ 
+    case 548 : if (DEBUG) { System.out.println("UnaryExpressionNotPlusMinus_NotName ::= TWIDDLE..."); }  //$NON-NLS-1$
+		    consumeUnaryExpression(OperatorIds.TWIDDLE);  
+			break ;
+ 
+    case 549 : if (DEBUG) { System.out.println("UnaryExpressionNotPlusMinus_NotName ::= NOT PushPosition"); }  //$NON-NLS-1$
+		    consumeUnaryExpression(OperatorIds.NOT);  
+			break ;
+ 
+    case 552 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.MULTIPLY);  
+			break ;
+ 
+    case 553 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::= Name MULTIPLY..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.MULTIPLY);  
+			break ;
+ 
+    case 554 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.DIVIDE);  
+			break ;
+ 
+    case 555 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::= Name DIVIDE..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.DIVIDE);  
+			break ;
+ 
+    case 556 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.REMAINDER);  
+			break ;
+ 
+    case 557 : if (DEBUG) { System.out.println("MultiplicativeExpression_NotName ::= Name REMAINDER..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.REMAINDER);  
+			break ;
+ 
+    case 559 : if (DEBUG) { System.out.println("AdditiveExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.PLUS);  
+			break ;
+ 
+    case 560 : if (DEBUG) { System.out.println("AdditiveExpression_NotName ::= Name PLUS..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.PLUS);  
+			break ;
+ 
+    case 561 : if (DEBUG) { System.out.println("AdditiveExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.MINUS);  
+			break ;
+ 
+    case 562 : if (DEBUG) { System.out.println("AdditiveExpression_NotName ::= Name MINUS..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.MINUS);  
+			break ;
+ 
+    case 564 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= ShiftExpression_NotName..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.LEFT_SHIFT);  
+			break ;
+ 
+    case 565 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= Name LEFT_SHIFT..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.LEFT_SHIFT);  
+			break ;
+ 
+    case 566 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= ShiftExpression_NotName..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.RIGHT_SHIFT);  
+			break ;
+ 
+    case 567 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= Name RIGHT_SHIFT..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.RIGHT_SHIFT);  
+			break ;
+ 
+    case 568 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= ShiftExpression_NotName..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT);  
+			break ;
+ 
+    case 569 : if (DEBUG) { System.out.println("ShiftExpression_NotName ::= Name UNSIGNED_RIGHT_SHIFT..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.UNSIGNED_RIGHT_SHIFT);  
+			break ;
+ 
+    case 571 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= ShiftExpression_NotName"); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.LESS);  
+			break ;
+ 
+    case 572 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= Name LESS..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.LESS);  
+			break ;
+ 
+    case 573 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= ShiftExpression_NotName"); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.GREATER);  
+			break ;
+ 
+    case 574 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= Name GREATER..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.GREATER);  
+			break ;
+ 
+    case 575 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.LESS_EQUAL);  
+			break ;
+ 
+    case 576 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= Name LESS_EQUAL..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.LESS_EQUAL);  
+			break ;
+ 
+    case 577 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.GREATER_EQUAL);  
+			break ;
+ 
+    case 578 : if (DEBUG) { System.out.println("RelationalExpression_NotName ::= Name GREATER_EQUAL..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.GREATER_EQUAL);  
+			break ;
+ 
+    case 580 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name instanceof..."); }  //$NON-NLS-1$
+		    consumeInstanceOfExpressionWithName(OperatorIds.INSTANCEOF);  
+			break ;
+ 
+    case 581 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeInstanceOfExpression(OperatorIds.INSTANCEOF);  
+			break ;
+ 
+    case 583 : if (DEBUG) { System.out.println("EqualityExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeEqualityExpression(OperatorIds.EQUAL_EQUAL);  
+			break ;
+ 
+    case 584 : if (DEBUG) { System.out.println("EqualityExpression_NotName ::= Name EQUAL_EQUAL..."); }  //$NON-NLS-1$
+		    consumeEqualityExpressionWithName(OperatorIds.EQUAL_EQUAL);  
+			break ;
+ 
+    case 585 : if (DEBUG) { System.out.println("EqualityExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeEqualityExpression(OperatorIds.NOT_EQUAL);  
+			break ;
+ 
+    case 586 : if (DEBUG) { System.out.println("EqualityExpression_NotName ::= Name NOT_EQUAL..."); }  //$NON-NLS-1$
+		    consumeEqualityExpressionWithName(OperatorIds.NOT_EQUAL);  
+			break ;
+ 
+    case 588 : if (DEBUG) { System.out.println("AndExpression_NotName ::= AndExpression_NotName AND..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.AND);  
+			break ;
+ 
+    case 589 : if (DEBUG) { System.out.println("AndExpression_NotName ::= Name AND EqualityExpression"); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.AND);  
+			break ;
+ 
+    case 591 : if (DEBUG) { System.out.println("ExclusiveOrExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.XOR);  
+			break ;
+ 
+    case 592 : if (DEBUG) { System.out.println("ExclusiveOrExpression_NotName ::= Name XOR AndExpression"); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.XOR);  
+			break ;
+ 
+    case 594 : if (DEBUG) { System.out.println("InclusiveOrExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.OR);  
+			break ;
+ 
+    case 595 : if (DEBUG) { System.out.println("InclusiveOrExpression_NotName ::= Name OR..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.OR);  
+			break ;
+ 
+    case 597 : if (DEBUG) { System.out.println("ConditionalAndExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.AND_AND);  
+			break ;
+ 
+    case 598 : if (DEBUG) { System.out.println("ConditionalAndExpression_NotName ::= Name AND_AND..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.AND_AND);  
+			break ;
+ 
+    case 600 : if (DEBUG) { System.out.println("ConditionalOrExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeBinaryExpression(OperatorIds.OR_OR);  
+			break ;
+ 
+    case 601 : if (DEBUG) { System.out.println("ConditionalOrExpression_NotName ::= Name OR_OR..."); }  //$NON-NLS-1$
+		    consumeBinaryExpressionWithName(OperatorIds.OR_OR);  
+			break ;
+ 
+    case 603 : if (DEBUG) { System.out.println("ConditionalExpression_NotName ::=..."); }  //$NON-NLS-1$
+		    consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ;  
+			break ;
+ 
+    case 604 : if (DEBUG) { System.out.println("ConditionalExpression_NotName ::= Name QUESTION..."); }  //$NON-NLS-1$
+		    consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ;  
+			break ;
+ 
+    case 608 : if (DEBUG) { System.out.println("AnnotationTypeDeclaration ::= Modifiersopt AT interface"); }  //$NON-NLS-1$
+		    consumeAnnotationTypeDeclaration() ;  
+			break ;
+ 
+    case 609 : if (DEBUG) { System.out.println("AnnotationTypeBody ::= LBRACE..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeBody() ;  
+			break ;
+ 
+    case 610 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyAnnotationTypeMemberDeclarations() ;  
+			break ;
+ 
+    case 613 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarations ::=..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberDeclarations() ;  
+			break ;
+ 
+    case 614 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberDeclaration() ;  
+			break ;
+ 
+    case 615 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
+		    consumeEmptyAnnotationTypeMemberDeclaration() ;  
+			break ;
+ 
+    case 616 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyDefaultValue() ;  
+			break ;
+ 
+    case 618 : if (DEBUG) { System.out.println("DefaultValue ::= default MemberValue"); }  //$NON-NLS-1$
+		    consumeDefaultValue() ;  
+			break ;
+ 
+    case 622 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
+		    consumeNormalAnnotation() ;  
+			break ;
+ 
+    case 623 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
+		    consumeEmptyMemberValuePairs() ;  
+			break ;
+ 
+    case 626 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
+		    consumeMemberValuePairs() ;  
+			break ;
+ 
+    case 627 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
+		    consumeMemberValuePair() ;  
+			break ;
+ 
+    case 631 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break ;
+ 
+    case 632 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break ;
+ 
+    case 633 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break ;
+ 
+    case 634 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break ;
+ 
+    case 636 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
+		    consumeMemberValues() ;  
+			break ;
+ 
+    case 637 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
+		    consumeMarkerAnnotation() ;  
+			break ;
+ 
+    case 638 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
+		    consumeSingleMemberAnnotation() ;  
 			break ;
  
 	}
@@ -3446,23 +4796,38 @@ protected void consumeSimpleAssertStatement() {
 	expressionLengthPtr--;
 	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], intStack[intPtr--]));	
 }
-	
-protected void consumeSingleTypeImportDeclaration() {
-	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
+protected void consumeSingleMemberAnnotation() {
+	// TODO Auto-generated method stub	
+}
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
 
-	ImportReference impt = (ImportReference) astStack[astPtr];
-	// flush annotations defined prior to import statements
-	impt.declarationEnd = endStatementPosition;
-	impt.declarationSourceEnd = 
-		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = identifierLengthStack[identifierLengthPtr--]][];
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccStatic));
+
+	if (currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//endPosition is just before the ;
+	impt.declarationSourceStart = intStack[intPtr--];
 
 	// recovery
-	if (currentElement != null) {
-		lastCheckPoint = impt.declarationSourceEnd + 1;
+	if (currentElement != null){
+		lastCheckPoint = impt.declarationSourceEnd+1;
 		currentElement = currentElement.add(impt, 0);
 		lastIgnoredToken = -1;
-		restartRecovery = true; 
-		// used to avoid branching back into the regular automaton
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
@@ -3477,7 +4842,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault/*TODO (olivier) update for static imports*/));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
@@ -3794,6 +5159,37 @@ protected void consumeStatementWhile() {
 			intStack[intPtr--], 
 			endStatementPosition); 
 }
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	ImportReference impt;
+	int length;
+	char[][] tokens = new char[length = identifierLengthStack[identifierLengthPtr--]][];
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccStatic));
+
+	if (currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		impt.declarationSourceEnd = impt.sourceEnd;
+	}
+	impt.declarationEnd = impt.declarationSourceEnd;
+	//endPosition is just before the ;
+	impt.declarationSourceStart = intStack[intPtr--];
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = impt.declarationSourceEnd+1;
+		currentElement = currentElement.add(impt, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}	
+}
 protected void consumeStaticInitializer() {
 	// StaticInitializer ::=  StaticOnly Block
 	//push an Initializer
@@ -3880,14 +5276,12 @@ protected void consumeToken(int type) {
 				long positions = identifierPositionStack[identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
 			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
 			pushOnIntStack(scanner.currentPosition - 1);			
 			pushOnIntStack(scanner.startPosition);
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameabstract :
 			checkAndSetModifiers(AccAbstract);
@@ -3928,7 +5322,6 @@ protected void consumeToken(int type) {
 			pushIdentifier(-T_void);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);
-//			scanner.commentPtr = -1;
 			break;
 			//push a default dimension while void is not part of the primitive
 			//declaration baseType and so takes the place of a type without getting into
@@ -3937,49 +5330,41 @@ protected void consumeToken(int type) {
 			pushIdentifier(-T_boolean);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);		
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
 			break;
 			//==============================
 		case TokenNameIntegerLiteral :
@@ -3988,7 +5373,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameLongLiteral :
 			pushOnExpressionStack(
@@ -3996,7 +5380,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameFloatingPointLiteral :
 			pushOnExpressionStack(
@@ -4004,7 +5387,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameDoubleLiteral :
 			pushOnExpressionStack(
@@ -4012,7 +5394,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameCharacterLiteral :
 			pushOnExpressionStack(
@@ -4020,7 +5401,6 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral = new StringLiteral(
@@ -4028,12 +5408,10 @@ protected void consumeToken(int type) {
 					scanner.startPosition, 
 					scanner.currentPosition - 1); 
 			pushOnExpressionStack(stringLiteral); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNamefalse :
 			pushOnExpressionStack(
 				new FalseLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
 			break;
 		case TokenNametrue :
 			pushOnExpressionStack(
@@ -4097,8 +5475,8 @@ protected void consumeToken(int type) {
 			endPosition = scanner.startPosition - 1; 
 			//the item is not part of the potential futur expression/statement
 			break;
-			// in order to handle ( expression) ////// (cast)expression///// foo(x)
 		case TokenNameRPAREN :
+			// in order to handle ( expression) ////// (cast)expression///// foo(x)
 			rParenPos = scanner.currentPosition - 1; // position of the end of right parenthesis (in case of unicode \u0029) lex00101
 			break;
 		case TokenNameLPAREN :
@@ -4150,6 +5528,20 @@ protected void consumeToken(int type) {
 			//  case TokenNameLESS  :
 	}
 }
+protected void consumeTypeArgumentList() {
+	concatNodeLists();
+}
+protected void consumeTypeArgumentList1() {
+	concatNodeLists();
+}
+protected void consumeTypeArgumentList2() {
+	concatNodeLists();
+}
+protected void consumeTypeArgumentList3() {
+	concatNodeLists();
+}
+protected void consumeTypeArguments() {
+}
 protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
 	concatNodeLists();
@@ -4160,24 +5552,6 @@ protected void consumeTypeDeclarationsopt() {
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
 		astPtr -= length;
 		System.arraycopy(astStack, astPtr + 1, compilationUnit.types = new TypeDeclaration[length], 0, length);
-	}
-}
-protected void consumeTypeImportOnDemandDeclaration() {
-	// TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName ';'
-
-	ImportReference impt = (ImportReference) astStack[astPtr];
-	// flush annotations defined prior to import statements
-	impt.declarationEnd = endStatementPosition;
-	impt.declarationSourceEnd = 
-		this.flushAnnotationsDefinedPriorTo(impt.declarationSourceEnd); 
-
-	// recovery
-	if (currentElement != null) {
-		lastCheckPoint = impt.declarationSourceEnd + 1;
-		currentElement = currentElement.add(impt, 0);
-		restartRecovery = true;
-		lastIgnoredToken = -1;
-		// used to avoid branching back into the regular automaton
 	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
@@ -4192,7 +5566,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault/*TODO (olivier) update for static imports*/));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
@@ -4210,6 +5584,96 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		lastIgnoredToken = -1;
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}	
+}
+protected void consumeTypeParameter() {
+	TypeParameter typeParameter = new TypeParameter();
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	pushOnAstStack(typeParameter);
+}
+protected void consumeTypeParameterWithExtends() {
+	TypeParameter typeParameter = new TypeParameter();
+	TypeReference superType = (TypeReference) astStack[astPtr];
+	
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	typeParameter.type = superType;
+	astStack[astPtr] = typeParameter;
+}
+protected void consumeTypeParameterWithExtendsAndBounds() {
+	TypeParameter typeParameter = new TypeParameter();
+	int additionalBoundsLength = astLengthStack[astLengthPtr--];
+	TypeReference[] bounds = new TypeReference[additionalBoundsLength];
+	astPtr -= additionalBoundsLength;
+	System.arraycopy(astStack, astPtr + 1, bounds, 0, additionalBoundsLength);
+
+	TypeReference superType = getTypeReference(0);
+	
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	typeParameter.type = superType;
+	pushOnAstStack(typeParameter);
+}
+protected void consumeTypeParameter1() {
+	TypeParameter typeParameter = new TypeParameter();
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	pushOnAstStack(typeParameter);
+}
+protected void consumeTypeParameter1WithExtends() {
+	TypeParameter typeParameter = new TypeParameter();
+	TypeReference superType = (TypeReference) astStack[astPtr];
+	
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	typeParameter.type = superType;
+	astStack[astPtr] = typeParameter;
+}
+protected void consumeTypeParameter1WithExtendsAndBounds() {
+	TypeParameter typeParameter = new TypeParameter();
+	int additionalBoundsLength = astLengthStack[astLengthPtr--];
+	TypeReference[] bounds = new TypeReference[additionalBoundsLength];
+	astPtr -= additionalBoundsLength;
+	System.arraycopy(astStack, astPtr + 1, bounds, 0, additionalBoundsLength);
+
+	TypeReference superType = getTypeReference(0);
+	
+	long pos = identifierPositionStack[identifierPtr];
+	typeParameter.declarationSourceEnd = (int) pos;
+	typeParameter.declarationSourceStart = (int) (pos >>> 32);
+	typeParameter.name = identifierStack[identifierPtr--];
+	identifierLengthPtr--;
+	
+	typeParameter.type = superType;
+	pushOnAstStack(typeParameter);
+}
+protected void consumeTypeParameterList() {
+	concatNodeLists();
+}
+protected void consumeTypeParameterList1() {
+	concatNodeLists();
+}
+protected void consumeTypeParameters() {
 }
 protected void consumeUnaryExpression(int op) {
 	// UnaryExpression ::= '+' PushPosition UnaryExpression
@@ -4286,6 +5750,66 @@ protected void consumeVariableInitializers() {
 	// VariableInitializers ::= VariableInitializers ',' VariableInitializer
 	concatExpressionLists();
 }
+protected void consumeWildcard() {
+	pushOnAstStack(new Wildcard(false));
+}
+protected void consumeWildcard1() {
+	pushOnAstStack(new Wildcard(false));
+}
+protected void consumeWildcard1WithBounds() {
+}
+protected void consumeWildcard2() {
+	pushOnAstStack(new Wildcard(false));
+}
+protected void consumeWildcard2WithBounds() {
+}
+protected void consumeWildcard3() {
+	pushOnAstStack(new Wildcard(false));
+}
+protected void consumeWildcard3WithBounds() {
+}
+protected void consumeWildcardBounds1Extends() {
+	Wildcard wildcard = new Wildcard(false);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBounds1Super() {
+	Wildcard wildcard = new Wildcard(true);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBounds2Extends() {
+	Wildcard wildcard = new Wildcard(false);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBounds2Super() {
+	Wildcard wildcard = new Wildcard(true);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBounds3Extends() {
+	Wildcard wildcard = new Wildcard(false);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBounds3Super() {
+	Wildcard wildcard = new Wildcard(true);
+	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	astStack[astPtr] = wildcard;
+}
+protected void consumeWildcardBoundsExtends() {
+	Wildcard wildcard = new Wildcard(false);
+	wildcard.typeReference = getTypeReference(0);
+	pushOnAstStack(wildcard);
+}
+protected void consumeWildcardBoundsSuper() {
+	Wildcard wildcard = new Wildcard(true);
+	wildcard.typeReference = getTypeReference(0);
+	pushOnAstStack(wildcard);
+}
+protected void consumeWildcardWithBounds() {
+}
 /**
  * Given the current comment stack, answer whether some comment is available in a certain exclusive range
  * 
@@ -4305,6 +5829,9 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	}
 	return false;
 }
+protected TypeReference copyDims(TypeReference typeRef, int dim) {
+	return typeRef.copyDims(dim);
+}
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
 	MethodDeclaration m = new MethodDeclaration(compilationResult);
 	m.sourceStart = c.sourceStart;
@@ -4321,9 +5848,6 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.explicitDeclarations = c.explicitDeclarations;
 	m.returnType = null;
 	return m;
-}
-protected TypeReference copyDims(TypeReference typeRef, int dim) {
-	return typeRef.copyDims(dim);
 }
 protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
 	return new FieldDeclaration(fieldDeclarationName, sourceStart, sourceEnd);
@@ -4608,62 +6132,106 @@ public int[] getJavaDocPositions() {
 		// tag unit has having read bodies
 		unit.bits |= AstNode.HasAllMethodBodies;
 	}
-protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
-This variable is a type reference and dim will be its dimensions*/
-
-	int length;
-	TypeReference ref;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
-		// single variable reference
-		if (dim == 0) {
-			ref = 
-				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]); 
-		} else {
-			ref = 
-				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
-					dim, 
-					identifierPositionStack[identifierPtr--]); 
-			ref.sourceEnd = endPosition;			
-		}
-	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
-			} else {
-				intPtr--;
-				ref.sourceEnd = endPosition;
+protected char getNextCharacter(char[] comment, int[] index) {
+	char nextCharacter = comment[index[0]++];
+	switch(nextCharacter) {
+		case '\\' :
+			int c1, c2, c3, c4;
+			index[0]++;
+			while (comment[index[0]] == 'u') index[0]++;
+			if (!(((c1 = Character.getNumericValue(comment[index[0]++])) > 15
+				|| c1 < 0)
+				|| ((c2 = Character.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
+				|| ((c3 = Character.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
+				|| ((c4 = Character.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
+					nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 			}
-		} else { //Qualified variable reference
-			char[][] tokens = new char[length][];
-			identifierPtr -= length;
-			long[] positions = new long[length];
-			System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
-			System.arraycopy(
-				identifierPositionStack, 
-				identifierPtr + 1, 
-				positions, 
-				0, 
-				length); 
-			if (dim == 0) {
-				ref = new QualifiedTypeReference(tokens, positions);
-			} else {
-				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
-				ref.sourceEnd = endPosition;
-			}
-		}
+			break;
 	}
-	return ref;
+	return nextCharacter;
 }
 protected Expression getTypeReference(Expression exp) {
 	
 	exp.bits &= ~AstNode.RestrictiveFlagMASK;
 	exp.bits |= TYPE;
 	return exp;
+}
+protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
+This variable is a type reference and dim will be its dimensions*/
+
+	int length;
+	TypeReference ref;
+	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
+		int typeArgumentsLength = astLengthStack[astLengthPtr--];
+		if (typeArgumentsLength == -1) {
+			// single variable reference
+			if (dim == 0) {
+				ref = 
+					new SingleTypeReference(
+						identifierStack[identifierPtr], 
+						identifierPositionStack[identifierPtr--]); 
+			} else {
+				ref = 
+					new ArrayTypeReference(
+						identifierStack[identifierPtr], 
+						dim, 
+						identifierPositionStack[identifierPtr--]); 
+				ref.sourceEnd = endPosition;			
+			}
+		} else {
+			// single name generic type
+			TypeReference[] typeArguments = new TypeReference[typeArgumentsLength];
+			astPtr -= typeArgumentsLength;
+			System.arraycopy(astStack, astPtr + 1, typeArguments, 0, typeArgumentsLength);
+			ref = 
+				new ParameterizedTypeReference(
+					identifierStack[identifierPtr], 
+					typeArguments,
+					dim,
+					identifierPositionStack[identifierPtr--]); 
+		}
+	} else if (length < 0) { //flag for precompiled type reference on base types
+		ref = TypeReference.baseTypeReference(-length, dim);
+		ref.sourceStart = intStack[intPtr--];
+		if (dim == 0) {
+			ref.sourceEnd = intStack[intPtr--];
+		} else {
+			intPtr--;
+			ref.sourceEnd = endPosition;
+		}
+	} else { //Qualified variable reference
+		char[][] tokens = new char[length][];
+		identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+		System.arraycopy(
+			identifierPositionStack, 
+			identifierPtr + 1, 
+			positions, 
+			0, 
+			length); 
+		int typeArgumentsLength = astLengthStack[astLengthPtr--];
+		if (typeArgumentsLength == -1) {
+			if (dim == 0) {
+				ref = new QualifiedTypeReference(tokens, positions);
+			} else {
+				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
+		} else {
+			// qualified name generic type
+			TypeReference[] typeArguments = new TypeReference[typeArgumentsLength];
+			astPtr -= typeArgumentsLength;
+			System.arraycopy(astStack, astPtr + 1, typeArguments, 0, typeArgumentsLength);
+			ref = 
+				new ParameterizedQualifiedTypeReference(
+					tokens, 
+					typeArguments,
+					dim,
+					positions); 
+		}
+	}
+	return ref;
 }
 protected NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/
@@ -4979,44 +6547,6 @@ public void initializeScanner(){
 		this.options.taskTags/*taskTags*/,
 		this.options.taskPriorites/*taskPriorities*/);
 }
-public final static void initTables() throws java.io.IOException {
-
-	final String prefix = FILEPREFIX;
-	int i = 0;
-	lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	char[] chars = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	check_table = new short[chars.length];
-	for (int c = chars.length; c-- > 0;) {
-		check_table[c] = (short) (chars[c] - 32768);
-	}
-	asb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	asr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	nasb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	nasr = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	non_terminal_index = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	term_action = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	
-	scope_prefix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_suffix = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_lhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_state_set = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_rhs = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_state = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	in_symb = readTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	
-	rhs = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	term_check = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	
-	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	readableName = readReadableNameTable(READABLE_NAMES);
-	
-	base_action = lhs;
-}
-public static int in_symbol(int state) {
-	return in_symb[original_state(state)];
-}
 public final void jumpOverMethodBody() {
 	//on diet parsing.....do not buffer method statements
 
@@ -5191,12 +6721,6 @@ protected MessageSend newMessageSend() {
 	}
 	return m;
 }
-public static int nasi(int state) {
-	return nasb[original_state(state)];
-}
-public static int ntAction(int state, int sym) {
-	return base_action[state + sym];
-}
 private final void optimizedConcatNodeLists() {
 	/*back from a recursive loop. Virtualy group the
 	astNode into an array using astLengthStack*/
@@ -5216,9 +6740,6 @@ private final void optimizedConcatNodeLists() {
 	 */
 
 	astLengthStack[--astLengthPtr]++;
-}
-protected static int original_state(int state) {
-	return -base_check(state);
 }
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
@@ -5247,56 +6768,64 @@ protected void parse() {
 		}
 
 		act = tAction(act, currentToken);
-
 		if (act == ERROR_ACTION || restartRecovery) {
 			int errorPos = scanner.currentPosition;
-			if (!hasReportedError){
+			if (!hasReportedError) {
 				hasError = true;
 			}
 			if (resumeOnSyntaxError()) {
-				if (act == ERROR_ACTION) lastErrorEndPosition = errorPos;
-					act = START_STATE;
-					stateStackTop = -1;
-					currentToken = getFirstToken();
-					continue ProcessTerminals;
-				} else {
-					act = ERROR_ACTION;
-				}	break ProcessTerminals;
-			}
-			if (act <= NUM_RULES)
-				stateStackTop--;
-			else
-				if (act > ERROR_ACTION) { /* shift-reduce */
+				if (act == ERROR_ACTION) {
+					lastErrorEndPosition = errorPos;
+				}
+				act = START_STATE;
+				stateStackTop = -1;
+				currentToken = getFirstToken();
+				continue ProcessTerminals;
+			} else {
+				act = ERROR_ACTION;
+			}	break ProcessTerminals;
+		}
+		if (act <= NUM_RULES) {
+			stateStackTop--;
+		} else {
+			if (act > ERROR_ACTION) { /* shift-reduce */
+				consumeToken(currentToken);
+				if (currentElement != null) {
+					this.recoveryTokenCheck();
+				}
+				try {
+					currentToken = scanner.getNextToken();
+				} catch(InvalidInputException e) {
+					if (!hasReportedError) {
+						this.problemReporter().scannerError(this, e.getMessage());
+						hasReportedError = true;
+					}
+					lastCheckPoint = scanner.currentPosition;
+					restartRecovery = true;
+				}					
+				act -= ERROR_ACTION;
+			} else {
+				if (act < ACCEPT_ACTION) { /* shift */
 					consumeToken(currentToken);
-					if (currentElement != null) this.recoveryTokenCheck();
-					try{
+					if (currentElement != null) {
+						this.recoveryTokenCheck();
+					}
+					try {
 						currentToken = scanner.getNextToken();
-					} catch(InvalidInputException e){
-						if (!hasReportedError){
+					} catch(InvalidInputException e) {
+						if (!hasReportedError) {
 							this.problemReporter().scannerError(this, e.getMessage());
 							hasReportedError = true;
 						}
 						lastCheckPoint = scanner.currentPosition;
 						restartRecovery = true;
 					}					
-					act -= ERROR_ACTION;
-				} else
-					if (act < ACCEPT_ACTION) { /* shift */
-						consumeToken(currentToken);
-						if (currentElement != null) this.recoveryTokenCheck();
-						try{
-							currentToken = scanner.getNextToken();
-						} catch(InvalidInputException e){
-							if (!hasReportedError){
-								this.problemReporter().scannerError(this, e.getMessage());
-								hasReportedError = true;
-							}
-							lastCheckPoint = scanner.currentPosition;
-							restartRecovery = true;
-						}					
-						continue ProcessTerminals;
-					} else
-						break ProcessTerminals;
+					continue ProcessTerminals;
+				} else {
+					break ProcessTerminals;
+				}
+			}
+		}
 			
 		ProcessNonTerminals : do { /* reduce */
 			consumeRule(act);
@@ -5308,68 +6837,6 @@ protected void parse() {
 	
 	if(reportSyntaxErrorIsRequired && hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
-	}
-}
-// A P I
-protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
-	if(referenceContext instanceof MethodDeclaration) {
-		MethodDeclaration methodDeclaration = (MethodDeclaration) referenceContext;
-		if(methodDeclaration.errorInSignature){
-			return;
-		}
-	}
-	compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
-	scanner.recordLineSeparator = false;
-	
-	int start = scanner.initialPosition;
-	int end = scanner.eofPosition <= Integer.MAX_VALUE ? scanner.eofPosition - 1 : scanner.eofPosition;
-	if(isDietParse) {
-		TypeDeclaration[] types = this.compilationUnit.types;
-		
-		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.Util.computeDietRange(types);
-		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
-		diagnoseParser.diagnoseParse();
-		
-		reportSyntaxErrorsForSkippedMethod(types);
-		scanner.resetTo(start, end);
-	} else {
-		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
-		diagnoseParser.diagnoseParse();
-	}
-}
-private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
-	if(types != null) {
-		for (int i = 0; i < types.length; i++) {
-			TypeDeclaration[] memberTypes = types[i].memberTypes;
-			if(memberTypes != null) {
-				reportSyntaxErrorsForSkippedMethod(memberTypes);
-			}
-			
-			AbstractMethodDeclaration[] methods = types[i].methods;
-			if(methods != null) {
-				for (int j = 0; j < methods.length; j++) {
-					AbstractMethodDeclaration method = methods[j];
-					if(methods[j].errorInSignature) {
-						DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE, method.declarationSourceStart, method.declarationSourceEnd);
-						diagnoseParser.diagnoseParse();
-					}
-				}
-			}
-			
-			FieldDeclaration[] fields = types[i].fields;
-			if (fields != null) {
-				int length = fields.length;
-				for (int j = 0; j < length; j++) {
-					if (fields[j] instanceof Initializer) {
-						Initializer initializer = (Initializer)fields[j];
-						if(initializer.errorInSignature){
-							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd);
-							diagnoseParser.diagnoseParse();
-						}
-					}
-				}
-			}
-		}
 	}
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
@@ -5479,6 +6946,57 @@ public void parse(
 }
 // A P I
 
+public CompilationUnitDeclaration parse(
+	ICompilationUnit sourceUnit, 
+	CompilationResult compilationResult) {
+	// parses a compilation unit and manages error handling (even bugs....)
+
+	return parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
+}
+// A P I
+
+public CompilationUnitDeclaration parse(
+	ICompilationUnit sourceUnit, 
+	CompilationResult compilationResult,
+	int start,
+	int end) {
+	// parses a compilation unit and manages error handling (even bugs....)
+
+	CompilationUnitDeclaration unit;
+	try {
+		/* automaton initialization */
+		initialize();
+		goForCompilationUnit();
+
+		/* scanners initialization */
+		char[] contents = sourceUnit.getContents();
+		scanner.setSource(contents);
+		if (end != -1) scanner.resetTo(start, end);
+		if (this.annotationParser.checkAnnotation) {
+			this.annotationParser.scanner.setSource(contents);
+			if (end != -1) {
+				this.annotationParser.scanner.resetTo(start, end);
+			}
+		}
+		/* unit creation */
+		referenceContext = 
+			compilationUnit = 
+				new CompilationUnitDeclaration(
+					problemReporter, 
+					compilationResult, 
+					scanner.source.length);
+		/* run automaton */
+		parse();
+	} finally {
+		unit = compilationUnit;
+		compilationUnit = null; // reset parser
+		// tag unit has having read bodies
+		if (!this.diet) unit.bits |= AstNode.HasAllMethodBodies;		
+	}
+	return unit;
+}
+// A P I
+
 public void parse(
 	Initializer initializer, 
 	TypeDeclaration type, 
@@ -5582,57 +7100,6 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 			md.bits |= AstNode.UndocumentedEmptyBlockMASK;
 		}
 	}
-}
-// A P I
-
-public CompilationUnitDeclaration parse(
-	ICompilationUnit sourceUnit, 
-	CompilationResult compilationResult) {
-	// parses a compilation unit and manages error handling (even bugs....)
-
-	return parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
-}
-// A P I
-
-public CompilationUnitDeclaration parse(
-	ICompilationUnit sourceUnit, 
-	CompilationResult compilationResult,
-	int start,
-	int end) {
-	// parses a compilation unit and manages error handling (even bugs....)
-
-	CompilationUnitDeclaration unit;
-	try {
-		/* automaton initialization */
-		initialize();
-		goForCompilationUnit();
-
-		/* scanners initialization */
-		char[] contents = sourceUnit.getContents();
-		scanner.setSource(contents);
-		if (end != -1) scanner.resetTo(start, end);
-		if (this.annotationParser.checkAnnotation) {
-			this.annotationParser.scanner.setSource(contents);
-			if (end != -1) {
-				this.annotationParser.scanner.resetTo(start, end);
-			}
-		}
-		/* unit creation */
-		referenceContext = 
-			compilationUnit = 
-				new CompilationUnitDeclaration(
-					problemReporter, 
-					compilationResult, 
-					scanner.source.length);
-		/* run automaton */
-		parse();
-	} finally {
-		unit = compilationUnit;
-		compilationUnit = null; // reset parser
-		// tag unit has having read bodies
-		if (!this.diet) unit.bits |= AstNode.HasAllMethodBodies;		
-	}
-	return unit;
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
@@ -5798,104 +7265,6 @@ protected void pushOnRealBlockStack(int i){
 		realBlockStack[realBlockPtr] = i;
 	}
 }
-protected static char[] readTable(String filename) throws java.io.IOException {
-
-	//files are located at Parser.class directory
-
-	InputStream stream = Parser.class.getResourceAsStream(filename);
-	if (stream == null) {
-		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
-	}
-	byte[] bytes = null;
-	try {
-		stream = new BufferedInputStream(stream);
-		bytes = Util.getInputStreamAsByteArray(stream, -1);
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-
-	//minimal integrity check (even size expected)
-	int length = bytes.length;
-	if (length % 2 != 0)
-		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
-
-	// convert bytes into chars
-	char[] chars = new char[length / 2];
-	int i = 0;
-	int charIndex = 0;
-
-	while (true) {
-		chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
-		if (i == length)
-			break;
-	}
-	return chars;
-}
-protected static byte[] readByteTable(String filename) throws java.io.IOException {
-
-	//files are located at Parser.class directory
-
-	InputStream stream = Parser.class.getResourceAsStream(filename);
-	if (stream == null) {
-		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
-	}
-	byte[] bytes = null;
-	try {
-		stream = new BufferedInputStream(stream);
-		bytes = Util.getInputStreamAsByteArray(stream, -1);
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
-			// ignore
-		}
-	}
-	return bytes;
-}
-protected static String[] readReadableNameTable(String filename) {
-	String[] result = new String[name.length];
-
-	ResourceBundle bundle;
-	try {
-		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
-	} catch(MissingResourceException e) {
-		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-		throw e;
-	}
-	for (int i = 0; i < NT_OFFSET + 1; i++) {
-		result[i] = name[i];
-	}
-	for (int i = NT_OFFSET; i < name.length; i++) {
-		try {
-			String n = bundle.getString(name[i]);
-			if(n != null && n.length() > 0) {
-				result[i] = n;
-			} else {
-				result[i] = name[i];
-			}
-		} catch(MissingResourceException e) {
-			result[i] = name[i];
-		}
-	}
-	return result;
-}
-	
-protected static String[] readNameTable(String filename) throws java.io.IOException {
-	char[] contents = readTable(filename);
-	char[][] nameAsChar = CharOperation.splitOn('\n', contents);
-
-	String[] result = new String[nameAsChar.length + 1];
-	result[0] = null;
-	for (int i = 0; i < nameAsChar.length; i++) {
-		result[i + 1] = new String(nameAsChar[i]);
-	}
-	
-	return result;
-}
 public void recoveryExitFromVariable() {
 	if(currentElement != null && currentElement.parent != null) {
 		if(currentElement instanceof RecoveredLocalVariable) {
@@ -5952,6 +7321,69 @@ public void recoveryTokenCheck() {
 		}
 	}
 	ignoreNextOpeningBrace = false;
+}
+
+// A P I
+protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
+	if(referenceContext instanceof MethodDeclaration) {
+		MethodDeclaration methodDeclaration = (MethodDeclaration) referenceContext;
+		if(methodDeclaration.errorInSignature){
+			return;
+		}
+	}
+	compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
+	scanner.recordLineSeparator = false;
+	
+	int start = scanner.initialPosition;
+	int end = scanner.eofPosition <= Integer.MAX_VALUE ? scanner.eofPosition - 1 : scanner.eofPosition;
+	if(isDietParse) {
+		TypeDeclaration[] types = this.compilationUnit.types;
+		
+		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.Util.computeDietRange(types);
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
+		diagnoseParser.diagnoseParse();
+		
+		reportSyntaxErrorsForSkippedMethod(types);
+		scanner.resetTo(start, end);
+	} else {
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
+		diagnoseParser.diagnoseParse();
+	}
+}
+private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
+	if(types != null) {
+		for (int i = 0; i < types.length; i++) {
+			TypeDeclaration[] memberTypes = types[i].memberTypes;
+			if(memberTypes != null) {
+				reportSyntaxErrorsForSkippedMethod(memberTypes);
+			}
+			
+			AbstractMethodDeclaration[] methods = types[i].methods;
+			if(methods != null) {
+				for (int j = 0; j < methods.length; j++) {
+					AbstractMethodDeclaration method = methods[j];
+					if(methods[j].errorInSignature) {
+						DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE, method.declarationSourceStart, method.declarationSourceEnd);
+						diagnoseParser.diagnoseParse();
+					}
+				}
+			}
+			
+			FieldDeclaration[] fields = types[i].fields;
+			if (fields != null) {
+				int length = fields.length;
+				for (int j = 0; j < length; j++) {
+					if (fields[j] instanceof Initializer) {
+						Initializer initializer = (Initializer)fields[j];
+						if(initializer.errorInSignature){
+							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd);
+							diagnoseParser.diagnoseParse();
+						}
+					}
+				}
+			}
+		}
+	}
 }
 protected void resetModifiers() {
 	modifiers = AccDefault;
@@ -6028,9 +7460,6 @@ protected boolean resumeOnSyntaxError() {
 	
 	/* attempt to reset state in order to resume to parse loop */
 	return this.resumeAfterRecovery();
-}
-public static int tAction(int state, int sym) {
-	return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
 }
 public String toString() {
 

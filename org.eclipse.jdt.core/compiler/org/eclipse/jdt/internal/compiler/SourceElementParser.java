@@ -145,11 +145,11 @@ public void checkAnnotation() {
 		}
 	}
 }
-protected void classInstanceCreation(boolean alwaysQualified) {
+protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
 
 	boolean previousFlag = reportReferenceInfo;
 	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
-	super.classInstanceCreation(alwaysQualified);
+	super.classInstanceCreation(alwaysQualified, hasTypeArguments);
 	reportReferenceInfo = previousFlag;
 	if (reportReferenceInfo){
 		AllocationExpression alloc = (AllocationExpression)expressionStack[expressionPtr];

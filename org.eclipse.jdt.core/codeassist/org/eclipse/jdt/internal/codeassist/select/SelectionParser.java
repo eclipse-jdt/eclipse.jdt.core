@@ -91,7 +91,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-protected void classInstanceCreation(boolean alwaysQualified) {
+protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
 	
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
@@ -103,7 +103,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		&& (astStack[astPtr] == null)) {
 
 		if (this.indexOfAssistIdentifier() < 0) {
-			super.classInstanceCreation(alwaysQualified);
+			super.classInstanceCreation(alwaysQualified, hasTypeArguments);
 			return;
 		}
 		QualifiedAllocationExpression alloc;
@@ -125,6 +125,10 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		char [] oldIdent = this.assistIdentifier();
 		this.setAssistIdentifier(null);			
 		alloc.type = getTypeReference(0);
+		if (hasTypeArguments) {
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+		}
 		this.setAssistIdentifier(oldIdent);
 		
 		//the default constructor with the correct number of argument
@@ -140,7 +144,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
-		super.classInstanceCreation(alwaysQualified);
+		super.classInstanceCreation(alwaysQualified, hasTypeArguments);
 	}
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {
@@ -292,9 +296,9 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	}
 	this.isOrphanCompletionNode = true;	
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter();
+		super.consumeFormalParameter(isVarArgs);
 		if((!diet || dietInt != 0) && astPtr > -1) {
 			Argument argument = (Argument) astStack[astPtr];
 			if(argument.type == assistNode) {
@@ -316,7 +320,8 @@ protected void consumeFormalParameter() {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				intStack[intPtr + 1] & ~AccDeprecated,
+				isVarArgs); // modifiers
 		arg.declarationSourceStart = modifierPositions;
 		pushOnAstStack(arg);
 		
@@ -337,6 +342,16 @@ protected void consumeFormalParameter() {
 protected void consumeInstanceOfExpression(int op) {
 	if (indexOfAssistIdentifier() < 0) {
 		super.consumeInstanceOfExpression(op);
+	} else {
+		getTypeReference(intStack[intPtr--]);
+		this.isOrphanCompletionNode = true;
+		this.restartRecovery = true;
+		this.lastIgnoredToken = -1;
+	}
+}
+protected void consumeInstanceOfExpressionWithName(int op) {
+	if (indexOfAssistIdentifier() < 0) {
+		super.consumeInstanceOfExpressionWithName(op);
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
@@ -456,6 +471,58 @@ protected void consumeMethodInvocationPrimary() {
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
 	this.isOrphanCompletionNode = true;
 }
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeStaticImportOnDemandDeclarationName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	int length = identifierLengthStack[identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist node on import statement */
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccStatic);
+	reference.onDemand = true;
+	assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+	
+	pushOnAstStack(reference);
+
+	if (currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = intStack[intPtr--];
+	// flush annotations defined prior to import statements
+	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = reference.declarationSourceEnd+1;
+		currentElement = currentElement.add(reference, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
+}
 protected void consumeTypeImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
 	/* push an ImportRef build from the last name 
@@ -483,7 +550,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO (olivier) update for static imports*/);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;

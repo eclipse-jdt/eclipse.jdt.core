@@ -540,7 +540,7 @@ protected void consumeFieldDeclaration() {
 		requestor.exitField(lastFieldBodyEndPosition, lastFieldEndPosition);
 	}
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	// FormalParameter ::= Type VariableDeclaratorId ==> false
 	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
 	/*
@@ -563,7 +563,8 @@ protected void consumeFormalParameter() {
 			parameterName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1]); // modifiers
+			intStack[intPtr + 1],
+			isVarArgs); // modifiers
 	pushOnAstStack(arg);
 	intArrayPtr--;
 }
@@ -869,6 +870,23 @@ protected void consumePushModifiers() {
 	}
 	resetModifiers();
 }
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumeSingleStaticImportDeclarationName();
+	ImportReference importReference = (ImportReference) astStack[astPtr];
+	requestor.acceptImport(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd,
+		intArrayStack[intArrayPtr--],
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart,
+		false,
+		AccStatic);
+}
 /*
  *
  * INTERNAL USE-ONLY
@@ -887,7 +905,25 @@ protected void consumeSingleTypeImportDeclarationName() {
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
-		false);
+		false,
+		AccDefault);
+}
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name '.' '*'
+
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumeStaticImportOnDemandDeclarationName();
+	ImportReference importReference = (ImportReference) astStack[astPtr];
+	requestor.acceptImport(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd,
+		intArrayStack[intArrayPtr--],
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart,
+		true,
+		AccStatic);
 }
 /*
  *
@@ -937,7 +973,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'), 
 		importReference.sourceStart,
-		true);
+		true,
+		AccDefault);
 }
 public CompilationUnitDeclaration endParse(int act) {
 	if (scanner.recordLineSeparator) {
@@ -1215,8 +1252,6 @@ public void parseType(char[] regionSource) {
  * Returns this parser's problem reporter initialized with its reference context.
  * Also it is assumed that a problem is going to be reported, so initializes
  * the compilation result's line positions.
- * 
- * @return ProblemReporter
  */
 public ProblemReporter problemReporter() {
 	problemReporter.referenceContext = referenceContext;
@@ -1273,8 +1308,7 @@ public String toString() {
 	buffer.append(super.toString());
 	return buffer.toString();
 }
-/*
- * 
+/**
  * INTERNAL USE ONLY
  */
 protected TypeReference typeReference(

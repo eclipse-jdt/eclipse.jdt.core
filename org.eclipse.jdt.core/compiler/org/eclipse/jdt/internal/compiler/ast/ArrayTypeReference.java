@@ -28,12 +28,6 @@ public class ArrayTypeReference extends SingleTypeReference {
 		this.dimensions = dimensions ;
 	}
 	
-	public ArrayTypeReference(char[] source, TypeBinding tb, int dimensions, long pos) {
-		
-		super(source, tb, pos);
-		this.dimensions = dimensions ;
-	}
-	
 	public int dimensions() {
 		
 		return dimensions;

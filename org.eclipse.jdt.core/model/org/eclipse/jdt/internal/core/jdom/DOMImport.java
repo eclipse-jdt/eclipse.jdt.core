@@ -24,6 +24,13 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * @see DOMNode
  */
 class DOMImport extends DOMNode implements IDOMImport {
+	
+	/**
+	 * The modifier flags for this member that can be
+	 * analyzed with org.eclipse.jdt.core.Flags
+	 */
+	protected int    fFlags= 0;
+	
 	/**
 	 * Indicates if this import is an on demand type import
 	 */
@@ -53,9 +60,10 @@ DOMImport() {
  *		or -1's if this node does not have a name.
  * @param onDemand - indicates if this import is an on demand style import
  */
-DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, boolean onDemand) {
+DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, boolean onDemand, int modifiers) {
 	super(document, sourceRange, name, nameRange);
 	fOnDemand = onDemand;
+	fFlags = modifiers;
 	setMask(MASK_DETAILED_SOURCE_INDEXES, true);
 }
 /**
@@ -72,8 +80,8 @@ DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, bool
  *		<code>null</code> if this node does not have a name
  * @param onDemand - indicates if this import is an on demand style import
  */
-DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand) {
-	this(document, sourceRange, name, new int[] {-1, -1}, onDemand);
+DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand, int modifiers) {
+	this(document, sourceRange, name, new int[] {-1, -1}, onDemand, modifiers);
 	fOnDemand = onDemand;
 	setMask(MASK_DETAILED_SOURCE_INDEXES, false);
 }
@@ -109,6 +117,12 @@ public String getContents() {
  */
 protected DOMNode getDetailedNode() {
 	return (DOMNode)getFactory().createImport(getContents());
+}
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMImport#getFlags()
+ */
+public int getFlags() {
+	return fFlags;
 }
 /**
  * @see IDOMNode#getJavaElement

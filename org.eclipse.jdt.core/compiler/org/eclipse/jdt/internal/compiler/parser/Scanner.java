@@ -34,9 +34,8 @@ public class Scanner implements TerminalTokens {
 	 - sourceStart gives the position into the stream
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
-
-	// 1.4 feature 
-	private boolean assertMode = false;
+	private long sourceLevel;
+	// 1.4 feature
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 
@@ -180,7 +179,7 @@ public Scanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = sourceLevel >= ClassFileConstants.JDK1_4;
+	this.sourceLevel = sourceLevel;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 }
@@ -935,6 +934,12 @@ public int getNextToken() throws InvalidInputException {
 			// ---------Identify the next token-------------
 
 			switch (currentCharacter) {
+				case '@' :
+					if (sourceLevel >= ClassFileConstants.JDK1_5) {
+						return TokenNameAT;
+					} else {
+						return TokenNameERROR;
+					}
 				case '(' :
 					return TokenNameLPAREN;
 				case ')' :
@@ -952,9 +957,20 @@ public int getNextToken() throws InvalidInputException {
 				case ',' :
 					return TokenNameCOMMA;
 				case '.' :
-					if (getNextCharAsDigit())
+					if (getNextCharAsDigit()) {
 						return scanNumber(true);
-					return TokenNameDOT;
+					}
+					if (sourceLevel >= ClassFileConstants.JDK1_5) {
+						if (getNextChar('.')) {
+							if (getNextChar('.')) {
+								return TokenNameELLIPSIS;
+							}
+						} else {
+							return TokenNameDOT;
+						}
+					} else {
+						return TokenNameDOT;
+					}
 				case '+' :
 					{
 						int test;
@@ -2395,7 +2411,7 @@ public int scanIdentifierOrKeyword() {
 						&& (data[++index] == 'e')
 						&& (data[++index] == 'r')
 						&& (data[++index] == 't')) {
-							if (assertMode) {
+							if (sourceLevel >= ClassFileConstants.JDK1_4) {
 								containsAssertKeyword = true;
 								return TokenNameassert;
 							} else {
@@ -2519,8 +2535,17 @@ public int scanIdentifierOrKeyword() {
 				case 4 :
 					if ((data[++index] == 'l') && (data[++index] == 's') && (data[++index] == 'e'))
 						return TokenNameelse;
-					else
-						return TokenNameIdentifier;
+					else if ((data[index] == 'n')
+						&& (data[++index] == 'u')
+						&& (data[++index] == 'm')) {
+							if (sourceLevel >= ClassFileConstants.JDK1_5) {
+								return TokenNameenum;
+							} else {
+								return TokenNameIdentifier;								
+							}
+						} else {
+							return TokenNameIdentifier;
+						}
 				case 7 :
 					if ((data[++index] == 'x')
 						&& (data[++index] == 't')

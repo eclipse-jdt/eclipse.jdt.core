@@ -39,7 +39,7 @@ public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext eval
 	this.reportOnlyOneSyntaxError = true;
 	this.annotationParser.checkAnnotation = false;
 }
-protected void classInstanceCreation(boolean alwaysQualified) {
+protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
@@ -68,6 +68,10 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				length); 
 		}
 		alloc.type = getTypeReference(0);
+		if (hasTypeArguments) {
+			// handle type arguments
+			astPtr -= astLengthStack[astLengthPtr--];
+		}
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
 		alloc.sourceStart = intStack[intPtr--];

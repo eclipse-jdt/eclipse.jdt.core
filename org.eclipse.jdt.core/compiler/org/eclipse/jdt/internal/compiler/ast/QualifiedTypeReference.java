@@ -25,17 +25,11 @@ public class QualifiedTypeReference extends TypeReference {
 		sourceStart = (int) (sourcePositions[0]>>>32) ;
 		sourceEnd = (int)(sourcePositions[sourcePositions.length-1] & 0x00000000FFFFFFFFL ) ;
 	}
-	
-	public QualifiedTypeReference(char[][] sources , TypeBinding type , long[] poss) {
 		
-		this(sources,poss);
-		this.resolvedType = type;
-	}
-	
 	public TypeReference copyDims(int dim){
 		//return a type reference copy of me with some dimensions
 		//warning : the new type ref has a null binding
-		return new ArrayQualifiedTypeReference(tokens,null,dim,sourcePositions) ;
+		return new ArrayQualifiedTypeReference(tokens, dim, sourcePositions) ;
 	}
 	
 	public TypeBinding getTypeBinding(Scope scope) {

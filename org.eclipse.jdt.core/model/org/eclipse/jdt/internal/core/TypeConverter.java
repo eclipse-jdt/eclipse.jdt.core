@@ -105,7 +105,8 @@ public class TypeConverter {
 				argumentNames[i].toCharArray(),
 				0,
 				createTypeReference(Signature.toString(argumentTypeNames[i]).toCharArray(), type),
-				CompilerModifiers.AccDefault);
+				CompilerModifiers.AccDefault,
+				false);
 			// do not care whether was final or not
 		}
 

@@ -20,6 +20,14 @@ package org.eclipse.jdt.core.jdom;
  */
 public interface IDOMImport extends IDOMNode {
 /**
+ * Returns the flags for this member. The flags can be examined using the
+ * <code>Flags</code> class.
+ *
+ * @return the flags
+ * @see org.eclipse.jdt.core.Flags
+ */
+public int getFlags();	
+/**
  * The <code>IDOMImport</code> refinement of this <code>IDOMNode</code>
  * method returns the name of this import. The syntax for an import name 
  * corresponds to a fully qualified type name, or to an on-demand package name

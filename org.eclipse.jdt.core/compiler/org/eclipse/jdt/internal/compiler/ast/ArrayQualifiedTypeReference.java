@@ -22,12 +22,6 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		dimensions = dim ;
 	}
 	
-	public ArrayQualifiedTypeReference(char[][] sources , TypeBinding tb, int dim, long[] poss) {
-		
-		super( sources , tb, poss);
-		dimensions = dim ;
-	}
-	
 	public int dimensions() {
 		
 		return dimensions;

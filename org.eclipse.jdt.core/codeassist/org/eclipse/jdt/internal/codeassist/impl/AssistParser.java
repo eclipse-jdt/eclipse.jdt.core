@@ -386,6 +386,57 @@ protected void consumeRestoreDiet() {
 		popElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeSingleStaticImportDeclarationName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	int length = identifierLengthStack[identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist node on import statement */
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccStatic);
+	assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+
+	pushOnAstStack(reference);
+
+	if (currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = intStack[intPtr--];
+	// flush annotations defined prior to import statements
+	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = reference.declarationSourceEnd+1;
+		currentElement = currentElement.add(reference, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
+}
 protected void consumeSingleTypeImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' Name
 	/* push an ImportRef build from the last name 
@@ -413,7 +464,59 @@ protected void consumeSingleTypeImportDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO (olivier) update for static imports*/);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
+	assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+
+	pushOnAstStack(reference);
+
+	if (currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = intStack[intPtr--];
+	// flush annotations defined prior to import statements
+	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = reference.declarationSourceEnd+1;
+		currentElement = currentElement.add(reference, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
+}
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeStaticImportOnDemandDeclarationName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	int length = identifierLengthStack[identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist node on import statement */
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccStatic);
+	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -511,7 +614,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO (olivier) update for static imports*/);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;

@@ -137,8 +137,8 @@ public void checkAnnotation() {
 		}
 	}
 }
-protected void classInstanceCreation(boolean alwaysQualified) {
-	super.classInstanceCreation(alwaysQualified);
+protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
+	super.classInstanceCreation(alwaysQualified, hasTypeArguments);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
 protected void consumeAssignment() {
@@ -182,6 +182,13 @@ protected void consumeMethodInvocationSuper() {
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
+	intPtr--;
+	intPtr--;
+}
+protected void consumePrimaryNoNewArrayWithName() {
+	// pop parenthesis positions (and don't update expression positions
+	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 	intPtr--;
 	intPtr--;
 }
