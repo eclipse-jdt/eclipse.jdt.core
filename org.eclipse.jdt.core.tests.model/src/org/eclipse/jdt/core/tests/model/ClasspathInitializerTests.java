@@ -104,7 +104,20 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 		}
 	}
 }
-	
+// Simple container initializer, which keeps setting container to null
+// (30920 - stackoverflow when setting container to null)
+public class NullContainerInitializer implements ContainerInitializer.ITestInitializer {
+	public boolean hasRun = false;
+	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+		hasRun = true;
+		JavaCore.setClasspathContainer(
+			containerPath, 
+			new IJavaProject[] {project}, 
+			new IClasspathContainer[] { null }, 
+			null);
+	}
+}
+
 public ClasspathInitializerTests(String name) {
 	super(name);
 }
@@ -226,6 +239,64 @@ public void testContainerInitializer4() throws CoreException {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+	}
+}
+/* 
+ * 30920 - Stack overflow when container resolved to null
+ */
+public void testContainerInitializer5() throws CoreException {
+	try {
+		NullContainerInitializer nullInitializer = new NullContainerInitializer();
+		ContainerInitializer.setInitializer(nullInitializer);
+		IJavaProject p1 = this.createJavaProject(
+				"P1", 
+				new String[] {""}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+				
+		// simulate state on startup (flush containers, and preserve their previous values)
+		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
+		JavaModelManager.Containers = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p1);
+		p1.close();
+		
+		startDeltas();
+
+		// will trigger classpath resolution (with null container value)
+		this.createFile("/P1/X.java", "public class X {}");
+		assertDeltas(
+			"Unexpected delta on startup", 
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}"
+		);
+		assertTrue("initializer did not run", nullInitializer.hasRun);
+		
+		// next cp resolution request will rerun the initializer
+		nullInitializer.hasRun = false; // reset		
+		p1.getResolvedClasspath(true);
+		assertTrue("initializer did not run", nullInitializer.hasRun); // initializer should have run again (since keep setting to null)
+
+		// assigning new (non-null) value to container
+		this.createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
+		p1.getResolvedClasspath(true);
+		assertDeltas(
+			"Unexpected delta after setting container", 
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}\n" + 
+			"P1[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P1/lib.jar)[+]"
+		);
+
+	} catch (StackOverflowError e) {
+		e.printStackTrace();
+		assertTrue("stack overflow assigning container", false);
+	} finally {
+		this.deleteProject("P1");
 	}
 }
 public static Test suite() {

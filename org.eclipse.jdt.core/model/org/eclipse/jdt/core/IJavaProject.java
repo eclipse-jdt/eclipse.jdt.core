@@ -403,7 +403,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	String[] getRequiredProjectNames() throws JavaModelException;
 
-	/**
+	/** TODO: (jim) improve doc to mention classpath containers
 	 * This is a helper method returning the resolved classpath for the project, as a list of classpath entries, 
 	 * where all classpath variable entries have been resolved and substituted with their final target entries.
 	 * <p>
