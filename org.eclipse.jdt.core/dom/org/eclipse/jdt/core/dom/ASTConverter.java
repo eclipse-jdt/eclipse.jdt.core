@@ -2316,8 +2316,16 @@ class ASTConverter {
 				return createFakeEmptyStatement(statement);
 			} else {
 				TypeDeclarationStatement typeDeclarationStatement = this.ast.newTypeDeclarationStatement(typeDeclaration);
-				TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
-				typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());
+				switch(this.ast.apiLevel) {
+					case AST.JLS2 :
+						TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+						typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());					
+						break;
+					case AST.JLS3 :
+						AbstractTypeDeclaration typeDeclAST3 = typeDeclarationStatement.getDeclaration();
+						typeDeclarationStatement.setSourceRange(typeDeclAST3.getStartPosition(), typeDeclAST3.getLength());					
+						break;
+				}
 				return typeDeclarationStatement;
 			}
 		}

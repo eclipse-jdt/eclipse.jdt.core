@@ -68,7 +68,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0030"));
+		suite.addTest(new ASTConverter15Test("test0031"));
 		return suite;
 	}
 		
@@ -984,6 +984,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
 		checkSourceRange(node, "<X>this();", source);		
+	}
+	
+	public void test0031() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0031", "E.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
 }
 
