@@ -15,8 +15,10 @@
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
+      <import plugin="org.eclipse.team.core"/>
    </requires>
 
+	<!-- Classpath variable initializer -->
 	<extension point = "org.eclipse.jdt.core.classpathVariableInitializer">
 		<classpathVariableInitializer
 			variable="TEST_LIB"
@@ -29,10 +31,19 @@
 			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
 	</extension>		
 
+	<!-- Classpath container initializer -->
 	<extension point = "org.eclipse.jdt.core.classpathContainerInitializer">
 		<classpathContainerInitializer
 			id="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"
 			class="org.eclipse.jdt.core.tests.model.ContainerInitializer"/>
 	</extension>
 
+	<!-- Repository provider -->
+	<extension point="org.eclipse.team.core.repository">
+		<repository
+			id="org.eclipse.jdt.core.tests.model.pessimisticnature"
+			class="org.eclipse.jdt.core.tests.model.TestPessimisticProvider">
+		</repository>;
+	</extension>
+	
 </plugin>

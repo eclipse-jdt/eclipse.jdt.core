@@ -14,12 +14,15 @@ import java.io.IOException;
 import java.util.Vector;
 
 import junit.framework.Test;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.team.core.RepositoryProvider;
 
 
 
@@ -104,9 +107,11 @@ public void testChangeContent() throws CoreException {
 		newContents,
 		this.cu.getBuffer().getContents());
 }
-/**
+
+/*
+ * Ensures that one cannot commit the contents of a working copy on a read only cu. 
  */
-public void testChangeContentOfReadOnlyCU() throws CoreException {
+public void testChangeContentOfReadOnlyCU1() throws CoreException {
 	IResource resource = this.cu.getUnderlyingResource();
 	boolean readOnlyFlag = resource.isReadOnly();
 	boolean didComplain = false;
@@ -121,6 +126,38 @@ public void testChangeContentOfReadOnlyCU() throws CoreException {
 	}
 	assertTrue("Should have complained about modifying a read-only unit:", didComplain);
 	assertTrue("ReadOnly buffer got modified:", !this.cu.getBuffer().getContents().equals("invalid"));
+}
+
+/*
+ * Ensures that one can commit the contents of a working copy on a read only cu if a pessimistic repository
+ * provider allows it. 
+ */
+public void testChangeContentOfReadOnlyCU2() throws CoreException {
+	String newContents =
+		"package x.y;\n" +
+		"public class A {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}";
+	IResource resource = this.cu.getUnderlyingResource();
+	IProject project = resource.getProject();
+	boolean readOnlyFlag = resource.isReadOnly();
+	try {
+		RepositoryProvider.map(project, TestPessimisticProvider.NATURE_ID);
+		TestPessimisticProvider.markWritableOnSave = true;
+		resource.setReadOnly(true);
+		
+		this.copy.getBuffer().setContents(newContents);
+		this.copy.commit(true, null);
+		assertSourceEquals(
+			"Unexpected original cu contents",
+			newContents,
+			this.cu.getBuffer().getContents());
+	} finally {
+		TestPessimisticProvider.markWritableOnSave = false;
+		RepositoryProvider.unmap(project);
+		resource.setReadOnly(readOnlyFlag);
+	}
 }
 
 /**
