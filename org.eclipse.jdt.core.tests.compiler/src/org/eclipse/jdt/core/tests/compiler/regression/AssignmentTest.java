@@ -292,6 +292,7 @@ public void test008() {
 		customOptions,
 		null);
 }
+// TODO (philippe) reenable once fixed
 public void _test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
@@ -562,7 +563,12 @@ public void test017() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (x == null) {\n" + 
+		"	    ^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	x.foo(null);\n" + 
 		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
@@ -708,7 +714,7 @@ public void test021() {
 		customOptions,
 		null);
 }
-public void _test022() {
+public void test022() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
 	this.runConformTest(
@@ -744,6 +750,295 @@ public void _test022() {
 		null,
 		customOptions,
 		null);
+}
+public void test023() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	void foo() {\n" + 
+			"		Object o = new Object();\n" + 
+			"		while (this != null) {\n" + 
+			"			try {\n" + 
+			"				o = null;\n" + 
+			"				break;\n" + 
+			"			} finally {\n" + 
+			"				o = new Object();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (o == null) return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	if (o == null) return;\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test024() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	boolean bool() { return true; }\n" + 
+			"	void doSomething() {}\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		Object progressJob = null;\n" + 
+			"		while (bool()) {\n" + 
+			"			if (progressJob != null)\n" + 
+			"				progressJob = null;\n" + 
+			"			doSomething();\n" + 
+			"			try {\n" + 
+			"				if (progressJob == null) {\n" + 
+			"					progressJob = new Object();\n" + 
+			"				}\n" + 
+			"			} finally {\n" + 
+			"				doSomething();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	if (progressJob == null) {\n" + 
+		"	    ^^^^^^^^^^^\n" + 
+		"The variable progressJob can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test025() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		Object o;\n" + 
+			"		try {\n" + 
+			"			o = null;\n" + 
+			"		} finally {\n" + 
+			"			o = new Object();\n" + 
+			"		}\n" + 
+			"		if (o == null) return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	if (o == null) return;\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// TODO (philippe) reenable once fixed
+public void _test026() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object o;\n" + 
+			"		try {\n" + 
+			"			o = null;\n" + 
+			"		} finally {\n" + 
+			"			if (args == null) o = new Object();\n" + 
+			"		}\n" + 
+			"		if (o == null) System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+// TODO (philippe) reenable once fixed
+public void _test027() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	boolean b;\n" + 
+			"	void foo() {\n" + 
+			"		Object o = null;\n" + 
+			"		while (b) {\n" + 
+			"			try {\n" + 
+			"				o = null;\n" + 
+			"			} finally {\n" + 
+			"				if (o == null) \n" + 
+			"					o = new Object();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (o == null) return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+// TODO (philippe) reenable once fixed
+public void _test028() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	boolean b;\n" + 
+			"	void foo() {\n" + 
+			"		Object o = null;\n" + 
+			"		while (b) {\n" + 
+			"			try {\n" + 
+			"				o = null;\n" + 
+			"				break;\n" + 
+			"			} finally {\n" + 
+			"				if (o == null) \n" + 
+			"					o = new Object();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (o == null) return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+public void test029() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object o = null;\n" + 
+			"		int i = 0;\n" + 
+			"		while (i++ < 2) {\n" + 
+			"			try {\n" + 
+			"				if (i == 2) return;\n" + 
+			"				o = null;\n" + 
+			"			} finally {\n" + 
+			"				if (i == 2) System.out.println(o);\n" + 
+			"				if (o == null) \n" + 
+			"					o = \"SUCCESS\";\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (o == null) return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+public void test030() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		Object a = null;\n" + 
+			"		while (true) {\n" + 
+			"			a = null;\n" + 
+			"			if (a == null) {\n" + 
+			"				System.out.println();\n" + 
+			"			}\n" + 
+			"			a = new Object();\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// TODO (philippe) reenable once fixed
+public void _test031() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		Object a = null;\n" + 
+			"		while (true) {\n" + 
+			"			a = null;\n" + 
+			"			if (a == null) {\n" + 
+			"				System.out.println();\n" + 
+			"			}\n" + 
+			"			a = new Object();\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"		if (a == null) {\n" + 
+			"			System.out.println();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 public static Class testClass() {
 	return AssignmentTest.class;
