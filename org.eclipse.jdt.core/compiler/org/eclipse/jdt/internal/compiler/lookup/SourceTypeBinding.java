@@ -198,6 +198,51 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	}		
 	return synthField;
 }
+
+/* Add a new synthetic field for the emulation of the assert statement.
+*	Answer the new field or the existing field if one already existed.
+*/
+public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
+	if (synthetics == null) {
+		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+	}
+
+	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get("assertionEmulation"/*nonNLS*/);
+	if (synthField == null) {
+		synthField = new SyntheticFieldBinding(
+			"$assertionsDisabled"/*nonNLS*/.toCharArray(),
+			BooleanBinding,
+			AccDefault | AccStatic | AccSynthetic | AccFinal,
+			this,
+			Constant.NotAConstant,
+			0);
+		synthetics[FIELD].put("assertionEmulation"/*nonNLS*/, synthField);
+	}
+	// ensure there is not already such a field defined by the user
+	// ensure there is not already such a field defined by the user
+	boolean needRecheck;
+	int index = 0;
+	do {
+		needRecheck = false;
+		FieldBinding existingField;
+		if ((existingField = this.getField(synthField.name)) != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl = typeDecl.fields[i];
+				if (fieldDecl.binding == existingField) {
+					synthField.name = CharOperation.concat(
+						"$assertionsDisabled"/*nonNLS*/.toCharArray(),
+						("_"/*nonNLS*/ + String.valueOf(index++)).toCharArray());
+					needRecheck = true;
+					break;
+				}
+			}
+		}
+	} while (needRecheck);
+	return synthField;
+}
+
 /* Add a new synthetic access method for read/write access to <targetField>.
 	Answer the new method or the existing method if one already existed.
 */

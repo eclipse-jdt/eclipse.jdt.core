@@ -359,8 +359,8 @@ private final char[] extractClassName(int[] constantPoolOffsets, ClassFileReader
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
 private final char[] extractName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
-	int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 3);
-	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 1)];
+	int nameAndTypeIndex = reader.u2At(constantPoolOffsets[index] + 3);
+	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 1)];
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
 /**

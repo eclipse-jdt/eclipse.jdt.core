@@ -112,7 +112,7 @@ public CompletionEngine(
 				}
 			};
 
-	this.parser = new CompletionParser(problemReporter);
+	this.parser = new CompletionParser(problemReporter, options.getAssertMode());
 	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 }
 /**

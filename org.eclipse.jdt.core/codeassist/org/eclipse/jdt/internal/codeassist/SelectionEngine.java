@@ -74,7 +74,7 @@ public SelectionEngine(ISearchableNameEnvironment nameEnvironment, ISelectionReq
 				}
 			};
 
-	this.parser = new SelectionParser(problemReporter);
+	this.parser = new SelectionParser(problemReporter, options.getAssertMode());
 	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 }
 /**

@@ -52,8 +52,8 @@ public abstract class AssistParser extends Parser {
 	//  and it is poped when the type is exited)
 	protected int inMethodPtr;
 	protected boolean[] inMethodStack = new boolean[StackIncrement];
-public AssistParser(ProblemReporter problemReporter) {
-	super(problemReporter, false);
+public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
+	super(problemReporter, false, assertMode);
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

@@ -23,12 +23,14 @@ public CodeSnippetReturnStatement(Expression expr, int s, int e, EvaluationConte
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
-	// clear the optimization bit which could have been positionned in super call
-	expression.bits &= ~ValueForReturnMASK;
-	return flowInfo;
+	FlowInfo info = super.analyseCode(currentScope, flowContext, flowInfo);
+	// we need to remove this optimization in order to prevent the inlining of the return bytecode
+	// 1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
+	this.expression.bits &= ~ValueForReturnMASK;
+	return info;
 }
-/** 
+
+/**
  * Dump the suitable return bytecode for a return statement
  *
  */

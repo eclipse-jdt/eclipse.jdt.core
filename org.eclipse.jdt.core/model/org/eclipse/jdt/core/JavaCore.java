@@ -121,6 +121,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"/*nonNLS*/;
 		// possible values are COMPUTE or IGNORE (default is COMPUTE)
+		
+	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
+		// possible values are WARNING or IGNORE (default is IGNORE)
+
+	public static final String COMPILER_COMPILATION_SOURCE = PLUGIN_ID + ".compiler.compilation.source"/*nonNLS*/;
+		// possible values are VERSION_1_3 or VERSION_1_4 (default is VERSION_1_3)
+
 	/**
 	 * Possible values for configurable options
 	 */
@@ -130,6 +137,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String OPTIMIZE_OUT = "optimize out"/*nonNLS*/;
 	public static final String VERSION_1_1 = "1.1"/*nonNLS*/;
 	public static final String VERSION_1_2 = "1.2"/*nonNLS*/;
+	public static final String VERSION_1_3 = "1.3"/*nonNLS*/;
+	public static final String VERSION_1_4 = "1.4"/*nonNLS*/;
 	public static final String ERROR = "error"/*nonNLS*/;
 	public static final String WARNING = "warning"/*nonNLS*/;
 	public static final String IGNORE = "ignore"/*nonNLS*/;
@@ -137,9 +146,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 	private static Hashtable ConfigurableOptions;
 	private static Hashtable Variables = new Hashtable(5);
-		// possible values are WARNING or IGNORE (default is IGNORE)
-
-	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
 
 	private static Hashtable DefaultOptions;
 	private final static String PropertiesBundleName = "org.eclipse.jdt.core.JavaCore"/*nonNLS*/;

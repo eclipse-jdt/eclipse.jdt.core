@@ -15,6 +15,10 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class Clinit extends AbstractMethodDeclaration {
 	public final static char[] ConstantPoolName = "<clinit>"/*nonNLS*/.toCharArray();
+	
+	private FieldBinding assertionSyntheticFieldBinding = null;
+	private FieldBinding classLiteralSyntheticField = null;
+	
 public Clinit() {
 	modifiers = 0;
 	selector = ConstantPoolName;
@@ -72,6 +76,8 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		int codeAttributeOffset = classFile.contentsOffset;
 		classFile.generateCodeAttributeHeader();
 		CodeStream codeStream = classFile.codeStream;
+		this.resolve(classScope);
+		
 		codeStream.reset(this, classFile);
 		TypeDeclaration declaringType = classScope.referenceContext;
 
@@ -79,6 +85,23 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		scope.computeLocalVariablePositions(0, codeStream); // should not be necessary
 		MethodScope staticInitializerScope = declaringType.staticInitializerScope;
 		staticInitializerScope.computeLocalVariablePositions(0, codeStream); // offset by the argument size
+
+		// 1.4 feature
+		// This has to be done before any other initialization
+		if (this.assertionSyntheticFieldBinding != null) {
+			// generate code related to the activation of assertion for this class
+			codeStream.generateClassLiteralAccessForType(classScope.enclosingSourceType(), classLiteralSyntheticField);
+			codeStream.invokeJavaLangClassDesiredAssertionStatus();
+			Label falseLabel = new Label(codeStream);
+			codeStream.ifne(falseLabel);
+			codeStream.iconst_1();
+			Label jumpLabel = new Label(codeStream);
+			codeStream.goto_(jumpLabel);
+			falseLabel.place();
+			codeStream.iconst_0();
+			jumpLabel.place();
+			codeStream.putstatic(this.assertionSyntheticFieldBinding);
+		}
 
 		// generate initializers
 		if (declaringType.fields != null) {
@@ -136,14 +159,24 @@ public void resolve(ClassScope scope) {
 }
 public String toString(int tab){
 	/* slow code */
-
 	String s = ""/*nonNLS*/ ;
 	s = s + tabString(tab);
 	s = s + "<clinit>()"/*nonNLS*/ ;
 	s = s + toStringStatements(tab + 1);
-	return s ;}
+	return s ;
+}
+	
 public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {
 	visitor.visit(this, classScope);
 	visitor.endVisit(this, classScope);
 }
+
+public void addSupportForAssertion(FieldBinding assertionSyntheticFieldBinding) {
+	this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
+	// 1.4 feature
+	// we need to add the field right now, because the field infos are generated before the methods
+	SourceTypeBinding sourceType = this.scope.outerMostMethodScope().enclosingSourceType();
+	this.classLiteralSyntheticField = sourceType.addSyntheticField(sourceType, scope);
+}
+
 }

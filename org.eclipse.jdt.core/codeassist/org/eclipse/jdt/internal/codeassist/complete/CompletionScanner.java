@@ -29,8 +29,8 @@ public class CompletionScanner extends Scanner {
 	public int completedIdentifierEnd = -1;
 
 	public static final char[] EmptyCompletionIdentifier = {};
-public CompletionScanner() {
-	super();
+public CompletionScanner(boolean assertMode) {
+	super(false, false, false, assertMode);
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed

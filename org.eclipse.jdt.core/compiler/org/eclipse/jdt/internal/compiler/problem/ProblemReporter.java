@@ -428,7 +428,14 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;
-		
+		case UseAssertAsAnIdentifier :
+			if ((errorThreshold & AssertUsedAsAnIdentifier) != 0){
+				return Error;
+			}
+			if ((warningThreshold & AssertUsedAsAnIdentifier) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -2155,6 +2162,15 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
+
+public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
+	this.handle(
+		UseAssertAsAnIdentifier,
+		new String[0],
+		sourceStart,
+		sourceEnd);	
+}
+
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	this.handle(
 		VariableTypeCannotBeVoid,

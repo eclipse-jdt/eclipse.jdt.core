@@ -70,8 +70,8 @@ public class CompletionParser extends AssistParser {
 	// it is poped when a block is exited 
 	int blockInvocationPtr;
 	int[] blockInvocationStack = new int[StackIncrement];
-public CompletionParser(ProblemReporter problemReporter) {
-	super(problemReporter);
+public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
+	super(problemReporter, assertMode);
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;
@@ -860,7 +860,7 @@ private void initializeForBlockStatements() {
 	this.blockInvocationPtr = -1;
 }
 public void initializeScanner(){
-	this.scanner = new CompletionScanner();
+	this.scanner = new CompletionScanner(this.assertMode);
 }
 /**
  * Returns whether we are directly or indirectly inside a field initializer.

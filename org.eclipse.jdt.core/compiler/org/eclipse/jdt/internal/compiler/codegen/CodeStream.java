@@ -2885,6 +2885,19 @@ public void invokeClassForName() {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassForName());
 }
+
+public void invokeJavaLangClassDesiredAssertionStatus() {
+	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokevirtual);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangClassDesiredAssertionStatus());
+}
+
 public void invokeConstructorGetConstructor() {
 	// invokevirtual: java.lang.Class.getConstructor(java.lang.Class[])Ljava.lang.reflect.Constructor;
 	countLabels = 0;
@@ -3068,6 +3081,33 @@ public void invokeStringBufferAppendForType(int typeID) {
 	else
 		stackDepth--;
 }
+
+public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
+	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokespecial;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokespecial);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorConstructor(typeBindingID));
+	stackDepth -= 2;
+}
+
+public void invokeJavaLangAssertionErrorDefaultConstructor() {
+	// invokespecial: java.lang.AssertionError.<init>()V
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokespecial;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokespecial);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
+	stackDepth -= 2;
+}
+
 public void invokeStringBufferDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
 	countLabels = 0;
@@ -3092,6 +3132,7 @@ public void invokeStringBufferStringConstructor() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
 	stackDepth -= 2;
 }
+
 public void invokeStringBufferToString() {
 	// invokevirtual: StringBuffer.toString()Ljava.lang.String;
 	countLabels = 0;
@@ -4441,6 +4482,22 @@ public void newJavaLangError() {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangError());
 }
+
+public void newJavaLangAssertionError() {
+	// new: java.lang.AssertionError
+	countLabels = 0;
+	stackDepth++;
+	if (stackDepth > stackMax)
+		stackMax = stackDepth;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_new;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_new);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionError());
+}
+
 public void newNoClassDefFoundError() { // new: java.lang.NoClassDefFoundError
 	countLabels = 0;
 	stackDepth++;

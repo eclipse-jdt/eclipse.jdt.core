@@ -371,6 +371,16 @@ public static ConfigurableOption[] convertConfigurableOptions(Hashtable optionMa
 			}
 			continue;
 		}
+		if (optionName.equals(JavaCore.COMPILER_COMPILATION_SOURCE)){
+
+			if (optionValue.equals(JavaCore.VERSION_1_4)){
+				compilerOptions.setAssertMode(true);
+				continue;
+			} else {
+				compilerOptions.setAssertMode(false);
+				continue;				
+			}
+		}
 	}
 	return compilerOptions.getConfigurableOptions(Locale.getDefault());
 }
