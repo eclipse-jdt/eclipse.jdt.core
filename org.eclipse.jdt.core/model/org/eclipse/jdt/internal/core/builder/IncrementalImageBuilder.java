@@ -584,7 +584,7 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newBytes) throws CoreException {
 	try {
 		byte[] oldBytes = Util.getResourceContentsAsByteArray(file);
-		if (this.compileLoop > 1) { // only optimize files which were recompiled during the dependent pass
+		if (this.compileLoop > 1) { // only optimize files which were recompiled during the dependent pass, see 33990
 			notEqual : if (newBytes.length == oldBytes.length) {
 				for (int i = newBytes.length; --i >= 0;)
 					if (newBytes[i] != oldBytes[i]) break notEqual;
