@@ -160,6 +160,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
 	suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
 	suite.addTest(new CompletionTests("testCompletionMemberType"));
+	suite.addTest(new CompletionTests("testCompletionVoidMethod"));
 	
 	return suite;
 }
@@ -2126,16 +2127,9 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 		"element:a    completion:a    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
 		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:getClass    completion:getClass()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:notify    completion:notify()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:notifyAll    completion:notifyAll()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
-		"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_CASE),
+		"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 /*
@@ -2254,6 +2248,23 @@ public void testCompletionMemberType() throws JavaModelException {
 	assertEquals(
 		"element:CompletionMemberType    completion:CompletionMemberType    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:Y    completion:Y    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25815
+*/
+public void testCompletionVoidMethod() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVoidMethod.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:foo1    completion:foo1()    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:foo3    completion:foo3()    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }

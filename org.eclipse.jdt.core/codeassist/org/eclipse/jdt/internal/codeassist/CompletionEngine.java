@@ -1665,7 +1665,8 @@ public final class CompletionEngine
 
 			if (method.isConstructor()) continue next;
 
-			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
+			if (expectedTypesPtr > -1 && method.returnType == BaseTypes.VoidBinding) continue next;
+			
 			if (onlyStaticMethods && !method.isStatic()) continue next;
 
 			if (options.checkVisibility
