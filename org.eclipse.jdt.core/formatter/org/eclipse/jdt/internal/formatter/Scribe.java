@@ -50,6 +50,11 @@ public class Scribe {
 	public int tabSize;	
 	public boolean useTab;
 	
+	// position mapping
+	int[] positionsToMap;
+	int[] mappedPositions;
+	int positionsIndex;
+	
 	Scribe(CodeFormatterVisitor formatter, Map settings) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
@@ -64,7 +69,7 @@ public class Scribe {
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 
-		reset();
+		reset(positionsToMap);
 	}
 
 	public void alignFragment(Alignment alignment, int fragmentIndex){
@@ -194,6 +199,19 @@ public class Scribe {
 		}
 	}	
 	
+	private void mapPositions(int startOrigin, int startFormatted, int length) {
+		// positionsToMap is not null
+		for (; this.positionsIndex < this.positionsToMap.length; this.positionsIndex++) {
+			if (this.positionsToMap[this.positionsIndex] < startOrigin) {
+				this.mappedPositions[this.positionsIndex] = startFormatted;
+			} else if (this.positionsToMap[this.positionsIndex] < startOrigin + length) {
+				this.mappedPositions[this.positionsIndex] = this.positionsToMap[this.positionsIndex] - startOrigin + startFormatted;
+			} else {
+				return;
+			}
+		}
+	}
+	
 	private void preserveEmptyLines(int count) {
 		if ((count - 1) > 0) {
 			int linesToPreserve = Math.min(count - 1, this.formatter.preferences.number_of_empty_lines_to_preserve);
@@ -201,7 +219,7 @@ public class Scribe {
 		}
 	}
 		
-	public void print(char[] s, boolean considerSpaceIfAny) {
+	private void print(char[] s, int start, int end, boolean considerSpaceIfAny) {
 		if (checkLineWrapping && s.length + column > this.pageWidth) {
 			handleLineTooLong();
 		}
@@ -209,6 +227,9 @@ public class Scribe {
 		printIndentationIfNecessary();
 		if (considerSpaceIfAny) {
 			this.space();
+		}
+		if (this.positionsToMap != null) {
+			mapPositions(start, this.buffer.length(), s.length);
 		}
 		this.buffer.append(s);
 		column += s.length;
@@ -271,12 +292,12 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getCurrentTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getCurrentTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						if (insertNewLineAfterComment) {
 							this.printNewLine();
@@ -349,13 +370,13 @@ public class Scribe {
 					case ITerminalSymbols.TokenNametransient :
 					case ITerminalSymbols.TokenNamevolatile :
 						firstComment = false;
-						this.print(this.scanner.getCurrentTokenSource(), !isFirstModifier);
+						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getCurrentTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						if (firstComment) {
 							this.printNewLine();
@@ -363,7 +384,7 @@ public class Scribe {
 						firstComment = false;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getCurrentTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameWHITESPACE :
@@ -419,7 +440,7 @@ public class Scribe {
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -429,11 +450,11 @@ public class Scribe {
 		printComment(considerNewLineAfterComment);
 		try {
 			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getCurrentTokenSource();
+			char[] currentTokenSource = this.scanner.getRawTokenSource();
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -443,7 +464,7 @@ public class Scribe {
 		printComment(false);
 		try {
 			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getCurrentTokenSource();
+			char[] currentTokenSource = this.scanner.getRawTokenSource();
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
 				StringBuffer expectations = new StringBuffer(5);
 				for (int i = 0; i < expectedTokenTypes.length; i++){
@@ -454,7 +475,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, false);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), false);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -464,7 +485,7 @@ public class Scribe {
 		printComment(considerNewLineAfterComment);
 		try {
 			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getCurrentTokenSource();
+			char[] currentTokenSource = this.scanner.getRawTokenSource();
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
 				StringBuffer expectations = new StringBuffer(5);
 				for (int i = 0; i < expectedTokenTypes.length; i++){
@@ -475,7 +496,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -491,7 +512,7 @@ public class Scribe {
 					case ITerminalSymbols.TokenNameWHITESPACE :
 						break;
 					default: 
-						this.print(this.scanner.getCurrentTokenSource(), false);
+						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), false);
 						break;
 				}
 			} while (this.scanner.currentPosition < sourceEnd);
@@ -664,12 +685,12 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getCurrentTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getCurrentTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
@@ -696,11 +717,16 @@ public class Scribe {
 		this.formatter.lastLocalDeclarationSourceStart = 0;
 	}
 
-	public void reset() {
+	public void reset(int[] positionsToMapValue) {
 		this.buffer = new StringBuffer();
 		this.checkLineWrapping = true;
 		this.line = 0;
 		this.column = 1;
+		if (positionsToMapValue != null) {
+			this.positionsToMap = positionsToMapValue;
+			this.positionsIndex = 0;
+			this.mappedPositions = new int[positionsToMapValue.length];
+		}
 	}
 		
 	public void resetAt(Location location) {
@@ -710,6 +736,7 @@ public class Scribe {
 		this.indentationLevel = location.outputIndentationLevel;
 		this.lastNumberOfNewLines = location.lastNumberOfNewLines;
 		this.needSpace = location.needSpace;
+		this.positionsIndex = location.positionsIndex;
 	}
 
 	public void setLineSeparatorAndIdentationLevel(FormattingPreferences preferences) {

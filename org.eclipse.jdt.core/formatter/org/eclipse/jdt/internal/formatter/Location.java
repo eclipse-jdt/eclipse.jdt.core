@@ -27,6 +27,9 @@ public class Location {
 	// chunk management
 	public int lastNumberOfNewLines;	
 	
+	// position mapping management
+	int positionsIndex;
+	
 	public Location(Scribe scribe, int sourceRestart){
 		update(scribe, sourceRestart);
 	}
@@ -39,5 +42,6 @@ public class Location {
 		this.outputIndentationLevel = scribe.indentationLevel;
 		this.lastNumberOfNewLines = scribe.lastNumberOfNewLines;
 		this.needSpace = scribe.needSpace;
+		this.positionsIndex = scribe.positionsIndex;
 	}
 }

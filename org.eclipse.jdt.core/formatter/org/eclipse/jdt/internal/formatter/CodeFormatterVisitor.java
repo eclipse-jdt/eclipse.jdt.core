@@ -617,7 +617,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public String format(String string, int[] positions, AstNode[] nodes) {
 		// reset the scribe
-		this.scribe.reset();
+		this.scribe.reset(positions);
 		
 		long startTime = System.currentTimeMillis();
 
@@ -661,7 +661,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public String format(String string, int[] positions, CompilationUnitDeclaration compilationUnitDeclaration) {
 		// reset the scribe
-		this.scribe.reset();
+		this.scribe.reset(positions);
 		
 		long startTime = System.currentTimeMillis();
 
@@ -693,7 +693,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public String format(String string, int[] positions, Expression expression) {
 		// reset the scribe
-		this.scribe.reset();
+		this.scribe.reset(positions);
 		
 		long startTime = System.currentTimeMillis();
 
@@ -725,7 +725,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public String format(String string, int[] positions, ConstructorDeclaration constructorDeclaration) {
 		// reset the scribe
-		this.scribe.reset();
+		this.scribe.reset(positions);
 		
 		long startTime = System.currentTimeMillis();
 
@@ -3533,7 +3533,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				operator = ITerminalSymbols.TokenNameNOT;
 		}
 
-		this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
+		if (operator == ITerminalSymbols.TokenNameMINUS) {
+			this.scribe.printNextToken(operator, true);
+		} else {
+			this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
+		}
 		if (this.preferences.insert_space_after_unary_operator) {
 			this.scribe.space();
 		}
