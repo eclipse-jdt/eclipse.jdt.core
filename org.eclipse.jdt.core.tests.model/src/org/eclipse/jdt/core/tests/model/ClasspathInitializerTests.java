@@ -151,6 +151,30 @@ public static Test suite() {
 	}
 	return new Suite(ClasspathInitializerTests.class);
 }
+/*
+ * Simulate state on startup (flush container, preserve their previous values, and close project)
+ */
+private void setContainerStartupState(IJavaProject project) throws JavaModelException {
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.previousSessionContainers = manager.containers;
+	manager.containers = new HashMap(5);
+	manager.removePerProjectInfo((JavaProject)project);
+	project.close();
+}
+/*
+ * Simulate state on startup (flush variables, set their previous values, and close project)
+ */
+private void setVariableStartupState(String[] variableValues, IJavaProject project) throws JavaModelException {
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.previousSessionVariables = new HashMap(5);
+	for (int i = 0, length = variableValues.length; i < length; i++)
+		manager.previousSessionVariables.put(variableValues[i], new Path(variableValues[++i]));
+	manager.variables = new HashMap(5);
+	manager.removePerProjectInfo((JavaProject)project);
+	project.close();
+}
 protected void tearDown() throws Exception {
 	// Cleanup caches
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -188,13 +212,8 @@ public void testContainerInitializer2() throws CoreException {
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 				
-		// simulate state on startup (flush containers, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = manager.containers;
-		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
+		// simulate state on startup (flush containers, preserve their previous values, and close project)
+		setContainerStartupState(p2);
 		
 		startDeltas();
 		p2.getResolvedClasspath(true);
@@ -225,12 +244,7 @@ public void testContainerInitializer3() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
 
 		// simulate state on startup (flush containers, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = manager.containers;
-		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
+		setContainerStartupState(p2);
 		
 		startDeltas();
 		p2.getResolvedClasspath(true);
@@ -263,12 +277,7 @@ public void testContainerInitializer4() throws CoreException {
 				"");
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = manager.containers;
-		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
+		setContainerStartupState(p2);
 		
 		startDeltas();
 		createFile("/P2/X.java", "public class X {}");
@@ -302,12 +311,7 @@ public void testContainerInitializer5() throws CoreException {
 				"");
 				
 		// simulate state on startup (flush containers, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = manager.containers;
-		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p1);
-		p1.close();
+		setContainerStartupState(p1);
 		
 		startDeltas();
 
@@ -378,12 +382,9 @@ public void testContainerInitializer6() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 
 		// simulate state on startup (flush containers, and preserve their previous values)
-		waitUntilIndexesReady();
+		setContainerStartupState(p2);
+		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = manager.containers;
-		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(manager.deltaState);
 		manager.deltaState = new DeltaProcessingState();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
@@ -683,20 +684,16 @@ public void testVariableInitializer3() throws CoreException {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
 		createFile("/P1/src.zip", "");
-		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
+		String[] variableValues = new String[] {
 			"TEST_LIB", "/P1/lib.jar",
 			"TEST_SRC", "/P1/src.zip",
 			"TEST_ROOT", "src",
-		}));
+		};
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(variableValues));
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
-		// simulate state on startup (flush variables, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionVariables = manager.variables;
-		manager.variables = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
+		// simulate state on startup (flush variables, set their previous values, and close project)
+		setVariableStartupState(variableValues, p2);
 		
 		startDeltas();
 		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
@@ -793,11 +790,12 @@ public void testVariableInitializer7() throws CoreException {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
 		createFile("/P1/src.zip", "");
-		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
+		String[] variableValues = new String[] {
 			"TEST_LIB", "/P1/lib.jar",
 			"TEST_SRC", "/P1/src.zip",
 			"TEST_ROOT", "src",
-		}));
+		};
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(variableValues));
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
 		// change value of TEST_LIB
@@ -809,12 +807,7 @@ public void testVariableInitializer7() throws CoreException {
 		}));
 
 		// simulate state on startup (flush variables, and preserve their previous values)
-		waitUntilIndexesReady();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionVariables = manager.variables;
-		manager.variables = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)p2);
-		p2.close();
+		setVariableStartupState(variableValues, p2);
 		
 		startDeltas();
 		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
