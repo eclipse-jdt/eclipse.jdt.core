@@ -829,7 +829,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends String> {\n" + 
 			"	                          ^^^^^^\n" + 
-			"The type parameter T for the type X<T> should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	foo(x);\n" + 
@@ -3006,7 +3006,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends String> {\n" + 
 			"	                          ^^^^^^\n" + 
-			"The type parameter T for the type X<T> should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
