@@ -543,7 +543,7 @@ public void testClasspathReordering() throws CoreException {
 		assertTrue("should be one delta - two roots reordered", this.deltaListener.deltas.length == 1);
 		IJavaElementDelta d = null;
 		assertTrue("root should be reordered in the classpath", (d = getDeltaFor(root, true)) != null
-			&& (d.getFlags() & IJavaElementDelta.F_CLASSPATH_REORDER) > 0);
+			&& (d.getFlags() & IJavaElementDelta.F_REORDER) > 0);
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");

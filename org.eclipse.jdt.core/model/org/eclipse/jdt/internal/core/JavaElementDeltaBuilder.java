@@ -186,8 +186,7 @@ private void findChangesInPositioning(IJavaElement element, int depth) {
 		return;
 		
 	if (!isPositionedCorrectly(element)) {
-		this.delta.removed(element);
-		this.delta.added(element);
+		this.delta.changed(element, IJavaElementDelta.F_REORDER);
 	} 
 	
 	if (element instanceof IParent) {
@@ -340,31 +339,22 @@ private boolean isIdentical(JavaElement e1, JavaElement e2) {
 	}
 }
 /**
- * Answers true if the elements position has not changed.
- * Takes into account additions so that elements following
- * new elements will not appear out of place.
+ * Returns whether the elements position has not changed.
  */
 private boolean isPositionedCorrectly(IJavaElement element) {
 	ListItem oldListItem = this.getOldPosition(element);
-	if (oldListItem == null)
-		return false;
-	IJavaElement oldPrevious = oldListItem.previous;
+	if (oldListItem == null) return false;
+	
 	ListItem newListItem = this.getNewPosition(element);
-	if (newListItem == null)
-		return false;
-	IJavaElement newPrevious = newListItem.previous; 
-	if (oldPrevious == newPrevious)
-		return true;
-	IJavaElement lastNewPrevious = null;
-	while(lastNewPrevious != newPrevious) {
-		if (isIdentical((JavaElement)oldPrevious, (JavaElement)newPrevious))
-			return true;
-		lastNewPrevious = newPrevious;
-		// if newPrevious is null at this time we should exit the loop.
-		if (newPrevious == null) break;
-		newPrevious = (this.getNewPosition(newPrevious)).previous;
+	if (newListItem == null) return false;
+	
+	IJavaElement oldPrevious = oldListItem.previous;
+	IJavaElement newPrevious = newListItem.previous;
+	if (oldPrevious == null) {
+		return newPrevious == null;
+	} else {
+		return oldPrevious.equals(newPrevious);
 	}
-	return false;
 }
 private void putElementInfo(IJavaElement element, JavaElementInfo info) {
 	this.infos.put(element, info);

@@ -11,8 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -99,29 +97,7 @@ public void setUpSuite() throws Exception {
 	);
 }
 public static Test suite() {
-	TestSuite suite = new Suite(ReconcilerTests.class.getName());
-	suite.addTest(new ReconcilerTests("testAddDuplicateMember"));
-	suite.addTest(new ReconcilerTests("testAddFieldAndConstructor"));
-	suite.addTest(new ReconcilerTests("testAddImports"));
-	suite.addTest(new ReconcilerTests("testAddMethod1"));
-	suite.addTest(new ReconcilerTests("testAddPartialMethod1"));
-	suite.addTest(new ReconcilerTests("testAddPartialMethod1and2"));
-	suite.addTest(new ReconcilerTests("testChangeMethodVisibility"));
-	suite.addTest(new ReconcilerTests("testConstantReference"));
-	suite.addTest(new ReconcilerTests("testDeleteMethod1"));
-	suite.addTest(new ReconcilerTests("testDeleteTwoMethods"));
-	suite.addTest(new ReconcilerTests("testGrowImports"));
-	suite.addTest(new ReconcilerTests("testMethodWithError"));
-	suite.addTest(new ReconcilerTests("testMethodWithError2"));
-	suite.addTest(new ReconcilerTests("testMethodWithError3"));
-	suite.addTest(new ReconcilerTests("testMethodWithError4"));
-	suite.addTest(new ReconcilerTests("testMethodWithError5"));
-	suite.addTest(new ReconcilerTests("testNoChanges1"));
-	suite.addTest(new ReconcilerTests("testNoChanges2"));
-	suite.addTest(new ReconcilerTests("testRenameMethod1"));
-	suite.addTest(new ReconcilerTests("testRenameWithSyntaxError"));
-	suite.addTest(new ReconcilerTests("testUnhandledException"));
-	return suite;
+	return new Suite(ReconcilerTests.class);
 }
 /**
  * Cleanup after the previous test.
@@ -668,6 +644,39 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 		this.deleteFile("/Reconciler/src/tests/AbstractSource.java");
 		this.deleteFolder("/Reconciler/src/tests");
 	}
+}
+/**
+ * Ensures that the reconciler handles member move correctly.
+ */
+public void testMoveMember() throws JavaModelException {
+	this.workingCopy.getBuffer().setContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile();
+	this.clearDeltas();
+	
+	this.workingCopy.getBuffer().setContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile();
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	bar[*]: {REORDERED}\n" + 
+		"	foo[*]: {REORDERED}"
+	);
 }
 /**
  * Ensures that the reconciler does nothing when the source

@@ -646,10 +646,10 @@ public String toDebugString(int depth) {
 		buffer.append("REMOVED FROM CLASSPATH"); //$NON-NLS-1$
 		prev = true;
 	}
-	if ((changeFlags & IJavaElementDelta.F_CLASSPATH_REORDER) != 0) {
+	if ((changeFlags & IJavaElementDelta.F_REORDER) != 0) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
-		buffer.append("REORDERED IN CLASSPATH"); //$NON-NLS-1$
+		buffer.append("REORDERED"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED) != 0) {

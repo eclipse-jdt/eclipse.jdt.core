@@ -169,8 +169,17 @@ public interface IJavaElementDelta {
 	/**
 	 * Change flag indicating that a classpath entry corresponding to the element has changed position in the project's 
 	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
+	 * @deprecated Use F_REORDER instead.
 	 */
 	public int F_CLASSPATH_REORDER = 0x0100;
+	/**
+	 * Change flag indicating that the element has changed position relatively to its siblings. 
+	 * If the element is an <code>IPackageFragmentRoot</code>,  a classpath entry corresponding 
+	 * to the element has changed position in the project's classpath.
+	 * 
+	 * @since 2.1
+	 */
+	public int F_REORDER = 0x0100;
 
 	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been

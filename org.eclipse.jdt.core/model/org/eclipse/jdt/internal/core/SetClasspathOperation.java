@@ -367,7 +367,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				if (index != i) { //reordering of the classpath
 						addClasspathDeltas(
 							project.computePackageFragmentRoots(oldResolvedPath[i]),
-							IJavaElementDelta.F_CLASSPATH_REORDER,
+							IJavaElementDelta.F_REORDER,
 							delta);
 						int changeKind = oldResolvedPath[i].getEntryKind();
 						needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
