@@ -2031,7 +2031,7 @@ public class JavaProject
 		if (!getProject().exists()) return false;
 
 		try {
-			// attempt to prove the classpath has not change
+			// attempt to prove the classpath has not changed
 			String fileClasspathString = getSharedProperty(CLASSPATH_FILENAME);
 			if (fileClasspathString != null) {
 				IClasspathEntry[] fileEntries = readPaths(fileClasspathString);
