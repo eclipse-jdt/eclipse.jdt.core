@@ -431,7 +431,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			if (suppliedTypes[i].isBinaryType()) {
 				if (binaryBindings[i] != null) {
 					try {
-						remember((IBinaryType) suppliedTypes[i], binaryBindings[i]);
+						remember(suppliedTypes[i], binaryBindings[i]);
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
 					}

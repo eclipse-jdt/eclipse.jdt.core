@@ -67,7 +67,7 @@ class AddJarFileToIndex extends IndexRequest {
 		try {
 			// if index is already cached, then do not perform any check
 			// MUST reset the IndexManager if a jar file is changed
-			IIndex index = (IIndex) manager.getIndexForUpdate(this.indexPath, false, /*do not reuse index file*/ false /*do not create if none*/);
+			IIndex index = manager.getIndexForUpdate(this.indexPath, false, /*do not reuse index file*/ false /*do not create if none*/);
 			if (index != null) {
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> no indexing required (index already exists) for " + this.indexPath); //$NON-NLS-1$

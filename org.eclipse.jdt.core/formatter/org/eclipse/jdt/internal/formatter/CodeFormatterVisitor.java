@@ -244,7 +244,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) previousMember;
 							int length = multiField.declarations.length;
 							System.arraycopy(multiField.declarations, 0, multiField.declarations=new FieldDeclaration[length+1], 0, length);
-							multiField.declarations[length] = (FieldDeclaration) field;
+							multiField.declarations[length] = field;
 						} else {
 							members[index - 1] = new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMember, field});
 						}

@@ -426,7 +426,7 @@ void write(DataOutputStream out) throws IOException {
 			if (keyTable[i] != null) {
 				length--;
 				out.writeUTF((String) keyTable[i]);
-				out.writeInt(internedTypeLocators.indexOf((String) valueTable[i]));
+				out.writeInt(internedTypeLocators.indexOf(valueTable[i]));
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
@@ -487,7 +487,7 @@ void write(DataOutputStream out) throws IOException {
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				length--;
-				out.writeInt(internedTypeLocators.indexOf((String) keyTable[i]));
+				out.writeInt(internedTypeLocators.indexOf(keyTable[i]));
 				ReferenceCollection collection = (ReferenceCollection) valueTable[i];
 				if (collection instanceof AdditionalTypeCollection) {
 					out.writeByte(1);

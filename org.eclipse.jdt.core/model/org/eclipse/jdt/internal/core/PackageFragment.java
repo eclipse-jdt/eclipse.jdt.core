@@ -68,7 +68,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 
 	ArrayList vChildren = new ArrayList();
 	try {
-		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
+		char[][] exclusionPatterns = getPackageFragmentRoot().fullExclusionPatternChars();
 		IResource[] members = ((IContainer) underlyingResource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
@@ -252,7 +252,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		// We don't want to show non java resources of the default package (see PR #1G58NB8)
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
 	} else {
-		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource(), (PackageFragmentRoot)getPackageFragmentRoot());
+		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource(), getPackageFragmentRoot());
 	}
 }
 /**

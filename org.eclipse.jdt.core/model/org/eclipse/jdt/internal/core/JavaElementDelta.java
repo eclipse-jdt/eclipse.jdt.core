@@ -159,7 +159,7 @@ protected void addAffectedChild(JavaElementDelta child) {
 							case F_REMOVED_FROM_CLASSPATH:
 							case F_SOURCEATTACHED:
 							case F_SOURCEDETACHED:
-								((JavaElementDelta) existingChild).fChangeFlags |= ((JavaElementDelta) child).fChangeFlags;
+								((JavaElementDelta) existingChild).fChangeFlags |= child.fChangeFlags;
 								break;
 						}
 						
@@ -382,7 +382,7 @@ protected JavaElementDelta getDeltaFor(IJavaElement element) {
 		if (this.equalsAndSameParent(delta.getElement(), element)) { // handle case of two jars that can be equals but not in the same project
 			return delta;
 		} else {
-			delta = ((JavaElementDelta)delta).getDeltaFor(element);
+			delta = delta.getDeltaFor(element);
 			if (delta != null)
 				return delta;
 		}

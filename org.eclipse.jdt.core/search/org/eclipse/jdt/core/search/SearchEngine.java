@@ -103,7 +103,7 @@ private ICompilationUnit[] filterWorkingCopies(ICompilationUnit[] copies, IJavaE
 	int index = -1;
 	for (int i=0; i<length; i++) {
 		ICompilationUnit workingCopy = copies[i];
-		IPath projectOrJar = IndexSelector.getProjectOrJar((IJavaElement)workingCopy).getPath();
+		IPath projectOrJar = IndexSelector.getProjectOrJar(workingCopy).getPath();
 		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
 			if (result == null) {
 				result = new ICompilationUnit[length-1];
@@ -471,8 +471,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			pattern.needsResolve = true; // force resolve to compute type bindings
 		}
 
-		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
-										.getIndexManager();
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		matchLocator = 
 			new MatchLocator(
@@ -516,7 +515,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		resultCollector.done();
 		if (VERBOSE) {
 			System.out.println("Total time: " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
-			if (matchLocator != null) System.out.println("Time in result collector: " + ((MatchLocator)matchLocator).resultCollectorTime + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (matchLocator != null) System.out.println("Time in result collector: " + matchLocator.resultCollectorTime + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -575,7 +574,7 @@ public void searchAllTypeNames(
 	int waitingPolicy,
 	IProgressMonitor progressMonitor)  throws JavaModelException {
 
-	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		
 	char classOrInterface;
 	switch(searchFor){

@@ -2349,8 +2349,7 @@ public class JavaProject
 		boolean needSave)
 		throws JavaModelException {
 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IClasspathEntry[] newRawPath = newEntries;
 			if (newRawPath == null) { //are we already with the default classpath

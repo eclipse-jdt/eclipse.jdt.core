@@ -237,7 +237,7 @@ public void indexAll(IProject project) {
 	// Also request indexing of binaries on the classpath
 	// determine the new children
 	try {
-		JavaModel model = (JavaModel) JavaModelManager.getJavaModelManager().getJavaModel();
+		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		IJavaProject javaProject = model.getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
 		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers

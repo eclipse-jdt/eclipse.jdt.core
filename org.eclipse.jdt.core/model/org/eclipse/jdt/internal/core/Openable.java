@@ -472,8 +472,8 @@ public PackageFragmentRoot getPackageFragmentRoot() {
  */
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
 
-	if (requestor == null){
-		codeComplete(cu, unitToSkip, position, (ICompletionRequestor)null, DefaultWorkingCopyOwner.PRIMARY);
+	if (requestor == null){ 
+		codeComplete(cu, unitToSkip, position, null, DefaultWorkingCopyOwner.PRIMARY);
 		return;
 	}
 	codeComplete(
