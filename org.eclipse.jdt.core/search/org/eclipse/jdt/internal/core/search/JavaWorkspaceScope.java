@@ -76,13 +76,12 @@ public int hashCode() {
 
 public void initialize() {
 	super.initialize();
-	JavaCore javaCore = JavaCore.getJavaCore();
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	for (int i = 0, length = projects.length; i < length; i++) {
 		IProject project = projects[i];
 		if (project.isAccessible()) {
 			try {
-				this.add(javaCore.create(project), false, new HashSet(2));
+				this.add(JavaCore.create(project), false, new HashSet(2));
 			} catch (JavaModelException e) {
 			}
 		}

@@ -498,12 +498,12 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				this.popUntilPrefixOf(path);
 				
 				if (this.currentElement == null) {
-					element = JavaModelManager.getJavaModelManager().create(resource, project);
+					element = JavaModelManager.create(resource, project);
 				} else {
 					// find the root
 					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 					if (root == null) {
-						element = JavaModelManager.getJavaModelManager().create(resource, project);
+						element = JavaModelManager.create(resource, project);
 					} else if (!JavaModelManager.conflictsWithOutputLocation(path, (JavaProject)root.getJavaProject())) {
 						// create package handle
 						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
@@ -519,7 +519,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				this.popUntilPrefixOf(path);
 				
 				if (this.currentElement == null) {
-					element = element = JavaModelManager.getJavaModelManager().create(resource, project);
+					element = element = JavaModelManager.create(resource, project);
 				} else {
 					// find the package
 					IPackageFragment pkgFragment = null;
@@ -545,7 +545,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 							break;
 					}
 					if (pkgFragment == null) {
-						element = JavaModelManager.getJavaModelManager().create(resource, project);
+						element = JavaModelManager.create(resource, project);
 					} else {
 						if (elementType == IJavaElement.COMPILATION_UNIT) {
 							// create compilation unit handle 
@@ -1510,7 +1510,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			if (oneChildOnClasspath || res instanceof IProject) {
 				// add orphan children (case of non java resources under project)
 				IProject rscProject = res.getProject();
-				JavaProject adoptiveProject = (JavaProject)JavaCore.getJavaCore().create(rscProject);
+				JavaProject adoptiveProject = (JavaProject)JavaCore.create(rscProject);
 				if (adoptiveProject != null 
 					&& this.hasJavaNature(rscProject)) { // delta iff Java project (18698)
 					for (int i = 0; i < length; i++) {

@@ -118,10 +118,10 @@ public class InstanceOfExpression extends OperatorExpression {
 					}
 				}
 				if (castTb.isClass()) { // ----- (castTb.isClass) expressionTb.isClass ------ 
-					if (scope.areTypesCompatible(expressionTb, castTb))
+					if (Scope.areTypesCompatible(expressionTb, castTb))
 						return true;
 					else {
-						if (scope.areTypesCompatible(castTb, expressionTb)) {
+						if (Scope.areTypesCompatible(castTb, expressionTb)) {
 							return true;
 						}
 						return false;
@@ -131,7 +131,7 @@ public class InstanceOfExpression extends OperatorExpression {
 					// ----- (castTb.isInterface) expressionTb.isClass -------  
 					if (((ReferenceBinding) expressionTb).isFinal()) {
 						//no subclass for expressionTb, thus compile-time check is valid
-						if (scope.areTypesCompatible(expressionTb, castTb))
+						if (Scope.areTypesCompatible(expressionTb, castTb))
 							return true;
 						return false;
 					} else {
@@ -158,7 +158,7 @@ public class InstanceOfExpression extends OperatorExpression {
 						return true;
 					if (((ReferenceBinding) castTb).isFinal()) {
 						//no subclass for castTb, thus compile-time check is valid
-						if (scope.areTypesCompatible(castTb, expressionTb)) {
+						if (Scope.areTypesCompatible(castTb, expressionTb)) {
 							return true;
 						}
 						return false;

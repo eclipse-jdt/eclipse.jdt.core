@@ -639,7 +639,7 @@ public class JavaProject
 	public IPackageFragment findPackageFragment(IPath path)
 		throws JavaModelException {
 
-		return findPackageFragment0(this.canonicalizedPath(path));
+		return findPackageFragment0(JavaProject.canonicalizedPath(path));
 	}
 
 	/**
@@ -657,7 +657,7 @@ public class JavaProject
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
 
-		return findPackageFragmentRoot0(this.canonicalizedPath(path));
+		return findPackageFragmentRoot0(JavaProject.canonicalizedPath(path));
 	}
 
 	/**
@@ -1090,7 +1090,7 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(String jarPath) {
 
-		return getPackageFragmentRoot0(this.canonicalizedPath(new Path(jarPath)).toString());
+		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(jarPath)).toString());
 	}
 	
 	/**

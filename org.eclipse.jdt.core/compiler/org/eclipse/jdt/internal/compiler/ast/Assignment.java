@@ -74,7 +74,7 @@ public class Assignment extends Expression {
 		// may require to widen the rhs expression at runtime
 		if ((expression.isConstantValueOfTypeAssignableToType(expressionTb, this.lhsType)
 			|| (this.lhsType.isBaseType() && BaseTypeBinding.isWidening(this.lhsType.id, expressionTb.id)))
-			|| (scope.areTypesCompatible(expressionTb, this.lhsType))) {
+			|| (Scope.areTypesCompatible(expressionTb, this.lhsType))) {
 			expression.implicitWidening(this.lhsType, expressionTb);
 			return this.lhsType;
 		}

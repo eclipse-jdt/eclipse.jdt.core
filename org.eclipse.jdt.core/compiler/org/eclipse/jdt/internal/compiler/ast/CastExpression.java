@@ -75,7 +75,7 @@ public class CastExpression extends Expression {
 					constant = expression.constant; //use the same constant
 					return;
 				}
-				if (scope.areTypesCompatible(expressionTb, castTb)
+				if (Scope.areTypesCompatible(expressionTb, castTb)
 					|| BaseTypeBinding.isNarrowing(castTb.id, expressionTb.id)) {
 					expression.implicitConversion = (castTb.id << 4) + expressionTb.id;
 					if (expression.constant != Constant.NotAConstant)
@@ -138,9 +138,9 @@ public class CastExpression extends Expression {
 				}
 			} else if (
 				castTb.isClass()) { // ----- (castTb.isClass) expressionTb.isClass ------
-				if (scope.areTypesCompatible(expressionTb, castTb)) // no runtime error
+				if (Scope.areTypesCompatible(expressionTb, castTb)) // no runtime error
 					return;
-				if (scope.areTypesCompatible(castTb, expressionTb)) {
+				if (Scope.areTypesCompatible(castTb, expressionTb)) {
 					// potential runtime  error
 					needRuntimeCheckcast = true;
 					return;
@@ -148,7 +148,7 @@ public class CastExpression extends Expression {
 			} else { // ----- (castTb.isInterface) expressionTb.isClass -------  
 				if (((ReferenceBinding) expressionTb).isFinal()) {
 					// no subclass for expressionTb, thus compile-time check is valid
-					if (scope.areTypesCompatible(expressionTb, castTb))
+					if (Scope.areTypesCompatible(expressionTb, castTb))
 						return;
 				} else { // a subclass may implement the interface ==> no check at compile time
 					needRuntimeCheckcast = true;
@@ -174,7 +174,7 @@ public class CastExpression extends Expression {
 				return;
 			if (((ReferenceBinding) castTb).isFinal()) {
 				// no subclass for castTb, thus compile-time check is valid
-				if (!scope.areTypesCompatible(castTb, expressionTb)) {
+				if (!Scope.areTypesCompatible(castTb, expressionTb)) {
 					// potential runtime error
 					scope.problemReporter().typeCastError(this, castTb, expressionTb);
 					return;

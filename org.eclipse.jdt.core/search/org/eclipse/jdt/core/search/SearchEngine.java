@@ -98,11 +98,10 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
  * @deprecated Use createJavaSearchScope(IJavaElement[]) instead
  */
 public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
-	JavaCore javaCore = JavaCore.getJavaCore();
 	int length = resources.length;
 	IJavaElement[] elements = new IJavaElement[length];
 	for (int i = 0; i < length; i++) {
-		elements[i] = javaCore.create(resources[i]);
+		elements[i] = JavaCore.create(resources[i]);
 	}
 	return createJavaSearchScope(elements);
 }

@@ -95,8 +95,7 @@ public int hashCode() {
 				String fileName = results[i].getPath();
 				this.indexedFileNames.put(fileName, DELETED);
 			}
-			JavaCore javaCore = JavaCore.getJavaCore();
-			IJavaProject javaProject = javaCore.create(this.project);
+			IJavaProject javaProject = JavaCore.create(this.project);
 			IClasspathEntry[] entries = javaProject.getRawClasspath(); //only interested in source folders
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {

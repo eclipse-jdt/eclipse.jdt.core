@@ -179,7 +179,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
 
-						}	else if (initializationScope.areTypesCompatible(initializationTypeBinding, typeBinding)) {
+						}	else if (Scope.areTypesCompatible(initializationTypeBinding, typeBinding)) {
 							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
 
 						} else {

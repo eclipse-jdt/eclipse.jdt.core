@@ -1138,7 +1138,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
-		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
+		HashSet optionNames = JavaModelManager.OptionNames;
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();
@@ -1211,7 +1211,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (CORE_ENCODING.equals(optionName)){
 			return ResourcesPlugin.getEncoding();
 		}
-		if (JavaModelManager.getJavaModelManager().OptionNames.contains(optionName)){
+		if (JavaModelManager.OptionNames.contains(optionName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(optionName);
 		}
@@ -1235,7 +1235,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
-		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
+		HashSet optionNames = JavaModelManager.OptionNames;
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();
@@ -1422,7 +1422,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	protected void initializeDefaultPluginPreferences() {
 		
 		Preferences preferences = getPluginPreferences();
-		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
+		HashSet optionNames = JavaModelManager.OptionNames;
 		
 		// Compiler settings
 		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);

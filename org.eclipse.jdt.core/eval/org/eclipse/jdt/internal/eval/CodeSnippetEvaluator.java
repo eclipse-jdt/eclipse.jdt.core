@@ -104,7 +104,7 @@ protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProbl
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
 protected char[] getClassName() {
-	return CharOperation.concat(CODE_SNIPPET_CLASS_NAME_PREFIX, Integer.toString(this.context.CODE_SNIPPET_COUNTER + 1).toCharArray());
+	return CharOperation.concat(CODE_SNIPPET_CLASS_NAME_PREFIX, Integer.toString(EvaluationContext.CODE_SNIPPET_COUNTER + 1).toCharArray());
 }
 /**
  * @see Evaluator.

@@ -29,8 +29,8 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	PackageBinding defaultPackage;
 	ImportBinding[] defaultImports;
 	HashtableOfPackage knownPackages;
-	static final ProblemPackageBinding theNotFoundPackage = new ProblemPackageBinding(new char[0], NotFound);
-	static final ProblemReferenceBinding theNotFoundType = new ProblemReferenceBinding(new char[0], NotFound);
+	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(new char[0], NotFound);
+	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(new char[0], NotFound);
 
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
@@ -228,14 +228,14 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 		return defaultPackage;
 
 	PackageBinding packageBinding = getPackage0(constantPoolName[0]);
-	if (packageBinding == null || packageBinding == theNotFoundPackage) {
+	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(constantPoolName[0], this);
 		knownPackages.put(constantPoolName[0], packageBinding);
 	}
 
 	for (int i = 1, length = constantPoolName.length - 1; i < length; i++) {
 		PackageBinding parent = packageBinding;
-		if ((packageBinding = parent.getPackage0(constantPoolName[i])) == null || packageBinding == theNotFoundPackage) {
+		if ((packageBinding = parent.getPackage0(constantPoolName[i])) == null || packageBinding == TheNotFoundPackage) {
 			packageBinding = new PackageBinding(CharOperation.subarray(constantPoolName, 0, i + 1), parent, this);
 			parent.addPackage(packageBinding);
 		}
@@ -306,7 +306,7 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 
 PackageBinding createPackage(char[][] compoundName) {
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
-	if (packageBinding == null || packageBinding == theNotFoundPackage) {
+	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(compoundName[0], this);
 		knownPackages.put(compoundName[0], packageBinding);
 	}
@@ -317,11 +317,11 @@ PackageBinding createPackage(char[][] compoundName) {
 		// otherwise when the source type was defined, the correct error would have been reported
 		// unless its an unresolved type which is referenced from an inconsistent class file
 		ReferenceBinding type = packageBinding.getType0(compoundName[i]);
-		if (type != null && type != theNotFoundType && !(type instanceof UnresolvedReferenceBinding))
+		if (type != null && type != TheNotFoundType && !(type instanceof UnresolvedReferenceBinding))
 			return null;
 
 		PackageBinding parent = packageBinding;
-		if ((packageBinding = parent.getPackage0(compoundName[i])) == null || packageBinding == theNotFoundPackage) {
+		if ((packageBinding = parent.getPackage0(compoundName[i])) == null || packageBinding == TheNotFoundPackage) {
 			// if the package is unknown, check to see if a type exists which would collide with the new package
 			// catches the case of a package statement of: package java.lang.Object;
 			// since the package can be added after a set of source files have already been compiled, we need
@@ -351,11 +351,11 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 	}
 
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
-	if (packageBinding == null || packageBinding == theNotFoundPackage)
+	if (packageBinding == null || packageBinding == TheNotFoundPackage)
 		return null;
 
 	for (int i = 1, packageLength = compoundName.length - 1; i < packageLength; i++)
-		if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null || packageBinding == theNotFoundPackage)
+		if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null || packageBinding == TheNotFoundPackage)
 			return null;
 	return packageBinding.getType0(compoundName[compoundName.length - 1]);
 }
@@ -378,7 +378,7 @@ PackageBinding getPackage0(char[] name) {
 PackageBinding getTopLevelPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
-		if (packageBinding == theNotFoundPackage)
+		if (packageBinding == TheNotFoundPackage)
 			return null;
 		else
 			return packageBinding;
@@ -389,7 +389,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 		return packageBinding;
 	}
 
-	knownPackages.put(name, theNotFoundPackage); // saves asking the oracle next time
+	knownPackages.put(name, TheNotFoundPackage); // saves asking the oracle next time
 	return null;
 }
 /* Answer the type corresponding to the compoundName.
@@ -406,20 +406,20 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 		if ((referenceBinding = defaultPackage.getType0(compoundName[0])) == null) {
 			PackageBinding packageBinding = getPackage0(compoundName[0]);
-			if (packageBinding != null && packageBinding != theNotFoundPackage)
+			if (packageBinding != null && packageBinding != TheNotFoundPackage)
 				return null; // collides with a known package... should not call this method in such a case
 			referenceBinding = askForType(defaultPackage, compoundName[0]);
 		}
 	} else {
 		PackageBinding packageBinding = getPackage0(compoundName[0]);
-		if (packageBinding == theNotFoundPackage)
+		if (packageBinding == TheNotFoundPackage)
 			return null;
 
 		if (packageBinding != null) {
 			for (int i = 1, packageLength = compoundName.length - 1; i < packageLength; i++) {
 				if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null)
 					break;
-				if (packageBinding == theNotFoundPackage)
+				if (packageBinding == TheNotFoundPackage)
 					return null;
 			}
 		}
@@ -430,7 +430,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 			referenceBinding = askForType(packageBinding, compoundName[compoundName.length - 1]);
 	}
 
-	if (referenceBinding == null || referenceBinding == theNotFoundType)
+	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
 	if (referenceBinding instanceof UnresolvedReferenceBinding)
 		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this);
@@ -460,7 +460,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 		PackageBinding packageBinding = computePackageFrom(compoundName);
 		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
 		packageBinding.addType(binding);
-	} else if (binding == theNotFoundType) {
+	} else if (binding == TheNotFoundType) {
 		problemReporter.isClassPathCorrect(compoundName, null);
 		return null; // will not get here since the above error aborts the compilation
 	}

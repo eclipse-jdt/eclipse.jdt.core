@@ -438,7 +438,7 @@ public abstract class Expression extends Statement {
 		TypeBinding thisTb = this.resolveType(scope);
 		if (thisTb == null)
 			return null;
-		if (!scope.areTypesCompatible(thisTb, expectedTb)) {
+		if (!Scope.areTypesCompatible(thisTb, expectedTb)) {
 			scope.problemReporter().typeMismatchError(thisTb, expectedTb, this);
 			return null;
 		}

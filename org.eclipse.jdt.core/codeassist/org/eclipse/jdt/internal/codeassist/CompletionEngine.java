@@ -654,8 +654,7 @@ public final class CompletionEngine
 	}
 	
 	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){	
-		TypeConverter converter = new TypeConverter();
-		
+
 		IType topLevelType = type;
 		while(topLevelType.getDeclaringType() != null) {
 			topLevelType = topLevelType.getDeclaringType();
@@ -666,7 +665,7 @@ public final class CompletionEngine
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
 		try {
-			TypeDeclaration typeDeclaration = converter.buildTypeDeclaration(type, compilationUnit, compilationResult, problemReporter);
+			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult, problemReporter);
 		
 			if(typeDeclaration != null) {	
 				// build AST from snippet
@@ -946,7 +945,7 @@ public final class CompletionEngine
 						continue next;
 					for (int a = minArgLength; --a >= 0;)
 						if (argTypes[a] != null) // can be null if it could not be resolved properly
-							if (!scope.areTypesCompatible(argTypes[a], constructor.parameters[a]))
+							if (!Scope.areTypesCompatible(argTypes[a], constructor.parameters[a]))
 								continue next;
 	
 					char[][] parameterPackageNames = new char[paramLength][];
@@ -1667,7 +1666,7 @@ public final class CompletionEngine
 
 			for (int a = minArgLength; --a >= 0;){
 				if (argTypes[a] != null){ // can be null if it could not be resolved properly
-					if (!scope.areTypesCompatible(argTypes[a], method.parameters[a])) {
+					if (!Scope.areTypesCompatible(argTypes[a], method.parameters[a])) {
 						continue next;
 					}
 				}
