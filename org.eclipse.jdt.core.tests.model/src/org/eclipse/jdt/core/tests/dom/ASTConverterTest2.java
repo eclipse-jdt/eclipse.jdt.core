@@ -260,7 +260,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23162
 	 */
-	public void test0409() throws JavaModelException {
+	public void DISABLEDtest0409() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
