@@ -2250,7 +2250,7 @@ public abstract class Scope
 			if (previous != null && method.declaringClass != previous.declaringClass)
 				break; // cannot answer a method farther up the hierarchy than the first method found
 
-			previous = method;
+			if (!method.isStatic()) previous = method; // no ambiguity for static methods
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
 				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);

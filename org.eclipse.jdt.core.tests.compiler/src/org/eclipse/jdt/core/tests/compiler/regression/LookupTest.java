@@ -1590,20 +1590,45 @@ public void test046() {
 			"        return \"SUCCESS\";\n" + 
 			"    }\n" + 
 			"}\n"
-		}, // TODO (philippe) should eliminate first problem if still used incorrectly
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	private XY foo(XY t) {\n" + 
-		"	           ^^^^^^^^^\n" + 
-		"The private method foo(XY) from the type X is never used locally\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	foo(new XY());\n" + 
-		"	^^^\n" + 
-		"Cannot make a static reference to the non-static method foo(XY) from the type X\n" + 
-		"----------\n");
+		}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	foo(new XY());\n" + 
+			"	^^^\n" + 
+			"Cannot make a static reference to the non-static method foo(XY) from the type X\n" + 
+			"----------\n");
 }
-
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X extends SuperTest\n" + 
+			"{\n" + 
+			"    public X()\n" + 
+			"    {\n" + 
+			"        super();\n" + 
+			"    }\n" + 
+			"  \n" + 
+			"    static void print(Object obj)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"Object:\" + obj.toString());\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        print(\"Hello world\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class SuperTest\n" + 
+			"{\n" + 
+			"    SuperTest(){};\n" + 
+			"    static void print(String s)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"String: \" + s);\n" + 
+			"    }\n" + 
+			"}\n"	},
+		"String: Hello world");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
