@@ -341,6 +341,17 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	}
 
 	/*
+	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)
+	 */
+	public IJavaElement getSharedWorkingCopy(
+		IProgressMonitor monitor,
+		IBufferFactory factory,
+		IProblemRequestor problemRequestor)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/*
 	 * @see IWorkingCopy#getWorkingCopy()
 	 */
 	public IJavaElement getWorkingCopy() throws JavaModelException {

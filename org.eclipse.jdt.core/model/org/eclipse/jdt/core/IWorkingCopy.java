@@ -1,10 +1,18 @@
+/**********************************************************************
+Copyright (c) 2000, 2001, 2002 IBM Corp. and others.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Common Public License v0.5
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/cpl-v05.html
+ 
+Contributors:
+	Object Technology International Inc. - initial API
+	Jerome_Lanneluc@oti.com, 2002/03/01 - added notion of shared working copy
+    Philippe_Mulet@oti.com, - added notion of IProblemRequestor
+**********************************************************************/
+
 package org.eclipse.jdt.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
- 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -134,8 +142,46 @@ IJavaElement getOriginalElement();
  * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  * @since 2.0
+ * @deprecated - use API with extra IProblemRequestor instead
  */
 IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
+/**
+ * Returns a shared working copy on this element using the given factory to create
+ * the buffer, or this element if this element is already a working copy.
+ * <p>
+ * The life time of a shared working copy is as follows:
+ * <ul>
+ * <li>The first call to <code>getSharedWorkingCopy(...)</code> creates a new working copy for this
+ *     element</li>
+ * <li>Subsequent calls increment an internal counter.</li>
+ * <li>A call to <code>destroy()</code> decrements the internal counter.</li>
+ * <li>When this counter is 0, the working copy is destroyed.
+ * </ul>
+ * So users of this method must destroy exactly once the working copy.
+ * <p>
+ * Note that the buffer factory will be used for the life time of this working copy, i.e. if the 
+ * working copy is closed then reopened, this factory will be used.
+ * The buffer will be automatically initialized with the original's compilation unit content
+ * upon creation.
+ * <p>
+ * When the shared working copy instance is created, an ADDED IJavaElementDelta is reported on this
+ * working copy.
+ *
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
+ *                 or <code>null</code> if no progress should be reported 
+ * @param factory the factory that creates a buffer that is used to get the content of the working copy
+ *                 or <code>null</code> if the internal factory should be used
+ * @param problemRequestor a requestor which will get notified of problems detected during
+ * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
+ * 	that the client is not interested in problems.
+ * @exception JavaModelException if the contents of this element can
+ *   not be determined. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 2.0
+ */
+IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException;
 /**
  * Returns a new working copy of this element if this element is not
  * a working copy, or this element if this element is already a working copy.
