@@ -44,6 +44,10 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.SimpleDocument;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Provides convenient utility methods to other types in this package.
@@ -327,6 +331,31 @@ public class Util implements SuffixConstants {
 	 */
 	public static String convertTypeSignature(char[] sig) {
 		return new String(sig).replace('/', '.');
+	}
+
+	/**
+	 * Apply the given edit on the given string and return the updated string.
+	 * Return the given string if anything wrong happen while applying the edit.
+	 * 
+	 * @param original the given string
+	 * @param edit the given edit
+	 * 
+	 * @return the updated string
+	 */
+	public final static String editedString(String original, TextEdit edit) {
+		if (edit == null) {
+			return original;
+		}
+		SimpleDocument document = new SimpleDocument(original);
+		try {
+			edit.apply(document, TextEdit.NONE);
+			return document.get();
+		} catch (MalformedTreeException e) {
+			e.printStackTrace();
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		return original;
 	}
 
 	/**
