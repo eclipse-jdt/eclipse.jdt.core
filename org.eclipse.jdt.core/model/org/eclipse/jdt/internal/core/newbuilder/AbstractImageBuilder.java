@@ -57,7 +57,18 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.sourceFolders = javaBuilder.sourceFolders;
 	this.notifier = javaBuilder.notifier;
 
-	this.hasSeparateOutputFolder = !outputFolder.getFullPath().equals(javaBuilder.currentProject.getFullPath());
+	// only perform resource copying if no source folders coincidates with the output location
+	// corresponds to: project == src == bin, or several source folders are contributing resources,
+	// but one is the output location too (and would get populated with other source folder resources).
+	this.hasSeparateOutputFolder = true;
+	for (int i = 0; i < this.sourceFolders.length; i++) {
+		IContainer sourceFolder = this.sourceFolders[i];
+		if (sourceFolder.getFullPath().equals(this.outputFolder)){
+			this.hasSeparateOutputFolder = false;
+			break;
+		}
+	}
+
 	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
 	this.compiler = newCompiler();
 	this.workQueue = new WorkQueue();
