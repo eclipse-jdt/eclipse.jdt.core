@@ -46,7 +46,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
 public int getElementType() {
 	return IMPORT_DECLARATION;
 }
-/* (non-Javadoc)
+/**
  * @see org.eclipse.jdt.core.IImportDeclaration#getFlags()
  */
 public int getFlags() throws JavaModelException {
