@@ -329,12 +329,18 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			ignoreFurtherInvestigation = true;
 		}
 
+		// checking for recursive constructor call (protection)
+		if (!ignoreFurtherInvestigation && constructorCall == null){
+			constructorCall = new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+			constructorCall.sourceStart = sourceStart;
+			constructorCall.sourceEnd = sourceEnd;
+		}
+
 		super.resolve(upperScope);
 
 		try {
-			// checking for recursive constructor call
-			if (constructorCall != null) {
-				// indirect reference: increment target constructor reference count
+			// indirect reference: increment target constructor reference count
+			if (constructorCall != null){
 				if (constructorCall.binding != null
 					&& !constructorCall.isSuperAccess()
 					&& constructorCall.binding.isValidBinding()) {

@@ -350,7 +350,16 @@ public TypeDeclaration updatedTypeDeclaration(){
 		typeDeclaration.methods = methodDeclarations;
 	} else {
 		if (!hasConstructor) {// if was already reduced, then constructor
-			typeDeclaration.createsInternalConstructor(!parser().diet, true);
+			boolean insideFieldInitializer = false;
+			RecoveredElement parent = this.parent; 
+			while (parent != null){
+				if (parent instanceof RecoveredField){
+						insideFieldInitializer = true;
+						break; 
+				}
+				parent = parent.parent;
+			}
+			typeDeclaration.createsInternalConstructor(!parser().diet || insideFieldInitializer, true);
 		} 
 	}
 	/* might need to cast itself into a MemberTypeDeclaration or a LocalTypeDeclaration */
