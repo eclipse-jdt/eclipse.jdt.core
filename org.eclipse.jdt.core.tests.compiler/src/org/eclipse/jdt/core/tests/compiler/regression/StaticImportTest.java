@@ -969,4 +969,32 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+	
+	public void test027() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.ST.foo;\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	foo bar;\n" + 
+				"}\n", 
+				"p/ST.java",
+				"package p; \n" + 
+				"public class ST {\n" + 
+				"	public static int foo;\n" + 
+				"}\n"				
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\r\n" + 
+			"	import static p.ST.foo;\r\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import p.ST.foo is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	foo bar;\r\n" + 
+			"	^^^\n" + 
+			"foo cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
 }
