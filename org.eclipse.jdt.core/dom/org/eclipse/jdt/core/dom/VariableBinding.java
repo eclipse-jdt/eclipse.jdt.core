@@ -225,7 +225,18 @@ class VariableBinding implements IVariableBinding {
 				return false;
 			}
 		} else {
-			return BindingComparator.isEqual(this.binding, otherBinding);
+			if (BindingComparator.isEqual(this.binding, otherBinding)) {
+				IMethodBinding declaringMethod = this.getDeclaringMethod();
+				IMethodBinding otherDeclaringMethod = ((VariableBinding) other).getDeclaringMethod();
+				if (declaringMethod == null) {
+					if (otherDeclaringMethod != null) {
+						return false;
+					}
+					return true;
+				}
+				return declaringMethod.isEqualTo(otherDeclaringMethod);
+			}
+			return false;
 		}
 	}
 

@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0580"));
+		suite.addTest(new ASTConverterTestAST3_2("test0581"));
 		return suite;
 	}
 	/**
@@ -5458,6 +5458,41 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"}",
 				workingCopy);
 			assertEquals("wrong type", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80041
+	 */
+	public void test0581() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X {\n" +
+				"    void m(Object obj) {}\n" +
+				"    void foo(Object obj) {}\n" +
+				"}",
+				workingCopy);
+			assertEquals("wrong type", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List parameters = methodDeclaration.parameters();
+			SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			IVariableBinding variableBinding = variableDeclaration.resolveBinding();
+			node = getASTNode(compilationUnit, 0, 1);
+			assertEquals("wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			methodDeclaration = (MethodDeclaration) node;
+			parameters = methodDeclaration.parameters();
+			variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			IVariableBinding variableBinding2 = variableDeclaration.resolveBinding();
+			assertFalse("Bindings are equal", variableBinding.isEqualTo(variableBinding2));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
