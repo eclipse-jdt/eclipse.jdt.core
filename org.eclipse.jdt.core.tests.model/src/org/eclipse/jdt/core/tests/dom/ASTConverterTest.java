@@ -6590,7 +6590,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
-		AST ast = result.getAST();
+		AST newAst = result.getAST();
 		ITypeBinding typeBinding = ast.resolveWellKnownType("boolean"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
