@@ -1020,6 +1020,27 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					CharOperation.concatWith(superInterfaces[i].getTypeName(), '.'); 
 			}
 		}
+		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		char[][] typeParameterNames = null;
+		char[][][] typeParameterBounds = null;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			typeParameterNames = new char[typeParametersLength][];
+			typeParameterBounds = new char[typeParametersLength][][];
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameterNames[i] = typeParameters[i].name;
+				TypeReference[] bounds = typeParameters[i].bounds;
+				if (bounds != null) {
+					int boundLength = bounds.length;
+					char[][] boundNames = new char[boundLength][];
+					for (int j = 0; j < boundLength; j++) {
+						boundNames[j] = 
+							CharOperation.concatWith(bounds[i].getTypeName(), '.'); 
+					}
+					typeParameterBounds[i] = boundNames;
+				}
+			}
+		}
 		if (isInterface) {
 			if (isInRange){
 				int currentModifiers = typeDeclaration.modifiers;
@@ -1030,7 +1051,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
 					sourceEnd(typeDeclaration), 
-					interfaceNames);
+					interfaceNames,
+					typeParameterNames,
+					typeParameterBounds);
 			}
 			if (nestedTypeIndex == typeNames.length) {
 				// need a resize
@@ -1050,7 +1073,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
 						null, 
-						interfaceNames); 
+						interfaceNames,
+						typeParameterNames,
+						typeParameterBounds);
 				}
 			} else {
 				if (isInRange){
@@ -1061,7 +1086,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
 						CharOperation.concatWith(superclass.getTypeName(), '.'), 
-						interfaceNames); 
+						interfaceNames,
+						typeParameterNames,
+						typeParameterBounds);
 				}
 			}
 			if (nestedTypeIndex == typeNames.length) {

@@ -176,7 +176,9 @@ public void enterClass(
 	int nameSourceStart, 
 	int nameSourceEnd, 
 	char[] superclass, 
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	if (currentType == null) {
 		// top level type
@@ -292,7 +294,9 @@ public void enterInterface(
 	char[] name, 
 	int nameSourceStart, 
 	int nameSourceEnd, 
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	if (currentType == null) {
 		// top level type

@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
@@ -235,6 +236,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 		type.declarationSourceEnd = sourceType.getDeclarationSourceEnd();
 		type.bodyEnd = type.declarationSourceEnd;
 
+		/* recreate type parameters */
+		char[][] typeParameterNames = sourceType.getTypeParameterNames();
+		if (typeParameterNames != null) {
+			int parameterCount = typeParameterNames.length;
+			char[][][] typeParameterBounds = sourceType.getTypeParameterBounds();
+			type.typeParameters = new TypeParameter[parameterCount];
+			for (int i = 0; i < parameterCount; i++) {
+				type.typeParameters[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+			}
+		}
 		/* set superclass and superinterfaces */
 		if (sourceType.getSuperclassName() != null)
 			type.superclass =
@@ -338,6 +349,22 @@ public class SourceTypeConverter implements CompilerModifiers {
 			modifiers);
 	}
 
+	private TypeParameter createTypeParameter(char[] typeParameterName, char[][] typeParameterBounds, int start, int end) {
+
+		TypeParameter parameter = new TypeParameter();
+		parameter.name = typeParameterName;
+		parameter.sourceStart = start;
+		parameter.sourceEnd = end;
+		if (typeParameterBounds != null) {
+			int length = typeParameterBounds.length;
+			parameter.bounds = new TypeReference[length];
+			for (int i = 0; i < length; i++) {
+				parameter.bounds[i] = createTypeReference(typeParameterBounds[i], start, end);
+			}
+		}
+		return parameter;
+	}
+	
 	/*
 	 * Build a type reference from a readable name, e.g. java.lang.Object[][]
 	 */

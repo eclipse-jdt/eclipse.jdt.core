@@ -129,7 +129,7 @@ public char[][] enclosingTypeNames(){
 /**
  * @see ISourceElementRequestor#enterClass(int, int, char[], int, int, char[], char[][])
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {
+public void enterClass(	int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (superclass != null){
@@ -181,7 +181,7 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 /**
  * @see ISourceElementRequestor#enterInterface(int, int, char[], int, int, char[][])
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (superinterfaces != null){
 		for (int i = 0, length = superinterfaces.length; i < length; i++){

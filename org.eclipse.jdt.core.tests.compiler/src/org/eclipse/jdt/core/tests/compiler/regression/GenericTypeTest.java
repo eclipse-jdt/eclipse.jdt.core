@@ -5649,6 +5649,36 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"public interface BIN extends LIST<BL> {}\n",
 			},
 			"SUCCESS");
+	}
+	// 62806
+	public void test204() {
+		this.runConformTest(
+			new String[] {
+				"Function.java",
+				"public abstract class Function<Y,X> {\n" + 
+				"    public abstract Y eval(X x);\n" + 
+				"\n" + 
+				"}\n",
+				"FunctionMappedComparator.java",
+				"import java.util.*;\n" + 
+				"public class FunctionMappedComparator<Y,X> implements Comparator<X> {\n" + 
+				"	/*\n" + 
+				"	 * \'Function\' is highlighted as an error here - the message is:\n" + 
+				"	 * The type Function is not generic; it cannot be parameterized with arguments <Y, X>\n" + 
+				"	 */\n" + 
+				"    protected Function<Y,X> function;\n" + 
+				"    protected Comparator<Y> comparator;\n" + 
+				"    public FunctionMappedComparator(Function<Y,X> function,Comparator<Y> comparator ) {\n" + 
+				"        this.function=function;\n" + 
+				"        this.comparator=comparator;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public int compare(X x1, X x2) {\n" + 
+				"        return comparator.compare(function.eval(x1),function.eval(x2));\n" + 
+				"    }\n" + 
+				"}\n", 			
+			},
+			"");
 	}		
 	
 }

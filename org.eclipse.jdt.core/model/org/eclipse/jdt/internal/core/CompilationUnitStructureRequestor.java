@@ -226,9 +226,11 @@ public void enterClass(
 	int nameSourceStart,
 	int nameSourceEnd,
 	char[] superclass,
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces);
+	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, superclass, superinterfaces, typeParameterNames, typeParameterBounds);
 
 }
 /**
@@ -330,9 +332,11 @@ public void enterInterface(
 	char[] name,
 	int nameSourceStart,
 	int nameSourceEnd,
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
-	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces);
+	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces, typeParameterNames, typeParameterBounds);
 
 }
 /**
@@ -419,7 +423,9 @@ protected void enterType(
 	int nameSourceStart,
 	int nameSourceEnd,
 	char[] superclass,
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
@@ -454,6 +460,8 @@ protected void enterType(
 	info.setSuperInterfaceNames(superinterfaces);
 	info.setSourceFileName(this.sourceFileName);
 	info.setPackageName(this.packageName);
+	info.setTypeParameterNames(typeParameterNames);
+	info.setTypeParameterBounds(typeParameterBounds);
 	parentInfo.addChild(handle);
 	this.newElements.put(handle, info);
 

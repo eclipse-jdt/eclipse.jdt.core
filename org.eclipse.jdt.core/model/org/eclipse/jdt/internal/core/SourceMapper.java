@@ -504,7 +504,9 @@ public class SourceMapper
 		int nameSourceStart,
 		int nameSourceEnd,
 		char[] superclass,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
@@ -639,7 +641,9 @@ public class SourceMapper
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		enterClass(
 			declarationStart,
 			modifiers,
@@ -647,7 +651,9 @@ public class SourceMapper
 			nameSourceStart,
 			nameSourceEnd,
 			null,
-			superinterfaces);
+			superinterfaces,
+			typeParameterNames,
+			typeParameterBounds);
 	}
 	
 	/**

@@ -95,7 +95,7 @@ protected void enterAbstractMethod(int declarationStart, int modifiers,
 }
 /**
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces) {
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, superclass,
 		superinterfaces, true);
 }
@@ -138,7 +138,7 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 /**
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces, 	char[][] typeParameterNames, 	char[][][] typeParameterBounds) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null,
 		superinterfaces, false);
 }

@@ -40,7 +40,8 @@ public class SourceType extends Member implements IType {
 	/**
 	 * An empty list of Strings
 	 */
-	protected static final String[] fgEmptyList= new String[] {};
+	protected static final String[] EmptyStringList = new String[0];
+	
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1, Util.bind("sourcetype.invalidName", name)); //$NON-NLS-1$
@@ -378,7 +379,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
 	if (names == null) {
-		return fgEmptyList;
+		return EmptyStringList;
 	}
 	String[] strings= new String[names.length];
 	for (int i= 0; i < names.length; i++) {
@@ -395,7 +396,7 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
 	if (names == null) {
-		return fgEmptyList;
+		return EmptyStringList;
 	}
 	String[] strings= new String[names.length];
 	for (int i= 0; i < names.length; i++) {
@@ -409,8 +410,16 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	// TODO (jerome) - missing implementation
-	return new String[0];
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	char[][] signatures = info.getTypeParameterSignatures();
+	if (signatures == null) 
+		return EmptyStringList;
+	int length = signatures.length;
+	String[] stringSignatures = new String[length];
+	for (int i = 0; i < length; i++) {
+		stringSignatures[i] = new String(signatures[i]);
+	}
+	return stringSignatures;
 }
 
 /**
