@@ -18,7 +18,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 65 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
@@ -1678,8 +1678,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"10");
 	}
 	
-	// TODO (philippe) enable when fixed
-	public void _test065() { // generic type case
+	public void test065() { // generic type case + foreach statement
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1702,5 +1701,74 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"10"
 		);
-	}	
+	}
+	
+	public void test066() { // array case + foreach statement
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Integer[] tab = new Integer[] {0, 1, 2, 3, 4};\n" +
+				"	    int sum = 0;\n" +
+				"	    for (int i : tab) {\n" +
+				"	    	sum += i;\n" +
+				"	    }\n" +
+				"        System.out.print(sum);\n" +
+				"    }\n" +
+				"}",
+			},
+			"10"
+		);
+	}
+	
+	public void test067() { // array case + foreach statement
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int[] tab = new int[] {0, 1, 2, 3, 4};\n" +
+				"	    int sum = 0;\n" +
+				"	    for (Integer i : tab) {\n" +
+				"	    	sum += i;\n" +
+				"	    }\n" +
+				"        System.out.print(sum);\n" +
+				"    }\n" +
+				"}",
+			},
+			"10"
+		);
+	}
+	
+	public void test068() { // generic type case + foreach statement
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		List<Integer> list = new ArrayList<Integer>();\n" +
+				"		for (int i = 0; i < 5; i++) {\n" +
+				"			list.add(i);\n" +
+				"	    }\n" +
+				"	    int sum = 0;\n" +
+				"	    for (Integer i : list) {\n" +
+				"	    	sum += i;\n" +
+				"	    }\n" +
+				"        System.out.print(sum);\n" +
+				"    }\n" +
+				"}",
+			},
+			"10"
+		);
+	}
 }

@@ -40,7 +40,7 @@ public class ForeachStatement extends Statement {
 	private static final int RAW_ITERABLE = 1;
 	private static final int GENERIC_ITERABLE = 2;
 
-	private int arrayElementTypeID;
+	private TypeBinding collectionElementType;
 
 	// loop labels
 	private Label breakLabel;
@@ -217,7 +217,7 @@ public class ForeachStatement extends Statement {
 				case ARRAY :
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
-					codeStream.arrayAt(this.arrayElementTypeID);
+					codeStream.arrayAt(this.collectionElementType.id);
 					if (this.elementVariableImplicitWidening != -1) {
 						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
 					}
@@ -228,7 +228,12 @@ public class ForeachStatement extends Statement {
 					codeStream.load(this.indexVariable);
 					codeStream.invokeJavaUtilIteratorNext();
 					if (this.elementVariable.binding.type.id != T_JavaLangObject) {
-						codeStream.checkcast(this.elementVariable.binding.type);
+						if (this.elementVariableImplicitWidening != -1) {
+							codeStream.checkcast(this.collectionElementType);
+							codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+						} else {
+							codeStream.checkcast(this.elementVariable.binding.type);
+						}
 					}
 					codeStream.store(this.elementVariable.binding, false);
 					break;
@@ -313,14 +318,13 @@ public class ForeachStatement extends Statement {
 		if (!hasError) {
 			if (collectionType.isArrayType()) { // for(E e : E[])
 				this.kind = ARRAY;
-				TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType();
+				this.collectionElementType = ((ArrayBinding) collectionType).elementsType();
 				if (!collectionElementType.isCompatibleWith(elementType)
 						&& !scope.isBoxingCompatibleWith(collectionElementType, elementType)) {
 					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 				}
 				// in case we need to do a conversion
-				this.arrayElementTypeID = collectionElementType.id;
-				int compileTimeTypeID = this.arrayElementTypeID;
+				int compileTimeTypeID = collectionElementType.id;
 				if (elementType.isBaseType()) {
 					if (!collectionElementType.isBaseType()) {
 						compileTimeTypeID = scope.environment().computeBoxingType(collectionElementType).id;
@@ -345,28 +349,68 @@ public class ForeachStatement extends Statement {
 					    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)iterableType;
 						if (parameterizedType.arguments.length == 1) { // per construction can only be one
 							this.kind = GENERIC_ITERABLE;
-							TypeBinding collectionElementType = parameterizedType.arguments[0]; 
-							if (!collectionElementType.isCompatibleWith(elementType)) {
+							this.collectionElementType = parameterizedType.arguments[0]; 
+							if (!collectionElementType.isCompatibleWith(elementType)
+									&& !scope.isBoxingCompatibleWith(collectionElementType, elementType)) {
 								scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 							}
+							int compileTimeTypeID = collectionElementType.id;
 							// no conversion needed as only for reference types
+							if (elementType.isBaseType()) {
+								if (!collectionElementType.isBaseType()) {
+									compileTimeTypeID = scope.environment().computeBoxingType(collectionElementType).id;
+									this.elementVariableImplicitWidening = UNBOXING;
+									if (elementType.isBaseType()) {
+										this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeID;
+									}
+								} else {
+									this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeID;
+								}
+							} else {
+								if (collectionElementType.isBaseType()) {
+									int boxedID = scope.environment().computeBoxingType(collectionElementType).id;
+									this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
+									compileTimeTypeID = boxedID;
+								}
+							}
 						}
 				    } else if (iterableType.isGenericType()) { // for (T t : Iterable<T>) - in case used inside Iterable itself
 						if (iterableType.typeVariables().length == 1) {
 							this.kind = GENERIC_ITERABLE;
-							TypeBinding collectionElementType = iterableType.typeVariables()[0]; 
-							if (!collectionElementType.isCompatibleWith(elementType)) {
+							this.collectionElementType = iterableType.typeVariables()[0]; 
+							if (!collectionElementType.isCompatibleWith(elementType)
+									&& !scope.isBoxingCompatibleWith(collectionElementType, elementType)) {
 								scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+							}
+							int compileTimeTypeID = collectionElementType.id;
+							// no conversion needed as only for reference types
+							if (elementType.isBaseType()) {
+								if (!collectionElementType.isBaseType()) {
+									compileTimeTypeID = scope.environment().computeBoxingType(collectionElementType).id;
+									this.elementVariableImplicitWidening = UNBOXING;
+									if (elementType.isBaseType()) {
+										this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeID;
+									}
+								} else {
+									this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeID;
+								}
+							} else {
+								if (collectionElementType.isBaseType()) {
+									int boxedID = scope.environment().computeBoxingType(collectionElementType).id;
+									this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
+									compileTimeTypeID = boxedID;
+								}
 							}
 						}
 					} else if (iterableType.isRawType()) { // for(Object o : Iterable)
 						this.kind = RAW_ITERABLE;
-						TypeBinding collectionElementType = scope.getJavaLangObject(); 
-						if (!collectionElementType.isCompatibleWith(elementType)) {
+						this.collectionElementType = scope.getJavaLangObject();
+						if (!collectionElementType.isCompatibleWith(elementType)
+								&& !scope.isBoxingCompatibleWith(collectionElementType, elementType)) {
 							scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 						}
 						// no conversion needed as only for reference types
-					}
+					}			    
 			    }
 			}
 			switch(this.kind) {
