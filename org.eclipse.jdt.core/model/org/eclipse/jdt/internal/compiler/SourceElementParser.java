@@ -1129,6 +1129,8 @@ private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypePa
 			} else {
 				typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
 			}
+		} else {
+			typeParameterBounds = CharOperation.NO_CHAR_CHAR;
 		}
 		ISourceElementRequestor.TypeParameterInfo typeParameterInfo = new ISourceElementRequestor.TypeParameterInfo();
 		typeParameterInfo.declarationStart = typeParameter.declarationSourceStart;
