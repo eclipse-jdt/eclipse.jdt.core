@@ -2509,13 +2509,14 @@ protected void consumeEmptyTypeDeclaration() {
 	this.scanner.commentPtr = -1;	
 }
 protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
-	//	 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
-	// EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
+	// EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier Dimsopt ':' Expression ')'
+	// EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt ':' Expression ')'
 	TypeReference type;
 
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 	
+	int extraDims = this.intStack[this.intPtr--];
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 	// remove fake modifiers/modifiers start
@@ -2532,7 +2533,7 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	this.expressionLengthPtr--;
 	Expression collection = this.expressionStack[this.expressionPtr--];
 	
-	type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
+	type = getTypeReference(this.intStack[this.intPtr--] + extraDims); // type dimension
 
 	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;

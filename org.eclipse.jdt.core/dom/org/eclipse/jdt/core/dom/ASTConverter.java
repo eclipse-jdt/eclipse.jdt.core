@@ -1988,6 +1988,20 @@ class ASTConverter {
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		importDeclaration.setName(name);
 		importDeclaration.setOnDemand(onDemand);
+		int modifiers = importReference.modifiers;
+		if (modifiers != IConstants.AccDefault) {
+			switch(this.ast.apiLevel) {
+				case AST.LEVEL_2_0 :
+					importDeclaration.setFlags(ASTNode.MALFORMED);
+					break;
+				case AST.LEVEL_3_0 :
+					if (modifiers == IConstants.AccStatic) {
+						importDeclaration.setStatic(true);
+					} else {
+						importDeclaration.setFlags(ASTNode.MALFORMED);
+					}
+			}
+		}
 		if (this.resolveBindings) {
 			recordNodes(importDeclaration, importReference);
 		}

@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
+import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
@@ -221,6 +222,53 @@ class ASTConverter2 extends ASTConverter {
 		return super.convert(expression);
 	}
 
+	public EnhancedForStatement convert(ForeachStatement statement) {
+		EnhancedForStatement enhancedForStatement = this.ast.newEnhancedForStatement();
+		enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
+		enhancedForStatement.setExpression(convert(statement.collection));
+		enhancedForStatement.setBody(convert(statement.action));
+		int start = statement.sourceStart;
+		int end = statement.sourceEnd;
+		enhancedForStatement.setSourceRange(start, end - start + 1);
+		return enhancedForStatement;
+	}
+	
+	public Statement convert(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
+		if (statement instanceof ForeachStatement) {
+			return convert((ForeachStatement) statement);
+		}
+		return super.convert(statement);
+	}
+
+	protected SingleVariableDeclaration convertToSingleVariableDeclaration(LocalDeclaration localDeclaration) {
+		SingleVariableDeclaration variableDecl = this.ast.newSingleVariableDeclaration();
+		if ((localDeclaration.modifiers & CompilerModifiers.AccJustFlag) != 0) {
+			setModifiers(variableDecl, localDeclaration);
+		}
+		SimpleName name = this.ast.newSimpleName(new String(localDeclaration.name));
+		int start = localDeclaration.sourceStart;
+		int nameEnd = localDeclaration.sourceEnd;
+		name.setSourceRange(start, nameEnd - start + 1);
+		variableDecl.setName(name);
+		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, localDeclaration.type.sourceEnd);
+		variableDecl.setExtraDimensions(extraDimensions);
+		Type type = convertType(localDeclaration.type);
+		int typeEnd = type.getStartPosition() + type.getLength() - 1;
+		int rightEnd = Math.max(typeEnd, localDeclaration.declarationSourceEnd);
+		/*
+		 * There is extra work to do to set the proper type positions
+		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
+		 */
+		setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
+		variableDecl.setSourceRange(localDeclaration.declarationSourceStart, rightEnd - localDeclaration.declarationSourceStart + 1);
+		if (this.resolveBindings) {
+			recordNodes(name, localDeclaration);
+			recordNodes(variableDecl, localDeclaration);
+			variableDecl.resolveBinding();
+		}
+		return variableDecl;
+	}
+	
 	public BodyDeclaration convert(org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
 		if (methodDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration) methodDeclaration);
@@ -478,6 +526,69 @@ class ASTConverter2 extends ASTConverter {
 			// ignore
 		}
 	}
+	
+	/**
+	 * @param variableDecl
+	 * @param argument
+	 */
+	protected void setModifiers(SingleVariableDeclaration variableDecl, LocalDeclaration localDeclaration) {
+		this.scanner.resetTo(localDeclaration.declarationSourceStart, localDeclaration.sourceStart);
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
+		int indexInAnnotations = 0;
+		try {
+			int token;
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				IExtendedModifier modifier = null;
+				switch(token) {
+					case TerminalTokens.TokenNameabstract:
+						modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamepublic:
+						modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamestatic:
+						modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
+						break;
+					case TerminalTokens.TokenNameprotected:
+						modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
+						break;
+					case TerminalTokens.TokenNameprivate:
+						modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamefinal:
+						modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamenative:
+						modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamesynchronized:
+						modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
+						break;
+					case TerminalTokens.TokenNametransient:
+						modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamevolatile:
+						modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamestrictfp:
+						modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
+						break;
+					case TerminalTokens.TokenNameAT :
+						// we have an annotation
+						if (annotations != null && indexInAnnotations < annotations.length) {
+							org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
+							modifier = convert(annotation);
+							this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+						}
+				}
+				if (modifier != null) {
+					variableDecl.modifiers().add(modifier);
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+	}	
 	
 	protected void setModifiers(TypeDeclaration typeDecl, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		this.scanner.resetTo(typeDeclaration.declarationSourceStart, typeDeclaration.sourceStart);

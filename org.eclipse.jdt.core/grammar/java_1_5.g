@@ -1574,11 +1574,11 @@ EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
 /.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
-EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
+EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier Dimsopt ':' Expression ')'
 /.$putCase consumeEnhancedForStatementHeader(false); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
-EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushRealModifiers Identifier ':' Expression ')'
+EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt ':' Expression ')'
 /.$putCase consumeEnhancedForStatementHeader(true); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
