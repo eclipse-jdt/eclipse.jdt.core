@@ -1346,6 +1346,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			"java.lang.StringBuffer", //$NON-NLS-1$
 			"java.lang.Throwable", //$NON-NLS-1$
 			"java.io.Serializable", //$NON-NLS-1$
+			"java.lang.Boolean", //$NON-NLS-1$
+			"java.lang.Byte", //$NON-NLS-1$
+			"java.lang.Character", //$NON-NLS-1$
+			"java.lang.Double", //$NON-NLS-1$
+			"java.lang.Float", //$NON-NLS-1$
+			"java.lang.Integer", //$NON-NLS-1$
+			"java.lang.Long", //$NON-NLS-1$
+			"java.lang.Short", //$NON-NLS-1$
+			"java.lang.Void", //$NON-NLS-1$
 		};
 		
 		// no-so-well-known bindings

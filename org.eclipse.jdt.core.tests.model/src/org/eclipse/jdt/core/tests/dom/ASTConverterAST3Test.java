@@ -6566,6 +6566,24 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$
 		typeBinding = newAst.resolveWellKnownType("java.io.Serializable"); //$NON-NLS-1$
 		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Boolean"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Byte"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Character"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Double"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Float"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Integer"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Long"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Short"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
+		typeBinding = newAst.resolveWellKnownType("java.lang.Void"); //$NON-NLS-1$
+		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$				
 	}
 
 	/**
