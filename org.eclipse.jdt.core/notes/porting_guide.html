@@ -16,7 +16,7 @@
   		implemented this interface. However, though only the factory method made sense for compilation units, they still had to implement
   		the entire working copy contract., which was not relevant to clients (implementation detail).
         <code>IWorkingCopy</code> also implemented the spec'ed factory method, but it didn't work for these.
-	</li>
+    </li>
 	<li>One possible solution would have been to inverse the hierarchy and make <code>IWorkingCopy</code> implement
 	     <code>ICompilationUnit</code>. However as explained in the next <a href="#bug_36888">section</a>, closing the gap 
 	     between resource based compilation units and working copies required to merge these two interfaces. As a consequence 
@@ -125,9 +125,30 @@
 </ul>
 
 <a name="bug_36888"></a>
-<h4>Interface ICompilationUnit (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)<br>
-        (closing the gap between between resource based compilation units and working copies)</h4>
-TO DO
+<h4>Interface IBufferFactory is replaced with class WorkingCopyOwner (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)<br>
+        (closing the gap between resource based compilation units and working copies)</h4>
+<ul>
+	<li>Prior to 3.0, going from a resource based compilation unit (i.e. a compilation unit representing a file on disk) to the corresponding 
+		 shared working copy was tedious. For example, the Package Explorer had to fiirst find the children of a package fragment, then for 
+		 each compilation unit it had to find if a shared working copy had been created.
+	</li>
+	<li>Also doing a Java model operation in the context of a set of shared working copies was not possible. For example a refactoring 
+		operation had to save all editors prior to doing any change so as to have a consistent model.
+	</li>
+	<li>The notion of working copy owner got introduced to define a set of shared working copies to work on. This replaces the
+		 notion of buffer factory that was used to share working copies. The name 'owner' being more explicit.
+	</li>
+	<li>A working copy is now created for a given working copy owner. Java model operations that need to work on a set of working 
+		 copies can now be passed a working copy owner and this operation will consider the working copies before the compilation units.
+	</li>
+	<li>A class is used instead of an interface so that a default implementation for <code>createBuffer(...)</code> can be
+		 provided.
+	</li>
+	<li>Clients that used <code>IBufferFactory</code> should now subclass <code>WorkingCopyOwner</code> and pass this working
+		  copy owner to the Java model operation in lieu of the buffer factory. The simplest implementation being: 
+		  <code>new WorkingCopyOwner() {}</code>
+	</li>
+</ul>
 
 </body>
 

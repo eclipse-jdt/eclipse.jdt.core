@@ -38,9 +38,6 @@
  *                                 CORE_INCOMPATIBLE_JDK_LEVEL
  *                                 VERSION_1_5
  *                                 COMPILER_PB_SUPERFLUOUS_SEMICOLON
- *     IBM Corporation - added create(IFile file, WorkingCopyOwner owner)
- *     IBM Corporation - added create(IResource resource, WorkingCopyOwner owner)
- *     IBM Corporation - added createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
