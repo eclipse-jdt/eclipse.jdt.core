@@ -141,12 +141,10 @@ public class WildcardBinding extends ReferenceBinding {
         if (otherType == null) return false;
 	    switch (this.kind) {
 	        case Wildcard.UNBOUND :
+	        default: // SUPER  // cannot use lower bound
 	            return this.typeVariable().isCompatibleWith(otherType);
 	        case Wildcard.EXTENDS :
 	            return otherType.isCompatibleWith(this.bound);
-	        default: // SUPER
-	        	return this.typeVariable().isCompatibleWith(otherType);
-	            //return this.bound.isCompatibleWith(otherType);  // cannot use lower bound
 	    }        
 	}
 	/**
