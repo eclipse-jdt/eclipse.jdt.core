@@ -612,10 +612,7 @@ public ReferenceBinding superclass() {
 // NOTE: superInterfaces of binary types are resolved when needed
 
 public ReferenceBinding[] superInterfaces() {
-    // TODO (kent) should only resolve once on first access
-	// TODO (philippe) how?
-	// We don't have enough bits to record that we have resolved the superclass vs. superinterfaces vs. enclosingType vs. memberTypes
-	// we could resolve all 4 (or just superclass & superinterfaces) right away in cacheParts since we will connect the hierarchy very soon
+    // TODO (kent) should only resolve once on first access, maybe using an AccUnresolvedInterface tagbit or so (we have ~15 tagbits available)
 	for (int i = this.superInterfaces.length; --i >= 0;)
 		this.superInterfaces[i] = resolveReferenceType(this.superInterfaces[i], this.environment);
 	return this.superInterfaces;
