@@ -1678,9 +1678,7 @@ private void initializeRoots(IJavaModel model) {
 	}
 }
 
-private boolean isOnClasspath(IPath path) {
-	return this.roots.get(path) != null;
-}
+
 
 protected void updateIndex(Openable element, IResourceDelta delta) {
 
