@@ -43,8 +43,9 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
  */
 public static class JavaSearchResultCollector implements IJavaSearchResultCollector {
 	public StringBuffer results = new StringBuffer();
-	public boolean showAccuracy = false;
-	public boolean showProject = false;
+	public boolean showAccuracy;
+	public boolean showProject;
+	public boolean showContext;
 	public void aboutToStart() {
 	}
 	public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
@@ -129,7 +130,22 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 				if (start == -1 || contents != null) { // retrieving attached source not implemented here
 					results.append(" [");
 					if (start > -1) {
+						if (this.showContext) {
+							int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
+							int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
+							int lineStart = Math.max(lineStart1, lineStart2) + 1;
+							results.append(CharOperation.subarray(contents, lineStart, start));
+							results.append("<");
+						}
 						results.append(CharOperation.subarray(contents, start, end));
+						if (this.showContext) {
+							results.append(">");
+							int lineEnd1 = CharOperation.indexOf('\n', contents, end);
+							int lineEnd2 = CharOperation.indexOf('\r', contents, end);
+							int lineEnd = Math.min(lineEnd1, lineEnd2);
+							if (lineEnd < 0) lineEnd = contents.length;
+							results.append(CharOperation.subarray(contents, end, lineEnd));
+						}
 					} else {
 						results.append("No source");
 					}
@@ -298,7 +314,7 @@ public void tearDownSuite() throws Exception {
 public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
-	if (true) {
+	if (false) {
 		suite.addTest(new JavaSearchTests("testLocalTypeDeclaration2"));
 		return suite;
 	}
@@ -1434,6 +1450,7 @@ public void testLocalTypeReference1() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showContext = true;
 	new SearchEngine().search(
 		getWorkspace(), 
 		"Y",
@@ -1442,7 +1459,7 @@ public void testLocalTypeReference1() throws CoreException {
 		scope, 
 		resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [Y]",
+		"src/f2/X.java Object f2.X.foo1() [		return new <Y>();]",
 		resultCollector);
 }
 /*
@@ -1453,6 +1470,7 @@ public void testLocalTypeReference2() throws CoreException {
 	
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showContext = true;
 	new SearchEngine().search(
 		getWorkspace(), 
 		type,
@@ -1460,7 +1478,7 @@ public void testLocalTypeReference2() throws CoreException {
 		scope, 
 		resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [Y]",
+		"src/f2/X.java Object f2.X.foo1() [		return new <Y>();]",
 		resultCollector);
 }
 /*
