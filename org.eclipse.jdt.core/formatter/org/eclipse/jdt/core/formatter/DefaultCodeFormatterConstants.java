@@ -2856,6 +2856,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_LINE_SPLIT = JavaCore.PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify if alignment should snap to tabs
+	 *     - option id:         "org.eclipse.jdt.core.formatter.snap_to_tabs"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_SNAP_TO_TABS = JavaCore.PLUGIN_ID + ".formatter.snap_to_tabs"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to specify the tabulation size
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:   { TAB, SPACE }
@@ -2868,14 +2880,37 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_TAB_CHAR = JavaCore.PLUGIN_ID + ".formatter.tabulation.char"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify the indentation size
+	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
+	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
+	 *     - default:           "4"
+	 * </pre>
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_INDENTATION_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to specify the tabulation size
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
 	 *     - default:           "4"
 	 * </pre>
 	 * @since 3.0
+	 * @deprecated as of 3.1 use DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE
 	 */
-	public static final String FORMATTER_TAB_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
+	public static final String FORMATTER_TAB_SIZE = FORMATTER_INDENTATION_SIZE;
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to specify the equivalent number of spaces that represents one tab 
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indentation.size"
+	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
+	 *     - default:           "4"
+	 * </pre>
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_TAB_LENGTH = JavaCore.PLUGIN_ID + ".formatter.tab.length"; //$NON-NLS-1$
 
 	/**
 	 * Returns the formatter settings that most closely approximate

@@ -144,10 +144,10 @@ public class Alignment {
 		this.wasSplit = false;
 		
 		// initialize the break indentation level, using modes and continuationIndentationLevel preference
-		final int indentSize = this.scribe.useTab ? 1 : this.scribe.tabSize;
+		final int indentSize = this.scribe.indentationSize;
 		int currentColumn = this.location.outputColumn;
 		if (currentColumn == 1) {
-		    currentColumn = this.location.outputIndentationLevel * indentSize + 1;
+		    currentColumn = this.location.outputIndentationLevel + 1;
 		}
 		
 		if ((mode & M_INDENT_ON_COLUMN) != 0) {

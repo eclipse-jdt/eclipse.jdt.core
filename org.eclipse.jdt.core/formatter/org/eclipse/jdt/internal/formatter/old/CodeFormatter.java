@@ -114,7 +114,8 @@ public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICode
 			}
 		}
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.options.get(JavaCore.FORMATTER_TAB_CHAR));
-		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, this.options.get(JavaCore.FORMATTER_TAB_SIZE));
+		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, this.options.get(JavaCore.FORMATTER_TAB_SIZE));
+		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_LENGTH, this.options.get(JavaCore.FORMATTER_TAB_SIZE));
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, this.options.get(JavaCore.FORMATTER_LINE_SPLIT));
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER, DefaultCodeFormatterConstants.END_OF_LINE);
 		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, "1");//$NON-NLS-1$
