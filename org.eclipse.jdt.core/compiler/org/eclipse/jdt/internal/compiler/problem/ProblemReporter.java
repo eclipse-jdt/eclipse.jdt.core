@@ -922,7 +922,17 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			fieldDecl.sourceEnd);
 	}
 }
-
+private int fieldLocation(FieldBinding field, ASTNode node) {
+	if (node instanceof QualifiedNameReference) {
+		QualifiedNameReference ref = (QualifiedNameReference) node;
+		FieldBinding[] bindings = ref.otherBindings;
+		if (bindings != null)
+			for (int i = bindings.length; --i >= 0;)
+				if (bindings[i] == field)
+					return (int) ref.sourcePositions[i + 1]; // first position is for the primary field
+	}
+	return node.sourceEnd;
+}
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
 		IProblem.ThisSuperDuringConstructorInvocation,
@@ -1431,20 +1441,7 @@ public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		location.sourceStart,
-		location.sourceEnd);
-}
-public void indirectAccessToStaticField(QualifiedNameReference qualifiedNameReference, FieldBinding field){
-	int sourceStart = qualifiedNameReference.sourceStart;
-	int sourceEnd = qualifiedNameReference.sourceEnd;
-	final int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding;
-	if (indexOfFirstFieldBinding >= 1)
-		sourceEnd = (int) qualifiedNameReference.sourcePositions[indexOfFirstFieldBinding - 1];
-	this.handle(
-		IProblem.IndirectAccessToStaticField,
-		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
-		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		sourceStart,
-		sourceEnd);
+		fieldLocation(field, location));
 }
 public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
@@ -2389,7 +2386,7 @@ public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		location.sourceStart,
-		location.sourceEnd);
+		fieldLocation(field, location));
 }
 public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, boolean isConstructorCall) {
 
@@ -2825,7 +2822,7 @@ public void staticFieldAccessToNonStaticVariable(ASTNode location, FieldBinding 
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd); 
+		fieldLocation(field, location)); 
 }
 public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	this.handle(
@@ -3029,7 +3026,7 @@ public void uninitializedBlankFinalField(FieldBinding binding, ASTNode location)
 		arguments,
 		arguments,
 		location.sourceStart,
-		location.sourceEnd);
+		fieldLocation(binding, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location) {
 	String[] arguments = new String[] {new String(binding.readableName())};
