@@ -10,11 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.IOException;
 import java.text.NumberFormat;
+
 import junit.framework.*;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.SearchBasicEngine;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
 
 
@@ -24,6 +30,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	
 	static int[] REFERENCES = new int[4];
 	private static int COUNT = 0;
+	private static IJavaSearchScope SEARCH_SCOPE;
 
 	/**
 	 * @param name
@@ -40,13 +47,13 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		COUNT = suite.countTestCases();
 		return suite;
 	}
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
+		if (SEARCH_SCOPE == null) {
+			SEARCH_SCOPE = SearchEngine.createJavaSearchScope(ALL_PROJECTS);
+			waitUntilReadyToSearch();
+		}
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -78,7 +85,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	
 	protected JavaSearchResultCollector resultCollector;
 
-	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+	protected void search(String patternString, int searchFor, int limitTo, SearchRequestor requestor) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
@@ -90,9 +97,52 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope,
+			SEARCH_SCOPE,
 			requestor,
 			null);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.performance.FullSourceWorkspaceTests#setFullSourceWorkspace()
+	 */
+	private void waitUntilReadyToSearch() throws IOException, CoreException {
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IJob doNothing = new IJob() {
+			/**
+			 * Answer true if the job belongs to a given family (tag)
+			 */
+			public boolean belongsTo(String jobFamily) {
+				return true;
+			}
+			/**
+			 * Asks this job to cancel its execution. The cancellation
+			 * can take an undertermined amount of time.
+			 */
+			public void cancel() {
+				// nothing to cancel
+			}
+			/**
+			 * Ensures that this job is ready to run.
+			 */
+			public void ensureReadyToRun() {
+				// always ready to do nothing
+			}
+			/**
+			 * Execute the current job, answer whether it was successful.
+			 */
+			public boolean execute(IProgressMonitor progress) {
+				// always succeed to do nothing
+				return true;
+			}
+		};
+		if (DEBUG) System.out.print("Wait until ready to search..."); //$NON-NLS-1$
+		indexManager.performConcurrentJob(doNothing, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		if (DEBUG) {
+			if (indexManager.awaitingJobsCount() == 0)
+				System.out.println("done"); //$NON-NLS-1$
+			else
+				System.err.println(" KO: remaining jobs="+indexManager.awaitingJobsCount()); //$NON-NLS-1$
+		}
 	}
 
 	// Do NOT forget that tests must start with "testPerf"
@@ -103,10 +153,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 //			"String",  > 65000 macthes: needs -Xmx512M
 //			"Object", 13497 matches: needs -Xmx128M
 //			"IResource", 5886 macthes: fails needs ?
-			"JavaCore", // 2597 m	atches
+			"JavaCore", // 2145 m	atches
 			TYPE,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -121,7 +170,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"FILE", 
 			FIELD,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -136,7 +184,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"equals", 
 			METHOD,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -151,7 +198,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"String", 
 			CONSTRUCTOR,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
