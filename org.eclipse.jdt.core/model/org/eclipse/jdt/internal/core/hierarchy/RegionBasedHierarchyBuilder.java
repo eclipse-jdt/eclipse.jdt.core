@@ -23,7 +23,7 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 	
 	public void build(boolean computeSubtypes) {
 		
-		if (this.hierarchy.fType == null || computeSubtypes) {
+		if (this.hierarchy.type == null || computeSubtypes) {
 			ArrayList allTypesInRegion = determineTypesInRegion();
 			this.hierarchy.initialize(allTypesInRegion.size());
 			createTypeHierarchyBasedOnRegion(allTypesInRegion);

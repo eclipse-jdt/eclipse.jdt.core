@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	/**
@@ -90,10 +91,16 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			return;
 		}
 
-		// resolve
 		this.searchableEnvironment.unitToLookInside =
 			(CompilationUnit) focusType.getCompilationUnit();
+
+		// set focus type on hierarchy resolver
+		char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+		this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+
+		// resolve
 		this.hierarchyResolver.resolve(type);
+
 		this.searchableEnvironment.unitToLookInside = null;
 
 		// Add focus if not already in (case of a type with no explicit super type)
@@ -122,7 +129,11 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 
 		IType superHandle = null;
 		if (superclass != null) {
-			superHandle = getHandle(superclass);
+			if (superclass instanceof HierarchyResolver.MissingType) {
+				this.hierarchy.missingTypes.add(((HierarchyResolver.MissingType)superclass).simpleName);
+			} else {
+				superHandle = getHandle(superclass);
+			}
 		}
 		IType[] interfaceHandles = null;
 		if (superinterfaces != null && superinterfaces.length > 0) {
@@ -130,8 +141,16 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			IType[] resolvedInterfaceHandles = new IType[length];
 			int index = 0;
 			for (int i = 0; i < length; i++) {
-				if (superinterfaces[i] != null) {
-					resolvedInterfaceHandles[index++] = getHandle(superinterfaces[i]);
+				IGenericType superInterface = superinterfaces[i];
+				if (superInterface != null) {
+					if (superInterface instanceof HierarchyResolver.MissingType) {
+						this.hierarchy.missingTypes.add(((HierarchyResolver.MissingType)superInterface).simpleName);
+					} else {
+						resolvedInterfaceHandles[index] = getHandle(superInterface);
+						if (resolvedInterfaceHandles[index] != null) {
+							index++;
+						}
+					}
 				}
 			}
 			// resize
@@ -154,7 +173,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 						: ((JavaElement) superHandle).toStringWithAncestors()));
 			//$NON-NLS-1$ //$NON-NLS-2$
 			System.out.print("  and superinterfaces:"); //$NON-NLS-1$
-			if (interfaceHandles == null) {
+			if (interfaceHandles == null || interfaceHandles.length == 0) {
 				System.out.println(" <None>"); //$NON-NLS-1$
 			} else {
 				System.out.println();
@@ -178,7 +197,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		}
 
 		if (interfaceHandles == null) {
-			interfaceHandles = this.hierarchy.fgEmpty;
+			interfaceHandles = this.hierarchy.NO_TYPE;
 		}
 		this.hierarchy.cacheSuperInterfaces(typeHandle, interfaceHandles);
 	}
@@ -239,7 +258,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 
 	protected void worked(int work) {
 
-		IProgressMonitor progressMonitor = this.hierarchy.fProgressMonitor;
+		IProgressMonitor progressMonitor = this.hierarchy.progressMonitor;
 		if (progressMonitor != null) {
 			if (progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();

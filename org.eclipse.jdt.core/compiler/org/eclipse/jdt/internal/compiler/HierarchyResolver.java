@@ -38,6 +38,57 @@ public class HierarchyResolver implements ITypeRequestor {
 	private ReferenceBinding focusType;
 	private CompilerOptions options;
 	
+/**
+ * A wrapper around the simple name of a type that is missing.
+ */
+public class MissingType implements IGenericType {
+	public String simpleName;
+	
+	public MissingType(String simpleName) {
+		this.simpleName = simpleName;
+	}
+	
+	/*
+	 * @see IGenericType#getModifiers()
+	 */
+	public int getModifiers() {
+		return 0;
+	}
+
+	/*
+	 * @see IGenericType#isBinaryType()
+	 */
+	public boolean isBinaryType() {
+		return false;
+	}
+
+	/*
+	 * @see IGenericType#isClass()
+	 */
+	public boolean isClass() {
+		return false;
+	}
+
+	/*
+	 * @see IGenericType#isInterface()
+	 */
+	public boolean isInterface() {
+		return false;
+	}
+
+	/*
+	 * @see IDependent#getFileName()
+	 */
+	public char[] getFileName() {
+		return null;
+	}
+	
+	public String toString() {
+		return "Missing type: " + this.simpleName; //$NON-NLS-1$
+	}
+
+}
+	
 public HierarchyResolver(
 	INameEnvironment nameEnvironment,
 	IErrorHandlingPolicy policy,
@@ -103,6 +154,84 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		rememberWithMemberTypes(sourceType, unit.types[0].binding);
 		lookupEnvironment.completeTypeBindings(unit, false);
 	}
+}
+/*
+ * Find the super class of the given type in the cache.
+ * Returns a MissingType if the class is not found,
+ * or null if type has no super class.
+ */
+private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
+	ReferenceBinding superBinding = typeBinding.superclass();
+	if (superBinding != null) {
+		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
+			char[]superclassName;
+			char separator;
+			if (type instanceof IBinaryType) {
+				superclassName = ((IBinaryType)type).getSuperclassName();
+				separator = '/';
+			} else if (type instanceof ISourceType) {
+				superclassName = ((ISourceType)type).getSuperclassName();
+				separator = '.';
+			} else {
+				return null;
+			}
+			int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
+			char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
+			return new MissingType(new String(simpleName));
+		} else {
+			for (int t = typeIndex; t >= 0; t--) {
+				if (typeBindings[t] == superBinding) {
+					return typeModels[t];
+				}
+			}
+		}
+	} 
+	return null;
+}
+/*
+ * Find the super interfaces of the given type in the cache.
+ * Returns a MissingType if the interface is not found.
+ */
+private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBinding) {
+	char[][] superInterfaceNames;
+	char separator;
+	if (type instanceof IBinaryType) {
+		superInterfaceNames = ((IBinaryType)type).getInterfaceNames();
+		separator = '/';
+	} else if (type instanceof ISourceType) {
+		superInterfaceNames = ((ISourceType)type).getInterfaceNames();
+		separator = '.';
+	} else {
+		return null;
+	}
+	
+	ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
+	int bindingIndex = 0;
+	int bindingLength = interfaceBindings.length;
+	int length = superInterfaceNames == null ? 0 : superInterfaceNames.length;
+	IGenericType[] superinterfaces = new IGenericType[length];
+	next : for (int i = 0; i < length; i++) {
+		char[] superInterfaceName = superInterfaceNames[i];
+		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName);
+		char[] simpleName = lastSeparator == -1 ? superInterfaceName : CharOperation.subarray(superInterfaceName, lastSeparator+1, superInterfaceName.length);
+		if (bindingIndex < bindingLength) {
+			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
+
+			// ensure that the biding corresponds to the interface defined by the user
+			char[][] compoundName = interfaceBinding.compoundName;
+			if (CharOperation.equals(simpleName, compoundName[compoundName.length-1])) {
+				bindingIndex++;
+				for (int t = typeIndex; t >= 0; t--) {
+					if (typeBindings[t] == interfaceBinding) {
+						superinterfaces[i] = typeModels[t];
+						continue next;
+					}
+				}
+			}
+		}
+		superinterfaces[i] = new MissingType(new String(simpleName));
+	}
+	return superinterfaces;
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
@@ -171,36 +300,18 @@ private void reportHierarchy() {
 	}
 
 	for (int current = typeIndex; current >= 0; current--) {
-		IGenericType suppliedType = typeModels[current];
-		ReferenceBinding typeBinding = typeBindings[current];
 		if (current < problemLength && typesWithProblem[current]) continue;
 
-		ReferenceBinding superBinding = typeBinding.superclass();
-		IGenericType superclass = null;
-		if (superBinding != null) {
-			for (int t = typeIndex; t >= 0; t--) {
-				if (typeBindings[t] == superBinding) {
-					superclass = typeModels[t];
-					break;
-				}
-			}
-		}
-
-		ReferenceBinding[] interfaceBindings = typeBinding.superInterfaces();
-		int length = interfaceBindings.length;
-		IGenericType[] superinterfaces = new IGenericType[length];
-		next : for (int i = 0; i < length; i++) {
-			ReferenceBinding interfaceBinding = interfaceBindings[i];
-			for (int t = typeIndex; t >= 0; t--) {
-				if (typeBindings[t] == interfaceBinding) {
-					superinterfaces[i] = typeModels[t];
-					continue next;
-				}
-			}
-		}
+		IGenericType suppliedType = typeModels[current];
+		ReferenceBinding typeBinding = typeBindings[current];
+		IGenericType superclass;
 		if (typeBinding.isInterface()){ // do not connect interfaces to Object
 			superclass = null;
+		} else {
+			superclass = this.findSuperClass(suppliedType, typeBinding);
 		}
+		IGenericType[] superinterfaces = this.findSuperInterfaces(suppliedType, typeBinding);
+		
 		requestor.connect(suppliedType, superclass, superinterfaces);
 	}
 }
@@ -382,7 +493,9 @@ private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {
 	if (typeBinding == null || subType == null) return false;
 	if (subType == typeBinding) return true;
-	if (this.subTypeOfType(subType.superclass(), typeBinding)) return true;
+	ReferenceBinding superclass = subType.superclass();
+	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
+	if (this.subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
 		for (int i = 0, length = superInterfaces.length; i < length; i++) {

@@ -381,7 +381,7 @@ private String[] determinePossibleSubTypes() throws JavaModelException, CoreExce
 		this.binariesFromIndexMatches,
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		this.hierarchy.fProgressMonitor);
+		this.hierarchy.progressMonitor);
 
 	HashSet paths = collector.paths;
 	int length = paths.size();

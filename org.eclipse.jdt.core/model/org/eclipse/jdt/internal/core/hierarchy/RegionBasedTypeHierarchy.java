@@ -78,7 +78,7 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 	}
 
 	// if no focus, hierarchy is affected if the element is part of the region
-	if (fType == null) {
+	if (this.type == null) {
 		return fRegion.contains(element);
 	} else {
 		return super.isAffectedByOpenable(delta, element);
