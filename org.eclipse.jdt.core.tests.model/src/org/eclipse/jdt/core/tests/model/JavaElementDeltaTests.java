@@ -717,7 +717,7 @@ public void testCloseJavaProject() throws CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CLOSED}\n" + 
+			"P[-]: {}\n" + 
 			"ResourceDelta(/P)"
 		);
 	} finally {
@@ -1635,7 +1635,7 @@ public void testOpenJavaProject() throws CoreException {
 		project.open(null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {OPENED}\n" + 
+			"P[+]: {}\n" + 
 			"ResourceDelta(/P)"
 		);
 	} finally {
