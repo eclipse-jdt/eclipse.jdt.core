@@ -519,7 +519,7 @@ public class Util {
 	 * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>,
 	 *			or <code>null</code> if none found
 	 */
-	private static String findLineSeparator(char[] text) {
+	public static String findLineSeparator(char[] text) {
 		// find the first line separator
 		int length = text.length;
 		if (length > 0) {

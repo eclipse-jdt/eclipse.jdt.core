@@ -822,7 +822,8 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 						|| fieldDeclaration.initialization instanceof ThisReference) ? 
 					-1 :  
 					fieldDeclaration.initialization.sourceStart, 
-				fieldEndPosition);
+				fieldEndPosition,
+				fieldDeclaration.declarationSourceEnd);
 		}
 
 	} else {
@@ -1015,11 +1016,15 @@ public void parseCompilationUnit(
 		unknownRefs = new NameReference[10];
 		unknownRefsCounter = 0;
 	}
+	
 	try {
 		diet = true;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
-		if (needReferenceInfo){
+		if (scanner.recordLineSeparator) {
+			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+		}
+		if (this.localDeclarationVisitor != null || needReferenceInfo){
 			diet = false;
 			this.getMethodBodies(parsedUnit);
 		}		
@@ -1027,9 +1032,6 @@ public void parseCompilationUnit(
 		notifySourceElementRequestor(parsedUnit);
 	} catch (AbortCompilation e) {
 	} finally {
-		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
-		}
 		diet = old;
 	}
 }
@@ -1041,19 +1043,18 @@ public void parseCompilationUnit(
 		unknownRefs = new NameReference[10];
 		unknownRefsCounter = 0;
 	}
-		
+
 	try {
-/*		diet = !needReferenceInfo;
-		reportReferenceInfo = needReferenceInfo;
-		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
-		parse(unit, compilationUnitResult);		
-*/		diet = true;
+		diet = true;
 		reportReferenceInfo = needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
+		if (scanner.recordLineSeparator) {
+			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
+		}
 		int initialStart = this.scanner.initialPosition;
 		int initialEnd = this.scanner.eofPosition;
-		if (needReferenceInfo){
+		if (this.localDeclarationVisitor != null || needReferenceInfo){
 			diet = false;
 			this.getMethodBodies(parsedUnit);
 		}
@@ -1061,9 +1062,6 @@ public void parseCompilationUnit(
 		notifySourceElementRequestor(parsedUnit);
 	} catch (AbortCompilation e) {
 	} finally {
-		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
-		}
 		diet = old;
 	}
 }

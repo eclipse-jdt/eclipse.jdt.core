@@ -126,7 +126,7 @@ void exitConstructor(int declarationEnd);
  * initializationStart denotes the source start of the expression used for initializing
  * the field if any (-1 if no initialization).
  */
-void exitField(int initializationStart, int declarationEnd);
+void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd);
 void exitInitializer(int declarationEnd);
 void exitInterface(int declarationEnd);
 void exitMethod(int declarationEnd);

@@ -506,9 +506,9 @@ public void exitConstructor(int declarationEnd) {
 /**
  * @see ISourceElementRequestor
  */
-public void exitField(int initializationStart, int declarationEnd) {
+public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) fInfoStack.pop();
-	info.setSourceRangeEnd(declarationEnd);
+	info.setSourceRangeEnd(declarationSourceEnd);
 	
 	// remember initializer source if field is a constant
 	if (initializationStart != -1) {

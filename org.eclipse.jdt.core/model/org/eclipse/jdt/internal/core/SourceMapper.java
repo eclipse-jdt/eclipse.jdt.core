@@ -604,7 +604,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void exitField(int initializationStart, int declarationEnd) {
+	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			setSourceRange(
