@@ -1113,7 +1113,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			SearchDocument document = participant.getDocument(focus.getPath().toString());
 			this.currentPossibleMatch = new PossibleMatch(this, focus.getResource(), null, document);
 			if (encloses(focus)) {
-				SearchMatch match = newDeclarationMatch(focus, SearchMatch.A_ACCURATE, -1, -1);
+				SearchMatch match = newDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), SearchMatch.A_ACCURATE, -1, -1);
 				report(match);
 			}
 			return;

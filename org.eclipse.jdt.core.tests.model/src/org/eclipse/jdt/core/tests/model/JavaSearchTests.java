@@ -1632,7 +1632,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	}
 	/**
 	 * Test fix for bug 73551: NPE while searching package declaration
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73551">73551</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73551"
 	 * @throws CoreException
 	 */
 	public void testPackageDeclarationBug73551() throws CoreException {
@@ -1641,7 +1641,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
 		search(packDecl, DECLARATIONS, getJavaSearchScope(),  result);
 		assertSearchResults(
-			"src/p71267/Test.java [No source] EXACT_MATCH",
+			"src/p71267/Test.java p71267 [No source] EXACT_MATCH",
 			result);
 	}
 	/**
