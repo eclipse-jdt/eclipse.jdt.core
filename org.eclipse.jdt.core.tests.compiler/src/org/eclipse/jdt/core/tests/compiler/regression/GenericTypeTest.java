@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-		TESTS_NUMBERS = new int[] { 469 };
+//		TESTS_NUMBERS = new int[] { 469 };
 //		TESTS_RANGE = new int[] { 379, -1 };
 	}
 	public static Test suite() {
