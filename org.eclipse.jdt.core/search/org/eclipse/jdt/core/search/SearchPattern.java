@@ -134,8 +134,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	/**
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
-	 * Replace deprecated {#R_EXACT_MATCH} to have a significant bit when result matches
-	 * exactly the pattern.
 	 * @since 3.1
 	 */
 	public static final int R_FULL_MATCH = 64;
@@ -155,13 +153,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	public SearchPattern(int matchRule) {
 		this.matchRule = matchRule;
-		// Exact match backward compatibility
-//		if ((matchRule & (R_PATTERN_MATCH | R_PREFIX_MATCH | R_REGEXP_MATCH)) == 0) {
-//			// Implicit exact match
-//			this.matchRule |= R_FULL_MATCH;
-//		}
+		// Set full match implicit mode
 		if ((matchRule & (R_EQUIVALENT_MATCH | R_ERASURE_MATCH )) == 0) {
-			// Full match is implicit mode
 			this.matchRule |= R_FULL_MATCH;
 		}
 	}
