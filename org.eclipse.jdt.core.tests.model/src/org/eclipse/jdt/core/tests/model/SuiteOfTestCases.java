@@ -68,7 +68,7 @@ public class SuiteOfTestCases extends TestCase {
 				public void protect() throws Exception {
 					try {
 						// run suite (first test run will setup the suite)
-						Suite.super.run(result);
+						superRun(result);
 					} finally {	
 						// tear down the suite
 						if (Suite.this.currentTestCase != null) { // protect against empty test suite
@@ -78,6 +78,9 @@ public class SuiteOfTestCases extends TestCase {
 				}
 			};
 			result.runProtected(this, p);
+		}
+		public void superRun(TestResult result) {
+			super.run(result);
 		}
 		public void runTest(Test test, TestResult result) {
 			SuiteOfTestCases current = (SuiteOfTestCases)test;
