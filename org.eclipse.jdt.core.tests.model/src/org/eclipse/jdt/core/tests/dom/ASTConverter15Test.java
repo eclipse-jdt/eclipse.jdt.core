@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0099"));
+		suite.addTest(new ASTConverter15Test("test0100"));
 		return suite;
 	}
 		
@@ -3096,4 +3096,61 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82216
+	 */
+	public void test0100() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public enum E {\n" +
+				"	A, B, C;\n" +
+				"	public static final E D = B;\n" +
+				"	public static final String F = \"Hello\";\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/E.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0);
+			assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+			List enumConstants = enumDeclaration.enumConstants();
+			assertEquals("wrong size", 3, enumConstants.size());
+			EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+			IVariableBinding variableBinding = enumConstantDeclaration.resolveVariable();
+			assertNotNull("no binding", variableBinding);
+			assertNull("is constant", variableBinding.getConstantValue());
+			assertTrue("Not an enum constant", variableBinding.isEnumConstant());
+			
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			List fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			assertEquals("wrong name", "D", fragment.getName().getIdentifier());
+			variableBinding = fragment.resolveBinding();
+			assertNotNull("no binding", variableBinding);			
+			assertFalse("An enum constant", variableBinding.isEnumConstant());
+
+			node = getASTNode(compilationUnit, 0, 1);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			fieldDeclaration = (FieldDeclaration) node;
+			fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			assertEquals("wrong name", "F", fragment.getName().getIdentifier());
+			variableBinding = fragment.resolveBinding();
+			assertNotNull("no binding", variableBinding);	
+			assertNotNull("is constant", variableBinding.getConstantValue());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }

@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -264,8 +265,7 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.1
 	 */
 	public boolean isEnumConstant() {
-		// TODO (olivier) - missing implementation
-		return false;
+		return (this.binding.modifiers & IConstants.AccEnum) != 0;
 	}
 
 	/*
