@@ -791,7 +791,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		argumentTypes = new char[argumentLength][];
 		argumentNames = new char[argumentLength][];
 		for (int i = 0; i < argumentLength; i++) {
-			argumentTypes[i] = returnTypeName(arguments[i].type);
+			argumentTypes[i] = CharOperation.concatWith(arguments[i].type.getParameterizedTypeName(), '.');
 			argumentNames[i] = arguments[i].name;
 		}
 	}
@@ -861,7 +861,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			requestor.enterMethod(
 				methodDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
+				CharOperation.concatWith(((MethodDeclaration) methodDeclaration).returnType.getParameterizedTypeName(), '.'),
 				methodDeclaration.selector, 
 				methodDeclaration.sourceStart, 
 				selectorSourceEnd, 
@@ -872,7 +872,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			requestor.enterMethod(
 				methodDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnTypeName(((AnnotationTypeMemberDeclaration) methodDeclaration).returnType), 
+				CharOperation.concatWith(((AnnotationTypeMemberDeclaration) methodDeclaration).returnType.getParameterizedTypeName(), '.'),
 				methodDeclaration.selector, 
 				methodDeclaration.sourceStart, 
 				selectorSourceEnd, 
@@ -913,7 +913,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			requestor.enterField(
 				fieldDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnTypeName(fieldDeclaration.type), 
+				CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.'),
 				fieldDeclaration.name, 
 				fieldDeclaration.sourceStart, 
 				fieldDeclaration.sourceEnd); 
@@ -1337,30 +1337,6 @@ private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 		quickSort(sortedCollection, left, original_right);
 	}
 }
-/*
- * Answer a char array representation of the type name formatted like:
- * - type name + dimensions
- * Example:
- * "A[][]".toCharArray()
- * "java.lang.String".toCharArray()
- */
-private char[] returnTypeName(TypeReference type) {
-	if (type == null)
-		return null;
-	int dimension = type.dimensions();
-	if (dimension != 0) {
-		char[] dimensionsArray = new char[dimension * 2];
-		for (int i = 0; i < dimension; i++) {
-			dimensionsArray[i * 2] = '[';
-			dimensionsArray[(i * 2) + 1] = ']';
-		}
-		return CharOperation.concat(
-			CharOperation.concatWith(type.getParameterizedTypeName(), '.'), 
-			dimensionsArray); 
-	}
-	return CharOperation.concatWith(type.getParameterizedTypeName(), '.');
-}
-
 public void addUnknownRef(NameReference nameRef) {
 	if (this.unknownRefs.length == this.unknownRefsCounter) {
 		// resize

@@ -608,7 +608,11 @@ private static int checkArrayDimension(char[] typeName, int pos, int length) {
 		    case '<' :
 		        genericBalance++;
 		        break;
+		    case ',' :
+			    if (genericBalance == 0) return -1;
+			    break;
 			case '>':
+			    if (genericBalance == 0) return -1;
 			    genericBalance--;
 		        break;
 			case '[':
@@ -1566,6 +1570,9 @@ public static char[] getSimpleName(char[] name) {
  * <code>
  * getSimpleName("java.lang.Object") -> "Object"
  * </code>
+ * <code>
+ * getSimpleName("java.util.Map<java.lang.String, java.lang.Object>") -> "Map<String,Object>"
+ * </code>
  * </pre>
  * </p>
  *
@@ -1574,26 +1581,103 @@ public static char[] getSimpleName(char[] name) {
  * @exception NullPointerException if name is null
  */
 public static String getSimpleName(String name) {
-	int lastDot = -1;
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
 	int length = name.length();
-	for (int i = 0; i < length; i++) {
+	lastDotLookup: for (int i = length -1; i >= 0; i--) {
 		switch (name.charAt(i)) {
-			case C_DOT:
-				if (depth == 0) lastDot = i;
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
 				break;
-			case C_GENERIC_START:
-				depth++;
-				break;
-			case C_GENERIC_END:
+			case '<':
 				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
 				break;
 		}
 	}
-	if (lastDot == -1) {
-		return name;
+	if (lastGenericStart < 0) {
+		if (lastDot < 0) {
+			return name;
+		}
+		return name.substring(lastDot + 1, length);
 	}
-	return name.substring(lastDot + 1, length);
+	StringBuffer buffer = new StringBuffer(10);
+	buffer.append(name.substring(lastDot < 0 ? 0 : lastDot+1, lastGenericStart));
+	appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
+	for (int i = lastGenericEnd+1; i < length; i++) { // copy trailing portion, may contain dimensions
+		buffer.append(name.charAt(i));
+	}
+	return buffer.toString();
+}
+
+private static void appendSimpleName(String name, int start, int end, StringBuffer buffer) {
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
+	int depth = 0;
+	lastDotLookup: for (int i = end; i >= start; i--) {
+		switch (name.charAt(i)) {
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
+				break;
+			case '<':
+				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
+				break;
+		}
+	}
+	buffer.append(name.substring(lastDot < 0 ? start : lastDot+1, lastGenericStart < 0 ? end+1 : lastGenericStart));
+	if (lastGenericStart >= 0) {
+		appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
+		for (int i = lastGenericEnd+1; i <= end; i++) { // copy trailing portion, may contain dimensions
+			buffer.append(name.charAt(i));
+		}	
+	}
+}
+// <x.y.z, a.b<c>.d<e.f>> --> <z,d<f>>
+private static void appendArgumentSimpleNames(String name, int start, int end, StringBuffer buffer) {
+	buffer.append('<');
+	int depth = 0;
+	int argumentStart = -1;
+	int argumentCount = 0;
+	for (int i = start; i <= end; i++) {
+		switch(name.charAt(i)) {
+			case '<' :
+				depth++;
+				if (depth == 1) {
+					argumentStart = i+1;
+				}
+				break;
+			case '>' : 
+				if (depth == 1) {
+					if (argumentCount > 0) buffer.append(',');
+					appendSimpleName(name, argumentStart, i-1, buffer);
+					argumentCount++;
+				}
+				depth--;
+				break;
+			case ',' :
+				if (depth == 1) {
+					if (argumentCount > 0) buffer.append(',');
+					appendSimpleName(name, argumentStart, i-1, buffer);
+					argumentCount++;
+				}
+				break;
+		}
+	}
+	buffer.append('>');
 }
 /**
  * Returns all segments of the given dot-separated qualified name.

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -35,7 +36,19 @@ public class ArrayTypeReference extends SingleTypeReference {
 		
 		return dimensions;
 	}
-	
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		int dim = this.dimensions;
+		char[] dimChars = new char[dim*2];
+		for (int i = 0; i < dim; i++) {
+			int index = i*2;
+			dimChars[index] = '[';
+			dimChars[index+1] = ']';
+		}
+		return new char[][]{ CharOperation.concat(token, dimChars) };
+	}	
 	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null) return this.resolvedType;

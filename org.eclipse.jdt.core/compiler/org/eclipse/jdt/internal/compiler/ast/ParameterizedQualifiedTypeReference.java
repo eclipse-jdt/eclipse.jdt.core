@@ -50,20 +50,32 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		int length = this.tokens.length;
 		char[][] qParamName = new char[length][];
 		for (int i = 0; i < length; i++) {
-			StringBuffer buffer = new StringBuffer(5);
-			buffer.append(this.tokens[i]);
 			TypeReference[] arguments = this.typeArguments[i];
-			if (arguments != null) {
+			if (arguments == null) {
+				qParamName[i] = this.tokens[i];
+			} else {
+				StringBuffer buffer = new StringBuffer(5);
+				buffer.append(this.tokens[i]);
 				buffer.append('<');
 				for (int j = 0, argLength =arguments.length; j < argLength; j++) {
 					if (j > 0) buffer.append(',');
 					buffer.append(CharOperation.concatWith(arguments[j].getParameterizedTypeName(), '.'));
 				}
 				buffer.append('>');
+				int nameLength = buffer.length();
+				qParamName[i] = new char[nameLength];
+				buffer.getChars(0, nameLength, qParamName[i], 0);		
 			}
-			int nameLength = buffer.length();
-			qParamName[i] = new char[nameLength];
-			buffer.getChars(0, nameLength, qParamName[i], 0);			
+		}
+		int dim = this.dimensions;
+		if (dim > 0) {
+			char[] dimChars = new char[dim*2];
+			for (int i = 0; i < dim; i++) {
+				int index = i*2;
+				dimChars[index] = '[';
+				dimChars[index+1] = ']';
+			}
+			qParamName[length-1] = CharOperation.concat(qParamName[length-1], dimChars);
 		}
 		return qParamName;
 	}	

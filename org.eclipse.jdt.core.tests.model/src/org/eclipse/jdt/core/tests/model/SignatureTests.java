@@ -108,6 +108,8 @@ public void testCreateTypeSignature() {
 			Signature.createTypeSignature("List<List<int>>".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct20", "[QList<QList<[I>;>;",
 			Signature.createTypeSignature("List<List<int[]>>[]".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct21", "Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;",
+			Signature.createTypeSignature("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>".toCharArray(), false));	
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.

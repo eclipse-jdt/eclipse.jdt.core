@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -27,6 +28,24 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		
 		return dimensions;
 	}
+
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		int dim = this.dimensions;
+		char[] dimChars = new char[dim*2];
+		for (int i = 0; i < dim; i++) {
+			int index = i*2;
+			dimChars[index] = '[';
+			dimChars[index+1] = ']';
+		}
+		int length = this.tokens.length;
+		char[][] qParamName = new char[length][];
+		System.arraycopy(this.tokens, 0, qParamName, 0, length-1);
+		qParamName[length-1] = CharOperation.concat(this.tokens[length-1], dimChars);
+		return qParamName;
+	}	
 	
 	protected TypeBinding getTypeBinding(Scope scope) {
 		

@@ -50,6 +50,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		int nameLength = buffer.length();
 		char[] name = new char[nameLength];
 		buffer.getChars(0, nameLength, name, 0);
+		int dim = this.dimensions;
+		if (dim > 0) {
+			char[] dimChars = new char[dim*2];
+			for (int i = 0; i < dim; i++) {
+				int index = i*2;
+				dimChars[index] = '[';
+				dimChars[index+1] = ']';
+			}
+			name = CharOperation.concat(name, dimChars);
+		}		
 		return new char[][]{ name };
 	}	
 	/**
