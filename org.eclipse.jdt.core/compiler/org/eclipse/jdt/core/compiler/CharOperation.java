@@ -1720,7 +1720,7 @@ public final class CharOperation {
 	 * conventions, also see "http://jakarta.apache.org/ant/manual/dirtasks.html#defaultexcludes").
 	 * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
 	 * any folder combination.
-	 * Special rules: 
+	 * Special rule: 
 	 * - foo\  is equivalent to foo\**   
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
 	 * name will be lowercased character per character as comparing.
