@@ -56,7 +56,7 @@ public class StringLiteralConcetanation extends StringLiteral {
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		output.append("NAryStringLiteral{"); //$NON-NLS-1$
+		output.append("StringLiteralConcatenation{"); //$NON-NLS-1$
 		for (int i = 0, max = this.counter; i < max; i++) {
 			this.literals[i].printExpression(indent, output);
 			output.append("+\n");//$NON-NLS-1$

@@ -329,6 +329,7 @@ class BinaryExpressionFragmentBuilder
 	public boolean visit(StringLiteralConcetanation stringLiteral, BlockScope scope) {
 		for (int i = 0, max = stringLiteral.counter; i < max; i++) {
 			this.addRealFragment(stringLiteral.literals[i]);
+			this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
 		}
 		return false;
 	}
