@@ -48,7 +48,7 @@ public class BuildBatchCompilerTest extends Tests {
 		return null;
 	}
 		
-	public void testBuildCompilerUsingBatchCompiler() throws IOException {
+	public void testPerfBuildCompilerUsingBatchCompiler() throws IOException {
 		String batchCompilerSource = getPluginDirectoryPath() + File.separator + "compiler-R3_0.zip"; //$NON-NLS-1$
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
