@@ -41,6 +41,9 @@ Eclipse SDK 2.1 Build - ?th February 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Project cycles can now be built as soon as the compiler severity for circular
+dependencies is lowered to a warning (see Preferences>Java>Compiler>Other>Circular dependencies>Warning).
+</li>
 <li> Surfaced compiler options for reporting usage of char[] in String concatenations (default is still warning).
 <pre>
 * COMPILER / Reporting Usage of char[] Expressions in String Concatenations
@@ -65,7 +68,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30227">30227</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=20614">20614</a>
+Failure compiling a project with cyclic dependencies
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30227">30227</a>
 compilerAdapter jar should not be include in the repo
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30274">30274</a>
 Need method to figure out if an IResource is visible through the Java Model 
@@ -87,7 +92,11 @@ NullPointerException at org.eclipse.jdt.internal.compiler.ast.QualifiedAllocatio
 Its back: Core Exception [code 380] The resource tree is locked for modifications 
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27750">27750</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27770">27770</a>
+Rebuild all doesn't follow project dependencies
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24832">24832</a>
+Recurency between projects
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27750">27750</a>
 [startup] starting javacore takes 13% of empty worspace startup
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22710">22710</a>
 simple save takes 40 seconds
