@@ -223,11 +223,12 @@ public class CopyResourceElementsOperation extends MultiOperation {
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 					}
 				}
-				int flags = newContent != null ? IResource.NONE : IResource.KEEP_HISTORY;
-				if (fForce) flags |= IResource.FORCE;
+				int flags = fForce ? IResource.FORCE : IResource.NONE;
 				if (this.isMove()) {
+					flags |= IResource.KEEP_HISTORY;
 					sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 				} else {
+					if (newContent != null) flags |= IResource.KEEP_HISTORY;
 					sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 				}
 				this.setAttribute("hasModifiedResource", "true");
