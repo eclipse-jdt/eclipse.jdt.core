@@ -158,7 +158,7 @@ private void computeClasspathLocations(
 						if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
 							continue nextEntry;
 						bLocation = ClasspathLocation.forLibrary((IFile) resource);
-					} else if (resource instanceof IFolder) {
+					} else if (resource instanceof IContainer) {
 						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false); // is library folder not output folder
 					}
 					bLocations.add(bLocation);

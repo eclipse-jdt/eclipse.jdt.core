@@ -118,7 +118,7 @@ static {
 		InternedQualifiedNames[i] = new ArrayList(37);
 	for (int i = 0; i < MaxSimpleNames; i++)
 		InternedSimpleNames[i] = new ArrayList(11);
-};
+}
 
 static char[][][] internQualifiedNames(ArrayList qualifiedStrings) {
 	if (qualifiedStrings == null) return EmptyQualifiedNames;

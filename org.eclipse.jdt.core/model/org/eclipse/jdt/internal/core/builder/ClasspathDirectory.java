@@ -43,9 +43,9 @@ String[] directoryList(String qualifiedPackageName) {
 	if (dirList != null) return dirList;
 
 	try {
-		IResource folder = binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
-		if (folder != null && folder.getType() == IResource.FOLDER) {
-			IResource[] members = ((IFolder) folder).members();
+		IResource container = binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
+		if (container instanceof IContainer) {
+			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;
 			for (int i = 0, l = members.length; i < l; i++) {
