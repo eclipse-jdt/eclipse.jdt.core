@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.code.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
