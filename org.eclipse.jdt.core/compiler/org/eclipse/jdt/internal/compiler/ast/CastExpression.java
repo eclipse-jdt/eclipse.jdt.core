@@ -101,8 +101,6 @@ public class CastExpression extends Expression {
 			//	if (castType.isArrayType()){ // 26903 - need checkcast when casting null to array type
 			//		needRuntimeCheckcast = true;
 			//	}
-			if (castType.isParameterizedType() || castType.isGenericType())
-				scope.problemReporter().unsafeCast(this);
 			return false; //null is compatible with every thing
 		}
 		if (expressionType.isBaseType()) {
@@ -156,8 +154,6 @@ public class CastExpression extends Expression {
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
 				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
 					return false;
 				}
 				if (castType.isCompatibleWith(expressionType)) {
@@ -169,8 +165,6 @@ public class CastExpression extends Expression {
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (expressionType.isCompatibleWith(castType)) {
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
 					return false;
 				}
 				if (!((ReferenceBinding) expressionType).isFinal()) {
