@@ -103,6 +103,13 @@ public class TargetSourceRangeComputer {
 	 * the extended source range may include comments and whitespace
 	 * immediately before or after the normal source range for the node.
 	 * <p>
+	 * The returned source ranges must satisfy the following conditions:
+	 * <dl>
+	 * <li>no two source ranges in an AST may be overlapping</li>
+	 * <li>a source range of a parent node must fully cover the source ranges of its children</li>
+	 * 	</dl>
+	 * 	</p>
+	 * <p>
 	 * The default implementation uses
 	 * {@link CompilationUnit#getExtendedStartPosition(ASTNode)}
 	 * and {@link CompilationUnit#getExtendedLength(ASTNode)}

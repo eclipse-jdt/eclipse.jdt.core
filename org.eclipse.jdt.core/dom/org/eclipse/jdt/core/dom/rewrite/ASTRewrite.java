@@ -526,7 +526,8 @@ public class ASTRewrite {
 	}
 	
 	/**
-	 * Sets the target source range computer for this AST rewriter.
+	 * Sets a custom target source range computer for this AST rewriter. This is advanced feature to modify how
+	 * comments are assotiated with nodes, which should be done only in special cases.
 	 * 
 	 * @param computer a target source range computer,
 	 * or <code>null</code> to restore the default value of
