@@ -210,7 +210,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 			IJavaProject[] projects = this.manager.getJavaModel().getJavaProjects();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				IJavaProject project = projects[i];
-				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+				IClasspathEntry[] classpath = ((JavaProject)project).getExpandedClasspath(true);
 				for (int j = 0, length2 = classpath.length; j < length2; j++) {
 					IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT

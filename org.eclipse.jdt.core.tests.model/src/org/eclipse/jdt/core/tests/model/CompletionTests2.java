@@ -52,6 +52,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(CompletionTests2.class.getName());
 	
 	suite.addTest(new CompletionTests2("testBug29832"));
+	suite.addTest(new CompletionTests2("testBug33560"));
 	
 	return suite;
 }
@@ -200,5 +201,127 @@ public void testBug29832() throws Exception {
 		this.deleteProject("P2");
 	}
 }
+/**
+ * Test for bug 33560
+ */
+public void testBug33560() throws Exception {
+	try {
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
 
+		// create P1
+		IFile f = getFile("/Completion/lib.jar");
+		IJavaProject p = this.createJavaProject(
+			"P1",
+			new String[]{},
+			new String[]{Util.getJavaClassLib()},
+			 "");
+		this.createFile("/P1/lib.jar", f.getContents());
+		this.addLibraryEntry(p, "/P1/lib.jar", true);
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			new String[]{Util.getJavaClassLib()},
+			new String[]{"/P1"},
+			new boolean[]{true},
+			"bin");
+					
+		// create P3
+		this.createJavaProject(
+			"P3",
+			new String[]{"src"},
+			new String[]{Util.getJavaClassLib()},
+			new String[]{"/P2"},
+			"bin");
+		this.createFile(
+			"/P3/src/X.java",
+			"public class X {\n"+
+			"  ZZZ z;\n"+
+			"}");
+		
+		// do completion
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "X.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "ZZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+			requestor.getResults());
+		
+		
+		// delete P1
+		p.getProject().delete(true, false, null);
+		
+		// create P1
+		File dest = getWorkspaceRoot().getLocation().toFile();
+		File pro = this.createDirectory(dest, "P1");
+		
+		this.createFile(pro, ".classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"var\" path=\"JCL_LIB\" sourcepath=\"JCL_SRC\" rootpath=\"JCL_SRCROOT\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>");
+			
+		this.createFile(pro, ".project", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<projectDescription>\n" +
+			"	<name>org.eclipse.jdt.core</name>\n" +
+			"	<comment></comment>\n" +
+			"	<projects>\n" +
+			"	</projects>\n" +
+			"	<buildSpec>\n" +
+			"		<buildCommand>\n" +
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+			"			<arguments>\n" +
+			"			</arguments>\n" +
+			"		</buildCommand>\n" +
+			"	</buildSpec>\n" +
+			"	<natures>\n" +
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+			"	</natures>\n" +
+			"</projectDescription>");
+		
+		File src = this.createDirectory(pro, "src");
+		
+		File pz = this.createDirectory(src, "pz");
+		
+		this.createFile(pz, "ZZZ.java",
+			"package pz;\n" +
+			"public class ZZZ {\n" +
+			"}");
+		
+		final IProject project = getWorkspaceRoot().getProject("P1");
+		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				project.create(null);
+				project.open(null);
+			}
+		};
+		getWorkspace().run(populate, null);
+		JavaCore.create(project);
+		
+		
+		// do completion
+		requestor = new CompletionTestsRequestor();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		this.deleteProject("P3");
+	}
+}
 }

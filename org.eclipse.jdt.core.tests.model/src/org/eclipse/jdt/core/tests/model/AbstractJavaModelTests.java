@@ -241,6 +241,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders, 
 			null/*no lib*/, 
 			null/*no project*/, 
+			null/*no project*/, 
 			output, 
 			null/*no source outputs*/);
 }
@@ -255,6 +256,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders, 
 			null/*no lib*/, 
 			null/*no project*/, 
+			null/*no project*/, 
 			output, 
 			sourceOutputs);
 }
@@ -264,6 +266,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			projectName, 
 			sourceFolders, 
 			libraries, 
+			null/*no project*/, 
 			null/*no project*/, 
 			output, 
 			null/*no source outputs*/);
@@ -275,11 +278,24 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders,
 			libraries,
 			projects,
+			null/*no exported project*/, 
 			projectOutput,
 			null/*no source outputs*/
 		);
 }
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final String projectOutput, final String[] sourceOutputs) throws CoreException {
+protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, boolean[] exportedProject, String projectOutput) throws CoreException {
+	return
+		this.createJavaProject(
+			projectName,
+			sourceFolders,
+			libraries,
+			projects,
+			exportedProject, 
+			projectOutput,
+			null/*no source outputs*/
+		);
+}
+protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs) throws CoreException {
 	final IJavaProject[] result = new IJavaProject[1];
 	IWorkspaceRunnable create = new IWorkspaceRunnable() {
 		public void run(IProgressMonitor monitor) throws CoreException {
@@ -356,7 +372,8 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 				}
 			}
 			for  (int i= 0; i < projectLength; i++) {
-				entries[sourceLength+libLength+i] = JavaCore.newProjectEntry(new Path(projects[i]));
+				boolean isExported = exportedProjects != null && exportedProjects.length > i && exportedProjects[i];
+				entries[sourceLength+libLength+i] = JavaCore.newProjectEntry(new Path(projects[i]), isExported);
 			}
 			
 			// create project's output folder
