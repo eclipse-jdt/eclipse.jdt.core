@@ -45,7 +45,7 @@ public class JavadocParser extends AbstractCommentParser {
 	private int invalidParamReferencesPtr = -1;
 	private JavadocSingleNameReference[] invalidParamReferencesStack;
 
-	// Store when return tag is parsed
+	// Store current tag stack pointer
 	private int currentAstPtr= -2;
 
 	public JavadocParser(Parser sourceParser) {
