@@ -169,15 +169,15 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.options = problemReporter.options;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	this.initializeScanner();
-	astLengthStack = new int[50];
-	expressionLengthStack = new int[30];
-	intStack = new int[50];
-	identifierStack = new char[30][];
-	identifierLengthStack = new int[30];
-	nestedMethod = new int[30];
-	realBlockStack = new int[30];
-	identifierPositionStack = new long[30];
-	variablesCounter = new int[30];
+	this.astLengthStack = new int[50];
+	this.expressionLengthStack = new int[30];
+	this.intStack = new int[50];
+	this.identifierStack = new char[30][];
+	this.identifierLengthStack = new int[30];
+	this.nestedMethod = new int[30];
+	this.realBlockStack = new int[30];
+	this.identifierPositionStack = new long[30];
+	this.variablesCounter = new int[30];
 	
 	// javadoc support
 	this.javadocParser = new JavadocParser(this);	
@@ -187,7 +187,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
  * INTERNAL USE-ONLY
  */
 protected void adjustInterfaceModifiers() {
-	intStack[intPtr - 1] |= AccInterface;
+	this.intStack[this.intPtr - 1] |= AccInterface;
 }
 public final void arrayInitializer(int length) {
 	//length is the size of the array Initializer
@@ -196,19 +196,19 @@ public final void arrayInitializer(int length) {
 
 	ArrayInitializer ai = new ArrayInitializer();
 	if (length != 0) {
-		expressionPtr -= length;
-		System.arraycopy(expressionStack, expressionPtr + 1, ai.expressions = new Expression[length], 0, length);
+		this.expressionPtr -= length;
+		System.arraycopy(this.expressionStack, this.expressionPtr + 1, ai.expressions = new Expression[length], 0, length);
 	}
 	pushOnExpressionStack(ai);
 	//positionning
-	ai.sourceEnd = endStatementPosition;
-	int searchPosition = length == 0 ? endPosition + 1 : ai.expressions[0].sourceStart;
+	ai.sourceEnd = this.endStatementPosition;
+	int searchPosition = length == 0 ? this.endPosition + 1 : ai.expressions[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (scanner.source[--searchPosition] != '{');
+		while (this.scanner.source[--searchPosition] != '{');
 	} catch (IndexOutOfBoundsException ex) {
 		//should never occur (except for strange cases like whose describe above)
-		searchPosition = (length == 0 ? endPosition : ai.expressions[0].sourceStart) - 1;
+		searchPosition = (length == 0 ? this.endPosition : ai.expressions[0].sourceStart) - 1;
 	}
 	ai.sourceStart = searchPosition;
 }
@@ -219,7 +219,7 @@ public static int asi(int state) {
 protected void blockReal() {
 	// See consumeLocalVariableDeclarationStatement in case of change: duplicated code
 	// increment the amount of declared variables for this block
-	realBlockStack[realBlockPtr]++;
+	this.realBlockStack[this.realBlockPtr]++;
 }
 private final static void buildFileOfByteFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
@@ -478,47 +478,47 @@ public RecoveredElement buildInitialRecoveryState(){
 	/* initialize recovery by retrieving available reduced nodes 
 	 * also rebuild bracket balance 
 	 */
-	lastCheckPoint = 0;
+	this.lastCheckPoint = 0;
 
 	RecoveredElement element = null;
-	if (referenceContext instanceof CompilationUnitDeclaration){
-		element = new RecoveredUnit(compilationUnit, 0, this);
+	if (this.referenceContext instanceof CompilationUnitDeclaration){
+		element = new RecoveredUnit(this.compilationUnit, 0, this);
 		
 		/* ignore current stack state, since restarting from the beginnning 
 		   since could not trust simple brace count */
 		if (true){ // experimenting restart recovery from scratch
-			compilationUnit.currentPackage = null;
-			compilationUnit.imports = null;
-			compilationUnit.types = null;
-			currentToken = 0;
-			listLength = 0;
-			endPosition = 0;
-			endStatementPosition = 0;
+			this.compilationUnit.currentPackage = null;
+			this.compilationUnit.imports = null;
+			this.compilationUnit.types = null;
+			this.currentToken = 0;
+			this.listLength = 0;
+			this.endPosition = 0;
+			this.endStatementPosition = 0;
 			return element;
 		}
-		if (compilationUnit.currentPackage != null){
-			lastCheckPoint = compilationUnit.currentPackage.declarationSourceEnd+1;
+		if (this.compilationUnit.currentPackage != null){
+			this.lastCheckPoint = this.compilationUnit.currentPackage.declarationSourceEnd+1;
 		}
-		if (compilationUnit.imports != null){
-			lastCheckPoint = compilationUnit.imports[compilationUnit.imports.length -1].declarationSourceEnd+1;		
+		if (this.compilationUnit.imports != null){
+			this.lastCheckPoint = this.compilationUnit.imports[this.compilationUnit.imports.length -1].declarationSourceEnd+1;		
 		}
 	} else {
-		if (referenceContext instanceof AbstractMethodDeclaration){
-			element = new RecoveredMethod((AbstractMethodDeclaration) referenceContext, null, 0, this);
-			lastCheckPoint = ((AbstractMethodDeclaration) referenceContext).bodyStart;
+		if (this.referenceContext instanceof AbstractMethodDeclaration){
+			element = new RecoveredMethod((AbstractMethodDeclaration) this.referenceContext, null, 0, this);
+			this.lastCheckPoint = ((AbstractMethodDeclaration) this.referenceContext).bodyStart;
 		} else {
 			/* Initializer bodies are parsed in the context of the type declaration, we must thus search it inside */
-			if (referenceContext instanceof TypeDeclaration){
-				TypeDeclaration type = (TypeDeclaration) referenceContext;
+			if (this.referenceContext instanceof TypeDeclaration){
+				TypeDeclaration type = (TypeDeclaration) this.referenceContext;
 				for (int i = 0; i < type.fields.length; i++){
 					FieldDeclaration field = type.fields[i];					
 					if (field != null
 						&& !field.isField()
-						&& field.declarationSourceStart <= scanner.initialPosition
-						&& scanner.initialPosition <= field.declarationSourceEnd
-						&& scanner.eofPosition <= field.declarationSourceEnd+1){
+						&& field.declarationSourceStart <= this.scanner.initialPosition
+						&& this.scanner.initialPosition <= field.declarationSourceEnd
+						&& this.scanner.eofPosition <= field.declarationSourceEnd+1){
 						element = new RecoveredInitializer(field, null, 1, this);
-						lastCheckPoint = field.declarationSourceStart;					
+						this.lastCheckPoint = field.declarationSourceStart;					
 						break;
 					}
 				}
@@ -528,16 +528,16 @@ public RecoveredElement buildInitialRecoveryState(){
 
 	if (element == null) return element;
 	
-	for(int i = 0; i <= astPtr; i++){
-		ASTNode node = astStack[i];
+	for(int i = 0; i <= this.astPtr; i++){
+		ASTNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration){
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) node;
 			if (method.declarationSourceEnd == 0){
 				element = element.add(method, 0);
-				lastCheckPoint = method.bodyStart;
+				this.lastCheckPoint = method.bodyStart;
 			} else {
 				element = element.add(method, 0);
-				lastCheckPoint = method.declarationSourceEnd + 1;
+				this.lastCheckPoint = method.declarationSourceEnd + 1;
 			}
 			continue;
 		}
@@ -545,10 +545,10 @@ public RecoveredElement buildInitialRecoveryState(){
 			Initializer initializer = (Initializer) node;
 			if (initializer.declarationSourceEnd == 0){
 				element = element.add(initializer, 1);
-				lastCheckPoint = initializer.sourceStart;				
+				this.lastCheckPoint = initializer.sourceStart;				
 			} else {
 				element = element.add(initializer, 0);
-				lastCheckPoint = initializer.declarationSourceEnd + 1;
+				this.lastCheckPoint = initializer.declarationSourceEnd + 1;
 			}
 			continue;
 		}		
@@ -557,13 +557,13 @@ public RecoveredElement buildInitialRecoveryState(){
 			if (field.declarationSourceEnd == 0){
 				element = element.add(field, 0);
 				if (field.initialization == null){
-					lastCheckPoint = field.sourceEnd + 1;
+					this.lastCheckPoint = field.sourceEnd + 1;
 				} else {
-					lastCheckPoint = field.initialization.sourceEnd + 1;
+					this.lastCheckPoint = field.initialization.sourceEnd + 1;
 				}
 			} else {
 				element = element.add(field, 0);
-				lastCheckPoint = field.declarationSourceEnd + 1;
+				this.lastCheckPoint = field.declarationSourceEnd + 1;
 			}
 			continue;
 		}
@@ -571,17 +571,17 @@ public RecoveredElement buildInitialRecoveryState(){
 			TypeDeclaration type = (TypeDeclaration) node;
 			if (type.declarationSourceEnd == 0){
 				element = element.add(type, 0);	
-				lastCheckPoint = type.bodyStart;
+				this.lastCheckPoint = type.bodyStart;
 			} else {
 				element = element.add(type, 0);				
-				lastCheckPoint = type.declarationSourceEnd + 1;
+				this.lastCheckPoint = type.declarationSourceEnd + 1;
 			}
 			continue;
 		}
 		if (node instanceof ImportReference){
 			ImportReference importRef = (ImportReference) node;
 			element = element.add(importRef, 0);
-			lastCheckPoint = importRef.declarationSourceEnd + 1;
+			this.lastCheckPoint = importRef.declarationSourceEnd + 1;
 		}
 	}
 	return element;
@@ -597,28 +597,28 @@ public final void checkAndSetModifiers(int flag){
 	is zeroed when a copy of modifiers-buffer is push
 	onto the astStack. */
 
-	if ((modifiers & flag) != 0){ // duplicate modifier
-		modifiers |= AccAlternateModifierProblem;
+	if ((this.modifiers & flag) != 0){ // duplicate modifier
+		this.modifiers |= AccAlternateModifierProblem;
 	}
-	modifiers |= flag;
+	this.modifiers |= flag;
 			
-	if (modifiersSourceStart < 0) modifiersSourceStart = scanner.startPosition;
+	if (this.modifiersSourceStart < 0) this.modifiersSourceStart = this.scanner.startPosition;
 }
 public void checkComment() {
 
 	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-		flushCommentsDefinedPriorTo(endStatementPosition); // discard obsolete comments during recovery
+		flushCommentsDefinedPriorTo(this.endStatementPosition); // discard obsolete comments during recovery
 	}
 	
 	int lastComment = this.scanner.commentPtr;
 	
 	if (this.modifiersSourceStart >= 0) {
 		// eliminate comments located after modifierSourceStart if positionned
-		while (lastComment >= 0 && this.scanner.commentStarts[lastComment] > modifiersSourceStart) lastComment--;
+		while (lastComment >= 0 && this.scanner.commentStarts[lastComment] > this.modifiersSourceStart) lastComment--;
 	}
 	if (lastComment >= 0) {
 		// consider all remaining leading comments to be part of current declaration
-		this.modifiersSourceStart = scanner.commentStarts[0]; 
+		this.modifiersSourceStart = this.scanner.commentStarts[0]; 
 	
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
@@ -633,7 +633,7 @@ public void checkComment() {
 	}
 }
 protected void checkNonExternalizedStringLiteral() {
-	if (scanner.wasNonExternalizedStringLiteral) {
+	if (this.scanner.wasNonExternalizedStringLiteral) {
 		StringLiteral[] literals = this.scanner.nonNLSStrings;
 		// could not reproduce, but this is the only NPE
 		// added preventive null check see PR 9035
@@ -642,14 +642,14 @@ protected void checkNonExternalizedStringLiteral() {
 				problemReporter().nonExternalizedStringLiteral(literals[i]);
 			}
 		}
-		scanner.wasNonExternalizedStringLiteral = false;
+		this.scanner.wasNonExternalizedStringLiteral = false;
 	}
 }
 protected void checkNonNLSAfterBodyEnd(int declarationEnd){
-	if(scanner.currentPosition - 1 <= declarationEnd) {
-		scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
+	if(this.scanner.currentPosition - 1 <= declarationEnd) {
+		this.scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
 		try {
-			while(scanner.getNextToken() != TokenNameEOF);
+			while(this.scanner.getNextToken() != TokenNameEOF);
 			checkNonExternalizedStringLiteral();
 		} catch (InvalidInputException e) {
 			// Nothing to do
@@ -682,22 +682,22 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 
 	AllocationExpression alloc;
 	int length;
-	if (((length = astLengthStack[astLengthPtr--]) == 1)
-		&& (astStack[astPtr] == null)) {
+	if (((length = this.astLengthStack[this.astLengthPtr--]) == 1)
+		&& (this.astStack[this.astPtr] == null)) {
 		//NO ClassBody
-		astPtr--;
+		this.astPtr--;
 		if (alwaysQualified) {
 			alloc = new QualifiedAllocationExpression();
 		} else {
 			alloc = new AllocationExpression();
 		}
-		alloc.sourceEnd = endPosition; //the position has been stored explicitly
+		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
 
-		if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
-			expressionPtr -= length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			this.expressionPtr -= length;
 			System.arraycopy(
-				expressionStack, 
-				expressionPtr + 1, 
+				this.expressionStack, 
+				this.expressionPtr + 1, 
 				alloc.arguments = new Expression[length], 
 				0, 
 				length); 
@@ -705,28 +705,28 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		alloc.type = getTypeReference(0);
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
-		alloc.sourceStart = intStack[intPtr--];
+		alloc.sourceStart = this.intStack[this.intPtr--];
 		pushOnExpressionStack(alloc);
 	} else {
 		dispatchDeclarationInto(length);
-		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)astStack[astPtr];
-		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
-		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
+		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)this.astStack[this.astPtr];
+		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
+		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
-			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
+			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
 		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
 			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
-		astPtr--;
-		astLengthPtr--;
+		this.astPtr--;
+		this.astLengthPtr--;
 		
 		// mark initializers with local type mark if needed
 		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected final void concatExpressionLists() {
-	expressionLengthStack[--expressionLengthPtr]++;
+	this.expressionLengthStack[--this.expressionLengthPtr]++;
 }
 private final void concatNodeLists() {
 	/*
@@ -742,7 +742,7 @@ private final void concatNodeLists() {
 	 * Look at the InterfaceMemberDeclarations for an example.
 	 */
 
-	astLengthStack[astLengthPtr - 1] += astLengthStack[astLengthPtr--];
+	this.astLengthStack[this.astLengthPtr - 1] += this.astLengthStack[this.astLengthPtr--];
 }
 protected void consumeAllocationHeader() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -750,24 +750,24 @@ protected void consumeAllocationHeader() {
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
 	// An empty class body produces a 0 on the length stack.....
 
-	if (currentElement == null){
+	if (this.currentElement == null){
 		return; // should never occur, this consumeRule is only used in recovery mode
 	}
-	if (currentToken == TokenNameLBRACE){
+	if (this.currentToken == TokenNameLBRACE){
 		// beginning of an anonymous type
 		TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
 		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
 		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
-		anonymousType.sourceStart = intStack[intPtr--];
-		anonymousType.sourceEnd = rParenPos; // closing parenthesis
-		lastCheckPoint = anonymousType.bodyStart = scanner.currentPosition;
-		currentElement = currentElement.add(anonymousType, 0);
-		lastIgnoredToken = -1;
-		currentToken = 0; // opening brace already taken into account
+		anonymousType.sourceStart = this.intStack[this.intPtr--];
+		anonymousType.sourceEnd = this.rParenPos; // closing parenthesis
+		this.lastCheckPoint = anonymousType.bodyStart = this.scanner.currentPosition;
+		this.currentElement = this.currentElement.add(anonymousType, 0);
+		this.lastIgnoredToken = -1;
+		this.currentToken = 0; // opening brace already taken into account
 		return;
 	}
-	lastCheckPoint = scanner.startPosition; // force to restart at this exact position
-	restartRecovery = true; // request to restart from here on
+	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
+	this.restartRecovery = true; // request to restart from here on
 }
 protected void consumeArgumentList() {
 	// ArgumentList ::= ArgumentList ',' Expression
@@ -782,20 +782,20 @@ protected void consumeArrayAccess(boolean unspecifiedReference) {
 	Expression exp;
 	if (unspecifiedReference) {
 		exp = 
-			expressionStack[expressionPtr] = 
+			this.expressionStack[this.expressionPtr] = 
 				new ArrayReference(
 					getUnspecifiedReferenceOptimized(),
-					expressionStack[expressionPtr]);
+					this.expressionStack[this.expressionPtr]);
 	} else {
-		expressionPtr--;
-		expressionLengthPtr--;
+		this.expressionPtr--;
+		this.expressionLengthPtr--;
 		exp = 
-			expressionStack[expressionPtr] = 
+			this.expressionStack[this.expressionPtr] = 
 				new ArrayReference(
-					expressionStack[expressionPtr],
-					expressionStack[expressionPtr + 1]);
+					this.expressionStack[this.expressionPtr],
+					this.expressionStack[this.expressionPtr + 1]);
 	}
-	exp.sourceEnd = endPosition;
+	exp.sourceEnd = this.endPosition;
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
@@ -804,17 +804,17 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 	int length;
 	ArrayAllocationExpression aae = new ArrayAllocationExpression();
 	aae.type = getTypeReference(0);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
+	length = (this.expressionLengthStack[this.expressionLengthPtr--]);
+	this.expressionPtr -= length ;
 	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
+		this.expressionStack,
+		this.expressionPtr+1,
 		aae.dimensions = new Expression[length],
 		0,
 		length);
-	aae.sourceStart = intStack[intPtr--];
+	aae.sourceStart = this.intStack[this.intPtr--];
 	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
+		aae.sourceEnd = this.endPosition;
 	} else {
 		aae.sourceEnd = aae.initializer.sourceEnd ;
 	}
@@ -830,21 +830,21 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 
 	int length;
 	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	expressionLengthPtr -- ;
-	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
+	this.expressionLengthPtr -- ;
+	aae.initializer = (ArrayInitializer) this.expressionStack[this.expressionPtr--];
 		
 	aae.type = getTypeReference(0);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
+	length = (this.expressionLengthStack[this.expressionLengthPtr--]);
+	this.expressionPtr -= length ;
 	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
+		this.expressionStack,
+		this.expressionPtr+1,
 		aae.dimensions = new Expression[length],
 		0,
 		length);
-	aae.sourceStart = intStack[intPtr--];
+	aae.sourceStart = this.intStack[this.intPtr--];
 	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
+		aae.sourceEnd = this.endPosition;
 	} else {
 		aae.sourceEnd = aae.initializer.sourceEnd ;
 	}
@@ -854,33 +854,33 @@ protected void consumeArrayInitializer() {
 	// ArrayInitializer ::= '{' VariableInitializers '}'
 	// ArrayInitializer ::= '{' VariableInitializers , '}'
 
-	arrayInitializer(expressionLengthStack[expressionLengthPtr--]);
+	arrayInitializer(this.expressionLengthStack[this.expressionLengthPtr--]);
 }
 
 protected void consumeAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ':' Expression ';'
-	expressionLengthPtr-=2;
-	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], expressionStack[expressionPtr--], intStack[intPtr--]));
+	this.expressionLengthPtr-=2;
+	pushOnAstStack(new AssertStatement(this.expressionStack[this.expressionPtr--], this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));
 }
 
 protected void consumeAssignment() {
 	// Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
 	//optimize the push/pop
 
-	int op = intStack[intPtr--] ; //<--the encoded operator
+	int op = this.intStack[this.intPtr--] ; //<--the encoded operator
 	
-	expressionPtr -- ; expressionLengthPtr -- ;
-	expressionStack[expressionPtr] =
+	this.expressionPtr -- ; this.expressionLengthPtr -- ;
+	this.expressionStack[this.expressionPtr] =
 		(op != EQUAL ) ?
 			new CompoundAssignment(
-				expressionStack[expressionPtr] ,
-				expressionStack[expressionPtr+1], 
+				this.expressionStack[this.expressionPtr] ,
+				this.expressionStack[this.expressionPtr+1], 
 				op,
-				scanner.startPosition - 1)	:
+				this.scanner.startPosition - 1)	:
 			new Assignment(
-				expressionStack[expressionPtr] ,
-				expressionStack[expressionPtr+1],
-				scanner.startPosition - 1);
+				this.expressionStack[this.expressionPtr] ,
+				this.expressionStack[this.expressionPtr+1],
+				this.scanner.startPosition - 1);
 }
 protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '='
@@ -897,14 +897,14 @@ protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '|='
 
 	try {
-		intStack[++intPtr] = pos;
+		this.intStack[++this.intPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
-		//intPtr is correct 
-		int oldStackLength = intStack.length;
-		int oldStack[] = intStack;
-		intStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, intStack, 0, oldStackLength);
-		intStack[intPtr] = pos;
+		//this.intPtr is correct 
+		int oldStackLength = this.intStack.length;
+		int oldStack[] = this.intStack;
+		this.intStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldStack, 0, this.intStack, 0, oldStackLength);
+		this.intStack[this.intPtr] = pos;
 	}
 }
 protected void consumeBinaryExpression(int op) {
@@ -928,45 +928,45 @@ protected void consumeBinaryExpression(int op) {
 
 	//optimize the push/pop
 
-	expressionPtr--;
-	expressionLengthPtr--;
+	this.expressionPtr--;
+	this.expressionLengthPtr--;
 	if (op == OR_OR) {
-		expressionStack[expressionPtr] = 
+		this.expressionStack[this.expressionPtr] = 
 			new OR_OR_Expression(
-				expressionStack[expressionPtr], 
-				expressionStack[expressionPtr + 1], 
+				this.expressionStack[this.expressionPtr], 
+				this.expressionStack[this.expressionPtr + 1], 
 				op); 
 	} else {
 		if (op == AND_AND) {
-			expressionStack[expressionPtr] = 
+			this.expressionStack[this.expressionPtr] = 
 				new AND_AND_Expression(
-					expressionStack[expressionPtr], 
-					expressionStack[expressionPtr + 1], 
+					this.expressionStack[this.expressionPtr], 
+					this.expressionStack[this.expressionPtr + 1], 
 					op);
 		} else {
 			// look for "string1" + "string2"
-			if ((op == PLUS) && optimizeStringLiterals) {
+			if ((op == PLUS) && this.optimizeStringLiterals) {
 				Expression expr1, expr2;
-				expr1 = expressionStack[expressionPtr];
-				expr2 = expressionStack[expressionPtr + 1];
+				expr1 = this.expressionStack[this.expressionPtr];
+				expr2 = this.expressionStack[this.expressionPtr + 1];
 				if (expr1 instanceof StringLiteral) {
 					if (expr2 instanceof CharLiteral) { // string+char
-						expressionStack[expressionPtr] = 
+						this.expressionStack[this.expressionPtr] = 
 							((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
 					} else if (expr2 instanceof StringLiteral) { //string+string
-						expressionStack[expressionPtr] = 
+						this.expressionStack[this.expressionPtr] = 
 							((StringLiteral) expr1).extendWith((StringLiteral) expr2); 
 					} else {
-						expressionStack[expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 					}
 				} else {
-					expressionStack[expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 				}
 			} else {
-				expressionStack[expressionPtr] = 
+				this.expressionStack[this.expressionPtr] = 
 					new BinaryExpression(
-						expressionStack[expressionPtr], 
-						expressionStack[expressionPtr + 1], 
+						this.expressionStack[this.expressionPtr], 
+						this.expressionStack[this.expressionPtr + 1], 
 						op);
 			}
 		}
@@ -976,28 +976,28 @@ protected void consumeBlock() {
 	// Block ::= OpenBlock '{' BlockStatementsopt '}'
 	// simpler action for empty blocks
 
-	int statementsLength = astLengthStack[astLengthPtr--];
+	int statementsLength = this.astLengthStack[this.astLengthPtr--];
 	Block block;
 	if (statementsLength == 0) { // empty block 
 		block = new Block(0);
-		block.sourceStart = intStack[intPtr--];
-		block.sourceEnd = endStatementPosition;
+		block.sourceStart = this.intStack[this.intPtr--];
+		block.sourceEnd = this.endStatementPosition;
 		// check whether this block at least contains some comment in it
 		if (!containsComment(block.sourceStart, block.sourceEnd)) {
 			block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
-		realBlockPtr--; // still need to pop the block variable counter
+		this.realBlockPtr--; // still need to pop the block variable counter
 	} else {
-		block = new Block(realBlockStack[realBlockPtr--]);
-		astPtr -= statementsLength;
+		block = new Block(this.realBlockStack[this.realBlockPtr--]);
+		this.astPtr -= statementsLength;
 		System.arraycopy(
-			astStack, 
-			astPtr + 1, 
+			this.astStack, 
+			this.astPtr + 1, 
 			block.statements = new Statement[statementsLength], 
 			0, 
 			statementsLength); 
-		block.sourceStart = intStack[intPtr--];
-		block.sourceEnd = endStatementPosition;
+		block.sourceStart = this.intStack[this.intPtr--];
+		block.sourceEnd = this.endStatementPosition;
 	}
 	pushOnAstStack(block);
 }
@@ -1007,23 +1007,23 @@ protected void consumeBlockStatements() {
 }
 protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
-	expressionLengthPtr--;
-	Expression expression = expressionStack[expressionPtr--];
-	pushOnAstStack(new CaseStatement(expression, expression.sourceEnd, intStack[intPtr--]));
+	this.expressionLengthPtr--;
+	Expression expression = this.expressionStack[this.expressionPtr--];
+	pushOnAstStack(new CaseStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--]));
 }
 protected void consumeCastExpression() {
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 
-	//intStack : posOfLeftParen dim posOfRightParen
+	//this.intStack : posOfLeftParen dim posOfRightParen
 
 	//optimize the push/pop
 
 	Expression exp, cast, castType;
-	int end = intStack[intPtr--];
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+	int end = this.intStack[this.intPtr--];
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = getTypeReference(this.intStack[this.intPtr--]));
 	castType.sourceEnd = end - 1;
-	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
+	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
 protected void consumeCastExpressionLL1() {
@@ -1033,12 +1033,12 @@ protected void consumeCastExpressionLL1() {
 	//optimize push/pop
 
 	Expression cast,exp;
-	expressionPtr--;
-	expressionStack[expressionPtr] = 
+	this.expressionPtr--;
+	this.expressionStack[this.expressionPtr] = 
 		cast = new CastExpression(
-			exp=expressionStack[expressionPtr+1] ,
-			getTypeReference(expressionStack[expressionPtr]));
-	expressionLengthPtr -- ;
+			exp=this.expressionStack[this.expressionPtr+1] ,
+			getTypeReference(this.expressionStack[this.expressionPtr]));
+	this.expressionLengthPtr -- ;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
 }
@@ -1049,51 +1049,51 @@ protected void consumeCatches() {
 protected void consumeCatchHeader() {
 	// CatchDeclaration ::= 'catch' '(' FormalParameter ')' '{'
 
-	if (currentElement == null){
+	if (this.currentElement == null){
 		return; // should never occur, this consumeRule is only used in recovery mode
 	}
 	// current element should be a block due to the presence of the opening brace
-	if (!(currentElement instanceof RecoveredBlock)){
-		if(!(currentElement instanceof RecoveredMethod)) {
+	if (!(this.currentElement instanceof RecoveredBlock)){
+		if(!(this.currentElement instanceof RecoveredMethod)) {
 			return;
 		}
-		RecoveredMethod rMethod = (RecoveredMethod) currentElement;
+		RecoveredMethod rMethod = (RecoveredMethod) this.currentElement;
 		if(!(rMethod.methodBody == null && rMethod.bracketBalance > 0)) {
 			return;
 		}
 	}
 	
-	Argument arg = (Argument)astStack[astPtr--];
+	Argument arg = (Argument)this.astStack[this.astPtr--];
 	// convert argument to local variable
 	LocalDeclaration localDeclaration = new LocalDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
 	localDeclaration.type = arg.type;
 	localDeclaration.declarationSourceStart = arg.declarationSourceStart;
 	localDeclaration.declarationSourceEnd = arg.declarationSourceEnd;
 	
-	currentElement = currentElement.add(localDeclaration, 0);
-	lastCheckPoint = scanner.startPosition; // force to restart at this exact position
-	restartRecovery = true; // request to restart from here on
-	lastIgnoredToken = -1;
+	this.currentElement = this.currentElement.add(localDeclaration, 0);
+	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
+	this.restartRecovery = true; // request to restart from here on
+	this.lastIgnoredToken = -1;
 }
 protected void consumeClassBodyDeclaration() {
 	// ClassBodyDeclaration ::= Diet Block
 	//push an Initializer
 	//optimize the push/pop
-	nestedMethod[nestedType]--;
-	Block block = (Block) astStack[astPtr];
-	if (diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
+	this.nestedMethod[this.nestedType]--;
+	Block block = (Block) this.astStack[this.astPtr];
+	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
 	Initializer initializer = new Initializer(block, 0);
-	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
-	initializer.bodyStart = intStack[intPtr--];
-	realBlockPtr--; // pop the block variable counter left on the stack by consumeNestedMethod
-	int javadocCommentStart = intStack[intPtr--];
+	this.intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
+	initializer.bodyStart = this.intStack[this.intPtr--];
+	this.realBlockPtr--; // pop the block variable counter left on the stack by consumeNestedMethod
+	int javadocCommentStart = this.intStack[this.intPtr--];
 	if (javadocCommentStart != -1) {
 		initializer.declarationSourceStart = javadocCommentStart;
 	}
-	astStack[astPtr] = initializer;
-	initializer.bodyEnd = endPosition;
-	initializer.sourceEnd = endStatementPosition;
-	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	this.astStack[this.astPtr] = initializer;
+	initializer.bodyEnd = this.endPosition;
+	initializer.sourceEnd = this.endStatementPosition;
+	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeClassBodyDeclarations() {
 	// ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
@@ -1101,24 +1101,24 @@ protected void consumeClassBodyDeclarations() {
 }
 protected void consumeClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
-	nestedType-- ;
+	this.nestedType-- ;
 }
 protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
 	pushOnAstStack(null);
-	endPosition = scanner.startPosition - 1;
+	this.endPosition = this.scanner.startPosition - 1;
 }
 protected void consumeClassDeclaration() {
 	// ClassDeclaration ::= ClassHeader ClassBody
 
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		//there are length declarations
 		//dispatch according to the type of the declarations
 		dispatchDeclarationInto(length);
 	}
 
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 
 	// mark initializers with local type mark if needed
 	markInitializersWithLocalType(typeDecl);
@@ -1129,15 +1129,15 @@ protected void consumeClassDeclaration() {
 	//add the default constructor when needed (interface don't have it)
 	if (!hasConstructor && !typeDecl.isInterface()) {
 		boolean insideFieldInitializer = false;
-		if (diet) {
-			for (int i = nestedType; i > 0; i--){
-				if (variablesCounter[i] > 0) {
+		if (this.diet) {
+			for (int i = this.nestedType; i > 0; i--){
+				if (this.variablesCounter[i] > 0) {
 					insideFieldInitializer = true;
 					break;
 				}
 			}
 		}
-		typeDecl.createsInternalConstructor(!diet || insideFieldInitializer, true);
+		typeDecl.createsInternalConstructor(!this.diet || insideFieldInitializer, true);
 	}
 
 	//always add <clinit> (will be remove at code gen time if empty)
@@ -1145,63 +1145,63 @@ protected void consumeClassDeclaration() {
 		typeDecl.bits |= ASTNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
-	typeDecl.bodyEnd = endStatementPosition;
+	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
 
-	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
+	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 }
 protected void consumeClassHeader() {
 	// ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
 
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];	
-	if (currentToken == TokenNameLBRACE) { 
-		typeDecl.bodyStart = scanner.currentPosition;
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];	
+	if (this.currentToken == TokenNameLBRACE) { 
+		typeDecl.bodyStart = this.scanner.currentPosition;
 	}
-	if (currentElement != null) {
-		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	if (this.currentElement != null) {
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 	// flush the comments related to the class header
-	scanner.commentPtr = -1;
+	this.scanner.commentPtr = -1;
 }
 protected void consumeClassHeaderExtends() {
 	// ClassHeaderExtends ::= 'extends' ClassType
 	// There is a class declaration on the top of stack
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	//superclass
 	typeDecl.superclass = getTypeReference(0);
 	typeDecl.bodyStart = typeDecl.superclass.sourceEnd + 1;
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = typeDecl.bodyStart;
+	if (this.currentElement != null){
+		this.lastCheckPoint = typeDecl.bodyStart;
 	}
 }
 protected void consumeClassHeaderImplements() {
 	// ClassHeaderImplements ::= 'implements' InterfaceTypeList
-	int length = astLengthStack[astLengthPtr--];
+	int length = this.astLengthStack[this.astLengthPtr--];
 	//super interfaces
-	astPtr -= length;
+	this.astPtr -= length;
 	// There is a class declaration on the top of stack
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	System.arraycopy(
-		astStack, 
-		astPtr + 1, 
+		this.astStack, 
+		this.astPtr + 1, 
 		typeDecl.superInterfaces = new TypeReference[length], 
 		0, 
 		length); 
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
-	listLength = 0; // reset after having read super-interfaces
+	this.listLength = 0; // reset after having read super-interfaces
 	// recovery
-	if (currentElement != null) { // is recovering
-		lastCheckPoint = typeDecl.bodyStart;
+	if (this.currentElement != null) { // is recovering
+		this.lastCheckPoint = typeDecl.bodyStart;
 	}
 }
 protected void consumeClassHeaderName() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
-	if (nestedMethod[nestedType] == 0) {
-		if (nestedType != 0) {
+	if (this.nestedMethod[this.nestedType] == 0) {
+		if (this.nestedType != 0) {
 			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
@@ -1212,33 +1212,33 @@ protected void consumeClassHeaderName() {
 	}
 
 	//highlight the name of the type
-	long pos = identifierPositionStack[identifierPtr];
+	long pos = this.identifierPositionStack[this.identifierPtr];
 	typeDecl.sourceEnd = (int) pos;
 	typeDecl.sourceStart = (int) (pos >>> 32);
-	typeDecl.name = identifierStack[identifierPtr--];
-	identifierLengthPtr--;
+	typeDecl.name = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 
 	//compute the declaration source too
 	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
 	// we want to keep the beginning position but get rid of the end position
 	// it is only used for the ClassLiteralAccess positions.
-	typeDecl.declarationSourceStart = intStack[intPtr--]; 
-	intPtr--; // remove the end position of the class token
+	typeDecl.declarationSourceStart = this.intStack[this.intPtr--]; 
+	this.intPtr--; // remove the end position of the class token
 
-	typeDecl.modifiersSourceStart = intStack[intPtr--];
-	typeDecl.modifiers = intStack[intPtr--];
+	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+	typeDecl.modifiers = this.intStack[this.intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
 
-	listLength = 0; // will be updated when reading super-interfaces
+	this.listLength = 0; // will be updated when reading super-interfaces
 	// recovery
-	if (currentElement != null){ 
-		lastCheckPoint = typeDecl.bodyStart;
-		currentElement = currentElement.add(typeDecl, 0);
-		lastIgnoredToken = -1;
+	if (this.currentElement != null){ 
+		this.lastCheckPoint = typeDecl.bodyStart;
+		this.currentElement = this.currentElement.add(typeDecl, 0);
+		this.lastIgnoredToken = -1;
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -1258,11 +1258,11 @@ protected void consumeClassInstanceCreationExpressionQualified() {
 
 	classInstanceCreation(true); //  <-- push the Qualifed....
 
-	expressionLengthPtr--;
+	this.expressionLengthPtr--;
 	QualifiedAllocationExpression qae = 
-		(QualifiedAllocationExpression) expressionStack[expressionPtr--]; 
-	qae.enclosingInstance = expressionStack[expressionPtr];
-	expressionStack[expressionPtr] = qae;
+		(QualifiedAllocationExpression) this.expressionStack[this.expressionPtr--]; 
+	qae.enclosingInstance = this.expressionStack[this.expressionPtr];
+	this.expressionStack[this.expressionPtr] = qae;
 	qae.sourceStart = qae.enclosingInstance.sourceStart;
 }
 protected void consumeClassTypeElt() {
@@ -1270,7 +1270,7 @@ protected void consumeClassTypeElt() {
 	pushOnAstStack(getTypeReference(0));
 	/* if incomplete thrown exception list, listLength counter will not have been reset,
 		indicating that some items are available on the stack */
-	listLength++; 	
+	this.listLength++; 	
 }
 protected void consumeClassTypeList() {
 	// ClassTypeList ::= ClassTypeList ',' ClassTypeElt
@@ -1284,13 +1284,13 @@ protected void consumeConditionalExpression(int op) {
 	// ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
 	//optimize the push/pop
 
-	expressionPtr -= 2;
-	expressionLengthPtr -= 2;
-	expressionStack[expressionPtr] =
+	this.expressionPtr -= 2;
+	this.expressionLengthPtr -= 2;
+	this.expressionStack[this.expressionPtr] =
 		new ConditionalExpression(
-			expressionStack[expressionPtr],
-			expressionStack[expressionPtr + 1],
-			expressionStack[expressionPtr + 2]);
+			this.expressionStack[this.expressionPtr],
+			this.expressionStack[this.expressionPtr + 1],
+			this.expressionStack[this.expressionPtr + 2]);
 }
 protected void consumeConstructorBlockStatements() {
 	// ConstructorBody ::= NestedMethod '{' ExplicitConstructorInvocation BlockStatements '}'
@@ -1299,7 +1299,7 @@ protected void consumeConstructorBlockStatements() {
 protected void consumeConstructorBody() {
 	// ConstructorBody ::= NestedMethod  '{' BlockStatementsopt '}'
 	// ConstructorBody ::= NestedMethod  '{' ExplicitConstructorInvocation '}'
-	nestedMethod[nestedType] --;
+	this.nestedMethod[this.nestedType] --;
 }
 protected void consumeConstructorDeclaration() {
 	// ConstructorDeclaration ::= ConstructorHeader ConstructorBody
@@ -1317,28 +1317,28 @@ protected void consumeConstructorDeclaration() {
 	int length;
 
 	// pop the position of the {  (body of the method) pushed in block decl
-	intPtr--;
-	intPtr--;
+	this.intPtr--;
+	this.intPtr--;
 
 	//statements
-	realBlockPtr--;
+	this.realBlockPtr--;
 	ExplicitConstructorCall constructorCall = null;
 	Statement[] statements = null;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
-		if (astStack[astPtr + 1] instanceof ExplicitConstructorCall) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall) {
 			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
 			System.arraycopy(
-				astStack, 
-				astPtr + 2, 
+				this.astStack, 
+				this.astPtr + 2, 
 				statements = new Statement[length - 1], 
 				0, 
 				length - 1); 
-			constructorCall = (ExplicitConstructorCall) astStack[astPtr + 1];
+			constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
 		} else { //need to add explicitly the super();
 			System.arraycopy(
-				astStack, 
-				astPtr + 1, 
+				this.astStack, 
+				this.astPtr + 1, 
 				statements = new Statement[length], 
 				0, 
 				length); 
@@ -1346,23 +1346,23 @@ protected void consumeConstructorDeclaration() {
 		}
 	} else {
 		boolean insideFieldInitializer = false;
-		if (diet) {
-			for (int i = nestedType; i > 0; i--){
-				if (variablesCounter[i] > 0) {
+		if (this.diet) {
+			for (int i = this.nestedType; i > 0; i--){
+				if (this.variablesCounter[i] > 0) {
 					insideFieldInitializer = true;
 					break;
 				}
 			}
 		}
 		
-		if (!diet || insideFieldInitializer){
+		if (!this.diet || insideFieldInitializer){
 			// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
 			constructorCall = SuperReference.implicitSuperConstructorCall();
 		}
 	}
 
 	// now we know that the top of stack is a constructorDeclaration
-	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
+	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
 	cd.constructorCall = constructorCall;
 	cd.statements = statements;
 
@@ -1372,8 +1372,8 @@ protected void consumeConstructorDeclaration() {
 		cd.constructorCall.sourceStart = cd.sourceStart;
 	}
 
-	if (!diet && (statements == null && constructorCall.isImplicitSuper())) {
-		if (!containsComment(cd.bodyStart, endPosition)) {
+	if (!this.diet && (statements == null && constructorCall.isImplicitSuper())) {
+		if (!containsComment(cd.bodyStart, this.endPosition)) {
 			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 		}
 	}
@@ -1381,17 +1381,17 @@ protected void consumeConstructorDeclaration() {
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
-	cd.bodyEnd = endPosition;
-	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
+	cd.bodyEnd = this.endPosition;
+	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 }
 
 protected void consumeInvalidConstructorDeclaration() {
 	// ConstructorDeclaration ::= ConstructorHeader ';'
 	// now we know that the top of stack is a constructorDeclaration
-	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
+	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
 
-	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
-	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
+	cd.bodyEnd = this.endPosition; // position just before the trailing semi-colon
+	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	
 	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
@@ -1399,31 +1399,31 @@ protected void consumeInvalidConstructorDeclaration() {
 protected void consumeConstructorHeader() {
 	// ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderThrowsClauseopt
 
-	AbstractMethodDeclaration method = (AbstractMethodDeclaration)astStack[astPtr];
+	AbstractMethodDeclaration method = (AbstractMethodDeclaration)this.astStack[this.astPtr];
 
-	if (currentToken == TokenNameLBRACE){ 
-		method.bodyStart = scanner.currentPosition;
+	if (this.currentToken == TokenNameLBRACE){ 
+		method.bodyStart = this.scanner.currentPosition;
 	}
 	// recovery
-	if (currentElement != null){
-		if (currentToken == TokenNameSEMICOLON){ // for invalid constructors
+	if (this.currentElement != null){
+		if (this.currentToken == TokenNameSEMICOLON){ // for invalid constructors
 			method.modifiers |= AccSemicolonBody;			
-			method.declarationSourceEnd = scanner.currentPosition-1;
-			method.bodyEnd = scanner.currentPosition-1;
-			if (currentElement.parseTree() == method && currentElement.parent != null) {
-				currentElement = currentElement.parent;
+			method.declarationSourceEnd = this.scanner.currentPosition-1;
+			method.bodyEnd = this.scanner.currentPosition-1;
+			if (this.currentElement.parseTree() == method && this.currentElement.parent != null) {
+				this.currentElement = this.currentElement.parent;
 			}
 		}		
-		restartRecovery = true; // used to avoid branching back into the regular automaton
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}		
 }
 protected void consumeConstructorHeaderName() {
 
 	/* recovering - might be an empty message send */
-	if (currentElement != null){
-		if (lastIgnoredToken == TokenNamenew){ // was an allocation expression
-			lastCheckPoint = scanner.startPosition; // force to restart at this exact position				
-			restartRecovery = true;
+	if (this.currentElement != null){
+		if (this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
+			this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position				
+			this.restartRecovery = true;
 			return;
 		}
 	}
@@ -1432,13 +1432,13 @@ protected void consumeConstructorHeaderName() {
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
-	cd.selector = identifierStack[identifierPtr];
-	long selectorSource = identifierPositionStack[identifierPtr--];
-	identifierLengthPtr--;
+	cd.selector = this.identifierStack[this.identifierPtr];
+	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 
 	//modifiers
-	cd.declarationSourceStart = intStack[intPtr--];
-	cd.modifiers = intStack[intPtr--];
+	cd.declarationSourceStart = this.intStack[this.intPtr--];
+	cd.modifiers = this.intStack[this.intPtr--];
 	// javadoc
 	cd.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -1446,50 +1446,50 @@ protected void consumeConstructorHeaderName() {
 	//highlight starts at the selector starts
 	cd.sourceStart = (int) (selectorSource >>> 32);
 	pushOnAstStack(cd);
-	cd.sourceEnd = lParenPos;
-	cd.bodyStart = lParenPos+1;
-	listLength = 0; // initialize listLength before reading parameters/throws
+	cd.sourceEnd = this.lParenPos;
+	cd.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
 
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = cd.bodyStart;
-		if ((currentElement instanceof RecoveredType && lastIgnoredToken != TokenNameDOT)
+	if (this.currentElement != null){
+		this.lastCheckPoint = cd.bodyStart;
+		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
 			|| cd.modifiers != 0){
-			currentElement = currentElement.add(cd, 0);
-			lastIgnoredToken = -1;
+			this.currentElement = this.currentElement.add(cd, 0);
+			this.lastIgnoredToken = -1;
 		}
 	}	
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new CaseStatement(null, intStack[intPtr--], intStack[intPtr--]));
+	pushOnAstStack(new CaseStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--]));
 }
 protected void consumeDefaultModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
-	pushOnIntStack(modifiers); // modifiers
+	pushOnIntStack(this.modifiers); // modifiers
 	pushOnIntStack(
-		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition); 
+		this.modifiersSourceStart >= 0 ? this.modifiersSourceStart : this.scanner.startPosition); 
 	resetModifiers();
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
 	checkComment();
-	pushOnIntStack(modifiersSourceStart); // push the start position of a javadoc comment if there is one
+	pushOnIntStack(this.modifiersSourceStart); // push the start position of a javadoc comment if there is one
 	resetModifiers();
 	jumpOverMethodBody();
 }
 protected void consumeDims() {
 	// Dims ::= DimsLoop
-	pushOnIntStack(dimensions);
-	dimensions = 0;
+	pushOnIntStack(this.dimensions);
+	this.dimensions = 0;
 }
 protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
 	
-	if(currentElement != null && currentToken == TokenNameLBRACE) {
-		ignoreNextOpeningBrace = true;
-		currentElement.bracketBalance++; 
+	if(this.currentElement != null && this.currentToken == TokenNameLBRACE) {
+		this.ignoreNextOpeningBrace = true;
+		this.currentElement.bracketBalance++; 
 	}
 }
 protected void consumeDimWithOrWithOutExprs() {
@@ -1523,7 +1523,7 @@ protected void consumeEmptyClassBodyDeclarationsopt() {
 protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
 	pushOnAstLengthStack(0);
-	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
+	problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
 	this.scanner.commentPtr = -1;
 }
 protected void consumeEmptyDimsopt() {
@@ -1556,11 +1556,11 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
-	if (this.scanner.source[endStatementPosition] == ';') {
-		pushOnAstStack(new EmptyStatement(endStatementPosition, endStatementPosition));
+	if (this.scanner.source[this.endStatementPosition] == ';') {
+		pushOnAstStack(new EmptyStatement(this.endStatementPosition, this.endStatementPosition));
 	} else {
 		// we have a Unicode for the ';' (/u003B)
-		pushOnAstStack(new EmptyStatement(endStatementPosition - 5, endStatementPosition));
+		pushOnAstStack(new EmptyStatement(this.endStatementPosition - 5, this.endStatementPosition));
 	}
 }
 protected void consumeEmptySwitchBlock() {
@@ -1570,7 +1570,7 @@ protected void consumeEmptySwitchBlock() {
 protected void consumeEmptyTypeDeclaration() {
 	// TypeDeclaration ::= ';' 
 	pushOnAstLengthStack(0);
-	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
+	problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
 	this.scanner.commentPtr = -1;	
 }
 protected void consumeEmptyTypeDeclarationsopt() {
@@ -1587,13 +1587,13 @@ protected void consumeEnterAnonymousClassBody() {
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
-	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
+	alloc.sourceEnd = this.rParenPos; //the position has been stored explicitly
 	int argumentLength;
-	if ((argumentLength = expressionLengthStack[expressionLengthPtr--]) != 0) {
-		expressionPtr -= argumentLength;
+	if ((argumentLength = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= argumentLength;
 		System.arraycopy(
-			expressionStack, 
-			expressionPtr + 1, 
+			this.expressionStack, 
+			this.expressionPtr + 1, 
 			alloc.arguments = new Expression[argumentLength], 
 			0, 
 			argumentLength); 
@@ -1603,17 +1603,17 @@ protected void consumeEnterAnonymousClassBody() {
 	anonymousType.sourceEnd = alloc.sourceEnd;
 	//position at the type while it impacts the anonymous declaration
 	anonymousType.sourceStart = anonymousType.declarationSourceStart = alloc.type.sourceStart;
-	alloc.sourceStart = intStack[intPtr--];
+	alloc.sourceStart = this.intStack[this.intPtr--];
 	pushOnExpressionStack(alloc);
 
-	anonymousType.bodyStart = scanner.currentPosition;	
-	listLength = 0; // will be updated when reading super-interfaces
+	anonymousType.bodyStart = this.scanner.currentPosition;	
+	this.listLength = 0; // will be updated when reading super-interfaces
 	// recovery
-	if (currentElement != null){ 
-		lastCheckPoint = anonymousType.bodyStart;		
-		currentElement = currentElement.add(anonymousType, 0);
-		currentToken = 0; // opening brace already taken into account
-		lastIgnoredToken = -1;
+	if (this.currentElement != null){ 
+		this.lastCheckPoint = anonymousType.bodyStart;		
+		this.currentElement = this.currentElement.add(anonymousType, 0);
+		this.currentToken = 0; // opening brace already taken into account
+		this.lastIgnoredToken = -1;
 	}	
 }
 protected void consumeEnterCompilationUnit() {
@@ -1624,12 +1624,12 @@ protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default
 
-	char[] identifierName = identifierStack[identifierPtr];
-	long namePosition = identifierPositionStack[identifierPtr];
-	int extendedDimension = intStack[intPtr--];
+	char[] identifierName = this.identifierStack[this.identifierPtr];
+	long namePosition = this.identifierPositionStack[this.identifierPtr];
+	int extendedDimension = this.intStack[this.intPtr--];
 	AbstractVariableDeclaration declaration;
 	// create the ast node
-	boolean isLocalDeclaration = nestedMethod[nestedType] != 0; 
+	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0; 
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration = 
@@ -1640,27 +1640,27 @@ protected void consumeEnterVariable() {
 			this.createFieldDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
 	
-	identifierPtr--;
-	identifierLengthPtr--;
+	this.identifierPtr--;
+	this.identifierLengthPtr--;
 	TypeReference type;
-	int variableIndex = variablesCounter[nestedType];
+	int variableIndex = this.variablesCounter[this.nestedType];
 	int typeDim = 0;
 	if (variableIndex == 0) {
 		// first variable of the declaration (FieldDeclaration or LocalDeclaration)
 		if (isLocalDeclaration) {
-			declaration.declarationSourceStart = intStack[intPtr--];
-			declaration.modifiers = intStack[intPtr--];
-			type = getTypeReference(typeDim = intStack[intPtr--]); // type dimension
+			declaration.declarationSourceStart = this.intStack[this.intPtr--];
+			declaration.modifiers = this.intStack[this.intPtr--];
+			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
 			if (declaration.declarationSourceStart == -1) {
 				// this is true if there is no modifiers for the local variable declaration
 				declaration.declarationSourceStart = type.sourceStart;
 			}
 			pushOnAstStack(type);
 		} else {
-			type = getTypeReference(typeDim = intStack[intPtr--]); // type dimension
+			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
 			pushOnAstStack(type);
-			declaration.declarationSourceStart = intStack[intPtr--];
-			declaration.modifiers = intStack[intPtr--];
+			declaration.declarationSourceStart = this.intStack[this.intPtr--];
+			declaration.modifiers = this.intStack[this.intPtr--];
 			
 			// Store javadoc only on first declaration as it is the same for all ones
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
@@ -1668,10 +1668,10 @@ protected void consumeEnterVariable() {
 			this.javadoc = null;
 		}
 	} else {
-		type = (TypeReference) astStack[astPtr - variableIndex];
+		type = (TypeReference) this.astStack[this.astPtr - variableIndex];
 		typeDim = type.dimensions();
 		AbstractVariableDeclaration previousVariable = 
-			(AbstractVariableDeclaration) astStack[astPtr]; 
+			(AbstractVariableDeclaration) this.astStack[this.astPtr]; 
 		declaration.declarationSourceStart = previousVariable.declarationSourceStart;
 		declaration.modifiers = previousVariable.modifiers;
 	}
@@ -1682,7 +1682,7 @@ protected void consumeEnterVariable() {
 		int dimension = typeDim + extendedDimension;
 		//on the identifierLengthStack there is the information about the type....
 		int baseType;
-		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
+		if ((baseType = this.identifierLengthStack[this.identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			int typeSourceStart = type.sourceStart;
 			int typeSourceEnd = type.sourceEnd;
@@ -1694,29 +1694,29 @@ protected void consumeEnterVariable() {
 			declaration.type = this.copyDims(type, dimension);
 		}
 	}
-	variablesCounter[nestedType]++;
+	this.variablesCounter[this.nestedType]++;
 	pushOnAstStack(declaration);
 	// recovery
-	if (currentElement != null) {
-		if (!(currentElement instanceof RecoveredType)
-			&& (currentToken == TokenNameDOT
+	if (this.currentElement != null) {
+		if (!(this.currentElement instanceof RecoveredType)
+			&& (this.currentToken == TokenNameDOT
 				//|| declaration.modifiers != 0
-				|| (scanner.getLineNumber(declaration.type.sourceStart)
-						!= scanner.getLineNumber((int) (namePosition >>> 32))))){
-			lastCheckPoint = (int) (namePosition >>> 32);
-			restartRecovery = true;
+				|| (this.scanner.getLineNumber(declaration.type.sourceStart)
+						!= this.scanner.getLineNumber((int) (namePosition >>> 32))))){
+			this.lastCheckPoint = (int) (namePosition >>> 32);
+			this.restartRecovery = true;
 			return;
 		}
 		if (isLocalDeclaration){
-			LocalDeclaration localDecl = (LocalDeclaration) astStack[astPtr];
-			lastCheckPoint = localDecl.sourceEnd + 1;
-			currentElement = currentElement.add(localDecl, 0);
+			LocalDeclaration localDecl = (LocalDeclaration) this.astStack[this.astPtr];
+			this.lastCheckPoint = localDecl.sourceEnd + 1;
+			this.currentElement = this.currentElement.add(localDecl, 0);
 		} else {
-			FieldDeclaration fieldDecl = (FieldDeclaration) astStack[astPtr];
-			lastCheckPoint = fieldDecl.sourceEnd + 1;
-			currentElement = currentElement.add(fieldDecl, 0);
+			FieldDeclaration fieldDecl = (FieldDeclaration) this.astStack[this.astPtr];
+			this.lastCheckPoint = fieldDecl.sourceEnd + 1;
+			this.currentElement = this.currentElement.add(fieldDecl, 0);
 		}
-		lastIgnoredToken = -1;
+		this.lastIgnoredToken = -1;
 	}
 }
 protected void consumeEqualityExpression(int op) {
@@ -1725,26 +1725,26 @@ protected void consumeEqualityExpression(int op) {
 
 	//optimize the push/pop
 
-	expressionPtr--;
-	expressionLengthPtr--;
-	expressionStack[expressionPtr] =
+	this.expressionPtr--;
+	this.expressionLengthPtr--;
+	this.expressionStack[this.expressionPtr] =
 		new EqualExpression(
-			expressionStack[expressionPtr],
-			expressionStack[expressionPtr + 1],
+			this.expressionStack[this.expressionPtr],
+			this.expressionStack[this.expressionPtr + 1],
 			op);
 }
 protected void consumeExitTryBlock() {
 	//ExitTryBlock ::= $empty
-	if(currentElement != null) {
-		restartRecovery = true;
+	if(this.currentElement != null) {
+		this.restartRecovery = true;
 	}
 }
 protected void consumeExitVariableWithInitialization() {
 	// ExitVariableWithInitialization ::= $empty
 	// do nothing by default
-	expressionLengthPtr--;
-	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) astStack[astPtr];
-	variableDecl.initialization = expressionStack[expressionPtr--];
+	this.expressionLengthPtr--;
+	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) this.astStack[this.astPtr];
+	variableDecl.initialization = this.expressionStack[this.expressionPtr--];
 	// we need to update the declarationSourceEnd of the local variable declaration to the
 	// source end position of the initialization expression
 	variableDecl.declarationSourceEnd = variableDecl.initialization.sourceEnd;
@@ -1756,7 +1756,7 @@ protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
 	
-	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) astStack[astPtr];
+	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) this.astStack[this.astPtr];
 	variableDecl.declarationSourceEnd = variableDecl.declarationEnd;
 	
 	this.recoveryExitFromVariable();
@@ -1774,32 +1774,32 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
 	ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 	*/
-	int startPosition = intStack[intPtr--];
+	int startPosition = this.intStack[this.intPtr--];
 	ExplicitConstructorCall ecc = new ExplicitConstructorCall(recFlag);
 	int length;
-	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
-		expressionPtr -= length;
-		System.arraycopy(expressionStack, expressionPtr + 1, ecc.arguments = new Expression[length], 0, length);
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= length;
+		System.arraycopy(this.expressionStack, this.expressionPtr + 1, ecc.arguments = new Expression[length], 0, length);
 	}
 	switch (flag) {
 		case 0 :
 			ecc.sourceStart = startPosition;
 			break;
 		case 1 :
-			expressionLengthPtr--;
-			ecc.sourceStart = (ecc.qualification = expressionStack[expressionPtr--]).sourceStart;
+			this.expressionLengthPtr--;
+			ecc.sourceStart = (ecc.qualification = this.expressionStack[this.expressionPtr--]).sourceStart;
 			break;
 		case 2 :
 			ecc.sourceStart = (ecc.qualification = getUnspecifiedReferenceOptimized()).sourceStart;
 			break;
 	}
 	pushOnAstStack(ecc);
-	ecc.sourceEnd = endPosition;
+	ecc.sourceEnd = this.endPosition;
 }
 protected void consumeExpressionStatement() {
 	// ExpressionStatement ::= StatementExpression ';'
-	expressionLengthPtr--;
-	pushOnAstStack(expressionStack[expressionPtr--]);
+	this.expressionLengthPtr--;
+	pushOnAstStack(this.expressionStack[this.expressionPtr--]);
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
@@ -1807,21 +1807,21 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 
 	FieldReference fr =
 		new FieldReference(
-			identifierStack[identifierPtr],
-			identifierPositionStack[identifierPtr--]);
-	identifierLengthPtr--;
+			this.identifierStack[this.identifierPtr],
+			this.identifierPositionStack[this.identifierPtr--]);
+	this.identifierLengthPtr--;
 	if (isSuperAccess) {
 		//considerates the fieldReference beginning at the 'super' ....	
-		fr.sourceStart = intStack[intPtr--];
-		fr.receiver = new SuperReference(fr.sourceStart, endPosition);
+		fr.sourceStart = this.intStack[this.intPtr--];
+		fr.receiver = new SuperReference(fr.sourceStart, this.endPosition);
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
-		if ((fr.receiver = expressionStack[expressionPtr]).isThis()) {
+		if ((fr.receiver = this.expressionStack[this.expressionPtr]).isThis()) {
 			//fieldreference begins at the this
 			fr.sourceStart = fr.receiver.sourceStart;
 		}
-		expressionStack[expressionPtr] = fr;
+		this.expressionStack[this.expressionPtr] = fr;
 	}
 }
 protected void consumeFieldDeclaration() {
@@ -1840,48 +1840,48 @@ protected void consumeFieldDeclaration() {
 	intStack : 
 	  
 	*/
-	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
+	int variableDeclaratorsCounter = this.astLengthStack[this.astLengthPtr];
 
 	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) astStack[astPtr - i];
-		fieldDeclaration.declarationSourceEnd = endStatementPosition; 
-		fieldDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr - i];
+		fieldDeclaration.declarationSourceEnd = this.endStatementPosition; 
+		fieldDeclaration.declarationEnd = this.endStatementPosition;	// semi-colon included
 	}
 	
 	updateSourceDeclarationParts(variableDeclaratorsCounter);
-	int endPos = flushCommentsDefinedPriorTo(endStatementPosition);
-	if (endPos != endStatementPosition) {
+	int endPos = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	if (endPos != this.endStatementPosition) {
 		for (int i = 0; i < variableDeclaratorsCounter; i++) {
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) astStack[astPtr - i];
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr - i];
 			fieldDeclaration.declarationSourceEnd = endPos;
 		}
 	}
 	// update the astStack, astPtr and astLengthStack
-	int startIndex = astPtr - variablesCounter[nestedType] + 1;
+	int startIndex = this.astPtr - this.variablesCounter[this.nestedType] + 1;
 	System.arraycopy(
-		astStack, 
+		this.astStack, 
 		startIndex, 
-		astStack, 
+		this.astStack, 
 		startIndex - 1, 
 		variableDeclaratorsCounter); 
-	astPtr--; // remove the type reference
-	astLengthStack[--astLengthPtr] = variableDeclaratorsCounter;
+	this.astPtr--; // remove the type reference
+	this.astLengthStack[--this.astLengthPtr] = variableDeclaratorsCounter;
 
 	// recovery
-	if (currentElement != null) {
-		lastCheckPoint = endPos + 1;
-		if (currentElement.parent != null && currentElement instanceof RecoveredField){
-			if (!(currentElement instanceof RecoveredInitializer)) {
-				currentElement = currentElement.parent;
+	if (this.currentElement != null) {
+		this.lastCheckPoint = endPos + 1;
+		if (this.currentElement.parent != null && this.currentElement instanceof RecoveredField){
+			if (!(this.currentElement instanceof RecoveredInitializer)) {
+				this.currentElement = this.currentElement.parent;
 			}
 		}
-		restartRecovery = true;
+		this.restartRecovery = true;
 	}
-	variablesCounter[nestedType] = 0;
+	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeForceNoDiet() {
 	// ForceNoDiet ::= $empty
-	dietInt++;
+	this.dietInt++;
 }
 protected void consumeForInit() {
 	// ForInit ::= StatementExpressionList
@@ -1900,24 +1900,24 @@ protected void consumeFormalParameter() {
 	intStack :  
 	*/
 
-	identifierLengthPtr--;
-	char[] identifierName = identifierStack[identifierPtr];
-	long namePositions = identifierPositionStack[identifierPtr--];
-	TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
-	int modifierPositions = intStack[intPtr--];
-	intPtr--;
+	this.identifierLengthPtr--;
+	char[] identifierName = this.identifierStack[this.identifierPtr];
+	long namePositions = this.identifierPositionStack[this.identifierPtr--];
+	TypeReference type = getTypeReference(this.intStack[this.intPtr--] + this.intStack[this.intPtr--]);
+	int modifierPositions = this.intStack[this.intPtr--];
+	this.intPtr--;
 	Argument arg = 
 		new Argument(
 			identifierName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+			this.intStack[this.intPtr + 1] & ~AccDeprecated); // modifiers
 	arg.declarationSourceStart = modifierPositions;
 	pushOnAstStack(arg);
 
 	/* if incomplete method header, listLength counter will not have been reset,
 		indicating that some arguments are available on the stack */
-	listLength++; 	
+	this.listLength++; 	
 }
 protected void consumeFormalParameterList() {
 	// FormalParameterList ::= FormalParameterList ',' FormalParameter
@@ -1934,12 +1934,12 @@ protected void consumeImportDeclarations() {
 protected void consumeImportDeclarationsopt() {
 	// ImportDeclarationsopt ::= ImportDeclarations
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
 		System.arraycopy(
-			astStack,
-			astPtr + 1,
-			compilationUnit.imports = new ImportReference[length],
+			this.astStack,
+			this.astPtr + 1,
+			this.compilationUnit.imports = new ImportReference[length],
 			0,
 			length);
 	}
@@ -1957,14 +1957,14 @@ protected void consumeInstanceOfExpression(int op) {
 
 	//by construction, no base type may be used in getTypeReference
 	Expression exp;
-	expressionStack[expressionPtr] = exp =
+	this.expressionStack[this.expressionPtr] = exp =
 		new InstanceOfExpression(
-			expressionStack[expressionPtr],
-			getTypeReference(intStack[intPtr--]),
+			this.expressionStack[this.expressionPtr],
+			getTypeReference(this.intStack[this.intPtr--]),
 			op);
 	if (exp.sourceEnd == 0) {
 		//array on base type....
-		exp.sourceEnd = scanner.startPosition - 1;
+		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
 	//the scanner is on the next token already....
 }
@@ -1972,13 +1972,13 @@ protected void consumeInterfaceDeclaration() {
 	// see consumeClassDeclaration in case of changes: duplicated code
 	// InterfaceDeclaration ::= InterfaceHeader InterfaceBody
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		//there are length declarations
 		//dispatch.....according to the type of the declarations
 		dispatchDeclarationInto(length);
 	}
 
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	
 	// mark initializers with local type mark if needed
 	markInitializersWithLocalType(typeDecl);
@@ -1991,50 +1991,50 @@ protected void consumeInterfaceDeclaration() {
 		typeDecl.bits |= ASTNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
-	typeDecl.bodyEnd = endStatementPosition;
+	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
-	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition); 
+	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 }
 protected void consumeInterfaceHeader() {
 	// InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
 
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];	
-	if (currentToken == TokenNameLBRACE){ 
-		typeDecl.bodyStart = scanner.currentPosition;
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];	
+	if (this.currentToken == TokenNameLBRACE){ 
+		typeDecl.bodyStart = this.scanner.currentPosition;
 	}
-	if (currentElement != null){
-		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	if (this.currentElement != null){
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 	// flush the comments related to the interface header
-	scanner.commentPtr = -1;	
+	this.scanner.commentPtr = -1;	
 }
 protected void consumeInterfaceHeaderExtends() {
 	// InterfaceHeaderExtends ::= 'extends' InterfaceTypeList
-	int length = astLengthStack[astLengthPtr--];
+	int length = this.astLengthStack[this.astLengthPtr--];
 	//super interfaces
-	astPtr -= length;
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	this.astPtr -= length;
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	System.arraycopy(
-		astStack, 
-		astPtr + 1, 
+		this.astStack, 
+		this.astPtr + 1, 
 		typeDecl.superInterfaces = new TypeReference[length], 
 		0, 
 		length); 
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;		
-	listLength = 0; // reset after having read super-interfaces		
+	this.listLength = 0; // reset after having read super-interfaces		
 	// recovery
-	if (currentElement != null) { 
-		lastCheckPoint = typeDecl.bodyStart;
+	if (this.currentElement != null) { 
+		this.lastCheckPoint = typeDecl.bodyStart;
 	}
 }
 protected void consumeInterfaceHeaderName() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 
-	if (nestedMethod[nestedType] == 0) {
-		if (nestedType != 0) {
+	if (this.nestedMethod[this.nestedType] == 0) {
+		if (this.nestedType != 0) {
 			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
 		}
 	} else {
@@ -2045,31 +2045,31 @@ protected void consumeInterfaceHeaderName() {
 	}
 
 	//highlight the name of the type
-	long pos = identifierPositionStack[identifierPtr];
+	long pos = this.identifierPositionStack[this.identifierPtr];
 	typeDecl.sourceEnd = (int) pos;
 	typeDecl.sourceStart = (int) (pos >>> 32);
-	typeDecl.name = identifierStack[identifierPtr--];
-	identifierLengthPtr--;
+	typeDecl.name = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 
 	//compute the declaration source too
 	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
 	// we want to keep the beginning position but get rid of the end position
 	// it is only used for the ClassLiteralAccess positions.
-	typeDecl.declarationSourceStart = intStack[intPtr--];
-	intPtr--; // remove the end position of the class token
-	typeDecl.modifiersSourceStart = intStack[intPtr--];
-	typeDecl.modifiers = intStack[intPtr--];
+	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
+	this.intPtr--; // remove the end position of the class token
+	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+	typeDecl.modifiers = this.intStack[this.intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
-	listLength = 0; // will be updated when reading super-interfaces
+	this.listLength = 0; // will be updated when reading super-interfaces
 	// recovery
-	if (currentElement != null){ // is recovering
-		lastCheckPoint = typeDecl.bodyStart;
-		currentElement = currentElement.add(typeDecl, 0);
-		lastIgnoredToken = -1;		
+	if (this.currentElement != null){ // is recovering
+		this.lastCheckPoint = typeDecl.bodyStart;
+		this.currentElement = this.currentElement.add(typeDecl, 0);
+		this.lastIgnoredToken = -1;		
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -2081,14 +2081,14 @@ protected void consumeInterfaceMemberDeclarations() {
 }
 protected void consumeInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= NestedType InterfaceMemberDeclarations
-	nestedType--;
+	this.nestedType--;
 }
 protected void consumeInterfaceType() {
 	// InterfaceType ::= ClassOrInterfaceType
 	pushOnAstStack(getTypeReference(0));
 	/* if incomplete type header, listLength counter will not have been reset,
 		indicating that some interfaces are available on the stack */
-	listLength++; 	
+	this.listLength++; 	
 }
 protected void consumeInterfaceTypeList() {
 	// InterfaceTypeList ::= InterfaceTypeList ',' InterfaceType
@@ -2096,7 +2096,7 @@ protected void consumeInterfaceTypeList() {
 }
 protected void consumeLeftParen() {
 	// PushLPAREN ::= '('
-	pushOnIntStack(lParenPos);
+	pushOnIntStack(this.lParenPos);
 }
 protected void consumeLocalVariableDeclaration() {
 	// LocalVariableDeclaration ::= Modifiers Type VariableDeclarators ';'
@@ -2113,38 +2113,38 @@ protected void consumeLocalVariableDeclaration() {
 	intStack : 
 	  
 	*/
-	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
+	int variableDeclaratorsCounter = this.astLengthStack[this.astLengthPtr];
 
 	// update the astStack, astPtr and astLengthStack
-	int startIndex = astPtr - variablesCounter[nestedType] + 1;
+	int startIndex = this.astPtr - this.variablesCounter[this.nestedType] + 1;
 	System.arraycopy(
-		astStack, 
+		this.astStack, 
 		startIndex, 
-		astStack, 
+		this.astStack, 
 		startIndex - 1, 
 		variableDeclaratorsCounter); 
-	astPtr--; // remove the type reference
-	astLengthStack[--astLengthPtr] = variableDeclaratorsCounter;
-	variablesCounter[nestedType] = 0;
+	this.astPtr--; // remove the type reference
+	this.astLengthStack[--this.astLengthPtr] = variableDeclaratorsCounter;
+	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeLocalVariableDeclarationStatement() {
 	// LocalVariableDeclarationStatement ::= LocalVariableDeclaration ';'
 	// see blockReal in case of change: duplicated code
 	// increment the amount of declared variables for this block
-	realBlockStack[realBlockPtr]++;
+	this.realBlockStack[this.realBlockPtr]++;
 	
 	// update source end to include the semi-colon
-	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
+	int variableDeclaratorsCounter = this.astLengthStack[this.astLengthPtr];
 	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
-		LocalDeclaration localDeclaration = (LocalDeclaration) astStack[astPtr - i];
-		localDeclaration.declarationSourceEnd = endStatementPosition; 
-		localDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
+		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr - i];
+		localDeclaration.declarationSourceEnd = this.endStatementPosition; 
+		localDeclaration.declarationEnd = this.endStatementPosition;	// semi-colon included
 	}
 
 }
 protected void consumeMethodBody() {
 	// MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
-	nestedMethod[nestedType] --;
+	this.nestedMethod[this.nestedType] --;
 }
 protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	// MethodDeclaration ::= MethodHeader MethodBody
@@ -2163,19 +2163,19 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	int length;
 	if (isNotAbstract) {
 		// pop the position of the {  (body of the method) pushed in block decl
-		intPtr--;
-		intPtr--;
+		this.intPtr--;
+		this.intPtr--;
 	}
 
 	int explicitDeclarations = 0;
 	Statement[] statements = null;
 	if (isNotAbstract) {
 		//statements
-		explicitDeclarations = realBlockStack[realBlockPtr--];
-		if ((length = astLengthStack[astLengthPtr--]) != 0) {
+		explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
+		if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 			System.arraycopy(
-				astStack, 
-				(astPtr -= length) + 1, 
+				this.astStack, 
+				(this.astPtr -= length) + 1, 
 				statements = new Statement[length], 
 				0, 
 				length); 
@@ -2183,7 +2183,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	}
 
 	// now we know that we have a method declaration at the top of the ast stack
-	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
+	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
 	md.statements = statements;
 	md.explicitDeclarations = explicitDeclarations;
 
@@ -2192,49 +2192,49 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	if (!isNotAbstract) { //remember the fact that the method has a semicolon body
 		md.modifiers |= AccSemicolonBody;
 	} else {
-		if (!diet && statements == null) {
-			if (!containsComment(md.bodyStart, endPosition)) {
+		if (!this.diet && statements == null) {
+			if (!containsComment(md.bodyStart, this.endPosition)) {
 				md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 			}
 		}
 	}
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
-	md.bodyEnd = endPosition;
-	md.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	md.bodyEnd = this.endPosition;
+	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeMethodHeader() {
 	// MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims ThrowsClauseopt
 	// retrieve end position of method declarator
-	AbstractMethodDeclaration method = (AbstractMethodDeclaration)astStack[astPtr];
+	AbstractMethodDeclaration method = (AbstractMethodDeclaration)this.astStack[this.astPtr];
 
-	if (currentToken == TokenNameLBRACE){ 
-		method.bodyStart = scanner.currentPosition;
+	if (this.currentToken == TokenNameLBRACE){ 
+		method.bodyStart = this.scanner.currentPosition;
 	}
 	// recovery
-	if (currentElement != null){
-		if (currentToken == TokenNameSEMICOLON){
+	if (this.currentElement != null){
+		if (this.currentToken == TokenNameSEMICOLON){
 			method.modifiers |= AccSemicolonBody;			
-			method.declarationSourceEnd = scanner.currentPosition-1;
-			method.bodyEnd = scanner.currentPosition-1;
-			if (currentElement.parseTree() == method && currentElement.parent != null) {
-				currentElement = currentElement.parent;
+			method.declarationSourceEnd = this.scanner.currentPosition-1;
+			method.bodyEnd = this.scanner.currentPosition-1;
+			if (this.currentElement.parseTree() == method && this.currentElement.parent != null) {
+				this.currentElement = this.currentElement.parent;
 			}
 		}		
-		restartRecovery = true; // used to avoid branching back into the regular automaton
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}		
 }
 protected void consumeMethodHeaderExtendedDims() {
 	// MethodHeaderExtendedDims ::= Dimsopt
 	// now we update the returnType of the method
-	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
-	int extendedDims = intStack[intPtr--];
+	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
+	int extendedDims = this.intStack[this.intPtr--];
 	if (extendedDims != 0) {
 		TypeReference returnType = md.returnType;
-		md.sourceEnd = endPosition;
+		md.sourceEnd = this.endPosition;
 		int dims = returnType.dimensions() + extendedDims;
 		int baseType;
-		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
+		if ((baseType = this.identifierLengthStack[this.identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			int sourceStart = returnType.sourceStart;
 			int sourceEnd =  returnType.sourceEnd;
@@ -2245,12 +2245,12 @@ protected void consumeMethodHeaderExtendedDims() {
 		} else {
 			md.returnType = this.copyDims(md.returnType, dims);
 		}
-		if (currentToken == TokenNameLBRACE){ 
-			md.bodyStart = endPosition + 1;
+		if (this.currentToken == TokenNameLBRACE){ 
+			md.bodyStart = this.endPosition + 1;
 		}
 		// recovery
-		if (currentElement != null){
-			lastCheckPoint = md.bodyStart;
+		if (this.currentElement != null){
+			this.lastCheckPoint = md.bodyStart;
 		}		
 	}
 }
@@ -2259,14 +2259,14 @@ protected void consumeMethodHeaderName() {
 	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
-	md.selector = identifierStack[identifierPtr];
-	long selectorSource = identifierPositionStack[identifierPtr--];
-	identifierLengthPtr--;
+	md.selector = this.identifierStack[this.identifierPtr];
+	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 	//type
-	md.returnType = getTypeReference(intStack[intPtr--]);
+	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
 	//modifiers
-	md.declarationSourceStart = intStack[intPtr--];
-	md.modifiers = intStack[intPtr--];
+	md.declarationSourceStart = this.intStack[this.intPtr--];
+	md.modifiers = this.intStack[this.intPtr--];
 	// javadoc
 	md.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -2274,75 +2274,75 @@ protected void consumeMethodHeaderName() {
 	//highlight starts at selector start
 	md.sourceStart = (int) (selectorSource >>> 32);
 	pushOnAstStack(md);
-	md.sourceEnd = lParenPos;
-	md.bodyStart = lParenPos+1;
-	listLength = 0; // initialize listLength before reading parameters/throws
+	md.sourceEnd = this.lParenPos;
+	md.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
 	
 	// recovery
-	if (currentElement != null){
-		if (currentElement instanceof RecoveredType 
+	if (this.currentElement != null){
+		if (this.currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (scanner.getLineNumber(md.returnType.sourceStart)
-					== scanner.getLineNumber(md.sourceStart))){
-			lastCheckPoint = md.bodyStart;
-			currentElement = currentElement.add(md, 0);
-			lastIgnoredToken = -1;
+			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
+					== this.scanner.getLineNumber(md.sourceStart))){
+			this.lastCheckPoint = md.bodyStart;
+			this.currentElement = this.currentElement.add(md, 0);
+			this.lastIgnoredToken = -1;
 		} else {
-			lastCheckPoint = md.sourceStart;
-			restartRecovery = true;
+			this.lastCheckPoint = md.sourceStart;
+			this.restartRecovery = true;
 		}
 	}		
 }
 protected void consumeMethodHeaderParameters() {
 	// MethodHeaderParameters ::= FormalParameterListopt ')'
-	int length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	AbstractMethodDeclaration md = (AbstractMethodDeclaration) astStack[astPtr];
-	md.sourceEnd = 	rParenPos;
+	int length = this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
+	AbstractMethodDeclaration md = (AbstractMethodDeclaration) this.astStack[this.astPtr];
+	md.sourceEnd = 	this.rParenPos;
 	//arguments
 	if (length != 0) {
 		System.arraycopy(
-			astStack, 
-			astPtr + 1, 
+			this.astStack, 
+			this.astPtr + 1, 
 			md.arguments = new Argument[length], 
 			0, 
 			length); 
 	}
-	md.bodyStart = rParenPos+1;
-	listLength = 0; // reset listLength after having read all parameters
+	md.bodyStart = this.rParenPos+1;
+	this.listLength = 0; // reset listLength after having read all parameters
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = md.bodyStart;
-		if (currentElement.parseTree() == md) return;
+	if (this.currentElement != null){
+		this.lastCheckPoint = md.bodyStart;
+		if (this.currentElement.parseTree() == md) return;
 
 		// might not have been attached yet - in some constructor scenarii
 		if (md.isConstructor()){
 			if ((length != 0)
-				|| (currentToken == TokenNameLBRACE) 
-				|| (currentToken == TokenNamethrows)){
-				currentElement = currentElement.add(md, 0);
-				lastIgnoredToken = -1;
+				|| (this.currentToken == TokenNameLBRACE) 
+				|| (this.currentToken == TokenNamethrows)){
+				this.currentElement = this.currentElement.add(md, 0);
+				this.lastIgnoredToken = -1;
 			}	
 		}	
 	}	
 }
 protected void consumeMethodHeaderThrowsClause() {
 	// MethodHeaderThrowsClause ::= 'throws' ClassTypeList
-	int length = astLengthStack[astLengthPtr--];
-	astPtr -= length;
-	AbstractMethodDeclaration md = (AbstractMethodDeclaration) astStack[astPtr];
+	int length = this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
+	AbstractMethodDeclaration md = (AbstractMethodDeclaration) this.astStack[this.astPtr];
 	System.arraycopy(
-		astStack, 
-		astPtr + 1, 
+		this.astStack, 
+		this.astPtr + 1, 
 		md.thrownExceptions = new TypeReference[length], 
 		0, 
 		length);
 	md.sourceEnd = md.thrownExceptions[length-1].sourceEnd;
 	md.bodyStart = md.thrownExceptions[length-1].sourceEnd + 1;
-	listLength = 0; // reset listLength after having read all thrown exceptions	
+	this.listLength = 0; // reset listLength after having read all thrown exceptions	
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = md.bodyStart;
+	if (this.currentElement != null){
+		this.lastCheckPoint = md.bodyStart;
 	}		
 }
 protected void consumeMethodInvocationName() {
@@ -2351,15 +2351,15 @@ protected void consumeMethodInvocationName() {
 	// when the name is only an identifier...we have a message send to "this" (implicit)
 
 	MessageSend m = newMessageSend();
-	m.sourceEnd = rParenPos;
+	m.sourceEnd = this.rParenPos;
 	m.sourceStart = 
-		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
-	m.selector = identifierStack[identifierPtr--];
-	if (identifierLengthStack[identifierLengthPtr] == 1) {
+		(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32); 
+	m.selector = this.identifierStack[this.identifierPtr--];
+	if (this.identifierLengthStack[this.identifierLengthPtr] == 1) {
 		m.receiver = ThisReference.implicitThis();
-		identifierLengthPtr--;
+		this.identifierLengthPtr--;
 	} else {
-		identifierLengthStack[identifierLengthPtr]--;
+		this.identifierLengthStack[this.identifierLengthPtr]--;
 		m.receiver = getUnspecifiedReference();
 		m.sourceStart = m.receiver.sourceStart;		
 	}
@@ -2371,61 +2371,61 @@ protected void consumeMethodInvocationPrimary() {
 
 	MessageSend m = newMessageSend();
 	m.sourceStart = 
-		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
-	m.selector = identifierStack[identifierPtr--];
-	identifierLengthPtr--;
-	m.receiver = expressionStack[expressionPtr];
+		(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32); 
+	m.selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	m.receiver = this.expressionStack[this.expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
-	m.sourceEnd = rParenPos;
-	expressionStack[expressionPtr] = m;
+	m.sourceEnd = this.rParenPos;
+	this.expressionStack[this.expressionPtr] = m;
 }
 protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 
 	MessageSend m = newMessageSend();
-	m.sourceStart = intStack[intPtr--];
-	m.sourceEnd = rParenPos;
-	m.nameSourcePosition = identifierPositionStack[identifierPtr];
-	m.selector = identifierStack[identifierPtr--];
-	identifierLengthPtr--;
-	m.receiver = new SuperReference(m.sourceStart, endPosition);
+	m.sourceStart = this.intStack[this.intPtr--];
+	m.sourceEnd = this.rParenPos;
+	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
+	m.selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
 }
 protected void consumeModifiers() {
-	int savedModifiersSourceStart = modifiersSourceStart;	
+	int savedModifiersSourceStart = this.modifiersSourceStart;	
 	checkComment(); // might update modifiers with AccDeprecated
-	pushOnIntStack(modifiers); // modifiers
-	if (modifiersSourceStart >= savedModifiersSourceStart) {
-		modifiersSourceStart = savedModifiersSourceStart;
+	pushOnIntStack(this.modifiers); // modifiers
+	if (this.modifiersSourceStart >= savedModifiersSourceStart) {
+		this.modifiersSourceStart = savedModifiersSourceStart;
 	}
-	pushOnIntStack(modifiersSourceStart);
+	pushOnIntStack(this.modifiersSourceStart);
 	resetModifiers();
 }
 protected void consumeNestedMethod() {
 	// NestedMethod ::= $empty
 	jumpOverMethodBody();
-	nestedMethod[nestedType] ++;
-	pushOnIntStack(scanner.currentPosition);
+	this.nestedMethod[this.nestedType] ++;
+	pushOnIntStack(this.scanner.currentPosition);
 	consumeOpenBlock();
 }
 protected void consumeNestedType() {
 	// NestedType ::= $empty
-	nestedType++;
+	this.nestedType++;
 	try {
-		nestedMethod[nestedType] = 0;
+		this.nestedMethod[this.nestedType] = 0;
 	} catch (IndexOutOfBoundsException e) {
 		//except in test's cases, it should never raise
-		int oldL = nestedMethod.length;
-		System.arraycopy(nestedMethod , 0, (nestedMethod = new int[oldL + 30]), 0, oldL);
-		nestedMethod[nestedType] = 0;
+		int oldL = this.nestedMethod.length;
+		System.arraycopy(this.nestedMethod , 0, (this.nestedMethod = new int[oldL + 30]), 0, oldL);
+		this.nestedMethod[this.nestedType] = 0;
 		// increase the size of the fieldsCounter as well. It has to be consistent with the size of the nestedMethod collection
-		System.arraycopy(variablesCounter, 0, (variablesCounter = new int[oldL + 30]), 0, oldL);
+		System.arraycopy(this.variablesCounter, 0, (this.variablesCounter = new int[oldL + 30]), 0, oldL);
 	}
-	variablesCounter[nestedType] = 0;
+	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeOneDimLoop() {
 	// OneDimLoop ::= '[' ']'
-	dimensions++;
+	this.dimensions++;
 }
 protected void consumeOnlySynchronized() {
 	// OnlySynchronized ::= 'synchronized'
@@ -2435,16 +2435,16 @@ protected void consumeOnlySynchronized() {
 protected void consumeOpenBlock() {
 	// OpenBlock ::= $empty
 
-	pushOnIntStack(scanner.startPosition);
+	pushOnIntStack(this.scanner.startPosition);
 	try {
-		realBlockStack[++realBlockPtr] = 0;
+		this.realBlockStack[++this.realBlockPtr] = 0;
 	} catch (IndexOutOfBoundsException e) {
-		//realBlockPtr is correct 
-		int oldStackLength = realBlockStack.length;
-		int oldStack[] = realBlockStack;
-		realBlockStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, realBlockStack, 0, oldStackLength);
-		realBlockStack[realBlockPtr] = 0;
+		//this.realBlockPtr is correct 
+		int oldStackLength = this.realBlockStack.length;
+		int oldStack[] = this.realBlockStack;
+		this.realBlockStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldStack, 0, this.realBlockStack, 0, oldStackLength);
+		this.realBlockStack[this.realBlockPtr] = 0;
 	}
 }
 protected void consumePackageDeclaration() {
@@ -2452,9 +2452,9 @@ protected void consumePackageDeclaration() {
 	/* build an ImportRef build from the last name 
 	stored in the identifier stack. */
 
-	ImportReference impt = compilationUnit.currentPackage;
+	ImportReference impt = this.compilationUnit.currentPackage;
 	// flush comments defined prior to import statements
-	impt.declarationEnd = endStatementPosition;
+	impt.declarationEnd = this.endStatementPosition;
 	impt.declarationSourceEnd = this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd);
 }
 protected void consumePackageDeclarationName() {
@@ -2465,32 +2465,32 @@ protected void consumePackageDeclarationName() {
 	ImportReference impt;
 	int length;
 	char[][] tokens = 
-		new char[length = identifierLengthStack[identifierLengthPtr--]][]; 
-	identifierPtr -= length;
+		new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][]; 
+	this.identifierPtr -= length;
 	long[] positions = new long[length];
-	System.arraycopy(identifierStack, ++identifierPtr, tokens, 0, length);
+	System.arraycopy(this.identifierStack, ++this.identifierPtr, tokens, 0, length);
 	System.arraycopy(
-		identifierPositionStack, 
-		identifierPtr--, 
+		this.identifierPositionStack, 
+		this.identifierPtr--, 
 		positions, 
 		0, 
 		length); 
-	compilationUnit.currentPackage = 
+	this.compilationUnit.currentPackage = 
 		impt = new ImportReference(tokens, positions, true, AccDefault); 
 
-	if (currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = scanner.currentPosition - 1;
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
-	impt.declarationSourceStart = intStack[intPtr--];
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = impt.declarationSourceEnd+1;
-		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}	
 }
 protected void consumePostfixExpression() {
@@ -2499,7 +2499,7 @@ protected void consumePostfixExpression() {
 }
 protected void consumePrimaryNoNewArray() {
 	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN 
-	final Expression parenthesizedExpression = expressionStack[expressionPtr];
+	final Expression parenthesizedExpression = this.expressionStack[this.expressionPtr];
 	updateSourcePosition(parenthesizedExpression);
 	int numberOfParenthesis = (parenthesizedExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 	parenthesizedExpression.bits &= ~ASTNode.ParenthesizedMASK;
@@ -2507,16 +2507,16 @@ protected void consumePrimaryNoNewArray() {
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'
-	intPtr--;
+	this.intPtr--;
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
-		getTypeReference(intStack[intPtr--])));
+		new ClassLiteralAccess(this.intStack[this.intPtr--],
+		getTypeReference(this.intStack[this.intPtr--])));
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
-	intPtr--;
+	this.intPtr--;
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
+		new ClassLiteralAccess(this.intStack[this.intPtr--],
 		getTypeReference(0)));
 }
 protected void consumePrimaryNoNewArrayNameSuper() {
@@ -2524,48 +2524,48 @@ protected void consumePrimaryNoNewArrayNameSuper() {
 	pushOnExpressionStack(
 		new QualifiedSuperReference(
 			getTypeReference(0),
-			intStack[intPtr--],
-			endPosition));
+			this.intStack[this.intPtr--],
+			this.endPosition));
 }
 protected void consumePrimaryNoNewArrayNameThis() {
 	// PrimaryNoNewArray ::= Name '.' 'this'
 	pushOnExpressionStack(
 		new QualifiedThisReference(
 			getTypeReference(0),
-			intStack[intPtr--],
-			endPosition));
+			this.intStack[this.intPtr--],
+			this.endPosition));
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
-	intPtr--;
+	this.intPtr--;
 	pushOnExpressionStack(
-		new ClassLiteralAccess(intStack[intPtr--],
+		new ClassLiteralAccess(this.intStack[this.intPtr--],
 		getTypeReference(0)));
 }
 protected void consumePrimaryNoNewArrayThis() {
 	// PrimaryNoNewArray ::= 'this'
-	pushOnExpressionStack(new ThisReference(intStack[intPtr--], endPosition));
+	pushOnExpressionStack(new ThisReference(this.intStack[this.intPtr--], this.endPosition));
 }
 protected void consumePrimitiveType() {
 	// Type ::= PrimitiveType
 	pushOnIntStack(0);
 }
 protected void consumePushModifiers() {
-	pushOnIntStack(modifiers); // modifiers
-	pushOnIntStack(modifiersSourceStart);
+	pushOnIntStack(this.modifiers); // modifiers
+	pushOnIntStack(this.modifiersSourceStart);
 	resetModifiers();
 }
 protected void consumePushPosition() {
 	// for source managment purpose
 	// PushPosition ::= $empty
-	pushOnIntStack(endPosition);
+	pushOnIntStack(this.endPosition);
 }
 protected void consumeQualifiedName() {
 	// QualifiedName ::= Name '.' SimpleName 
 	/*back from the recursive loop of QualifiedName.
 	Updates identifier length into the length stack*/
 
-	identifierLengthStack[--identifierLengthPtr]++;
+	this.identifierLengthStack[--this.identifierLengthPtr]++;
 }
 protected void consumeReferenceType() {
 	// ReferenceType ::= ClassOrInterfaceType
@@ -2573,11 +2573,11 @@ protected void consumeReferenceType() {
 }
 protected void consumeRestoreDiet() {
 	// RestoreDiet ::= $empty
-	dietInt--;
+	this.dietInt--;
 }
 protected void consumeRightParen() {
 	// PushRPAREN ::= ')'
-	pushOnIntStack(rParenPos);
+	pushOnIntStack(this.rParenPos);
 }
 // This method is part of an automatic generation : do NOT edit-modify  
 protected void consumeRule(int act) {
@@ -3474,25 +3474,25 @@ protected void consumeRule(int act) {
 } 
 protected void consumeSimpleAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ';'
-	expressionLengthPtr--;
-	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], intStack[intPtr--]));	
+	this.expressionLengthPtr--;
+	pushOnAstStack(new AssertStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));	
 }
 	
 protected void consumeSingleTypeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
 
-	ImportReference impt = (ImportReference) astStack[astPtr];
+	ImportReference impt = (ImportReference) this.astStack[this.astPtr];
 	// flush comments defined prior to import statements
-	impt.declarationEnd = endStatementPosition;
+	impt.declarationEnd = this.endStatementPosition;
 	impt.declarationSourceEnd = 
 		this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd); 
 
 	// recovery
-	if (currentElement != null) {
-		lastCheckPoint = impt.declarationSourceEnd + 1;
-		currentElement = currentElement.add(impt, 0);
-		lastIgnoredToken = -1;
-		restartRecovery = true; 
+	if (this.currentElement != null) {
+		this.lastCheckPoint = impt.declarationSourceEnd + 1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; 
 		// used to avoid branching back into the regular automaton
 	}
 }
@@ -3503,35 +3503,35 @@ protected void consumeSingleTypeImportDeclarationName() {
 
 	ImportReference impt;
 	int length;
-	char[][] tokens = new char[length = identifierLengthStack[identifierLengthPtr--]][];
-	identifierPtr -= length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
 	long[] positions = new long[length];
-	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault));
 
-	if (currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = scanner.currentPosition - 1;
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
-	impt.declarationSourceStart = intStack[intPtr--];
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = impt.declarationSourceEnd+1;
-		currentElement = currentElement.add(impt, 0);
-		lastIgnoredToken = -1;
-		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 }
 protected void consumeStatementBreak() {
 	// BreakStatement ::= 'break' ';'
 	// break pushs a position on intStack in case there is no label
 
-	pushOnAstStack(new BreakStatement(null, intStack[intPtr--], endPosition));
+	pushOnAstStack(new BreakStatement(null, this.intStack[this.intPtr--], this.endPosition));
 }
 protected void consumeStatementBreakWithLabel() {
 	// BreakStatement ::= 'break' Identifier ';'
@@ -3539,10 +3539,10 @@ protected void consumeStatementBreakWithLabel() {
 
 	pushOnAstStack(
 		new BreakStatement(
-			identifierStack[identifierPtr--],
-			intStack[intPtr--],
-			endPosition)); 
-	identifierLengthPtr--;
+			this.identifierStack[this.identifierPtr--],
+			this.intStack[this.intPtr--],
+			this.endPosition)); 
+	this.identifierLengthPtr--;
 }
 protected void consumeStatementCatch() {
 	// CatchClause ::= 'catch' '(' FormalParameter ')'    Block
@@ -3553,8 +3553,8 @@ protected void consumeStatementCatch() {
 	//The construction of the try statement must
 	//then fetch the catches using  2*i and 2*i + 1
 
-	astLengthPtr--;
-	listLength = 0; // reset formalParameter counter (incremented for catch variable)
+	this.astLengthPtr--;
+	this.listLength = 0; // reset formalParameter counter (incremented for catch variable)
 }
 protected void consumeStatementContinue() {
 	// ContinueStatement ::= 'continue' ';'
@@ -3563,8 +3563,8 @@ protected void consumeStatementContinue() {
 	pushOnAstStack(
 		new ContinueStatement(
 			null,
-			intStack[intPtr--],
-			endPosition));
+			this.intStack[this.intPtr--],
+			this.endPosition));
 }
 protected void consumeStatementContinueWithLabel() {
 	// ContinueStatement ::= 'continue' Identifier ';'
@@ -3572,25 +3572,25 @@ protected void consumeStatementContinueWithLabel() {
 
 	pushOnAstStack(
 		new ContinueStatement(
-			identifierStack[identifierPtr--], 
-			intStack[intPtr--], 
-			endPosition)); 
-	identifierLengthPtr--;
+			this.identifierStack[this.identifierPtr--], 
+			this.intStack[this.intPtr--], 
+			this.endPosition)); 
+	this.identifierLengthPtr--;
 }
 protected void consumeStatementDo() {
 	// DoStatement ::= 'do' Statement 'while' '(' Expression ')' ';'
 
 	//the 'while' pushes a value on intStack that we need to remove
-	intPtr--;
+	this.intPtr--;
 
-	Statement statement = (Statement) astStack[astPtr];
-	expressionLengthPtr--;
-	astStack[astPtr] = 
+	Statement statement = (Statement) this.astStack[this.astPtr];
+	this.expressionLengthPtr--;
+	this.astStack[this.astPtr] = 
 		new DoStatement(
-			expressionStack[expressionPtr--], 
+			this.expressionStack[this.expressionPtr--], 
 			statement, 
-			intStack[intPtr--], 
-			endPosition); 
+			this.intStack[this.intPtr--], 
+			this.endPosition); 
 }
 protected void consumeStatementExpressionList() {
 	// StatementExpressionList ::= StatementExpressionList ',' StatementExpression
@@ -3606,45 +3606,45 @@ protected void consumeStatementFor() {
 	boolean scope = true;
 
 	//statements
-	astLengthPtr--;
-	Statement statement = (Statement) astStack[astPtr--];
+	this.astLengthPtr--;
+	Statement statement = (Statement) this.astStack[this.astPtr--];
 
 	//updates are on the expresion stack
-	if ((length = expressionLengthStack[expressionLengthPtr--]) == 0) {
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) == 0) {
 		updates = null;
 	} else {
-		expressionPtr -= length;
+		this.expressionPtr -= length;
 		System.arraycopy(
-			expressionStack, 
-			expressionPtr + 1, 
+			this.expressionStack, 
+			this.expressionPtr + 1, 
 			updates = new Statement[length], 
 			0, 
 			length); 
 	}
 
-	if (expressionLengthStack[expressionLengthPtr--] != 0)
-		cond = expressionStack[expressionPtr--];
+	if (this.expressionLengthStack[this.expressionLengthPtr--] != 0)
+		cond = this.expressionStack[this.expressionPtr--];
 
 	//inits may be on two different stacks
-	if ((length = astLengthStack[astLengthPtr--]) == 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) == 0) {
 		inits = null;
 		scope = false;
 	} else {
 		if (length == -1) { //on expressionStack
 			scope = false;
-			length = expressionLengthStack[expressionLengthPtr--];
-			expressionPtr -= length;
+			length = this.expressionLengthStack[this.expressionLengthPtr--];
+			this.expressionPtr -= length;
 			System.arraycopy(
-				expressionStack, 
-				expressionPtr + 1, 
+				this.expressionStack, 
+				this.expressionPtr + 1, 
 				inits = new Statement[length], 
 				0, 
 				length); 
 		} else { //on astStack
-			astPtr -= length;
+			this.astPtr -= length;
 			System.arraycopy(
-				astStack, 
-				astPtr + 1, 
+				this.astStack, 
+				this.astPtr + 1, 
 				inits = new Statement[length], 
 				0, 
 				length); 
@@ -3657,67 +3657,67 @@ protected void consumeStatementFor() {
 			updates, 
 			statement, 
 			scope, 
-			intStack[intPtr--], 
-			endStatementPosition)); 
+			this.intStack[this.intPtr--], 
+			this.endStatementPosition)); 
 }
 protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
 
 	//optimize the push/pop
-	expressionLengthPtr--;
-	Statement thenStatement = (Statement) astStack[astPtr];
-	astStack[astPtr] = 
+	this.expressionLengthPtr--;
+	Statement thenStatement = (Statement) this.astStack[this.astPtr];
+	this.astStack[this.astPtr] = 
 		new IfStatement(
-			expressionStack[expressionPtr--], 
+			this.expressionStack[this.expressionPtr--], 
 			thenStatement, 
-			intStack[intPtr--], 
-			endStatementPosition); 
+			this.intStack[this.intPtr--], 
+			this.endStatementPosition); 
 }
 protected void consumeStatementIfWithElse() {
 	// IfThenElseStatement ::=  'if' '(' Expression ')' StatementNoShortIf 'else' Statement
 	// IfThenElseStatementNoShortIf ::=  'if' '(' Expression ')' StatementNoShortIf 'else' StatementNoShortIf
 
-	expressionLengthPtr--;
+	this.expressionLengthPtr--;
 
 	// optimized {..., Then, Else } ==> {..., If }
-	astLengthPtr--;
+	this.astLengthPtr--;
 
 	//optimize the push/pop
-	astStack[--astPtr] = 
+	this.astStack[--this.astPtr] = 
 		new IfStatement(
-			expressionStack[expressionPtr--], 
-			(Statement) astStack[astPtr], 
-			(Statement) astStack[astPtr + 1], 
-			intStack[intPtr--], 
-			endStatementPosition); 
+			this.expressionStack[this.expressionPtr--], 
+			(Statement) this.astStack[this.astPtr], 
+			(Statement) this.astStack[this.astPtr + 1], 
+			this.intStack[this.intPtr--], 
+			this.endStatementPosition); 
 }
 protected void consumeStatementLabel() {
 	// LabeledStatement ::= 'Identifier' ':' Statement
 	// LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
 
 	//optimize push/pop
-	Statement stmt = (Statement) astStack[astPtr];
-	astStack[astPtr] = 
+	Statement stmt = (Statement) this.astStack[this.astPtr];
+	this.astStack[this.astPtr] = 
 		new LabeledStatement(
-			identifierStack[identifierPtr], 
+			this.identifierStack[this.identifierPtr], 
 			stmt, 
-			(int) (identifierPositionStack[identifierPtr--] >>> 32), 
-			endStatementPosition); 
-	identifierLengthPtr--;
+			(int) (this.identifierPositionStack[this.identifierPtr--] >>> 32), 
+			this.endStatementPosition); 
+	this.identifierLengthPtr--;
 }
 protected void consumeStatementReturn() {
 	// ReturnStatement ::= 'return' Expressionopt ';'
 	// return pushs a position on intStack in case there is no expression
 
-	if (expressionLengthStack[expressionLengthPtr--] != 0) {
+	if (this.expressionLengthStack[this.expressionLengthPtr--] != 0) {
 		pushOnAstStack(
 			new ReturnStatement(
-				expressionStack[expressionPtr--], 
-				intStack[intPtr--], 
-				endPosition)
+				this.expressionStack[this.expressionPtr--], 
+				this.intStack[this.intPtr--], 
+				this.endPosition)
 		);
 	} else {
-		pushOnAstStack(new ReturnStatement(null, intStack[intPtr--], endPosition));
+		pushOnAstStack(new ReturnStatement(null, this.intStack[this.intPtr--], this.endPosition));
 	}
 }
 protected void consumeStatementSwitch() {
@@ -3729,22 +3729,22 @@ protected void consumeStatementSwitch() {
 
 	int length;
 	SwitchStatement switchStatement = new SwitchStatement();
-	expressionLengthPtr--;
-	switchStatement.expression = expressionStack[expressionPtr--];
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
+	this.expressionLengthPtr--;
+	switchStatement.expression = this.expressionStack[this.expressionPtr--];
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
 		System.arraycopy(
-			astStack, 
-			astPtr + 1, 
+			this.astStack, 
+			this.astPtr + 1, 
 			switchStatement.statements = new Statement[length], 
 			0, 
 			length); 
 	}
-	switchStatement.explicitDeclarations = realBlockStack[realBlockPtr--];
+	switchStatement.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	pushOnAstStack(switchStatement);
-	switchStatement.blockStart = intStack[intPtr--];
-	switchStatement.sourceStart = intStack[intPtr--];
-	switchStatement.sourceEnd = endStatementPosition;
+	switchStatement.blockStart = this.intStack[this.intPtr--];
+	switchStatement.sourceStart = this.intStack[this.intPtr--];
+	switchStatement.sourceEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlockMASK;
 	}
@@ -3753,30 +3753,30 @@ protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 	//optimize the push/pop
 
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
+	if (this.astLengthStack[this.astLengthPtr] == 0) {
+		this.astLengthStack[this.astLengthPtr] = 1;
+		this.expressionLengthPtr--;
+		this.astStack[++this.astPtr] = 
 			new SynchronizedStatement(
-				expressionStack[expressionPtr--], 
+				this.expressionStack[this.expressionPtr--], 
 				null, 
-				intStack[intPtr--], 
-				endStatementPosition); 
+				this.intStack[this.intPtr--], 
+				this.endStatementPosition); 
 	} else {
-		expressionLengthPtr--;
-		astStack[astPtr] = 
+		this.expressionLengthPtr--;
+		this.astStack[this.astPtr] = 
 			new SynchronizedStatement(
-				expressionStack[expressionPtr--], 
-				(Block) astStack[astPtr], 
-				intStack[intPtr--], 
-				endStatementPosition); 
+				this.expressionStack[this.expressionPtr--], 
+				(Block) this.astStack[this.astPtr], 
+				this.intStack[this.intPtr--], 
+				this.endStatementPosition); 
 	}
 	resetModifiers();
 }
 protected void consumeStatementThrow() {
 	// ThrowStatement ::= 'throw' Expression ';'
-	expressionLengthPtr--;
-	pushOnAstStack(new ThrowStatement(expressionStack[expressionPtr--], intStack[intPtr--]));
+	this.expressionLengthPtr--;
+	pushOnAstStack(new ThrowStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));
 }
 protected void consumeStatementTry(boolean withFinally) {
 	//TryStatement ::= 'try'  Block Catches
@@ -3786,84 +3786,84 @@ protected void consumeStatementTry(boolean withFinally) {
 	TryStatement tryStmt = new TryStatement();
 	//finally
 	if (withFinally) {
-		astLengthPtr--;
-		tryStmt.finallyBlock = (Block) astStack[astPtr--];
+		this.astLengthPtr--;
+		tryStmt.finallyBlock = (Block) this.astStack[this.astPtr--];
 	}
 	//catches are handle by two <argument-block> [see statementCatch]
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		if (length == 1) {
-			tryStmt.catchBlocks = new Block[] {(Block) astStack[astPtr--]};
-			tryStmt.catchArguments = new Argument[] {(Argument) astStack[astPtr--]};
+			tryStmt.catchBlocks = new Block[] {(Block) this.astStack[this.astPtr--]};
+			tryStmt.catchArguments = new Argument[] {(Argument) this.astStack[this.astPtr--]};
 		} else {
 			Block[] bks = (tryStmt.catchBlocks = new Block[length]);
 			Argument[] args = (tryStmt.catchArguments = new Argument[length]);
 			while (length-- > 0) {
-				bks[length] = (Block) astStack[astPtr--];
-				args[length] = (Argument) astStack[astPtr--];
+				bks[length] = (Block) this.astStack[this.astPtr--];
+				args[length] = (Argument) this.astStack[this.astPtr--];
 			}
 		}
 	}
 	//try
-	astLengthPtr--;
-	tryStmt.tryBlock = (Block) astStack[astPtr--];
+	this.astLengthPtr--;
+	tryStmt.tryBlock = (Block) this.astStack[this.astPtr--];
 
 	//positions
-	tryStmt.sourceEnd = endStatementPosition;
-	tryStmt.sourceStart = intStack[intPtr--];
+	tryStmt.sourceEnd = this.endStatementPosition;
+	tryStmt.sourceStart = this.intStack[this.intPtr--];
 	pushOnAstStack(tryStmt);
 }
 protected void consumeStatementWhile() {
 	// WhileStatement ::= 'while' '(' Expression ')' Statement
 	// WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
 
-	expressionLengthPtr--;
-	Statement statement = (Statement) astStack[astPtr];
-	astStack[astPtr] = 
+	this.expressionLengthPtr--;
+	Statement statement = (Statement) this.astStack[this.astPtr];
+	this.astStack[this.astPtr] = 
 		new WhileStatement(
-			expressionStack[expressionPtr--], 
+			this.expressionStack[this.expressionPtr--], 
 			statement, 
-			intStack[intPtr--], 
-			endStatementPosition); 
+			this.intStack[this.intPtr--], 
+			this.endStatementPosition); 
 }
 protected void consumeStaticInitializer() {
 	// StaticInitializer ::=  StaticOnly Block
 	//push an Initializer
 	//optimize the push/pop
-	Block block = (Block) astStack[astPtr];
-	if (diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
+	Block block = (Block) this.astStack[this.astPtr];
+	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
 	Initializer initializer = new Initializer(block, AccStatic);
-	astStack[astPtr] = initializer;
-	initializer.sourceEnd = endStatementPosition;	
-	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
-	nestedMethod[nestedType] --;
-	initializer.declarationSourceStart = intStack[intPtr--];
-	initializer.bodyStart = intStack[intPtr--];
-	initializer.bodyEnd = endPosition;
+	this.astStack[this.astPtr] = initializer;
+	initializer.sourceEnd = this.endStatementPosition;	
+	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	this.nestedMethod[this.nestedType] --;
+	initializer.declarationSourceStart = this.intStack[this.intPtr--];
+	initializer.bodyStart = this.intStack[this.intPtr--];
+	initializer.bodyEnd = this.endPosition;
 	
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = initializer.declarationSourceEnd;
-		currentElement = currentElement.add(initializer, 0);
-		lastIgnoredToken = -1;
+	if (this.currentElement != null){
+		this.lastCheckPoint = initializer.declarationSourceEnd;
+		this.currentElement = this.currentElement.add(initializer, 0);
+		this.lastIgnoredToken = -1;
 	}
 }
 protected void consumeStaticOnly() {
 	// StaticOnly ::= 'static'
-	int savedModifiersSourceStart = modifiersSourceStart;
+	int savedModifiersSourceStart = this.modifiersSourceStart;
 	checkComment(); // might update declaration source start
-	if (modifiersSourceStart >= savedModifiersSourceStart) {
-		modifiersSourceStart = savedModifiersSourceStart;
+	if (this.modifiersSourceStart >= savedModifiersSourceStart) {
+		this.modifiersSourceStart = savedModifiersSourceStart;
 	}
-	pushOnIntStack(scanner.currentPosition);
+	pushOnIntStack(this.scanner.currentPosition);
 	pushOnIntStack(
-		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition);
+		this.modifiersSourceStart >= 0 ? this.modifiersSourceStart : this.scanner.startPosition);
 	jumpOverMethodBody();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 	resetModifiers();
 
 	// recovery
-	if (currentElement != null){
-		recoveredStaticInitializerStart = intStack[intPtr]; // remember start position only for static initializers
+	if (this.currentElement != null){
+		this.recoveredStaticInitializerStart = this.intStack[this.intPtr]; // remember start position only for static initializers
 	}
 }
 protected void consumeSwitchBlock() {
@@ -3901,24 +3901,24 @@ protected void consumeToken(int type) {
 //		case TokenNamesynchronized :
 //			break;
 //		default:
-//			scanner.commentPtr = -1;
+//			this.scanner.commentPtr = -1;
 //	}
-	//System.out.println(scanner.toStringAction(type));
+	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameIdentifier :
 			pushIdentifier();
-			if (scanner.useAssertAsAnIndentifier) {
-				long positions = identifierPositionStack[identifierPtr];
+			if (this.scanner.useAssertAsAnIndentifier) {
+				long positions = this.identifierPositionStack[this.identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
-//			scanner.commentPtr = -1;
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
 			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
-			pushOnIntStack(scanner.currentPosition - 1);			
-			pushOnIntStack(scanner.startPosition);
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);			
+			pushOnIntStack(this.scanner.startPosition);
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameabstract :
 			checkAndSetModifiers(AccAbstract);
@@ -3951,134 +3951,134 @@ protected void consumeToken(int type) {
 			checkAndSetModifiers(AccStatic);
 			break;
 		case TokenNamesynchronized :
-			this.synchronizedBlockSourceStart = scanner.startPosition;	
+			this.synchronizedBlockSourceStart = this.scanner.startPosition;	
 			checkAndSetModifiers(AccSynchronized);
 			break;
 			//==============================
 		case TokenNamevoid :
 			pushIdentifier(-T_void);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);
+//			this.scanner.commentPtr = -1;
 			break;
 			//push a default dimension while void is not part of the primitive
 			//declaration baseType and so takes the place of a type without getting into
 			//regular type parsing that generates a dimension on intStack
 		case TokenNameboolean :
 			pushIdentifier(-T_boolean);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);		
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);		
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
-			pushOnIntStack(scanner.currentPosition - 1);				
-			pushOnIntStack(scanner.startPosition);					
-//			scanner.commentPtr = -1;
+			pushOnIntStack(this.scanner.currentPosition - 1);				
+			pushOnIntStack(this.scanner.startPosition);					
+//			this.scanner.commentPtr = -1;
 			break;
 			//==============================
 		case TokenNameIntegerLiteral :
 			pushOnExpressionStack(
 				new IntLiteral(
-					scanner.getCurrentTokenSource(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+					this.scanner.getCurrentTokenSource(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameLongLiteral :
 			pushOnExpressionStack(
 				new LongLiteral(
-					scanner.getCurrentTokenSource(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+					this.scanner.getCurrentTokenSource(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameFloatingPointLiteral :
 			pushOnExpressionStack(
 				new FloatLiteral(
-					scanner.getCurrentTokenSource(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+					this.scanner.getCurrentTokenSource(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameDoubleLiteral :
 			pushOnExpressionStack(
 				new DoubleLiteral(
-					scanner.getCurrentTokenSource(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+					this.scanner.getCurrentTokenSource(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameCharacterLiteral :
 			pushOnExpressionStack(
 				new CharLiteral(
-					scanner.getCurrentTokenSource(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+					this.scanner.getCurrentTokenSource(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral = new StringLiteral(
-					scanner.getCurrentTokenSourceString(), 
-					scanner.startPosition, 
-					scanner.currentPosition - 1); 
+					this.scanner.getCurrentTokenSourceString(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1); 
 			pushOnExpressionStack(stringLiteral); 
-//			scanner.commentPtr = -1;
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNamefalse :
 			pushOnExpressionStack(
-				new FalseLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
-//			scanner.commentPtr = -1;
+				new FalseLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1)); 
+//			this.scanner.commentPtr = -1;
 			break;
 		case TokenNametrue :
 			pushOnExpressionStack(
-				new TrueLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
+				new TrueLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1)); 
 			break;
 		case TokenNamenull :
 			pushOnExpressionStack(
-				new NullLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
+				new NullLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1)); 
 			break;
 			//============================
 		case TokenNamesuper :
 		case TokenNamethis :
-			endPosition = scanner.currentPosition - 1;
-			pushOnIntStack(scanner.startPosition);
+			this.endPosition = this.scanner.currentPosition - 1;
+			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameassert :
 		case TokenNameimport :
@@ -4094,20 +4094,20 @@ protected void consumeToken(int type) {
 		case TokenNamecontinue :
 		case TokenNamereturn :
 		case TokenNamecase :
-			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamenew :
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=40954
 			resetModifiers();
-			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameclass :
-			pushOnIntStack(scanner.currentPosition - 1);
-			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(this.scanner.currentPosition - 1);
+			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamedefault :
-			pushOnIntStack(scanner.startPosition);
-			pushOnIntStack(scanner.currentPosition - 1);
+			pushOnIntStack(this.scanner.startPosition);
+			pushOnIntStack(this.scanner.currentPosition - 1);
 			break;
 			//let extra semantic action decide when to push
 		case TokenNameRBRACKET :
@@ -4115,25 +4115,25 @@ protected void consumeToken(int type) {
 		case TokenNameMINUS :
 		case TokenNameNOT :
 		case TokenNameTWIDDLE :
-			endPosition = scanner.startPosition;
+			this.endPosition = this.scanner.startPosition;
 			break;
 		case TokenNamePLUS_PLUS :
 		case TokenNameMINUS_MINUS :
-			endPosition = scanner.startPosition;
-			endStatementPosition = scanner.currentPosition - 1;
+			this.endPosition = this.scanner.startPosition;
+			this.endStatementPosition = this.scanner.currentPosition - 1;
 			break;
 		case TokenNameRBRACE:
 		case TokenNameSEMICOLON :
-			endStatementPosition = scanner.currentPosition - 1;
-			endPosition = scanner.startPosition - 1; 
+			this.endStatementPosition = this.scanner.currentPosition - 1;
+			this.endPosition = this.scanner.startPosition - 1; 
 			//the item is not part of the potential futur expression/statement
 			break;
 			// in order to handle ( expression) ////// (cast)expression///// foo(x)
 		case TokenNameRPAREN :
-			rParenPos = scanner.currentPosition - 1; // position of the end of right parenthesis (in case of unicode \u0029) lex00101
+			this.rParenPos = this.scanner.currentPosition - 1; // position of the end of right parenthesis (in case of unicode \u0029) lex00101
 			break;
 		case TokenNameLPAREN :
-			lParenPos = scanner.startPosition;
+			this.lParenPos = this.scanner.startPosition;
 			break;
 			//  case TokenNameQUESTION  :
 			//  case TokenNameCOMMA :
@@ -4188,26 +4188,26 @@ protected void consumeTypeDeclarations() {
 protected void consumeTypeDeclarationsopt() {
 	// TypeDeclarationsopt ::= TypeDeclarations
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
-		System.arraycopy(astStack, astPtr + 1, compilationUnit.types = new TypeDeclaration[length], 0, length);
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types = new TypeDeclaration[length], 0, length);
 	}
 }
 protected void consumeTypeImportOnDemandDeclaration() {
 	// TypeImportOnDemandDeclaration ::= TypeImportOnDemandDeclarationName ';'
 
-	ImportReference impt = (ImportReference) astStack[astPtr];
+	ImportReference impt = (ImportReference) this.astStack[this.astPtr];
 	// flush comments defined prior to import statements
-	impt.declarationEnd = endStatementPosition;
+	impt.declarationEnd = this.endStatementPosition;
 	impt.declarationSourceEnd = 
 		this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd); 
 
 	// recovery
-	if (currentElement != null) {
-		lastCheckPoint = impt.declarationSourceEnd + 1;
-		currentElement = currentElement.add(impt, 0);
-		restartRecovery = true;
-		lastIgnoredToken = -1;
+	if (this.currentElement != null) {
+		this.lastCheckPoint = impt.declarationSourceEnd + 1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.restartRecovery = true;
+		this.lastIgnoredToken = -1;
 		// used to avoid branching back into the regular automaton
 	}
 }
@@ -4218,28 +4218,28 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 
 	ImportReference impt;
 	int length;
-	char[][] tokens = new char[length = identifierLengthStack[identifierLengthPtr--]][];
-	identifierPtr -= length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
 	long[] positions = new long[length];
-	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault));
 
-	if (currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = scanner.currentPosition - 1;
+	if (this.currentToken == TokenNameSEMICOLON){
+		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
-	impt.declarationSourceStart = intStack[intPtr--];
+	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
 	// recovery
-	if (currentElement != null){
-		lastCheckPoint = impt.declarationSourceEnd+1;
-		currentElement = currentElement.add(impt, 0);
-		lastIgnoredToken = -1;
-		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}	
 }
 protected void consumeUnaryExpression(int op) {
@@ -4257,21 +4257,21 @@ protected void consumeUnaryExpression(int op) {
 
 	//intStack have the position of the operator
 
-	Expression r, exp = expressionStack[expressionPtr];
+	Expression r, exp = this.expressionStack[this.expressionPtr];
 	if (op == MINUS) {
 		if ((exp instanceof IntLiteral) && (((IntLiteral) exp).mayRepresentMIN_VALUE())) {
-			r = expressionStack[expressionPtr] = new IntLiteralMinValue();
+			r = this.expressionStack[this.expressionPtr] = new IntLiteralMinValue();
 		} else {
 			if ((exp instanceof LongLiteral) && (((LongLiteral) exp).mayRepresentMIN_VALUE())) {
-				r = expressionStack[expressionPtr] = new LongLiteralMinValue();
+				r = this.expressionStack[this.expressionPtr] = new LongLiteralMinValue();
 			} else {
-				r = expressionStack[expressionPtr] = new UnaryExpression(exp, op);
+				r = this.expressionStack[this.expressionPtr] = new UnaryExpression(exp, op);
 			}
 		}
 	} else {
-		r = expressionStack[expressionPtr] = new UnaryExpression(exp, op);
+		r = this.expressionStack[this.expressionPtr] = new UnaryExpression(exp, op);
 	}
-	r.sourceStart = intStack[intPtr--];
+	r.sourceStart = this.intStack[this.intPtr--];
 	r.sourceEnd = exp.sourceEnd;
 }
 protected void consumeUnaryExpression(int op, boolean post) {
@@ -4283,28 +4283,28 @@ protected void consumeUnaryExpression(int op, boolean post) {
 
 	//intStack has the position of the operator when prefix
 
-	Expression leftHandSide = expressionStack[expressionPtr];
+	Expression leftHandSide = this.expressionStack[this.expressionPtr];
 	if (leftHandSide instanceof Reference) {
 		// ++foo()++ is unvalid 
 		if (post) {
-			expressionStack[expressionPtr] = 
+			this.expressionStack[this.expressionPtr] = 
 				new PostfixExpression(
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					endStatementPosition); 
+					this.endStatementPosition); 
 		} else {
-			expressionStack[expressionPtr] = 
+			this.expressionStack[this.expressionPtr] = 
 				new PrefixExpression(
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					intStack[intPtr--]); 
+					this.intStack[this.intPtr--]); 
 		}
 	} else {
 		//the ++ or the -- is NOT taken into account if code gen proceeds
 		if (!post) {
-			intPtr--;
+			this.intPtr--;
 		}
 		problemReporter().invalidUnaryExpression(leftHandSide);
 	}
@@ -4367,13 +4367,13 @@ protected LocalDeclaration createLocalDeclaration(char[] localDeclarationName, i
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {
 
 	CompilationUnitDeclaration parsedUnit;
-	boolean old = diet;
+	boolean old = this.diet;
 	try {
-		diet = true;
+		this.diet = true;
 		parsedUnit = parse(sourceUnit, compilationResult);
 	}
 	finally {
-		diet = old;
+		this.diet = old;
 	}
 	return parsedUnit;
 }
@@ -4391,7 +4391,7 @@ protected void dispatchDeclarationInto(int length) {
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0;
 	for (int i = length - 1; i >= 0; i--) {
-		ASTNode astNode = astStack[astPtr--];
+		ASTNode astNode = this.astStack[this.astPtr--];
 		if (astNode instanceof AbstractMethodDeclaration) {
 			//methods and constructors have been regrouped into one single list
 			flag[i] = 3;
@@ -4409,7 +4409,7 @@ protected void dispatchDeclarationInto(int length) {
 	}
 
 	//arrays creation
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if (size1 != 0)
 		typeDecl.fields = new FieldDeclaration[size1];
 	if (size2 != 0)
@@ -4429,8 +4429,8 @@ protected void dispatchDeclarationInto(int length) {
 				case 1 :
 					size1 += (length2 = end - start);
 					System.arraycopy(
-						astStack, 
-						astPtr + start + 1, 
+						this.astStack, 
+						this.astPtr + start + 1, 
 						typeDecl.fields, 
 						size1 - length2, 
 						length2); 
@@ -4438,8 +4438,8 @@ protected void dispatchDeclarationInto(int length) {
 				case 3 :
 					size2 += (length2 = end - start);
 					System.arraycopy(
-						astStack, 
-						astPtr + start + 1, 
+						this.astStack, 
+						this.astPtr + start + 1, 
 						typeDecl.methods, 
 						size2 - length2, 
 						length2); 
@@ -4447,8 +4447,8 @@ protected void dispatchDeclarationInto(int length) {
 				case 4 :
 					size3 += (length2 = end - start);
 					System.arraycopy(
-						astStack, 
-						astPtr + start + 1, 
+						this.astStack, 
+						this.astPtr + start + 1, 
 						typeDecl.memberTypes, 
 						size3 - length2, 
 						length2); 
@@ -4468,34 +4468,34 @@ protected CompilationUnitDeclaration endParse(int act) {
 
 	this.lastAct = act;
 
-	if (currentElement != null){
-		currentElement.topElement().updateParseTree();
+	if (this.currentElement != null){
+		this.currentElement.topElement().updateParseTree();
 		if (VERBOSE_RECOVERY){
 			System.out.print(Util.bind("parser.syntaxRecovery")); //$NON-NLS-1$
 			System.out.println("--------------------------");		 //$NON-NLS-1$
-			System.out.println(compilationUnit);		
+			System.out.println(this.compilationUnit);		
 			System.out.println("----------------------------------"); //$NON-NLS-1$
 		}		
 	} else {
-		if (diet & VERBOSE_RECOVERY){
+		if (this.diet & VERBOSE_RECOVERY){
 			System.out.print(Util.bind("parser.regularParse"));	 //$NON-NLS-1$
 			System.out.println("--------------------------");	 //$NON-NLS-1$
-			System.out.println(compilationUnit);		
+			System.out.println(this.compilationUnit);		
 			System.out.println("----------------------------------"); //$NON-NLS-1$
 		}
 	}
-	if (scanner.recordLineSeparator) {
-		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
+	if (this.scanner.recordLineSeparator) {
+		this.compilationUnit.compilationResult.lineSeparatorPositions = this.scanner.getLineEnds();
 	}
-	for (int i = 0; i < scanner.foundTaskCount; i++){
+	for (int i = 0; i < this.scanner.foundTaskCount; i++){
 		problemReporter().task(
-			new String(scanner.foundTaskTags[i]), 
-			new String(scanner.foundTaskMessages[i]),
-			scanner.foundTaskPriorities[i] == null ? null : new String(scanner.foundTaskPriorities[i]), 
-			scanner.foundTaskPositions[i][0], 
-			scanner.foundTaskPositions[i][1]);
+			new String(this.scanner.foundTaskTags[i]), 
+			new String(this.scanner.foundTaskMessages[i]),
+			this.scanner.foundTaskPriorities[i] == null ? null : new String(this.scanner.foundTaskPriorities[i]), 
+			this.scanner.foundTaskPositions[i][0], 
+			this.scanner.foundTaskPositions[i][1]);
 	}
-	return compilationUnit;
+	return this.compilationUnit;
 }
 /*
  * Flush comments defined prior to a given positions.
@@ -4512,14 +4512,14 @@ protected CompilationUnitDeclaration endParse(int act) {
  
 public int flushCommentsDefinedPriorTo(int position) {
 
-	int lastCommentIndex = scanner.commentPtr;
+	int lastCommentIndex = this.scanner.commentPtr;
 	if (lastCommentIndex < 0) return position; // no comment
 
 	// compute the index of the first obsolete comment
 	int index = lastCommentIndex;
 	int validCount = 0;
 	while (index >= 0){
-		int commentEnd = scanner.commentStops[index];
+		int commentEnd = this.scanner.commentStops[index];
 		if (commentEnd < 0) commentEnd = -commentEnd; // negative end position for non-javadoc comments
 		if (commentEnd <= position){
 			break;
@@ -4530,11 +4530,11 @@ public int flushCommentsDefinedPriorTo(int position) {
 	// if the source at <position> is immediately followed by a line comment, then
 	// flush this comment and shift <position> to the comment end.
 	if (validCount > 0){
-		int immediateCommentEnd = -scanner.commentStops[index+1]; //non-javadoc comment end positions are negative
+		int immediateCommentEnd = -this.scanner.commentStops[index+1]; //non-javadoc comment end positions are negative
 		if (immediateCommentEnd > 0){ // only tolerating non-javadoc comments
 			// is there any line break until the end of the immediate comment ? (thus only tolerating line comment)
 			immediateCommentEnd--; // comment end in one char too far
-			if (scanner.getLineNumber(position) == scanner.getLineNumber(immediateCommentEnd)){
+			if (this.scanner.getLineNumber(position) == this.scanner.getLineNumber(immediateCommentEnd)){
 				position = immediateCommentEnd;
 				validCount--; // flush this comment
 				index++;
@@ -4545,10 +4545,10 @@ public int flushCommentsDefinedPriorTo(int position) {
 	if (index < 0) return position; // no obsolete comment
 
 	if (validCount > 0){ // move valid comment infos, overriding obsolete comment infos
-		System.arraycopy(scanner.commentStarts, index + 1, scanner.commentStarts, 0, validCount);
-		System.arraycopy(scanner.commentStops, index + 1, scanner.commentStops, 0, validCount);		
+		System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
+		System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);		
 	}
-	scanner.commentPtr = validCount - 1;
+	this.scanner.commentPtr = validCount - 1;
 	return position;
 }
 public final int getFirstToken() {
@@ -4578,7 +4578,7 @@ public final int getFirstToken() {
 	// Goal ::= '!' ConstructorBlockStatementsopt
 	// Goal ::= '~' BlockStatementsopt
 	
-	return firstToken;
+	return this.firstToken;
 }
 /*
  * Answer back an array of sourceStart/sourceEnd positions of the available JavaDoc comments.
@@ -4591,9 +4591,9 @@ public final int getFirstToken() {
 public int[] getJavaDocPositions() {
 
 	int javadocCount = 0;
-	for (int i = 0, max = scanner.commentPtr; i <= max; i++){
+	for (int i = 0, max = this.scanner.commentPtr; i <= max; i++){
 		// javadoc only (non javadoc comment have negative end positions.)
-		if (scanner.commentStops[i] > 0){
+		if (this.scanner.commentStops[i] > 0){
 			javadocCount++;
 		}
 	}
@@ -4601,11 +4601,11 @@ public int[] getJavaDocPositions() {
 
 	int[] positions = new int[2*javadocCount];
 	int index = 0;
-	for (int i = 0, max = scanner.commentPtr; i <= max; i++){
+	for (int i = 0, max = this.scanner.commentPtr; i <= max; i++){
 		// javadoc only (non javadoc comment have negative end positions.)
-		if (scanner.commentStops[i] > 0){
-			positions[index++] = scanner.commentStarts[i];
-			positions[index++] = scanner.commentStops[i]-1; //stop is one over			
+		if (this.scanner.commentStops[i] > 0){
+			positions[index++] = this.scanner.commentStarts[i];
+			positions[index++] = this.scanner.commentStops[i]-1; //stop is one over			
 		}
 	}
 	return positions;
@@ -4658,39 +4658,39 @@ This variable is a type reference and dim will be its dimensions*/
 
 	int length;
 	TypeReference ref;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
+	if ((length = this.identifierLengthStack[this.identifierLengthPtr--]) == 1) {
 		// single variable reference
 		if (dim == 0) {
 			ref = 
 				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]); 
+					this.identifierStack[this.identifierPtr], 
+					this.identifierPositionStack[this.identifierPtr--]); 
 		} else {
 			ref = 
 				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
+					this.identifierStack[this.identifierPtr], 
 					dim, 
-					identifierPositionStack[identifierPtr--]); 
-			ref.sourceEnd = endPosition;			
+					this.identifierPositionStack[this.identifierPtr--]); 
+			ref.sourceEnd = this.endPosition;			
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
+			ref.sourceStart = this.intStack[this.intPtr--];
 			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
+				ref.sourceEnd = this.intStack[this.intPtr--];
 			} else {
-				intPtr--;
-				ref.sourceEnd = endPosition;
+				this.intPtr--;
+				ref.sourceEnd = this.endPosition;
 			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
-			identifierPtr -= length;
+			this.identifierPtr -= length;
 			long[] positions = new long[length];
-			System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+			System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 			System.arraycopy(
-				identifierPositionStack, 
-				identifierPtr + 1, 
+				this.identifierPositionStack, 
+				this.identifierPtr + 1, 
 				positions, 
 				0, 
 				length); 
@@ -4698,7 +4698,7 @@ This variable is a type reference and dim will be its dimensions*/
 				ref = new QualifiedTypeReference(tokens, positions);
 			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
-				ref.sourceEnd = endPosition;
+				ref.sourceEnd = this.endPosition;
 			}
 		}
 	}
@@ -4715,25 +4715,25 @@ protected NameReference getUnspecifiedReference() {
 
 	int length;
 	NameReference ref;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1)
+	if ((length = this.identifierLengthStack[this.identifierLengthPtr--]) == 1)
 		// single variable reference
 		ref = 
 			new SingleNameReference(
-				identifierStack[identifierPtr], 
-				identifierPositionStack[identifierPtr--]); 
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]); 
 	else
 		//Qualified variable reference
 		{
 		char[][] tokens = new char[length][];
-		identifierPtr -= length;
-		System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+		this.identifierPtr -= length;
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 		long[] positions = new long[length];
-		System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 		ref = 
 			new QualifiedNameReference(tokens, 
 				positions,
-				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
-				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
+				(int) (this.identifierPositionStack[this.identifierPtr + 1] >> 32), // sourceStart
+				(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	}
 	return ref;
 }
@@ -4747,12 +4747,12 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 
 	int length;
 	NameReference ref;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
+	if ((length = this.identifierLengthStack[this.identifierLengthPtr--]) == 1) {
 		// single variable reference
 		ref = 
 			new SingleNameReference(
-				identifierStack[identifierPtr], 
-				identifierPositionStack[identifierPtr--]); 
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]); 
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
@@ -4765,15 +4765,15 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	//or else..........This optimisation is not really relevant so just leave as it is
 
 	char[][] tokens = new char[length][];
-	identifierPtr -= length;
-	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
+	this.identifierPtr -= length;
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	long[] positions = new long[length];
-	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	ref = new QualifiedNameReference(
 			tokens,
 			positions, 
-			(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
-			(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
+			(int) (this.identifierPositionStack[this.identifierPtr + 1] >> 32), // sourceStart
+			(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
 	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	return ref;
@@ -4781,90 +4781,90 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 public void goForBlockStatementsopt() {
 	//tells the scanner to go for block statements opt parsing
 
-	firstToken = TokenNameTWIDDLE;
-	scanner.recordLineSeparator = false;
+	this.firstToken = TokenNameTWIDDLE;
+	this.scanner.recordLineSeparator = false;
 }
 public void goForBlockStatementsOrCatchHeader() {
 	//tells the scanner to go for block statements or method headers parsing 
 
-	firstToken = TokenNameMULTIPLY;
-	scanner.recordLineSeparator = false;
+	this.firstToken = TokenNameMULTIPLY;
+	this.scanner.recordLineSeparator = false;
 }
 public void goForClassBodyDeclarations() {
 	//tells the scanner to go for any body declarations parsing
 
-	firstToken = TokenNameAND;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNameAND;
+	this.scanner.recordLineSeparator = true;
 }
 public void goForCompilationUnit(){
 	//tells the scanner to go for compilation unit parsing
 
-	firstToken = TokenNamePLUS_PLUS ;
-	scanner.linePtr = -1;	
-	scanner.foundTaskCount = 0;
-	scanner.recordLineSeparator = true;
-	scanner.currentLine= null;
+	this.firstToken = TokenNamePLUS_PLUS ;
+	this.scanner.linePtr = -1;	
+	this.scanner.foundTaskCount = 0;
+	this.scanner.recordLineSeparator = true;
+	this.scanner.currentLine= null;
 }
 public void goForExpression() {
 	//tells the scanner to go for an expression parsing
 
-	firstToken = TokenNameREMAINDER;
-	scanner.recordLineSeparator = true; // recovery goals must record line separators
+	this.firstToken = TokenNameREMAINDER;
+	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
 }
 public void goForFieldDeclaration(){
 	//tells the scanner to go for field declaration parsing
 
-	firstToken = TokenNameAND_AND ;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNameAND_AND ;
+	this.scanner.recordLineSeparator = true;
 }
 public void goForGenericMethodDeclaration(){
 	//tells the scanner to go for generic method declarations parsing
 
-	firstToken = TokenNameDIVIDE;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNameDIVIDE;
+	this.scanner.recordLineSeparator = true;
 }
 public void goForHeaders(){
 	//tells the scanner to go for headers only parsing
 
-	firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
-	scanner.recordLineSeparator = true; // recovery goals must record line separators
+	this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
+	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
 }
 public void goForImportDeclaration(){
 	//tells the scanner to go for import declaration parsing
 
-	firstToken = TokenNameOR_OR ;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNameOR_OR ;
+	this.scanner.recordLineSeparator = true;
 }
 public void goForInitializer(){
 	//tells the scanner to go for initializer parsing
 
-	firstToken = TokenNameRIGHT_SHIFT ;
-	scanner.recordLineSeparator = false;
+	this.firstToken = TokenNameRIGHT_SHIFT ;
+	this.scanner.recordLineSeparator = false;
 }
 public void goForMethodBody(){
 	//tells the scanner to go for method body parsing
 
-	firstToken = TokenNameMINUS_MINUS ;
-	scanner.recordLineSeparator = false;
+	this.firstToken = TokenNameMINUS_MINUS ;
+	this.scanner.recordLineSeparator = false;
 }
 public void goForPackageDeclaration() {
 	//tells the scanner to go for package declaration parsing
 
-	firstToken = TokenNameQUESTION;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNameQUESTION;
+	this.scanner.recordLineSeparator = true;
 }
 public void goForTypeDeclaration() {
 	//tells the scanner to go for type (interface or class) declaration parsing
 
-	firstToken = TokenNamePLUS;
-	scanner.recordLineSeparator = true;
+	this.firstToken = TokenNamePLUS;
+	this.scanner.recordLineSeparator = true;
 }
 protected void ignoreExpressionAssignment() {
 	// Assignment ::= InvalidArrayInitializerAssignement
-	// encoded operator would be: intStack[intPtr]
-	intPtr--;
-	ArrayInitializer arrayInitializer = (ArrayInitializer) expressionStack[expressionPtr--];
-	expressionLengthPtr -- ;
+	// encoded operator would be: this.intStack[this.intPtr]
+	this.intPtr--;
+	ArrayInitializer arrayInitializer = (ArrayInitializer) this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr -- ;
 	// report a syntax error and abort parsing
 	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart, arrayInitializer.sourceEnd); 	
 }
@@ -4874,24 +4874,24 @@ protected void ignoreInterfaceDeclaration() {
 
 	// length declarations
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		//there are length declarations
 		//dispatch according to the type of the declarations
 		dispatchDeclarationInto(length);
 	}
 	
-	flushCommentsDefinedPriorTo(endStatementPosition);
+	flushCommentsDefinedPriorTo(this.endStatementPosition);
 
 	// report the problem and continue parsing
-	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
-	typeDecl.bodyEnd = endStatementPosition;
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	typeDecl.bodyEnd = this.endStatementPosition;
 	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
 
 	// mark initializers with local type mark if needed
 	markInitializersWithLocalType(typeDecl);
 
 	// remove the ast node created in interface header
-	astPtr--;	
+	this.astPtr--;	
 	// Don't create an astnode for this inner interface, but have to push
 	// a 0 on the astLengthStack to be consistent with the reduction made
 	// at the end of the method:
@@ -4911,21 +4911,21 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 	*/
 	if (hasBody) {
 		// pop the position of the {  (body of the method) pushed in block decl
-		intPtr--;
+		this.intPtr--;
 	}
 
 	//statements
 	if (hasBody) {
-		realBlockPtr--;
+		this.realBlockPtr--;
 	}
 
 	int length;
-	if (hasBody && ((length = astLengthStack[astLengthPtr--]) != 0)) {
-		astPtr -= length;
+	if (hasBody && ((length = this.astLengthStack[this.astLengthPtr--]) != 0)) {
+		this.astPtr -= length;
 	}
-	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) astStack[astPtr];
-	constructorDeclaration.bodyEnd = endStatementPosition;
-	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) this.astStack[this.astPtr];
+	constructorDeclaration.bodyEnd = this.endStatementPosition;
+	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	if (!hasBody) {
 		constructorDeclaration.modifiers |= AccSemicolonBody;
 	}
@@ -4944,20 +4944,20 @@ protected void ignoreMethodBody() {
 	*/
 
 	// pop the position of the {  (body of the method) pushed in block decl
-	intPtr--;
+	this.intPtr--;
 	// retrieve end position of method declarator
 
 	//statements
-	realBlockPtr--;
+	this.realBlockPtr--;
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
 	}
 
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
-	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
-	md.bodyEnd = endPosition;
-	md.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
+	md.bodyEnd = this.endPosition;
+	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	problemReporter().abstractMethodNeedingNoBody(md);
@@ -4965,62 +4965,62 @@ protected void ignoreMethodBody() {
 public void initialize() {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
-	astPtr = -1;
-	astLengthPtr = -1;
-	expressionPtr = -1;
-	expressionLengthPtr = -1;
-	identifierPtr = -1;	
-	identifierLengthPtr	= -1;
-	intPtr = -1;
-	nestedMethod[nestedType = 0] = 0; // need to reset for further reuse
-	variablesCounter[nestedType] = 0;
-	dimensions = 0 ;
-	realBlockPtr = -1;
-	compilationUnit = null;
-	referenceContext = null;
-	endStatementPosition = 0;
+	this.astPtr = -1;
+	this.astLengthPtr = -1;
+	this.expressionPtr = -1;
+	this.expressionLengthPtr = -1;
+	this.identifierPtr = -1;	
+	this.identifierLengthPtr	= -1;
+	this.intPtr = -1;
+	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
+	this.variablesCounter[this.nestedType] = 0;
+	this.dimensions = 0 ;
+	this.realBlockPtr = -1;
+	this.compilationUnit = null;
+	this.referenceContext = null;
+	this.endStatementPosition = 0;
 
 	//remove objects from stack too, while the same parser/compiler couple is
 	//re-used between two compilations ....
 	
-	int astLength = astStack.length;
-	if (noAstNodes.length < astLength){
-		noAstNodes = new ASTNode[astLength];
+	int astLength = this.astStack.length;
+	if (this.noAstNodes.length < astLength){
+		this.noAstNodes = new ASTNode[astLength];
 		//System.out.println("Resized AST stacks : "+ astLength);
 		
 	}
-	System.arraycopy(noAstNodes, 0, astStack, 0, astLength);
+	System.arraycopy(this.noAstNodes, 0, this.astStack, 0, astLength);
 
-	int expressionLength = expressionStack.length;
-	if (noExpressions.length < expressionLength){
-		noExpressions = new Expression[expressionLength];
+	int expressionLength = this.expressionStack.length;
+	if (this.noExpressions.length < expressionLength){
+		this.noExpressions = new Expression[expressionLength];
 		//System.out.println("Resized EXPR stacks : "+ expressionLength);
 	}
-	System.arraycopy(noExpressions, 0, expressionStack, 0, expressionLength);
+	System.arraycopy(this.noExpressions, 0, this.expressionStack, 0, expressionLength);
 
 	// reset scanner state
-	scanner.commentPtr = -1;
-	scanner.foundTaskCount = 0;
-	scanner.eofPosition = Integer.MAX_VALUE;
-	scanner.wasNonExternalizedStringLiteral = false;
-	scanner.nonNLSStrings = null;
-	scanner.currentLine = null;	
+	this.scanner.commentPtr = -1;
+	this.scanner.foundTaskCount = 0;
+	this.scanner.eofPosition = Integer.MAX_VALUE;
+	this.scanner.wasNonExternalizedStringLiteral = false;
+	this.scanner.nonNLSStrings = null;
+	this.scanner.currentLine = null;	
 
 	resetModifiers();
 
 	// recovery
-	lastCheckPoint = -1;
-	currentElement = null;
-	restartRecovery = false;
-	hasReportedError = false;
-	recoveredStaticInitializerStart = 0;
-	lastIgnoredToken = -1;
-	lastErrorEndPosition = -1;
-	listLength = 0;
+	this.lastCheckPoint = -1;
+	this.currentElement = null;
+	this.restartRecovery = false;
+	this.hasReportedError = false;
+	this.recoveredStaticInitializerStart = 0;
+	this.lastIgnoredToken = -1;
+	this.lastErrorEndPosition = -1;
+	this.listLength = 0;
 	
-	rBraceStart = 0;
-	rBraceEnd = 0;
-	rBraceSuccessorStart = 0;
+	this.rBraceStart = 0;
+	this.rBraceEnd = 0;
+	this.rBraceSuccessorStart = 0;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(
@@ -5076,8 +5076,8 @@ public final void jumpOverMethodBody() {
 	//automatically by the scanner once it has jumped over
 	//the statements
 
-	if (diet && (dietInt == 0))
-		scanner.diet = true;
+	if (this.diet && (this.dietInt == 0))
+		this.scanner.diet = true;
 }
 protected void markEnclosingMemberWithLocalType() {
 	if (this.currentElement != null) return; // this is already done in the recovery code
@@ -5113,82 +5113,82 @@ protected void markInitializersWithLocalType(TypeDeclaration type) {
  */
 protected boolean moveRecoveryCheckpoint() {
 
-	int pos = lastCheckPoint;
+	int pos = this.lastCheckPoint;
 	/* reset scanner, and move checkpoint by one token */
-	scanner.startPosition = pos;
-	scanner.currentPosition = pos;
-	scanner.diet = false; // quit jumping over method bodies
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.diet = false; // quit jumping over method bodies
 	
 	/* if about to restart, then no need to shift token */
-	if (restartRecovery){
-		lastIgnoredToken = -1;
-		scanner.currentLine = null;
+	if (this.restartRecovery){
+		this.lastIgnoredToken = -1;
+		this.scanner.currentLine = null;
 		return true;
 	}
 	
 	/* protect against shifting on an invalid token */
-	lastIgnoredToken = nextIgnoredToken;
-	nextIgnoredToken = -1;
+	this.lastIgnoredToken = this.nextIgnoredToken;
+	this.nextIgnoredToken = -1;
 	do {
 		try {
-			nextIgnoredToken = scanner.getNextToken();
-			if(scanner.currentPosition == scanner.startPosition){
-				scanner.currentPosition++; // on fake completion identifier
-				nextIgnoredToken = -1;
+			this.nextIgnoredToken = this.scanner.getNextToken();
+			if(this.scanner.currentPosition == this.scanner.startPosition){
+				this.scanner.currentPosition++; // on fake completion identifier
+				this.nextIgnoredToken = -1;
 			}
 			
 		} catch(InvalidInputException e){
-			pos = scanner.currentPosition;
+			pos = this.scanner.currentPosition;
 		}
-	} while (nextIgnoredToken < 0);
+	} while (this.nextIgnoredToken < 0);
 	
-	if (nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
-		if (currentToken == TokenNameEOF) { // already tried one iteration on EOF
-			scanner.currentLine = null;
+	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
+		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
+			this.scanner.currentLine = null;
 			return false;
 		}
 	}
-	lastCheckPoint = scanner.currentPosition;
+	this.lastCheckPoint = this.scanner.currentPosition;
 	
 	/* reset scanner again to previous checkpoint location*/
-	scanner.startPosition = pos;
-	scanner.currentPosition = pos;
-	scanner.commentPtr = -1;
-	scanner.foundTaskCount = 0;
-	scanner.currentLine = null;
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.commentPtr = -1;
+	this.scanner.foundTaskCount = 0;
+	this.scanner.currentLine = null;
 
 	return true;
 
 /*
  	The following implementation moves the checkpoint location by one line:
 	 
-	int pos = lastCheckPoint;
+	int pos = this.lastCheckPoint;
 	// reset scanner, and move checkpoint by one token
-	scanner.startPosition = pos;
-	scanner.currentPosition = pos;
-	scanner.diet = false; // quit jumping over method bodies
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.diet = false; // quit jumping over method bodies
 	
 	// if about to restart, then no need to shift token
-	if (restartRecovery){
-		lastIgnoredToken = -1;
+	if (this.restartRecovery){
+		this.lastIgnoredToken = -1;
 		return true;
 	}
 	
 	// protect against shifting on an invalid token
-	lastIgnoredToken = nextIgnoredToken;
-	nextIgnoredToken = -1;
+	this.lastIgnoredToken = this.nextIgnoredToken;
+	this.nextIgnoredToken = -1;
 	
-	boolean wasTokenizingWhiteSpace = scanner.tokenizeWhiteSpace;
-	scanner.tokenizeWhiteSpace = true;
+	boolean wasTokenizingWhiteSpace = this.scanner.tokenizeWhiteSpace;
+	this.scanner.tokenizeWhiteSpace = true;
 	checkpointMove: 
 		do {
 			try {
-				nextIgnoredToken = scanner.getNextToken();
-				switch(nextIgnoredToken){
+				this.nextIgnoredToken = this.scanner.getNextToken();
+				switch(this.nextIgnoredToken){
 					case Scanner.TokenNameWHITESPACE :
-						if(scanner.getLineNumber(scanner.startPosition)
-							== scanner.getLineNumber(scanner.currentPosition)){
-							nextIgnoredToken = -1;
+						if(this.scanner.getLineNumber(this.scanner.startPosition)
+							== this.scanner.getLineNumber(this.scanner.currentPosition)){
+							this.nextIgnoredToken = -1;
 							}
 						break;
 					case TokenNameSEMICOLON :
@@ -5196,32 +5196,32 @@ protected boolean moveRecoveryCheckpoint() {
 					case TokenNameRBRACE :
 						break;
 					case TokenNameIdentifier :
-						if(scanner.currentPosition == scanner.startPosition){
-							scanner.currentPosition++; // on fake completion identifier
+						if(this.scanner.currentPosition == this.scanner.startPosition){
+							this.scanner.currentPosition++; // on fake completion identifier
 						}
 					default:						
-						nextIgnoredToken = -1;
+						this.nextIgnoredToken = -1;
 						break;
 					case TokenNameEOF :
 						break checkpointMove;
 				}
 			} catch(InvalidInputException e){
-				pos = scanner.currentPosition;
+				pos = this.scanner.currentPosition;
 			}
-		} while (nextIgnoredToken < 0);
-	scanner.tokenizeWhiteSpace = wasTokenizingWhiteSpace;
+		} while (this.nextIgnoredToken < 0);
+	this.scanner.tokenizeWhiteSpace = wasTokenizingWhiteSpace;
 	
-	if (nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
-		if (currentToken == TokenNameEOF) { // already tried one iteration on EOF
+	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
+		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
 			return false;
 		}
 	}
-	lastCheckPoint = scanner.currentPosition;
+	this.lastCheckPoint = this.scanner.currentPosition;
 	
 	// reset scanner again to previous checkpoint location
-	scanner.startPosition = pos;
-	scanner.currentPosition = pos;
-	scanner.commentPtr = -1;
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.commentPtr = -1;
 
 	return true;
 */
@@ -5232,11 +5232,11 @@ protected MessageSend newMessageSend() {
 
 	MessageSend m = new MessageSend();
 	int length;
-	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
-		expressionPtr -= length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= length;
 		System.arraycopy(
-			expressionStack, 
-			expressionPtr + 1, 
+			this.expressionStack, 
+			this.expressionPtr + 1, 
 			m.arguments = new Expression[length], 
 			0, 
 			length); 
@@ -5267,7 +5267,7 @@ private final void optimizedConcatNodeLists() {
 	 * This case optimizes the fact that p == 1.
 	 */
 
-	astLengthStack[--astLengthPtr]++;
+	this.astLengthStack[--this.astLengthPtr]++;
 }
 protected static int original_state(int state) {
 	return -base_check(state);
@@ -5279,72 +5279,72 @@ called in order to remember (when needed) the consumed token */
 // (int)asr[asi(act)]
 // name[symbol_index[currentKind]]
 protected void parse() {
-	boolean isDietParse = diet;
+	boolean isDietParse = this.diet;
 	int oldFirstToken = getFirstToken();
-	hasError = false;
+	this.hasError = false;
 	
-	hasReportedError = false;
+	this.hasReportedError = false;
 	int act = START_STATE;
-	stateStackTop = -1;
-	currentToken = getFirstToken();
+	this.stateStackTop = -1;
+	this.currentToken = getFirstToken();
 	ProcessTerminals : for (;;) {
 		try {
-			stack[++stateStackTop] = act;
+			this.stack[++this.stateStackTop] = act;
 		} catch (IndexOutOfBoundsException e) {
-			int oldStackLength = stack.length;
-			int oldStack[] = stack;
-			stack = new int[oldStackLength + StackIncrement];
-			System.arraycopy(oldStack, 0, stack, 0, oldStackLength);
-			stack[stateStackTop] = act;
+			int oldStackLength = this.stack.length;
+			int oldStack[] = this.stack;
+			this.stack = new int[oldStackLength + StackIncrement];
+			System.arraycopy(oldStack, 0, this.stack, 0, oldStackLength);
+			this.stack[this.stateStackTop] = act;
 		}
 
-		act = tAction(act, currentToken);
+		act = tAction(act, this.currentToken);
 
-		if (act == ERROR_ACTION || restartRecovery) {
-			int errorPos = scanner.currentPosition;
-			if (!hasReportedError){
-				hasError = true;
+		if (act == ERROR_ACTION || this.restartRecovery) {
+			int errorPos = this.scanner.currentPosition;
+			if (!this.hasReportedError){
+				this.hasError = true;
 			}
 			if (resumeOnSyntaxError()) {
-				if (act == ERROR_ACTION) lastErrorEndPosition = errorPos;
+				if (act == ERROR_ACTION) this.lastErrorEndPosition = errorPos;
 					act = START_STATE;
-					stateStackTop = -1;
-					currentToken = getFirstToken();
+					this.stateStackTop = -1;
+					this.currentToken = getFirstToken();
 					continue ProcessTerminals;
 				} else {
 					act = ERROR_ACTION;
 				}	break ProcessTerminals;
 			}
 			if (act <= NUM_RULES)
-				stateStackTop--;
+				this.stateStackTop--;
 			else
 				if (act > ERROR_ACTION) { /* shift-reduce */
-					consumeToken(currentToken);
-					if (currentElement != null) this.recoveryTokenCheck();
+					consumeToken(this.currentToken);
+					if (this.currentElement != null) this.recoveryTokenCheck();
 					try{
-						currentToken = scanner.getNextToken();
+						this.currentToken = this.scanner.getNextToken();
 					} catch(InvalidInputException e){
-						if (!hasReportedError){
+						if (!this.hasReportedError){
 							this.problemReporter().scannerError(this, e.getMessage());
-							hasReportedError = true;
+							this.hasReportedError = true;
 						}
-						lastCheckPoint = scanner.currentPosition;
-						restartRecovery = true;
+						this.lastCheckPoint = this.scanner.currentPosition;
+						this.restartRecovery = true;
 					}					
 					act -= ERROR_ACTION;
 				} else
 					if (act < ACCEPT_ACTION) { /* shift */
-						consumeToken(currentToken);
-						if (currentElement != null) this.recoveryTokenCheck();
+						consumeToken(this.currentToken);
+						if (this.currentElement != null) this.recoveryTokenCheck();
 						try{
-							currentToken = scanner.getNextToken();
+							this.currentToken = this.scanner.getNextToken();
 						} catch(InvalidInputException e){
-							if (!hasReportedError){
+							if (!this.hasReportedError){
 								this.problemReporter().scannerError(this, e.getMessage());
-								hasReportedError = true;
+								this.hasReportedError = true;
 							}
-							lastCheckPoint = scanner.currentPosition;
-							restartRecovery = true;
+							this.lastCheckPoint = this.scanner.currentPosition;
+							this.restartRecovery = true;
 						}					
 						continue ProcessTerminals;
 					} else
@@ -5352,29 +5352,29 @@ protected void parse() {
 			
 		ProcessNonTerminals : do { /* reduce */
 			consumeRule(act);
-			stateStackTop -= (rhs[act] - 1);
-			act = ntAction(stack[stateStackTop], lhs[act]);
+			this.stateStackTop -= (rhs[act] - 1);
+			act = ntAction(this.stack[this.stateStackTop], lhs[act]);
 		} while (act <= NUM_RULES);
 	}
 	endParse(act);
 	
-	if(reportSyntaxErrorIsRequired && hasError) {
+	if(this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
 }
 // A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
-	if(referenceContext instanceof MethodDeclaration) {
-		MethodDeclaration methodDeclaration = (MethodDeclaration) referenceContext;
+	if(this.referenceContext instanceof MethodDeclaration) {
+		MethodDeclaration methodDeclaration = (MethodDeclaration) this.referenceContext;
 		if(methodDeclaration.errorInSignature){
 			return;
 		}
 	}
-	compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
-	scanner.recordLineSeparator = false;
+	this.compilationUnit.compilationResult.lineSeparatorPositions = this.scanner.getLineEnds();
+	this.scanner.recordLineSeparator = false;
 	
-	int start = scanner.initialPosition;
-	int end = scanner.eofPosition <= Integer.MAX_VALUE ? scanner.eofPosition - 1 : scanner.eofPosition;
+	int start = this.scanner.initialPosition;
+	int end = this.scanner.eofPosition <= Integer.MAX_VALUE ? this.scanner.eofPosition - 1 : this.scanner.eofPosition;
 	if(isDietParse) {
 		TypeDeclaration[] types = this.compilationUnit.types;
 		
@@ -5383,7 +5383,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 		diagnoseParser.diagnoseParse();
 		
 		reportSyntaxErrorsForSkippedMethod(types);
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 	} else {
 		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
 		diagnoseParser.diagnoseParse();
@@ -5432,47 +5432,47 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 
 	initialize();
 	goForBlockStatementsopt();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 	pushOnRealBlockStack(0);
 	
-	referenceContext = cd;
-	compilationUnit = unit;
+	this.referenceContext = cd;
+	this.compilationUnit = unit;
 
-	scanner.resetTo(cd.bodyStart, cd.bodyEnd);
+	this.scanner.resetTo(cd.bodyStart, cd.bodyEnd);
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	} finally {
-		nestedMethod[nestedType]--;
+		this.nestedMethod[this.nestedType]--;
 	}
 
 	checkNonNLSAfterBodyEnd(cd.declarationSourceEnd);
 	
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		initialize();
 		return;
 	}
 
 	//statements
-	cd.explicitDeclarations = realBlockStack[realBlockPtr--];
+	cd.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
-		astPtr -= length;
-		if (astStack[astPtr + 1] instanceof ExplicitConstructorCall)
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
 			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
 			{
 			System.arraycopy(
-				astStack, 
-				astPtr + 2, 
+				this.astStack, 
+				this.astPtr + 2, 
 				cd.statements = new Statement[length - 1], 
 				0, 
 				length - 1); 
-			cd.constructorCall = (ExplicitConstructorCall) astStack[astPtr + 1];
+			cd.constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
 		} else { //need to add explicitly the super();
 			System.arraycopy(
-				astStack, 
-				astPtr + 1, 
+				this.astStack, 
+				this.astPtr + 1, 
 				cd.statements = new Statement[length], 
 				0, 
 				length); 
@@ -5503,26 +5503,26 @@ public void parse(
 
 	initialize();
 	goForExpression();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 
-	referenceContext = type;
-	compilationUnit = unit;
+	this.referenceContext = type;
+	this.compilationUnit = unit;
 
-	scanner.setSource(initializationSource);
-	scanner.resetTo(0, initializationSource.length-1);
+	this.scanner.setSource(initializationSource);
+	this.scanner.resetTo(0, initializationSource.length-1);
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	} finally {
-		nestedMethod[nestedType]--;
+		this.nestedMethod[this.nestedType]--;
 	}
 
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		return;
 	}
 
-	field.initialization = expressionStack[expressionPtr];
+	field.initialization = this.expressionStack[this.expressionPtr];
 	
 	// mark field with local type if one was found during parsing
 	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
@@ -5542,32 +5542,32 @@ public void parse(
 
 	initialize();
 	goForBlockStatementsopt();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 	pushOnRealBlockStack(0);
 	
-	referenceContext = type;
-	compilationUnit = unit;
+	this.referenceContext = type;
+	this.compilationUnit = unit;
 
-	scanner.resetTo(initializer.bodyStart, initializer.bodyEnd); // just on the beginning {
+	this.scanner.resetTo(initializer.bodyStart, initializer.bodyEnd); // just on the beginning {
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	} finally {
-		nestedMethod[nestedType]--;
+		this.nestedMethod[this.nestedType]--;
 	}
 
 	checkNonNLSAfterBodyEnd(initializer.declarationSourceEnd);
 	
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		return;
 	}
 	
 	//refill statements
-	initializer.block.explicitDeclarations = realBlockStack[realBlockPtr--];
+	initializer.block.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) > 0) {
-		System.arraycopy(astStack, (astPtr -= length) + 1, initializer.block.statements = new Statement[length], 0, length); 
+	if ((length = this.astLengthStack[this.astLengthPtr--]) > 0) {
+		System.arraycopy(this.astStack, (this.astPtr -= length) + 1, initializer.block.statements = new Statement[length], 0, length); 
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
@@ -5597,35 +5597,35 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 
 	initialize();
 	goForBlockStatementsopt();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 	pushOnRealBlockStack(0);
 
-	referenceContext = md;
-	compilationUnit = unit;
+	this.referenceContext = md;
+	this.compilationUnit = unit;
 
-	scanner.resetTo(md.bodyStart, md.bodyEnd);
+	this.scanner.resetTo(md.bodyStart, md.bodyEnd);
 	// reset the scanner to parser from { down to }
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	} finally {
-		nestedMethod[nestedType]--;		
+		this.nestedMethod[this.nestedType]--;		
 	}
 
 	checkNonNLSAfterBodyEnd(md.declarationSourceEnd);
 	
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		return;
 	}
 
 	//refill statements
-	md.explicitDeclarations = realBlockStack[realBlockPtr--];
+	md.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0) {
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		System.arraycopy(
-			astStack, 
-			(astPtr -= length) + 1, 
+			this.astStack, 
+			(this.astPtr -= length) + 1, 
 			md.statements = new Statement[length], 
 			0, 
 			length); 
@@ -5661,8 +5661,8 @@ public CompilationUnitDeclaration parse(
 
 		/* scanners initialization */
 		char[] contents = sourceUnit.getContents();
-		scanner.setSource(contents);
-		if (end != -1) scanner.resetTo(start, end);
+		this.scanner.setSource(contents);
+		if (end != -1) this.scanner.resetTo(start, end);
 		if (this.javadocParser.checkJavadoc) {
 			this.javadocParser.scanner.setSource(contents);
 			if (end != -1) {
@@ -5670,17 +5670,17 @@ public CompilationUnitDeclaration parse(
 			}
 		}
 		/* unit creation */
-		referenceContext = 
-			compilationUnit = 
+		this.referenceContext = 
+			this.compilationUnit = 
 				new CompilationUnitDeclaration(
-					problemReporter, 
+					this.problemReporter, 
 					compilationResult, 
-					scanner.source.length);
+					this.scanner.source.length);
 		/* run automaton */
 		parse();
 	} finally {
-		unit = compilationUnit;
-		compilationUnit = null; // reset parser
+		unit = this.compilationUnit;
+		this.compilationUnit = null; // reset parser
 		// tag unit has having read bodies
 		if (!this.diet) unit.bits |= ASTNode.HasAllMethodBodies;		
 	}
@@ -5754,11 +5754,11 @@ public Expression parseExpression(char[] source, int offset, int length, Compila
  * @return ProblemReporter
  */
 public ProblemReporter problemReporter(){
-	if (scanner.recordLineSeparator) {
-		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
+	if (this.scanner.recordLineSeparator) {
+		this.compilationUnit.compilationResult.lineSeparatorPositions = this.scanner.getLineEnds();
 	}
-	problemReporter.referenceContext = referenceContext;
-	return problemReporter;
+	this.problemReporter.referenceContext = this.referenceContext;
+	return this.problemReporter;
 }
 protected void pushIdentifier() {
 	/*push the consumeToken on the identifier stack.
@@ -5766,33 +5766,33 @@ protected void pushIdentifier() {
 	identifierPtr points on the next top */
 
 	try {
-		identifierStack[++identifierPtr] = scanner.getCurrentIdentifierSource();
-		identifierPositionStack[identifierPtr] = 
-			(((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1); 
+		this.identifierStack[++this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
+		this.identifierPositionStack[this.identifierPtr] = 
+			(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1); 
 	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallaocation (identifierPtr is correct)---*/
-		int oldStackLength = identifierStack.length;
-		char[][] oldStack = identifierStack;
-		identifierStack = new char[oldStackLength + 20][];
-		System.arraycopy(oldStack, 0, identifierStack, 0, oldStackLength);
-		identifierStack[identifierPtr] = scanner.getCurrentTokenSource();
+		/*---stack reallaocation (this.identifierPtr is correct)---*/
+		int oldStackLength = this.identifierStack.length;
+		char[][] oldStack = this.identifierStack;
+		this.identifierStack = new char[oldStackLength + 20][];
+		System.arraycopy(oldStack, 0, this.identifierStack, 0, oldStackLength);
+		this.identifierStack[this.identifierPtr] = this.scanner.getCurrentTokenSource();
 		/*identifier position stack*/
-		long[] oldPos = identifierPositionStack;
-		identifierPositionStack = new long[oldStackLength + 20];
-		System.arraycopy(oldPos, 0, identifierPositionStack, 0, oldStackLength);
-		identifierPositionStack[identifierPtr] = 
-			(((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1); 
+		long[] oldPos = this.identifierPositionStack;
+		this.identifierPositionStack = new long[oldStackLength + 20];
+		System.arraycopy(oldPos, 0, this.identifierPositionStack, 0, oldStackLength);
+		this.identifierPositionStack[this.identifierPtr] = 
+			(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1); 
 	}
 
 	try {
-		identifierLengthStack[++identifierLengthPtr] = 1;
+		this.identifierLengthStack[++this.identifierLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallocation (identifierLengthPtr is correct)---*/
-		int oldStackLength = identifierLengthStack.length;
-		int oldStack[] = identifierLengthStack;
-		identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
-		identifierLengthStack[identifierLengthPtr] = 1;
+		/*---stack reallocation (this.identifierLengthPtr is correct)---*/
+		int oldStackLength = this.identifierLengthStack.length;
+		int oldStack[] = this.identifierLengthStack;
+		this.identifierLengthStack = new int[oldStackLength + 10];
+		System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
+		this.identifierLengthStack[this.identifierLengthPtr] = 1;
 	}
 
 }
@@ -5803,26 +5803,26 @@ protected void pushIdentifier(int flag) {
 	identifierLengthPtr points on the top */
 
 	try {
-		identifierLengthStack[++identifierLengthPtr] = flag;
+		this.identifierLengthStack[++this.identifierLengthPtr] = flag;
 	} catch (IndexOutOfBoundsException e) {
-		/*---stack reallaocation (identifierLengthPtr is correct)---*/
-		int oldStackLength = identifierLengthStack.length;
-		int oldStack[] = identifierLengthStack;
-		identifierLengthStack = new int[oldStackLength + 10];
-		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
-		identifierLengthStack[identifierLengthPtr] = flag;
+		/*---stack reallaocation (this.identifierLengthPtr is correct)---*/
+		int oldStackLength = this.identifierLengthStack.length;
+		int oldStack[] = this.identifierLengthStack;
+		this.identifierLengthStack = new int[oldStackLength + 10];
+		System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
+		this.identifierLengthStack[this.identifierLengthPtr] = flag;
 	}
 
 }
 protected void pushOnAstLengthStack(int pos) {
 	try {
-		astLengthStack[++astLengthPtr] = pos;
+		this.astLengthStack[++this.astLengthPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = astLengthStack.length;
-		int[] oldPos = astLengthStack;
-		astLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, astLengthStack, 0, oldStackLength);
-		astLengthStack[astLengthPtr] = pos;
+		int oldStackLength = this.astLengthStack.length;
+		int[] oldPos = this.astLengthStack;
+		this.astLengthStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
+		this.astLengthStack[this.astLengthPtr] = pos;
 	}
 }
 protected void pushOnAstStack(ASTNode node) {
@@ -5830,84 +5830,84 @@ protected void pushOnAstStack(ASTNode node) {
 	astPtr points on the top*/
 
 	try {
-		astStack[++astPtr] = node;
+		this.astStack[++this.astPtr] = node;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = astStack.length;
-		ASTNode[] oldStack = astStack;
-		astStack = new ASTNode[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldStack, 0, astStack, 0, oldStackLength);
-		astPtr = oldStackLength;
-		astStack[astPtr] = node;
+		int oldStackLength = this.astStack.length;
+		ASTNode[] oldStack = this.astStack;
+		this.astStack = new ASTNode[oldStackLength + AstStackIncrement];
+		System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
+		this.astPtr = oldStackLength;
+		this.astStack[this.astPtr] = node;
 	}
 
 	try {
-		astLengthStack[++astLengthPtr] = 1;
+		this.astLengthStack[++this.astLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = astLengthStack.length;
-		int[] oldPos = astLengthStack;
-		astLengthStack = new int[oldStackLength + AstStackIncrement];
-		System.arraycopy(oldPos, 0, astLengthStack, 0, oldStackLength);
-		astLengthStack[astLengthPtr] = 1;
+		int oldStackLength = this.astLengthStack.length;
+		int[] oldPos = this.astLengthStack;
+		this.astLengthStack = new int[oldStackLength + AstStackIncrement];
+		System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
+		this.astLengthStack[this.astLengthPtr] = 1;
 	}
 }
 protected void pushOnExpressionStack(Expression expr) {
 
 	try {
-		expressionStack[++expressionPtr] = expr;
+		this.expressionStack[++this.expressionPtr] = expr;
 	} catch (IndexOutOfBoundsException e) {
-		//expressionPtr is correct 
-		int oldStackLength = expressionStack.length;
-		Expression[] oldStack = expressionStack;
-		expressionStack = new Expression[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldStack, 0, expressionStack, 0, oldStackLength);
-		expressionStack[expressionPtr] = expr;
+		//this.expressionPtr is correct 
+		int oldStackLength = this.expressionStack.length;
+		Expression[] oldStack = this.expressionStack;
+		this.expressionStack = new Expression[oldStackLength + ExpressionStackIncrement];
+		System.arraycopy(oldStack, 0, this.expressionStack, 0, oldStackLength);
+		this.expressionStack[this.expressionPtr] = expr;
 	}
 
 	try {
-		expressionLengthStack[++expressionLengthPtr] = 1;
+		this.expressionLengthStack[++this.expressionLengthPtr] = 1;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = expressionLengthStack.length;
-		int[] oldPos = expressionLengthStack;
-		expressionLengthStack = new int[oldStackLength + ExpressionStackIncrement];
-		System.arraycopy(oldPos, 0, expressionLengthStack, 0, oldStackLength);
-		expressionLengthStack[expressionLengthPtr] = 1;
+		int oldStackLength = this.expressionLengthStack.length;
+		int[] oldPos = this.expressionLengthStack;
+		this.expressionLengthStack = new int[oldStackLength + ExpressionStackIncrement];
+		System.arraycopy(oldPos, 0, this.expressionLengthStack, 0, oldStackLength);
+		this.expressionLengthStack[this.expressionLengthPtr] = 1;
 	}
 }
 protected void pushOnExpressionStackLengthStack(int pos) {
 	try {
-		expressionLengthStack[++expressionLengthPtr] = pos;
+		this.expressionLengthStack[++this.expressionLengthPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
-		int oldStackLength = expressionLengthStack.length;
-		int[] oldPos = expressionLengthStack;
-		expressionLengthStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldPos, 0, expressionLengthStack, 0, oldStackLength);
-		expressionLengthStack[expressionLengthPtr] = pos;
+		int oldStackLength = this.expressionLengthStack.length;
+		int[] oldPos = this.expressionLengthStack;
+		this.expressionLengthStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldPos, 0, this.expressionLengthStack, 0, oldStackLength);
+		this.expressionLengthStack[this.expressionLengthPtr] = pos;
 	}
 }
 protected void pushOnIntStack(int pos) {
 
 	try {
-		intStack[++intPtr] = pos;
+		this.intStack[++this.intPtr] = pos;
 	} catch (IndexOutOfBoundsException e) {
-		//intPtr is correct 
-		int oldStackLength = intStack.length;
-		int oldStack[] = intStack;
-		intStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, intStack, 0, oldStackLength);
-		intStack[intPtr] = pos;
+		//this.intPtr is correct 
+		int oldStackLength = this.intStack.length;
+		int oldStack[] = this.intStack;
+		this.intStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldStack, 0, this.intStack, 0, oldStackLength);
+		this.intStack[this.intPtr] = pos;
 	}
 }
 protected void pushOnRealBlockStack(int i){
 	
 	try {
-		realBlockStack[++realBlockPtr] = i;
+		this.realBlockStack[++this.realBlockPtr] = i;
 	} catch (IndexOutOfBoundsException e) {
-		//realBlockPtr is correct 
-		int oldStackLength = realBlockStack.length;
-		int oldStack[] = realBlockStack;
-		realBlockStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, realBlockStack, 0, oldStackLength);
-		realBlockStack[realBlockPtr] = i;
+		//this.realBlockPtr is correct 
+		int oldStackLength = this.realBlockStack.length;
+		int oldStack[] = this.realBlockStack;
+		this.realBlockStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldStack, 0, this.realBlockStack, 0, oldStackLength);
+		this.realBlockStack[this.realBlockPtr] = i;
 	}
 }
 protected static char[] readTable(String filename) throws java.io.IOException {
@@ -6009,18 +6009,18 @@ protected static String[] readNameTable(String filename) throws java.io.IOExcept
 	return result;
 }
 public void recoveryExitFromVariable() {
-	if(currentElement != null && currentElement.parent != null) {
-		if(currentElement instanceof RecoveredLocalVariable) {
+	if(this.currentElement != null && this.currentElement.parent != null) {
+		if(this.currentElement instanceof RecoveredLocalVariable) {
 			
-			int end = ((RecoveredLocalVariable)currentElement).localDeclaration.sourceEnd;
-			currentElement.updateSourceEndIfNecessary(end);
-			currentElement = currentElement.parent;
-		} else if(currentElement instanceof RecoveredField
-			&& !(currentElement instanceof RecoveredInitializer)) {
+			int end = ((RecoveredLocalVariable)this.currentElement).localDeclaration.sourceEnd;
+			this.currentElement.updateSourceEndIfNecessary(end);
+			this.currentElement = this.currentElement.parent;
+		} else if(this.currentElement instanceof RecoveredField
+			&& !(this.currentElement instanceof RecoveredInitializer)) {
 				
-			int end = ((RecoveredField)currentElement).fieldDeclaration.sourceEnd;
-			currentElement.updateSourceEndIfNecessary(end);
-			currentElement = currentElement.parent;
+			int end = ((RecoveredField)this.currentElement).fieldDeclaration.sourceEnd;
+			this.currentElement.updateSourceEndIfNecessary(end);
+			this.currentElement = this.currentElement.parent;
 		}
 	}
 }
@@ -6028,66 +6028,66 @@ public void recoveryExitFromVariable() {
  * recovery mode.
  */
 public void recoveryTokenCheck() {
-	switch (currentToken) {
+	switch (this.currentToken) {
 		case TokenNameLBRACE : 
 			RecoveredElement newElement = null;
-			if(!ignoreNextOpeningBrace) {
-				newElement = currentElement.updateOnOpeningBrace(scanner.startPosition - 1, scanner.currentPosition - 1);
+			if(!this.ignoreNextOpeningBrace) {
+				newElement = this.currentElement.updateOnOpeningBrace(this.scanner.startPosition - 1, this.scanner.currentPosition - 1);
 			}
-			lastCheckPoint = scanner.currentPosition;				
+			this.lastCheckPoint = this.scanner.currentPosition;				
 			if (newElement != null){ // null means nothing happened
-				restartRecovery = true; // opening brace detected
-				currentElement = newElement;
+				this.restartRecovery = true; // opening brace detected
+				this.currentElement = newElement;
 			}
 			break;
 		
 		case TokenNameRBRACE : 
-			this.rBraceStart = scanner.startPosition - 1;
-			this.rBraceEnd = scanner.currentPosition - 1;
-			endPosition = this.flushCommentsDefinedPriorTo(this.rBraceEnd);
+			this.rBraceStart = this.scanner.startPosition - 1;
+			this.rBraceEnd = this.scanner.currentPosition - 1;
+			this.endPosition = this.flushCommentsDefinedPriorTo(this.rBraceEnd);
 			newElement =
-				currentElement.updateOnClosingBrace(scanner.startPosition, this.rBraceEnd);
-				lastCheckPoint = scanner.currentPosition;
-			if (newElement != currentElement){
-				currentElement = newElement;
+				this.currentElement.updateOnClosingBrace(this.scanner.startPosition, this.rBraceEnd);
+				this.lastCheckPoint = this.scanner.currentPosition;
+			if (newElement != this.currentElement){
+				this.currentElement = newElement;
 			}
 			break;
 		case TokenNameSEMICOLON :
-			endStatementPosition = scanner.currentPosition - 1;
-			endPosition = scanner.startPosition - 1; 
+			this.endStatementPosition = this.scanner.currentPosition - 1;
+			this.endPosition = this.scanner.startPosition - 1; 
 			// fall through
 		default : {
-			if (this.rBraceEnd > this.rBraceSuccessorStart && scanner.currentPosition != scanner.startPosition){
-				this.rBraceSuccessorStart = scanner.startPosition;
+			if (this.rBraceEnd > this.rBraceSuccessorStart && this.scanner.currentPosition != this.scanner.startPosition){
+				this.rBraceSuccessorStart = this.scanner.startPosition;
 			}
 			break;
 		}
 	}
-	ignoreNextOpeningBrace = false;
+	this.ignoreNextOpeningBrace = false;
 }
 protected void resetModifiers() {
-	modifiers = AccDefault;
-	modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
-	scanner.commentPtr = -1;
+	this.modifiers = AccDefault;
+	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	this.scanner.commentPtr = -1;
 }
 /*
  * Reset context so as to resume to regular parse loop
  */
 protected void resetStacks() {
 
-	astPtr = -1;
-	astLengthPtr = -1;
-	expressionPtr = -1;
-	expressionLengthPtr = -1;
-	identifierPtr = -1;	
-	identifierLengthPtr	= -1;
-	intPtr = -1;
-	nestedMethod[nestedType = 0] = 0; // need to reset for further reuse
-	variablesCounter[nestedType] = 0;
-	dimensions = 0 ;
-	realBlockStack[realBlockPtr = 0] = 0;
-	recoveredStaticInitializerStart = 0;
-	listLength = 0;
+	this.astPtr = -1;
+	this.astLengthPtr = -1;
+	this.expressionPtr = -1;
+	this.expressionLengthPtr = -1;
+	this.identifierPtr = -1;	
+	this.identifierLengthPtr	= -1;
+	this.intPtr = -1;
+	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
+	this.variablesCounter[this.nestedType] = 0;
+	this.dimensions = 0 ;
+	this.realBlockStack[this.realBlockPtr = 0] = 0;
+	this.recoveredStaticInitializerStart = 0;
+	this.listLength = 0;
 	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
 	if (this.scanner != null) this.scanner.currentLine = null;
 }
@@ -6109,9 +6109,9 @@ protected boolean resumeAfterRecovery() {
 	}
 
 	// only look for headers
-	if (referenceContext instanceof CompilationUnitDeclaration){
+	if (this.referenceContext instanceof CompilationUnitDeclaration){
 		goForHeaders();
-		diet = true; // passed this point, will not consider method bodies
+		this.diet = true; // passed this point, will not consider method bodies
 		return true;
 	}
 	// does not know how to restart
@@ -6124,16 +6124,16 @@ protected boolean resumeAfterRecovery() {
 protected boolean resumeOnSyntaxError() {
 
 	/* request recovery initialization */
-	if (currentElement == null){
-		currentElement = 
+	if (this.currentElement == null){
+		this.currentElement = 
 			this.buildInitialRecoveryState(); // build some recovered elements
 	}
 	/* do not investigate deeper in recovery when no recovered element */
-	if (currentElement == null) return false;
+	if (this.currentElement == null) return false;
 	
 	/* manual forced recovery restart - after headers */
-	if (restartRecovery){
-		restartRecovery = false;
+	if (this.restartRecovery){
+		this.restartRecovery = false;
 	}
 	/* update recovery state with current error state of the parser */
 	this.updateRecoveryState();
@@ -6147,39 +6147,39 @@ public static int tAction(int state, int sym) {
 public String toString() {
 
 	String s = "identifierStack : char[][] = {"; //$NON-NLS-1$
-	for (int i = 0; i <= identifierPtr; i++) {
-		s = s + "\"" + String.valueOf(identifierStack[i]) + "\","; //$NON-NLS-1$ //$NON-NLS-2$
+	for (int i = 0; i <= this.identifierPtr; i++) {
+		s = s + "\"" + String.valueOf(this.identifierStack[i]) + "\","; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "identierLengthStack : int[] = {"; //$NON-NLS-1$
-	for (int i = 0; i <= identifierLengthPtr; i++) {
-		s = s + identifierLengthStack[i] + ","; //$NON-NLS-1$
+	for (int i = 0; i <= this.identifierLengthPtr; i++) {
+		s = s + this.identifierLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "astLengthStack : int[] = {"; //$NON-NLS-1$
-	for (int i = 0; i <= astLengthPtr; i++) {
-		s = s + astLengthStack[i] + ","; //$NON-NLS-1$
+	for (int i = 0; i <= this.astLengthPtr; i++) {
+		s = s + this.astLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
-	s = s + "astPtr : int = " + String.valueOf(astPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "astPtr : int = " + String.valueOf(this.astPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	s = s + "intStack : int[] = {"; //$NON-NLS-1$
-	for (int i = 0; i <= intPtr; i++) {
-		s = s + intStack[i] + ","; //$NON-NLS-1$
+	for (int i = 0; i <= this.intPtr; i++) {
+		s = s + this.intStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "expressionLengthStack : int[] = {"; //$NON-NLS-1$
-	for (int i = 0; i <= expressionLengthPtr; i++) {
-		s = s + expressionLengthStack[i] + ","; //$NON-NLS-1$
+	for (int i = 0; i <= this.expressionLengthPtr; i++) {
+		s = s + this.expressionLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
-	s = s + "expressionPtr : int = " + String.valueOf(expressionPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "expressionPtr : int = " + String.valueOf(this.expressionPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
-	s = s + "\n\n\n----------------Scanner--------------\n" + scanner.toString(); //$NON-NLS-1$
+	s = s + "\n\n\n----------------Scanner--------------\n" + this.scanner.toString(); //$NON-NLS-1$
 	return s;
 
 }
@@ -6189,7 +6189,7 @@ public String toString() {
 protected void updateRecoveryState() {
 
 	/* expose parser state to recovery state */
-	currentElement.updateFromParserState();
+	this.currentElement.updateFromParserState();
 
 	/* check and update recovered state based on current token,
 		this action is also performed when shifting token after recovery
@@ -6204,15 +6204,15 @@ protected void updateSourceDeclarationParts(int variableDeclaratorsCounter) {
 
 	FieldDeclaration field;
 	int endTypeDeclarationPosition = 
-		-1 + astStack[astPtr - variableDeclaratorsCounter + 1].sourceStart; 
+		-1 + this.astStack[this.astPtr - variableDeclaratorsCounter + 1].sourceStart; 
 	for (int i = 0; i < variableDeclaratorsCounter - 1; i++) {
 		//last one is special(see below)
-		field = (FieldDeclaration) astStack[astPtr - i - 1];
+		field = (FieldDeclaration) this.astStack[this.astPtr - i - 1];
 		field.endPart1Position = endTypeDeclarationPosition;
-		field.endPart2Position = -1 + astStack[astPtr - i].sourceStart;
+		field.endPart2Position = -1 + this.astStack[this.astPtr - i].sourceStart;
 	}
 	//last one
-	(field = (FieldDeclaration) astStack[astPtr]).endPart1Position = 
+	(field = (FieldDeclaration) this.astStack[this.astPtr]).endPart1Position = 
 		endTypeDeclarationPosition; 
 	field.endPart2Position = field.declarationSourceEnd;
 
@@ -6224,7 +6224,7 @@ protected void updateSourcePosition(Expression exp) {
 	//-->
 	//intStack : 
 
-	exp.sourceEnd = intStack[intPtr--];
-	exp.sourceStart = intStack[intPtr--];
+	exp.sourceEnd = this.intStack[this.intPtr--];
+	exp.sourceStart = this.intStack[this.intPtr--];
 }
 }
