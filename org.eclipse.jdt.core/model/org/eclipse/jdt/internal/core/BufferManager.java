@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.text.NumberFormat;
 import java.util.Enumeration;
 
 import org.eclipse.core.resources.IFile;
@@ -49,7 +50,7 @@ protected void addBuffer(IBuffer buffer) {
 	}
 	openBuffers.put(buffer.getOwner(), buffer);
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + openBuffers.fillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 /**
@@ -114,7 +115,7 @@ protected void removeBuffer(IBuffer buffer) {
 	}
 	openBuffers.remove(buffer.getOwner());
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + openBuffers.fillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 }

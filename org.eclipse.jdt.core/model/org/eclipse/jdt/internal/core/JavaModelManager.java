@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.zip.ZipFile;
 
@@ -1335,7 +1336,7 @@ public class JavaModelManager implements ISaveParticipant {
 				this.cache.removeInfo(element);
 				if (wasVerbose) {
 					System.out.println("-> Package cache size = " + this.cache.pkgSize()); //$NON-NLS-1$
-					System.out.println("-> Openable cache filling ratio = " + this.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+					System.out.println("-> Openable cache filling ratio = " + NumberFormat.getInstance().format(this.cache.openableFillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			} finally {
 				JavaModelManager.VERBOSE = wasVerbose;
