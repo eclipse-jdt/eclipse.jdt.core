@@ -698,7 +698,7 @@ public int getNextToken() throws InvalidInputException {
  * In case we actually read a keyword, but the cursor is located inside,
  * we pretend we read an identifier.
  */
-public int scanIdentifierOrKeyword() throws InvalidInputException {
+public int scanIdentifierOrKeyword() {
 
 	int id = super.scanIdentifierOrKeyword();
 

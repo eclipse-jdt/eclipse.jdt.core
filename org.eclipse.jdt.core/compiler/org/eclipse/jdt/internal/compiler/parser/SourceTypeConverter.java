@@ -95,7 +95,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if (sourceType.getName() == null)
 			return null; // do a basic test that the sourceType is valid
 
-		this.unit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
+		this.unit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
 		// not filled at this point
 
 		/* only positions available */

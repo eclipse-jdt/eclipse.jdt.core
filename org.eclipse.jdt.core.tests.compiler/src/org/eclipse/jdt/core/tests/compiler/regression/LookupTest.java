@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Hashtable;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 /**
  * Name Lookup within Inner Classes
@@ -26,7 +30,7 @@ public static Test suite() {
 /**
  * Non-static member class
  */
-public void test01() {
+public void test001() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -56,7 +60,7 @@ public void test01() {
 /**
  * Attempt to access non-static field from static inner class (illegal)
  */
-public void test02() {
+public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -90,7 +94,7 @@ public void test02() {
 /**
  * Access static field from static inner class
  */
-public void test03() {
+public void test003() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -115,7 +119,7 @@ public void test03() {
 /**
  * 
  */
-public void test04() {
+public void test004() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -155,7 +159,7 @@ public void test04() {
 /**
  * 
  */
-public void test05() {
+public void test005() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -186,7 +190,7 @@ public void test05() {
  * jdk1.2.2 reports: No variable sucess defined in nested class p1.A. B.C.
  * jdk1.3 reports: success has private access in p1.A
  */
-public void test06() {
+public void test006() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -221,7 +225,7 @@ public void test06() {
 /**
  * No errors in jdk1.2.2, jdk1.3
  */
-public void test07() {
+public void test007() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -245,7 +249,7 @@ public void test07() {
  * jdk1.2.2 reports: Undefined variable: A.this
  * jdk1.3 reports: non-static variable this cannot be referenced from a static context
  */
-public void test08() {
+public void test008() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -280,7 +284,7 @@ public void test08() {
  * jdk1.2.2 reports: No variable success defined in nested class p1.A. B.C
  * jdk1.3 reports: success has private access in p1.A
  */
-public void test09() {
+public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -316,7 +320,7 @@ public void test09() {
  * jdk1.2.2 reports: Can't make a static reference to nonstatic variable success in class p1.A
  * jdk1.3 reports: non-static variable success cannot be referenced from a static context
  */
-public void test10() {
+public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -350,7 +354,7 @@ public void test10() {
 /**
  * 
  */
-public void test11() {
+public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			/* p2.Aa */
@@ -390,7 +394,7 @@ public void test11() {
 /**
  * 
  */
-public void test12() {
+public void test012() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -419,7 +423,7 @@ public void test12() {
 /**
  * 
  */
-public void test13() {
+public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -463,7 +467,7 @@ public void test13() {
 /**
  *
  */
-public void test14() {
+public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			/* pack1.First */
@@ -490,7 +494,7 @@ public void test14() {
 /**
  *
  */
-public void test15() {
+public void test015() {
 	this.runConformTest(
 		new String[] {
 			/* pack1.First */
@@ -513,7 +517,7 @@ public void test15() {
 /**
  *
  */
-public void test16() {
+public void test016() {
 	this.runConformTest(
 		new String[] {
 			/* pack1.Outer */
@@ -561,7 +565,7 @@ public void test16() {
 /**
  *
  */
-public void test17() {
+public void test017() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -593,7 +597,7 @@ public void test17() {
 /**
  * member class
  */
-public void test18() {
+public void test018() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -622,7 +626,7 @@ public void test18() {
 /**
  * member class
  */
-public void test19() {
+public void test019() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -658,7 +662,7 @@ public void test19() {
 /**
  * member class
  */
-public void test20() {
+public void test020() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -695,7 +699,7 @@ public void test20() {
 /**
  * member class
  */
-public void test21() {
+public void test021() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -721,7 +725,7 @@ public void test21() {
 /**
  *
  */
-public void test22() {
+public void test022() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -761,7 +765,7 @@ public void test22() {
 /**
  *
  */
-public void test23() {
+public void test023() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -790,7 +794,7 @@ public void test23() {
 /**
  *
  */
-public void test24() {
+public void test024() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -817,7 +821,7 @@ public void test24() {
 /**
  *
  */
-public void test25() {
+public void test025() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -857,7 +861,7 @@ public void test25() {
 /**
  *
  */
-public void test26() {
+public void test026() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -901,7 +905,7 @@ public void test26() {
 /**
  *
  */
-public void test27() {
+public void test027() {
 	this.runNegativeTest(
 		new String[] {
 			/* p1.A */
@@ -945,7 +949,7 @@ public void test27() {
 /**
  *
  */
-public void test28() {
+public void test028() {
 	this.runConformTest(
 		new String[] {
 			/* p1.A */
@@ -969,6 +973,117 @@ public void test28() {
 		"SUCCESS"
 	);
 }
+
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=10634
+ */
+public void test029() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/X.java",
+			"package p1;	\n"+
+			"import p2.Top;	\n"+
+			"public class X extends Top {	\n"+
+			"	Member field;	\n"+
+			"}	\n",
+			"p2/Top.java",
+			"package p2;	\n"+
+			"public class Top {	\n"+
+			"	class Member {	\n"+
+			"		void foo(){}	\n"+
+			"	}	\n"	+
+			"}	\n"	
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\X.java (at line 4)\n" + 
+		"	Member field;	\n" + 
+		"	^^^^^^\n" + 
+		"The type Member is not visible for the field X.field\n" + 
+		"----------\n");
+}
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
+ * 1.3 compiler must accept classfiles without abstract method (target >=1.2)
+ */
+public void test030() {
+
+	Hashtable target1_2 = new Hashtable();
+	target1_2.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+	
+	this.runConformTest(
+		new String[] {
+			"p1/A.java",
+			"package p1; \n"+
+			"public abstract class A implements I {	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"    System.out.println(\"SUCCESS\");	\n" +			
+			"  }	\n" +
+			"} \n" +
+			"interface I {	\n" +
+			"	void foo();	\n" +
+			"}	\n",
+		},
+		"SUCCESS", // expected output
+		null, // custom classpath
+		true, // flush previous output dir content
+		null, // special vm args
+		target1_2);  // custom options
+
+	this.runConformTest(
+		new String[] {
+			"p1/C.java",
+			"package p1; \n"+
+			"public class C {	\n" +
+			"	void bar(A a){ \n" +
+			"		a.foo();	\n" +
+			"	}	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"    System.out.println(\"SUCCESS\");	\n" +			
+			"  }	\n" +
+			"} \n"
+		},
+		"SUCCESS", // expected output
+		null, // custom classpath
+		false, // flush previous output dir content
+		null, // special vm args
+		null);  // custom options
+}
+
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
+ * variant - must filter abstract methods when searching concrete methods
+ */
+public void test031() {
+
+	this.runConformTest(
+		new String[] {
+			"p1/X.java",
+			"package p1;	\n"+
+			"public class X extends AbstractY {	\n"+
+			"	public void init() {	\n"+
+			"		super.init();	\n"+
+			"	}	\n"+
+			"	public static void main(String[] arguments) {	\n"+
+			"		new X().init();	\n"+
+			"	}	\n"+
+			"}	\n"+
+			"abstract class AbstractY extends AbstractZ implements I {	\n"+
+			"	public void init(int i) {	\n"+
+			"	}	\n"+
+			"}	\n"+
+			"abstract class AbstractZ implements I {	\n"+
+			"	public void init() {	\n"+
+			"		System.out.println(\"SUCCESS\");	\n"+
+			"	}	\n"+
+			"}	\n"+
+			"interface I {	\n"+
+			"	void init();	\n"+
+			"	void init(int i);	\n"+
+			"}	\n"
+		},
+		"SUCCESS"); // expected output
+}
+
 public static Class testClass() {
 	return LookupTest.class;
 }

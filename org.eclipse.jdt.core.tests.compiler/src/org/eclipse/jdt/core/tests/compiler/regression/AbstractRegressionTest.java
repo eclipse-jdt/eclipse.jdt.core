@@ -25,7 +25,8 @@ import junit.framework.*;
 
 public abstract class AbstractRegressionTest extends StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
-	
+
+
 	protected INameEnvironment javaClassLib;
 	protected String[] classpaths;
 	protected TestVerifier verifier;
@@ -248,10 +249,16 @@ protected void runNegativeTest(String[] testFiles, String expectedProblemLog, St
 			requestor,
 			problemFactory);
 	batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
-
 	String computedProblemLog = requestor.problemLog.toString();
 	if (!expectedProblemLog.equals(computedProblemLog)){
+		System.out.println(this.getClass().getName() + '#' + this.getName());
 	 	System.out.println(Util.displayString(computedProblemLog, 2));
+	 	for (int i = 0; i < testFiles.length; i+=2) {
+	 		System.out.print(testFiles[i]);
+	 		System.out.println(" ["); //$NON-NLS-1$
+	 		System.out.println(testFiles[i+1]);
+	 		System.out.println("]"); //$NON-NLS-1$
+	 	}
 	}
 	assertEquals(
 		"Invalid problem log ",

@@ -42,7 +42,7 @@ public RecoveredElement(RecoveredElement parent, int bracketBalance, Parser pars
 public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(methodDeclaration.declarationSourceStart - 1));	
@@ -55,7 +55,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(nestedBlockDeclaration.sourceStart - 1));	
@@ -68,7 +68,7 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));	
@@ -81,7 +81,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 public RecoveredElement add(ImportReference importReference, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(importReference.declarationSourceStart - 1));	
@@ -94,7 +94,7 @@ public RecoveredElement add(ImportReference importReference, int bracketBalanceV
 public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));	
@@ -107,7 +107,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(statement.sourceStart - 1));	
@@ -120,7 +120,7 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
-	if (parent == null) {
+	if (this.parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));	
@@ -292,9 +292,9 @@ public void updateFromParserState(){
  * in which case both the currentElement is exited
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
-	if ((--bracketBalance <= 0) && (parent != null)){
+	if ((--this.bracketBalance <= 0) && (this.parent != null)){
 		this.updateSourceEndIfNecessary(braceStart, braceEnd);
-		return parent;
+		return this.parent;
 	}
 	return this;
 }
@@ -305,7 +305,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 /*public RecoveredElement updateOnOpeningBrace(int braceEnd){return null;}*/
 public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 
-	if (bracketBalance++ == 0){
+	if (this.bracketBalance++ == 0){
 		this.updateBodyStart(braceEnd + 1);
 		return this;
 	}

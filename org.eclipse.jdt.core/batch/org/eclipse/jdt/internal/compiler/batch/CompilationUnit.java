@@ -49,27 +49,27 @@ public CompilationUnit(char[] contents, String fileName, String encoding) {
 	this.encoding = encoding;
 }
 public char[] getContents() {
-	if (contents != null)
-		return contents;   // answer the cached source
+	if (this.contents != null)
+		return this.contents;   // answer the cached source
 
 	// otherwise retrieve it
 	try {
-		return Util.getFileCharContent(new File(new String(fileName)), encoding);
+		return Util.getFileCharContent(new File(new String(this.fileName)), this.encoding);
 	} catch (IOException e) {
 		// assume no content then
 	}
 	return CharOperation.NO_CHAR;
 }
 public char[] getFileName() {
-	return fileName;
+	return this.fileName;
 }
 public char[] getMainTypeName() {
-	return mainTypeName;
+	return this.mainTypeName;
 }
 public char[][] getPackageName() {
 	return null;
 }
 public String toString() {
-	return "CompilationUnit[" + new String(fileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
+	return "CompilationUnit[" + new String(this.fileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
 }
 }

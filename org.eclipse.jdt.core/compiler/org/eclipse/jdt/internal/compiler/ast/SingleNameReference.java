@@ -650,7 +650,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						// a field
 						FieldBinding field = (FieldBinding) this.binding;
 						if (!field.isStatic()) {
-							scope.problemReporter().unqualifiedFieldAccess(this, field);
+							//scope.problemReporter().unqualifiedFieldAccess(this, field);
 						}
 						return this.resolvedType = checkFieldAccess(scope);
 					}

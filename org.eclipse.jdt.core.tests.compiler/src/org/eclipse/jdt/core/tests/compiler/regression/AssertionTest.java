@@ -39,7 +39,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		return AssertionTest.class;
 	}
 
-	public void testAssertAsAnIdentifier() {
+	public void test001() {
 		this.runNegativeTest(
 			new String[] {
 				"assert.java",
@@ -53,7 +53,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	
-	public void testAssertionEnabled() {
+	public void test002() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -73,7 +73,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		new String[] {"-ea"});
 	}
 	
-	public void testAssertionDisabled() {
+	public void test003() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -88,7 +88,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-da"});
 	}
-	public void testAssertionWithObjectArguments() {
+	public void test004() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -110,7 +110,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
-	public void testAssertionWithIntArguments() {
+	public void test005() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -133,7 +133,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
-	public void testAssertionWithUnboundVariable() {
+	public void test006() {
 		this.runNegativeTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -152,7 +152,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		"unbound cannot be resolved\n" + 
 		"----------\n");
 	}
-	public void testAssertionWithLongArguments() {
+	public void test007() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -180,7 +180,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
-	public void testAssertionWithFloatArguments() {
+	public void test008() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -203,7 +203,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // do not flush previous output dir content
 		new String[] {"-ea"});
 	}
-	public void testAssertionWithDoubleArguments() {
+	public void test009() {
 		this.runConformTest(new String[] {
 			"A4.java",
 			"public class A4 { \n"
@@ -227,7 +227,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		new String[] {"-ea"});
 	}
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=22334
-	public void testAssertionInInterfaceStaticMember() {
+	public void test010() {
 		this.runConformTest(new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -253,4 +253,28 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	} 	
+	
+	/**
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=28750
+ */
+public void test011() {
+	this.runConformTest(
+		new String[] {
+			"AssertTest.java",
+			"public class AssertTest {\n" +
+			"   public AssertTest() {}\n" +
+			"   public class InnerClass {\n" +
+			"      InnerClass() {\n" +
+			"        assert(false);\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   public static void main(String[] args) {	\n" +
+			"        System.out.print(\"SUCCESS\");	\n" +
+			"	}	\n" +
+			"}"
+		},
+		"SUCCESS"); // expected output
+}
+
 }

@@ -40,8 +40,8 @@ public RecoveredUnit(CompilationUnitDeclaration unitDeclaration, int bracketBala
 public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
 	/* attach it to last type - if any */
-	if (typeCount > 0){
-		RecoveredType type = this.types[typeCount -1];
+	if (this.typeCount > 0){
+		RecoveredType type = this.types[this.typeCount -1];
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
@@ -55,8 +55,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* attach it to last type - if any */
-	if (typeCount > 0){
-		RecoveredType type = this.types[typeCount -1];
+	if (this.typeCount > 0){
+		RecoveredType type = this.types[this.typeCount -1];
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
@@ -65,21 +65,21 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	return this; // ignore
 }
 public RecoveredElement add(ImportReference importReference, int bracketBalanceValue) {
-	if (imports == null) {
-		imports = new RecoveredImport[5];
-		importCount = 0;
+	if (this.imports == null) {
+		this.imports = new RecoveredImport[5];
+		this.importCount = 0;
 	} else {
-		if (importCount == imports.length) {
+		if (this.importCount == this.imports.length) {
 			System.arraycopy(
-				imports, 
+				this.imports, 
 				0, 
-				(imports = new RecoveredImport[2 * importCount]), 
+				(this.imports = new RecoveredImport[2 * this.importCount]), 
 				0, 
-				importCount); 
+				this.importCount); 
 		}
 	}
 	RecoveredImport element = new RecoveredImport(importReference, this, bracketBalanceValue);
-	imports[importCount++] = element;
+	this.imports[this.importCount++] = element;
 
 	/* if import not finished, then import becomes current */
 	if (importReference.declarationSourceEnd == 0) return element;
@@ -98,21 +98,21 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			return lastType.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
-	if (types == null) {
-		types = new RecoveredType[5];
-		typeCount = 0;
+	if (this.types == null) {
+		this.types = new RecoveredType[5];
+		this.typeCount = 0;
 	} else {
-		if (typeCount == types.length) {
+		if (this.typeCount == this.types.length) {
 			System.arraycopy(
-				types, 
+				this.types, 
 				0, 
-				(types = new RecoveredType[2 * typeCount]), 
+				(this.types = new RecoveredType[2 * this.typeCount]), 
 				0, 
-				typeCount); 
+				this.typeCount); 
 		}
 	}
 	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
-	types[typeCount++] = element;
+	this.types[this.typeCount++] = element;
 
 	/* if type not finished, then type becomes current */
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
@@ -122,7 +122,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
  * Answer the associated parsed structure
  */
 public AstNode parseTree(){
-	return unitDeclaration;
+	return this.unitDeclaration;
 }
 /*
  * Answer the very source end of the corresponding parse node
@@ -133,7 +133,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered unit: [\n"); //$NON-NLS-1$
-	result.append(unitDeclaration.print(tab + 1, result));
+	result.append(this.unitDeclaration.print(tab + 1, result));
 	result.append(tabString(tab + 1));
 	result.append("]"); //$NON-NLS-1$
 	if (this.imports != null) {
@@ -153,34 +153,34 @@ public String toString(int tab) {
 public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 
 	/* update imports */
-	if (importCount > 0){
-		ImportReference[] importRefences = new ImportReference[importCount];
-		for (int i = 0; i < importCount; i++){
-			importRefences[i] = imports[i].updatedImportReference();
+	if (this.importCount > 0){
+		ImportReference[] importRefences = new ImportReference[this.importCount];
+		for (int i = 0; i < this.importCount; i++){
+			importRefences[i] = this.imports[i].updatedImportReference();
 		}
-		unitDeclaration.imports = importRefences;
+		this.unitDeclaration.imports = importRefences;
 	}
 	/* update types */
-	if (typeCount > 0){
-		int existingCount = unitDeclaration.types == null ? 0 : unitDeclaration.types.length;
-		TypeDeclaration[] typeDeclarations = new TypeDeclaration[existingCount + typeCount];
+	if (this.typeCount > 0){
+		int existingCount = this.unitDeclaration.types == null ? 0 : this.unitDeclaration.types.length;
+		TypeDeclaration[] typeDeclarations = new TypeDeclaration[existingCount + this.typeCount];
 		if (existingCount > 0){
-			System.arraycopy(unitDeclaration.types, 0, typeDeclarations, 0, existingCount);
+			System.arraycopy(this.unitDeclaration.types, 0, typeDeclarations, 0, existingCount);
 		}
 		// may need to update the declarationSourceEnd of the last type
-		if (types[typeCount - 1].typeDeclaration.declarationSourceEnd == 0){
-			types[typeCount - 1].typeDeclaration.declarationSourceEnd = unitDeclaration.sourceEnd;
-			types[typeCount - 1].typeDeclaration.bodyEnd = unitDeclaration.sourceEnd;
+		if (this.types[this.typeCount - 1].typeDeclaration.declarationSourceEnd == 0){
+			this.types[this.typeCount - 1].typeDeclaration.declarationSourceEnd = this.unitDeclaration.sourceEnd;
+			this.types[this.typeCount - 1].typeDeclaration.bodyEnd = this.unitDeclaration.sourceEnd;
 		}
 		int actualCount = existingCount;
-		for (int i = 0; i < typeCount; i++){
-			TypeDeclaration typeDecl = types[i].updatedTypeDeclaration();
+		for (int i = 0; i < this.typeCount; i++){
+			TypeDeclaration typeDecl = this.types[i].updatedTypeDeclaration();
 			// filter out local types (12454)
 			if (!(typeDecl instanceof LocalTypeDeclaration)){
 				typeDeclarations[actualCount++] = typeDecl;
 			}
 		}
-		if (actualCount != typeCount){
+		if (actualCount != this.typeCount){
 			System.arraycopy(
 				typeDeclarations, 
 				0, 
@@ -188,9 +188,9 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 				0, 
 				existingCount+actualCount);
 		}
-		unitDeclaration.types = typeDeclarations;
+		this.unitDeclaration.types = typeDeclarations;
 	}
-	return unitDeclaration;
+	return this.unitDeclaration;
 }
 public void updateParseTree(){
 	this.updatedCompilationUnitDeclaration();

@@ -13,15 +13,15 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 
 public class FileFinder {
-	private final int INITIAL_SIZE = 10;
+	private static final int INITIAL_SIZE = 10;
 	public String[] resultFiles = new String[INITIAL_SIZE];
-	public int counter = 0;
+	public int count = 0;
 public void find(File f, String pattern, boolean verbose) {
 	if (verbose) {
 		System.out.println(Main.bind("scanning.start",f.getAbsolutePath())); //$NON-NLS-1$
 	}
 	find0(f, pattern, verbose);
-	System.arraycopy(resultFiles, 0, (resultFiles = new String[counter]), 0, counter);
+	System.arraycopy(this.resultFiles, 0, (this.resultFiles = new String[this.count]), 0, this.count);
 }
 public void find0(File f, String pattern, boolean verbose) {
 	if (f.isDirectory()) {
@@ -34,11 +34,11 @@ public void find0(File f, String pattern, boolean verbose) {
 			} else {
 				if (current.getName().toUpperCase().endsWith(pattern)) {
 					int length;
-					if ((length = resultFiles.length) == counter) {
-						System.arraycopy(resultFiles, 0, (resultFiles = new String[length * 2]), 0, length);
+					if ((length = this.resultFiles.length) == this.count) {
+						System.arraycopy(this.resultFiles, 0, (this.resultFiles = new String[length * 2]), 0, length);
 					}
-					resultFiles[counter++] = current.getAbsolutePath();
-					if (verbose && (counter % 100) == 0)
+					this.resultFiles[this.count++] = current.getAbsolutePath();
+					if (verbose && (this.count % 100) == 0)
 						System.out.print('.');
 				}
 			}

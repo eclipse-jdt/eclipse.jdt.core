@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.codeassist.select;
  *
  * Source positions are zero-based and inclusive.
  */
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class SelectionScanner extends Scanner {
@@ -53,7 +52,7 @@ public char[] getCurrentIdentifierSource() {
  * In case we actually read a keyword which corresponds to the selected
  * range, we pretend we read an identifier.
  */
-public int scanIdentifierOrKeyword() throws InvalidInputException {
+public int scanIdentifierOrKeyword() {
 
 	int id = super.scanIdentifierOrKeyword();
 
