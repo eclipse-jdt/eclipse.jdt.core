@@ -9045,7 +9045,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"public class X {\n" + 
 				"    public static void main(String argv[]) {\n" + 
 				"       X1<Integer> o1 = new X1<Integer>();\n" + 
-				"        System.out.print(((J<Integer>)o1).get());\n" + 
+				"        ((J<Integer>)o1).get();\n" + 
 				"    }\n" + 
 				"}\n" + 
 				"\n" + 
