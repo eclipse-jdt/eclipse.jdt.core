@@ -428,7 +428,7 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 	}
 
 	// variable is visible to its bounds
-	TypeVariableBinding variable = new TypeVariableBinding(variableName, rank);
+	TypeVariableBinding variable = new TypeVariableBinding(variableName, this, rank);
 	variable.modifiers |= AccUnresolved;
 	variable.superclass = type;
 

@@ -315,7 +315,7 @@ public class ClassScope extends Scope {
 			problemReporter().objectCannotBeGeneric(referenceContext);
 			return; 
 		}		    
-		sourceType.typeVariables = createTypeVariables(typeParameters);
+		sourceType.typeVariables = createTypeVariables(typeParameters, sourceType);
 		sourceType.modifiers |= AccGenericSignature;
 	}
 	

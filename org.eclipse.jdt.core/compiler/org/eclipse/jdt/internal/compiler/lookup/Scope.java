@@ -196,7 +196,7 @@ public abstract class Scope
 		return noProblems;
 	}
 	
-	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters) {
+	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Object declaringElement) {
 
 		PackageBinding unitPackage = compilationUnitScope().fPackage;
 		
@@ -212,7 +212,7 @@ public abstract class Scope
 		int count = 0;
 		nextParameter : for (int i = 0; i < length; i++) {
 			TypeParameter typeParameter = typeParameters[i];
-			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
+			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, declaringElement, i);
 			parameterBinding.fPackage = unitPackage;
 			typeParameter.binding = parameterBinding;
 			

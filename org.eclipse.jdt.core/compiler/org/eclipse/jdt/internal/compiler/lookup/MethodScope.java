@@ -320,7 +320,7 @@ public class MethodScope extends BlockScope {
 		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
 		    method.binding.typeVariables = NoTypeVariables;
 		} else {
-			method.binding.typeVariables = createTypeVariables(typeParameters);
+			method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 			method.binding.modifiers |= AccGenericSignature;
 		}
 		return method.binding;
