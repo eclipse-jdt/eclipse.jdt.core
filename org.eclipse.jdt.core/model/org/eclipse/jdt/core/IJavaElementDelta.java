@@ -19,32 +19,44 @@ import org.eclipse.core.resources.IResourceDelta;
  * <p>
  * Deltas have a different status depending on the kind of change they represent.  
  * The list below summarizes each status (as returned by <code>getKind</code>)
- * and its meaning:
+ * and its meaning (see individual constants for a more detailled description):
  * <ul>
- * <li><code>ADDED</code> - The element described by the delta 
- * has been added. Additional information is specified by
- * <code>getFlags</code> which returns <code>F_ADDED_TO_CLASSPATH</code>
- * if the element added is a package fragment root on the classpath.</li>
- * <li><code>REMOVED</code> - The element described by the delta 
- * has been removed. Additional information is specified by
- * <code>getFlags</code> which returns <code>F_REMOVED_FROM_CLASSPATH</code>
- * if the element removed was a package fragment root on the classpath.</li>
- * <li><code>CHANGED</code> - The element described by the delta 
- * has been changed in some way.  Specification of the type of change is provided
- * by <code>getFlags</code> which returns the following values:
+ * <li><code>ADDED</code> - The element described by the delta has been added.</li>
+ * <li><code>REMOVED</code> - The element described by the delta has been removed.</li>
+ * <li><code>CHANGED</code> - The element described by the delta has been changed in some way.  
+ * Specification of the type of change is provided by <code>getFlags</code> which returns the following values:
  * <ul>
- * <li><code>F_CONTENT</code> - The contents of the element have been altered.  This flag
- * is only valid for elements which correspond to files.</li>
+ * <li><code>F_ADDED_TO_CLASSPATH</code> - A classpath entry corresponding to the element
+ * has been added to the project's classpath. This flag is only valid if the element is an 
+ * <code>IPackageFragmentRoot</code>.</li>
+ * <li><code>F_ARCHIVE_CONTENT_CHANGED</code> - The contents of an archive
+ * has changed in some way. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>
+ * which is an archive.</li>
  * <li><code>F_CHILDREN</code> - A child of the element has changed in some way.  This flag
  * is only valid if the element is an <code>IParent</code>.</li>
- * <li><code>F_MODIFIERS</code> - the modifiers on the element have changed in some way. 
+ * <li><code>F_CLASSPATH_REORDER</code> - A classpath entry corresponding to the element
+ * has changed position in the project's classpath. This flag is only valid if the element is an 
+ * <code>IPackageFragmentRoot</code>.</li>
+ * <li><code>F_CLOSED</code> - The underlying <code>IProject</code>
+ * has been closed. This flag is only valid if the element is an <code>IJavaProject</code>.</li>
+ * <li><code>F_CONTENT</code> - The contents of the element have been altered.  This flag
+ * is only valid for elements which correspond to files.</li>
+ *<li><code>F_FINE_GRAINED</code> - The delta is a fine-grained delta, i.e.&nbsp;an analysis down
+ * to the members level was done to determine if there were structural changes to members of the element.</li>
+ * <li><code>F_MODIFIERS</code> - The modifiers on the element have changed in some way. 
  * This flag is only valid if the element is an <code>IMember</code>.</li>
- * <li><code>F_OPENED</code> - the underlying <code>IProject</code>
- * has been opened. This flag is only valid if the element is an <code>IJavaModel</code>
- * or an <code>IJavaProject</code>.</li>
- * <li><code>F_CLOSED</code> - the underlying <code>IProject</code>
- * has been closed. This flag is only valid if the element is an <code>IJavaModel</code>
- * or an <code>IJavaProject</code>.</li>
+ * <li><code>F_OPENED</code> - The underlying <code>IProject</code>
+ * has been opened. This flag is only valid if the element is an <code>IJavaProject</code>.</li>
+ * <li><code>F_REMOVED_FROM_CLASSPATH</code> - A classpath entry corresponding to the element 
+ * has been removed from the project's classpath. This flag is only valid if the element is an 
+ * <code>IPackageFragmentRoot</code>.</li>
+ * <li><code>F_SOURCEATTACHED</code> - The source attachment path or the source attachment root path
+ * of a classpath entry corresponding to the element was added. This flag is only valid if the element is an 
+ * <code>IPackageFragmentRoot</code>.</li>
+ * <li><code>F_SOURCEDETTACHED</code> - The source attachment path or the source attachment root path
+ * of a classpath entry corresponding to the element was removed. This flag is only valid if the element is an 
+ * <code>IPackageFragmentRoot</code>.</li>
+ * <li><code>F_SUPER_TYPES</code> - One of the supertypes of an <code>IType</code> has changed</li>.
  * </ul>
  * </li>
  * </ul>
@@ -65,15 +77,22 @@ import org.eclipse.core.resources.IResourceDelta;
  * do not imply anything about the parent or children of the element.
  * </p>
  * <p>
- * The following flags describe changes in an <code>IJavaProject</code>'s classpath:
- * <ul>
- * <li><code>F_ADDED_TO_CLASSPATH</code> - the element described by the delta has been added to the
- *	classpath.</li>
- * <li><code>F_REMOVED_FROM_CLASSPATH</code> - the element described by the delta has been removed
- * from the classpath.</li>
- * <li><code>F_CLASSPATH_REORDER</code> - the element described by the delta has changed its
- * position in the classpath.</li>
- * </ul>
+ * The <code>F_ADDED_TO_CLASSPATH</code>, <code>F_REMOVED_FROM_CLASSPATH</code> and
+ * <code>F_CLASSPATH_REORDER</code> flags are triggered by changes to a project's classpath. They do not mean that
+ * the underlying resource was added, removed or changed. For example, if a project P already contains a folder src, then 
+ * adding a classpath entry with the 'P/src' path to the project's classpath will result in an <code>IJavaElementDelta</code> 
+ * with the <code>F_ADDED_TO_CLASSPATH</code> flag for the <code>IPackageFragmentRoot</code> P/src.
+ * On the contrary, if a resource is physically added, removed or changed and this resource corresponds to a classpath
+ * entry of the project, then an <code>IJavaElementDelta</code> with the <code>ADDED</code>, 
+ * <code>REMOVED</code>, or <code>CHANGED</code> kind will be fired.
+ * </p>
+ * <p>
+ * Note that when a source attachment path or a source attachment root path is changed, then the flags of the delta contain
+ * both <code>F_SOURCEATTACHED</code> and <code>F_SOURCEDETTACHED</code>.
+ * </p>
+ * <p>
+ * No assumptions should be made on whether the java element delta tree is rooted at the <code>IJavaModel</code>
+ * level or not.
  * </p>
  * <p>
  * <code>IJavaElementDelta</code> object are not valid outside the dynamic scope
@@ -87,32 +106,39 @@ public interface IJavaElementDelta {
 
 	/**
 	 * Status constant indicating that the element has been added.
+	 * Note that an added java element delta has no children, as they are all implicitely added.
 	 */
 	public int ADDED = 1;
 
 	/**
 	 * Status constant indicating that the element has been removed.
+	 * Note that a removed java element delta has no children, as they are all implicitely removed.
 	 */
 	public int REMOVED = 2;
 
 	/**
 	 * Status constant indicating that the element has been changed,
 	 * as described by the change flags.
+	 * 
+	 * @see getFlags
 	 */
 	public int CHANGED = 4;
 
 	/**
 	 * Change flag indicating that the content of the element has changed.
+	 * This flag is only valid for elements which correspond to files.
 	 */
 	public int F_CONTENT = 0x0001;
 
 	/**
 	 * Change flag indicating that the modifiers of the element have changed.
+	 * This flag is only valid if the element is an <code>IMember</code>. 
 	 */
 	public int F_MODIFIERS = 0x0002;
 
 	/**
 	 * Change flag indicating that there are changes to the children of the element.
+	 * This flag is only valid if the element is an <code>IParent</code>. 
 	 */
 	public int F_CHILDREN = 0x0008;
 
@@ -129,32 +155,32 @@ public interface IJavaElementDelta {
 	public int F_MOVED_TO = 0x0020;
 
 	/**
-	 * Change flag indicating that the element was added to the classpath. In this
-	 * case the element is an <code>IPackageFragmentRoot</code>.
+	 * Change flag indicating that a classpath entry corresponding to the element has been added to the project's classpath. 
+	 * This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 */
 	public int F_ADDED_TO_CLASSPATH = 0x0040;
 
 	/**
-	 * Change flag indicating that the element was removed from the classpath. In this
-	 * case the element is an <code>IPackageFragmentRoot</code>.
+	 * Change flag indicating that a classpath entry corresponding to the element has been removed from the project's 
+	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 */
 	public int F_REMOVED_FROM_CLASSPATH = 0x0080;
 
 	/**
-	 * Change flag indicating that the element's position in the classpath has changed.
-	 * In this case the element is an <code>IPackageFragmentRoot</code>.
+	 * Change flag indicating that a classpath entry corresponding to the element has changed position in the project's 
+	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 */
 	public int F_CLASSPATH_REORDER = 0x0100;
 
 	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been
-	 * opened.
+	 * opened. This flag is only valid if the element is an <code>IJavaProject</code>. 
 	 */
 	public int F_OPENED = 0x0200;
 
 	/**
 	 * Change flag indicating that the underlying <code>IProject</code> has been
-	 * closed.
+	 * closed. This flag is only valid if the element is an <code>IJavaProject</code>. 
 	 */
 	public int F_CLOSED = 0x0400;
 
@@ -165,12 +191,16 @@ public interface IJavaElementDelta {
 	public int F_SUPER_TYPES = 0x0800;
 
 	/**
-	 * Change flag indicating that a source jar has been attached to a binary jar.
+	 * Change flag indicating that the source attachment path or the source attachment root path of a classpath entry 
+	 * corresponding to the element was added. This flag is only valid if the element is an 
+	 * <code>IPackageFragmentRoot</code>.
 	 */
 	public int F_SOURCEATTACHED = 0x1000;	
 
 	/**
-	 * Change flag indicating that a source jar has been detached to a binary jar.
+	 * Change flag indicating that the source attachment path or the source attachment root path of a classpath entry 
+	 * corresponding to the element was removed. This flag is only valid if the element is an 
+	 * <code>IPackageFragmentRoot</code>.
 	 */
 	public int F_SOURCEDETACHED = 0x2000;	
 	
@@ -189,7 +219,10 @@ public interface IJavaElementDelta {
 
 	/**
 	 * Change flag indicating that the element's archive content on the classpath has changed.
-	 * In this case the element is an <code>IPackageFragmentRoot</code>.
+	 * This flag is only valid if the element is an <code>IPackageFragmentRoot</code>
+	 * which is an archive.
+	 * 
+	 * @see IPackageFragmentRoot#isArchive
 	 */
 	public int F_ARCHIVE_CONTENT_CHANGED = 0x8000;
 
@@ -213,17 +246,15 @@ public IJavaElementDelta[] getChangedChildren();
  */
 public IJavaElement getElement();
 /**
- * Returns flags that describe how an element has changed.
+ * Returns flags that describe how an element has changed. 
+ * Such flags should be tested using the <code>&</code> operand, e.g.
+ * <pre>
+ * if ((delta.getFlags() & IJavaElementDelta.F_CONTENT) != 0) {
+ * 	// the delta indicates a content change
+ * }
+ * </pre>
  *
  * @return flags that describe how an element has changed
- * @see IJavaElementDelta#F_CHILDREN
- * @see IJavaElementDelta#F_CONTENT
- * @see IJavaElementDelta#F_MODIFIERS
- * @see IJavaElementDelta#F_MOVED_FROM
- * @see IJavaElementDelta#F_MOVED_TO
- * @see IJavaElementDelta#F_ADDED_TO_CLASSPATH
- * @see IJavaElementDelta#F_REMOVED_FROM_CLASSPATH
- * @see IJavaElementDelta#F_CLASSPATH_REORDER
  */
 public int getFlags();
 /**
