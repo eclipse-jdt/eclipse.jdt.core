@@ -141,8 +141,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType == null) {
 				qualifiedType = currentType.enclosingType(); // if member type
-				if (qualifiedType != null && currentType.isStatic() && qualifiedType.isGenericType()) {
-					qualifiedType = scope.environment().createRawType(qualifiedType, qualifiedType.enclosingType());
+				if (qualifiedType != null && currentType.isStatic() && (qualifiedType.isGenericType() || qualifiedType.isParameterizedType())) {
+					qualifiedType = scope.environment().createRawType((ReferenceBinding)qualifiedType.erasure(), qualifiedType.enclosingType());
 				}
 			}				
 			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
