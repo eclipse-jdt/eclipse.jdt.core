@@ -58,9 +58,10 @@ class XMLWriter extends PrintWriter {
 		super(writer);
 		tab= 0;
 		println(XML_VERSION);
+		tab--; // align first tag with XML version tag
 	}
 	public void endTag(String name, boolean insertTab) {
-		tab--;
+		tab -=2;
 		printTag('/' + name, null, insertTab, true, false);
 	}
 	private void printTabulation() {
@@ -80,6 +81,8 @@ class XMLWriter extends PrintWriter {
 				sb.append(getEscaped(String.valueOf(parameters.get(key))));
 				sb.append("\""); //$NON-NLS-1$
 			}
+		} else {
+			tab++;
 		}
 		if (closeTag) {
 			sb.append("/>"); //$NON-NLS-1$

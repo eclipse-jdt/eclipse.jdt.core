@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//TESTS_NAMES = new String[] { "testExcludePartOfAnotherProject1" };
+	//TESTS_NAMES = new String[] { "testIncludePartOfAnotherProject2" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -638,7 +638,7 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
 			"	public class X extends p.internal.Y {\n" + 
 			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not imported from required project P  \n" + 
+			"Access restriction: The type Y is not accessible due to restriction on required project P\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -735,7 +735,7 @@ public void testIncludePartOfAnotherProject2() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
 			"	public class X extends p.internal.Y {\n" + 
 			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not imported from required project P  \n" + 
+			"Access restriction: The type Y is not accessible due to restriction on required project P\n" + 
 			"----------\n"
 		);
 	} finally {

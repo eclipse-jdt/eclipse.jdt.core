@@ -148,6 +148,124 @@ public interface IClasspathEntry {
 	int CPE_CONTAINER = 5;
 
 	/**
+	 * Returns the set of patterns used to explicitly allow access to files 
+	 * associated with this classpath entry. Only project, library, container 
+	 * and variable entries support accessible files patterns. An empty array 
+	 * is returned for source entries.
+	 * <p>
+	 * Each path specified is a relative path encoding a package-qualified class name
+	 * (e.g., <code>java/lang/String.class</code>). Class names that match
+	 * the accessible files pattern can be legally referred to by source code in the
+	 * project.
+	 * </p>
+	 * <p>
+	 * See {@link #getNonAccessibleFiles()} for a discussion of the syntax and
+	 * semantics of path patterns. The absence of any accessible files patterns is
+	 * semantically equivalent to the explicit accessible files pattern
+	 * <code>&#42;&#42;</code>.
+	 * </p>
+	 * <p>
+	 * Example patterns in library entries:
+	 * <ul>
+	 * <li>
+	 * The accessible files pattern <code>src/&#42;&#42;</code> by itself includes all
+	 * files under a root folder named <code>lib</code>.
+	 * </li>
+	 * <li>
+	 * The accessible files patterns <code>lib/&#42;&#42;</code> and
+	 * <code>tests/&#42;&#42;</code> makes all files under the root folders
+	 * named <code>lib</code> and <code>tests</code> accessible.
+	 * </li>
+	 * <li>
+	 * The accessible files pattern <code>lib/&#42;&#42;</code> together with the
+	 * non accessible files pattern <code>lib/&#42;&#42;/Foo.class</code> makes all
+	 * files under a root folder named <code>lib</code> accessible except for ones
+	 * named <code>Foo.class</code>.
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @return the possibly empty list of accessible files patterns 
+	 *   associated with this classpath entry, or an empty array if this kind
+	 *   of classpath entry does not support accessible files patterns
+	 * @since 3.1
+	 */
+	IPath[] getAccessibleFiles();
+	/**
+	 * Returns the set of patterns used to limit access to files associated with
+	 * this classpath entry. Only project, library, container and variable entries
+	 * support non accessible files patterns. An empty array is returned for
+	 * source entries.
+	 * <p>
+	 * Each path specified is a relative path encoding a package-qualified class name
+	 * (e.g., <code>java/lang/String.class</code>). Class names that match
+	 * the non accessible files pattern should not be referred to by source code in the
+	 * project (compiler will generate a warning or error).
+	 * </p>
+	 * <p>
+	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
+	 * a relative path. The path segments can be regular file or folder names or simple patterns
+	 * involving standard wildcard characters.
+	 * </p>
+	 * <p>
+	 * '*' matches 0 or more characters within a segment. So
+	 * <code>*.class</code> matches <code>.class</code>, <code>a.class</code>
+	 * and <code>Foo.class</code>, but not <code>Foo.properties</code>
+	 * (does not end with <code>.class</code>).
+	 * </p>
+	 * <p>
+	 * '?' matches 1 character within a segment. So <code>?.class</code> 
+	 * matches <code>a.class</code>, <code>A.class</code>, 
+	 * but not <code>.class</code> or <code>xyz.class</code> (neither have
+	 * just one character before <code>.class</code>).
+	 * </p>
+	 * <p>
+	 * Combinations of *'s and ?'s are allowed.
+	 * </p>
+	 * <p>
+	 * The special pattern '**' matches zero or more segments. In a library entry,
+	 * a path like <code>tests/</code> that ends in a trailing separator is interpreted
+	 * as <code>tests/&#42;&#42;</code>, and would match everything under
+	 * the folder named <code>tests</code>.
+	 * </p>
+	 * <p>
+	 * Example patterns in library entries:
+	 * <ul>
+	 * <li>
+	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
+	 * matches all files under a root folder
+	 * named <code>tests</code>. This makes <code>tests/Foo.class</code>
+	 * and <code>tests/com/example/Foo.class</code> non accessible, but 
+	 * <code>com/example/tests/Foo.class</code> (not under a root folder named
+	 * <code>tests</code>) is accessible.
+	 * </li>
+	 * <li>
+	 * <code>tests/&#42;</code> matches all files directly below a root 
+	 * folder named <code>tests</code>. This makes <code>tests/Foo.class</code>
+	 * and <code>tests/FooHelp.class</code> non accessible
+	 * but <code>tests/com/example/Foo.class</code> (not directly under
+	 * a folder named <code>tests</code>) or 
+	 * <code>com/Foo.class</code> (not under a folder named <code>tests</code>)
+     * are accessible.
+	 * </li>
+	 * <li>
+	 * <code>&#42;&#42;/tests/&#42;&#42;</code> matches all files under any
+	 * folder named <code>tests</code>. This makes <code>tests/Foo.class</code>,
+	 * <code>com/examples/tests/Foo.class</code>, and 
+	 * <code>com/examples/tests/unit/Foo.class</code> non accessible, but
+	 * <code>com/example/Foo.class</code> (not under a folder named
+	 * <code>tests</code>) is accessible.
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @return the possibly empty list of non accessible file patterns 
+	 *   associated with this classpath entry, or an empty array if this kind
+	 *   of classpath entry does not support non accessible file patterns
+	 * @since 3.1
+	 */
+	IPath[] getNonAccessibleFiles();
+	/**
 	 * Returns the kind of files found in the package fragments identified by this
 	 * classpath entry.
 	 *
@@ -198,15 +316,6 @@ public interface IClasspathEntry {
 	 * <p>
 	 * Note that there is no need to supply a pattern to exclude ".class" files
 	 * because a source entry filters these out automatically.
-	 * </p>
-	 * <p>
-	 * Exclusion patterns on library, project, container,
-	 * and variable classpath entries (added in 3.1) are used in a similar
-	 * fashion to express access restrictions. Each path
-	 * specified is relative path encoding a package-qualified class name
-	 * (e.g., <code>java/lang/String</code>). Class names that match
-	 * the exclusion pattern should not be referred to by source code in the
-	 * project (compiler will generate a warning or error).
 	 * </p>
 	 * <p>
 	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
@@ -272,6 +381,15 @@ public interface IClasspathEntry {
 	IPath[] getExclusionPatterns();
 	
 	/**
+	 * Returns the extra classpath attributes for this classpath entry. Returns an empty array if this entry
+	 * has no extra attributes.
+	 * 
+	 * @return the possibly empty list of extra classpath attributes for this classpath entry
+	 * @since 3.1
+	 */
+	IClasspathAttribute[] getExtraAttributes();
+	
+	/**
 	 * Returns the set of patterns used to explicitly define resources or classes
 	 * to be included with this classpath entry.
 	 * <p>
@@ -287,15 +405,6 @@ public interface IClasspathEntry {
 	 * patterns. Exclusion patterns have higher precedence than inclusion
 	 * patterns; in other words, exclusion patterns can remove files for the
 	 * ones that are to be included, not the other way around.
-	 * </p>
-	 * <p>
-	 * Inclusion patterns on library, project, container,
-	 * and variable classpath entries (added in 3.1) are used in a similar
-	 * fashion to express access restrictions. Each path
-	 * specified is relative path encoding a package-qualified class name
-	 * (e.g., <code>java/lang/String</code>). Class names that match
-	 * the inclusion pattern can be legally referred to by source code in the
-	 * project.
 	 * </p>
 	 * <p>
 	 * See {@link #getExclusionPatterns()} for a discussion of the syntax and
@@ -326,7 +435,7 @@ public interface IClasspathEntry {
 	 * 
 	 * @return the possibly empty list of resource inclusion patterns 
 	 *   associated with this classpath entry, or <code>null</code> if this kind
-	 *   of classpath entry does not support exclusion patterns
+	 *   of classpath entry does not support inclusion patterns
 	 * @since 3.0
 	 */
 	IPath[] getInclusionPatterns();

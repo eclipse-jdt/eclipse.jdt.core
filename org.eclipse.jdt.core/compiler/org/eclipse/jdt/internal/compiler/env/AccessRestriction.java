@@ -19,16 +19,16 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  */
 public class AccessRestriction {
 
-	private char[][] inclusionPatterns;
-	private char[][] exclusionPatterns;
+	private char[][] accessibleFilesPatterns;
+	private char[][] nonAccessibleFilesPatterns;
 	protected String messageTemplate;
 	AccessRestriction furtherRestriction; // subsequent restriction
 	
 	
-	public AccessRestriction(String messageTemplate, char[][] inclusionPatterns, char[][] exclusionPatterns, AccessRestriction furtherRestriction) {
+	public AccessRestriction(String messageTemplate, char[][] accessibleFilesPatterns, char[][] nonAccessibleFilesPatterns, AccessRestriction furtherRestriction) {
 		this.messageTemplate = messageTemplate;
-		this.inclusionPatterns = inclusionPatterns;
-		this.exclusionPatterns = exclusionPatterns;
+		this.accessibleFilesPatterns = accessibleFilesPatterns;
+		this.nonAccessibleFilesPatterns = nonAccessibleFilesPatterns;
 		this.furtherRestriction = furtherRestriction;
 	}
 	/**
@@ -42,23 +42,23 @@ public class AccessRestriction {
 		AccessRestriction otherRestriction = (AccessRestriction) object;
 		if (!this.messageTemplate.equals(otherRestriction.messageTemplate)) 
 			return false;
-		if (this.inclusionPatterns != otherRestriction.inclusionPatterns) {
-			int length = this.inclusionPatterns == null ? 0 : this.inclusionPatterns.length;
-			int otherLength = otherRestriction.inclusionPatterns == null ? 0 : otherRestriction.inclusionPatterns.length;
+		if (this.accessibleFilesPatterns != otherRestriction.accessibleFilesPatterns) {
+			int length = this.accessibleFilesPatterns == null ? 0 : this.accessibleFilesPatterns.length;
+			int otherLength = otherRestriction.accessibleFilesPatterns == null ? 0 : otherRestriction.accessibleFilesPatterns.length;
 			if (length != otherLength)
 				return false;
 			for (int i = 0; i < length; i++) {
-				if (!CharOperation.equals(this.inclusionPatterns[i], otherRestriction.inclusionPatterns[i]))
+				if (!CharOperation.equals(this.accessibleFilesPatterns[i], otherRestriction.accessibleFilesPatterns[i]))
 						return false;
 			}
 		}
-		if (this.exclusionPatterns != otherRestriction.exclusionPatterns) {
-			int length = this.exclusionPatterns == null ? 0 : this.exclusionPatterns.length;
-			int otherLength = otherRestriction.exclusionPatterns == null ? 0 : otherRestriction.exclusionPatterns.length;
+		if (this.nonAccessibleFilesPatterns != otherRestriction.nonAccessibleFilesPatterns) {
+			int length = this.nonAccessibleFilesPatterns == null ? 0 : this.nonAccessibleFilesPatterns.length;
+			int otherLength = otherRestriction.nonAccessibleFilesPatterns == null ? 0 : otherRestriction.nonAccessibleFilesPatterns.length;
 			if (length != otherLength)
 				return false;
 			for (int i = 0; i < length; i++) {
-				if (!CharOperation.equals(this.exclusionPatterns[i], otherRestriction.exclusionPatterns[i]))
+				if (!CharOperation.equals(this.nonAccessibleFilesPatterns[i], otherRestriction.nonAccessibleFilesPatterns[i]))
 						return false;
 			}
 		}
@@ -77,8 +77,8 @@ public class AccessRestriction {
 	public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath, char[] referringTypeName) {
 		
 		// check local inclusion/exclusion rules
-		if (this.inclusionPatterns != null || this.exclusionPatterns != null) {
-			if (Util.isExcluded(targetTypeFilePath, this.inclusionPatterns, this.exclusionPatterns, false)) {
+		if (this.accessibleFilesPatterns != null || this.nonAccessibleFilesPatterns != null) {
+			if (Util.isExcluded(targetTypeFilePath, this.accessibleFilesPatterns, this.nonAccessibleFilesPatterns, false)) {
 				return this;
 			}
 		}		
@@ -88,10 +88,10 @@ public class AccessRestriction {
 						: null;
 	}
 	public char[][] getExclusionPatterns() {
-			return this.exclusionPatterns;
+			return this.nonAccessibleFilesPatterns;
 	}
 	public char[][] getInclusionPatterns() {
-			return this.inclusionPatterns;
+			return this.accessibleFilesPatterns;
 	}
 	/**
 	 * Returns readable description for problem reporting, 
@@ -105,10 +105,10 @@ public class AccessRestriction {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(200);
 		buffer
-			.append("AccessRestriction [includes:\"") //$NON-NLS-1$
-			.append(CharOperation.concatWith(this.inclusionPatterns,'/'))
-			.append("\"][excludes:\"") //$NON-NLS-1$
-			.append(CharOperation.concatWith(this.exclusionPatterns,'/'))
+			.append("AccessRestriction [accessible:\"") //$NON-NLS-1$
+			.append(CharOperation.concatWith(this.accessibleFilesPatterns,'/'))
+			.append("\"][non accessible:\"") //$NON-NLS-1$
+			.append(CharOperation.concatWith(this.nonAccessibleFilesPatterns,'/'))
 			.append("\"][template:\"") //$NON-NLS-1$
 			.append(this.messageTemplate)
 			.append("\"]"); //$NON-NLS-1$

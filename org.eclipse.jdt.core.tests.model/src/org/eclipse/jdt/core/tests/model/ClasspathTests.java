@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -73,7 +74,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] {"testMissingClasspath"};
+//	TESTS_NAMES = new String[] {"testExtraAttributes2"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -109,6 +110,20 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	expected.append("}");
 	computed.append("}");
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
+}
+protected void assertClasspathEquals(IClasspathEntry[] classpath, String expected) {
+	StringBuffer buffer = new StringBuffer();
+	int length = classpath == null ? 0 : classpath.length;
+	for (int i=0; i<length; i++) {
+		buffer.append(classpath[i]);
+		if (i < length-1)
+			buffer.append('\n');
+	}
+	String actual = buffer.toString();
+	if (!actual.equals(expected)) {
+	 	System.out.print(Util.displayString(actual, 2));
+	}
+	assertEquals(expected, actual);
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
 	waitForAutoBuild();
@@ -1968,6 +1983,110 @@ public void testExportContainer() throws CoreException {
 		this.deleteProjects(new String[] {"P1", "P2"});
 	}
 }
+/*
+ * Ensures that setting 0 extra classpath attributes generates the correct .classpath file.
+ */
+public void testExtraAttributes1() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IClasspathEntry entry = JavaCore.newSourceEntry(new Path("/P"), new IPath[0], new IPath[0], null, new IClasspathAttribute[] {});
+		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\">\n" + 
+			"		<attributes>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that setting 1 extra classpath attributes generates the correct .classpath file.
+ */
+public void testExtraAttributes2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IClasspathAttribute attribute = JavaCore.newClasspathAttribute("foo", "some value");
+		IClasspathEntry entry = JavaCore.newSourceEntry(new Path("/P"), new IPath[0], new IPath[0], null, new IClasspathAttribute[] {attribute});
+		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\">\n" + 
+			"		<attributes>\n" + 
+			"			<attribute value=\"some value\" name=\"foo\"/>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that setting 2 extra classpath attributes generates the correct .classpath file.
+ */
+public void testExtraAttributes3() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IClasspathAttribute attribute1 = JavaCore.newClasspathAttribute("foo", "some value");
+		IClasspathAttribute attribute2 = JavaCore.newClasspathAttribute("bar", "other value");
+		IClasspathEntry entry = JavaCore.newSourceEntry(new Path("/P"), new IPath[0], new IPath[0], null, new IClasspathAttribute[] {attribute1, attribute2});
+		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\">\n" + 
+			"		<attributes>\n" + 
+			"			<attribute value=\"some value\" name=\"foo\"/>\n" + 
+			"			<attribute value=\"other value\" name=\"bar\"/>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that extra classpath attributes in a .classpath file are correctly read.
+ */
+public void testExtraAttributes4() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\">\n" + 
+			"		<attributes>\n" + 
+			"			<attribute value=\"some value\" name=\"foo\"/>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n"
+		);
+		assertClasspathEquals(
+			project.getRawClasspath(),
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false][attributes:foo=some value]"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Test IJavaProject.hasClasspathCycle(IClasspathEntry[]).
  */
@@ -3062,7 +3181,10 @@ public void testBug55992a() throws CoreException {
 			new Path("TEST_SRC"),
 			null,
 			null, // specific output folder
-			false);
+			false,
+			ClasspathEntry.INCLUDE_ALL, 
+			ClasspathEntry.EXCLUDE_NONE,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cp, false);
 		assertEquals(
 			"Assertion failed; Source attachment path \'jclMin.zip\' for IClasspathEntry must be absolute",

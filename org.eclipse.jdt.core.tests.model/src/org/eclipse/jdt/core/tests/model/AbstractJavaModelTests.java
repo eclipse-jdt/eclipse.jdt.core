@@ -1546,7 +1546,7 @@ protected void assertDeltas(String message, String expected) {
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (entry.getPath().equals(jclLib)) {
-					classpath[i] = JavaCore.newVariableEntry(new Path("JCL15_LIB"), new Path("JCL15_SRC"), entry.getSourceAttachmentRootPath(), entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.isExported());
+					classpath[i] = JavaCore.newVariableEntry(new Path("JCL15_LIB"), new Path("JCL15_SRC"), entry.getSourceAttachmentRootPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.isExported());
 					break;
 				}
 			}

@@ -47,6 +47,22 @@ Eclipse SDK 3.1M6 - ?th February 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Inclusion/exclusion filters used as import restrictions have been renamed into 'accessible files' and 'non accessible files' patterns.
+     The following APIs have been added on <code>IClasspathEntry</code>: <code>getAccessibleFiles()</code> and <code>getNonAccessibleFiles()</code>.
+     These are valid only for library, project, container and variable entries. <code>getInclusionPatterns()</code> and <code>getExclusionPatterns()</code> 
+     temporary return the accessible files and non accessible files patterns for these entries.
+</li>
+<li>Added ability to associate classpath attributes to a classpath entry (see <code>IClasspathAttribute</code>). A classpath attribute
+     is created using <code>JavaCore#newClasspathAttribute(String, String)</code>. Then one can associate this attribute with 
+     a classpath entry using one of:
+     <ul>
+     <li><code>JavaCore#newContainerEntry(IPath containerPath, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean isExported)</code></li>
+     <li><code>JavaCore#newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean isExported)</code></li>
+     <li><code>JavaCore#newProjectEntry(IPath path, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean isExported)</code></li>
+     <li><code>JavaCore#newSourceEntry(IPath path, IPath[] inclusionPatterns, IPath[] exclusionPatterns, IPath specificOutputLocation, IClasspathAttribute[] extraAttributes)</code></li>
+     <li><code>JavaCore#newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath variableSourceAttachmentRootPath, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean isExported)</code></li>
+     </ul>
+</li>
 <li>Added optional compiler diagnosis when a type parameter declaration is hiding another type.
 Corresponding problem ID is: <code>IProblem.TypeParameterHidingType</code>
 <pre>
