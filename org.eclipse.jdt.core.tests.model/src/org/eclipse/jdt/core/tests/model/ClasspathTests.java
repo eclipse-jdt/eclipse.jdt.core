@@ -1517,7 +1517,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					// set classpath
 					projects[i].setRawClasspath(newClasspath, null);
 				};
-				System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+				//System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
 			}
 		}, 
 		null);
