@@ -76,7 +76,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
 		
-		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/);
+		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		scanner.setSource(patternString.toCharArray());
 		final int InsideName = 1;
 		final int InsideParameter = 2;
@@ -230,7 +230,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
 	
-		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
+		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		final int InsideDeclaringPart = 1;
 		final int InsideType = 2;
@@ -403,7 +403,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
 	
-		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
+		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		final int InsideSelector = 1;
 		final int InsideParameter = 2;
@@ -1009,7 +1009,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
 	
-		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
+		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		String type = null;
 		int token;

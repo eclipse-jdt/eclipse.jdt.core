@@ -26,14 +26,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class PackageReferenceLocator extends PatternLocator {
 
 protected PackageReferencePattern pattern;
-	
-public PackageReferenceLocator(PackageReferencePattern pattern) {
-	super(pattern);
 
-	this.pattern = pattern;
-}
 // check that referenced type is actually defined in this package fragment
-public boolean isDeclaringPackageFragment(IPackageFragment packageFragment, ReferenceBinding typeBinding) {
+public static boolean isDeclaringPackageFragment(IPackageFragment packageFragment, ReferenceBinding typeBinding) {
 	char[] fileName = typeBinding.getFileName();
 	if (fileName != null) {
 		// retrieve the actual file name from the full path (sources are generally only containing it already)
@@ -63,6 +58,12 @@ public boolean isDeclaringPackageFragment(IPackageFragment packageFragment, Refe
 		}
 	}
 	return true; // by default, do not eliminate 
+}
+
+public PackageReferenceLocator(PackageReferencePattern pattern) {
+	super(pattern);
+
+	this.pattern = pattern;
 }
 public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;

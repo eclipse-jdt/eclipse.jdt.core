@@ -221,7 +221,8 @@ public final class CompletionEngine
 				false /*nls*/, 
 				this.compilerOptions.sourceLevel, 
 				null /*taskTags*/, 
-				null/*taskPriorities*/);
+				null/*taskPriorities*/,
+				true/*taskCaseSensitive*/);
 	}
 
 	/**

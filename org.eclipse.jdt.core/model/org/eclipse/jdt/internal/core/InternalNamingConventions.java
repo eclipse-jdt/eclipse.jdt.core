@@ -33,7 +33,8 @@ public class InternalNamingConventions {
 				false /*nls*/, 
 				compilerOptions.sourceLevel /*sourceLevel*/, 
 				null /*taskTags*/, 
-				null/*taskPriorities*/);
+				null/*taskPriorities*/,
+				true/*taskCaseSensitive*/);
 	}
 	public static void suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames, INamingRequestor requestor) {
 		Map options = javaProject.getOptions(true);

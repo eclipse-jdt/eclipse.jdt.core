@@ -79,7 +79,7 @@ public abstract class AbstractCommentParser {
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
-		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null);
+		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null, true/*taskCaseSensitive*/);
 		this.identifierStack = new char[20][];
 		this.identifierPositionStack = new long[20];
 		this.identifierLengthStack = new int[10];

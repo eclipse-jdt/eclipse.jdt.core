@@ -79,6 +79,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
+	public static final String OPTION_TaskCaseSensitive = "org.eclipse.jdt.core.compiler.taskCaseSensitive"; //$NON-NLS-1$
+	public static final String OPTION_InlineJsr = "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -198,9 +200,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	// tags used to recognize tasks in comments
 	public char[][] taskTags = null;
-
-	// priorities of tasks in comments
 	public char[][] taskPriorites = null;
+	public boolean isTaskCaseSensitive = true;
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
@@ -304,11 +305,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		optionsMap.put(OPTION_TaskTags, this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))); //$NON-NLS-1$
 		optionsMap.put(OPTION_TaskPriorities, this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$
+		optionsMap.put(OPTION_TaskCaseSensitive, this.isTaskCaseSensitive ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
-
+		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED); 
 		return optionsMap;		
 	}
 	
@@ -473,6 +475,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				} else {
 					this.taskPriorites = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
 				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_TaskCaseSensitive)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.isTaskCaseSensitive = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.isTaskCaseSensitive = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_InlineJsr)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.inlineJsrBytecode = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.inlineJsrBytecode = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);

@@ -25,8 +25,9 @@ public class CommentRecorderScanner extends Scanner {
 		boolean checkNonExternalizedStringLiterals,
 		long sourceLevel,
 		char[][] taskTags,
-		char[][] taskPriorities) {
-		super(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, sourceLevel, taskTags, taskPriorities);
+		char[][] taskPriorities,
+		boolean isTaskCaseSensitive) {
+		super(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, sourceLevel, taskTags, taskPriorities, isTaskCaseSensitive);
 	}
 	
 	/**

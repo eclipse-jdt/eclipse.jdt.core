@@ -221,7 +221,8 @@ public class CommentRecorderParser extends Parser {
 				this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
 				this.options.sourceLevel /*sourceLevel*/, 
 				this.options.taskTags/*taskTags*/,
-				this.options.taskPriorites/*taskPriorities*/);
+				this.options.taskPriorites/*taskPriorities*/,
+				this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
 	}
 
 	/*

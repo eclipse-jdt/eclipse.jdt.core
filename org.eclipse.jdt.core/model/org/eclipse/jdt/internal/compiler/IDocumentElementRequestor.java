@@ -62,7 +62,8 @@ void acceptImport(
 	int[] javaDocPositions,	
 	char[] name, 
 	int nameStartPosition,
-	boolean onDemand);
+	boolean onDemand,
+	int modifiers);
 /**
  * @param declarationStart - a source position corresponding to the start of the package
  *  declaration

@@ -26,7 +26,7 @@ public EntryResult(char[] word, HashtableOfObject table) {
 }
 public void addDocumentName(String documentName) {
 	if (this.documentNames == null)
-		this.documentNames = new SimpleSet();
+		this.documentNames = new SimpleSet(3);
 	this.documentNames.add(documentName);
 }
 public void addDocumentTable(HashtableOfObject table) {
