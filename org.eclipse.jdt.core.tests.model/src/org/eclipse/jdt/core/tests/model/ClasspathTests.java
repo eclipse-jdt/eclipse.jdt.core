@@ -769,7 +769,7 @@ public void testClasspathValidation09() throws CoreException {
 		
 		assertEquals(
 			"should not allow nested source folder in putput folder", 
-			"Cannot nest '/P/bin/src' inside output folder '/P/bin'.",
+			"Cannot nest 'P/bin/src' inside output folder 'P/bin'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -787,7 +787,7 @@ public void testClasspathValidation10() throws CoreException {
 		
 		assertEquals(
 			"should not allow nested output folder in source folder", 
-			"Cannot nest output folder '/P/src/bin' inside '/P/src'.",
+			"Cannot nest output folder 'P/src/bin' inside 'P/src'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -835,7 +835,7 @@ public void testClasspathValidation12() throws CoreException {
 		
 		assertEquals(
 			"should not allow nested source folder in output folder", 
-			"Cannot nest '/P/bin2/src' inside output folder '/P/bin2'.",
+			"Cannot nest 'P/bin2/src' inside output folder 'P/bin2'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -861,7 +861,7 @@ public void testClasspathValidation13() throws CoreException {
 		
 		assertEquals(
 			"should not allow nested output folder in source folder", 
-			"Cannot nest output folder '/P/src/bin2' inside '/P/src'.",
+			"Cannot nest output folder 'P/src/bin2' inside 'P/src'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -908,7 +908,7 @@ public void testClasspathValidation15() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"End exclusion filter 'src' with / to fully exclude '/P/src'.",
+			"End exclusion filter 'src' with / to fully exclude 'P/src'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -951,7 +951,7 @@ public void testClasspathValidation17() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"Cannot nest '/P/bin/src2' inside output folder '/P/bin'.",
+			"Cannot nest 'P/bin/src2' inside output folder 'P/bin'.",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
