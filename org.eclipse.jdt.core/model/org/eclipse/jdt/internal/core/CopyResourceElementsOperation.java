@@ -250,6 +250,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					if (this.force) {
 						// we can remove it
 						deleteResource(destFile, IResource.KEEP_HISTORY);
+						dest.getCompilationUnit(destName).close(); // ensure the in-memory buffer for the dest CU is closed
 					} else {
 						// abort
 						throw new JavaModelException(new JavaModelStatus(
