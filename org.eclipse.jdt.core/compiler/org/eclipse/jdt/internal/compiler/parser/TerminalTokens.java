@@ -44,6 +44,7 @@ public interface TerminalTokens {
 		TokenNamechar = 34,
 		TokenNameclass = 72,
 		TokenNamecontinue = 76,
+		TokenNameconst = 108,
 		TokenNamedefault = 96,
 		TokenNamedo = 77,
 		TokenNamedouble = 35,
@@ -55,6 +56,7 @@ public interface TerminalTokens {
 		TokenNamefinally = 104,
 		TokenNamefloat = 36,
 		TokenNamefor = 78,
+		TokenNamegoto = 109,
 		TokenNameif = 79,
 		TokenNameimplements = 106,
 		TokenNameimport = 99,
@@ -140,5 +142,5 @@ public interface TerminalTokens {
 		TokenNameAT = 44,
 		TokenNameELLIPSIS = 107,
 		TokenNameEOF = 67,
-		TokenNameERROR = 108;
+		TokenNameERROR = 110;
 }

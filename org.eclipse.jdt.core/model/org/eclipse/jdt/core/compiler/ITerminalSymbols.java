@@ -152,4 +152,14 @@ public interface ITerminalSymbols {
      * @since 3.0
      */
 	int TokenNameELLIPSIS = 402;
+	
+	/**
+	 * @since 3.1
+	 */
+	int TokenNameconst = 403;
+	
+	/**
+	 * @since 3.1
+	 */
+	int TokenNamegoto = 404;
 }

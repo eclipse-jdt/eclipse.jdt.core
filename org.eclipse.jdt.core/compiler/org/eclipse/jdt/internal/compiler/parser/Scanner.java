@@ -104,7 +104,8 @@ public class Scanner implements TerminalTokens {
 	public static final String UNTERMINATED_STRING = "Unterminated_String"; //$NON-NLS-1$
 	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"; //$NON-NLS-1$
 	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
-	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$	
+	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$
+	private static final int[] EMPTY_LINE_ENDS = new int[0];
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
@@ -449,7 +450,7 @@ public int getCurrentTokenStartPosition(){
  */
 public final int getLineEnd(int lineNumber) {
 
-	if (this.lineEnds == null) 
+	if (this.lineEnds == null || this.linePtr == -1) 
 		return -1;
 	if (lineNumber > this.lineEnds.length+1) 
 		return -1;
@@ -461,8 +462,10 @@ public final int getLineEnd(int lineNumber) {
 }
 
 public final int[] getLineEnds() {
-	//return a bounded copy of this.lineEnds 
-
+	//return a bounded copy of this.lineEnds
+	if (this.linePtr == -1) {
+		return EMPTY_LINE_ENDS;
+	}
 	int[] copy;
 	System.arraycopy(this.lineEnds, 0, copy = new int[this.linePtr + 1], 0, this.linePtr + 1);
 	return copy;
@@ -483,7 +486,7 @@ public final int[] getLineEnds() {
  */
 public final int getLineStart(int lineNumber) {
 
-	if (this.lineEnds == null) 
+	if (this.lineEnds == null || this.linePtr == -1) 
 		return -1;
 	if (lineNumber > this.lineEnds.length + 1) 
 		return -1;
@@ -2598,7 +2601,7 @@ public int scanIdentifierOrKeyword() {
 							&& (data[++index] == 'n')
 							&& (data[++index] == 's')
 							&& (data[++index] == 't'))
-							return TokenNameERROR; //const is not used in java ???????
+							return TokenNameconst; //const is not used in java ???????
 						else
 							return TokenNameIdentifier;
 				case 8 :
@@ -2726,7 +2729,7 @@ public int scanIdentifierOrKeyword() {
 				if ((data[++index] == 'o')
 					&& (data[++index] == 't')
 					&& (data[++index] == 'o')) {
-					return TokenNameERROR;
+					return TokenNamegoto;
 				}
 			} //no goto in java are allowed, so why java removes this keyword ???
 			return TokenNameIdentifier;
