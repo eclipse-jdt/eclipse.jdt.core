@@ -142,6 +142,9 @@ public boolean isPackage(String qualifiedPackageName) {
 
 	try {
 		if (this.zipFile == null) {
+			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.isPackage(String)] Creating ZipFile on " + zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
+			}
 			this.zipFile = new ZipFile(zipFilename);
 			this.closeZipFileAtEnd = true;
 		}
