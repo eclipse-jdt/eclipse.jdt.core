@@ -104,7 +104,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			// check missing blank final field initializations
 			if ((constructorCall != null)
 				&& (constructorCall.accessMode != ExplicitConstructorCall.This)) {
-				flowInfo = flowInfo.mergedWith(initializerFlowContext.initsOnReturn);
+				flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 				FieldBinding[] fields = binding.declaringClass.fields();
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldBinding field;
