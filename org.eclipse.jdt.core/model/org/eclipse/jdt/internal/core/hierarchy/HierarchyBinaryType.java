@@ -110,6 +110,12 @@ public char[] getName() {
 	return this.name;
 }
 /**
+ * @see IBinaryType#getSignature()
+ */
+public char[] getSignature() {
+	return null;
+}
+/**
  * Answer the resolved name of the receiver's superclass in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
  * or null if it does not have one.

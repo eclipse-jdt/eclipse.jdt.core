@@ -88,7 +88,12 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		public char[][] getArgumentNames() {
 			return null;
 		}
-
+		/**
+		 * @see IBinaryType#getSignature()
+		 */
+		public char[] getSignature() {
+			return null;
+		}
 }
 	
 /**
@@ -120,6 +125,12 @@ public int getModifiers() {
 }
 public char[] getName() {
 	return CODE_SNIPPET_NAME;
+}
+/**
+ * @see IBinaryType#getSignature()
+ */
+public char[] getSignature() {
+	return null;
 }
 public char[] getSuperclassName() {
 	return null;

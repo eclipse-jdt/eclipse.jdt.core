@@ -27,15 +27,17 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable, TypeIds {
+	private int accessFlags;
+	private int attributeBytes;
 	private Constant constant;
+	private int[] constantPoolOffsets;
+	private char[] descriptor;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private int[] constantPoolOffsets;
-	private int accessFlags;
 	private char[] name;
-	private char[] signature;
-	private int attributeBytes;
 	private Object wrappedConstantValue;
+	private char[] signature;
+	private int signatureUtf8Offset;
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
@@ -47,10 +49,24 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 	accessFlags = -1;
 	int attributesCount = u2At(6);
 	int readOffset = 8;
+	this.signatureUtf8Offset = -1;
 	for (int i = 0; i < attributesCount; i++) {
+		// check the name of each attribute
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
+			this.signatureUtf8Offset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
+		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
 	attributeBytes = readOffset;
+}
+
+public int compareTo(Object o) {
+	if (!(o instanceof FieldInfo)) {
+		throw new ClassCastException();
+	}
+	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
 /**
  * Return the constant of the field.
@@ -96,6 +112,16 @@ public char[] getName() {
 	}
 	return name;
 }
+public char[] getSignature() {
+	if (this.signatureUtf8Offset != -1) {
+		if (this.signature == null) {
+			// decode the signature
+			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
+		}
+		return this.signature;
+	}
+	return null;
+}
 /**
  * Answer the resolved name of the receiver's type in the
  * class file format as specified in section 4.3.2 of the Java 2 VM spec.
@@ -108,12 +134,12 @@ public char[] getName() {
  * @return char[]
  */
 public char[] getTypeName() {
-	if (signature == null) {
+	if (descriptor == null) {
 		// read the signature
 		int utf8Offset = constantPoolOffsets[u2At(4)] - structOffset;
-		signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		descriptor = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
-	return signature;
+	return descriptor;
 }
 /**
  * Return a wrapper that contains the constant of the field.
@@ -162,6 +188,17 @@ public Object getWrappedConstantValue() {
  */
 public boolean hasConstant() {
 	return getConstant() != Constant.NotAConstant;
+}
+/**
+ * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
+ * will be therefore fully initialized and we can get rid of the bytes.
+ */
+void initialize() {
+	getModifiers();
+	getName();
+	getConstant();
+	getTypeName();
+	reset();
 }
 /**
  * Return true if the field is a synthetic field, false otherwise.
@@ -247,6 +284,10 @@ private void readDeprecatedAndSyntheticAttributes() {
 		readOffset += (6 + u4At(readOffset + 2));
 	}
 }
+protected void reset() {
+	this.constantPoolOffsets = null;
+	super.reset();
+}
 /**
  * Answer the size of the receiver in bytes.
  * 
@@ -279,28 +320,6 @@ public String toString() {
 		.append(getConstant())
 		.append("}") //$NON-NLS-1$
 		.toString(); 
-}
-
-public int compareTo(Object o) {
-	if (!(o instanceof FieldInfo)) {
-		throw new ClassCastException();
-	}
-	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
-}
-/**
- * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
- * will be therefore fully initialized and we can get rid of the bytes.
- */
-void initialize() {
-	getModifiers();
-	getName();
-	getConstant();
-	getTypeName();
-	reset();
-}
-protected void reset() {
-	this.constantPoolOffsets = null;
-	super.reset();
 }
 
 }

@@ -32,6 +32,10 @@ import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.ISignatureAttribute;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
@@ -64,7 +68,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 66, -1 };
-//		testsNumbers = new int[] { 65 };
+		testsNumbers = new int[] { 6, 7 };
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
@@ -205,6 +209,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			testsSource,
 			"SUCCESS");
 
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(classFileReader.getSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+		
 		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
 		assertNotNull(classFileReader);
 		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
@@ -602,8 +615,93 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
-	}	
+	}
+	
+	public void test006() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" +
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"	T foo(T t1) {\n" + 
+			"		return t1;\n" + 
+			"    }\n" + 
+			"	T field;\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
 
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getSignature()));
+			
+			IBinaryField[] fields = classFileReader.getFields();
+			assertNotNull("No fields", fields);
+			assertEquals("Wrong size", 2, fields.length);
+			assertEquals("Wrong name", "field", new String(fields[1].getName()));
+			assertEquals("Wrong signature", "TT;", new String(fields[1].getSignature()));
+
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
+			assertEquals("Wrong signature", "(TT;)TT;", new String(methods[1].getSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+
+	public void test007() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" +
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"	T foo(X<T> x1) {\n" + 
+			"		return x1.t;\n" + 
+			"    }\n" + 
+			"	X<T> field;\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Ljava/lang/Object;", new String(classFileReader.getSignature()));
+			
+			IBinaryField[] fields = classFileReader.getFields();
+			assertNotNull("No fields", fields);
+			assertEquals("Wrong size", 2, fields.length);
+			assertEquals("Wrong name", "field", new String(fields[1].getName()));
+			assertEquals("Wrong signature", "LX<TT;>;", new String(fields[1].getSignature()));
+
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
+			assertEquals("Wrong signature", "(LX<TT;>;)TT;", new String(methods[1].getSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
