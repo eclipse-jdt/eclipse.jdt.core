@@ -208,22 +208,16 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	} else {
 		match = locator.newMethodReferenceMatch(element, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
 		if (this.pattern.findReferences && reference instanceof MessageSend) {
-			/* Disabled bug 70827 fix as too much time consuming
 			IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
 			// verify closest match if pattern was bound
 			// (see bug 70827)
 			if (focus != null && focus.getElementType() == IJavaElement.METHOD) {
-				MethodBinding patternMethodBinding = locator.getMethodBinding((IMethod) focus);
-				if (patternMethodBinding != null && patternMethodBinding.isValidBinding()) {
-					MethodBinding method = ((MessageSend)reference).binding;
-					if (method != null) {
-						method = method.original();
-						if (method != null && patternMethodBinding.isPrivate() && patternMethodBinding.declaringClass != method.declaringClass)
-							return; // finally the match was not possible
-					}
+				MethodBinding method = ((MessageSend)reference).binding;
+				boolean isPrivate = Flags.isPrivate(((IMethod) focus).getFlags());
+				if (isPrivate && !CharOperation.equals(method.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
+					return; // finally the match was not possible
 				}
 			}
-			*/
 			matchReportReference((MessageSend)reference, locator, ((MessageSend)reference).binding);
 		} else {
 			int offset = reference.sourceStart;

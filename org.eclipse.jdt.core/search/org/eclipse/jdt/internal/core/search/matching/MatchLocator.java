@@ -1372,10 +1372,6 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
-				/* Disabled bug 70827 fix as too much time consuming
-				// verify inherited methods
-				unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
-				*/
 			}
 			unit.resolve();
 

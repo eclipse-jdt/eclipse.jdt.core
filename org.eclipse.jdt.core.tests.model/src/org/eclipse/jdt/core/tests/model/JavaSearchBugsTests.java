@@ -50,7 +50,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug70827";
+//		TESTS_PREFIX =  "testBug88300";
 //		TESTS_NAMES = new String[] { "testBug70827" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -126,8 +126,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 * Bug 70827: [Search] wrong reference match to private method of supertype
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827"
 	 */
-	// Fix was disabled as too much time consuming
-	public void _testBug70827() throws CoreException {
+	public void testBug70827() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b70827/A.java",
 			"package b70827;\n" + 
@@ -149,54 +148,6 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, REFERENCES);
 		assertSearchResults(
 			""
-		);
-	}
-	public void testBug70827_NotFixed() throws CoreException {
-		workingCopies = new ICompilationUnit[3];
-		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/ConditionalFlowInfo.java",
-			"package b70827.not.fixed;\n" + 
-			"public class ConditionalFlowInfo extends FlowInfo {\n" + 
-			"	public FlowInfo info;\n" + 
-			"	ConditionalFlowInfo(FlowInfo info){\n" + 
-			"		this.info = info;\n" + 
-			"	}\n" + 
-			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
-			"		info.markAsDefinitelyNull(field);\n" + 
-			"	}\n" + 
-			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
-			"		info.markAsDefinitelyNull(local);\n" + 
-			"	}\n" + 
-			"}\n"
-		);
-		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/FlowInfo.java",
-			"package b70827.not.fixed;\n" + 
-			"\n" + 
-			"class FieldBinding {\n" + 
-			"	int id;\n" + 
-			"}\n" + 
-			"class LocalVariableBinding extends FieldBinding {}\n" + 
-			"\n" + 
-			"public abstract class FlowInfo {\n" + 
-			"	abstract public void markAsDefinitelyNull(LocalVariableBinding local);\n" + 
-			"	abstract public void markAsDefinitelyNull(FieldBinding field);\n" + 
-			"}\n"
-			);
-		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/UnconditionalFlowInfo.java",
-			"package b70827.not.fixed;\n" + 
-			"public class UnconditionalFlowInfo extends FlowInfo {\n" + 
-			"	final private void markAsDefinitelyNull(int position) {}\n" + 
-			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
-			"		markAsDefinitelyNull(field.id);\n" + 
-			"	}\n" + 
-			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
-			"		markAsDefinitelyNull(local.id + 1);\n" + 
-			"	}\n" + 
-			"}\n"
-			);
-		IType type = workingCopies[2].getType("UnconditionalFlowInfo");
-		search(type.getMethods()[2], REFERENCES);
-		assertSearchResults(
-			"src/b70827/not/fixed/ConditionalFlowInfo.java void b70827.not.fixed.ConditionalFlowInfo.markAsDefinitelyNull(LocalVariableBinding) [markAsDefinitelyNull(local)] EXACT_MATCH"
 		);
 	}
 
@@ -1953,6 +1904,111 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
 			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 88300: [search] Reference search result is changed by placement of private method
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88300"
+	 */
+	public void testBug88300() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
+			"package b88300;\n" + 
+			"public class SubClass extends SuperClass {\n" + 
+			"	private void aMethod(String x) {\n" + 
+			"	}\n" + 
+			"	public void aMethod(Object x) {\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/SuperClass.java",
+			"package b88300;\n" + 
+			"public class SuperClass {\n" + 
+			"    public void aMethod(Object x) {\n" + 
+			"    }\n" + 
+			"}\n"
+			);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/User.java",
+			"package b88300;\n" + 
+			"public class User {\n" + 
+			"    public void methodUsingSubClassMethod() {\n" + 
+			"        SuperClass user = new SubClass();\n" + 
+			"        user.aMethod(new Object());\n" + 
+			"    }\n" + 
+			"}\n"
+			);
+		IType type = workingCopies[0].getType("SubClass");
+		search(type.getMethods()[1], REFERENCES);
+		discard = false; // keep working copies for next test
+		assertSearchResults(
+			"src/b88300/User.java void b88300.User.methodUsingSubClassMethod() [aMethod(new Object())] EXACT_MATCH"
+		);
+	}
+	public void testBug88300b() throws CoreException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 3, workingCopies.length);
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
+			"package b88300;\n" + 
+			"public class SubClass extends SuperClass {\n" + 
+			"	public void aMethod(Object x) {\n" + 
+			"	}\n" + 
+			"	private void aMethod(String x) {\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("SubClass");
+		search(type.getMethods()[0], REFERENCES);
+		assertSearchResults(
+			"src/b88300/User.java void b88300.User.methodUsingSubClassMethod() [aMethod(new Object())] EXACT_MATCH"
+		);
+	}
+	public void testBug88300c() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/ConditionalFlowInfo.java",
+			"package b88300.not.fixed;\n" + 
+			"public class ConditionalFlowInfo extends FlowInfo {\n" + 
+			"	public FlowInfo info;\n" + 
+			"	ConditionalFlowInfo(FlowInfo info){\n" + 
+			"		this.info = info;\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
+			"		info.markAsDefinitelyNull(field);\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
+			"		info.markAsDefinitelyNull(local);\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/FlowInfo.java",
+			"package b88300.not.fixed;\n" + 
+			"\n" + 
+			"class FieldBinding {\n" + 
+			"	int id;\n" + 
+			"}\n" + 
+			"class LocalVariableBinding extends FieldBinding {}\n" + 
+			"\n" + 
+			"public abstract class FlowInfo {\n" + 
+			"	abstract public void markAsDefinitelyNull(LocalVariableBinding local);\n" + 
+			"	abstract public void markAsDefinitelyNull(FieldBinding field);\n" + 
+			"}\n"
+			);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/UnconditionalFlowInfo.java",
+			"package b88300.not.fixed;\n" + 
+			"public class UnconditionalFlowInfo extends FlowInfo {\n" + 
+			"	final private void markAsDefinitelyNull(int position) {}\n" + 
+			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
+			"		markAsDefinitelyNull(field.id);\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
+			"		markAsDefinitelyNull(local.id + 1);\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IType type = workingCopies[2].getType("UnconditionalFlowInfo");
+		search(type.getMethods()[2], REFERENCES);
+		assertSearchResults(
+			"src/b88300/not/fixed/ConditionalFlowInfo.java void b88300.not.fixed.ConditionalFlowInfo.markAsDefinitelyNull(LocalVariableBinding) [markAsDefinitelyNull(local)] EXACT_MATCH"
 		);
 	}
 }
