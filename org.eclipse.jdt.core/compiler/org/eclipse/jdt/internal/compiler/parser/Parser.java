@@ -942,7 +942,7 @@ protected void checkNonExternalizedStringLiteral() {
 	}
 }
 protected void checkNonNLSAfterBodyEnd(int declarationEnd){
-	if(scanner.currentPosition - 1 < declarationEnd) {
+	if(scanner.currentPosition - 1 <= declarationEnd) {
 		scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
 		try {
 			while(scanner.getNextToken() != TokenNameEOF);

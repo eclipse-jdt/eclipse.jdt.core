@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import java.util.Hashtable;
+
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ParserTest extends AbstractRegressionTest {
 public ParserTest(String name) {
@@ -237,6 +240,69 @@ public void test011() {
 		"----------\n"
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40681
+ */
+public void test012() {
+	Hashtable nls = new Hashtable();
+	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		\"foo\".equals(\"bar\");\n" +
+			"		;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	\"foo\".equals(\"bar\");\n" + 
+		"	^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	\"foo\".equals(\"bar\");\n" + 
+		"	             ^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		nls // custom options
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40681
+ */
+public void test013() {
+	Hashtable nls = new Hashtable();
+	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		\"foo\".equals(\"bar\");\n" +
+			"		//;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	\"foo\".equals(\"bar\");\n" + 
+		"	^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	\"foo\".equals(\"bar\");\n" + 
+		"	             ^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		nls // custom options
+	);
+}
 
 }
