@@ -68,6 +68,7 @@ public static IMarker[] getTasksFor(IResource resource) {
  */
 public static void buildStarting() {
 	// do nothing
+	// TODO (philippe) is it still needed?
 }
 
 /**

@@ -138,7 +138,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testReplaceProject"));
+		suite.addTest(new ClasspathTests("testDuplicateEntries"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
