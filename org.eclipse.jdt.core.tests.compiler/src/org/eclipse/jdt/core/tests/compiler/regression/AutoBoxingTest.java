@@ -669,7 +669,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"y"
 		);
-	}	
+	}
 
 	public void test015() { // return statement
 		this.runConformTest(
@@ -691,7 +691,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"00"
 		);
 	}
-	
+
 	public void test016() { // conditional expression
 		this.runConformTest(
 			new String[] {
@@ -705,7 +705,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"0"
 		);
-	}	
+	}
 
 	public void test017() { // cast expression
 		this.runConformTest(
@@ -720,8 +720,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"1"
 		);
-	}		
-	
+	}
+
 	public void test018() { // cast expression
 		this.runNegativeTest(
 			new String[] {
@@ -740,7 +740,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"Cannot cast from Float to int\n" + 
 			"----------\n"
 		);
-	}		
+	}
 
 	public void test019() { // cast expression
 		this.runNegativeTest(
@@ -761,7 +761,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"Cannot cast from int to Float\n" + 
 			"----------\n"
 		);
-	}		
+	}
 
 	public void test020() { // binary expression
 		this.runConformTest(
@@ -777,8 +777,8 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"3"
 		);
-	}		
-	
+	}
+
 	public void test021() { // unary expression
 		this.runConformTest(
 			new String[] {
@@ -795,7 +795,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"0"
 		);
 	}
-	
+
 	public void test022() { // unary expression
 		this.runConformTest(
 			new String[] {
@@ -812,5 +812,47 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"1"
 		);
-	}		
+	}
+
+	// TODO missing == case
+	public void _test023() { // 78849
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Character cValue = new Character('c');\n" + 
+				"		if ('c' == cValue) System.out.println('y');\n" + 
+				"	}\n" +
+				"}\n",
+			},
+			"y"
+		);
+	}
+
+	public void test024() { // 79254
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) { test(2); }\n" +
+				"	static void test(Object o) { System.out.println('y'); }\n" + 
+				"}\n",
+			},
+			"y"
+		);
+	}
+
+	public void test025() { // 79641
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) { test(true); }\n" +
+				"	static void test(Object ... o) { System.out.println('y'); }\n" + 
+				"}\n",
+			},
+			"y"
+		);
+	}
 }
