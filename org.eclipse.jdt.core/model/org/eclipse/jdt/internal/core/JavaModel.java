@@ -345,7 +345,7 @@ public String getHandleMemento(){
  * contribution to a memento.
  */
 protected char getHandleMementoDelimiter(){
-	Assert.isTrue(false, Util.bind("assert.shouldNotImplement")); //$NON-NLS-1$
+	Assert.isTrue(false, "Should not be called"); //$NON-NLS-1$
 	return 0;
 }
 /**

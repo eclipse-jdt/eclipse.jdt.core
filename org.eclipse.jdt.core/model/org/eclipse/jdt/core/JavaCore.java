@@ -2163,7 +2163,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 		Assert.isTrue(
 			containerPath != null && containerPath.segmentCount() >= 1,
-			Util.bind("classpath.illegalContainerPath" )); //$NON-NLS-1$
+			"Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
 			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2250,7 +2250,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 		Assert.isTrue(
 			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+			"Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY,
@@ -2311,7 +2311,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
 		
-		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+		Assert.isTrue(path.isAbsolute(), "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2489,8 +2489,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation) {
 		
-		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
-		Assert.isTrue(exclusionPatterns != null, Util.bind("classpath.nullExclusionPattern" )); //$NON-NLS-1$
+		Assert.isTrue(path.isAbsolute(), "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		Assert.isTrue(exclusionPatterns != null, "Exclusion pattern set cannot be null"); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2548,7 +2548,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IPath sourceAttachmentRootPath) {
 		Assert.isTrue(
 			variablePath != null && variablePath.segmentCount() >= 1,
-			Util.bind("classpath.illegalVariablePath" )); //$NON-NLS-1$
+			"Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
 		return newVariableEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, false);
 	}
 
@@ -2597,7 +2597,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 		Assert.isTrue(
 			variablePath != null && variablePath.segmentCount() >= 1,
-			Util.bind("classpath.illegalVariablePath" )); //$NON-NLS-1$
+			"Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
 			
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2744,7 +2744,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static void setClasspathContainer(final IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 
-		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
+		Assert.isTrue(affectedProjects.length == respectiveContainers.length, "Projects and containers collections should have the same size"); //$NON-NLS-1$
 	
 		if (monitor != null && monitor.isCanceled()) return;
 	
@@ -2911,7 +2911,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath" )); //$NON-NLS-1$
+		Assert.isTrue(path != null, "Variable path cannot be null"); //$NON-NLS-1$
 		setClasspathVariables(new String[]{variableName}, new IPath[]{ path }, monitor);
 	}
 
@@ -2939,7 +2939,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		Assert.isTrue(variableNames.length == paths.length, Util.bind("classpath.mismatchNamePath" )); //$NON-NLS-1$
+		Assert.isTrue(variableNames.length == paths.length, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
 		updateVariableValues(variableNames, paths, monitor);
 	}
 
