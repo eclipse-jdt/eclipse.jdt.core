@@ -911,9 +911,9 @@ OnlySynchronized ::= 'synchronized'
 /.$putCase consumeOnlySynchronized(); $break ./
 /:$readableName OnlySynchronized:/
 
-TryStatement ::= 'try'    Block Catches
+TryStatement ::= 'try' Block Catches
 /.$putCase consumeStatementTry(false); $break ./
-TryStatement ::= 'try'    Block Catchesopt Finally
+TryStatement ::= 'try' Block Catchesopt Finally
 /.$putCase consumeStatementTry(true); $break ./
 /:$readableName TryStatement:/
 
