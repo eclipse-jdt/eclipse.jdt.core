@@ -1477,6 +1477,7 @@ public String typeName() {
 		case T_float : return "float"; //$NON-NLS-1$
 		case T_double : return "double"; //$NON-NLS-1$
 		case T_boolean : return "boolean"; //$NON-NLS-1$
+		case T_long : return "long";//$NON-NLS-1$
 		case T_String : return "java.lang.String"; //$NON-NLS-1$
 		case T_null : return "null";	 //$NON-NLS-1$
 		default: return "unknown"; //$NON-NLS-1$

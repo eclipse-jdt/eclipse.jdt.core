@@ -4,14 +4,22 @@ package org.eclipse.jdt.internal.compiler.classfmt;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
+import org.eclipse.jdt.internal.compiler.impl.ByteConstant;
+import org.eclipse.jdt.internal.compiler.impl.CharConstant;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.DoubleConstant;
+import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
+import org.eclipse.jdt.internal.compiler.impl.IntConstant;
+import org.eclipse.jdt.internal.compiler.impl.LongConstant;
+import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.util.*;
-
-public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable {
+public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable, TypeIds {
 	private Constant constant;
 	private boolean isDeprecated;
 	private int[] constantPoolOffsets;
@@ -20,6 +28,7 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private char[] signature;
 	private int attributesCount;
 	private int attributeBytes;
+	private Object wrappedConstantValue;
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
@@ -109,69 +118,56 @@ public char[] getTypeName() {
  */
 public Object getWrappedConstantValue() throws ClassFormatException {
 
-	int attributesCount = u2At(6);
-	int readOffset = 8;
-	for (int i = 0; i < attributesCount; i++) {
-		int utf8Offset = constantPoolOffsets[u2At(8)] - structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation
-			.equals(attributeName, ConstantValueName)) {
-			// read the right constant
-			int relativeOffset = constantPoolOffsets[u2At(14)] - structOffset;
-			switch (u1At(relativeOffset)) {
-				case IntegerTag :
-					return new Integer(i4At(relativeOffset + 1));
-				case FloatTag :
-					return new Float(floatAt(relativeOffset + 1));
-				case DoubleTag :
-					return new Double(doubleAt(relativeOffset + 1));
-				case LongTag :
-					return new Long(i8At(relativeOffset + 1));
-				case StringTag :
-					utf8Offset = constantPoolOffsets[u2At(relativeOffset + 1)] - structOffset;
-					return String.valueOf(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
+	if (this.wrappedConstantValue == null) {
+		if (hasConstant()) {
+			Constant constant = getConstant();
+			switch (constant.typeID()) {
+				case T_int :
+					this.wrappedConstantValue = new Integer(constant.intValue());
+					break;
+				case T_byte :
+					this.wrappedConstantValue = new Byte(constant.byteValue());
+					break;
+				case T_short :
+					this.wrappedConstantValue = new Short(constant.shortValue());
+					break;
+				case T_char :
+					this.wrappedConstantValue = new Character(constant.charValue());
+					break;
+				case T_float :
+					this.wrappedConstantValue = new Float(constant.floatValue());
+					break;
+				case T_double :
+					this.wrappedConstantValue = new Double(constant.doubleValue());
+					break;
+				case T_boolean :
+					this.wrappedConstantValue = new Boolean(constant.booleanValue());
+					break;
+				case T_long :
+					this.wrappedConstantValue = new Long(constant.longValue());
+					break;
+				case T_String :
+					this.wrappedConstantValue = constant.stringValue();
 			}
 		}
-		readOffset += (6 + u4At(readOffset + 2));
 	}
-	return null;
+	return this.wrappedConstantValue;
 }
 /**
  * Return true if the field has a constant value attribute, false otherwise.
  * @return boolean
  */
 public boolean hasConstant() {
-	int attributesCount = u2At(6);
-	int readOffset = 8;
-	boolean isConstant = false;
-	for (int i = 0; i < attributesCount; i++) {
-		int utf8Offset = constantPoolOffsets[u2At(8)] - structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, ConstantValueName)) {
-			isConstant = true;
-		}
-		readOffset += (6 + u4At(readOffset + 2));
-	}
-	return isConstant;
+	return getConstant() != Constant.NotAConstant;
 }
 /**
  * Return true if the field is a synthetic field, false otherwise.
  * @return boolean
  */
 public boolean isSynthetic() {
-	int attributesCount = u2At(6);
-	int readOffset = 8;
-	boolean isSynthetic = false;
-	for (int i = 0; i < attributesCount; i++) {
-		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, SyntheticName)) {
-			isSynthetic = true;
-		}
-		readOffset += (6 + u4At(readOffset + 2));
-	}
-	return isSynthetic;
+	return (getModifiers() & AccSynthetic) != 0;
 }
+
 private void readConstantAttribute() {
 	int attributesCount = u2At(6);
 	int readOffset = 8;
@@ -286,4 +282,20 @@ public int compareTo(Object o) {
 	}
 	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
+/**
+ * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
+ * will be therefore fully initialized and we can get rid of the bytes.
+ */
+void initialize() {
+	getModifiers();
+	getName();
+	getConstant();
+	getTypeName();
+	reset();
+}
+protected void reset() {
+	this.constantPoolOffsets = null;
+	super.reset();
+}
+
 }

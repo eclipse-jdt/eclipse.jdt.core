@@ -119,4 +119,19 @@ public String toString() {
 	}
 	return buffer.toString();   
 }
+/**
+ * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
+ * will be therefore fully initialized and we can get rid of the bytes.
+ */
+void initialize() {
+	getModifiers();
+	getName();
+	getSourceName();
+	getEnclosingTypeName();
+	reset();
+}
+protected void reset() {
+	this.constantPoolOffsets = null;
+	super.reset();
+}
 }

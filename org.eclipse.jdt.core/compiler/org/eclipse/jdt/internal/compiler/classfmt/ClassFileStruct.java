@@ -195,6 +195,11 @@ public char[] utf8At(int relativeOffset, int bytesAvailable) {
 	}
 	return outputBuf;
 }
+
+protected void reset() {
+	this.reference = null;
+}
+
 /**
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.

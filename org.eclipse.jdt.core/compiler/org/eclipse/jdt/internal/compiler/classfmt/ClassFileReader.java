@@ -427,40 +427,100 @@ public boolean isNestedType() {
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.
  *
- * @param file The file you want to read
- * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
+ * @param file java.io.File
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
  */
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
-	byte classFileBytes[] = Util.getFileByteContent(file);
-	return new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
+	return read(file, false);
 }
 /**
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.
  *
- * @param String fileName
+ * @param file java.io.File
+ * @param fullyInitialize boolean
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
+ */
+public static ClassFileReader read(File file, boolean fullyInitialize) throws ClassFormatException, IOException {
+	byte classFileBytes[] = Util.getFileByteContent(file);
+	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
+	if (fullyInitialize) {
+		classFileReader.initialize();
+	}
+	return classFileReader;
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param fileName java.lang.String
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
  */
 public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
-	return read(new File(fileName));
+	return read(fileName, false);
 }
 /**
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.
  *
- * @param java.util.zip.ZipFile zip
- * @param java.lang.String filename
- * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
+ * @param fileName java.lang.String
+ * @param fullyInitialize boolean
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
+ */
+public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
+	return read(new File(fileName), fullyInitialize);
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param zip java.util.zip.ZipFile
+ * @param filename java.lang.String
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
  */
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip, 
 	String filename)
 	throws ClassFormatException, java.io.IOException {
+		return read(zip, filename, false);
+}
+/**
+ * (c)1998 Object Technology International.
+ * (c)1998 International Business Machines Corporation.
+ *
+ * @param zip java.util.zip.ZipFile
+ * @param filename java.lang.String
+ * @param fullyInitialize boolean
+ * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
+ * @throws ClassFormatException
+ * @throws IOException
+ */
+public static ClassFileReader read(
+	java.util.zip.ZipFile zip, 
+	String filename,
+	boolean fullyInitialize)
+	throws ClassFormatException, java.io.IOException {
 	java.util.zip.ZipEntry ze = zip.getEntry(filename);
 	if (ze == null)
 		return null;
 	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
-	return new ClassFileReader(classFileBytes, filename.toCharArray());
+	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, filename.toCharArray());
+	if (fullyInitialize) {
+		classFileReader.initialize();
+	}
+	return classFileReader;
 }
+
 /**
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.
@@ -734,5 +794,27 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 				return true;
 	}
 	return false;
-}			
+}
+/**
+ * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
+ * will be therefore fully initialized and we can get rid of the bytes.
+ */
+private void initialize() {
+	for (int i = 0, max = fieldsCount; i < max; i++) {
+		fields[i].initialize();
+	}
+	for (int i = 0, max = methodsCount; i < max; i++) {
+		methods[i].initialize();
+	}
+	if (innerInfos != null) {
+		for (int i = 0, max = innerInfos.length; i < max; i++) {
+			innerInfos[i].initialize();
+		}
+	}
+}
+protected void reset() {
+	this.constantPoolOffsets = null;
+	super.reset();
+}
+
 }
