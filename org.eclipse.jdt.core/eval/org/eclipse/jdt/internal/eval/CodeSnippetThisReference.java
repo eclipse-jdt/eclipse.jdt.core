@@ -67,7 +67,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	
 	delegateThis = scope.getField(snippetType, DELEGATE_THIS, this);
 	if (delegateThis == null) return null; // internal error, field should have been found
-	return delegateThis.type;
+	if (delegateThis.isValidBinding()) return delegateThis.type;
+	return snippetType;
 }
 public void setDepth(int depth){
 }

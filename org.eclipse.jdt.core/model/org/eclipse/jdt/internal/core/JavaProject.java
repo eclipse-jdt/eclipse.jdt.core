@@ -626,7 +626,7 @@ public static IPath canonicalizedPath(IPath externalPath) {
 			}
 		} else {
 			String ext= path.getFileExtension();
-			if ("jar".equalsIgnoreCase(ext) || "class".equalsIgnoreCase(ext)) {
+			if ("jar".equalsIgnoreCase(ext) || "zip".equalsIgnoreCase(ext)) {
 				// external jar
 				return getPackageFragmentRoot(path.toString()); 
 			} else {

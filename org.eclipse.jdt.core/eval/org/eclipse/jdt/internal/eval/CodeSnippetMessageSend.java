@@ -163,10 +163,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError)
 			return null;
 	}
-	if (receiverType == null) {
-		scope.problemReporter().codeSnippetMissingMethod(new String(scope.referenceType().name), new String(selector), parametersAsString(argumentTypes), this.sourceStart, this.sourceEnd);
+	if (receiverType == null) 
 		return null;
-	}
 
 	// base type cannot receive any message
 	if (receiverType.isBaseType()) {
@@ -254,14 +252,5 @@ public TypeBinding resolveType(BlockScope scope) {
 		&& !binding.declaringClass.canBeSeenBy(scope))
 		binding = new MethodBinding(binding, (ReferenceBinding) receiverType);
 	return binding.returnType;
-}
-private String parametersAsString(TypeBinding[] params) {
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = params.length; i < length; i++) {
-		if (i != 0)
-			buffer.append(", "); //$NON-NLS-1$
-		buffer.append(new String(params[i].readableName()));
-	}
-	return buffer.toString();
 }
 }
