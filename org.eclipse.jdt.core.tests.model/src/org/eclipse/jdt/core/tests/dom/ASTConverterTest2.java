@@ -2971,7 +2971,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		// top level type A
 		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2984,7 +2984,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		// member type B in A
 		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0, 0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$B", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$B", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2998,7 +2998,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$1$E", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1$E", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -3013,7 +3013,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$2", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$2", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -3029,7 +3029,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$2$F", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$2$F", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -3044,7 +3044,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) method.getBody().statements().get(0);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$1$C", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1$C", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -3060,7 +3060,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$1", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -3077,7 +3077,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503/A$1$D", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1$D", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
 	/**
