@@ -50,14 +50,15 @@ public class HandleFactory {
 		if ((separatorIndex= resourcePath.indexOf(JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
 			// path to a class file inside a jar
 			String jarPath= resourcePath.substring(0, separatorIndex);
-
 			// Optimization: cache package fragment root handle and package handles
 			if (!jarPath.equals(this.lastPkgFragmentRootPath)) {
+				IPackageFragmentRoot root= this.getJarPkgFragmentRoot(jarPath);
+				if (root == null)
+					return null; // match is outside classpath
 				this.lastPkgFragmentRootPath= jarPath;
-				this.lastPkgFragmentRoot= this.getJarPkgFragmentRoot(jarPath);
+				this.lastPkgFragmentRoot= root;
 				this.packageHandles= new HashMap(5);
 			}
-
 			// create handle
 			String classFilePath= resourcePath.substring(separatorIndex + 1);
 			int lastSlash= classFilePath.lastIndexOf('/');
@@ -71,14 +72,12 @@ public class HandleFactory {
 			return (Openable) classFile;
 		} else {
 			// path to a file in a directory
-
 			// Optimization: cache package fragment root handle and package handles
 			int length = -1;
 			if (this.lastPkgFragmentRootPath == null 
 				|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
 					&& (length = this.lastPkgFragmentRootPath.length()) > 0
 					&& resourcePath.charAt(length) == '/')) {
-
 				IPackageFragmentRoot root= this.getPkgFragmentRoot(resourcePath);
 				if (root == null)
 					return null; // match is outside classpath
@@ -86,7 +85,6 @@ public class HandleFactory {
 				this.lastPkgFragmentRootPath= this.lastPkgFragmentRoot.getPath().toString();
 				this.packageHandles= new HashMap(5);
 			}
-
 			// create handle
 			int lastSlash= resourcePath.lastIndexOf(IPath.SEPARATOR);
 			String packageName= lastSlash > (length= this.lastPkgFragmentRootPath.length()) ? resourcePath.substring(length + 1, lastSlash).replace(IPath.SEPARATOR, '.') : IPackageFragment.DEFAULT_PACKAGE_NAME;
