@@ -49,14 +49,24 @@ public class SingleTypeReference extends TypeReference {
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 
-		ReferenceBinding memberTb = scope.getMemberType(token, enclosingType);
-		if (!memberTb.isValidBinding()) {
-			scope.problemReporter().invalidEnclosingType(this, memberTb, enclosingType);
+		ReferenceBinding memberType = scope.getMemberType(token, enclosingType);
+		if (!memberType.isValidBinding()) {
+			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
 			return null;
 		}
-		if (isTypeUseDeprecated(memberTb, scope))
-			scope.problemReporter().deprecatedType(memberTb, this);
-		return this.resolvedType = memberTb;
+		if (isTypeUseDeprecated(memberType, scope)) {
+			scope.problemReporter().deprecatedType(memberType, this);
+		}
+		// check raw type
+		if (memberType.isArrayType()) {
+		    TypeBinding leafComponentType = memberType.leafComponentType();
+		    if (leafComponentType.isGenericType()) { // raw type
+		        return this.resolvedType = scope.createArray(scope.createRawType((ReferenceBinding)leafComponentType), memberType.dimensions());
+		    }
+		} else if (memberType.isGenericType()) {
+	        return this.resolvedType = scope.createRawType(memberType); // raw type
+		}			
+		return this.resolvedType = memberType;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
