@@ -660,19 +660,19 @@ public void conflictingImport(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd);
 }
-public void constantOutOfFormat(NumberLiteral lit) {
+public void constantOutOfFormat(NumberLiteral literal) {
 	// the literal is not in a correct format
 	// this code is called on IntLiteral and LongLiteral 
 	// example 000811 ...the 8 is uncorrect.
 
-	if ((lit instanceof LongLiteral) || (lit instanceof IntLiteral)) {
-		char[] source = lit.source();
+	if ((literal instanceof LongLiteral) || (literal instanceof IntLiteral)) {
+		char[] source = literal.source();
 		try {
 			final String Radix;
 			final int radix;
 			if ((source[1] == 'x') || (source[1] == 'X')) {
 				radix = 16;
-				Radix = "Hexa"; //$NON-NLS-1$
+				Radix = "Hex"; //$NON-NLS-1$
 			} else {
 				radix = 8;
 				Radix = "Octal"; //$NON-NLS-1$
@@ -685,32 +685,32 @@ public void constantOutOfFormat(NumberLiteral lit) {
 					break label;
 				}
 			}
-			String[] arguments = new String[] {Radix + " " + new String(source) + " (digit " + new String(new char[] {source[place]}) + ")"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String[] arguments = new String[] {
+				new String(literal.literalType(null).readableName()), // numeric literals do not need scope to reach type
+				Radix + " " + new String(source) + " (digit " + new String(new char[] {source[place]}) + ")"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 			this.handle(
 				IProblem.NumericValueOutOfRange,
 				arguments,
 				arguments,
-				lit.sourceStart,
-				lit.sourceEnd);
+				literal.sourceStart,
+				literal.sourceEnd);
 			return;
 		} catch (IndexOutOfBoundsException ex) {}
 	
 		// just in case .... use a predefined error..
 		// we should never come here...(except if the code changes !)
-		this.constantOutOfRange(lit);
+		this.constantOutOfRange(literal, literal.literalType(null)); // numeric literals do not need scope to reach type
 	}
 }
-public void constantOutOfRange(Literal lit) {
-	// lit is some how out of range of it declared type
-	// example 9999999999999999999999999999999999999999999999999999999999999999999
-	String[] arguments = new String[] {new String(lit.source())};
+public void constantOutOfRange(Literal literal, TypeBinding literalType) {
+	String[] arguments = new String[] {new String(literalType.readableName()), new String(literal.source())};
 	this.handle(
 		IProblem.NumericValueOutOfRange,
 		arguments,
 		arguments,
-		lit.sourceStart,
-		lit.sourceEnd);
+		literal.sourceStart,
+		literal.sourceEnd);
 }
 public void deprecatedField(FieldBinding field, AstNode location) {
 	this.handle(
