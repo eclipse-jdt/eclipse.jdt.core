@@ -223,7 +223,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	int lastIndex = nameTokens.length-1;
 	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
-			typeBinding = ((FieldBinding)binding).declaringClass;
+			typeBinding = qNameRef.actualReceiverType;
 			int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
 			lastIndex -= otherBindingsCount + 1;
 			break;
