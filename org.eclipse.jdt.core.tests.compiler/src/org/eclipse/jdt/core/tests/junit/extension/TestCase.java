@@ -16,6 +16,9 @@ public class TestCase extends junit.framework.TestCase {
 	public TestCase(String name) {
 		super(name);
 	}
+public static void assertEquals(String expected, String actual) {
+    assertEquals(null, expected, actual);
+}
 public static void assertEquals(String message, String expected, String actual) {
 	if (expected == null && actual == null)
 		return;
@@ -23,7 +26,7 @@ public static void assertEquals(String message, String expected, String actual) 
 		return;
 	String formatted;
 	if (message != null) {
-		formatted = message+".\n"; //$NON-NLS-1$
+		formatted = message+"."; //$NON-NLS-1$
 	} else {
 		formatted = ""; //$NON-NLS-1$
 	}
@@ -31,7 +34,7 @@ public static void assertEquals(String message, String expected, String actual) 
 	actual = actual == null ? null : showLineSeparators(actual);
 	formatted = 
 		formatted
-		+ "----------- Expected -----------\n" //$NON-NLS-1$
+		+ "\n----------- Expected ------------\n" //$NON-NLS-1$
 		+ expected
 		+ "\n------------ but was ------------\n" //$NON-NLS-1$
 		+ actual

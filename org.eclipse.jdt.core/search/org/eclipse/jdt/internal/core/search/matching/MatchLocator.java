@@ -1205,12 +1205,17 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 		if (this.scope instanceof HierarchyScope) {
 			IType focusType = ((HierarchyScope)this.scope).focusType;
 			if (focusType != null) {
-					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
-					if (this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
-						// focus type is not visible from this project
-						return;
-					}
+				if (!focusType.isBinary()) {
+					// cache all types in the focus' compilation unit (even secondary types)
+					this.accept((ICompilationUnit)focusType.getCompilationUnit());
+				}
+				
+				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+				this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
+				if (this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
+					// focus type is not visible from this project
+					return;
+				}
 			} else {
 				this.hierarchyResolver = null;
 			}

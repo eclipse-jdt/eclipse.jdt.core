@@ -244,6 +244,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testInnerMethodDeclaration"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInHierarchyScope1"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInHierarchyScope2"));
+	suite.addTest(new JavaSearchTests("testMethodDeclarationInHierarchyScope3"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInPackageScope"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testConstructorDeclarationInJar"));
@@ -1306,6 +1307,23 @@ public void testMethodDeclarationInHierarchyScope2() throws JavaModelException, 
 	assertEquals(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo]", 
+		resultCollector.toString());
+}
+/**
+ * Method declaration in hierarchy on a secondary type.
+ */
+public void testMethodDeclarationInHierarchyScope3() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "d3", "A.java").getType("B");
+	IMethod method = type.getMethod("foo", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method,
+		DECLARATIONS, 
+		SearchEngine.createHierarchyScope(type),
+		resultCollector);
+	assertEquals(
+		"src/d3/A.java d3.B.foo() -> void [foo]", 
 		resultCollector.toString());
 }
 /**

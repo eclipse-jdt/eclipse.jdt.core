@@ -560,7 +560,10 @@ public void resolve(IGenericType suppliedType) {
  */
 public ReferenceBinding setFocusType(char[][] compoundName) {
 	if (compoundName == null || this.lookupEnvironment == null) return null;
-	this.focusType = this.lookupEnvironment.askForType(compoundName);
+	this.focusType = this.lookupEnvironment.getCachedType(compoundName);
+	if (this.focusType == null) {
+		this.focusType = this.lookupEnvironment.askForType(compoundName);
+	}
 	return this.focusType;
 }
 public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
