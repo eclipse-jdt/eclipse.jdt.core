@@ -676,9 +676,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 	/**
 	 * Sets the output location of the pre-specified project.
 	 *
-	 * <p>This can cause changes in package fragments - i.e. if the
-	 * old and new output location folder could be considered as
-	 * a package fragment.
+	 * <p>This can cause changes in package fragments, in case either  the
+	 * old or new output location folder are considered as a package fragment.
 	 */
 	protected void updateOutputLocation() throws JavaModelException {
 		

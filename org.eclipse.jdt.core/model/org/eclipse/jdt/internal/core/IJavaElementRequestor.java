@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IType;
  * This interface is used by IRequestorNameLookup. As results
  * are found by IRequestorNameLookup, they are reported to this
  * interface. An IJavaElementRequestor is able to cancel
- * at any time (i.e. stop receiving results), by responding
+ * at any time (that is, stop receiving results), by responding
  * <code>true</code> to <code>#isCancelled</code>.
  */
 public interface IJavaElementRequestor {

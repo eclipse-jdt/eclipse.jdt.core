@@ -122,7 +122,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			if (outputLocation.isPrefixOf(folderPath)) {
 				// only allow nesting in project's output if there is a corresponding source folder
-				// or if the project's output is not used (i.e. all source folders have a custom output)
+				// or if the project's output is not used (in other words, if all source folders have their custom output)
 				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 				boolean isOutputUsed = false;
 				for (int i = 0, length = classpath.length; i < length; i++) {
@@ -563,7 +563,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * addElementChangedListener method comment.
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
-	 * any of the other (i.e. it deregisters itself).
+	 * any of the other (for example, if it deregisters itself).
 	 */
 	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
 		for (int i = 0; i < this.elementChangedListenerCount; i++){

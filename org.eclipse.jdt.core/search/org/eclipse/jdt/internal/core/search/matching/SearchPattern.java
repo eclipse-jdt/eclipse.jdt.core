@@ -183,8 +183,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
 					parameterTypeQualifications[i] = null;
 				} else {
-					// prefix with a '*' as the full qualification could be bigger 
-					// (i.e. because of an import)
+					// prefix with a '*' as the full qualification could be bigger (because of an import)
 					parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
 				}
 				parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
@@ -344,8 +343,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			if (typeQualification.length == 1 && typeQualification[0] == '*') {
 				typeQualification = null;
 			} else {
-				// prefix with a '*' as the full qualification could be bigger 
-				// (i.e. because of an import)
+				// prefix with a '*' as the full qualification could be bigger (because of an import)
 				typeQualification = CharOperation.concat(ONE_STAR, typeQualification);
 			}
 			typeSimpleName = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
@@ -583,8 +581,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
 					parameterTypeQualifications[i] = null;
 				} else {
-					// prefix with a '*' as the full qualification could be bigger 
-					// (i.e. because of an import)
+					// prefix with a '*' as the full qualification could be bigger (because of an import)
 					parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
 				}
 				parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
@@ -604,7 +601,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 			if (returnTypeQualification.length == 1 && returnTypeQualification[0] == '*') {
 				returnTypeQualification = null;
 			} else {
-				// (i.e. because of an import)
+				// because of an import
 				returnTypeQualification = CharOperation.concat(ONE_STAR, returnTypeQualification);
 			}			
 			returnTypeSimpleName = CharOperation.subarray(returnTypePart, lastDotPosition+1, returnTypePart.length);
@@ -734,8 +731,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				typeSimpleName = (lastDot != -1 ? typeSignature.substring(lastDot + 1) : typeSignature).toCharArray();
 				typeQualification = 
 					lastDot != -1 ? 
-						// prefix with a '*' as the full qualification could be bigger 
-						// (i.e. because of an import)
+						// prefix with a '*' as the full qualification could be bigger (because of an import)
 						CharOperation.concat(ONE_STAR, typeSignature.substring(0, lastDot).toCharArray()) : 
 						null;
 			} catch (JavaModelException e) {
@@ -852,8 +848,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				returnSimpleName = (lastDot != -1 ? returnType.substring(lastDot + 1) : returnType).toCharArray();
 				returnQualification = 
 					lastDot != -1 ? 
-						// prefix with a '*' as the full qualification could be bigger 
-						// (i.e. because of an import)
+						// prefix with a '*' as the full qualification could be bigger (because of an import)
 						CharOperation.concat(ONE_STAR, returnType.substring(0, lastDot).toCharArray()) : 
 						null;
 			} catch (JavaModelException e) {
@@ -869,8 +864,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				parameterSimpleNames[i] = (lastDot != -1 ? signature.substring(lastDot + 1) : signature).toCharArray();
 				parameterQualifications[i] = 
 					lastDot != -1 ? 
-						// prefix with a '*' as the full qualification could be bigger 
-						// (i.e. because of an import)
+						// prefix with a '*' as the full qualification could be bigger (because of an import)
 						CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray()) : 
 						null;
 			}
@@ -1202,8 +1196,8 @@ protected void matchCheck(AstNode node, MatchSet set) {
 }
 
 /**
- * Returns the type of container of this pattern, i.e. is it in compilation unit,
- * in class declarations, field declarations, or in method declarations.
+ * Returns the type(s) of container for this pattern.
+ * It is a bit combination of types, denoting compilation unit, class declarations, field declarations or method declarations.
  */
 protected abstract int matchContainer();
 /**

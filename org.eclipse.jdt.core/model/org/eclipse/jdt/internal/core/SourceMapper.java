@@ -820,7 +820,7 @@ public class SourceMapper
 	}
 
 	/*
-	 * Finds the source file name (i.e. the simple .java file name) for the given IBinaryType.
+	 * Finds the source file name (using the simple .java file name) for the given IBinaryType.
 	 * Returns null if not found.
 	 */
 	public String findSourceFileName(IType type, IBinaryType info) {

@@ -459,7 +459,7 @@ protected static final char[] concat(char[] firstWithSeparator, char[] second, c
 }
 /**
  * Concat(first, second, third, sep) --> [first][second][sep][third]
- * i.e. no separator is inserted in between first and second
+ * in other words, no separator is inserted in between first and second
  */
 protected static final char[] concat(char[] firstWithSeparator, char[] second, char[] third, char separator) {
 	int length1= firstWithSeparator.length;
@@ -474,7 +474,7 @@ protected static final char[] concat(char[] firstWithSeparator, char[] second, c
 }
 /**
  * Concat(first, second, third, charAfterThird, fourth, fifth, sixth, charAfterSixth, last, sep) --> [first][second][sep][third][sep][charAfterThird][sep][fourth][sep][fifth][sep][sixth][sep][charAfterSixth][last]
- * i.e. no separator is inserted in between first and second
+ * in other words, no separator is inserted in between first and second
  */
 protected static final char[] concat(char[] firstWithSeparator, char[] second, char[] third, char charAfterThird, char[] fourth, char[] fifth, char[] sixth, char charAfterSixth, char last, char separator) {
 	int length1= firstWithSeparator.length;

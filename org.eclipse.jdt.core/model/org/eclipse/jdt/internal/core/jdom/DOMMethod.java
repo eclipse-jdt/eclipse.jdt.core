@@ -146,7 +146,7 @@ DOMMethod() {
  *		is the first character of the first modifier for this member, and
  *		the second integer is the last whitespace character preceeding the
  *		next part of this member declaration. If there are no modifiers present
- *		in this node's source code (i.e. default protection), this array
+ *		in this node's source code (that is, package default visibility), this array
  *		contains two -1's.
  * @param isConstructor - true if the method is a contructor, otherwise false
  * @param returnType - the normalized return type of this method

@@ -43,7 +43,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * that a duplicate named element exists. For example, if
 	 * there are two fields in a compilation unit with the
 	 * same name, the occurrence count is used to distinguish
-	 * them.  The occurrence count starts at 1 (i.e. the first 
+	 * them.  The occurrence count starts at 1 (thus the first 
 	 * occurrence is occurrence 1, not occurrence 0).
 	 */
 	protected int fOccurrenceCount = 1;

@@ -46,7 +46,7 @@ DOMCompilationUnit() {
  * @param document - the document containing this node's original contents
  * @param sourceRange - a two element array of integers describing the
  *		entire inclusive source range of this node within its document.
- * 		A compilation unit's source range is the entire document - i.e.
+ * 		A compilation unit's source range is the entire document - 
  *		the first integer is zero, and the second integer is the position
  *		of the last character in the document.
  */

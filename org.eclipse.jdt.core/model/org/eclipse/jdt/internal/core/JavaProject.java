@@ -1970,9 +1970,8 @@ public class JavaProject
 	}
 	
 	/**
-	 * Saves the classpath in a shareable format (VCM-wise) if necessary.
-	 *  (i.e.&nbsp;semantically different).
-	 * Will never write an identical one.
+	 * Saves the classpath in a shareable format (VCM-wise) only when necessary, that is, if  it is semantically different
+	 * from the existing one in file. Will never write an identical one.
 	 * 
 	 * @return Return whether the .classpath file was modified.
 	 */

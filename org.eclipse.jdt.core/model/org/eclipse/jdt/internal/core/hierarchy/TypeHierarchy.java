@@ -79,7 +79,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	
 	/**
 	 * The Java Project in which the hierarchy is being built - this
-	 * provides the context (i.e. classpath and namelookup rules)
+	 * provides the context for determining a classpath and namelookup rules.
 	 * Possibly null.
 	 */
 	protected IJavaProject project;

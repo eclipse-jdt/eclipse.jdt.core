@@ -57,7 +57,7 @@ abstract class DOMMember extends DOMNode implements IDOMMember {
 	 * The original inclusive source range of the
 	 * member's modifiers in the document, or -1's if
 	 * the member did not originally have modifiers in
-	 * the source code (i.e. default protection).
+	 * the source code (that is, package default visibility).
 	 */
 	 protected int[] fModifierRange;
 
