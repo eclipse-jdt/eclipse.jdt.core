@@ -1496,7 +1496,9 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 			int depth = 0;
 			for (int i=typeArguments.length-1; i>=0; i--) {
 				if (typeArguments[i] != null) {
-					depth = resetScannerAfterLastTypeArgumentEnd(typeArguments[i], scanner, depth)+1;
+					long lastTypeArgInfo = findLastTypeArgumentInfo(typeArguments[i]);
+					depth = (int) (lastTypeArgInfo >>> 32)+1;
+					scanner.resetTo(((int)lastTypeArgInfo)+1, scanner.eofPosition-1);
 					break;
 				}
 			}
@@ -1518,48 +1520,41 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 	report(match);
 }
 /* (non-Javadoc)
- * Reset scanner after last type argument end. This may be called recursively for nested parameterized
- * type arguments.
- * Returns depth of nesting for the last argument.
+ * Return info about last type argument of a parameterized type reference.
+ * These info are made of concatenation of 2 int values which are respectively
+ *  depth and end position of the last type argument.
+ * For example, this method will return 0x300000020 for type ref List<List<List<String>>>
+ * if end position of type reference "String" equals 32.
  */
-private int resetScannerAfterLastTypeArgumentEnd(TypeReference typeRef, Scanner scanner, int depth) {
-	// Default end is current type argument end
-	int end = typeRef.sourceEnd;
+private long findLastTypeArgumentInfo(TypeReference typeRef) {
 	// Get last list of type arguments for parameterized qualified type reference
-	TypeReference[] typeArguments = null;
-	if (typeRef instanceof ParameterizedQualifiedTypeReference) {
-		ParameterizedQualifiedTypeReference pqtRef = (ParameterizedQualifiedTypeReference) typeRef;
-		TypeReference[] last = null;
-		for (int i=pqtRef.typeArguments.length-1; i>=0 && last==null; i--) {
-			last = pqtRef.typeArguments[i];
+	TypeReference lastTypeArgument = typeRef;
+	int depth = 0;
+	while (true) {
+		TypeReference[] lastTypeArguments = null;
+		if (lastTypeArgument instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference pqtRef = (ParameterizedQualifiedTypeReference) lastTypeArgument;
+			for (int i=pqtRef.typeArguments.length-1; i>=0 && lastTypeArguments==null; i--) {
+				lastTypeArguments = pqtRef.typeArguments[i];
+			}
 		}
-		// If no children arguments then current type reference is the last type argument
-		if (last == null) {
-			scanner.resetTo(end+1, scanner.eofPosition-1);
-			return depth;
-		}
-		typeArguments = last;
-	}
-	// Get last type argument for single type reference of last list of argument of parameterized qualified type reference
-	if (typeRef instanceof ParameterizedSingleTypeReference || typeArguments != null) {
-		if (typeArguments == null) {
-			typeArguments = ((ParameterizedSingleTypeReference)typeRef).typeArguments;
-		}
+		// Get last type argument for single type reference of last list of argument of parameterized qualified type reference
 		TypeReference last = null;
-		for (int i=typeArguments.length-1; i>=0 && last==null; i++) {
-			last = typeArguments[i];
+		if (lastTypeArgument instanceof ParameterizedSingleTypeReference || lastTypeArguments != null) {
+			if (lastTypeArguments == null) {
+				lastTypeArguments = ((ParameterizedSingleTypeReference)lastTypeArgument).typeArguments;
+			}
+			for (int i=lastTypeArguments.length-1; i>=0 && last==null; i++) {
+				last = lastTypeArguments[i];
+			}
 		}
-		// If no child argument then current type reference is the last type argument
-		if (last == null) {
-			scanner.resetTo(end+1, scanner.eofPosition-1);
-			return depth;
-		}
-		// Loop on last type argument to find its last type argument...
-		return resetScannerAfterLastTypeArgumentEnd(last, scanner, depth+1);
+		if (last == null) break;
+		depth++;
+		lastTypeArgument = last;
 	}
 	// Current type reference is not parameterized. So, it is the last type argument
-	scanner.resetTo(end+1, scanner.eofPosition-1);
-	return depth;
+//	if (depth == 0) return 0;
+	return (((long) depth) << 32) + lastTypeArgument.sourceEnd;
 }
 /**
  * Finds the accurate positions of each valid token in the source and
@@ -1995,21 +1990,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 }
 protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
 	ASTNode[] nodes = null;
-	if (superReference instanceof ParameterizedSingleTypeReference) {
-		TypeReference[] typeArguments = ((ParameterizedSingleTypeReference)superReference).typeArguments;
-		if (typeArguments != null && typeArguments.length > 0) {
-			nodes = nodeSet.matchingNodes(superReference.sourceStart, typeArguments[typeArguments.length-1].sourceEnd);
-		}
-	} else if (superReference instanceof ParameterizedQualifiedTypeReference) {
-		TypeReference[][] typeArguments = ((ParameterizedQualifiedTypeReference)superReference).typeArguments;
-		if (typeArguments != null && typeArguments.length > 0) {
-			TypeReference[] lastTypeArgs = typeArguments[typeArguments.length-1];
-			int end = superReference.sourceEnd;
-			if (lastTypeArgs != null && lastTypeArgs.length > 0 && lastTypeArgs[lastTypeArgs.length-1].sourceEnd > end) {
-				end = lastTypeArgs[lastTypeArgs.length-1].sourceEnd;
-			}
-			nodes = nodeSet.matchingNodes(superReference.sourceStart, end);
-		}
+	if (superReference instanceof ParameterizedSingleTypeReference || superReference instanceof ParameterizedQualifiedTypeReference) {
+		long lastTypeArgumentInfo = findLastTypeArgumentInfo(superReference);
+		nodes = nodeSet.matchingNodes(superReference.sourceStart, (int)lastTypeArgumentInfo);
 	}
 	if (nodes != null) {
 		if ((this.matchContainer & PatternLocator.CLASS_CONTAINER) == 0) {

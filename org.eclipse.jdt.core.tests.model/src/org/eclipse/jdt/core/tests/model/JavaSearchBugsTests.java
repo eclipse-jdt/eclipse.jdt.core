@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -48,7 +49,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug84724";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-//		TESTS_NUMBERS = new int[] { 81084 };
+//		TESTS_NUMBERS = new int[] { 85810 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
 
@@ -1428,6 +1429,28 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, REFERENCES);
 		assertSearchResults(
 			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", 3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 85810: [1.5][search] Missed type parameter reference in implements clause
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=85810"
+	 */
+	public void testBug85810() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b85810/Test.java",
+			"package b85810;\n" + 
+			"public class Test<E> implements In<Test<E>> {\n" + 
+			"	E e;\n" + 
+			"}\n" +
+			"interface In<T> {}\n"
+			);
+		ITypeParameter param = selectTypeParameter(workingCopies[0], "E");
+		search(param, REFERENCES);
+		assertSearchResults(
+			"src/b85810/Test.java b85810.Test [E] EXACT_MATCH\n" + 
+			"src/b85810/Test.java b85810.Test.e [E] EXACT_MATCH"
 		);
 	}
 }
