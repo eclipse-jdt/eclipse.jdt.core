@@ -378,11 +378,13 @@ private boolean hasBinaryDelta() {
 	IResourceDelta delta = getDelta(currentProject);
 	if (delta != null && delta.getKind() != IResourceDelta.NO_CHANGE) {
 		IResource[] classFoldersAndJars = (IResource[]) binaryResources.get(currentProject);
-		for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
-			IResource binaryResource = classFoldersAndJars[i]; // either a .class file folder or a zip/jar file
-			if (binaryResource != null) {
-				IResourceDelta binaryDelta = delta.findMember(binaryResource.getProjectRelativePath());
-				if (binaryDelta != null) return true;
+		if (classFoldersAndJars != null){
+			for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
+				IResource binaryResource = classFoldersAndJars[i]; // either a .class file folder or a zip/jar file
+				if (binaryResource != null) {
+					IResourceDelta binaryDelta = delta.findMember(binaryResource.getProjectRelativePath());
+					if (binaryDelta != null) return true;
+				}
 			}
 		}
 	}
