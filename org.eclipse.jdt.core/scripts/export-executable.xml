@@ -30,10 +30,10 @@
         <echo message='compiling sources      -> .o'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false'>
             <arg value='--classpath=${work}'/>
-            <arg value='--verbose'/>
             <arg value='-O2'/>
             <arg value='-g'/>
             <arg value='-c'/>
+            <arg value='-fassume-compiled'/>
             <srcfile/>
             <arg value='-o'/>
             <targetfile/>
@@ -43,9 +43,9 @@
         
         <echo message='linking .o -> ${binaryname}'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}'  parallel='true'>
-            <arg value='--verbose'/>
             <arg value='-O2'/>
             <arg value='-g'/>
+            <arg value='-fassume-compiled'/>
             <arg line='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
             <srcfile/>
             <arg line ='-o ${dest}${binaryname}.exe'/>
