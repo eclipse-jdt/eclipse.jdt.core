@@ -212,7 +212,7 @@ public String getSymbolPath() {
  */
 public LocalVirtualMachine launch() throws TargetException {
 	// Launch VM
-	LocalVirtualMachine localVM = (LocalVirtualMachine)super.launch();
+	LocalVirtualMachine localVM = super.launch();
 
 	// Launch Proxy if needed
 	Process proxyProcess= null;

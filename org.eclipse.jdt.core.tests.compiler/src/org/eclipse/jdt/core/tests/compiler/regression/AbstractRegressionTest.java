@@ -35,7 +35,7 @@ public AbstractRegressionTest(String name) {
 	super(name);
 }
 protected CompilationUnit[] compilationUnits(String[] testFiles) {
-	int length = (int)(testFiles.length / 2);
+	int length = testFiles.length / 2;
 	CompilationUnit[] result = new CompilationUnit[length];
 	int index = 0;
 	for (int i = 0; i < length; i++) {

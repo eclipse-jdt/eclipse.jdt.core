@@ -2017,7 +2017,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
 			IMethodInfo[] methods = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 3, methods.length);
-			IMethodInfo methodInfo = (IMethodInfo) methods[1];
+			IMethodInfo methodInfo = methods[1];
 			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
 			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertEquals("Wrong size", 3, codeAttribute.getExceptionTableLength());

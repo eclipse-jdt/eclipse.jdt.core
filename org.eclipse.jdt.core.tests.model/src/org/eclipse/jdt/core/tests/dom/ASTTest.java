@@ -3346,8 +3346,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getLeadingComment() == null);
 		assertTrue(x.getBody().getParent() == x);
-		assertTrue(x.getBody() instanceof Block);
-		assertTrue(((Block) x.getBody()).statements().isEmpty());
+		assertTrue(x.getBody() instanceof Block);  // TODO (olivier) getBody() is already of type Block
+		assertTrue((x.getBody()).statements().isEmpty());
 		assertTrue(x.getFinally() == null);
 		assertTrue(x.catchClauses().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.TRY_STATEMENT);

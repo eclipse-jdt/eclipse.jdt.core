@@ -581,7 +581,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testContinueStatement() {
 		ContinueStatement x1 = ast.newContinueStatement();
-		x1.setLabel((SimpleName) N1);
+		x1.setLabel(N1);
 		basicMatch(x1);
 	}
 	public void testDoStatement() {

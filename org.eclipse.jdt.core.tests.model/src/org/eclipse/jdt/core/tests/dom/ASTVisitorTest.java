@@ -939,7 +939,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testContinueStatement() {
 		ContinueStatement x1 = ast.newContinueStatement();
-		x1.setLabel((SimpleName) N1);
+		x1.setLabel(N1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
