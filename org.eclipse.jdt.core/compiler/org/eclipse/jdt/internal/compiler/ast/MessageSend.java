@@ -237,7 +237,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (binding.declaringClass != this.actualReceiverType
 		&& !this.actualReceiverType.isArrayType()
 		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-				&& (receiver != ThisReference.ThisImplicit || !binding.isStatic()))
+				&& (receiver != ThisReference.ThisImplicit || !binding.isStatic())
+				&& binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !binding.declaringClass.canBeSeenBy(scope))) {
 		binding = new MethodBinding(binding, (ReferenceBinding) this.actualReceiverType);
 	}

@@ -379,7 +379,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
 				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic()))
+						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+						&& fieldBinding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
 				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 			}
@@ -390,7 +391,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
 				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic()))
+						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+						&& fieldBinding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 					|| !localScope.canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) delegateThis.type))) {
 					binding = new FieldBinding(fieldBinding, (ReferenceBinding) delegateThis.type);
 			}
@@ -454,7 +456,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 					&& !type.isArrayType()				
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4					
+					&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4					
+							&& field.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 						|| !field.declaringClass.canBeSeenBy(scope))) {
 						otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
 				}
@@ -464,7 +467,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 					&& !type.isArrayType()
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+							&& field.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 						|| !localScope.canBeSeenByForCodeSnippet(field.declaringClass, (ReferenceBinding) delegateThis.type))){
 					otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
 				}

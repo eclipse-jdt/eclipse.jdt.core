@@ -398,7 +398,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
-		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 			|| !binding.declaringClass.canBeSeenBy(scope))){
 			binding = new FieldBinding(binding, (ReferenceBinding) this.receiverType);
 	}

@@ -518,7 +518,8 @@ public class QualifiedNameReference extends NameReference {
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
 				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic()))
+						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+						&& fieldBinding.declaringClass.id != T_Object)
 					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
 				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 			}
@@ -572,7 +573,8 @@ public class QualifiedNameReference extends NameReference {
 					&& !this.actualReceiverType.isArrayType()				
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+							&& field.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 						|| !field.declaringClass.canBeSeenBy(scope))){
 					otherBindings[place] = new FieldBinding(field, (ReferenceBinding) type);
 				}
