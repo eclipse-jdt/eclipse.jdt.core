@@ -91,6 +91,7 @@ public final class SingleMemberAnnotation extends Annotation {
 	 */
 	SingleMemberAnnotation(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,8 +103,17 @@ public class CompilationUnit extends ASTNode {
 	 * The comment table, or <code>null</code> if none; initially
 	 * <code>null</code>.
 	 * @since 3.0
+	 * @deprecated 
+	 * TBD (jeem) - remove when getCommentTable() goes away
 	 */
 	private Comment[] optionalCommentTable = null;
+	
+	/**
+	 * The comment list (element type: <code>Comment</code>, 
+	 * or <code>null</code> if none; initially <code>null</code>.
+	 * @since 3.0
+	 */
+	private List optionalCommentList = null;
 	
 	/**
 	 * The package declaration, or <code>null</code> if none; initially
@@ -607,9 +618,63 @@ public class CompilationUnit extends ASTNode {
 	 * for this compilation unit is not available
 	 * @see ASTParser
 	 * @since 3.0
+	 * @deprecated Replaced by {@link #getCommentList()} which returns
+	 * an modifiable List.
+	 * TBD (jeem) - remove before M8
 	 */
 	public Comment[] getCommentTable() {
 		return this.optionalCommentTable;
+	}
+	
+	/**
+	 * Returns a list of the comments encountered while parsing
+	 * this compilation unit.
+	 * <p>
+	 * Since the Java language allows comments to appear most anywhere
+	 * in the source text, it is problematic to locate comments in relation
+	 * to the structure of an AST. The one exception is doc comments 
+	 * which, by convention, immediately precede type, field, and
+	 * method declarations; these comments are located in the AST
+	 * by {@link  BodyDeclaration#getJavadoc BodyDeclaration.getJavadoc}.
+	 * Other comments do not show up in the AST. The table of comments
+	 * is provided for clients that need to find the source ranges of
+	 * all comments in the original source string. It includes entries
+	 * for comments of all kinds (line, block, and doc), arranged in order
+	 * of increasing source position. 
+	 * </p>
+	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()}
+	 * of a doc comment associated with a body declaration is the body
+	 * declaration node; for these comment nodes
+	 * {@link ASTNode#getRoot() getRoot()} will return the compilation unit
+	 * (assuming an unmodified AST) reflecting the fact that these nodes
+	 * are property located in the AST for the compilation unit.
+	 * However, for other comment nodes, {@link ASTNode#getParent() getParent()}
+	 * will return <code>null</code>, and {@link ASTNode#getRoot() getRoot()}
+	 * will return the comment node itself, indicating that these comment nodes
+	 * are not directly connected to the AST for the compilation unit. The 
+	 * {@link Comment#getAlternateRoot Comment.getAlternateRoot}
+	 * method provides a way to navigate from a comment to its compilation
+	 * unit.
+	 * </p>
+	 * <p>
+	 * A note on visitors: The only comment nodes that will be visited when
+	 * visiting a compilation unit are the doc comments parented by body
+	 * declarations. To visit all comments in normal reading order, iterate
+	 * over the comment table and call {@link ASTNode#accept(ASTVisitor) accept}
+	 * on each element.
+	 * </p>
+	 * <p>
+	 * Clients cannot modify the resulting list.
+	 * </p>
+	 * 
+	 * @return an unmodifiable list of comments in increasing order of source
+	 * start position, or <code>null</code> if comment information
+	 * for this compilation unit is not available
+	 * @see ASTParser
+	 * @since 3.0
+	 */
+	public List getCommentList() {
+		return this.optionalCommentList;
 	}
 	
 	/**
@@ -621,14 +686,17 @@ public class CompilationUnit extends ASTNode {
 	 * information for this compilation unit is not available
 	 * @throw IllegalArgumentException if the comment table is
 	 * not in increasing order of source position
-	 * @see #getCommentTable()
+	 * @see #getCommentList()
 	 * @see ASTParser
 	 * @since 3.0
 	 */
 	void setCommentTable(Comment[] commentTable) {
 		// double check table to ensure that all comments have
 		// source positions and are in strictly increasing order
-		if (commentTable != null) {
+		if (commentTable == null) {
+			this.optionalCommentList = null;
+			this.optionalCommentTable = null;
+		} else {
 			int nextAvailablePosition = 0;
 			for (int i = 0; i < commentTable.length; i++) {
 				Comment comment = commentTable[i];
@@ -642,8 +710,11 @@ public class CompilationUnit extends ASTNode {
 				}
 				nextAvailablePosition = comment.getStartPosition() + comment.getLength();
 			}
+			this.optionalCommentTable = commentTable;
+			List commentList = Arrays.asList(commentTable);
+			// protect the list from further modification
+			this.optionalCommentList = Collections.unmodifiableList(commentList);
 		}
-		this.optionalCommentTable = commentTable;
 	}
 	
 	
@@ -672,8 +743,8 @@ public class CompilationUnit extends ASTNode {
 		if (this.lineEndTable != null) {
 			size += HEADERS + 4 * this.lineEndTable.length;
 		}
-		if (this.optionalCommentTable != null) {
-			size += HEADERS + 4 * this.optionalCommentTable.length;
+		if (this.optionalCommentList != null) {
+			size += HEADERS + 4 * this.optionalCommentList.size();
 		}
 		return size;
 	}
@@ -689,9 +760,9 @@ public class CompilationUnit extends ASTNode {
 		size += this.imports.listSize();
 		size += this.types.listSize();
 		// include disconnected comments
-		if (this.optionalCommentTable != null) {
-			for (int i = 0; i < this.optionalCommentTable.length; i++) {
-				Comment comment = this.optionalCommentTable[i];
+		if (this.optionalCommentList != null) {
+			for (int i = 0; i < this.optionalCommentList.size(); i++) {
+				Comment comment = (Comment) this.optionalCommentList.get(i);
 				if (comment != null && comment.getParent() == null) {
 					size += comment.treeSize();
 				}

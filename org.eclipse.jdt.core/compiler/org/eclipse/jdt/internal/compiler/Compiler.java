@@ -181,6 +181,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
+		if (options.verbose) {
+			System.out.println(
+				Util.bind(
+					"compilation.loadBinary" , //$NON-NLS-1$
+					new String[] {
+						new String(binaryType.getName())}));
+		}
 		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 	}
 
@@ -193,14 +200,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		CompilationResult unitResult =
 			new CompilationResult(sourceUnit, totalUnits, totalUnits, this.options.maxProblemsPerUnit);
 		try {
-			// diet parsing for large collection of unit
-			CompilationUnitDeclaration parsedUnit;
-			if (totalUnits < parseThreshold) {
-				parsedUnit = parser.parse(sourceUnit, unitResult);
-			} else {
-				parsedUnit = parser.dietParse(sourceUnit, unitResult);
-			}
-
 			if (options.verbose) {
 				String count = String.valueOf(totalUnits + 1);
 				System.out.println(
@@ -211,7 +210,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							count,
 							new String(sourceUnit.getFileName())}));
 			}
-
+			// diet parsing for large collection of unit
+			CompilationUnitDeclaration parsedUnit;
+			if (totalUnits < parseThreshold) {
+				parsedUnit = parser.parse(sourceUnit, unitResult);
+			} else {
+				parsedUnit = parser.dietParse(sourceUnit, unitResult);
+			}
 			// initial type binding creation
 			lookupEnvironment.buildTypeBindings(parsedUnit);
 			this.addCompilationUnit(sourceUnit, parsedUnit);
@@ -272,12 +277,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			CompilationResult unitResult =
 				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 			try {
-				// diet parsing for large collection of units
-				if (totalUnits < parseThreshold) {
-					parsedUnit = parser.parse(sourceUnits[i], unitResult);
-				} else {
-					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
-				}
 				if (options.verbose) {
 					System.out.println(
 						Util.bind(
@@ -286,6 +285,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 								String.valueOf(i + 1),
 								String.valueOf(maxUnits),
 								new String(sourceUnits[i].getFileName())}));
+				}
+				// diet parsing for large collection of units
+				if (totalUnits < parseThreshold) {
+					parsedUnit = parser.parse(sourceUnits[i], unitResult);
+				} else {
+					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
 				}
 				// initial type binding creation
 				lookupEnvironment.buildTypeBindings(parsedUnit);
@@ -329,15 +334,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				} finally {
 					// cleanup compilation unit result
 					unit.cleanUp();
-					if (options.verbose)
-						System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
-					new String[] {
-						String.valueOf(i + 1),
-						String.valueOf(totalUnits),
-						new String(unitsToProcess[i].getFileName())}));
 				}
 				unitsToProcess[i] = null; // release reference to processed unit declaration
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+				if (options.verbose)
+					System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
+				new String[] {
+					String.valueOf(i + 1),
+					String.valueOf(totalUnits),
+					new String(unit.getFileName())}));
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);

@@ -98,6 +98,7 @@ public class TypeParameter extends ASTNode {
 	 */
 	TypeParameter(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

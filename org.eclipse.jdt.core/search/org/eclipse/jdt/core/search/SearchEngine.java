@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.core.search.matching.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * A <code>SearchEngine</code> searches for java elements following a search pattern.
+ * A <code>SearchEngine</code> searches for Java elements following a search pattern.
  * The search can be limited to a search scope.
  * <p>
  * Various search patterns can be created using the factory methods 
@@ -154,8 +154,8 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns a java search scope limited to the hierarchy of the given type.
-	 * The java elements resulting from a search with this scope will
+	 * Returns a Java search scope limited to the hierarchy of the given type.
+	 * The Java elements resulting from a search with this scope will
 	 * be types in this hierarchy, or members of the types in this hierarchy.
 	 *
 	 * @param type the focus of the hierarchy scope
@@ -167,10 +167,10 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns a java search scope limited to the hierarchy of the given type.
+	 * Returns a Java search scope limited to the hierarchy of the given type.
 	 * When the hierarchy is computed, the types defined in the working copies owned
 	 * by the given owner take precedence over the original compilation units.
-	 * The java elements resulting from a search with this scope will
+	 * The Java elements resulting from a search with this scope will
 	 * be types in this hierarchy, or members of the types in this hierarchy.
 	 *
 	 * @param type the focus of the hierarchy scope
@@ -184,8 +184,8 @@ public class SearchEngine {
 	}
 
 	/**
-	 * Returns a java search scope limited to the given resources.
-	 * The java elements resulting from a search with this scope will
+	 * Returns a Java search scope limited to the given resources.
+	 * The Java elements resulting from a search with this scope will
 	 * have their underlying resource included in or equals to one of the given
 	 * resources.
 	 * <p>
@@ -193,7 +193,7 @@ public class SearchEngine {
 	 * </p>
 	 *
 	 * @param resources the resources the scope is limited to
-	 * @return a new java search scope
+	 * @return a new Java search scope
 	 * @deprecated Use createJavaSearchScope(IJavaElement[]) instead
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
@@ -206,8 +206,8 @@ public class SearchEngine {
 	}
 
 	/**
-	 * Returns a java search scope limited to the given java elements.
-	 * The java elements resulting from a search with this scope will
+	 * Returns a Java search scope limited to the given Java elements.
+	 * The Java elements resulting from a search with this scope will
 	 * be children of the given elements.
 	 * <p>
 	 * If an element is an IJavaProject, then the project's source folders, 
@@ -221,8 +221,8 @@ public class SearchEngine {
 	 * <p>
 	 * In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true).</p>
 	 *
-	 * @param elements the java elements the scope is limited to
-	 * @return a new java search scope
+	 * @param elements the Java elements the scope is limited to
+	 * @return a new Java search scope
 	 * @since 2.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
@@ -230,8 +230,8 @@ public class SearchEngine {
 	}
 
 	/**
-	 * Returns a java search scope limited to the given java elements.
-	 * The java elements resulting from a search with this scope will
+	 * Returns a Java search scope limited to the given Java elements.
+	 * The Java elements resulting from a search with this scope will
 	 * be children of the given elements.
 	 * 
 	 * If an element is an IJavaProject, then the project's source folders, 
@@ -243,13 +243,52 @@ public class SearchEngine {
 	 * files of this package fragment will be included. Subpackages will NOT be 
 	 * included.
 	 *
-	 * @param elements the java elements the scope is limited to
+	 * @param elements the Java elements the scope is limited to
 	 * @param includeReferencedProjects a flag indicating if referenced projects must be 
 	 * 									 recursively included
-	 * @return a new java search scope
+	 * @return a new Java search scope
 	 * @since 2.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
+		int includeMask = IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SYSTEM_LIBRARIES;
+		if (includeReferencedProjects) {
+			includeMask |= IJavaSearchScope.REFERENCED_PROJECTS;
+		}
+		return createJavaSearchScope(elements, includeMask);
+	}
+
+	/**
+	 * Returns a Java search scope limited to the given Java elements.
+	 * The Java elements resulting from a search with this scope will
+	 * be children of the given elements.
+	 * 
+	 * If an element is an IJavaProject, then it includes:
+	 * - its source folders if IJavaSearchScope.SOURCES is specified, 
+	 * - its application libraries (internal and external jars, class folders that are on the raw classpath, 
+	 *   or the ones that are coming from a classpath path variable,
+	 *   or the ones that are coming from a classpath container with the K_APPLICATION kind)
+	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
+	 * - its system libraries (internal and external jars, class folders that are coming from an 
+	 *   IClasspathContainer with the K_SYSTEM kind) 
+	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
+	 * - its referenced projects (with their source folders and jars, recursively) 
+	 *   if IJavaSearchScope.REFERENCED_PROJECTS is specified.
+	 * If an element is an IPackageFragmentRoot, then only the package fragments of 
+	 * this package fragment root will be included.
+	 * If an element is an IPackageFragment, then only the compilation unit and class 
+	 * files of this package fragment will be included. Subpackages will NOT be 
+	 * included.
+	 *
+	 * @param elements the Java elements the scope is limited to
+	 * @param includeMask the bit-wise OR of all include types of interest
+	 * @return a new Java search scope
+	 * @since 3.0
+	 * @see IJavaSearchScope#SOURCES
+	 * @see IJavaSearchScope#APPLICATION_LIBRARIES
+	 * @see IJavaSearchScope#SYSTEM_LIBRARIES
+	 * @see IJavaSearchScope#REFERENCED_PROJECTS
+	 */
+	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
 		JavaSearchScope scope = new JavaSearchScope();
 		HashSet visitedProjects = new HashSet(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
@@ -257,7 +296,7 @@ public class SearchEngine {
 			if (element != null) {
 				try {
 					if (element instanceof IJavaProject) {
-						scope.add((IJavaProject)element, includeReferencedProjects, visitedProjects);
+						scope.add((IJavaProject)element, includeMask, visitedProjects);
 					} else {
 						scope.add(element);
 					}
@@ -268,7 +307,6 @@ public class SearchEngine {
 		}
 		return scope;
 	}
-
 	/**
 	 * Returns a search pattern that combines the given two patterns into a "and" pattern.
 	 * The search result will match both the left pattern and the right pattern.
@@ -362,7 +400,7 @@ public class SearchEngine {
 	 * Returns a search pattern based on a given Java element. 
 	 * The pattern is used to trigger the appropriate search, and can be parameterized as follows:
 	 *
-	 * @param element the java element the search pattern is based on
+	 * @param element the Java element the search pattern is based on
 	 * @param limitTo determines the nature of the expected matches
 	 * 	<ul>
 	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
@@ -376,7 +414,7 @@ public class SearchEngine {
 	 *
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
-	 * @return a search pattern for a java element or <code>null</code> if the given element is ill-formed
+	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 */
 	public static ISearchPattern createSearchPattern(IJavaElement element, int limitTo) {
 	
@@ -384,7 +422,7 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns a java search scope with the workspace as the only limit.
+	 * Returns a Java search scope with the workspace as the only limit.
 	 *
 	 * @return a new workspace scope
 	 */
@@ -536,7 +574,7 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns the list of working copies used to do the search on the given java element.
+	 * Returns the list of working copies used to do the search on the given Java element.
 	 * @param element an IJavaElement
 	 * @return an array of ICompilationUnit
 	 */
@@ -810,7 +848,7 @@ public class SearchEngine {
 			indexManager.performConcurrentJob(
 				new PatternSearchJob(
 					pattern, 
-					new JavaSearchParticipant(getWorkingCopies()), // java search only
+					new JavaSearchParticipant(getWorkingCopies()), // Java search only
 					scope, 
 					searchRequestor),
 				waitingPolicy,

@@ -96,6 +96,7 @@ public class MemberValuePair extends ASTNode {
 	 */
 	MemberValuePair(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

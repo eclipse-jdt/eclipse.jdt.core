@@ -29,6 +29,26 @@ public interface IJavaSearchScope {
  */
 String JAR_FILE_ENTRY_SEPARATOR = "|"; //$NON-NLS-1$
 /**
+ * Include type constant (bit mask) indicating that source folders should be considered in the search scope.
+ * @since 3.0
+ */
+int SOURCES = 1;
+/**
+ * Include type constant (bit mask) indicating that application libraries should be considered in the search scope.
+ * @since 3.0
+ */
+int APPLICATION_LIBRARIES = 2;
+/**
+ * Include type constant (bit mask) indicating that system libraries should be considered in the search scope.
+ * @since 3.0
+ */
+int SYSTEM_LIBRARIES = 4;
+/**
+ * Include type constant (bit mask) indicating that referenced projects should be considered in the search scope.
+ * @since 3.0
+ */
+int REFERENCED_PROJECTS = 8;
+/**
  * Checks whether the resource at the given path is enclosed by this scope.
  *
  * @param resourcePath if the resource is contained in
@@ -82,7 +102,7 @@ boolean includesBinaries();
  * 
  * @return whether this scope includes classpaths
  * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a java project instead
+ * 				with a Java project instead
  */
 boolean includesClasspaths();
 /**
@@ -100,7 +120,7 @@ public void setIncludesBinaries(boolean includesBinaries);
  * 
  * @return includesClasspaths whether this scope includes classpaths
  * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a java project instead
+ * 				with a Java project instead
  */
 public void setIncludesClasspaths(boolean includesClasspaths);
 }

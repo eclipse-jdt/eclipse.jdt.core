@@ -138,6 +138,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */
 	AnnotationTypeMemberDeclaration(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

@@ -1522,6 +1522,9 @@ public class ASTMatcher {
 		}
 		PackageDeclaration o = (PackageDeclaration) other;
 		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (!safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())) {
+				return false;
+			}
 			if (!safeSubtreeListMatch(node.annotations(), o.annotations())) {
 				return false;
 			}

@@ -478,6 +478,7 @@ public final class Modifier extends ExtendedModifier {
 	 */
 	Modifier(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

@@ -210,7 +210,7 @@ public final class AST {
 	 * into a compilation unit. This method is not intended to be called by clients.
 	 * </p>
 	 * 
-	 * @param unit an internal AST node for a compilation unit declaration
+	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
 	 * @param monitor the progress monitor used to report progress and request cancelation,
@@ -381,6 +381,104 @@ public final class AST {
 	}
 	
 	/**
+	 * Reports that the given node jsut lost a child.
+	 * 
+	 * @param node the node that was modified
+	 * @param child the child node that was removed
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void postRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preRemoveChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node is about have a child replaced.
+	 * 
+	 * @param node the node about to be modified
+	 * @param child the child node about to be removed
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preReplaceChildEvent(node, child, newChild, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node has just had a child replaced.
+	 * 
+	 * @param node the node modified
+	 * @param child the child removed
+	 * @param newChild the replacement child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postReplaceChildEvent(node, child, newChild, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node is about to gain a child.
+	 * 
+	 * @param node the node that to be modified
+	 * @param child the node that to be added as a child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void preAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postAddChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
 	 * Reports that the given node has just gained a child.
 	 * 
 	 * @param node the node that was modified
@@ -397,6 +495,30 @@ public final class AST {
 		try {
 			this.disableEvents++;
 			this.eventHandler.postAddChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node is about to change the value of a
+	 * non-child property.
+	 * 
+	 * @param node the node to be modified
+	 * @param property the property descriptor
+	 * @since 3.0
+	 */
+	void preValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postValueChangeEvent(node, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
@@ -457,7 +579,7 @@ public final class AST {
 	 * and {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of 
 	 * <code>source</code>; line positions are for the subrange scanned.</li>
-	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
+	 * <li>{@linkplain CompilationUnit#getCommentList() Comment list}
 	 * for the subrange scanned.</li>
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
@@ -603,6 +725,18 @@ public final class AST {
 		return (CompilationUnit) result;
 	}
 	
+	/**
+	 * Added this method back so that one can patch a I20040219 build.
+	 * @deprecated 
+	 * TODO (jerome) remove before 3.0 M8
+	 */
+	public static CompilationUnit parseCompilationUnit(
+		ICompilationUnit unit,
+		boolean resolveBindings,
+		WorkingCopyOwner owner) {
+		
+		return parseCompilationUnit(unit, resolveBindings, owner, null);
+	}	
 	/**
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns a corresponding abstract syntax tree. The source 
@@ -1092,7 +1226,18 @@ public final class AST {
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
 	}
-
+	/**
+	 * Added this method back so that one can patch a I20040219 build.
+	 * @deprecated
+	 * TODO (jerome) remove before 3.0 M8
+	 */
+	public static CompilationUnit parsePartialCompilationUnit(
+		ICompilationUnit unit,
+		int position,
+		boolean resolveBindings) {
+		
+		return parsePartialCompilationUnit(unit, position, resolveBindings, null, null);
+	}
 	/**
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns an abridged abstract syntax tree. This method
@@ -1392,21 +1537,21 @@ public final class AST {
 	private final Object[] THIS_AST= new Object[] {this};
 	
 	/**
-	 * Creates an unparented node owned by this AST.
+	 * Creates an unparented node of the given node class
+	 * (non-abstract subclass of {@link ASTNode}. 
 	 * 
 	 * @param nodeClass AST node class
-	 * @return a new unparented node
+	 * @return a new unparented node owned by this AST
 	 * @exception RuntimeException if unsuccessful for any reason
 	 * @since 3.0
-	 * TBD (jeem) - make public when fully implemented (requires 1-arg constructors on all concrete node type)
 	 */
-	ASTNode createInstance(Class nodeClass) {
+	public ASTNode createInstance(Class nodeClass) {
 		if (nodeClass == null) {
 			throw new IllegalArgumentException();
 		}
 		try {
 			// invoke constructor with signature Foo(AST)
-			Constructor c = nodeClass.getConstructor(AST_CLASS);
+			Constructor c = nodeClass.getDeclaredConstructor(AST_CLASS);
 			Object result = c.newInstance(THIS_AST);
 			return (ASTNode) result;
 		} catch (NoSuchMethodException e) {
@@ -1421,14 +1566,19 @@ public final class AST {
 	}
 
 	/**
-	 * Creates an unparented node owned by this AST.
+	 * Creates an unparented node of the given node type.
+	 * This convenience method is equivalent to:
+	 * <pre>
+	 * createInstance(ASTNode.nodeClassForType(nodeType))
+	 * </pre>
 	 * 
-	 * @param nodeType AST node type
-	 * @return a new unparented node
+	 * @param nodeType AST node type, one of the node type
+	 * constants declared on {@link ASTNode}
+	 * @return a new unparented node owned by this AST
+	 * @exception RuntimeException if unsuccessful for any reason
 	 * @since 3.0
-	 * TBD (jeem) - make public when implemented
 	 */
-	ASTNode createInstance(int nodeType) {
+	public ASTNode createInstance(int nodeType) {
 		return createInstance(ASTNode.nodeClassForType(nodeType));
 	}
 
@@ -1617,7 +1767,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public ParameterizedType newParameterizedType(Name typeName) {
-	    unsupportedIn2();
 		ParameterizedType result = new ParameterizedType(this);
 		result.setName(typeName);
 		return result;
@@ -1646,7 +1795,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public QualifiedType newQualifiedType(Type qualifier, SimpleName name) {
-	    unsupportedIn2();
 		QualifiedType result = new QualifiedType(this);
 		result.setQualifier(qualifier);
 		result.setName(name);
@@ -1674,7 +1822,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public WildcardType newWildcardType() {
-	    unsupportedIn2();
 		WildcardType result = new WildcardType(this);
 		return result;
 	}
@@ -1827,7 +1974,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnumConstantDeclaration newEnumConstantDeclaration() {
-	    unsupportedIn2();
 		EnumConstantDeclaration result = new EnumConstantDeclaration(this);
 		return result;
 	}
@@ -1850,7 +1996,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnumDeclaration newEnumDeclaration() {
-	    unsupportedIn2();
 		EnumDeclaration result = new EnumDeclaration(this);
 		return result;
 	}
@@ -1871,7 +2016,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public TypeParameter newTypeParameter() {
-	    unsupportedIn2();
 		TypeParameter result = new TypeParameter(this);
 		return result;
 	}
@@ -1893,7 +2037,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public AnnotationTypeDeclaration newAnnotationTypeDeclaration() {
-	    unsupportedIn2();
 		AnnotationTypeDeclaration result = new AnnotationTypeDeclaration(this);
 		return result;
 	}
@@ -1916,7 +2059,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public AnnotationTypeMemberDeclaration newAnnotationTypeMemberDeclaration() {
-	    unsupportedIn2();
 		AnnotationTypeMemberDeclaration result = new AnnotationTypeMemberDeclaration(this);
 		return result;
 	}
@@ -1939,7 +2081,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
-	    unsupportedIn2();
 		Modifier result = new Modifier(this);
 		result.setKeyword(keyword);
 		return result;
@@ -1953,7 +2094,7 @@ public final class AST {
 	 * Note that this node type is used to recording the source
 	 * range where a comment was found in the source string.
 	 * These comment nodes are normally found (only) in 
-	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * {@linkplain CompilationUnit#getCommentList() 
 	 * the comment table} for parsed compilation units.
 	 * </p>
 	 * 
@@ -1971,7 +2112,7 @@ public final class AST {
 	 * Note that this node type is used to recording the source
 	 * range where a comment was found in the source string.
 	 * These comment nodes are normally found (only) in 
-	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * {@linkplain CompilationUnit#getCommentList() 
 	 * the comment table} for parsed compilation units.
 	 * </p>
 	 * 
@@ -2390,7 +2531,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnhancedForStatement newEnhancedForStatement() {
-	    unsupportedIn2();
 		return new EnhancedForStatement(this);
 	}
 
@@ -2852,7 +2992,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public NormalAnnotation newNormalAnnotation() {
-	    unsupportedIn2();
 		NormalAnnotation result = new NormalAnnotation(this);
 		return result;
 	}
@@ -2873,7 +3012,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public MarkerAnnotation newMarkerAnnotation() {
-	    unsupportedIn2();
 		MarkerAnnotation result = new MarkerAnnotation(this);
 		return result;
 	}
@@ -2894,7 +3032,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public SingleMemberAnnotation newSingleMemberAnnotation() {
-	    unsupportedIn2();
 		SingleMemberAnnotation result = new SingleMemberAnnotation(this);
 		return result;
 	}
@@ -2915,7 +3052,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public MemberValuePair newMemberValuePair() {
-	    unsupportedIn2();
 		MemberValuePair result = new MemberValuePair(this);
 		return result;
 	}

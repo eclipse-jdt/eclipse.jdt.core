@@ -657,7 +657,8 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					}
 					this.lookupEnvironment.completeTypeBindings(parsedUnit, true/*build constructor only*/);
 				} catch (AbortCompilation e) {
-					// classpath problem for this type: ignore
+					// classpath problem for this type: don't try to resolve (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49809)
+					hasLocalType[i] = false;
 				}
 			}
 			worked(monitor, 1);
@@ -670,7 +671,6 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				boolean containsLocalType = hasLocalType[i];
 				if (containsLocalType) {
 					parsedUnit.scope.faultInTypes();
-					parsedUnit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 					parsedUnit.resolve();
 				}
 					

@@ -91,6 +91,7 @@ public final class NormalAnnotation extends Annotation {
 	 */
 	NormalAnnotation(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

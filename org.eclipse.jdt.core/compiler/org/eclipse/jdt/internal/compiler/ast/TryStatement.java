@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -203,7 +202,7 @@ public class TryStatement extends SubRoutineStatement {
 		} else {
 			if (this.isSubRoutineEscaping) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
-			} else if (scope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) {
+			} else if (scope.environment().options.useJsrBytecode) {
 				finallyMode = FINALLY_SUBROUTINE;
 			} else {
 				finallyMode = FINALLY_MUST_BE_INLINED;
@@ -419,7 +418,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.isSubRoutineEscaping) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) { 
+			if (currentScope.environment().options.useJsrBytecode) { 
 				// classic subroutine invocation, distinguish case of non-returning subroutine
 				codeStream.jsr(this.subRoutineStartLabel);
 			} else {
@@ -478,7 +477,7 @@ public class TryStatement extends SubRoutineStatement {
 				MethodScope methodScope = scope.methodScope();
 	
 				// the type does not matter as long as it is not a base type
-				if (upperScope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) {
+				if (upperScope.environment().options.useJsrBytecode) {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);

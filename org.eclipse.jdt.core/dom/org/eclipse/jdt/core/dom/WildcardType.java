@@ -102,6 +102,7 @@ public class WildcardType extends Type {
 	 */
 	WildcardType(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

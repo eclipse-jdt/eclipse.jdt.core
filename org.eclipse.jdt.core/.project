@@ -4,10 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>org.eclipse.ant.core</project>
-		<project>org.eclipse.core.resources</project>
-		<project>org.eclipse.core.runtime.compatibility</project>
-		<project>org.eclipse.team.core</project>
-		<project>org.eclipse.text</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1977,8 +1977,14 @@ public abstract class ASTNode {
 				// old child node is protected => cannot be unparented
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
-			this.ast.preRemoveChildEvent(this, oldChild, property);
+			if (newChild != null) {
+				this.ast.preReplaceChildEvent(this, oldChild, newChild, property);
+			} else {
+				this.ast.preRemoveChildEvent(this, oldChild, property);
+			}
 			oldChild.setParent(null, null);
+		} else {
+			this.ast.preAddChildEvent(this, newChild, property);
 		}
 		// link new child to parent
 		if (newChild != null) {
@@ -1997,7 +2003,13 @@ public abstract class ASTNode {
 	final void postReplaceChild(ASTNode oldChild, ASTNode newChild, ChildPropertyDescriptor property) {
 		// link new child to parent
 		if (newChild != null) {
-			this.ast.postAddChildEvent(this, newChild, property);
+			if (oldChild != null) {
+				this.ast.postReplaceChildEvent(this, oldChild, newChild, property);
+			} else {
+				this.ast.postAddChildEvent(this, newChild, property);
+			}
+		} else {
+			this.ast.postRemoveChildEvent(this, oldChild, property);
 		}
 	}
 	
@@ -2032,6 +2044,7 @@ public abstract class ASTNode {
 			// this node is protected => cannot change valure of properties
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
+		this.ast.preValueChangeEvent(this, property);
 		this.ast.modifying();
 	}
 

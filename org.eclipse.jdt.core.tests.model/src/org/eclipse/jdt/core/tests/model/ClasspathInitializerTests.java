@@ -58,6 +58,35 @@ public static class DefaultVariableInitializer implements VariablesInitializer.I
 
 public static class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
 	
+	public static class DefaultContainer implements IClasspathContainer {
+		char[][] libPaths;
+		public DefaultContainer(char[][] libPaths) {
+			this.libPaths = libPaths;
+		}
+		public IClasspathEntry[] getClasspathEntries() {
+			int length = this.libPaths.length;
+			IClasspathEntry[] entries = new IClasspathEntry[length];
+			for (int j = 0; j < length; j++) {
+			    IPath path = new Path(new String(this.libPaths[j]));
+			    if (path.segmentCount() == 1) {
+			        entries[j] = JavaCore.newProjectEntry(path);
+			    } else {
+					entries[j] = JavaCore.newLibraryEntry(path, null, null);
+			    }
+			}
+			return entries;
+		}
+		public String getDescription() {
+			return "Test container";
+		}
+		public int getKind() {
+			return IClasspathContainer.K_APPLICATION;
+		}
+		public IPath getPath() {
+			return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+		}
+	}
+	
 	Map containerValues;
 	CoreException exception;
 	
@@ -71,32 +100,12 @@ public static class DefaultContainerInitializer implements ContainerInitializer.
 			final char[][] libPaths = CharOperation.splitOn(',', values[i+1].toCharArray());
 			containerValues.put(
 				projectName, 
-				new IClasspathContainer() {
-					public IClasspathEntry[] getClasspathEntries() {
-						int length = libPaths.length;
-						IClasspathEntry[] entries = new IClasspathEntry[length];
-						for (int j = 0; j < length; j++) {
-						    IPath path = new Path(new String(libPaths[j]));
-						    if (path.segmentCount() == 1) {
-						        entries[j] = JavaCore.newProjectEntry(path);
-						    } else {
-								entries[j] = JavaCore.newLibraryEntry(path, null, null);
-						    }
-						}
-						return entries;
-					}
-					public String getDescription() {
-						return "Test container";
-					}
-					public int getKind() {
-						return IClasspathContainer.K_APPLICATION;
-					}
-					public IPath getPath() {
-						return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
-					}
-				}
+				newContainer(libPaths)
 			);
 		}
+	}
+	protected DefaultContainer newContainer(final char[][] libPaths) {
+		return new DefaultContainer(libPaths);
 	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (containerValues == null) return;

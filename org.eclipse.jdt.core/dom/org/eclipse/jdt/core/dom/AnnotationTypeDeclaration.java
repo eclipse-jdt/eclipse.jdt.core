@@ -118,6 +118,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 	 */
 	AnnotationTypeDeclaration(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

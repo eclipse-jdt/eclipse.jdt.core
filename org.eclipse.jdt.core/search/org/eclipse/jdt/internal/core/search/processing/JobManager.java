@@ -288,7 +288,7 @@ public abstract class JobManager implements Runnable {
 	/**
 	 * Flush current state
 	 */
-	public void reset() {
+	public synchronized void reset() {
 		if (VERBOSE)
 			JobManager.verbose("Reset"); //$NON-NLS-1$
 

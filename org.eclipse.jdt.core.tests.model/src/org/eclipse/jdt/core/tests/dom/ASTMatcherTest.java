@@ -980,6 +980,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = ast.newPackageDeclaration();
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.setJavadoc(JD1);
 			x1.annotations().add(ANO1);
 			x1.annotations().add(ANO2);
 		}

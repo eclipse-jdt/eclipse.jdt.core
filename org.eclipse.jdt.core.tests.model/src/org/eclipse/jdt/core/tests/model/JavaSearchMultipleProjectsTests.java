@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import junit.framework.Test;
 
@@ -21,6 +22,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.JavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -31,6 +33,20 @@ public JavaSearchMultipleProjectsTests(String name) {
 }
 public static Test suite() {
 	return new Suite(JavaSearchMultipleProjectsTests.class);
+}
+protected void tearDown() throws Exception {
+	// Cleanup caches
+	JavaModelManager.Containers = new HashMap(5);
+	JavaModelManager.Variables = new HashMap(5);
+
+	super.tearDown();
+}
+protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
+	String actual = scope.toString();
+	if (!expected.equals(actual)) {
+		printDisplayString(actual, 3);
+	}
+	assertEquals("Unexpected scope", expected, actual);
 }
 /**
  * Field occurences in 2 working copies within 2 projects (one prereq this other one).
@@ -337,6 +353,162 @@ public void testHierarchyScope4() throws CoreException {
 			resultCollector);
 	} finally {
 		deleteProjects(new String[] {"P0", "P1", "P2", "P3"});
+	}
+}
+/*
+ * Ensures that a Java search scope with SOURCES only is correct.
+ */
+public void testJavaSearchScope1() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (external jar case)
+ */
+public void testJavaSearchScope2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	"+  getExternalJCLPath() +"\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (internal jar and class folder cases)
+ */
+public void testJavaSearchScope3() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/internal.jar\n" + 
+			"	/P/classfolder\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (classpath variable case)
+ */
+public void testJavaSearchScope4() throws CoreException {
+	try {
+		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+		VariablesInitializer.reset();
+	}
+}
+/*
+ * Ensures that a Java search scope with APPLICATION_LIBRARIES only is correct
+ * (classpath container case)
+ */
+public void testJavaSearchScope5() throws CoreException {
+	try {
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with SYSTEM_LIBRARIES only is correct
+ * (classpath container case)
+ */
+public void testJavaSearchScope6() throws CoreException {
+	try {
+		ClasspathInitializerTests.DefaultContainerInitializer intializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
+			protected DefaultContainer newContainer(char[][] libPaths) {
+				return new DefaultContainer(libPaths) {
+					public int getKind() {
+						return IClasspathContainer.K_SYSTEM;
+					}
+				};
+			}
+		};
+		ContainerInitializer.setInitializer(intializer);
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SYSTEM_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
+ * (direct reference case)
+ */
+public void testJavaSearchScope7() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {}, new String[] {"/P1"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P2/src\n" + 
+			"	/P1\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that a Java search scope with SOURCES | REFERENCED_PROJECTS is correct
+ * (reference through a container case)
+ */
+public void testJavaSearchScope8() throws CoreException {
+	try {
+		createJavaProject("P1");
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P2/src\n" + 
+			"	/P1\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /**

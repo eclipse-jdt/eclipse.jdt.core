@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
 
-	public IWorkspace workspace;
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
 	private Map indexes = new HashMap(5);
 
@@ -306,7 +305,9 @@ public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
 private void rebuildIndex(String indexName, IPath path) {
-	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	if (workspace == null) return;
+	Object target = JavaModel.getTarget(workspace.getRoot(), path, true);
 	if (target == null) return;
 
 	if (VERBOSE)
@@ -416,7 +417,7 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
 /**
  * Flush current state
  */
-public void reset() {
+public synchronized void reset() {
 	super.reset();
 	if (this.indexes != null) {
 		this.indexes = new HashMap(5);
@@ -584,7 +585,7 @@ private char[] readIndexState() {
 		return new char[0];
 	}
 }
-private void updateIndexState(String indexName, Integer indexState) {
+private synchronized void updateIndexState(String indexName, Integer indexState) {
 	getIndexStates(); // ensure the states are initialized
 	if (indexState != null) {
 		if (indexState.equals(indexStates.get(indexName))) return; // not changed

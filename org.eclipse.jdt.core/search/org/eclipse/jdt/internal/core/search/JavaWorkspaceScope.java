@@ -74,8 +74,10 @@ public void initialize() {
 	super.initialize();
 	try {
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++)
-			this.add(projects[i], false, new HashSet(2));
+		for (int i = 0, length = projects.length; i < length; i++) {
+			int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
+			this.add(projects[i], includeMask, new HashSet(2));
+		}
 	} catch (JavaModelException ignored) {
 		// ignore
 	}

@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -28,6 +29,8 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 /**
  * A Java-specific scope for searching relative to one or more java elements.
@@ -66,7 +69,7 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSet visitedProjects) throws JavaModelException {
+public void add(IJavaProject javaProject, int includeMask, HashSet visitedProjects) throws JavaModelException {
 	IProject project = javaProject.getProject();
 	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
@@ -78,17 +81,42 @@ public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSe
 		IClasspathEntry entry = entries[i];
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
-				IPath path = entry.getPath();
-				this.add(path, true);
-				this.addEnclosingProjectOrJar(path);
+				IClasspathEntry rawEntry = null;
+				JavaModelManager.PerProjectInfo perProjectInfo = ((JavaProject)javaProject).getPerProjectInfo();
+				if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
+					rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
+				}
+				if (rawEntry == null) break;
+				switch (rawEntry.getEntryKind()) {
+					case IClasspathEntry.CPE_LIBRARY:
+					case IClasspathEntry.CPE_VARIABLE:
+						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
+							IPath path = entry.getPath();
+							add(path, true);
+							addEnclosingProjectOrJar(path);
+						}
+						break;
+					case IClasspathEntry.CPE_CONTAINER:
+						IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
+						if (container == null) break;
+						if ((container.getKind() == IClasspathContainer.K_APPLICATION && (includeMask & APPLICATION_LIBRARIES) != 0)
+								|| (includeMask & SYSTEM_LIBRARIES) != 0) {
+							IPath path = entry.getPath();
+							add(path, true);
+							addEnclosingProjectOrJar(path);
+						}
+						break;
+				}
 				break;
 			case IClasspathEntry.CPE_PROJECT:
-				if (includesPrereqProjects) {
-					this.add(model.getJavaProject(entry.getPath().lastSegment()), true, visitedProjects);
+				if ((includeMask & REFERENCED_PROJECTS) != 0) {
+					add(model.getJavaProject(entry.getPath().lastSegment()), includeMask, visitedProjects);
 				}
 				break;
 			case IClasspathEntry.CPE_SOURCE:
-				this.add(entry.getPath(), true);
+				if ((includeMask & SOURCES) != 0) {
+					add(entry.getPath(), true);
+				}
 				break;
 		}
 	}
@@ -100,7 +128,8 @@ public void add(IJavaElement element) throws JavaModelException {
 			// a workspace sope should be used
 			break; 
 		case IJavaElement.JAVA_PROJECT:
-			this.add((IJavaProject)element, true, new HashSet(2));
+			int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
+			this.add((IJavaProject)element, includeMask, new HashSet(2));
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			root = (IPackageFragmentRoot)element;
