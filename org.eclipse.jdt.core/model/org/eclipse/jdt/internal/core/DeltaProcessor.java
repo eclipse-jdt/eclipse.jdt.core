@@ -330,6 +330,8 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 								if (VERBOSE){
 									System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								}
+								// reset the corresponding project built state, since the builder would miss this change
+								this.manager.setLastBuiltState(project.getProject(), null /*no state*/);
 								contentChanged(root, null);
 								hasDelta = true;
 							} else if (status == EXTERNAL_JAR_REMOVED) {
