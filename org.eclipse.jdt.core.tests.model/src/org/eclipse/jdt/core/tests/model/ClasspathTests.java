@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -19,8 +20,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import junit.framework.Test;
@@ -154,6 +157,41 @@ public void testClasspathChangeExternalResources() throws CoreException {
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
+	}
+}
+
+/*
+ * Test classpath corruption (23977)
+ */
+public void testClasspathCorruption() throws CoreException {
+	try {
+		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[]{""}, new String[]{}, new String[]{}, "");
+		this.createJavaProject("P2", new String[]{""}, new String[]{}, new String[]{}, "");
+		this.createFile("P2/foo.txt", "not a project");
+		String newCPContent = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
+			+"<classpath>	\n"
+			+"	<classpathentry kind=\"src\" path=\"\"/>	\n"
+			+"	<classpathentry kind=\"src\" path=\"/P2/foo.txt\"/>	\n" // corruption here: target isn't a project
+			+"	<classpathentry kind=\"output\" path=\"\"/>	\n"
+			+"</classpath>	\n";
+
+		IFile fileRsc = p1.getProject().getFile(".classpath"); //$NON-NLS-1$
+		fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+
+		p1.close();
+
+		// shouldn't fail
+		p1.getExpandedClasspath(true, true);
+
+		// if could reach that far, then all is fine
+		
+	} catch(ClassCastException e){
+		assertTrue("internal ClassCastException on corrupted classpath file", false);
+	} finally {
+		// cleanup  
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 

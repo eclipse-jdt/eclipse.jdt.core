@@ -14,8 +14,6 @@ package org.eclipse.jdt.core.tests.dom;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.Enumeration;
 import java.util.List;
 
