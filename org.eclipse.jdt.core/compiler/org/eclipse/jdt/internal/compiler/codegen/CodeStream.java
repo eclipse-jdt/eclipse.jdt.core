@@ -1386,9 +1386,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	stackDepth = saveStackSize;
 }
 /**
- * This method returns the exception handler to be able to generate the exception handler
- * attribute.
- * Returns null if the exception thrown has been inlined.
+ * This method generates the code attribute bytecode
  */
 final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 	newJavaLangError();
