@@ -483,11 +483,6 @@ private boolean isWorthBuilding() throws CoreException {
 		if (DEBUG)
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
-		// remove all existing class files... causes all dependent projects to do the same
-		// only if the .classpath file could be read
-		if (classpath != JavaProject.INVALID_CLASSPATH)
-			new BatchImageBuilder(this).cleanOutputFolders();
-
 		JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(javaProject);
 
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
