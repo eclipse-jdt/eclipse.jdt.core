@@ -36,19 +36,20 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
-
 		Constant conditionConstant = condition.conditionalConstant();
+
+		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, conditionConstant == NotAConstant);
+
 		if (conditionConstant != NotAConstant) {
 			if (conditionConstant.booleanValue() == true) {
 				// TRUE ? left : right
 				FlowInfo resultInfo =
-					valueIfTrue.analyseCode(currentScope, flowContext, flowInfo);
+					valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.initsWhenTrue().unconditionalInits());
 				// analyse valueIfFalse, but do not take into account any of its infos
 				valueIfFalse.analyseCode(
 					currentScope,
 					flowContext,
-					flowInfo.copy().markAsFakeReachable(true));
+					flowInfo.initsWhenFalse().copy().unconditionalInits().markAsFakeReachable(true));
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(resultInfo);
 				return resultInfo;
@@ -58,9 +59,9 @@ public class ConditionalExpression extends OperatorExpression {
 				valueIfTrue.analyseCode(
 					currentScope,
 					flowContext,
-					flowInfo.copy().markAsFakeReachable(true));
+					flowInfo.initsWhenTrue().copy().unconditionalInits().markAsFakeReachable(true));
 				FlowInfo mergeInfo =
-					valueIfFalse.analyseCode(currentScope, flowContext, flowInfo);
+					valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.initsWhenFalse().unconditionalInits());
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergeInfo);
 				return mergeInfo;
