@@ -41,14 +41,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private static final char[] ANY_EXCEPTION = Util.bind("classfileformat.anyexceptionhandler").toCharArray();	 //$NON-NLS-1$
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	
-	private void checkSuperFlags(StringBuffer buffer, int accessFlags, String lineSeparator, int tabNumber ) {
-		if ((accessFlags & IModifierConstants.ACC_SUPER) == 0) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			buffer
-				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.superflagnotset")) //$NON-NLS-1$
-				.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
+	private void checkSuperFlags(StringBuffer buffer, int accessFlags, String lineSeparator, int tabNumber) {
+		buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
+		if ((accessFlags & IModifierConstants.ACC_SUPER) != 0) {
+			buffer.append(Util.bind("classfileformat.superflagisset")); //$NON-NLS-1$
+		} else {
+			buffer.append(Util.bind("classfileformat.superflagisnotset")); //$NON-NLS-1$
 		}
+		buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 
 	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
@@ -484,6 +485,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(superinterface);
 		}
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, 1);
 		checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
@@ -878,7 +880,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 	
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
-		writeNewLine(buffer, lineSeparator, tabNumber);
 		IFieldInfo[] fields = classFileReader.getFieldInfos();
 		for (int i = 0, max = fields.length; i < max; i++) {
 			disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);

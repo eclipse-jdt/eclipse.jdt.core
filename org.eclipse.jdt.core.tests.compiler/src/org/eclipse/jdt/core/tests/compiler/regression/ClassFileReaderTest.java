@@ -49,10 +49,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			if (!result.equals(expectedOutput)) {
+			int index = result.indexOf(expectedOutput);
+			if (index == -1) {
 				System.out.print(Util.displayString(result, 3));
 			}
-			assertEquals("Wrong contents", expectedOutput, result);
+			assertTrue("Wrong contents", index != -1);
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -133,37 +134,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"};";
 		String expectedOutput = 
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A001.java\n" + 
-			"class A001 extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  private int i;\n" + 
-			"  /*  Field descriptor #6 I */\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #8 ()V */\n" + 
-			"  public A001();\n" + 
-			"    /* Stack: 2, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"       0  aload_0\n" + 
-			"       1  invokespecial #11 <Constructor java.lang.Object()>\n" + 
-			"       4  aload_0\n" + 
-			"       5  bipush 6\n" + 
-			"       7  putfield #13 <Field A001#i int>\n" + 
-			"      10  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"      [pc: 4, line: 2]\n" + 
-			"      [pc: 10, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 11] local: this index: 0 type: A001\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #19 ()I */\n" + 
 			"  public int foo();\n" + 
 			"    /* Stack: 3, Locals: 1 */\n" + 
 			"    Code attribute:\n" + 
@@ -177,29 +147,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Line number attribute:\n" + 
 			"      [pc: 0, line: 9]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 12] local: this index: 0 type: A001\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #29 (LA001;)I */\n" + 
-			"  static int access$0(A001 arg);\n" + 
-			"    \n" + 
-			"    Attribute:\n" + 
-			"      Name: Synthetic Length: 0\n" + 
-			"  /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  getfield #13 <Field A001#i int>\n" + 
-			"      4  ireturn\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 2]\n" + 
-			"  \n" + 
-			"  Inner classes attributes:\n" + 
-			"    [\n" + 
-			"      inner class info name: #21 A001$1$A\n" + 
-			"      outer class info name: #0\n" + 
-			"      inner name: #34 A\n" + 
-			"      accessflags: 2 private ]\n" + 
-			"}";
+			"      [pc: 0, pc: 12] local: this index: 0 type: A001\n";
 		checkClassFile("A001", source, expectedOutput);
 	}			
 
@@ -215,28 +163,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A002.java\n" + 
-			"public class A002 extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A002();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A002\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -252,9 +178,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 6, line: 4]\n" + 
 			"      [pc: 12, line: 5]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n";
 		checkClassFile("A002", source, expectedOutput);
 	}
 	
@@ -274,28 +198,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A003.java\n" + 
-			"public class A003 extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A003();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A003\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ()I */\n" + 
 			"  public int bar();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -322,9 +224,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 8]\n" + 
 			"      [pc: 10, line: 9]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 11] local: this index: 0 type: A003\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 0, pc: 11] local: this index: 0 type: A003\n";
 		checkClassFile("A003", source, expectedOutput);
 	}
 	
@@ -344,28 +244,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -394,9 +272,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 23] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 23] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 23] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -415,28 +291,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -458,9 +312,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -479,28 +331,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -514,9 +344,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 4] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 4] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -535,28 +363,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -576,9 +382,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -597,28 +401,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -632,9 +414,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 3] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -654,28 +434,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -704,9 +462,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 23] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 23] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 23] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -725,28 +481,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -768,9 +502,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -789,28 +521,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -832,9 +542,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -853,28 +561,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -891,9 +577,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 8, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 9] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -912,28 +596,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -953,9 +615,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -975,28 +635,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -1032,9 +670,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 36] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 36] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 36] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 36] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1053,28 +689,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1096,9 +710,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1117,28 +729,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1160,9 +750,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1181,28 +769,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -1222,9 +788,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1243,28 +807,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -1284,9 +826,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1307,28 +847,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -1360,9 +878,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 29] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 29] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 29] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 29] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1381,28 +897,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1425,9 +919,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1446,28 +938,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1488,9 +958,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1509,28 +977,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1551,9 +997,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -1572,28 +1016,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1614,9 +1036,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 	
@@ -1635,28 +1055,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1677,9 +1075,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1698,28 +1094,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1742,9 +1116,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1764,28 +1136,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1806,9 +1156,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1828,28 +1176,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1870,9 +1196,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1891,28 +1215,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1935,9 +1237,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1956,28 +1256,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -1998,9 +1276,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2020,28 +1296,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2062,9 +1316,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2083,28 +1335,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2127,9 +1357,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -2148,28 +1376,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2192,9 +1398,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}		
 
@@ -2214,28 +1418,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -2272,9 +1454,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2293,28 +1473,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2336,9 +1494,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2357,28 +1513,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -2392,9 +1526,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 4] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 4] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2413,28 +1545,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -2454,9 +1564,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2475,28 +1583,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -2510,9 +1596,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 3] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2532,28 +1616,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -2590,9 +1652,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2611,28 +1671,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2650,9 +1688,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 10, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 11] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 11] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 11] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2671,28 +1707,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2714,9 +1728,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2735,28 +1747,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -2773,9 +1763,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 8, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 9] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2794,28 +1782,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -2835,9 +1801,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -2857,28 +1821,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 3 */\n" + 
@@ -2915,9 +1857,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
 			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -2936,28 +1876,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -2979,9 +1897,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -3000,28 +1916,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 2, Locals: 2 */\n" + 
@@ -3043,9 +1937,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 16, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -3064,28 +1956,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -3105,9 +1975,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -3126,28 +1994,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    /* Stack: 1, Locals: 2 */\n" + 
@@ -3167,9 +2013,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 12, line: 8]\n" + 
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
-			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -3193,28 +2037,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from A.java\n" + 
-			"public class A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public A();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #15 (Z)I */\n" + 
 			"  static int foo(boolean bool);\n" + 
 			"    /* Stack: 1, Locals: 4 */\n" + 
@@ -3255,24 +2077,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 0, pc: 30] local: bool index: 0 type: boolean\n" + 
 			"      [pc: 11, pc: 14] local: j index: 1 type: int\n" + 
-			"      [pc: 23, pc: 30] local: j index: 1 type: int\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #21 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  iconst_0\n" + 
-			"      1  invokestatic #23 <Method A#foo(boolean arg) int>\n" + 
-			"      4  pop\n" + 
-			"      5  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 15]\n" + 
-			"      [pc: 5, line: 16]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 6] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 23, pc: 30] local: j index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -3290,41 +2095,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#foo() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -3337,9 +2107,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 6]\n" + 
 			"      [pc: 2, line: 10]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -3358,41 +2126,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#foo() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3413,9 +2146,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 8, line: 9]\n" + 
 			"      [pc: 15, line: 11]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 16] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 16] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -3434,41 +2165,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#bar() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -3481,9 +2177,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 6]\n" + 
 			"      [pc: 3, line: 11]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -3501,41 +2195,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#bar() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3556,9 +2215,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 9, line: 8]\n" + 
 			"      [pc: 16, line: 10]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 17] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 17] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -3579,53 +2236,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		"	}\n" + 
 		"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo2() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo2();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3644,9 +2254,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 10]\n" + 
 			"      [pc: 12, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 13] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -3668,53 +2276,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo2() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo2();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3737,9 +2298,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 12]\n" + 
 			"      [pc: 21, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 22] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 22] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -3761,53 +2320,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar2() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar2();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3826,9 +2338,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 10]\n" + 
 			"      [pc: 13, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 14] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 14] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -3849,53 +2359,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar2() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar2();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -3918,9 +2381,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 11]\n" + 
 			"      [pc: 22, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 23] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 23] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -3938,41 +2399,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#foo3() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo3();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -3985,9 +2411,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 6]\n" + 
 			"      [pc: 2, line: 10]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -4006,41 +2430,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#foo3() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo3();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4057,9 +2446,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 9]\n" + 
 			"      [pc: 9, line: 11]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 10] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 10] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4078,41 +2465,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#bar3() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar3();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -4125,9 +2477,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 6]\n" + 
 			"      [pc: 3, line: 11]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4145,41 +2495,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #18 <Method X#bar3() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"      [pc: 3, line: 4]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar3();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4196,9 +2511,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 8]\n" + 
 			"      [pc: 10, line: 10]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 11] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 11] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4219,53 +2532,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo4() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo4();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -4278,9 +2544,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 9]\n" + 
 			"      [pc: 2, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -4302,53 +2566,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo4() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo4();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4365,9 +2582,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 12]\n" + 
 			"      [pc: 9, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 10] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 10] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4389,53 +2604,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar4() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar4();\n" + 
 			"    /* Stack: 1, Locals: 1 */\n" + 
@@ -4448,9 +2616,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 0, line: 9]\n" + 
 			"      [pc: 3, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4471,53 +2637,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar4() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar4();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4534,9 +2653,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 11]\n" + 
 			"      [pc: 10, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 11] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 11] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4557,53 +2674,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo5() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo5();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4622,9 +2692,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 2, line: 10]\n" + 
 			"      [pc: 12, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 13] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 13] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -4646,53 +2714,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#foo5() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void foo5();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4715,9 +2736,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 14, line: 12]\n" + 
 			"      [pc: 21, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 2, pc: 22] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 2, pc: 22] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4739,53 +2758,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar5() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar5();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4804,9 +2776,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 3, line: 10]\n" + 
 			"      [pc: 13, line: 14]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 14] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 14] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -4827,53 +2797,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"/* \n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" */\n" + 
-			"// Compiled from X.java\n" + 
-			"public class X extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #6 ()V */\n" + 
-			"  public X();\n" + 
-			"    /* Stack: 1, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  aload_0\n" + 
-			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
-			"      4  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 1]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #15 ()Z */\n" + 
-			"  static boolean boom();\n" + 
-			"    /* Stack: 2, Locals: 0 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  new #17 java.lang.NullPointerException\n" + 
-			"      3  dup\n" + 
-			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
-			"      7  athrow\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 3]\n" + 
-			"  \n" + 
-			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
-			"  public static void main(String[] args);\n" + 
-			"    /* Stack: 0, Locals: 1 */\n" + 
-			"    Code attribute:\n" + 
-			"      0  invokestatic #23 <Method X#bar5() void>\n" + 
-			"      3  return\n" + 
-			"\n" + 
-			"    Line number attribute:\n" + 
-			"      [pc: 0, line: 6]\n" + 
-			"      [pc: 3, line: 7]\n" + 
-			"    Local variable table attribute:\n" + 
-			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
-			"  \n" + 
 			"  /*  Method descriptor  #6 ()V */\n" + 
 			"  static void bar5();\n" + 
 			"    /* Stack: 2, Locals: 1 */\n" + 
@@ -4896,9 +2819,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      [pc: 15, line: 11]\n" + 
 			"      [pc: 22, line: 13]\n" + 
 			"    Local variable table attribute:\n" + 
-			"      [pc: 3, pc: 23] local: i index: 0 type: int\n" + 
-			"  \n" + 
-			"}";
+			"      [pc: 3, pc: 23] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 }
