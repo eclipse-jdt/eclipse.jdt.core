@@ -212,9 +212,12 @@ public class JavadocParser {
 		int lptr = astLengthPtr;
 		
 		// Decide whether we have a constructor or not
-		char[][] receiverTokens = receiver.getTypeName();
-		char[] memberName = identifierStack[0];
-		boolean isConstructor = CharOperation.equals(memberName, receiverTokens[receiverTokens.length-1]);
+		boolean isConstructor = true;
+		if (receiver != null) {
+			char[][] receiverTokens = receiver.getTypeName();
+			char[] memberName = identifierStack[0];
+			isConstructor = CharOperation.equals(memberName, receiverTokens[receiverTokens.length-1]);
+		}
 
 		// Parse arguments declaration if method reference
 		nextArg : while (this.index < this.scanner.eofPosition) {
@@ -407,7 +410,9 @@ public class JavadocParser {
 			} else {
 				name = typeDecl.name;
 			}
-			typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
+			if (name != null) {
+				typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
+			}
 		}
 		
 		// Get member identifier

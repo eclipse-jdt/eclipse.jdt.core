@@ -752,12 +752,12 @@ public void testRenameWithInvalidRenamings() {
  * Ensures that a working copy cannot be renamed.
  */
 public void testRenameWorkingCopy() throws JavaModelException {
-	IWorkingCopy copy = null;
+	ICompilationUnit copy = null;
 	try {
-		copy = (IWorkingCopy) this.cu.getWorkingCopy();
-		renameNegative((IJavaElement)copy, "NewX", false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
+		copy = this.cu.getWorkingCopy(null);
+		renameNegative(copy, "NewX", false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 

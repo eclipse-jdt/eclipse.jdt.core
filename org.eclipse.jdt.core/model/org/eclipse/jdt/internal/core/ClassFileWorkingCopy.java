@@ -85,7 +85,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see ICompilationUnit#discardWorkingCopy
 	 */
 	public void discardWorkingCopy() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+		// not a real working copy: ignore
 	}
 	
 	/*
@@ -326,6 +326,13 @@ public IType findPrimaryType() {
 	}
 
 	/*
+	 * @see ICompilationUnit#hasResourceChanged()
+	 */
+	public boolean hasResourceChanged() {
+		return false;
+	}
+	
+	/*
 	 * @see IOpenable#hasUnsavedChanges()
 	 */
 	public boolean hasUnsavedChanges() {
@@ -390,7 +397,7 @@ public IType findPrimaryType() {
 	 * @deprecated
 	 */
 	public void destroy() {
-		// not a read working copy: ignore
+		// not a real working copy: ignore
 	}
 
 	/**
@@ -459,8 +466,9 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#isBasedOn(IResource)
+	 * @deprecated
 	 */
 	public boolean isBasedOn(IResource resource) {
 		return false;

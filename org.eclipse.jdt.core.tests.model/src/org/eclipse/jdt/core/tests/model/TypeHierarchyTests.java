@@ -535,7 +535,7 @@ public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
 	ICompilationUnit cu = this.getCompilationUnit("TypeHierarchy", "src", "wc", "X.java");
 	ICompilationUnit workingCopy = null;
 	try {
-		workingCopy = (ICompilationUnit)cu.getWorkingCopy();
+		workingCopy = cu.getWorkingCopy(null);
 		workingCopy.createType(
 			"class B{\n" +
 			"	void m(){\n" +
@@ -561,7 +561,7 @@ public void testSupertypeHierarchyOnWorkingCopy() throws JavaModelException {
 		assertTrue("hierarchy should contain B", hierarchy.contains(typeB));
 	} finally {
 		if (workingCopy != null) {
-			workingCopy.destroy();
+			workingCopy.discardWorkingCopy();
 		}
 	}
 }

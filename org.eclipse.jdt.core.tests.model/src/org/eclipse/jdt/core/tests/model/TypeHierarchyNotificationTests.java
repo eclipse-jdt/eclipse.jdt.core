@@ -48,7 +48,7 @@ private void assertOneChange(ITypeHierarchy h) {
 	assertEquals("Unexpected number of notifications", 1, this.notifications);
 }
 private void addSuper(ICompilationUnit unit, String typeName, String newSuper) throws JavaModelException {
-	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
+	ICompilationUnit copy = unit.getWorkingCopy(null);
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int superIndex = -1;
@@ -59,10 +59,10 @@ private void addSuper(ICompilationUnit unit, String typeName, String newSuper) t
 		source.substring(superIndex);
 	type.delete(true, null);
 	copy.createType(newSource, null, true, null);
-	copy.commit(true, null);
+	copy.commitWorkingCopy(true, null);
 }
 protected void changeSuper(ICompilationUnit unit, String existingSuper, String newSuper) throws JavaModelException {
-	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
+	ICompilationUnit copy = unit.getWorkingCopy(null);
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int superIndex = -1;
@@ -73,10 +73,10 @@ protected void changeSuper(ICompilationUnit unit, String existingSuper, String n
 		source.substring(superIndex + existingSuper.length() + 1 /*space*/);
 	type.delete(true, null);
 	copy.createType(newSource, null, true, null);
-	copy.commit(true, null);
+	copy.commitWorkingCopy(true, null);
 }
 protected void changeVisibility(ICompilationUnit unit, String existingModifier, String newModifier) throws JavaModelException {
-	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
+	ICompilationUnit copy = unit.getWorkingCopy(null);
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
 	int modifierIndex = -1;
@@ -87,7 +87,7 @@ protected void changeVisibility(ICompilationUnit unit, String existingModifier, 
 		source.substring(modifierIndex + existingModifier.length());
 	type.delete(true, null);
 	copy.createType(newSource, null, true, null);
-	copy.commit(true, null);
+	copy.commitWorkingCopy(true, null);
 }
 /**
  * Reset the flags that watch notification.
@@ -633,8 +633,8 @@ public void testAddExtendsSourceType2() throws CoreException {
 			newSuper +
 			source.substring(superIndex);
 		copy.getBuffer().setContents(newSource);
-		copy.reconcile();
-		copy.commit(true, null);
+		copy.reconcile(false, null);
+		copy.commitWorkingCopy(true, null);
 
 		this.assertOneChange(h);
 	} finally {

@@ -177,12 +177,12 @@ public void testGetUnderlyingResource() throws CoreException {
 		IFile file = this.getFile("P/x/y/A.java");
 		assertEquals("Unexpected underlying resource", file, buffer.getUnderlyingResource());
 		
-		copy = (ICompilationUnit)this.getCompilationUnit("P/x/y/A.java").getWorkingCopy();
+		copy = this.getCompilationUnit("P/x/y/A.java").getWorkingCopy(null);
 		assertEquals("Unexpected underlying resource 2", file, copy.getBuffer().getUnderlyingResource());
 	} finally {
 		this.deleteBuffer(buffer);
 		if (copy != null) {
-			copy.destroy();
+			copy.discardWorkingCopy();
 		}
 	}
 }
@@ -484,7 +484,7 @@ public void testCreateImport() throws CoreException {
 	ICompilationUnit copy = null;
 	IBuffer buffer = null;
 	try {
-		copy = (ICompilationUnit)this.getCompilationUnit("P/x/y/A.java").getWorkingCopy();
+		copy = this.getCompilationUnit("P/x/y/A.java").getWorkingCopy(null);
 		buffer = copy.getBuffer();
 		buffer.addBufferChangedListener(this);
 		copy.createImport("java.io.IOException", null, null);
@@ -494,7 +494,7 @@ public void testCreateImport() throws CoreException {
 			buffer.removeBufferChangedListener(this);
 		}
 		if (copy != null) {
-			copy.destroy();
+			copy.discardWorkingCopy();
 		}
 		deleteResource(file);
 	}

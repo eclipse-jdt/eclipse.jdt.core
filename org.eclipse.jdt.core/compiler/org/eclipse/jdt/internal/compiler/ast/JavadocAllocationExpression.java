@@ -30,10 +30,17 @@ public class JavadocAllocationExpression extends AllocationExpression {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
-		if (scope.isClassScope()) {
-			this.resolvedType = type.resolveType((ClassScope)scope);
-		} else {
-			this.resolvedType = type.resolveType((BlockScope)scope);
+		if (this.type == null) {
+			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
+			this.resolvedType = sourceTypeBinding;
+			this.type = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
+		}
+		else {
+			if (scope.kind == Scope.CLASS_SCOPE) {
+				this.resolvedType = type.resolveType((ClassScope)scope);
+			} else {
+				this.resolvedType = type.resolveType((BlockScope)scope);
+			}
 		}
 		// will check for null after args are resolved
 
@@ -45,7 +52,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
-				if (scope.isClassScope()) {
+				if (scope.kind == Scope.CLASS_SCOPE) {
 					argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
 					argumentTypes[i] = argument.resolveType((BlockScope)scope);
@@ -61,10 +68,6 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (this.resolvedType == null)
 			return null;
 
-		if (!this.resolvedType.canBeInstantiated()) {
-			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
-			return this.resolvedType;
-		}
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
@@ -79,14 +82,16 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			}
 			return this.resolvedType;
 		}
-		if (isMethodUseDeprecated(binding, scope))
+		if (isMethodUseDeprecated(binding, scope)) {
 			scope.problemReporter().deprecatedMethod(binding, this);
+		}
 
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
 				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 			}
 		}
+
 		return allocationType;
 	}
 

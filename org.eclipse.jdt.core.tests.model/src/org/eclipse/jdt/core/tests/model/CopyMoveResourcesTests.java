@@ -521,14 +521,14 @@ public void testCopyWorkingCopy() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 	
 		copyPositive(copy, pkgDest, null, null, false);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -545,7 +545,7 @@ public void testCopyWorkingCopyForce() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		this.createFile(
@@ -558,7 +558,7 @@ public void testCopyWorkingCopyForce() throws CoreException {
 	
 		copyPositive(copy, pkgDest, null, null, true);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -576,14 +576,14 @@ public void testCopyWorkingCopyRename() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 	
 		copyPositive(copy, pkgDest, null, "Y.java", false);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -601,7 +601,7 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		this.createFile(
@@ -614,7 +614,7 @@ public void testCopyWorkingCopyRenameForce() throws CoreException {
 	
 		copyPositive(copy, pkgDest, null, "Y.java", true);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -631,7 +631,7 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		this.createFile(
@@ -644,7 +644,7 @@ public void testCopyWorkingCopyWithCollision() throws CoreException {
 	
 		copyNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.NAME_COLLISION);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -661,11 +661,11 @@ public void testCopyWorkingCopyWithInvalidDestination() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		copyNegative(copy, cuSource, null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 /**
@@ -925,14 +925,14 @@ public void testMoveWorkingCopy() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
-		copy = (ICompilationUnit)cuSource.getWorkingCopy();
+		copy = cuSource.getWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 	
 		moveNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 	}
 }
 }

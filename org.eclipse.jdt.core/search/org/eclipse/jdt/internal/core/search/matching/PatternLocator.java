@@ -81,7 +81,7 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 				? CharOperation.concat(qualifiedSourceName(type.enclosingType()), type.sourceName(), '.')
 				: CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, type.sourceName());
 	}
-	return binding.qualifiedSourceName();
+	return binding != null ? binding.qualifiedSourceName() : null;
 }
 
 

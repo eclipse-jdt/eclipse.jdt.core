@@ -51,7 +51,7 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 			positions[i] = i;
 		}
 	}
-	ICompilationUnit copy = (ICompilationUnit) unit.getWorkingCopy();
+	ICompilationUnit copy = unit.getWorkingCopy(null);
 	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
 	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$

@@ -1177,4 +1177,27 @@ public class JavadocTestMixed extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Test fix for bug 46901.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46901">46901</a>
+	 */
+	public void testBug46901() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public abstract class A {\n" + 
+				"	public A() { super(); }\n" + 
+				"}\n",
+				"X.java",
+				"/**\n" + 
+				" * @see A#A()\n" + 
+				" */\n" + 
+				"public class X extends A {\n" + 
+				"	public X() { super(); }\n" + 
+				"}\n"
+			}
+		);
+	}
 }

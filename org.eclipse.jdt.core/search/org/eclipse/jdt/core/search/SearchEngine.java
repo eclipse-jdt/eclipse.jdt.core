@@ -101,7 +101,23 @@ public SearchEngine() {
  * Since 3.0 the given working copies take precedence over primary working copies (if any).
  * 
  * @param workingCopies the working copies that take precedence over their original compilation units
+ * @since 3.0
+ */
+public SearchEngine(ICompilationUnit[] workingCopies) {
+	this.workingCopies = workingCopies;
+}
+/**
+ * Creates a new search engine with a list of working copies that will take precedence over 
+ * their original compilation units in the subsequent search operations.
+ * <p>
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.</p>
+ * <p>
+ * Since 3.0 the given working copies take precedence over primary working copies (if any).
+ * 
+ * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
+ * @deprecated use #SearchEngine(ICompilationUnit[]) instead
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
 	int length = workingCopies.length;

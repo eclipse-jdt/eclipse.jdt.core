@@ -69,7 +69,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			"    public static int BAR;\n" +
 			"}"
 		);
-		wc1.reconcile();
+		wc1.reconcile(false, null);
 		wc2 = getCompilationUnit("P2/p2/Y.java").getWorkingCopy(null);
 		wc2.getBuffer().setContents(
 			"package p2;\n" +
@@ -84,7 +84,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showProject = true;
 		IField field = wc1.getType("X").getField("BAR");
-		new SearchEngine(new IWorkingCopy[] {wc1, wc2}).search(
+		new SearchEngine(new ICompilationUnit[] {wc1, wc2}).search(
 			getWorkspace(), 
 			field,
 			ALL_OCCURRENCES, 
@@ -97,10 +97,10 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			resultCollector.toString());
 	} finally {
 		if (wc1 != null) {
-			wc1.destroy();
+			wc1.discardWorkingCopy();
 		}
 		if (wc2 != null) {
-			wc2.destroy();
+			wc2.discardWorkingCopy();
 		}
 		deleteProject("P1");
 		deleteProject("P2");

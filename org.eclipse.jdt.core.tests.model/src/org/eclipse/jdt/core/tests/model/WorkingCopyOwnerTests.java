@@ -1200,7 +1200,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {primaryWorkingCopy.getParent()});
-			new SearchEngine(new IWorkingCopy[] {workingCopy}).search(
+			new SearchEngine(new ICompilationUnit[] {workingCopy}).search(
 				getWorkspace(), 
 				"*", 
 				IJavaSearchConstants.TYPE,

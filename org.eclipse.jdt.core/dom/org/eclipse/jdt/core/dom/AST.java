@@ -1472,7 +1472,7 @@ public final class AST {
 	 * and an empty class body.
 	 * <p>
 	 * To create an interface, use this method and then call
-	 * <code>TypeDeclaration.setInterface(true)</code>
+	 * <code>TypeDeclaration.setInterface(true)</code>.
 	 * </p>
 	 * <p>
 	 * To create an enum declaration, use this method and then call
