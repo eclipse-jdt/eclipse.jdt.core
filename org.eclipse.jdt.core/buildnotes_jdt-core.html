@@ -19,7 +19,7 @@ What's new in this drop</h2>
 	<ul>
 	<li>option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"
 	<li>possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
-	<li>default:			"cvs,.*" 
+	<li>default:			".*" 
 	</ul>
 </li>
 <li>Encoding support : Batch compiler can be specified the source encoding format using '-encoding myEncoding' command line option.
@@ -48,7 +48,9 @@ is now remembered and will be reused if the working copy is closed then reopen.
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9309">9309</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6847">6847</a>
+DCR - Filtering output to build directory
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9309">9309</a>
 DOM/AST: NPE when trying to resolve a binding 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9308">9308</a>
 DOM/AST: two equal hash table accesses 
@@ -91,7 +93,9 @@ ClassCastException creating an invalid method
 
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7830">7830</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7895">7895</a>
+Wierd state: Project not built because inconsistent.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7830">7830</a>
 Deleting more than one method consecutively from the hierarchy view causes unexpected corruption of othe methods 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9190">9190</a>
 Removing a library from classpath gives not a remove delta  
