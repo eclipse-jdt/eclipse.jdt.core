@@ -1948,6 +1948,36 @@ public void testPackageDeclaration3() throws CoreException { // was testPackageD
 		resultCollector);
 }
 /**
+ * Package declaration with corrupt jar on the classpath test.
+ * (regression test for bug 75561 Rename package results in I/O exception)
+ */
+public void testPackageDeclaration4() throws CoreException {
+	IJavaProject project = getJavaProject("JavaSearch");
+	IClasspathEntry[] originalCP = project.getRawClasspath();
+	try {
+		// add corrupt.jar to classpath
+		int cpLength = originalCP.length;
+		IClasspathEntry[] newCP = new IClasspathEntry[cpLength+1];
+		System.arraycopy(originalCP, 0, newCP, 0, cpLength);
+		newCP[cpLength] = JavaCore.newLibraryEntry(new Path("/JavaSearch/corrupt.jar"), null, null);
+		project.setRawClasspath(newCP, null);
+		
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search(
+			"r9",
+			PACKAGE,
+			DECLARATIONS, 
+			getJavaSearchScope(), 
+			resultCollector);
+		assertSearchResults(
+			"src/r9 r9", 
+			resultCollector);
+	} finally {
+		project.setRawClasspath(originalCP, null);
+	}
+}
+
+/**
  * Test fix for bug 73551: NPE while searching package declaration
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73551">73551</a>
  * @throws CoreException

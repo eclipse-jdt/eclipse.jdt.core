@@ -959,12 +959,31 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject javaProject = projects[i];
-			IPackageFragmentRoot[] roots = javaProject.getPackageFragmentRoots();
+			IPackageFragmentRoot[] roots = null;
+			try {
+				roots = javaProject.getPackageFragmentRoots();
+			} catch (JavaModelException e) {
+				// java project doesn't exist -> continue with next project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
+				continue;
+			}
 			for (int j = 0, rootsLength = roots.length; j < rootsLength; j++) {
-				IJavaElement[] pkgs = roots[j].getChildren();
+				IJavaElement[] pkgs = null;
+				try {
+					pkgs = roots[j].getChildren();
+				} catch (JavaModelException e) {
+					// pkg fragment root doesn't exist -> continue with next root (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
+					continue;
+				}
 				for (int k = 0, pksLength = pkgs.length; k < pksLength; k++) {
 					IPackageFragment pkg = (IPackageFragment) pkgs[k];
-					if (pkg.getChildren().length > 0 
+					IJavaElement[] children = null;
+					try {
+						children = pkg.getChildren();
+					} catch (JavaModelException e) {
+						// package doesn't exist -> continue with next package (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
+						continue;
+					}
+					if (children.length > 0 
 							&& pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
 						IResource resource = pkg.getResource();
 						if (resource == null) // case of a file in an external jar
