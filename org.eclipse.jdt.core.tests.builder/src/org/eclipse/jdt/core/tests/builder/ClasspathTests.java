@@ -172,7 +172,7 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
-				new Problem("", "The project was not built since its classpath is incomplete. Can not find the class file for java.lang.Object. Fix the classpath then try rebuilding this project", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
