@@ -182,6 +182,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 			int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 			this.index = methodId;	    
 		}
+		if (declaringEnum.isStrictfp()) {
+			this.modifiers |= AccStrictfp;
+		}
 	}
 
 	/**

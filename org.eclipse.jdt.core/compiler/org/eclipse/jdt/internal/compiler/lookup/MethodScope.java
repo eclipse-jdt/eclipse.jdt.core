@@ -85,9 +85,13 @@ public class MethodScope extends BlockScope {
 		// check for abnormal modifiers
 		int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStrictfp);
 		if (declaringClass.isEnum() && !((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
-			unexpectedModifiers = ~AccPrivate;
-			if ((realModifiers & unexpectedModifiers) != 0)
+			unexpectedModifiers = ~(AccPrivate | AccStrictfp);
+			if ((realModifiers & unexpectedModifiers) != 0) {
 				problemReporter().illegalModifierForEnumConstructor((AbstractMethodDeclaration) referenceContext);
+			} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0) {
+				// must check the parse node explicitly
+				problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
+			}
 		} else if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 		} else if ((((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0) {
