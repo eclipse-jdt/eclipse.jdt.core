@@ -7,6 +7,7 @@ package org.eclipse.jdt.core;
  
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
@@ -24,6 +25,7 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
  * @see IJavaModelStatusConstants
  */
 public class JavaModelException extends CoreException {
+	CoreException nestedCoreException;
 /**
  * Creates a Java model exception that wrappers the given <code>Throwable</code>.
  * The exception contains a Java-specific status object with severity
@@ -48,7 +50,8 @@ public JavaModelException(Throwable e, int code) {
  * @return the new Java model exception
  */
 public JavaModelException(CoreException exception) {
-	this(new JavaModelStatus(exception));
+	super(exception.getStatus());
+	this.nestedCoreException = exception;
 }
 /**
  * Creates a Java model exception for the given Java-specific status object.
@@ -66,7 +69,11 @@ public JavaModelException(IJavaModelStatus status) {
  *   direct case of the failure was at the Java model layer
  */
 public Throwable getException() {
-	return getStatus().getException();
+	if (this.nestedCoreException == null) {
+		return getStatus().getException();
+	} else {
+		return this.nestedCoreException;
+	}
 }
 /**
  * Returns the Java model status object for this exception.
@@ -75,7 +82,14 @@ public Throwable getException() {
  * @return a status object
  */
 public IJavaModelStatus getJavaModelStatus() {
-	return (IJavaModelStatus) getStatus();
+	IStatus status = this.getStatus();
+	if (status instanceof IJavaModelStatus) {
+		return (IJavaModelStatus)status;
+	} else {
+		// A regular IStatus is created only in the case of a CoreException.
+		// See bug 13492 Should handle JavaModelExceptions that contains CoreException more gracefully  
+		return new JavaModelStatus(this.nestedCoreException);
+	}
 }
 /**
  * Returns whether this exception indicates that a Java model element does not
