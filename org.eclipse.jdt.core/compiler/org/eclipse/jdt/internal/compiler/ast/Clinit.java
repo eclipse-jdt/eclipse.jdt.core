@@ -164,9 +164,10 @@ public class Clinit extends AbstractMethodDeclaration {
 		}
 		// generate static fields/initializers/enum constants
 		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
+		BlockScope lastInitializerScope = null;
 		if (declaringType.kind() == IGenericType.ENUM_DECL) {
 			int enumCount = 0;
-			int notEnumConstants = 0;
+			int remainingFieldCount = 0;
 			if (fieldDeclarations != null) {
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
 					FieldDeclaration fieldDecl = fieldDeclarations[i];
@@ -175,7 +176,7 @@ public class Clinit extends AbstractMethodDeclaration {
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							enumCount++;
 						} else {
-							notEnumConstants++;
+							remainingFieldCount++;
 						}
 					}
 				}
@@ -199,12 +200,25 @@ public class Clinit extends AbstractMethodDeclaration {
 					codeStream.putstatic(declaringType.enumValuesSyntheticfield);
 				}
 			}
-			if (notEnumConstants != 0) {
+			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
 					FieldDeclaration fieldDecl = fieldDeclarations[i];
-					if (fieldDecl.isStatic() && fieldDecl.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT) {
-						fieldDecl.generateCode(staticInitializerScope, codeStream);
+					switch (fieldDecl.getKind()) {
+						case AbstractVariableDeclaration.ENUM_CONSTANT :
+							break;
+						case AbstractVariableDeclaration.INITIALIZER :
+							if (!fieldDecl.isStatic()) 
+								break;
+							lastInitializerScope = ((Initializer) fieldDecl).block.scope;
+							fieldDecl.generateCode(staticInitializerScope, codeStream);
+							break;
+						case AbstractVariableDeclaration.FIELD :
+							if (!fieldDecl.binding.isStatic()) 
+								break;
+							lastInitializerScope = null;
+							fieldDecl.generateCode(staticInitializerScope, codeStream);
+							break;
 					}
 				}
 			}
@@ -212,8 +226,19 @@ public class Clinit extends AbstractMethodDeclaration {
 			if (fieldDeclarations != null) {
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
 					FieldDeclaration fieldDecl = fieldDeclarations[i];
-					if (fieldDecl.isStatic()) {
-						fieldDecl.generateCode(staticInitializerScope, codeStream);
+					switch (fieldDecl.getKind()) {
+						case AbstractVariableDeclaration.INITIALIZER :
+							if (!fieldDecl.isStatic()) 
+								break;
+							lastInitializerScope = ((Initializer) fieldDecl).block.scope;
+							fieldDecl.generateCode(staticInitializerScope, codeStream);
+							break;
+						case AbstractVariableDeclaration.FIELD :
+							if (!fieldDecl.binding.isStatic()) 
+								break;
+							lastInitializerScope = null;
+							fieldDecl.generateCode(staticInitializerScope, codeStream);
+							break;
 					}
 				}
 			}
@@ -229,9 +254,12 @@ public class Clinit extends AbstractMethodDeclaration {
 			constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
 		} else {
 			if (this.needFreeReturn) {
-				int oldPosition = codeStream.position;
+				int before = codeStream.position;
 				codeStream.return_();
-				codeStream.updateLocalVariablesAttribute(oldPosition);
+				if (lastInitializerScope != null) {
+					// expand the last initializer variables to include the trailing return
+					codeStream.updateLastRecordedEndPC(lastInitializerScope, before);
+				}
 			}
 			// Record the end of the clinit: point to the declaration of the class
 			codeStream.recordPositionsFrom(0, declaringType.sourceStart);

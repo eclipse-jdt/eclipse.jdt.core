@@ -898,20 +898,23 @@ final public void dup2_x2() {
 	position++;
 	bCodeStream[classFileOffset++] = OPC_dup2_x2;
 }
-public void exitUserScope(BlockScope blockScope) {
+public void exitUserScope(BlockScope currentScope) {
 	// mark all the scope's locals as loosing their definite assignment
 
 	if (!generateLocalVariableTableAttributes)
 		return;
-	for (int i = 0; i < visibleLocalsCount; i++) {
-		LocalVariableBinding visibleLocal = visibleLocals[i];
-		if ((visibleLocal != null) && (visibleLocal.declaringScope == blockScope)) { 
-			// there maybe some some preserved locals never initialized
-			if (visibleLocal.initializationCount > 0){
-				visibleLocals[i].recordInitializationEndPC(position);
-			}
-			visibleLocals[i] = null; // this variable is no longer visible afterwards
+	while (visibleLocalsCount > 0) {
+		LocalVariableBinding visibleLocal = visibleLocals[this.visibleLocalsCount - 1];
+		if (visibleLocal == null)
+			continue;
+		if (visibleLocal.declaringScope != currentScope) // left currentScope
+			break;
+
+		// there maybe some some preserved locals never initialized
+		if (visibleLocal.initializationCount > 0){
+			visibleLocal.recordInitializationEndPC(position);
 		}
+		visibleLocals[--this.visibleLocalsCount] = null; // this variable is no longer visible afterwards
 	}
 }
 final public void f2d() {
@@ -5980,7 +5983,15 @@ public String toString() {
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
-public void updateLastRecordedEndPC(int pos) {
+/**
+ * Note: it will walk the locals table and extend the end range for all matching ones, no matter if
+ * visible or not.
+ * {  int i = 0;
+ *    {  int j = 1; }
+ * }   <== would process both 'i' and 'j'
+ * Processing non-visible ones is mandated in some cases (include goto instruction after if-then block)
+ */
+public void updateLastRecordedEndPC(Scope scope, int pos) {
 
 	/* Tune positions in the table, this is due to some 
 	 * extra bytecodes being
@@ -5997,21 +6008,18 @@ public void updateLastRecordedEndPC(int pos) {
 		return;
 	this.lastEntryPC = pos;
 	// need to update the initialization endPC in case of generation of local variable attributes.
-	updateLocalVariablesAttribute(pos);
-}
-public void updateLocalVariablesAttribute(int pos) {
-	// need to update the initialization endPC in case of generation of local variable attributes.
-	if (generateLocalVariableTableAttributes) {
-		for (int i = 0, max = locals.length; i < max; i++) {
-			LocalVariableBinding local = locals[i];
-			if ((local != null) && (local.initializationCount > 0)) {
+	if (this.generateLocalVariableTableAttributes) {
+		for (int i = 0, max = this.locals.length; i < max; i++) {
+			LocalVariableBinding local = this.locals[i];
+			if (local != null && local.declaringScope == scope && local.initializationCount > 0) {
 				if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == pos) {
-					local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = position;
+					local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
 				}
 			}
 		}
 	}
 }
+
 /**
  * Write a signed 16 bits value into the byte array
  * @param value the signed short

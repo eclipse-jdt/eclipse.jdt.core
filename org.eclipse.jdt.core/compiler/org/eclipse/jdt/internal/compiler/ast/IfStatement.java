@@ -163,7 +163,7 @@ public class IfStatement extends Statement {
 				this.thenStatement.branchChainTo(endifLabel);
 				int position = codeStream.position;
 				codeStream.goto_(endifLabel);
-				codeStream.updateLastRecordedEndPC(position);
+				codeStream.updateLastRecordedEndPC((this.thenStatement instanceof Block) ? ((Block) this.thenStatement).scope : currentScope, position);
 				//goto is tagged as part of the thenAction block
 			}
 			falseLabel.place();

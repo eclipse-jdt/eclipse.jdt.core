@@ -158,7 +158,7 @@ public class SwitchStatement extends Statement {
 				} else {
 					codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
 				}
-				codeStream.updateLastRecordedEndPC(codeStream.position);
+				codeStream.updateLastRecordedEndPC(this.scope, codeStream.position);
 			}
 			
 			// generate the switch block statements

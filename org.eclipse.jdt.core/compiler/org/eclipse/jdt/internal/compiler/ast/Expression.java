@@ -643,7 +643,7 @@ public abstract class Expression extends Statement {
 			}
 		}
 		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(position);
+		codeStream.updateLastRecordedEndPC(currentScope, position);
 	}
 
 	/* Optimized (java) code generation for string concatenations that involve StringBuffer

@@ -464,10 +464,11 @@ class CompilationUnitResolver extends Compiler {
 		CompilationUnitDeclaration unit = null;
 		CancelableNameEnvironment environment = null;
 		CancelableProblemFactory problemFactory = null;
+		CompilationUnitResolver resolver = null;
 		try {
 			environment = new CancelableNameEnvironment(((JavaProject)javaProject), owner, monitor);
 			problemFactory = new CancelableProblemFactory(monitor);
-			CompilationUnitResolver resolver =
+			resolver =
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
@@ -505,7 +506,15 @@ class CompilationUnitResolver extends Compiler {
 			if (problemFactory != null) {
 				problemFactory.monitor = null; // don't hold a reference to this external object
 			}
-			// unit cleanup is done by caller
+			// first unit cleanup is done by caller, but cleanup all enqueued requested units (not processed)
+			if (resolver != null) {
+				for (int i = 1, length = resolver.totalUnits; i < length; i++) {
+					CompilationUnitDeclaration parsedUnit = resolver.unitsToProcess[i];
+					if (parsedUnit.scope != null) 
+						parsedUnit.scope.faultInTypes(); // force resolution of signatures, so clients can query DOM AST
+					parsedUnit.cleanUp();
+				}
+			}
 		}
 	}
 	public static IBinding[] resolve(
@@ -634,38 +643,46 @@ class CompilationUnitResolver extends Compiler {
 			for (; i < this.totalUnits; i++) {
 				unit = this.unitsToProcess[i];
 				try {
-					super.process(unit, i); // this.process(...) is optimized to not process already known units
+					char[] fileName = unit.compilationResult.getFileName();
 					
-					ICompilationUnit source = (ICompilationUnit) this.requestedSources.removeKey(unit.compilationResult.getFileName());
-					if (source != null) {
-						// convert AST
-						CompilationResult compilationResult = unit.compilationResult;
-						org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
-						char[] contents = sourceUnit.getContents();
-						AST ast = AST.newAST(apiLevel);
-						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
-						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, monitor);
-						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
-						ast.setBindingResolver(resolver);
-						converter.setAST(ast);
-						CompilationUnit compilationUnit = converter.convert(unit, contents);
-						compilationUnit.setJavaElement(source);
-						compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
-						ast.setDefaultNodeFlag(0);
-						ast.setOriginalModificationCount(ast.modificationCount());
+					// only process requested units
+					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
+						super.process(unit, i); // this.process(...) is optimized to not process already known units
 						
-						// pass it to requestor
-						astRequestor.acceptAST(source, compilationUnit);
-					} 
-					
-					Object key = this.requestedKeys.removeKey(unit.compilationResult.getFileName());
-					if (key instanceof BindingKeyResolver) {
-						reportBinding(key, astRequestor, owner, unit);
-					} else if (key instanceof ArrayList) {
-						Iterator iterator = ((ArrayList) key).iterator();
-						while (iterator.hasNext()) {
-							reportBinding(iterator.next(), astRequestor, owner, unit);
+						ICompilationUnit source = (ICompilationUnit) this.requestedSources.removeKey(fileName);
+						if (source != null) {
+							// convert AST
+							CompilationResult compilationResult = unit.compilationResult;
+							org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
+							char[] contents = sourceUnit.getContents();
+							AST ast = AST.newAST(apiLevel);
+							ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
+							ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, monitor);
+							BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
+							ast.setBindingResolver(resolver);
+							converter.setAST(ast);
+							CompilationUnit compilationUnit = converter.convert(unit, contents);
+							compilationUnit.setJavaElement(source);
+							compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
+							ast.setDefaultNodeFlag(0);
+							ast.setOriginalModificationCount(ast.modificationCount());
+							
+							// pass it to requestor
+							astRequestor.acceptAST(source, compilationUnit);
+						} 
+						
+						Object key = this.requestedKeys.removeKey(fileName);
+						if (key instanceof BindingKeyResolver) {
+							reportBinding(key, astRequestor, owner, unit);
+						} else if (key instanceof ArrayList) {
+							Iterator iterator = ((ArrayList) key).iterator();
+							while (iterator.hasNext()) {
+								reportBinding(iterator.next(), astRequestor, owner, unit);
+							}
 						}
+					} else {
+						if (unit.scope != null)
+							unit.scope.faultInTypes(); // still force resolution of signatures, so clients can query DOM AST
 					}
 				} finally {
 					// cleanup compilation unit result

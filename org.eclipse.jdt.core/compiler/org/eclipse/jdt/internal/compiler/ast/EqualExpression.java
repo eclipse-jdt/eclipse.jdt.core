@@ -226,7 +226,7 @@ public class EqualExpression extends BinaryExpression {
 			}
 		}
 		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(codeStream.position);					
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 	}
 	/**
 	 * Boolean generation for == with non-boolean operands

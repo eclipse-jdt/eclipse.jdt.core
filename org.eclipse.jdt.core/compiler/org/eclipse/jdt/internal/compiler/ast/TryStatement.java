@@ -250,7 +250,7 @@ public class TryStatement extends SubRoutineStatement {
 						codeStream.goto_(subRoutineStartLabel);
 						break;
 				}
-				codeStream.updateLastRecordedEndPC(position);
+				codeStream.updateLastRecordedEndPC(tryBlock.scope, position);
 				//goto is tagged as part of the try block
 			}
 			for (int i = 0; i < maxCatches; i++) {

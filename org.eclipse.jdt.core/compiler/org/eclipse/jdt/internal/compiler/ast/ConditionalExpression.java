@@ -159,7 +159,7 @@ public class ConditionalExpression extends OperatorExpression {
 				// Jump over the else part
 				int position = codeStream.position;
 				codeStream.goto_(endifLabel);
-				codeStream.updateLastRecordedEndPC(position);
+				codeStream.updateLastRecordedEndPC(currentScope, position);
 				// Tune codestream stack size
 				if (valueRequired) {
 					codeStream.decrStackSize(this.resolvedType == LongBinding || this.resolvedType == DoubleBinding ? 2 : 1);
@@ -239,7 +239,7 @@ public class ConditionalExpression extends OperatorExpression {
 				// Jump over the else part
 				int position = codeStream.position;
 				codeStream.goto_(endifLabel);
-				codeStream.updateLastRecordedEndPC(position);
+				codeStream.updateLastRecordedEndPC(currentScope, position);
 				// No need to decrement codestream stack size
 				// since valueIfTrue was already consumed by branch bytecode
 			}
@@ -260,7 +260,7 @@ public class ConditionalExpression extends OperatorExpression {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		// no implicit conversion for boolean values
-		codeStream.updateLastRecordedEndPC(codeStream.position);
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 	}
 
 	public Constant optimizedBooleanConstant() {

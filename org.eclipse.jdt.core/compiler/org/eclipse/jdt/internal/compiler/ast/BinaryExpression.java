@@ -728,7 +728,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 			// x > 0
@@ -750,7 +750,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 		}
@@ -778,7 +778,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.ifgt(trueLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				}
 			} else {
@@ -801,7 +801,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.ifle(falseLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -842,7 +842,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 			// x >= 0
@@ -864,7 +864,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 		}
@@ -892,7 +892,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.ifge(trueLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				}
 			} else {
@@ -915,7 +915,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.iflt(falseLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -955,7 +955,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.updateLastRecordedEndPC(codeStream.position);
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 				return;
 			}
 			// x < 0
@@ -976,7 +976,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.updateLastRecordedEndPC(codeStream.position);
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 				return;
 			}
 		}
@@ -1003,7 +1003,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.iflt(trueLabel);
 					}
-					codeStream.updateLastRecordedEndPC(codeStream.position);
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 					return;
 				}
 			} else {
@@ -1025,7 +1025,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.ifge(falseLabel);
 					}
-					codeStream.updateLastRecordedEndPC(codeStream.position);
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -1066,7 +1066,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 			// x <= 0
@@ -1088,7 +1088,7 @@ public class BinaryExpression extends OperatorExpression {
 					}
 				}
 				// reposition the endPC
-				codeStream.updateLastRecordedEndPC(codeStream.position);					
+				codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				return;
 			}
 		}
@@ -1116,7 +1116,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.ifle(trueLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				}
 			} else {
@@ -1139,7 +1139,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.ifgt(falseLabel);
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
@@ -1206,7 +1206,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				}
 				return;
 			}
@@ -1256,7 +1256,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				}
 				return;
 			}
@@ -1283,7 +1283,7 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(codeStream.position);					
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 	}
 	
 	/**
@@ -1325,7 +1325,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				} else {
 					// <something equivalent to false> | x
 					left.generateOptimizedBoolean(
@@ -1374,7 +1374,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 					// reposition the endPC
-					codeStream.updateLastRecordedEndPC(codeStream.position);					
+					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				} else {
 					// x | <something equivalent to false>
 					if ((bits & OnlyValueRequiredMASK) != 0) {
@@ -1419,7 +1419,7 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(codeStream.position);					
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 	}
 	
 	/**
@@ -1529,7 +1529,7 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(codeStream.position);					
+		codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 	}
 	
 	public void generateOptimizedStringConcatenation(
