@@ -49,7 +49,7 @@ public class IndexBinaryFolder extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!this.folder.isAccessible()) return true; // nothing to do
 
-		IIndex index = this.manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
+		IIndex index = this.manager.getIndexForUpdate(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired

@@ -192,6 +192,13 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
+public synchronized IIndex getIndexForUpdate(IPath path, boolean reuseExistingFile, boolean createIfMissing) {
+	String indexName = computeIndexName(path);
+	if (getIndexStates().get(indexName) == REBUILDING_STATE)
+		return getIndex(path, reuseExistingFile, createIfMissing);
+
+	return null; // abort the job since the index has been removed from the REBUILDING_STATE
+}
 private SimpleLookupTable getIndexStates() {
 	if (indexStates != null) return indexStates;
 
