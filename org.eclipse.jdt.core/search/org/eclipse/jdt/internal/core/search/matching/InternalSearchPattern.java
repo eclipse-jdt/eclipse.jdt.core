@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.*;
@@ -21,6 +22,11 @@ import org.eclipse.jdt.internal.core.search.*;
  * Internal search pattern implementation
  */
 public abstract class InternalSearchPattern {
+
+	/**
+	 *  The focus element (used for reference patterns)
+	 */
+	IJavaElement focus;
 
 	final int kind;
 	boolean mustResolve = true;

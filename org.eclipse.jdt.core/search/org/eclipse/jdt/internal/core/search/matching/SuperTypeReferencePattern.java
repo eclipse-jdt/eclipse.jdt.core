@@ -120,8 +120,8 @@ public SuperTypeReferencePattern(
 
 	this(matchRule);
 
-	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = this.isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superQualification = isCaseSensitive() ? superQualification : CharOperation.toLowerCase(superQualification);
+	this.superSimpleName = isCaseSensitive() ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	((InternalSearchPattern)this).mustResolve = superQualification != null;
 	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
 }
@@ -184,7 +184,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 	int matchRule = getMatchRule();
 
 	// cannot include the superQualification since it may not exist in the index
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
 			// do a prefix query with the superSimpleName
 			matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
@@ -212,7 +212,7 @@ public String toString(){
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -223,7 +223,7 @@ public String toString(){
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

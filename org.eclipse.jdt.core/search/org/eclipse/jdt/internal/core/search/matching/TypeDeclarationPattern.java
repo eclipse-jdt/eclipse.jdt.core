@@ -77,8 +77,8 @@ public TypeDeclarationPattern(
 
 	this(matchRule);
 
-	this.pkg = this.isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
-	if (this.isCaseSensitive || enclosingTypeNames == null) {
+	this.pkg = isCaseSensitive() ? pkg : CharOperation.toLowerCase(pkg);
+	if (isCaseSensitive() || enclosingTypeNames == null) {
 		this.enclosingTypeNames = enclosingTypeNames;
 	} else {
 		int length = enclosingTypeNames.length;
@@ -86,7 +86,7 @@ public TypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
-	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
 	((InternalSearchPattern)this).mustResolve = this.pkg != null && this.enclosingTypeNames != null;
@@ -136,7 +136,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		return false;
 
 	// check package - exact match only
-	if (this.pkg != null && !CharOperation.equals(this.pkg, pattern.pkg, this.isCaseSensitive))
+	if (this.pkg != null && !CharOperation.equals(this.pkg, pattern.pkg, isCaseSensitive()))
 		return false;
 
 	// check enclosingTypeNames - exact match only
@@ -144,10 +144,10 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		if (this.enclosingTypeNames.length == 0)
 			return pattern.enclosingTypeNames.length == 0;
 		if (this.enclosingTypeNames.length == 1 && pattern.enclosingTypeNames.length == 1)
-			return CharOperation.equals(this.enclosingTypeNames[0], pattern.enclosingTypeNames[0], this.isCaseSensitive);
+			return CharOperation.equals(this.enclosingTypeNames[0], pattern.enclosingTypeNames[0], isCaseSensitive());
 		if (pattern.enclosingTypeNames == ONE_ZERO_CHAR)
 			return true; // is a local or anonymous type
-		return CharOperation.equals(this.enclosingTypeNames, pattern.enclosingTypeNames, this.isCaseSensitive);
+		return CharOperation.equals(this.enclosingTypeNames, pattern.enclosingTypeNames, isCaseSensitive());
 	}
 	return true;
 }
@@ -155,7 +155,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.simpleName; // can be null
 	int matchRule = getMatchRule();
 
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_PREFIX_MATCH :
 			// do a prefix query with the simpleName
 			break;
@@ -220,7 +220,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode){
+	switch(getMatchMode()){
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -231,7 +231,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

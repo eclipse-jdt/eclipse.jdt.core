@@ -143,9 +143,9 @@ public class WrappedCoreException extends RuntimeException {
 	}
 }
 
-public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
+public static SearchDocument[] addWorkingCopies(InternalSearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
 	// working copies take precedence over corresponding compilation units
-	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, ((InternalSearchPattern)pattern).isPolymorphicSearch(), participant);
+	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, pattern.isPolymorphicSearch(), participant);
 	SearchDocument[] matches = null;
 	int length = indexMatches.length;
 	for (int i = 0; i < length; i++) {
@@ -175,6 +175,10 @@ public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDoc
 	return matches;
 }
 
+public static void setFocus(InternalSearchPattern pattern, IJavaElement focus) {
+	pattern.focus = focus;
+}
+
 /*
  * Returns the working copies that can see the given focus.
  */
@@ -188,7 +192,7 @@ private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompil
 	HashMap result = new HashMap();
 	for (int i=0, length = copies.length; i<length; i++) {
 		org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
-		IPath projectOrJar = IndexSelector.getProjectOrJar(workingCopy).getPath();
+		IPath projectOrJar = MatchLocator.getProjectOrJar(workingCopy).getPath();
 		if (focus == null || IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
 			result.put(
 				workingCopy.getPath().toString(),
@@ -262,8 +266,19 @@ public static void findIndexMatches(InternalSearchPattern pattern, Index index, 
 	pattern.findIndexMatches(index, requestor, participant, scope, monitor);
 }
 
+public static IJavaElement getProjectOrJar(IJavaElement element) {
+	while (!(element instanceof IJavaProject) && !(element instanceof JarPackageFragmentRoot)) {
+		element = element.getParent();
+	}
+	return element;
+}
+
 public static boolean isPolymorphicSearch(InternalSearchPattern pattern) {
 	return pattern.isPolymorphicSearch();
+}
+
+public static IJavaElement projectOrJarFocus(InternalSearchPattern pattern) {
+	return pattern == null || pattern.focus == null ? null : getProjectOrJar(pattern.focus);
 }
 
 public MatchLocator(
@@ -878,13 +893,13 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 		for (int i = 0, length = patterns.length; i < length; i++)
 			locatePackageDeclarations(patterns[i], participant);
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
-		if (searchPattern.focus != null) {
-			IResource resource = searchPattern.focus.getResource();
+		IJavaElement focus = ((InternalSearchPattern) searchPattern).focus;
+		if (focus != null) {
+			IResource resource = focus.getResource();
 			SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
-			IJavaElement element = searchPattern.focus;
-			if (encloses(element)) {
-				SearchMatch match = newDeclarationMatch(element, SearchMatch.A_ACCURATE, -1, -1);
+			if (encloses(focus)) {
+				SearchMatch match = newDeclarationMatch(focus, SearchMatch.A_ACCURATE, -1, -1);
 				report(match);
 			}
 			return;

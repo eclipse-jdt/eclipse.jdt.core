@@ -29,8 +29,8 @@ protected static char[][] CATEGORIES = { REF };
 public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
 	this(matchRule);
 
-	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
+	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null)
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
@@ -50,11 +50,11 @@ public SearchPattern getBlankPattern() {
 }
 public char[] getIndexKey() {
 	if (this.simpleName != null)
-		return encodeIndexKey(this.simpleName, this.matchMode);
+		return encodeIndexKey(this.simpleName, getMatchMode());
 
 	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
 	if (this.currentSegment >= 0) 
-		return encodeIndexKey(this.segments[this.currentSegment], this.matchMode);
+		return encodeIndexKey(this.segments[this.currentSegment], getMatchMode());
 	return null;
 }
 public char[][] getMatchCategories() {
@@ -89,7 +89,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -100,7 +100,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

@@ -59,17 +59,12 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	/**
 	 * Whether this pattern is case sensitive.
 	 */
-	public final boolean isCaseSensitive;
+	private final boolean isCaseSensitive;
 	
 	/**
 	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
 	 */
-	public final int matchMode;
-
-	/**
-	 *  The focus element (used for reference patterns)
-	 */
-	public IJavaElement focus;
+	private final int matchMode;
 
 	protected SearchPattern(int patternKind, int matchRule) {
 		super(patternKind);
@@ -1056,7 +1051,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 				break;
 		}
 		if (searchPattern != null)
-			searchPattern.focus = element;
+			MatchLocator.setFocus(searchPattern, element);
 		return searchPattern;
 	}
 	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, int limitTo) {
@@ -1244,6 +1239,17 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 		return CharOperation.NO_CHAR_CHAR; // called from queryIn(), override as necessary
 	}
 	/**
+	 * Returns the match mode.
+	 * 
+	 * @return one of {@link IJavaSearchConstants#EXACT_MATCH},
+	 * {@link IJavaSearchConstants#PREFIX_MATCH},
+	 * {@link IJavaSearchConstants#PATTERN_MATCH},
+	 * {@link IJavaSearchConstants#REGEXP_MATCH}}
+	 */
+	public final int getMatchMode() {
+		return this.matchMode;
+	}
+	/**
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 * 
@@ -1251,6 +1257,15 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	 */	
 	public int getMatchRule() {
 		return this.matchMode + (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+	}
+	/**
+	 * Returns whether this pattern is case-sensitive.
+	 * 
+	 * @return <code>true</code> if this pattern is case-sensitive, and
+	 * <code>false</code> otherwise
+	 */
+	public final boolean isCaseSensitive () {
+		return this.isCaseSensitive;
 	}
 	/**
 	 * Returns whether this pattern matches the given pattern (representing a decoded index key).

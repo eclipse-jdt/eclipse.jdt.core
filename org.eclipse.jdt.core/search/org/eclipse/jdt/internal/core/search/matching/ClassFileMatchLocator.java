@@ -155,11 +155,11 @@ boolean matchConstructor(ConstructorPattern pattern, Object binaryInfo, IBinaryT
 
 	IBinaryMethod method = (IBinaryMethod) binaryInfo;
 	if (!method.isConstructor()) return false;
-	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive))
+	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive()))
 		return false;
 	if (pattern.parameterSimpleNames != null) {
 		char[] methodDescriptor = convertClassFileFormat(method.getMethodDescriptor());
-		if (!checkParameters(methodDescriptor, pattern.parameterSimpleNames, pattern.parameterQualifications, pattern.isCaseSensitive))
+		if (!checkParameters(methodDescriptor, pattern.parameterSimpleNames, pattern.parameterQualifications, pattern.isCaseSensitive()))
 			return false;
 	}
 	return true;
@@ -170,11 +170,11 @@ boolean matchField(FieldPattern pattern, Object binaryInfo, IBinaryType enclosin
 
 	IBinaryField field = (IBinaryField) binaryInfo;
 	if (!pattern.matchesName(pattern.name, field.getName())) return false;
-	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive))
+	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive()))
 		return false;
 
 	char[] fieldTypeSignature = Signature.toCharArray(convertClassFileFormat(field.getTypeName()));
-	return checkTypeName(pattern.typeSimpleName, pattern.typeQualification, fieldTypeSignature, pattern.isCaseSensitive);
+	return checkTypeName(pattern.typeSimpleName, pattern.typeQualification, fieldTypeSignature, pattern.isCaseSensitive());
 }
 boolean matchMethod(MethodPattern pattern, Object binaryInfo, IBinaryType enclosingBinaryType) {
 	if (!pattern.findDeclarations) return false; // only relevant when finding declarations
@@ -182,7 +182,7 @@ boolean matchMethod(MethodPattern pattern, Object binaryInfo, IBinaryType enclos
 
 	IBinaryMethod method = (IBinaryMethod) binaryInfo;
 	if (!pattern.matchesName(pattern.selector, method.getSelector())) return false;
-	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive))
+	if (!checkDeclaringType(enclosingBinaryType, pattern.declaringSimpleName, pattern.declaringQualification, pattern.isCaseSensitive()))
 		return false;
 
 	// look at return type only if declaring type is not specified
@@ -192,10 +192,10 @@ boolean matchMethod(MethodPattern pattern, Object binaryInfo, IBinaryType enclos
 		char[] methodDescriptor = convertClassFileFormat(method.getMethodDescriptor());
 		if (checkReturnType) {
 			char[] returnTypeSignature = Signature.toCharArray(Signature.getReturnType(methodDescriptor));
-			if (!checkTypeName(pattern.returnSimpleName, pattern.returnQualification, returnTypeSignature, pattern.isCaseSensitive))
+			if (!checkTypeName(pattern.returnSimpleName, pattern.returnQualification, returnTypeSignature, pattern.isCaseSensitive()))
 				return false;
 		}
-		if (checkParameters &&  !checkParameters(methodDescriptor, pattern.parameterSimpleNames, pattern.parameterQualifications, pattern.isCaseSensitive))
+		if (checkParameters &&  !checkParameters(methodDescriptor, pattern.parameterSimpleNames, pattern.parameterQualifications, pattern.isCaseSensitive()))
 			return false;
 	}
 	return true;
@@ -208,7 +208,7 @@ boolean matchSuperTypeReference(SuperTypeReferencePattern pattern, Object binary
 		char[] vmName = type.getSuperclassName();
 		if (vmName != null) {
 			char[] superclassName = convertClassFileFormat(vmName);
-			if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superclassName, pattern.isCaseSensitive))
+			if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superclassName, pattern.isCaseSensitive()))
 				return true;
 		}
 	}
@@ -217,7 +217,7 @@ boolean matchSuperTypeReference(SuperTypeReferencePattern pattern, Object binary
 	if (superInterfaces != null) {
 		for (int i = 0, max = superInterfaces.length; i < max; i++) {
 			char[] superInterfaceName = convertClassFileFormat(superInterfaces[i]);
-			if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superInterfaceName, pattern.isCaseSensitive))
+			if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superInterfaceName, pattern.isCaseSensitive()))
 				return true;
 		}
 	}
@@ -229,13 +229,13 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 	IBinaryType type = (IBinaryType) binaryInfo;
 	char[] fullyQualifiedTypeName = convertClassFileFormat(type.getName());
 	if (pattern.enclosingTypeNames == null || pattern instanceof QualifiedTypeDeclarationPattern) {
-		if (!checkTypeName(pattern.simpleName, pattern.pkg, fullyQualifiedTypeName, pattern.isCaseSensitive)) return false;
+		if (!checkTypeName(pattern.simpleName, pattern.pkg, fullyQualifiedTypeName, pattern.isCaseSensitive())) return false;
 	} else {
 		char[] enclosingTypeName = CharOperation.concatWith(pattern.enclosingTypeNames, '.');
 		char[] patternString = pattern.pkg == null
 			? enclosingTypeName
 			: CharOperation.concat(pattern.pkg, enclosingTypeName, '.');
-		if (!checkTypeName(pattern.simpleName, patternString, fullyQualifiedTypeName, pattern.isCaseSensitive)) return false;
+		if (!checkTypeName(pattern.simpleName, patternString, fullyQualifiedTypeName, pattern.isCaseSensitive())) return false;
 	}
 
 	switch (pattern.classOrInterface) {
