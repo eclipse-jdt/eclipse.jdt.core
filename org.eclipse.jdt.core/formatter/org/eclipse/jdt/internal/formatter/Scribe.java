@@ -1003,6 +1003,7 @@ public class Scribe {
 					case TerminalTokens.TokenNamesynchronized :
 					case TerminalTokens.TokenNametransient :
 					case TerminalTokens.TokenNamevolatile :
+					case TerminalTokens.TokenNamestrictfp :
 						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
