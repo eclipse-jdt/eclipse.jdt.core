@@ -114,6 +114,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 			}
 			buffer.append('-').append(initsOnExceptions[i].toString()).append(']');
 		}
+		buffer.append("[initsOnReturn -").append(initsOnReturn.toString()).append(']'); //$NON-NLS-1$
 		return buffer.toString();
 	}
 
@@ -126,6 +127,10 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		return initsOnExceptions[index];
 	}
 
+	public UnconditionalFlowInfo initsOnReturn(){
+		return this.initsOnReturn;
+	}
+	
 	public void recordHandlingException(
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
@@ -141,6 +146,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 			this.isNeeded[cacheIndex] |= bitMask;
 		}
 		this.isReached[cacheIndex] |= bitMask;
+		
 		initsOnExceptions[index] =
 			initsOnExceptions[index] == FlowInfo.DEAD_END
 				? flowInfo.copy().unconditionalInits()
@@ -148,9 +154,13 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	}
 	
 	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
-		
-		// record initializations which were performed at the return point
-		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+
+		if (!flowInfo.isReachable()) return; 
+		if (initsOnReturn == FlowInfo.DEAD_END) {
+			initsOnReturn = flowInfo.copy().unconditionalInits();
+		} else {
+			initsOnReturn.mergedWith(flowInfo.unconditionalInits());
+		}
 	}
 	
 	/*

@@ -151,10 +151,26 @@ public class TryStatement extends Statement {
 			return tryInfo;
 		}
 
+
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
-		tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn);
-		finallyContext.complainOnRedundantFinalAssignments(tryInfo, currentScope);
+
+		// propagate inits to enclosing subroutines
+		UnconditionalFlowInfo initsBeforeReturn = insideSubContext.initsOnReturn.copy().unconditionalInits();
+		initsBeforeReturn.addInitializationsFrom(subInfo);
+		FlowContext traversedContext = insideSubContext.parent;
+		while (traversedContext != null) {
+			AstNode sub = traversedContext.subRoutine();
+			if (sub != null && sub.cannotReturn()) break;//TODO: should move below?
+			traversedContext.initsOnReturn().addInitializationsFrom(initsBeforeReturn);
+			traversedContext = traversedContext.parent;
+		}
+
+		finallyContext.complainOnRedundantFinalAssignments(
+			tryInfo.isReachable() 
+				? (tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn))
+				: insideSubContext.initsOnReturn, 
+			currentScope);
 		if (subInfo == FlowInfo.DEAD_END) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(subInfo);

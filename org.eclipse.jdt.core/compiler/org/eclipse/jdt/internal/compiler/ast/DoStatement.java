@@ -49,14 +49,12 @@ public class DoStatement extends Statement {
 				continueLabel,
 				currentScope);
 
-		Constant conditionConstant = condition.constant;
-		Constant conditionalConstant = condition.optimizedBooleanConstant();
-		boolean isFalseCondition =
-			((conditionConstant != NotAConstant)
-				&& (conditionConstant.booleanValue() == false))
-				|| ((conditionalConstant != NotAConstant)
-					&& (conditionalConstant.booleanValue() == false));
+		Constant cst = condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 
+		int previousMode = flowInfo.reachMode();
+				
 		if ((action != null) && !action.isEmptyBlock()) {
 			flowInfo = action.analyseCode(currentScope, loopingContext, flowInfo.copy());
 
@@ -66,20 +64,23 @@ public class DoStatement extends Statement {
 					continueLabel = null;
 				} else {
 					flowInfo = loopingContext.initsOnContinue; // for condition
-					if (isFalseCondition) {
-						//	continueLabel = null; - cannot nil the label since may be targeted already by 'continue' statements
-					} else {
+					if (!isConditionOptimizedFalse) {
 						loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
 					}
 				}
 			} else {
-				if (isFalseCondition) {
-					//	continueLabel = null; - cannot nil the label since may be targeted already by 'continue' statements
-				} else {
+				if (!isConditionOptimizedFalse) {
 					loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
 				}
 			}
 		}
+		/* Reset reach mode, to address following scenario.
+		 *   final blank;
+		 *   do { if (true) break; else blank = 0; } while(false);
+		 *   blank = 1; // may be initialized already 
+		 */
+		flowInfo.setReachMode(previousMode);
+		
 		LoopingFlowContext condLoopContext;
 		flowInfo =
 			condition.analyseCode(
@@ -93,8 +94,7 @@ public class DoStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if ((condition.constant != NotAConstant)
-			&& (condition.constant.booleanValue() == true)) {
+		if (isConditionOptimizedTrue) {
 			mergedInfo = loopingContext.initsOnBreak;
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(mergedInfo);

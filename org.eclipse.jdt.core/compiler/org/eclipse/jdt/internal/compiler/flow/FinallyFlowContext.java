@@ -67,6 +67,13 @@ public class FinallyFlowContext extends FlowContext {
 		}
 	}
 
+	public String individualToString() {
+		
+		StringBuffer buffer = new StringBuffer("Finally flow context"); //$NON-NLS-1$
+		buffer.append("[finalAssignments count -").append(assignCount).append(']'); //$NON-NLS-1$
+		return buffer.toString();
+	}
+	
 	public boolean isSubRoutine() {
 		return true;
 	}

@@ -26,7 +26,18 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 		super(parent, associatedNode);
 		this.initsOnReturn = FlowInfo.DEAD_END;				
 	}
-	
+
+	public String individualToString() {
+		
+		StringBuffer buffer = new StringBuffer("Inside SubRoutine flow context"); //$NON-NLS-1$
+		buffer.append("[initsOnReturn -").append(initsOnReturn.toString()).append(']'); //$NON-NLS-1$
+		return buffer.toString();
+	}
+		
+	public UnconditionalFlowInfo initsOnReturn(){
+		return this.initsOnReturn;
+	}
+		
 	public boolean isNonReturningContext() {
 		return associatedNode.cannotReturn();
 	}
@@ -36,7 +47,12 @@ public class InsideSubRoutineFlowContext extends FlowContext {
 	}
 	
 	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
-		// record initializations which were performed at the return point
-		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+
+		if (!flowInfo.isReachable()) return; 
+		if (initsOnReturn == FlowInfo.DEAD_END) {
+			initsOnReturn = flowInfo.copy().unconditionalInits();
+		} else {
+			initsOnReturn.mergedWith(flowInfo.unconditionalInits());
+		}
 	}
 }

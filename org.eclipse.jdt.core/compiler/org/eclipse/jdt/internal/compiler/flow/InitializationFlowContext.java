@@ -51,6 +51,16 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		}
 	}
 
+	public String individualToString() {
+		
+		StringBuffer buffer = new StringBuffer("Initialization flow context"); //$NON-NLS-1$
+		for (int i = 0; i < exceptionCount; i++) {
+			buffer.append('[').append(thrownExceptions[i].readableName());
+			buffer.append('-').append(exceptionThrowerFlowInfos[i].toString()).append(']');
+		}
+		return buffer.toString();
+	}
+	
 	public void recordHandlingException(
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
@@ -58,6 +68,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		AstNode invocationSite,
 		boolean wasMasked) {
 			
+		// even if unreachable code, need to perform unhandled exception diagnosis
 		int size = thrownExceptions.length;
 		if (exceptionCount == size) {
 			System.arraycopy(

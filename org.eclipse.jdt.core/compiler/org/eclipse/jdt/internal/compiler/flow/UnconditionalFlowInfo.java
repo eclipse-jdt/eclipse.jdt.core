@@ -175,6 +175,35 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return copy;
 	}
 	
+	public UnconditionalFlowInfo discardNonFieldInitializations(){
+		
+		int limit = this.maxFieldCount;
+		
+		if (limit < BitCacheSize) {
+			long mask = (1L << limit)-1;
+			this.definiteInits &= mask;
+			this.potentialInits &= mask;
+			return this;
+		} 
+		// use extra vector
+		if (extraDefiniteInits == null) {
+			return this; // if vector not yet allocated, then not initialized
+		}
+		int vectorIndex, length = this.extraDefiniteInits.length;
+		if ((vectorIndex = (limit / BitCacheSize) - 1) >= length) {
+			return this; // not enough room yet
+		}
+		limit = limit % BitCacheSize;
+		long mask = (1L << limit)-1;
+		this.extraDefiniteInits[vectorIndex] &= mask;
+		this.extraPotentialInits[vectorIndex] &= mask;
+		for (int i = vectorIndex+1; i < length; i++) {
+			this.extraDefiniteInits[i] = 0L;
+			this.extraPotentialInits[i] = 0L;
+		}
+		return this;
+	}
+	
 	public FlowInfo initsWhenFalse() {
 		
 		return this;

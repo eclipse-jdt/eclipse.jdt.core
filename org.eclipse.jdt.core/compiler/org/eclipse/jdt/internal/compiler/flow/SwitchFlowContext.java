@@ -34,7 +34,9 @@ public class SwitchFlowContext extends FlowContext {
 	}
 
 	public String individualToString() {
-		return "Switch flow context"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer("Switch flow context"); //$NON-NLS-1$
+		buffer.append("[initsOnBreak -").append(initsOnBreak.toString()).append(']'); //$NON-NLS-1$
+		return buffer.toString();
 	}
 
 	public boolean isBreakable() {
@@ -42,12 +44,11 @@ public class SwitchFlowContext extends FlowContext {
 	}
 
 	public void recordBreakFrom(FlowInfo flowInfo) {
+
+		if (!flowInfo.isReachable()) return;
 		if (initsOnBreak == FlowInfo.DEAD_END) {
 			initsOnBreak = flowInfo.copy().unconditionalInits();
 		} else {
-			// ignore if not really reachable (1FKEKRP)
-			if (!flowInfo.isReachable())
-				return;
 			initsOnBreak.mergedWith(flowInfo.unconditionalInits());
 		};
 	}

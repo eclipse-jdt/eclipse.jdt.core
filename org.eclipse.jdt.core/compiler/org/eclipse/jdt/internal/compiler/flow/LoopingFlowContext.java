@@ -83,7 +83,9 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	}
 
 	public String individualToString() {
-		return "Looping flow context"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer("Looping flow context"); //$NON-NLS-1$
+		buffer.append("[initsOnContinue -").append(initsOnContinue.toString()).append(']'); //$NON-NLS-1$
+		return buffer.toString();
 	}
 
 	public boolean isContinuable() {
@@ -96,12 +98,10 @@ public class LoopingFlowContext extends SwitchFlowContext {
 
 	public void recordContinueFrom(FlowInfo flowInfo) {
 
+		if (!flowInfo.isReachable()) return;
 		if (initsOnContinue == FlowInfo.DEAD_END) {
 			initsOnContinue = flowInfo.copy().unconditionalInits();
 		} else {
-			// ignore if not really reachable (1FKEKRP)
-			if (!flowInfo.isReachable())
-				return;
 			initsOnContinue.mergedWith(flowInfo.unconditionalInits());
 		};
 	}

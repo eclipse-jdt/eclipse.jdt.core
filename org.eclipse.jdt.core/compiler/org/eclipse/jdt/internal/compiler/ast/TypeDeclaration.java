@@ -160,7 +160,10 @@ public class TypeDeclaration
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, fieldInfo.copy());
+						((ConstructorDeclaration)method).analyseCode(
+							scope, 
+							initializerContext, 
+							flowInfo.copy().unconditionalInits().addInitializationsFrom(fieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
@@ -240,9 +243,15 @@ public class TypeDeclaration
 						continue;
 					if (method.isInitializationMethod()) {
 						if (method.isStatic()) { // <clinit>
-							((Clinit)method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
+							((Clinit)method).analyseCode(
+								scope, 
+								staticInitializerContext, 
+								flowInfo.copy().unconditionalInits().addInitializationsFrom(staticFieldInfo.unconditionalInits().discardNonFieldInitializations()));
 						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
+							((ConstructorDeclaration)method).analyseCode(
+								scope, 
+								initializerContext, 
+								flowInfo.copy().unconditionalInits().addInitializationsFrom(nonStaticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
@@ -314,8 +323,12 @@ public class TypeDeclaration
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
+
 					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, fieldInfo.copy());
+						((ConstructorDeclaration)method).analyseCode(
+							scope, 
+							initializerContext, 
+							flowInfo.copy().unconditionalInits().addInitializationsFrom(fieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
@@ -392,9 +405,15 @@ public class TypeDeclaration
 						continue;
 					if (method.isInitializationMethod()) {
 						if (method.isStatic()) { // <clinit>
-							((Clinit)method).analyseCode(scope, staticInitializerContext, staticFieldInfo);
+							((Clinit)method).analyseCode(
+								scope, 
+								staticInitializerContext, 
+								flowInfo.copy().unconditionalInits().addInitializationsFrom(staticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
 						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, nonStaticFieldInfo.copy());
+							((ConstructorDeclaration)method).analyseCode(
+								scope, 
+								initializerContext, 
+								flowInfo.copy().unconditionalInits().addInitializationsFrom(nonStaticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));

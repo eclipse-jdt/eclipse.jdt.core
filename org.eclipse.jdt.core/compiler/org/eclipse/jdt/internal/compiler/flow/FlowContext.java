@@ -381,6 +381,11 @@ public class FlowContext implements TypeConstants {
 		return FlowInfo.DEAD_END;
 	}
 
+	public UnconditionalFlowInfo initsOnReturn() {
+
+		return FlowInfo.DEAD_END;
+	}
+
 	public boolean isBreakable() {
 
 		return false;
