@@ -311,7 +311,7 @@ public abstract class JobManager implements Runnable {
 		awaitingJobs[jobEnd] = job;
 		if (VERBOSE)
 			JobManager.verbose("REQUEST   background job - " + job); //$NON-NLS-1$
-
+		this.notifyAll(); // wake up the background thread if it is waiting
 	}
 	/**
 	 * Flush current state
@@ -342,14 +342,17 @@ public abstract class JobManager implements Runnable {
 			while (this.processingThread != null) {
 				try {
 					IJob job;
-					if ((job = currentJob()) == null) {
-						if (idlingStart < 0)
-							idlingStart = System.currentTimeMillis();
-						notifyIdle(System.currentTimeMillis() - idlingStart);
-						Thread.sleep(500);
-						continue;
-					} else {
-						idlingStart = -1;
+					synchronized (this) {
+						if ((job = currentJob()) == null) {
+							if (idlingStart < 0)
+								idlingStart = System.currentTimeMillis();
+							notifyIdle(System.currentTimeMillis() - idlingStart);
+							this.wait(); // wait until a new job is posted
+							Thread.sleep(500); // delay before processing the new job, allow some time for the active thread to finish
+							continue;
+						} else {
+							idlingStart = -1;
+						}
 					}
 					if (VERBOSE) {
 						JobManager.verbose(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
@@ -407,6 +410,9 @@ public abstract class JobManager implements Runnable {
 		this.processingThread = null; // mark the job manager as shutting down so that the thread will stop by itself
 		try {
 			if (thread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
+				synchronized (this) {
+					this.notifyAll(); // ensure its awake so it can be shutdown
+				}
 				thread.join();
 			}
 		} catch (InterruptedException e) {
