@@ -1035,7 +1035,8 @@ public void parseCompilationUnit(
 	} finally {
 		diet = old;
 	}
-}public CompilationUnitDeclaration parseCompilationUnit(
+}
+public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit, 
 	boolean fullParse) {
 		

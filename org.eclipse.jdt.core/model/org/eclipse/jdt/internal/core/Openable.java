@@ -343,10 +343,11 @@ public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
  * @see IOpenable
  */
 public void open(IProgressMonitor pm) throws JavaModelException {
-	if (!isOpen()) {
-		// TODO: (jerome) need to synchronize (IOpenable.open(IProgressMonitor) is API
-		// TODO: (jerome) could use getElementInfo instead
-		this.openWhenClosed(pm);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	synchronized(manager) {
+		if (!isOpen()) {
+			this.openWhenClosed(pm);
+		}
 	}
 }
 
