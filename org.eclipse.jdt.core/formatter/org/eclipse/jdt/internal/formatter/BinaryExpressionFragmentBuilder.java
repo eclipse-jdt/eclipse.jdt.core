@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
@@ -258,6 +259,13 @@ class BinaryExpressionFragmentBuilder
 		return false;
 	}
 
+	public boolean visit(
+		ClassLiteralAccess classLiteralAccess,
+		BlockScope scope) {
+			this.addRealFragment(classLiteralAccess);
+			return false;
+	}
+	
 	public boolean visit(
 		CompoundAssignment compoundAssignment,
 		BlockScope scope) {
