@@ -100,7 +100,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0567"));
+		suite.addTest(new ASTConverterTestAST3_2("test0568"));
 		return suite;
 	}
 	/**
@@ -5227,5 +5227,15 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		assertEquals("Wrong character", '}', source[node.getStartPosition() + node.getLength() - 1]);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=69349
+	 */
+	public void test0568() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0568", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 }

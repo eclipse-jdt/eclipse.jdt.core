@@ -180,6 +180,7 @@ public class Assignment extends Expression {
 			TypeBinding expectedType) {
 
 		TypeBinding type = super.resolveTypeExpecting(scope, expectedType);
+		if (type == null) return null;
 		TypeBinding lhsType = this.resolvedType; 
 		TypeBinding rhsType = this.expression.resolvedType;
 		// signal possible accidental boolean assignment (instead of using '==' operator)
