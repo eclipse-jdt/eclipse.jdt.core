@@ -315,7 +315,7 @@ public class Scribe {
 						break;
 					default :
 						// step back one token
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 				}
 			}
@@ -406,7 +406,7 @@ public class Scribe {
 					default:
 						// step back one token
 						firstComment = false;
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;					
 				}
 			}
@@ -582,7 +582,7 @@ public class Scribe {
 								preserveEmptyLines(count);
 								this.printNewLine();
 							}
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
 						break;
@@ -641,7 +641,7 @@ public class Scribe {
 								preserveEmptyLines(count);
 								this.printNewLine();
 							}
-							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
 						break;
@@ -707,7 +707,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 				}
 			}

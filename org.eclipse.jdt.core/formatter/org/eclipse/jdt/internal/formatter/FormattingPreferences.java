@@ -1366,7 +1366,7 @@ public class FormattingPreferences {
 		sunSettings.message_send_arguments_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.message_send_selector_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.method_throws_clause_alignment = Alignment.M_COMPACT_SPLIT;
-		sunSettings.type_member_alignment = Alignment.M_MULTICOLUMN;
+		sunSettings.type_member_alignment = Alignment.M_NO_ALIGNMENT;
 		sunSettings.allocation_expression_arguments_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.qualified_allocation_expression_arguments_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.array_initializer_expressions_alignment = Alignment.M_COMPACT_SPLIT;

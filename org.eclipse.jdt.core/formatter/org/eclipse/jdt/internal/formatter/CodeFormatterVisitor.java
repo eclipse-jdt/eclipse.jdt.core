@@ -1259,7 +1259,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	private int getExtraDimension() {
 
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition);
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		int dimensions = 0;
 		try {
 			int token;
@@ -1285,7 +1285,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	private boolean isComma() {
 
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition);
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameCOMMA;
 		} catch(InvalidInputException e) {
@@ -1308,7 +1308,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	private boolean isPartOfMultipleLocalDeclaration() {
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition);
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			int token;
 			while ((token = this.localScanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
@@ -1326,7 +1326,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	private boolean isSemiColon() {
 
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition);
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameSEMICOLON;
 		} catch(InvalidInputException e) {
@@ -1601,7 +1601,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
+			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd - 1);
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
@@ -1626,7 +1626,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
+			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd - 1);
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
@@ -3113,7 +3113,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 		}
-		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
+		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd + 1);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
