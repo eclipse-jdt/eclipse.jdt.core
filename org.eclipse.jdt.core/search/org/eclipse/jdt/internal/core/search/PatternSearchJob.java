@@ -97,24 +97,10 @@ public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-	ReadWriteMonitor monitor = indexManager.getMonitorFor(index);
+	ReadWriteMonitor monitor = index.monitor;
 	if (monitor == null) return COMPLETE; // index got deleted since acquired
 	try {
 		monitor.enterRead(); // ask permission to read
-
-		// if index has changed, commit these before querying
-//		if (index.hasChanged()) {
-//			try {
-//				monitor.exitRead(); // free read lock
-//				monitor.enterWrite(); // ask permission to write
-//				indexManager.saveIndex(index);
-//			} catch (IOException e) {
-//				return FAILED;
-//			} finally {
-//				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
-//			}
-//		}
 		long start = System.currentTimeMillis();
 		pattern.findIndexMatches(index, requestor, this.participant, this.scope, progressMonitor);
 		executionTime += System.currentTimeMillis() - start;

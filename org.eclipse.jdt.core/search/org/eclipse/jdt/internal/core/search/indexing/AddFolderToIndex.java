@@ -43,7 +43,7 @@ class AddFolderToIndex extends IndexRequest {
 		/* ensure no concurrent write access to index */
 		Index index = manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
-		ReadWriteMonitor monitor = manager.getMonitorFor(index);
+		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) return true; // index got deleted since acquired
 
 		try {

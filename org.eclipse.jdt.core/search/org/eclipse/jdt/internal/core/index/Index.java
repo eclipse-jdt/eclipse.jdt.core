@@ -15,8 +15,9 @@ import java.io.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 /**
  * An <code>Index</code> maps document names to their referenced words in various categories.
@@ -29,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 public class Index {
 
 public String printableName;
+public ReadWriteMonitor monitor;
 
 protected DiskIndex diskIndex;
 protected MemoryIndex memoryIndex;
@@ -86,6 +88,7 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 
 public Index(String fileName, String printableName, boolean reuseExistingFile) throws IOException {
 	this.printableName = printableName;
+	this.monitor = new ReadWriteMonitor();
 
 	this.memoryIndex = new MemoryIndex();
 	this.diskIndex = new DiskIndex(fileName);
@@ -108,13 +111,13 @@ public boolean hasChanged() {
  * If the key is null then all entries in specified categories are returned.
  */
 public EntryResult[] query(char[][] categories, char[] key, int matchRule) throws IOException {
-//	if (this.memoryIndex.shouldMerge()) {
-//		try {
-//			save(); // cannot call since we don't own the write monitor... not a problem if the index will be saved eventually
-//		} catch (IOException e) {
-//			// can we ignore it?
-//		}
-//	}
+	if (this.memoryIndex.shouldMerge() && monitor.exitReadEnterWrite()) {
+		try {
+			save();
+		} finally {
+			monitor.exitWriteEnterRead();
+		}
+	}
 
 	HashtableOfObject results;
 	if (this.memoryIndex.hasChanged()) {
@@ -160,7 +163,7 @@ public void remove(String documentName) {
 	this.memoryIndex.remove(documentName);
 }
 public void save() throws IOException {
-	// must own the write monitor for this index (stored in the IndexManager)
+	// must own the write lock of the monitor
 	if (!hasChanged()) return;
 
 	this.diskIndex = this.diskIndex.mergeWith(this.memoryIndex);

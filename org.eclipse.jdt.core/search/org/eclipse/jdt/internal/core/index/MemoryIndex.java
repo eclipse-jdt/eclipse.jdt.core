@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class MemoryIndex {
 
-//public int NUM_CHANGES = 10; // number of separate document changes... used to decide when to merge
+public int NUM_CHANGES = 100; // number of separate document changes... used to decide when to merge
 
 SimpleLookupTable docsToReferences; // document paths -> HashtableOfObject(category names -> set of words)
 
@@ -100,8 +100,7 @@ boolean hasChanged() {
 void remove(String documentName) {
 	this.docsToReferences.put(documentName, null);
 }
-//boolean shouldMerge() {
-//	// call before query(char[][] categories, char[] key, int matchRule) since it can be slow if there are numerous changes
-//	return this.docsToReferences.elementSize >= NUM_CHANGES;
-//}
+boolean shouldMerge() {
+	return this.docsToReferences.elementSize >= NUM_CHANGES;
+}
 }

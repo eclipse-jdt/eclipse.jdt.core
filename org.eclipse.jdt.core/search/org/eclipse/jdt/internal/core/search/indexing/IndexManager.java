@@ -35,9 +35,6 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
 	private Map indexes = new HashMap(5);
 
-	/* read write monitors */
-	private Map monitors = new HashMap(5);
-
 	/* need to save ? */
 	private boolean needToSave = false;
 	private static final CRC32 checksumCalculator = new CRC32();
@@ -132,7 +129,6 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 				try {
 					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
 					indexes.put(path, index);
-					monitors.put(index, new ReadWriteMonitor());
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
@@ -158,7 +154,6 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 					JobManager.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(path, index);
-				monitors.put(index, new ReadWriteMonitor());
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
@@ -197,14 +192,6 @@ private IPath getJavaPluginWorkingLocation() {
 	if (this.javaPluginLocation != null) return this.javaPluginLocation;
 
 	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
-}
-/**
- * Index access is controlled through a read-write monitor so as
- * to ensure there is no concurrent read and write operations
- * (only concurrent reading is allowed).
- */
-public ReadWriteMonitor getMonitorFor(Index index){
-	return (ReadWriteMonitor) monitors.get(index);
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
@@ -286,7 +273,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 public void jobWasCancelled(IPath path) {
 	Object o = this.indexes.get(path);
 	if (o instanceof Index) {
-		this.monitors.remove(o);
+		((Index) o).monitor = null;
 		this.indexes.remove(path);
 	}
 	updateIndexState(computeIndexName(path), UNKNOWN_STATE);
@@ -350,7 +337,7 @@ public synchronized Index recreateIndex(IPath path) {
 	// only called to over write an existing cached index...
 	try {
 		Index index = (Index) this.indexes.get(path);
-		ReadWriteMonitor monitor = (ReadWriteMonitor) this.monitors.remove(index);
+		ReadWriteMonitor monitor = index.monitor;
 
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
@@ -358,7 +345,7 @@ public synchronized Index recreateIndex(IPath path) {
 			JobManager.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
 		indexes.put(path, index);
-		monitors.put(index, monitor);
+		index.monitor = monitor;
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
@@ -389,7 +376,7 @@ public synchronized void removeIndex(IPath path) {
 		indexFile.delete();
 	Object o = this.indexes.get(path);
 	if (o instanceof Index)
-		this.monitors.remove(o);
+		((Index) o).monitor = null;
 	this.indexes.remove(path);
 	updateIndexState(indexName, null);
 }
@@ -433,7 +420,6 @@ public void reset() {
 	super.reset();
 	if (this.indexes != null) {
 		this.indexes = new HashMap(5);
-		this.monitors = new HashMap(5);
 		this.indexStates = null;
 	}
 	this.indexNames = new SimpleLookupTable();
@@ -476,26 +462,27 @@ public void saveIndexes() {
 	boolean allSaved = true;
 	for (int i = 0, length = toSave.size(); i < length; i++) {
 		Index index = (Index) toSave.get(i);
-		ReadWriteMonitor monitor = getMonitorFor(index);
+		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
 			// take read lock before checking if index has changed
 			// don't take write lock yet since it can cause a deadlock (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=50571)
 			monitor.enterRead(); 
 			if (index.hasChanged()) {
-				monitor.exitRead();
-				monitor.enterWrite();
-				try {
-					saveIndex(index);
-				} catch(IOException e) {
-					if (VERBOSE) {
-						JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
-						e.printStackTrace();
+				if (monitor.exitReadEnterWrite()) {
+					try {
+						saveIndex(index);
+					} catch(IOException e) {
+						if (VERBOSE) {
+							JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
+							e.printStackTrace();
+						}
+						allSaved = false;
+					} finally {
+						monitor.exitWriteEnterRead();
 					}
+				} else {
 					allSaved = false;
-					//Util.log(e);
-				} finally {
-					monitor.exitWriteEnterRead();
 				}
 			}
 		} finally {
@@ -512,7 +499,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, final 
 			/* ensure no concurrent write access to index */
 			Index index = getIndex(indexPath, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) return true;
-			ReadWriteMonitor monitor = getMonitorFor(index);
+			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
 			
 			try {

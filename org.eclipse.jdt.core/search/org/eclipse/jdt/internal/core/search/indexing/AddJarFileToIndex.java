@@ -75,7 +75,7 @@ class AddJarFileToIndex extends IndexRequest {
 					JobManager.verbose("-> index could not be created for " + this.containerPath); //$NON-NLS-1$
 				return true;
 			}
-			ReadWriteMonitor monitor = manager.getMonitorFor(index);
+			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) {
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$

@@ -31,7 +31,7 @@ public class SaveIndex extends IndexRequest {
 		/* ensure no concurrent write access to index */
 		Index index = this.manager.getIndex(this.containerPath, true /*reuse index file*/, false /*don't create if none*/);
 		if (index == null) return true;
-		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
+		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) return true; // index got deleted since acquired
 
 		try {
