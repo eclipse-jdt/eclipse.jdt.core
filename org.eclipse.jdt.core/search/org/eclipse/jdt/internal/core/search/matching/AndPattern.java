@@ -48,7 +48,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	
 	/* narrow down a set of entries using prefix criteria */
-	long[] potentialRefs = null;
+	long[] possibleRefs = null;
 	int maxRefs = -1;
 	this.resetQuery();
 	do {
@@ -82,32 +82,32 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		
 		/* only select entries which actually match the entire search pattern */
 		if (references == null) return;
-		if (potentialRefs == null) {
-			/* first query : these are the potential references */
-			potentialRefs = references;
+		if (possibleRefs == null) {
+			/* first query : these are the possible references */
+			possibleRefs = references;
 			maxRefs = numFiles;
 		} else {
-			/* eliminate potential references that don't match the current references */
-			int potentialLength = potentialRefs.length;
+			/* eliminate possible references that don't match the current references */
+			int possibleLength = possibleRefs.length;
 			for (int i = 0, length = references.length; i < length; i++) {
-				if (i < potentialLength)
-					potentialRefs[i] &= references[i];
+				if (i < possibleLength)
+					possibleRefs[i] &= references[i];
 				else
-					potentialRefs[i] = 0;
+					possibleRefs[i] = 0;
 			}
-			// check to see that there are still potential references after the merge
-			while (--potentialLength >= 0 && potentialRefs[potentialLength] == 0);
-			if (potentialLength == -1) return;
+			// check to see that there are still possible references after the merge
+			while (--possibleLength >= 0 && possibleRefs[possibleLength] == 0);
+			if (possibleLength == -1) return;
 		}
 	} while (this.hasNextQuery());
 
-	/* report potential references that remain */
-	if (potentialRefs != null) {
+	/* report possible references that remain */
+	if (possibleRefs != null) {
 		int[] refs = new int[maxRefs];
 		int refsLength = 0;
 		for (int reference = 1; reference <= maxRefs; reference++) {
 			int vectorIndex = reference / 64; // a long has 64 bits
-			if ((potentialRefs[vectorIndex] & (1L << (reference % 64))) != 0)
+			if ((possibleRefs[vectorIndex] & (1L << (reference % 64))) != 0)
 				refs[refsLength++] = reference;
 		}
 		System.arraycopy(refs, 0, refs = new int[refsLength], 0, refsLength);

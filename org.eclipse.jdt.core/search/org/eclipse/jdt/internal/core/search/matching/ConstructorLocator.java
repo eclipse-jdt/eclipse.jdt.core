@@ -34,14 +34,14 @@ public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in Expl
 		if (length != argsLength) return;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = this.pattern.findReferences ? matchLevelForReferences(node) : IMPOSSIBLE_MATCH;
 	int declarationsLevel = this.pattern.findDeclarations ? matchLevelForDeclarations(node) : IMPOSSIBLE_MATCH;
 
 	int level = referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // use the stronger match
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 public void match(Expression node, MatchingNodeSet nodeSet) { // interested in AllocationExpression
@@ -61,7 +61,7 @@ public void match(Expression node, MatchingNodeSet nodeSet) { // interested in A
 		if (length != argsLength) return;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -71,7 +71,7 @@ public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return;
 
 	// need to look for a generated default constructor
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
@@ -96,7 +96,7 @@ protected int matchLevelForReferences(ConstructorDeclaration constructor) {
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 	}
-	return this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
+	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 	// constructor name is stored in selector field
@@ -114,7 +114,7 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 				return IMPOSSIBLE_MATCH;
 	}
 
-	return this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
+	return this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
 public int resolveLevel(AstNode node) {
 	if (this.pattern.findReferences) {

@@ -58,17 +58,17 @@ public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 		// must be a write only access with an initializer
 		if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
 			if (matchesName(this.pattern.name, node.name))
-				referencesLevel = this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
+				referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findDeclarations)
 		if (node.isField()) // ignore field initializers
 			if (matchesName(this.pattern.name, node.name))
 				if (matchesTypeReference(this.pattern.typeSimpleName, node.type))
-					declarationsLevel = this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
+					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int level = referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // use the stronger match
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -116,24 +116,24 @@ protected int matchField(FieldBinding field, boolean matchName) {
 protected void matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
 	if (node instanceof FieldReference) {
 		if (matchesName(this.pattern.name, ((FieldReference) node).token))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else if (node instanceof NameReference) {
 		if (this.pattern.name == null) {
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		} else if (node instanceof SingleNameReference) {
 			if (matchesName(this.pattern.name, ((SingleNameReference) node).token))
-				nodeSet.addMatch(node, POTENTIAL_MATCH);
+				nodeSet.addMatch(node, POSSIBLE_MATCH);
 		} else {
 			QualifiedNameReference qNameRef = (QualifiedNameReference) node;
 			char[][] tokens = qNameRef.tokens;
 			if (writeOnlyAccess) {
 				// in the case of the assigment of a qualified name reference, the match must be on the last token
 				if (matchesName(this.pattern.name, tokens[tokens.length-1]))
-					nodeSet.addMatch(node, POTENTIAL_MATCH);
+					nodeSet.addMatch(node, POSSIBLE_MATCH);
 			} else {
 				for (int i = 0, max = tokens.length; i < max; i++) {
 					if (matchesName(this.pattern.name, tokens[i])) {
-						nodeSet.addMatch(node, POTENTIAL_MATCH);
+						nodeSet.addMatch(node, POSSIBLE_MATCH);
 						return;
 					}
 				}
@@ -269,15 +269,15 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		}
 	}
 }
-public int resolveLevel(AstNode potentialMatchingNode) {
+public int resolveLevel(AstNode possiblelMatchingNode) {
 	if (this.pattern.findReferences) {
-		if (potentialMatchingNode instanceof FieldReference)
-			return matchField(((FieldReference) potentialMatchingNode).binding, true);
-		else if (potentialMatchingNode instanceof NameReference)
-			return resolveLevel((NameReference) potentialMatchingNode);
+		if (possiblelMatchingNode instanceof FieldReference)
+			return matchField(((FieldReference) possiblelMatchingNode).binding, true);
+		else if (possiblelMatchingNode instanceof NameReference)
+			return resolveLevel((NameReference) possiblelMatchingNode);
 	}
-	if (potentialMatchingNode instanceof FieldDeclaration)
-		return matchField(((FieldDeclaration) potentialMatchingNode).binding, true);
+	if (possiblelMatchingNode instanceof FieldDeclaration)
+		return matchField(((FieldDeclaration) possiblelMatchingNode).binding, true);
 	return IMPOSSIBLE_MATCH;
 }
 public int resolveLevel(Binding binding) {
