@@ -412,6 +412,12 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
+	public static final String COMPILER_PB_AUTOBOXING = PLUGIN_ID + ".compiler.problem.autoboxing"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
 	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
