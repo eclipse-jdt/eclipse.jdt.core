@@ -626,7 +626,7 @@ public void testDeletePackageFragment2() throws CoreException {
 	}
 }
 /*
- * Ensures that deleting a default package where prj=src removes its compilation units.
+ * Ensures that deleting a default package where prj=src removes its compilation units is successful.
  * (regression test for bug 39926 deleting default package (not in source folder) does nothing)
  */
 public void testDeletePackageFragment3() throws CoreException {
@@ -653,6 +653,33 @@ public void testDeletePackageFragment3() throws CoreException {
 			"	[project root][*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 
 			"			X.java[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
+/*
+ * Ensures that deleting a package that only contains a .class file is successful.
+ * (regression test for bug 40606 Unable to discard empty package if containing .class files)
+ */
+public void testDeletePackageFragment4() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IFolder folder = createFolder("P1/p");
+		IFile file = createFile("P1/p/X.class", "");
+		IPackageFragment pkg = getPackage("P1/p");
+
+		startDeltas();
+		pkg.delete(false, null);
+		assertTrue("Folder should no longer exist", !folder.exists());
+		assertTrue("Fragment should no longer exist", !pkg.exists());
+		assertTrue("File should no longer exist", !file.exists());
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		p[-]: {}"
 		);
 	} finally {
 		stopDeltas();
