@@ -3713,4 +3713,29 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}			
+	// 58979
+	public void test131() {
+		this.runNegativeTest(
+			new String[] {
+				"ArrayList.java",
+				" interface List<T> {\n" + 
+				"	 List<T> foo();\n" + 
+				"}\n" + 
+				"\n" + 
+				" class ArrayList<T> implements List<T> {\n" + 
+				"	public List<T> foo() {\n" + 
+				"		List<T> lt = this;\n" + 
+				"		lt.bar();\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in ArrayList.java (at line 8)\n" + 
+			"	lt.bar();\n" + 
+			"	   ^^^\n" + 
+			"The method bar() is undefined for the type List<T>\n" + 
+			"----------\n");
+	}
+				
 }
