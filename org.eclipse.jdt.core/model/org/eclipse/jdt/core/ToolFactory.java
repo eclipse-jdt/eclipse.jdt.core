@@ -126,6 +126,7 @@ public class ToolFactory {
 	 * Create a default classfile reader, able to expose the internal representation of a given classfile
 	 * according to the decoding flag used to initialize the reader.
 	 * Answer null if the file named fileName doesn't represent a valid .class file.
+	 * The fileName has to be an absolute OS path to the given .class file.
 	 * 
 	 * The decoding flags are described in IClassFileReader.
 	 * 
@@ -176,7 +177,7 @@ public class ToolFactory {
 					}
 					return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
 				} else {
-					return createDefaultClassFileReader(classfile.getPath().toOSString(), decodingFlag);
+					return createDefaultClassFileReader(classfile.getResource().getLocation().toOSString(), decodingFlag);
 				}
 			} catch(CoreException e){
 			}
