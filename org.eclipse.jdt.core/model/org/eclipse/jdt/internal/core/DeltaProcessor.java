@@ -683,25 +683,6 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 	}
 
 	/**
-	 * Reset the non-java resources collection for package fragment roots of the
-	 * corresponding project.
-	 */
-	protected void resetNonJavaResourcesForPackageFragmentRoots(JavaProject project)
-		throws JavaModelException {
-
-		IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
-		if (roots == null)
-			return;
-		for (int i = 0, max = roots.length; i < max; i++) {
-			IPackageFragmentRoot root = roots[i];
-			IResource res = root.getUnderlyingResource();
-			if (res != null) {
-				((PackageFragmentRoot) root).resetNonJavaResources();
-			}
-		}
-	}
-
-	/**
 	 * Converts an <code>IResourceDelta</code> and its children into
 	 * the corresponding <code>IJavaElementDelta</code>s.
 	 * The classpath is passed along. If it is null, the resource

@@ -285,12 +285,6 @@ public void refreshChildren() {
 		// do nothing.
 	}
 }
-	/**
-	 * Reset the array of non-java resources contained in the receiver to null.
-	 */
-	public void resetNonJavaResources() throws JavaModelException {
-		((PackageFragmentRootInfo) getElementInfo()).setNonJavaResources(null);
-	}
 /**
  * @private Debugging purposes
  */

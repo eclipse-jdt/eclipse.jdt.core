@@ -623,12 +623,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	public void refreshChildren() {
 		// do nothing
 	}
-	/**
-	 * Reset the array of non-java resources contained in the receiver to null.
-	 */
-	public void resetNonJavaResources() throws JavaModelException {
-		((JarPackageFragmentRootInfo) getElementInfo()).setNonJavaResources(null);
-	}
+
 	/**
 	 * @private - for use by <code>AttachSourceOperation</code> only.
 	 * Sets the source mapper associated with this jar.

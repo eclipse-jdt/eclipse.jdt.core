@@ -464,9 +464,20 @@ public class JavaProject
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
 
-		return getNameLookup().findPackageFragmentRoot(this.canonicalizedPath(path));
+		IPackageFragmentRoot[] allRoots = this.getAllPackageFragmentRoots();
+		path = this.canonicalizedPath(path);
+		if (!path.isAbsolute()) {
+			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
+		}
+		for (int i= 0; i < allRoots.length; i++) {
+			IPackageFragmentRoot classpathRoot= allRoots[i];
+			if (classpathRoot.getPath().equals(path)) {
+				return classpathRoot;
+			}
+		}
+		return null;
 	}
-
+	
 	/**
 	 * @see Openable
 	 */
@@ -1666,29 +1677,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Reset the non-java resources collection for package fragment roots of the
-	 * receiver
-	 */
-	protected void resetNonJavaResourcesForPackageFragmentRoots()
-		throws JavaModelException {
-
-		IPackageFragmentRoot[] roots = getAllPackageFragmentRoots();
-		if (roots == null)
-			return;
-		for (int i = 0, max = roots.length; i < max; i++) {
-			IPackageFragmentRoot root = roots[i];
-			try {
-				IResource res = root.getUnderlyingResource();
-				if (res != null) {
-					((PackageFragmentRoot) root).resetNonJavaResources();
-				}
-			} catch (JavaModelException e) {
-				// ignore if the resource cannot be retrieved anymore.
-			}
-		}
-	}
-
-	/**
 	 * Returns the <code>IResource</code> that correspond to the specified path.
 	 * null if none.
 	 */
@@ -1944,8 +1932,6 @@ public class JavaProject
 			
 			// flush namelookup (holds onto caches)
 			info.setNameLookup(null);
-			// See PR 1G8BFWS: ITPJUI:WINNT - internal jar appearing twice in packages view
-			resetNonJavaResourcesForPackageFragmentRoots();
 			((JavaProjectElementInfo) getElementInfo()).setNonJavaResources(null);
 		}
 	}

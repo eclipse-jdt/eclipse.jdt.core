@@ -277,28 +277,6 @@ public class NameLookup {
 	}
 
 	/**
-	 * Returns the package fragment root whose path matches the given
-	 * (absolute) path, or <code>null</code> if none exist. The domain of
-	 * the search is bounded by the classpath of the <code>IJavaProject</code>
-	 * this <code>NameLookup</code> was obtained from.
-	 * The path can be:
-	 *	- internal to the workbench: "/Compiler/src"
-	 *	- external to the workbench: "c:/jdk/classes.zip"
-	 */
-	public IPackageFragmentRoot findPackageFragmentRoot(IPath path) {
-		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
-		}
-		for (int i= 0; i < fPackageFragmentRoots.length; i++) {
-			IPackageFragmentRoot classpathRoot= fPackageFragmentRoots[i];
-			if (classpathRoot.getPath().equals(path)) {
-				return classpathRoot;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Returns the package fragments whose name matches the given
 	 * (qualified) name, or <code>null</code> if none exist.
 	 *
