@@ -31,13 +31,25 @@ protected int workDone;
 protected int totalWork;
 protected String previousSubtask;
 
+public static int NewErrorCount = 0;
+public static int FixedErrorCount = 0;
+public static int NewWarningCount = 0;
+public static int FixedWarningCount = 0;
+
+public static void resetProblemCounters() {
+	NewErrorCount = 0;
+	FixedErrorCount = 0;
+	NewWarningCount = 0;
+	FixedWarningCount = 0;
+}
+
 public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.monitor = monitor;
 	this.cancelling = false;
-	this.newErrorCount = 0;
-	this.fixedErrorCount = 0;
-	this.newWarningCount = 0;
-	this.fixedWarningCount = 0;
+	this.newErrorCount = NewErrorCount;
+	this.fixedErrorCount = FixedErrorCount;
+	this.newWarningCount = NewWarningCount;
+	this.fixedWarningCount = FixedWarningCount;
 	this.workDone = 0;
 	this.totalWork = 1000000;
 }
@@ -89,6 +101,11 @@ public void compiled(SourceFile unit) {
 }
 
 public void done() {
+	NewErrorCount = this.newErrorCount;
+	FixedErrorCount = this.fixedErrorCount;
+	NewWarningCount = this.newWarningCount;
+	FixedWarningCount = this.fixedWarningCount;
+
 	updateProgress(1.0f);
 	subTask(Util.bind("build.done")); //$NON-NLS-1$
 	if (monitor != null)

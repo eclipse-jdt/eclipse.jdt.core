@@ -65,7 +65,8 @@ public static IMarker[] getTasksFor(IResource resource) {
  * Note that if auto-build is off, then notification may occur though no actual build will take place.
  * Allow, for instance, to reset compilation problem counters.
  */
-public static void prepareToBuild(IResourceChangeEvent event) { // TODO: (kent) add support for global problem count
+public static void prepareToBuild(IResourceChangeEvent event) {
+	BuildNotifier.resetProblemCounters();
 }
 
 public static void removeProblemsFor(IResource resource) {
