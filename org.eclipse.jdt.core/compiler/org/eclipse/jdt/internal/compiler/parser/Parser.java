@@ -5691,31 +5691,31 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	initialize();
 	goForClassBodyDeclarations();
 	/* scanner initialization */
-	scanner.setSource(source);
-	scanner.resetTo(offset, offset + length - 1);
+	this.scanner.setSource(source);
+	this.scanner.resetTo(offset, offset + length - 1);
 
 	/* type declaration should be parsed as member type declaration */	
-	nestedType = 1;
+	this.nestedType = 1;
 
 	/* unit creation */
-	referenceContext = unit;
-	compilationUnit = unit;
+	this.referenceContext = unit;
+	this.compilationUnit = unit;
 
 	/* run automaton */
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	}
 
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		return null;
 	}
 	int astLength;
-	if ((astLength = astLengthStack[astLengthPtr--]) != 0) {
+	if ((astLength = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		ASTNode[] result = new ASTNode[astLength];
-		astPtr -= astLength;
-		System.arraycopy(astStack, astPtr + 1, result, 0, astLength);
+		this.astPtr -= astLength;
+		System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
 		return result;
 	} else {
 		return null;
@@ -5725,26 +5725,26 @@ public Expression parseExpression(char[] source, int offset, int length, Compila
 
 	initialize();
 	goForExpression();
-	nestedMethod[nestedType]++;
+	this.nestedMethod[this.nestedType]++;
 
-	referenceContext = unit;
-	compilationUnit = unit;
+	this.referenceContext = unit;
+	this.compilationUnit = unit;
 
-	scanner.setSource(source);
-	scanner.resetTo(offset, offset + length - 1);
+	this.scanner.setSource(source);
+	this.scanner.resetTo(offset, offset + length - 1);
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
-		lastAct = ERROR_ACTION;
+		this.lastAct = ERROR_ACTION;
 	} finally {
-		nestedMethod[nestedType]--;
+		this.nestedMethod[this.nestedType]--;
 	}
 
-	if (lastAct == ERROR_ACTION) {
+	if (this.lastAct == ERROR_ACTION) {
 		return null;
 	}
 
-	return expressionStack[expressionPtr];
+	return this.expressionStack[this.expressionPtr];
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
