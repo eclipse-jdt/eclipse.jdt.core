@@ -433,6 +433,7 @@ public static Test suite() {
 	// local variable reference
 	suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
 	suite.addTest(new JavaSearchTests("testLocalVariableReference2"));
+	suite.addTest(new JavaSearchTests("testLocalVariableReference3"));
 	
 	// local variable occurrences
 	suite.addTest(new JavaSearchTests("testLocalVariableOccurrences1"));
@@ -1580,6 +1581,24 @@ public void testLocalVariableReference2() throws JavaModelException {
 		resultCollector);
 	assertSearchResults(
 		"src/f1/X.java void f1.X.foo2() [var2]",
+		resultCollector);
+}
+/*
+ * Local variable reference test.
+ * (regression test for bug 48725 Cannot search for local vars in jars.)
+ */
+public void testLocalVariableReference3() throws JavaModelException {
+    IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p", "X.class");
+	ILocalVariable localVar = (ILocalVariable) codeSelect(classFile, "local = 1;", "local")[0];
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		REFERENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"test48725.jar void p.X.foo()",
 		resultCollector);
 }
 /**

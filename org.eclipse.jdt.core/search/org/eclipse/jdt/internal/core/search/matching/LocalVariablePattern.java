@@ -14,10 +14,14 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
@@ -44,7 +48,15 @@ public char[] encodeIndexKey() {
 	return null;
 }
 public void findIndexMatches(IIndex index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	String path = this.localVariable.getPath().toString();
+    IPackageFragmentRoot root = (IPackageFragmentRoot)this.localVariable.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+	String path;
+    if (root.isArchive()) {
+        IType type = (IType)this.localVariable.getAncestor(IJavaElement.TYPE);
+        String filePath = (type.getFullyQualifiedName('/')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
+        path = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + filePath;
+    } else {
+        path = this.localVariable.getPath().toString();
+    }
 	if (scope.encloses(path)) {
 		if (!requestor.acceptIndexMatch(path, this, participant)) 
 			throw new OperationCanceledException();
