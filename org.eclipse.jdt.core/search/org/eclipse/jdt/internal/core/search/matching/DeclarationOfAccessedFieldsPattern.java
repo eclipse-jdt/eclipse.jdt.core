@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -103,17 +104,20 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
 		locator.reportBinaryMatch(resource, field, info, IJavaSearchResultCollector.EXACT_MATCH);
 	} else {
-		TypeDeclaration typeDecl = ((SourceTypeBinding)declaringClass).scope.referenceContext;
-		FieldDeclaration fieldDecl = null;
-		FieldDeclaration[] fieldDecls = typeDecl.fields;
-		for (int i = 0, length = fieldDecls.length; i < length; i++) {
-			if (CharOperation.equals(bindingName, fieldDecls[i].name)) {
-				fieldDecl = fieldDecls[i];
-				break;
+		ClassScope scope = ((SourceTypeBinding)declaringClass).scope;
+		if (scope != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			FieldDeclaration fieldDecl = null;
+			FieldDeclaration[] fieldDecls = typeDecl.fields;
+			for (int i = 0, length = fieldDecls.length; i < length; i++) {
+				if (CharOperation.equals(bindingName, fieldDecls[i].name)) {
+					fieldDecl = fieldDecls[i];
+					break;
+				}
+			} 
+			if (fieldDecl != null) {
+				locator.report(resource, fieldDecl.sourceStart, fieldDecl.sourceEnd, field, IJavaSearchResultCollector.EXACT_MATCH);
 			}
-		} 
-		if (fieldDecl != null) {
-			locator.report(resource, fieldDecl.sourceStart, fieldDecl.sourceEnd, field, IJavaSearchResultCollector.EXACT_MATCH);
 		}
 	}
 }

@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -90,17 +91,20 @@ private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
 		locator.reportBinaryMatch(resource, method, info, IJavaSearchResultCollector.EXACT_MATCH);
 	} else {
-		TypeDeclaration typeDecl = ((SourceTypeBinding)declaringClass).scope.referenceContext;
-		AbstractMethodDeclaration methodDecl = null;
-		AbstractMethodDeclaration[] methodDecls = typeDecl.methods;
-		for (int i = 0, length = methodDecls.length; i < length; i++) {
-			if (CharOperation.equals(bindingSelector, methodDecls[i].selector)) {
-				methodDecl = methodDecls[i];
-				break;
+		ClassScope scope = ((SourceTypeBinding)declaringClass).scope;
+		if (scope != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			AbstractMethodDeclaration methodDecl = null;
+			AbstractMethodDeclaration[] methodDecls = typeDecl.methods;
+			for (int i = 0, length = methodDecls.length; i < length; i++) {
+				if (CharOperation.equals(bindingSelector, methodDecls[i].selector)) {
+					methodDecl = methodDecls[i];
+					break;
+				}
+			} 
+			if (methodDecl != null) {
+				locator.report(resource, methodDecl.sourceStart, methodDecl.sourceEnd, method, IJavaSearchResultCollector.EXACT_MATCH);
 			}
-		} 
-		if (methodDecl != null) {
-			locator.report(resource, methodDecl.sourceStart, methodDecl.sourceEnd, method, IJavaSearchResultCollector.EXACT_MATCH);
 		}
 	}
 }
