@@ -88,7 +88,11 @@ public boolean build(SimpleLookupTable deltas) {
 		int compileLoop = 0;
 		float increment = 0.40f;
 		while (locations.size() > 0) { // added to in acceptResult
-			if (++compileLoop > MaxCompileLoop) return false;
+			if (++compileLoop > MaxCompileLoop) {
+				if (JavaBuilder.DEBUG)
+					System.out.println("ABORTING incremental build... exceeded loop count"); //$NON-NLS-1$
+				return false;
+			}
 			notifier.checkCancel();
 
 			String[] allSourceFiles = new String[locations.size()];
