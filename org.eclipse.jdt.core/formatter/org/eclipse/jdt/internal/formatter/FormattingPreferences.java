@@ -196,10 +196,10 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER = false;	
 	public static final String DEFAULT_BLOCK_BRACE_POSITION = END_OF_LINE;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE = true;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CASE = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_CASE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST = false;
-	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT = true;
 	public static final boolean DEFAULT_INSERT_SPACE_IN_WHILE_CONDITION = false;
 	public static final boolean DEFAULT_INSERT_SPACE_IN_IF_CONDITION = false;
 	public static final boolean DEFAULT_COMPACT_ELSE_IF = true;

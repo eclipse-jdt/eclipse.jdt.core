@@ -62,6 +62,9 @@ public class CodeFormatterParser extends Parser {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 
+		/* type declaration should be parsed as member type declaration */	
+		nestedType = 1;
+
 		/* unit creation */
 		referenceContext = unit;
 		compilationUnit = unit;
