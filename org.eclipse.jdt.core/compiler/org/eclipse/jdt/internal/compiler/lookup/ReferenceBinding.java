@@ -333,6 +333,7 @@ public int fieldCount() {
 public FieldBinding[] fields() {
 	return NoFields;
 }
+
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }

@@ -63,11 +63,6 @@ public TypeBinding elementsType(Scope scope) {
 		return scope.createArray(leafComponentType, dimensions - 1);
 }
 
-public TypeBinding erasure() {
-    if (!leafComponentType.isParameterizedType()) return this;
-    return null; // TODO need to erase leafComponent type, but need scope to reach array cache
-}
-
 public PackageBinding getPackage() {
 	return leafComponentType.getPackage();
 }

@@ -795,8 +795,11 @@ public class ClassScope extends Scope {
 	    TypeVariableBinding[] typeVariables = referenceContext.binding.typeVariables;
 	    for (int i = 0, length = typeVariables.length; i < length; i++) {
 	        TypeVariableBinding typeVariable = typeVariables[i];
+	        
+	        //TODO ignore parameter bounds for now
 	        typeVariable.superclass = getJavaLangObject();
-	        typeVariable.firstBound = typeVariable.superclass; // first bound used to compute erasure
+	        // set firstBound to the binding of the first explicit bound in parameter declaration
+	       	typeVariable.firstBound = null; // first bound used to compute erasure
 	    }
 	    return true;
 	}

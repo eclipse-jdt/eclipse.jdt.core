@@ -18,6 +18,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public ReferenceBinding type; 
 	public TypeBinding[] typeArguments;
 	public LookupEnvironment environment; // TODO is back pointer actually needed in long term ?
+	public char[] genericTypeSignature;
 	
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] typeArguments, LookupEnvironment environment){
 		
@@ -102,13 +103,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * The erasure of a parameterized type is the erasure of its type (in case itself a parameterized type)
-	 */
-	public TypeBinding erasure(){
-		return this.type.erasure();
-	}
-	
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fieldCount()
 	 */
 	public int fieldCount() {
@@ -121,6 +115,21 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public FieldBinding[] fields() {
 		return this.type.fields();
 	}
+
+	/**
+	 * Ltype<param1 ... paremN>;
+	 * LY<TT;>;
+	 */
+	public char[] genericTypeSignature() {
+	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
+	    StringBuffer sig = new StringBuffer(10);
+	    sig.append(this.type.genericTypeSignature()).append('<');
+	    for (int i = 0, length = this.typeArguments.length; i < length; i++) {
+	        sig.append(this.typeArguments[i].genericTypeSignature());
+	    }
+	    sig.append(">;"); //$NON-NLS-1$
+		return this.genericTypeSignature = sig.toString().toCharArray();
+	}	
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])

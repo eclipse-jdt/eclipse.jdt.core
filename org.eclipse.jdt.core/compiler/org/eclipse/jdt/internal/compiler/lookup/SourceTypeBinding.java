@@ -394,6 +394,25 @@ public FieldBinding[] fields() {
 	}
 	return fields;
 }
+/**
+ * <param1 ... paremN>superclass superinterface1 ... superinterfaceN
+ * <T:LY<TT;>;U:Ljava/lang/Object;V::Ljava/lang/Runnable;:Ljava/lang/Cloneable;:Ljava/util/Map;>Ljava/lang/Exception;Ljava/lang/Runnable;
+ */
+public char[] genericSignature() {
+	if (this.typeVariables == NoTypeVariables) return null;
+	    StringBuffer sig = new StringBuffer(10);
+	    sig.append('<');
+	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+	        sig.append(this.typeVariables[i].genericSignature());
+	    }
+	    sig.append('>');
+	    if (this.superclass != null) sig.append(this.superclass.genericTypeSignature());
+	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+	        sig.append(this.superInterfaces[i].genericTypeSignature());
+	    }
+		return sig.toString().toCharArray();
+}
+
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)

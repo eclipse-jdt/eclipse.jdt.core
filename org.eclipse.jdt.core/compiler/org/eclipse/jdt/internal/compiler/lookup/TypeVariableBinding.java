@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 /**
  * Binding for a type parameter, held by source or binary type..
  */
@@ -26,6 +28,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	// actual resolved variable supertypes (if no superclass bound, then associated to Object)
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces; 
+	public char[] genericTypeSignature;
 	
 	public TypeVariableBinding(char[] sourceName, int rank){
 
@@ -33,10 +36,39 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.rank = rank; 
 	}
 
-	public char[] constantPoolName() /* java/lang/Object */ {
-		return this.firstBound.constantPoolName();
+	public char[] constantPoolName() { /* java/lang/Object */ 
+	    if (this.firstBound != null) {
+			return this.firstBound.constantPoolName();
+	    }
+	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
 
+	/**
+	 * T::Ljava/util/Map;:Ljava/io/Serializable;
+	 * T:LY<TT;>
+	 */
+	public char[] genericSignature() {
+	    StringBuffer sig = new StringBuffer(10);
+	    sig.append(this.sourceName).append(':');
+	   	int interfaceLength = this.superInterfaces.length;
+	    if (interfaceLength == 0 || this.firstBound == this.superclass) {
+	        sig.append(this.superclass.genericTypeSignature());
+	    }
+		for (int i = 0; i < interfaceLength; i++) {
+		    if (i > 0) sig.append(':');
+		    sig.append(this.superInterfaces[i].genericTypeSignature());
+		}
+		sig.append(';');
+		return sig.toString().toCharArray();
+	}
+	/**
+	 * T::Ljava/util/Map;:Ljava/io/Serializable;
+	 * T:LY<TT;>
+	 */
+	public char[] genericTypeSignature() {
+	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
+		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
+	}	
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */

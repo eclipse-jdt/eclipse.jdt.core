@@ -54,11 +54,8 @@ public int dimensions(){
 	return 0;
 }
 
-/**
- * Returns the erased version of a type (itself for non parameterized types)
- */
-public TypeBinding erasure(){
-	return this;
+public char[] genericTypeSignature() {
+    return signature();
 }
 
 public abstract PackageBinding getPackage();
