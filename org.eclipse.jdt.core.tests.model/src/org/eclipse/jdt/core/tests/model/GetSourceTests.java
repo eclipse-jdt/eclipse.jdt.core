@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import junit.framework.Test;
 
@@ -151,6 +152,36 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"    return 1;\n" + 
 			"  }";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+	}
+	
+	/*
+	 * Ensures the name range for a method with syntax errors in its header is correct.
+	 * (regression test for bug 43139 Delete member in Outliner not working)
+	 */
+	public void testNameRangeMethodWithSyntaxError() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void static bar() {}\n" +
+				"}";
+			createFile(
+				"/P/p/Y.java",
+					cuSource
+			);
+			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
+		
+			ISourceRange nameRange = method.getNameRange();
+			int start = nameRange.getOffset();
+			int end = start+nameRange.getLength();
+			String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
+			String expectedSource = "bar";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
 	}
 	
 	/**

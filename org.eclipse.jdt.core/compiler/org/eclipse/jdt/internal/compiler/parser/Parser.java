@@ -4641,6 +4641,23 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	}
 	return false;
 }
+public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
+	MethodDeclaration m = new MethodDeclaration(compilationResult);
+	m.sourceStart = c.sourceStart;
+	m.sourceEnd = c.sourceEnd;
+	m.bodyStart = c.bodyStart;
+	m.bodyEnd = c.bodyEnd;
+	m.declarationSourceEnd = c.declarationSourceEnd;
+	m.declarationSourceStart = c.declarationSourceStart;
+	m.selector = c.selector;
+	m.statements = c.statements;
+	m.modifiers = c.modifiers;
+	m.arguments = c.arguments;
+	m.thrownExceptions = c.thrownExceptions;
+	m.explicitDeclarations = c.explicitDeclarations;
+	m.returnType = null;
+	return m;
+}
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
 }

@@ -351,6 +351,26 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
+public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
+	SourceMethodDeclaration m = new SourceMethodDeclaration(compilationResult);
+	m.sourceStart = c.sourceStart;
+	m.sourceEnd = c.sourceEnd;
+	m.bodyStart = c.bodyStart;
+	m.bodyEnd = c.bodyEnd;
+	m.declarationSourceEnd = c.declarationSourceEnd;
+	m.declarationSourceStart = c.declarationSourceStart;
+	m.selector = c.selector;
+	m.statements = c.statements;
+	m.modifiers = c.modifiers;
+	m.arguments = c.arguments;
+	m.thrownExceptions = c.thrownExceptions;
+	m.explicitDeclarations = c.explicitDeclarations;
+	m.returnType = null;
+	if (c instanceof SourceConstructorDeclaration) {
+		m.selectorSourceEnd = ((SourceConstructorDeclaration)c).selectorSourceEnd;
+	}
+	return m;
+}
 protected FieldDeclaration createFieldDeclaration(char[] fieldName, int sourceStart, int sourceEnd) {
 	return new SourceFieldDeclaration(fieldName, sourceStart, sourceEnd);
 }

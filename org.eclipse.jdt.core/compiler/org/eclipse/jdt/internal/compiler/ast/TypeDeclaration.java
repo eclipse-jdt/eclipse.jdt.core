@@ -273,20 +273,7 @@ public class TypeDeclaration
 						// unless an explicit constructor call was supplied
 						ConstructorDeclaration c = (ConstructorDeclaration) am;
 						if (c.constructorCall == null || c.constructorCall.isImplicitSuper()) { //changed to a method
-							MethodDeclaration m = new MethodDeclaration(this.compilationResult);
-							m.sourceStart = c.sourceStart;
-							m.sourceEnd = c.sourceEnd;
-							m.bodyStart = c.bodyStart;
-							m.bodyEnd = c.bodyEnd;
-							m.declarationSourceEnd = c.declarationSourceEnd;
-							m.declarationSourceStart = c.declarationSourceStart;
-							m.selector = c.selector;
-							m.statements = c.statements;
-							m.modifiers = c.modifiers;
-							m.arguments = c.arguments;
-							m.thrownExceptions = c.thrownExceptions;
-							m.explicitDeclarations = c.explicitDeclarations;
-							m.returnType = null;
+							MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
 							methods[i] = m;
 						}
 					} else {
