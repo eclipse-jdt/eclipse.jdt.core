@@ -88,8 +88,12 @@ public class FullSourceWorkspaceTests extends Tests {
 		
 	public void testPerfFullBuild() throws IOException, CoreException {
 		setUpFullSourceWorkspace();
+		startMeasuring();
 		fullBuild();
-		env.waitForAutoBuild();
+		stopMeasuring();
+		commitMeasurements();
+		assertPerformance();
+		
 		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 		for (int i = 0, length = markers.length; i < length; i++) {
 			IMarker marker = markers[i];
