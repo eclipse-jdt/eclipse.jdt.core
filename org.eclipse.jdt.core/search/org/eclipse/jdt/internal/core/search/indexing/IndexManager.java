@@ -516,12 +516,14 @@ public void shutdown() {
 	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
 	if (indexesDirectory.isDirectory()) {
 		File[] indexesFiles = indexesDirectory.listFiles();
-		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
-			String fileName = indexesFiles[i].getAbsolutePath();
-			if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
-				if (VERBOSE)
-					JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
-				indexesFiles[i].delete();
+		if (indexesFiles != null) {
+			for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
+				String fileName = indexesFiles[i].getAbsolutePath();
+				if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
+					if (VERBOSE)
+						JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+					indexesFiles[i].delete();
+				}
 			}
 		}
 	}
