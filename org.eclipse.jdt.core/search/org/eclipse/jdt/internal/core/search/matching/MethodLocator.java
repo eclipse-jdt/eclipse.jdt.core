@@ -353,7 +353,7 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(MessageSend messageSend) {
 	MethodBinding method = messageSend.binding;
-	if (method == null) return INACCURATE_MATCH;
+	if (method == null || messageSend.resolvedType == null) return INACCURATE_MATCH;
 	
 	int methodLevel = matchMethod(method);
 	if (methodLevel == IMPOSSIBLE_MATCH) {
