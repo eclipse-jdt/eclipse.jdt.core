@@ -1022,7 +1022,7 @@ public void testCompletionOutOfBounds() throws JavaModelException {
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionOutOfBounds.java");
 	try {
 		cu.codeComplete(cu.getSource().length() + 1, requestor);
-	} catch (IllegalArgumentException e) {
+	} catch (JavaModelException e) {
 		return;
 	}
 	assertTrue("should have failed", false);

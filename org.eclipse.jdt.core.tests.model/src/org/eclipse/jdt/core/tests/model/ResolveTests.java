@@ -400,7 +400,7 @@ public void testInvalidResolve() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "p1", "X.java");
 	try {
 		cu.codeSelect(-1, 10); 
-	} catch (IllegalArgumentException e) {
+	} catch (JavaModelException e) {
 		return;
 	}
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);
