@@ -975,13 +975,6 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
-	/**
-	 * Returns true if the firing is enabled
-	 */
-	public boolean isFiring() {
-		return this.isFiring;
-	}
-
 	public void loadVariables() throws CoreException {
 
 		// backward compatibility, consider persistent property	

@@ -1302,8 +1302,8 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
-		IClasspathEntry[] classpath = info.classpath;
+		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		IClasspathEntry[] classpath = perProjectInfo.classpath;
 		if (classpath != null) return classpath;
 		try {
 			String sharedClasspath = loadClasspath();
@@ -1333,7 +1333,7 @@ public class JavaProject
 			}
 		}
 		if (classpath != null) {
-			info.classpath = classpath;
+			perProjectInfo.classpath = classpath;
 			return classpath;
 		}
 		return defaultClasspath();
@@ -1367,18 +1367,18 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaModelManager.PerProjectInfo info = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
+		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
 		if (ignoreUnresolvedEntry && !generateMarkerOnError){
-			// resolved path is cached on its info
-			IClasspathEntry[] infoPath = info.lastResolvedClasspath;
+			// resolved path is cached on its perProjectInfo
+			IClasspathEntry[] infoPath = perProjectInfo.lastResolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
 
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
 
-		info.lastResolvedClasspath = resolvedPath;
+		perProjectInfo.lastResolvedClasspath = resolvedPath;
 		return resolvedPath;
 	}
 	
@@ -2029,7 +2029,6 @@ public class JavaProject
 			true, // canChangeResource
 			true, // forceSave
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true, // needCycleCheck
 			true); // needValidation
 	}
 
@@ -2040,7 +2039,6 @@ public class JavaProject
 		boolean canChangeResource,
 		boolean forceSave,
 		IClasspathEntry[] oldResolvedPath,
-		boolean needCycleCheck,
 		boolean needValidation)
 		throws JavaModelException {
 
@@ -2059,7 +2057,6 @@ public class JavaProject
 					newOutputLocation,
 					canChangeResource, 
 					forceSave,
-					needCycleCheck,
 					needValidation);
 			runOperation(op, monitor);
 			
@@ -2084,7 +2081,6 @@ public class JavaProject
 			true, // canChangeResource
 			true, // forceSave
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true, // needCycleCheck
 			true); // needValidation
 	}
 

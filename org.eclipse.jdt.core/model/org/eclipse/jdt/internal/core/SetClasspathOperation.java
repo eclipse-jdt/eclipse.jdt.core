@@ -15,11 +15,26 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaModelException;
+
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -49,7 +64,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IPath newOutputLocation,
 		boolean canChangeResource,
 		boolean forceSave,
-		boolean needCycleCheck,
 		boolean needValidation) {
 
 		super(new IJavaElement[] { project });
@@ -57,7 +71,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.newRawPath = newRawPath;
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
-		this.needCycleCheck = needCycleCheck;
 		this.needValidation = needValidation;
 	}
 
@@ -226,7 +239,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaProject project) {
 
 		boolean needToUpdateDependents = false;
-		
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;
 		int oldLength = oldResolvedPath.length;
@@ -241,6 +253,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
+					this.needCycleCheck = true;
 					continue; 
 				}
 
@@ -262,6 +275,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					this.needCycleCheck |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 					continue; 
 				}				
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
@@ -303,6 +317,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
+					this.needCycleCheck = true;
 					continue; 
 				}
 				addClasspathDeltas(
@@ -339,7 +354,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 			} // classpath reordering has already been generated in previous loop
 		}
-		
+
 		if (hasDelta) {
 			this.addDelta(delta);
 		}
@@ -449,12 +464,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 				project.getJavaModelManager(),
 				project);
 		} else {
+			this.needCycleCheck = true;
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		
-		if (this.needCycleCheck){
-			updateCycleMarkers(newResolvedPath);
-		}
+		updateCycleMarkersIfNecessary(newResolvedPath);
 	}
 
 	/**
@@ -487,7 +501,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 								this.canChangeResource, 
 								false, 
 								project.getResolvedClasspath(true), 
-								false, // no further cycle check
 								false); // updating only - no validation
 							break;
 						}
@@ -503,8 +516,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 	/**
 	 * Update cycle markers
 	 */
-	protected void updateCycleMarkers(IClasspathEntry[] newResolvedPath) {
-		
+	protected void updateCycleMarkersIfNecessary(IClasspathEntry[] newResolvedPath) {
+
+		if (!this.needCycleCheck) return;
 		if (!this.canChangeResource) return;
 		 
 		try {
@@ -513,7 +527,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 				return;
 			}
 		
-			JavaProject.updateAllCycleMarkers();
+			postAction(
+				new IPostAction() {
+					public String getID() {
+						return "updateCycleMarkers";  //$NON-NLS-1$
+					}
+					public void run() throws JavaModelException {
+						JavaProject.updateAllCycleMarkers();
+					}
+				},
+				REMOVEALL_APPEND);
 		} catch(JavaModelException e){
 		}
 	}

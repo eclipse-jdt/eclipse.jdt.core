@@ -138,10 +138,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void addAction(IPostAction action) {
 		int length = this.actions.length;
-		if (length == this.actionsPtr) {
+		if (length == ++this.actionsPtr) {
 			System.arraycopy(this.actions, 0, this.actions = new IPostAction[length*2], 0, length);
 		}
-		this.actions[this.actionsPtr++] = action;
+		this.actions[this.actionsPtr] = action;
 	}
 	/*
 	 * Registers the given delta with the Java Model Manager.
@@ -611,7 +611,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		}
 	}
 	protected void runPostActions() throws JavaModelException {
-		for (int i = 0; i < this.actionsPtr; i++) {
+		for (int i = 0; i <= this.actionsPtr; i++) {
 			this.actions[i].run();
 		}
 	}

@@ -1044,7 +1044,6 @@ private JavaModelException newInvalidElementType() {
 										true, // canChangeResource
 										false, // forceSave
 										project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-										true, // needCycleCheck
 										true); // needValidation
 								} catch (RuntimeException e) {
 									// setRawClasspath might fire a delta, and a listener may throw an exception

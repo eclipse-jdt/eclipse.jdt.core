@@ -1521,7 +1521,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}, 
 		null);
 		
-		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+		//System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
 			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
