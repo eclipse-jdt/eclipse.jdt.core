@@ -87,6 +87,8 @@ void destroy();
  * for this element, returns <code>null</code>.
  * <p>
  * Users of this method must not destroy the resulting working copy. 
+ * 
+ * @since 2.0
  */
 IJavaElement findSharedWorkingCopy();
 /**
