@@ -23,8 +23,9 @@ $putCase
 
 $break
 /. 
-			break ;
+			break;
 ./
+
 
 $readableName 
 /.$rule_number=./
@@ -235,8 +236,10 @@ ClassOrInterfaceType ::= ClassOrInterface TypeArguments
 /.$putCase consumeClassOrInterfaceTypeWithTypeArguments();  $break ./
 /:$readableName Type:/
 
-ClassOrInterface -> Name
-ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
+ClassOrInterface ::= Name
+/.$putCase consumeClassOrInterfaceName();  $break ./
+ClassOrInterface ::= ClassOrInterface TypeArguments '.' Name
+/.$putCase consumeClassOrInterface();  $break ./
 /:$readableName Type:/
 
 --
@@ -248,11 +251,15 @@ ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
 -- ArrayType ::= ArrayType '[' ']'
 --
 
+ArrayTypeWithTypeArgumentsName ::= ClassOrInterface TypeArguments '.' Name
+/.$putCase consumeArrayTypeWithTypeArgumentsName();  $break ./
+/:$readableName ArrayTypeWithTypeArgumentsName:/
+
 ArrayType ::= PrimitiveType Dims
 /.$putCase consumePrimitiveArrayType();  $break ./
 ArrayType ::= Name Dims
 /.$putCase consumeNameArrayType();  $break ./
-ArrayType ::= ClassOrInterface TypeArguments '.' Name Dims
+ArrayType ::= ArrayTypeWithTypeArgumentsName Dims
 /.$putCase consumeGenericTypeNameArrayType();  $break ./
 ArrayType ::= ClassOrInterface TypeArguments Dims
 /.$putCase consumeGenericTypeArrayType();  $break ./

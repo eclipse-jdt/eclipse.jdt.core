@@ -20,11 +20,11 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * Syntactic representation of a reference to a generic type.
  * Note that it might also have a dimension.
  */
-public class ParameterizedTypeReference extends ArrayTypeReference {
+public class SingleParameterizedTypeReference extends ArrayTypeReference {
 
 	public TypeReference[] typeArguments;
 	
-	public ParameterizedTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
+	public SingleParameterizedTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
 		super(name, dim, pos);
 		this.typeArguments = typeArguments;
 	}

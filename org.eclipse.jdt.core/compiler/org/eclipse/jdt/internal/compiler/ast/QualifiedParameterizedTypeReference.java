@@ -14,16 +14,16 @@ package org.eclipse.jdt.internal.compiler.ast;
  * Syntactic representation of a reference to a generic type.
  * Note that it might also have a dimension.
  */
-public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeReference {
+public class QualifiedParameterizedTypeReference extends ArrayQualifiedTypeReference {
 
-	public TypeReference[] typeArguments;
+	public TypeReference[][] typeArguments;
 
 	/**
 	 * @param tokens
 	 * @param dim
 	 * @param positions
 	 */
-	public ParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[] typeArguments, int dim, long[] positions) {
+	public QualifiedParameterizedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, long[] positions) {
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;
 	}
