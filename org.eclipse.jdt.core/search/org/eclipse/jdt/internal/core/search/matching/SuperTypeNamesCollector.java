@@ -226,7 +226,7 @@ protected char[][][] collect() throws JavaModelException {
 			try {
 				for (int i = 0, length = paths.length; i < length; i++) {
 					try {
-						Openable openable = this.locator.handleFactory.createOpenable(paths[i]);
+						Openable openable = this.locator.handleFactory.createOpenable(paths[i], this.locator.scope);
 						if (openable == null)
 							continue; // outside classpath
 						IJavaProject project = openable.getJavaProject();

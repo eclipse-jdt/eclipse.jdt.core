@@ -461,7 +461,7 @@ public class MatchLocator implements ITypeRequestor {
 				if (workingCopy != null) {
 					openable = (Openable)workingCopy;
 				} else {
-					openable = this.handleFactory.createOpenable(pathString);
+					openable = this.handleFactory.createOpenable(pathString, this.scope);
 					if (openable == null)
 						continue; // match is outside classpath
 				}

@@ -295,7 +295,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 				handle = 
 					resourcePath.equals(focusPath) ? 
 						focusCU :
-						factory.createOpenable(resourcePath);
+						factory.createOpenable(resourcePath, this.scope);
 				if (handle == null) continue; // match is outside classpath
 			}
 			

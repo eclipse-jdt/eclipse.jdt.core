@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 
 /**
@@ -61,15 +62,16 @@ public class HandleFactory {
 	 * NOTE: This assumes that the resource path is the toString() of an IPath, 
 	 *       i.e. it uses the IPath.SEPARATOR for file path
 	 *            and it uses '/' for entries in a zip file.
+	 * If not null, uses the given scope as a hint for getting Java project handles.
 	 */
-	public Openable createOpenable(String resourcePath) {
+	public Openable createOpenable(String resourcePath, IJavaSearchScope scope) {
 		int separatorIndex;
 		if ((separatorIndex= resourcePath.indexOf(JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
 			// path to a class file inside a jar
 			String jarPath= resourcePath.substring(0, separatorIndex);
 			// Optimization: cache package fragment root handle and package handles
 			if (!jarPath.equals(this.lastPkgFragmentRootPath)) {
-				IPackageFragmentRoot root= this.getJarPkgFragmentRoot(jarPath);
+				IPackageFragmentRoot root= this.getJarPkgFragmentRoot(jarPath, scope);
 				if (root == null)
 					return null; // match is outside classpath
 				this.lastPkgFragmentRootPath= jarPath;
@@ -123,8 +125,9 @@ public class HandleFactory {
 /**
 	 * Returns the package fragment root that corresponds to the given jar path.
 	 * See createOpenable(...) for the format of the jar path string.
+	 * If not null, uses the given scope as a hint for getting Java project handles.
 	 */
-	private IPackageFragmentRoot getJarPkgFragmentRoot(String jarPathString) {
+	private IPackageFragmentRoot getJarPkgFragmentRoot(String jarPathString, IJavaSearchScope scope) {
 
 		IPath jarPath= new Path(jarPathString);
 		
@@ -148,14 +151,42 @@ public class HandleFactory {
 			}
 		}
 		
-		// walk all projects and find the first one that has the given jar path in its classpath
+		// walk projects in the scope and find the first one that has the given jar path in its classpath
 		IJavaProject[] projects;
+		if (scope != null) {
+			IPath[] enclosingProjectsAndJars = scope.enclosingProjectsAndJars();
+			int length = enclosingProjectsAndJars.length;
+			projects = new IJavaProject[length];
+			int index = 0;
+			for (int i = 0; i < length; i++) {
+				IPath path = enclosingProjectsAndJars[i];
+				if (!Util.isArchiveFileName(path.lastSegment())) {
+					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
+				}
+			}
+			if (index < length) {
+				System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
+			}
+			IPackageFragmentRoot root = getJarPkgFragmentRoot(jarPathString, jarPath, target, projects);
+			if (root != null) {
+				return root;
+			}
+		} 
+		
+		// not found in the scope, walk all projects
 		try {
 			projects = this.javaModel.getJavaProjects();
 		} catch (JavaModelException e) {
 			// java model is not accessible
 			return null;
 		}
+		return getJarPkgFragmentRoot(jarPathString, jarPath, target, projects);
+	}
+	private IPackageFragmentRoot getJarPkgFragmentRoot(
+		String jarPathString,
+		IPath jarPath,
+		Object target,
+		IJavaProject[] projects) {
 		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 			try {
 				JavaProject javaProject= (JavaProject)projects[i];

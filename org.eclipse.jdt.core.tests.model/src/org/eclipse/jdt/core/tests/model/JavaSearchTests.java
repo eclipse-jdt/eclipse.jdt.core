@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -42,6 +43,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 public static class JavaSearchResultCollector implements IJavaSearchResultCollector {
 	public StringBuffer results = new StringBuffer();
 	public boolean showAccuracy = false;
+	public boolean showProject = false;
 	public void aboutToStart() {
 	}
 	public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
@@ -63,6 +65,12 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 				}
 			} else {
 				results.append(path);
+			}
+			if (showProject) {
+				IProject project = element.getJavaProject().getProject();
+				results.append(" [in ");
+				results.append(project.getName());
+				results.append("]");
 			}
 			ICompilationUnit unit = null;
 			if (element instanceof IMethod) {
@@ -198,6 +206,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSimpleTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar2"));
+	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar3"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope2"));
 	suite.addTest(new JavaSearchTests("testMemberTypeDeclaration"));
@@ -2212,6 +2221,49 @@ public void testTypeDeclarationInJar2() throws JavaModelException, CoreException
 	assertEquals(
 		"test20631.jar X$1$Y", 
 		resultCollector.toString());
+}
+/**
+ * Type declaration in external jar file that is shared by 2 projects.
+ * (regression test for bug 27485 SearchEngine returns wrong java element when searching in an archive that is included by two distinct java projects.)
+ */
+public void testTypeDeclarationInJar3() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB"}, "");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"JCL_LIB"}, "");
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			"Object",
+			TYPE, 
+			DECLARATIONS, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"Unexpected result in scope of P1",
+			getExternalJCLPath() + " [in P1] java.lang.Object", 
+			resultCollector.toString());
+			
+		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
+		resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		new SearchEngine().search(
+			getWorkspace(), 
+			"Object",
+			TYPE, 
+			DECLARATIONS, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"Unexpected result in scope of P2",
+			getExternalJCLPath() + " [in P2] java.lang.Object", 
+			resultCollector.toString());
+		} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
 }
 /**
  * Type ocurrence test.
