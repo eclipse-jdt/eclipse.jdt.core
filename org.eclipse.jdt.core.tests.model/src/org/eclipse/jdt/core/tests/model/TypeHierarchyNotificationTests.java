@@ -841,7 +841,7 @@ public void testRemoveExternalPackageFragmentRoot() throws JavaModelException, C
  * When a project is deleted that contains package fragments that impact the 
  * type hierarchy, the type hierarchy should change
  */
-public void _testRemoveExternalProject() throws JavaModelException, CoreException, IOException {
+public void testRemoveExternalProject() throws JavaModelException, CoreException, IOException {
 	try {
 		this.createJavaProject("External", new String[] {""}, new String[] {"JCL_LIB"}, new String[]{"/TypeHierarchyNotification"}, "");
 		this.createFolder("/External/p");

@@ -213,23 +213,23 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 				unitsToLookInside = workingCopies;
 			}
 			this.nameLookup.setUnitsToLookInside(unitsToLookInside); // NB: this uses a PerThreadObject, so it is thread safe
-			try {
-				this.hierarchyResolver = 
-					new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
-				if (focusType != null) {
-					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-					if (focusTypeBinding == null 
-						|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
-						// focus type is not visible in this project: no need to go further
-						return;
-					}
+		}
+		try {
+			this.hierarchyResolver = 
+				new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
+			if (focusType != null) {
+				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+				ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+				if (focusTypeBinding == null 
+					|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+					// focus type is not visible in this project: no need to go further
+					return;
 				}
-				this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
-			} finally {
-				if (inProjectOfFocusType) {
-					this.nameLookup.setUnitsToLookInside(null);
-				}
+			}
+			this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+		} finally {
+			if (inProjectOfFocusType) {
+				this.nameLookup.setUnitsToLookInside(null);
 			}
 		}
 	}
