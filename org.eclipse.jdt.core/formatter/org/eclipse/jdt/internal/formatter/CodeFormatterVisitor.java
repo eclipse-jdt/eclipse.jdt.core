@@ -1969,16 +1969,22 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			final Expression[] dimensions = arrayAllocationExpression.dimensions;
 			int dimensionsLength = dimensions.length;
 			for (int i = 0; i < dimensionsLength; i++) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression);
+				if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
 				if (dimensions[i] != null) {
 					if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
 						this.scribe.space();
 					}
 					dimensions[i].traverse(this, scope);
-				} else if (this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression) {
-					this.scribe.space();
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
+				} else {
+					if (this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression) {
+						this.scribe.space();
+					}
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 				}
-				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
 			if (initializer != null) {
@@ -3013,15 +3019,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					 */
 					 formatGuardClauseBlock((Block) thenStatement, scope);
 				} else {
-					if (thenStatement instanceof Block) {
-                        formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-						thenStatement.traverse(this, scope);
-					} else {
-						this.scribe.printNewLine();
-						this.scribe.indent();
-						thenStatement.traverse(this, scope);
-						this.scribe.unIndent();
-					}
+                    formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
+					thenStatement.traverse(this, scope);
 					if (elseStatement != null && this.preferences.insert_new_line_in_control_statements) {
 						this.scribe.printNewLine();
 					}
@@ -3042,6 +3041,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						thenStatement.traverse(this, scope);
 						if (thenStatement instanceof Expression) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printTrailingComment();
 						}
 						ok = true;
 					} catch (AlignmentException e) {

@@ -1290,7 +1290,6 @@ public int getNextToken() throws InvalidInputException {
 											this.currentPosition++;
 									} //jump over the \\
 								}
-								recordComment(TokenNameCOMMENT_LINE);
 								/*
 								 * We need to completely consume the line break
 								 */
@@ -1329,6 +1328,7 @@ public int getNextToken() throws InvalidInputException {
 										}
 									}
 							   	}
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									checkNonExternalizedString();
@@ -1703,7 +1703,6 @@ public final void jumpOverMethodBody() {
 											this.currentPosition++;
 									} //jump over the \\
 								}
-								recordComment(TokenNameCOMMENT_LINE);
 								/*
 								 * We need to completely consume the line break
 								 */
@@ -1741,6 +1740,7 @@ public final void jumpOverMethodBody() {
 										}
 									}
 							   	}
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 										if (isUnicode) {
@@ -2284,26 +2284,16 @@ public final void pushUnicodeLineSeparator() {
 	}
 }
 public void recordComment(int token) {
-	// compute position
-	int position = this.currentPosition;
-	switch (token) {
-		case TokenNameCOMMENT_BLOCK:
-			position = -position;
-			break;
-		case TokenNameCOMMENT_LINE:
-			position = -(position-1); // do not store trailing '/r' or '/n' character
-			break;
-	}
 
 	// a new comment is recorded
 	try {
-		this.commentStops[++this.commentPtr] = position;
+		this.commentStops[++this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = this.commentStops.length;
 		int[] oldStack = this.commentStops;
 		this.commentStops = new int[oldStackLength + 30];
 		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
-		this.commentStops[this.commentPtr] = position;
+		this.commentStops[this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
 		//grows the positions buffers too
 		int[] old = this.commentStarts;
 		this.commentStarts = new int[oldStackLength + 30];
@@ -3182,17 +3172,12 @@ public String toString() {
 	if (this.currentPosition > this.source.length)
 		return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
 
-	char front[];
-	if (this.startPosition > -1) {
-		front = new char[this.startPosition];
-		System.arraycopy(this.source, 0, front, 0, this.startPosition);
-	} else {
-		front = CharOperation.NO_CHAR;
-	}
+	char front[] = new char[this.startPosition];
+	System.arraycopy(this.source, 0, front, 0, this.startPosition);
 
 	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
 	char middle[];
-	if (middleLength > -1 && this.startPosition > -1) {
+	if (middleLength > -1) {
 		middle = new char[middleLength];
 		System.arraycopy(
 			this.source, 
