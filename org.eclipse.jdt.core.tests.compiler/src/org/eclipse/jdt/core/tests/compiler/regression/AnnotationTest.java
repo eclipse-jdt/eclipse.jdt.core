@@ -1100,4 +1100,26 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 		"");
 	}		
+	
+	// check invalid constant in array initializer
+	public void test048() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"     boolean[] value();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"     @I(value={false, X.class != null }) void foo() {\n" + 
+				"     }\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	@I(value={false, X.class != null }) void foo() {\n" + 
+		"	                 ^^^^^^^^^^^^^^^\n" + 
+		"The value for annotation attribute I.value must be a constant expression\n" + 
+		"----------\n");
+	}			
 }

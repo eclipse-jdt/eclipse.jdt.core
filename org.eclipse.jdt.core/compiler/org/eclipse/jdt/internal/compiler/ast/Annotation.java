@@ -30,89 +30,26 @@ public abstract class Annotation extends Expression {
 		return output;
 	}
 	
-	TypeBinding internalResolveType(TypeBinding annotationType, Scope scope) {
+	public abstract MemberValuePair[] memberValuePairs();
+	
+	public TypeBinding resolveType(BlockScope scope) {
 		
 		this.constant = NotAConstant;
-		if (annotationType == null)
+		
+		TypeBinding typeBinding = this.type.resolveType(scope);
+		if (typeBinding == null)
 			return null;
-		this.resolvedType = annotationType;
+		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
-		if (!annotationType.isAnnotationType()) {
-			scope.problemReporter().typeMismatchError(annotationType, scope.getJavaLangAnnotationAnnotation(), this.type);
+		if (!typeBinding.isAnnotationType()) {
+			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type);
 			return null;
 		}
-		return this.resolvedType;
-	}
-	
-	public static void checkAnnotationValue(TypeBinding requiredType, TypeBinding annotationType, char[] memberName, Expression memberValue, Scope scope) {
-		if (requiredType == null) 
-			return;
-		if (memberValue == null) 
-			return;
-		
-		TypeBinding memberValueType = memberValue.resolvedType;
-		if (memberValueType != null) {
-			if (!memberValueType.isCompatibleWith(requiredType)) {
-				if (!(requiredType.isArrayType() && requiredType.dimensions() == 1 && memberValueType.isCompatibleWith(requiredType.leafComponentType()))) {
-					scope.problemReporter().typeMismatchError(memberValueType, requiredType, memberValue);
-					return; // may allow to proceed to find more errors at once
-				}
-			} else {
-				scope.compilationUnitScope().recordTypeConversion(requiredType.leafComponentType(), memberValueType.leafComponentType());
-				memberValue.computeConversion(scope, requiredType, memberValueType);				
-			}
-		}
-		
-		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
-		checkAnnotationMethodType: {
-			TypeBinding leafType = requiredType.leafComponentType();
-			switch (leafType.erasure().id) {
-				case T_byte :
-				case T_short :
-				case T_char :
-				case T_int :
-				case T_long :
-				case T_float :
-				case T_double :
-				case T_boolean :
-				case T_JavaLangString :
-					if (memberValue instanceof ArrayInitializer) {
-						ArrayInitializer initializer = (ArrayInitializer) memberValue;
-						final Expression[] expressions = initializer.expressions;
-						if (expressions != null) {
-							for (int i =0, max = expressions.length; i < max; i++) {
-								if (expressions[i].constant == NotAConstant) {
-									// TODO (philippe) might want to report the error on the most specific constant instead of the whole array initializer
-									scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
-								}
-							}
-						}
-					} else if (memberValue.constant == NotAConstant) {
-						scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
-					}
-					break checkAnnotationMethodType;
-				case T_JavaLangClass :
-					if (!(memberValue instanceof ClassLiteralAccess)) {
-						scope.problemReporter().annotationValueMustBeClassLiteral(annotationType, memberName, memberValue);
-					}
-					break checkAnnotationMethodType;
-			}
-			if (leafType.isEnum()) {
-				break checkAnnotationMethodType;
-			}
-			if (leafType.isAnnotationType()) {
-				break checkAnnotationMethodType;
-			}
-		}
-	}
-	
-	
-	void checkMemberValues(MemberValuePair[] valuePairs, Scope scope) {
-		
+
 		ReferenceBinding annotationType = (ReferenceBinding) this.resolvedType;
 		MethodBinding[] methods = annotationType.methods();
-		TypeBinding expectedValueType = null;
 		// clone valuePairs to keep track of unused ones
+		MemberValuePair[] valuePairs = memberValuePairs();
 		MemberValuePair[] usedValuePairs;
 		int pairsLength = valuePairs.length;
 		System.arraycopy(valuePairs, 0, usedValuePairs = new MemberValuePair[pairsLength], 0, pairsLength);
@@ -142,16 +79,7 @@ public abstract class Annotation extends Expression {
 						scope.problemReporter().duplicateAnnotationValue(annotationType, valuePair);
 						continue nextMember;
 					}
-					Expression memberValue = valuePair.value;
-					expectedValueType = method.returnType;
-					memberValue.setExpectedType(expectedValueType); // needed in case of generic method invocation
-					TypeBinding valueType = scope instanceof ClassScope
-						? memberValue.resolveType((ClassScope)scope)
-						: memberValue.resolveType((BlockScope)scope);
-					if (expectedValueType == null || valueType == null)
-						continue nextPair;
-
-					checkAnnotationValue(expectedValueType, method.declaringClass, method.selector, memberValue, scope);
+					valuePair.resolveTypeExpecting(scope, method.returnType);
 				}
 			}
 			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
@@ -164,13 +92,7 @@ public abstract class Annotation extends Expression {
 				scope.problemReporter().undefinedAnnotationValue(annotationType, usedValuePairs[i]);
 			}
 		}
-	}
-				  
-	public TypeBinding resolveType(BlockScope blockScope) {
-		return internalResolveType(this.type.resolveType(blockScope), blockScope);
-	}	
-	public TypeBinding resolveType(ClassScope classScope) {
-		return internalResolveType(this.type.resolveType(classScope), classScope);
+		return this.resolvedType;
 	}
 	
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -45,16 +44,6 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void resolveStatements() {
 
 		super.resolveStatements();
-		if (this.defaultValue != null) {
-			if (this.defaultValue instanceof ArrayInitializer) {
-				ArrayInitializer initializer = (ArrayInitializer) defaultValue;
-				if ((initializer.resolveTypeExpecting(scope, this.binding.returnType)) != null) {
-					this.defaultValue.resolvedType = initializer.binding = (ArrayBinding) this.binding.returnType;
-				}
-			} else {
-				this.defaultValue.resolveType(this.scope);
-			}
-		}
 		TypeBinding returnTypeBinding = this.binding.returnType;
 		if (returnTypeBinding != null) {
 				
@@ -83,7 +72,11 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				}
 				scope.problemReporter().invalidAnnotationMemberType(this);
 			}
-			Annotation.checkAnnotationValue(returnTypeBinding, scope.enclosingSourceType(), this.selector, this.defaultValue, scope);
+			if (this.defaultValue != null) {
+				MemberValuePair pair = new MemberValuePair(this.selector, this.sourceStart, this.sourceEnd, this.defaultValue);
+				pair.binding = this.binding;
+				pair.resolveTypeExpecting(scope, returnTypeBinding);
+			}
 		}
 		
 		if (this.extendedDimensions != 0) {

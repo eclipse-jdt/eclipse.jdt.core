@@ -14,9 +14,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * SingleMemberAnnotation node
@@ -24,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class SingleMemberAnnotation extends Annotation {
 	
 	public Expression memberValue;
-	public MethodBinding memberBinding; // unique member method binding
+	public MemberValuePair singlePair; // fake pair, only value has accurate positions
 
 	public SingleMemberAnnotation(TypeReference type, int sourceStart) {
 		this.type = type;
@@ -32,17 +29,12 @@ public class SingleMemberAnnotation extends Annotation {
 		this.sourceEnd = type.sourceEnd;
 	}
 	
-	TypeBinding internalResolveType(TypeBinding annotationType, Scope scope) {
-		
-		if (super.internalResolveType(annotationType, scope) == null)
-			return null;
-		
-		MemberValuePair pair = new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue) ;
-		checkMemberValues(
-				new MemberValuePair[] { pair }, 
-				scope);
-		this.memberBinding = pair.binding;
-		return this.resolvedType;
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
+	 */
+	public MemberValuePair[] memberValuePairs() {
+		this.singlePair =  new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue);
+		return new MemberValuePair[] { singlePair };
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

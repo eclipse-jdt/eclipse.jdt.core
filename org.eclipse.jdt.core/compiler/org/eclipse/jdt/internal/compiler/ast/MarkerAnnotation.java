@@ -17,13 +17,11 @@ public class MarkerAnnotation extends Annotation {
 		this.sourceEnd = type.sourceEnd;
 	}
 	
-	TypeBinding internalResolveType(TypeBinding annotationType, Scope scope) {
-		
-		if (super.internalResolveType(annotationType, scope) == null)
-			return null;
-		
-		checkMemberValues(NoValuePairs, scope);
-		return this.resolvedType;
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
+	 */
+	public MemberValuePair[] memberValuePairs() {
+		return NoValuePairs;
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

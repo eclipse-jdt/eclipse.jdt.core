@@ -26,6 +26,12 @@ public class NormalAnnotation extends Annotation {
 		this.sourceEnd = type.sourceEnd;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
+	 */
+	public MemberValuePair[] memberValuePairs() {
+		return this.memberValuePairs == null ? NoValuePairs : this.memberValuePairs;
+	}
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		super.printExpression(indent, output);
 		output.append('(');
@@ -39,15 +45,6 @@ public class NormalAnnotation extends Annotation {
 		}
 		output.append(')');
 		return output;
-	}
-	
-	TypeBinding internalResolveType(TypeBinding annotationType, Scope scope) {
-		
-		if (super.internalResolveType(annotationType, scope) == null)
-			return null;
-		
-		checkMemberValues(this.memberValuePairs == null ? NoValuePairs : this.memberValuePairs, scope);
-		return this.resolvedType;
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
