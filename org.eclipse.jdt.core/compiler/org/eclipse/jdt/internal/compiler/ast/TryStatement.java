@@ -85,7 +85,7 @@ public class TryStatement extends Statement {
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
 						flowInfo.copy())
 					.unconditionalInits();
-			if (subInfo.isReachable()) {
+			if (subInfo != FlowInfo.DEAD_END) {
 				subRoutineCannotReturn = false;
 			}
 			this.subRoutineInits = subInfo;
