@@ -381,6 +381,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						fragment.traverse(this, scope);
 						this.scribe.alignFragment(binaryExpressionAlignment, i);
 						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+						if (operators[i] == TerminalTokens.TokenNameMINUS && isMinus()) {
+							// the next character is a minus (unary operator)
+							this.scribe.space();
+						}
 						if (this.preferences.insert_space_after_binary_operator) {
 							this.scribe.space();
 						}						
@@ -395,6 +399,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		} else {
 			binaryExpression.left.traverse(this, scope);
 			this.scribe.printNextToken(operator, this.preferences.insert_space_before_binary_operator);
+			if (operator == TerminalTokens.TokenNameMINUS && isMinus()) {
+				// the next character is a minus (unary operator)
+				this.scribe.space();
+			}
 			if (this.preferences.insert_space_after_binary_operator) {
 				this.scribe.space();
 			}
@@ -567,8 +575,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					 */
 					if (i == 0) {
 						this.scribe.alignFragment(fieldAlignment, 0);
+						this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+					} else {
+						this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 					}
-					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 			
 					/*
 					 * Check for extra dimensions
@@ -1423,6 +1433,29 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				&& (block.statements[0] instanceof ReturnStatement
 					|| block.statements[0] instanceof ThrowStatement);
 	}	
+
+	private boolean isMinus() {
+
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
+		try {
+			int token = this.localScanner.getNextToken();
+			loop: while(true) {
+				switch(token) {
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						token = this.localScanner.getNextToken();
+						continue loop;
+					default:
+						break loop;
+				}
+			}
+			return  token == TerminalTokens.TokenNameMINUS;
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return false;
+	}
 
 	private boolean isMultipleLocalDeclaration(LocalDeclaration localDeclaration) {
 
@@ -2938,7 +2971,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
-
 		if (!isMultipleLocalDeclaration(localDeclaration)) {
 			if (localDeclaration.modifiers != NO_MODIFIERS) {
 				this.scribe.printModifiers();
@@ -2951,11 +2983,16 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (localDeclaration.type != null) {
 				localDeclaration.type.traverse(this, scope);
 			}
+			/*
+			 * Print the argument name
+		 	*/
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
+		} else {
+			/*
+			 * Print the argument name
+		 	*/
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false); 
 		}
-		/*
-		 * Print the argument name
-		 */	
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 		/*
 		 * Check for extra dimensions
 		 */
@@ -3784,11 +3821,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				operator = TerminalTokens.TokenNameNOT;
 		}
 
-		if (operator == TerminalTokens.TokenNameMINUS) {
-			this.scribe.printNextToken(operator, true);
-		} else {
-			this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
-		}
+		this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
 		if (this.preferences.insert_space_after_unary_operator) {
 			this.scribe.space();
 		}
