@@ -48,8 +48,11 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Classpath variables pool
 	 */
-	public static Map Variables = new HashMap(5);
-	
+	private static HashMap Variables = new HashMap(5);
+	public static HashSet OptionNames = new HashSet(20);
+	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
+	public final static String CP_VARIABLE_IGNORE = " ##<cp var ignore>## "; //$NON-NLS-1$
+		
 	/**
 	 * Classpath containers pool
 	 */
@@ -881,36 +884,6 @@ public class JavaModelManager implements ISaveParticipant {
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
 	}
 
-	public String getVariablesAsXMLString() throws CoreException {
-		Document document = new DocumentImpl();
-		Element rootElement = document.createElement("variables"); //$NON-NLS-1$
-		document.appendChild(rootElement);
-		String[] variables = JavaCore.getClasspathVariableNames();
-		
-		for (int i= 0; i < variables.length; ++i) {
-			String var = variables[i];
-			IPath varPath = JavaCore.getClasspathVariable(var);
-			if (varPath != null){
-				Element varElement= document.createElement("variable"); //$NON-NLS-1$
-				varElement.setAttribute("name", var); //$NON-NLS-1$
-				varElement.setAttribute("path", varPath.toString());			 //$NON-NLS-1$
-				rootElement.appendChild(varElement);
-			}
-		}
-
-		// produce a String output
-		StringWriter writer = new StringWriter();
-		try {
-			OutputFormat format = new OutputFormat();
-			format.setIndenting(true);
-			Serializer serializer = SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(writer, format);
-			serializer.asDOMSerializer().serialize(document);
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
-		return writer.toString();	
-	}
-	
 	/**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -970,14 +943,69 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	public void loadVariables() throws CoreException {
+
+		// backward compatibility, consider persistent property	
+		QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "variables"); //$NON-NLS-1$
+		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
 		
-		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
-								new QualifiedName(JavaCore.PLUGIN_ID, "variables")); //$NON-NLS-1$
 		try {
-			if (xmlString != null) readVariables(xmlString);
+			if (xmlString != null){
+				StringReader reader = new StringReader(xmlString);
+				Element cpElement;
+				try {
+					DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+					cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+				} catch(SAXException e) {
+					return;
+				} catch(ParserConfigurationException e){
+					return;
+				} finally {
+					reader.close();
+				}
+				if (cpElement == null) return;
+				if (!cpElement.getNodeName().equalsIgnoreCase("variables")) { //$NON-NLS-1$
+					return;
+				}
+				ArrayList variableNamesList = new ArrayList();
+				ArrayList variablePathsList = new ArrayList();
+				
+				NodeList list= cpElement.getChildNodes();
+				int length= list.getLength();
+				for (int i= 0; i < length; ++i) {
+					Node node= list.item(i);
+					short type= node.getNodeType();
+					if (type == Node.ELEMENT_NODE) {
+						Element element= (Element) node;
+						if (element.getNodeName().equalsIgnoreCase("variable")) { //$NON-NLS-1$
+							variablePut( 
+								element.getAttribute("name"), //$NON-NLS-1$
+								new Path(element.getAttribute("path"))); //$NON-NLS-1$
+						}
+					}
+				}
+			}
 		} catch(IOException e){
-			return;
+		} finally {
+			if (xmlString != null){
+				ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(qName, null); // flush old one
+			}
+			
 		}
+		
+		// load variables from preferences into cache
+		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+
+		// only get variable from preferences not set to their default
+		String[] propertyNames = preferences.propertyNames();
+		int prefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
+		for (int i = 0; i < propertyNames.length; i++){
+			String propertyName = propertyNames[i];
+			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
+				String varName = propertyName.substring(prefixLength);
+				IPath varPath = new Path(preferences.getString(propertyName));
+				Variables.put(varName, varPath);
+			}
+		}		
 	}
 	
 	/**
@@ -1069,43 +1097,6 @@ public class JavaModelManager implements ISaveParticipant {
 		return null;
 	}
 
-	public void readVariables(String xmlString) throws IOException {
-		
-		StringReader reader = new StringReader(xmlString);
-		Element cpElement;
-		try {
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		} catch(SAXException e) {
-			return;
-		} catch(ParserConfigurationException e){
-			return;
-		} finally {
-			reader.close();
-		}
-		if (cpElement == null) return;
-		if (!cpElement.getNodeName().equalsIgnoreCase("variables")) { //$NON-NLS-1$
-			return;
-		}
-		ArrayList variableNamesList = new ArrayList();
-		ArrayList variablePathsList = new ArrayList();
-		
-		NodeList list= cpElement.getChildNodes();
-		int length= list.getLength();
-		for (int i= 0; i < length; ++i) {
-			Node node= list.item(i);
-			short type= node.getNodeType();
-			if (type == Node.ELEMENT_NODE) {
-				Element element= (Element) node;
-				if (element.getNodeName().equalsIgnoreCase("variable")) { //$NON-NLS-1$
-					Variables.put( 
-						element.getAttribute("name"), //$NON-NLS-1$
-						new Path(element.getAttribute("path"))); //$NON-NLS-1$
-				}
-			}
-		}
-	}
-	
 	/**
 	 * Registers the given delta with this manager. This API is to be
 	 * used to registerd deltas that are created explicitly by the Java
@@ -1279,19 +1270,11 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
-	public void saveVariables() throws CoreException {
-		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
-			new QualifiedName(JavaCore.PLUGIN_ID, "variables"),  //$NON-NLS-1$
-			getVariablesAsXMLString());
-	}
-	
 	/**
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
-			this.saveVariables();
-
-		int k = context.getKind();
+			int k = context.getKind();
 		if (k == ISaveContext.FULL_SAVE){
 			this.saveBuildState();	// build state
 		} else if (k == ISaveContext.PROJECT_SAVE){
@@ -1412,5 +1395,36 @@ public class JavaModelManager implements ISaveParticipant {
 		} else {
 			this.modelUpdater.processJavaDelta(customDelta);
 		}
+	}
+	
+	public static IPath variableGet(String varName){
+		return (IPath)Variables.get(varName);
+	}
+
+	public static String[] variableNames(){
+		int length = Variables.size();
+		String[] result = new String[length];
+		Iterator vars = Variables.keySet().iterator();
+		int index = 0;
+		while (vars.hasNext()) {
+			result[index++] = (String) vars.next();
+		}
+		return result;
+	}
+	
+	public static void variablePut(String varName, IPath varPath){
+		// update path cache
+		if (varPath == null){
+			Variables.remove(varName);
+		} else {
+			Variables.put(varName, varPath);
+		}
+		
+		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		String varPref = CP_VARIABLE_PREFERENCES_PREFIX+varName;
+		String varString = varPath == null ? CP_VARIABLE_IGNORE : varPath.toString();
+		preferences.setDefault(varPref, CP_VARIABLE_IGNORE); // use this default to get rid of removed ones
+		preferences.setValue(varPref, varString);
+		JavaCore.getPlugin().savePluginPreferences();
 	}
 }

@@ -1170,6 +1170,11 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			}
 			this.updateIndex(element, delta);
 			this.elementRemoved(element, delta);
+
+			if (deltaRes.getType() == IResource.PROJECT){			
+				// reset the corresponding project built state, since cannot reuse if added back
+				this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
+			}
 			return false;
 		case IResourceDelta.CHANGED :
 			int flags = delta.getFlags();
@@ -1222,6 +1227,8 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 							this.elementRemoved(element, delta);
 							this.indexManager.discardJobs(element.getElementName());
 							this.indexManager.removeIndexFamily(res.getFullPath());
+							// reset the corresponding project built state, since cannot reuse if added back
+							this.manager.setLastBuiltState(res, null /*no state*/);
 						}
 						return false; // when a project's nature is added/removed don't process children
 					}

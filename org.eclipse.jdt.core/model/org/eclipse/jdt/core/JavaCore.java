@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -763,16 +764,16 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IPath getClasspathVariable(String variableName) {
 
-		IPath variablePath = (IPath) JavaModelManager.Variables.get(variableName);
+		IPath variablePath = (IPath) JavaModelManager.variableGet(variableName);
 
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
 		if (variablePath == null){
 			ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
 			if (initializer != null){
-				JavaModelManager.Variables.put(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
+				JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
 				initializer.initialize(variableName);
-				variablePath = (IPath) JavaModelManager.Variables.get(variableName); // retry
+				variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
 				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
@@ -832,14 +833,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #setClasspathVariable
 	 */
 	public static String[] getClasspathVariableNames() {
-		int length = JavaModelManager.Variables.size();
-		String[] result = new String[length];
-		Iterator vars = JavaModelManager.Variables.keySet().iterator();
-		int index = 0;
-		while (vars.hasNext()) {
-			result[index++] = (String) vars.next();
-		}
-		return result;
+		return JavaModelManager.variableNames();
 	}
 
 	/**
@@ -1117,18 +1111,23 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
+		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();
 		for (int i = 0; i < defaultPropertyNames.length; i++){
 			String propertyName = defaultPropertyNames[i];
-			defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+			if (optionNames.contains(propertyName)) {
+				defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+			}
 		}		
 		// get preferences not set to their default
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
-			defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+			if (optionNames.contains(propertyName)) {
+				defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+			}
 		}		
 		// get encoding through resource plugin
 		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); 
@@ -1185,8 +1184,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (CORE_ENCODING.equals(optionName)){
 			return ResourcesPlugin.getEncoding();
 		}
-		Preferences preferences = getPlugin().getPluginPreferences();
-		return preferences.getString(optionName);
+		if (JavaModelManager.getJavaModelManager().OptionNames.contains(optionName)){
+			Preferences preferences = getPlugin().getPluginPreferences();
+			return preferences.getString(optionName);
+		}
+		return null;
 	}
 	
 	/**
@@ -1206,18 +1208,23 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
+		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();
 		for (int i = 0; i < defaultPropertyNames.length; i++){
 			String propertyName = defaultPropertyNames[i];
-			options.put(propertyName, preferences.getString(propertyName));
+			if (optionNames.contains(propertyName)){
+				options.put(propertyName, preferences.getString(propertyName));
+			}
 		}		
 		// get preferences not set to their default
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
-			options.put(propertyName, preferences.getString(propertyName));
+			if (optionNames.contains(propertyName)){
+				options.put(propertyName, preferences.getString(propertyName));
+			}
 		}		
 		// get encoding through resource plugin
 		options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
@@ -1388,50 +1395,115 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	protected void initializeDefaultPluginPreferences() {
 		
 		Preferences preferences = getPluginPreferences();
-	
+		HashSet optionNames = JavaModelManager.getJavaModelManager().OptionNames;
+		
 		// Compiler settings
 		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
+		optionNames.add(COMPILER_LOCAL_VARIABLE_ATTR);
+
 		preferences.setDefault(COMPILER_LINE_NUMBER_ATTR, GENERATE); 
+		optionNames.add(COMPILER_LINE_NUMBER_ATTR);
+
 		preferences.setDefault(COMPILER_SOURCE_FILE_ATTR, GENERATE); 
+		optionNames.add(COMPILER_SOURCE_FILE_ATTR);
+
 		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE); 
+		optionNames.add(COMPILER_CODEGEN_UNUSED_LOCAL);
+
 		preferences.setDefault(COMPILER_CODEGEN_TARGET_PLATFORM, VERSION_1_1); 
+		optionNames.add(COMPILER_CODEGEN_TARGET_PLATFORM);
+
 		preferences.setDefault(COMPILER_PB_UNREACHABLE_CODE, ERROR); 
+		optionNames.add(COMPILER_PB_UNREACHABLE_CODE);
+
 		preferences.setDefault(COMPILER_PB_INVALID_IMPORT, ERROR); 
+		optionNames.add(COMPILER_PB_INVALID_IMPORT);
+
 		preferences.setDefault(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD, WARNING); 
+		optionNames.add(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD);
+
 		preferences.setDefault(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, WARNING); 
+		optionNames.add(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME);
+
 		preferences.setDefault(COMPILER_PB_DEPRECATION, WARNING);
+		optionNames.add(COMPILER_PB_DEPRECATION);
+
 		preferences.setDefault(COMPILER_PB_HIDDEN_CATCH_BLOCK, WARNING); 
+		optionNames.add(COMPILER_PB_HIDDEN_CATCH_BLOCK);
+
 		preferences.setDefault(COMPILER_PB_UNUSED_LOCAL, IGNORE); 
+		optionNames.add(COMPILER_PB_UNUSED_LOCAL);
+
 		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
+		optionNames.add(COMPILER_PB_UNUSED_PARAMETER);
+
 		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, IGNORE); 
+		optionNames.add(COMPILER_PB_UNUSED_IMPORT);
+
 		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
+		optionNames.add(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION);
+
 		preferences.setDefault(COMPILER_PB_NON_NLS_STRING_LITERAL, IGNORE); 
+		optionNames.add(COMPILER_PB_NON_NLS_STRING_LITERAL);
+
 		preferences.setDefault(COMPILER_PB_ASSERT_IDENTIFIER, IGNORE); 
+		optionNames.add(COMPILER_PB_ASSERT_IDENTIFIER);
+
 		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
+		optionNames.add(COMPILER_SOURCE);
+
 		preferences.setDefault(COMPILER_COMPLIANCE, VERSION_1_3); 
+		optionNames.add(COMPILER_COMPLIANCE);
+
 		preferences.setDefault(COMPILER_PB_MAX_PER_UNIT, "100"); //$NON-NLS-1$
+		optionNames.add(COMPILER_PB_MAX_PER_UNIT);
 		
 		// Builder settings
 		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
+
 		preferences.setDefault(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
+		optionNames.add(CORE_JAVA_BUILD_INVALID_CLASSPATH);
 		
 		// JavaCore settings
 		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); //$NON-NLS-1$
+		optionNames.add(CORE_JAVA_BUILD_ORDER);
 	
 		// Formatter settings
 		preferences.setDefault(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
+		optionNames.add(FORMATTER_NEWLINE_OPENING_BRACE);
+
 		preferences.setDefault(FORMATTER_NEWLINE_CONTROL, DO_NOT_INSERT);
+		optionNames.add(FORMATTER_NEWLINE_CONTROL);
+
 		preferences.setDefault(FORMATTER_CLEAR_BLANK_LINES, PRESERVE_ONE); 
+		optionNames.add(FORMATTER_CLEAR_BLANK_LINES);
+
 		preferences.setDefault(FORMATTER_NEWLINE_ELSE_IF, DO_NOT_INSERT);
+		optionNames.add(FORMATTER_NEWLINE_ELSE_IF);
+
 		preferences.setDefault(FORMATTER_NEWLINE_EMPTY_BLOCK, INSERT); 
+		optionNames.add(FORMATTER_NEWLINE_EMPTY_BLOCK);
+
 		preferences.setDefault(FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
+		optionNames.add(FORMATTER_LINE_SPLIT);
+
 		preferences.setDefault(FORMATTER_COMPACT_ASSIGNMENT, NORMAL); 
+		optionNames.add(FORMATTER_COMPACT_ASSIGNMENT);
+
 		preferences.setDefault(FORMATTER_TAB_CHAR, TAB); 
+		optionNames.add(FORMATTER_TAB_CHAR);
+
 		preferences.setDefault(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
+		optionNames.add(FORMATTER_TAB_SIZE);
 		
 		// CodeAssist settings
 		preferences.setDefault(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_VISIBILITY_CHECK);
+
 		preferences.setDefault(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_IMPLICIT_QUALIFICATION);
+		
 	}
 	
 	/**
@@ -2316,7 +2388,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// filter out unmodified variables
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
-			IPath oldPath = (IPath)JavaModelManager.Variables.get(variableNames[i]);
+			IPath oldPath = (IPath)JavaModelManager.variableGet(variableNames[i]);
 			if (oldPath != null && oldPath.equals(variablePaths[i])){
 				variableNames[i] = null;
 				discardCount++;
@@ -2361,7 +2433,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								
 								// also check whether it will be necessary to update proj references and cycle markers
 								if (!needCycleCheck && entry.getPath().segmentCount() ==  1){
-									IPath oldPath = (IPath)JavaModelManager.Variables.get(variableName);
+									IPath oldPath = (IPath)JavaModelManager.variableGet(variableName);
 									if (oldPath != null && oldPath.segmentCount() == 1) {
 										needCycleCheck = true;
 									} else {
@@ -2388,12 +2460,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// update variables
 		for (int i = 0; i < varLength; i++){
 			IPath path = variablePaths[i];
-			if (path == null) {
-				JavaModelManager.Variables.remove(variableNames[i]);
-			} else {
-				// new variable value is assigned
-				JavaModelManager.Variables.put(variableNames[i], path);
-			}
+			JavaModelManager.variablePut(variableNames[i], path);
 		}
 				
 		// update affected project classpaths
