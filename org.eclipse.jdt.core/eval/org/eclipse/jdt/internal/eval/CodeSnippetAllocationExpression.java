@@ -18,11 +18,9 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
@@ -199,14 +197,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(this.binding, scope)) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 	}
-	boolean warnRawArgs = false;
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length; i++) {
 		    TypeBinding parameterType = binding.parameters[i];
 		    TypeBinding argumentType = argumentTypes[i];
 			arguments[i].computeConversion(scope, parameterType, argumentType);
 			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isParameterizedType()) {
-			    warnRawArgs = true;
+				scope.problemReporter().unsafeRawConversion(arguments[i], argumentType, parameterType);
 			}
 		}
 		if (argsContainCast) {
@@ -215,8 +212,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (allocatedType.isRawType() && this.binding.hasSubstitutedParameters()) {
 	    scope.problemReporter().unsafeRawInvocation(this, allocatedType, this.binding);
-	} else if (warnRawArgs) {
-	    scope.problemReporter().unsafeInvocationWithRawArguments(this, allocatedType, this.binding, argumentTypes);
 	}
 	return allocatedType;
 }

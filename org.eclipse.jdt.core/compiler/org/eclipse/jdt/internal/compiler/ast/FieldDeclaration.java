@@ -198,7 +198,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 								|| initializationType.isCompatibleWith(fieldType)) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 							if (initializationType.isRawType() && (fieldType.isParameterizedType() || fieldType.isGenericType())) {
-								    initializationScope.problemReporter().unsafeRawAssignment(this.initialization, initializationType, fieldType);
+								    initializationScope.problemReporter().unsafeRawConversion(this.initialization, initializationType, fieldType);
 							}									
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);

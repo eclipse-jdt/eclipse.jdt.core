@@ -194,7 +194,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						|| initializationType.isCompatibleWith(variableType)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (initializationType.isRawType() && (variableType.isParameterizedType() || variableType.isGenericType())) {
-							    scope.problemReporter().unsafeRawAssignment(this.initialization, initializationType, variableType);
+							    scope.problemReporter().unsafeRawConversion(this.initialization, initializationType, variableType);
 						}						
 					} else {
 						scope.problemReporter().typeMismatchError(initializationType, variableType, this);

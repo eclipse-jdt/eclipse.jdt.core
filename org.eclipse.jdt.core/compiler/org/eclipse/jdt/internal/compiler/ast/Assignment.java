@@ -60,12 +60,12 @@ public class Assignment extends Expression {
 		
 		FieldBinding leftField = getLastField(this.lhs);
 		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).kind != Wildcard.SUPER) {
-		    scope.problemReporter().unsafeWildcardAssignment(lhsType, rhsType, this.expression);
+		    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
 		} else if (leftField != null && leftField.declaringClass.isRawType() 
 		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
 		} else if (rhsType.isRawType() && (lhsType.isParameterizedType() || lhsType.isGenericType())) {
-		    scope.problemReporter().unsafeRawAssignment(this.expression, rhsType, lhsType);
+		    scope.problemReporter().unsafeRawConversion(this.expression, rhsType, lhsType);
 		}		
 	}
 	

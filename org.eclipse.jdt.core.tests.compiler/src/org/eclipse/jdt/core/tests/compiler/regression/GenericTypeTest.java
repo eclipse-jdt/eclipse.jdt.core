@@ -1940,7 +1940,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	X<IOException> xioe2 = x; // unsafe\n" + 
 			"	                       ^\n" + 
-			"Unsafe type operation: Should not assign expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
+			"Unsafe type operation: Should not convert expression of raw type X to type X<IOException>. References to generic type X<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -2312,43 +2312,48 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	X x = new X((A)null, (A)null);\n" + 
-		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: The constructor X(A<String>, A<String>) should not be applied for the arguments (A, A). References to generic types should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	A a = new A((A)null);\n" + 
-		"	      ^^^^^^^^^^^^^^\n" + 
-		"The constructor A(P) is not visible\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 10)\n" + 
-		"	x.foo(a);\n" + 
-		"	^^^^^^^^\n" + 
-		"Unsafe type operation: The method foo(A<String>) in the type X should not be applied for the arguments (A). References to generic types should be parameterized\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	a.print(x);\n" + 
-		"	  ^^^^^\n" + 
-		"The method print(P) from the type A is not visible\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
-		"	A<String> as = new A<String>(null);\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor A<String>(P) is not visible\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
-		"	as.print(\"hello\");\n" + 
-		"	   ^^^^^\n" + 
-		"The method print(P) from the type A<String> is not visible\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p\\A.java (at line 7)\n" + 
-		"	protected void print(P p) {\n" + 
-		"	                       ^\n" + 
-		"The parameter p is hiding a field from type A<P>\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	X x = new X((A)null, (A)null);\n" + 
+			"	            ^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type A to type A<String>. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	X x = new X((A)null, (A)null);\n" + 
+			"	                     ^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type A to type A<String>. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	A a = new A((A)null);\n" + 
+			"	      ^^^^^^^^^^^^^^\n" + 
+			"The constructor A(P) is not visible\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	x.foo(a);\n" + 
+			"	      ^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type A to type A<String>. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	a.print(x);\n" + 
+			"	  ^^^^^\n" + 
+			"The method print(P) from the type A is not visible\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 12)\n" + 
+			"	A<String> as = new A<String>(null);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor A<String>(P) is not visible\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 13)\n" + 
+			"	as.print(\"hello\");\n" + 
+			"	   ^^^^^\n" + 
+			"The method print(P) from the type A<String> is not visible\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\A.java (at line 7)\n" + 
+			"	protected void print(P p) {\n" + 
+			"	                       ^\n" + 
+			"The parameter p is hiding a field from type A<P>\n" + 
+			"----------\n");
 	}	
 
 	// JSR14-v10[§2.4]: Valid consecutive Type Parameters Brackets
@@ -2556,47 +2561,52 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    void bar(AX<P> ax){}\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	X x = new X((AX)null, (AX)null);\n" + 
-		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: The constructor X(AX<String>, AX<String>) should not be applied for the arguments (AX, AX). References to generic types should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
-		"	AX a = new AX((AX)null);\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	AX a2 = new AX(null);\n" + 
-		"	        ^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 10)\n" + 
-		"	x.foo(a);\n" + 
-		"	^^^^^^^^\n" + 
-		"Unsafe type operation: The method foo(AX<String>) in the type X should not be applied for the arguments (AX). References to generic types should be parameterized\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 12)\n" + 
-		"	a.bar(a);\n" + 
-		"	^^^^^^^^\n" + 
-		"Unsafe type operation: Should not invoke the method bar(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
-		"	AX<String> as = new AX<String>(null);\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor AX<String>(AX<String>) is ambiguous\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 14)\n" + 
-		"	as.print(a);\n" + 
-		"	   ^^^^^\n" + 
-		"The method print(String) in the type AX<String> is not applicable for the arguments (AX)\n" + 
-		"----------\n" + 
-		"8. WARNING in X.java (at line 15)\n" + 
-		"	as.bar(a);\n" + 
-		"	^^^^^^^^^\n" + 
-		"Unsafe type operation: The method bar(AX<P>) in the type AX<String> should not be applied for the arguments (AX). References to generic types should be parameterized\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	X x = new X((AX)null, (AX)null);\n" + 
+			"	            ^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	X x = new X((AX)null, (AX)null);\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	AX a = new AX((AX)null);\n" + 
+			"	       ^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	AX a2 = new AX(null);\n" + 
+			"	        ^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
+			"	x.foo(a);\n" + 
+			"	      ^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
+			"	a.bar(a);\n" + 
+			"	^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the method bar(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 13)\n" + 
+			"	AX<String> as = new AX<String>(null);\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor AX<String>(AX<String>) is ambiguous\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 14)\n" + 
+			"	as.print(a);\n" + 
+			"	   ^^^^^\n" + 
+			"The method print(String) in the type AX<String> is not applicable for the arguments (AX)\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 15)\n" + 
+			"	as.bar(a);\n" + 
+			"	       ^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n");
 	}		
 
 	public void test085() {
@@ -3218,15 +3228,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n" + 
 				"\n",
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	Iterable<String> is = new ArrayList();\n" + 
-		"	                      ^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not assign expression of raw type ArrayList to type Iterable<String>. References to generic type Iterable<T> should be parameterized\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	Iterable<String> is = new ArrayList();\n" + 
+			"	                      ^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type ArrayList to type Iterable<String>. References to generic type Iterable<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);		
 	}			
 	// class literal: Integer.class of type Class<Integer>
 	public void test108() {
@@ -4776,7 +4786,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not assign expression of raw type AX to type AX<X>. References to generic type AX<E> should be parameterized\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<X>. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
@@ -6144,8 +6154,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 18)\n" + 
 			"	mx1.foo(mx2.get());\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: The method foo(E) in the type X.MX<Class<? extends Object>> should not be applied for the arguments (Class). References to generic types should be parameterized\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type Class to type Class<? extends Object>. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,

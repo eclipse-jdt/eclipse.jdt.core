@@ -520,9 +520,7 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
-		case IProblem.UnsafeRawExpressionAssignment:
-		case IProblem.UnsafeConstructorWithRawArguments:
-		case IProblem.UnsafeMethodWithRawArguments:
+		case IProblem.UnsafeRawConversion:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 		case IProblem.UnsafeRawReturnValue:
@@ -3756,9 +3754,9 @@ public void unsafeCast(CastExpression castExpression) {
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }
-public void unsafeRawAssignment(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
+public void unsafeRawConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		IProblem.UnsafeRawExpressionAssignment,
+		IProblem.UnsafeRawConversion,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,
@@ -3809,41 +3807,6 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 			location.sourceEnd);    
     }
 }
-public void unsafeInvocationWithRawArguments(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] argumentTypes) {
-    if (method.isConstructor()) {
-		this.handle(
-			IProblem.UnsafeConstructorWithRawArguments,
-			new String[] {
-				new String(receiverType.readableName()),
-				parametersAsString(method.original().parameters, false),
-				parametersAsString(argumentTypes, false),
-			 }, 
-			new String[] {
-				new String(receiverType.shortReadableName()),
-				parametersAsString(method.original().parameters, true),
-				parametersAsString(argumentTypes, true),
-			 }, 
-			location.sourceStart,
-			location.sourceEnd);    
-    } else {
-		this.handle(
-			IProblem.UnsafeMethodWithRawArguments,
-			new String[] {
-				new String(method.selector),
-				parametersAsString(method.original().parameters, false),
-				new String(receiverType.readableName()),
-				parametersAsString(argumentTypes, false),
-			 }, 
-			new String[] {
-				new String(method.selector),
-				parametersAsString(method.original().parameters, true),
-				new String(receiverType.shortReadableName()),
-				parametersAsString(argumentTypes, true),
-			 }, 
-			location.sourceStart,
-			location.sourceEnd);    
-    }
-}
 public void unsafeRawReturnValue(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
 		IProblem.UnsafeRawReturnValue,
@@ -3851,72 +3814,6 @@ public void unsafeRawReturnValue(Expression expression, TypeBinding expressionTy
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,
 		expression.sourceEnd);    
-}
-public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] arguments) {
-	TypeBinding offendingArgument = null;
-	TypeBinding offendingParameter = null;
-	for (int i = 0, length = method.parameters.length; i < length; i++) {
-		TypeBinding parameter = method.parameters[i];
-		if (parameter.isWildcard() && (((WildcardBinding) parameter).kind != Wildcard.SUPER)) {
-			offendingParameter = parameter;
-			offendingArgument = arguments[i];
-			break;
-		}
-	}
-	
-    if (method.isConstructor()) {
-		this.handle(
-			IProblem.WildcardConstructorInvocation,
-			new String[] {
-				new String(receiverType.sourceName()),
-				parametersAsString(method.parameters, false),
-				new String(receiverType.readableName()),
-				parametersAsString(arguments, false),
-				new String(offendingArgument.readableName()),
-				new String(offendingParameter.readableName()),
-			 }, 
-			new String[] {
-				new String(receiverType.sourceName()),
-				parametersAsString(method.parameters, true),
-				new String(receiverType.shortReadableName()),
-				parametersAsString(arguments, true),
-				new String(offendingArgument.shortReadableName()),
-				new String(offendingParameter.shortReadableName()),
-			 }, 
-			location.sourceStart,
-			location.sourceEnd);    
-    } else {
-		this.handle(
-			IProblem.WildcardMethodInvocation,
-			new String[] {
-				new String(method.selector),
-				parametersAsString(method.parameters, false),
-				new String(receiverType.readableName()),
-				parametersAsString(arguments, false),
-				new String(offendingArgument.readableName()),
-				new String(offendingParameter.readableName()),
-			 }, 
-			new String[] {
-				new String(method.selector),
-				parametersAsString(method.parameters, true),
-				new String(receiverType.shortReadableName()),
-				parametersAsString(arguments, true),
-				new String(offendingArgument.shortReadableName()),
-				new String(offendingParameter.shortReadableName()),
-			 }, 
-			location.sourceStart,
-			location.sourceEnd);    
-    }
-}
-public void unsafeWildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
-	this.handle(
-		IProblem.WildcardFieldAssignment,
-		new String[] { 
-		        new String(expressionType.readableName()), new String(variableType.readableName()) },
-		new String[] { 
-		        new String(expressionType.shortReadableName()), new String(variableType.shortReadableName()) },
-		location.sourceStart,
-		location.sourceEnd);    
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 
@@ -4549,5 +4446,71 @@ public void invalidUsageOfVarargs(Argument argument) {
 		NoArgument, 
 		argument.type.sourceStart,
 		argument.sourceEnd);
+}
+public void wildcardInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] arguments) {
+	TypeBinding offendingArgument = null;
+	TypeBinding offendingParameter = null;
+	for (int i = 0, length = method.parameters.length; i < length; i++) {
+		TypeBinding parameter = method.parameters[i];
+		if (parameter.isWildcard() && (((WildcardBinding) parameter).kind != Wildcard.SUPER)) {
+			offendingParameter = parameter;
+			offendingArgument = arguments[i];
+			break;
+		}
+	}
+	
+    if (method.isConstructor()) {
+		this.handle(
+			IProblem.WildcardConstructorInvocation,
+			new String[] {
+				new String(receiverType.sourceName()),
+				parametersAsString(method.parameters, false),
+				new String(receiverType.readableName()),
+				parametersAsString(arguments, false),
+				new String(offendingArgument.readableName()),
+				new String(offendingParameter.readableName()),
+			 }, 
+			new String[] {
+				new String(receiverType.sourceName()),
+				parametersAsString(method.parameters, true),
+				new String(receiverType.shortReadableName()),
+				parametersAsString(arguments, true),
+				new String(offendingArgument.shortReadableName()),
+				new String(offendingParameter.shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    } else {
+		this.handle(
+			IProblem.WildcardMethodInvocation,
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, false),
+				new String(receiverType.readableName()),
+				parametersAsString(arguments, false),
+				new String(offendingArgument.readableName()),
+				new String(offendingParameter.readableName()),
+			 }, 
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.parameters, true),
+				new String(receiverType.shortReadableName()),
+				parametersAsString(arguments, true),
+				new String(offendingArgument.shortReadableName()),
+				new String(offendingParameter.shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    }
+}
+public void wildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
+	this.handle(
+		IProblem.WildcardFieldAssignment,
+		new String[] { 
+		        new String(expressionType.readableName()), new String(variableType.readableName()) },
+		new String[] { 
+		        new String(expressionType.shortReadableName()), new String(variableType.shortReadableName()) },
+		location.sourceStart,
+		location.sourceEnd);    
 }
 }
