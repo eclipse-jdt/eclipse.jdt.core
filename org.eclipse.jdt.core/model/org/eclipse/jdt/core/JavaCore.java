@@ -49,20 +49,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The plug-in identifier of the Java core support
 	 * (value <code>"org.eclipse.jdt.core"</code>).
 	 */
-	public static final String PLUGIN_ID = "org.eclipse.jdt.core" /*nonNLS*/;
+	public static final String PLUGIN_ID = "org.eclipse.jdt.core" ; //$NON-NLS-1$
 	// getPlugin().getDescriptor().getUniqueIdentifier();
 
 	/**
 	 * The identifier for the Java builder
 	 * (value <code>"org.eclipse.jdt.core.javabuilder"</code>).
 	 */
-	public static final String BUILDER_ID = PLUGIN_ID + ".javabuilder" /*nonNLS*/;
+	public static final String BUILDER_ID = PLUGIN_ID + ".javabuilder" ; //$NON-NLS-1$
 
 	/**
 	 * The identifier for the Java model
 	 * (value <code>"org.eclipse.jdt.core.javamodel"</code>).
 	 */
-	public static final String MODEL_ID = PLUGIN_ID + ".javamodel" /*nonNLS*/;
+	public static final String MODEL_ID = PLUGIN_ID + ".javamodel" ; //$NON-NLS-1$
 
 	/**
 	 * The identifier for the Java nature
@@ -72,13 +72,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * @see org.eclipse.core.resources.IProject#hasNature
 	 */
-	public static final String NATURE_ID = PLUGIN_ID + ".javanature" /*nonNLS*/;
+	public static final String NATURE_ID = PLUGIN_ID + ".javanature" ; //$NON-NLS-1$
 
 	/**
 	 * Name of the handle id attribute in a Java marker
 	 */
 	private static final String ATT_HANDLE_ID =
-		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" /*nonNLS*/;
+		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
 	private static Hashtable Variables = new Hashtable(5);
 
@@ -87,7 +87,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 
 	// File containing default settings for configurable options
-	private static final String JAVA_CORE_INIT = "JavaCore.ini"/*nonNLS*/;
+	private static final String JAVA_CORE_INIT = "JavaCore.ini"; //$NON-NLS-1$
 	
 	/**
 	 * Compiler options
@@ -132,7 +132,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * JavaCore options
 	 */
-	public static final String OPTION_ComputeBuildOrder = "org.eclipse.jdt.core.JavaCore.computeJavaBuildOrder"/*nonNLS*/;
+	public static final String OPTION_ComputeBuildOrder = "org.eclipse.jdt.core.JavaCore.computeJavaBuildOrder"; //$NON-NLS-1$
 	
 	/**
 	 * Code Assist options
@@ -224,14 +224,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		String extension = file.getProjectRelativePath().getFileExtension();
 		if (extension != null) {
 			extension = extension.toLowerCase();
-			if (extension.equals("java" /*nonNLS*/
+			if (extension.equals("java"  //$NON-NLS-1$
 				)) {
 				return createCompilationUnitFrom(file);
-			} else if (extension.equals("class" /*nonNLS*/
+			} else if (extension.equals("class"  //$NON-NLS-1$
 				)) {
 				return createClassFileFrom(file);
-			} else if (extension.equals("jar" /*nonNLS*/
-				) || extension.equals("zip" /*nonNLS*/
+			} else if (extension.equals("jar"  //$NON-NLS-1$
+				) || extension.equals("zip"  //$NON-NLS-1$
 				)) {
 				return createJarPackageFragmentRootFrom(file);
 			}
@@ -428,7 +428,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						}
 						pkgName.append(segment);
 						if (j < pkgPath.segmentCount() - 1) {
-							pkgName.append("." /*nonNLS*/);
+							pkgName.append("." ); //$NON-NLS-1$
 						}
 					}
 					return root.getPackageFragment(pkgName.toString());
@@ -551,8 +551,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						return JavaCore.newProjectEntry(resolvedPath); // internal project
 					case IResource.FILE :
 						String extension = resolvedResource.getFileExtension();
-						if ("jar" /*nonNLS*/
-							.equalsIgnoreCase(extension) || "zip" /*nonNLS*/
+						if ("jar"  //$NON-NLS-1$
+							.equalsIgnoreCase(extension) || "zip"  //$NON-NLS-1$
 							.equalsIgnoreCase(extension)) { // internal binary archive
 							return JavaCore.newLibraryEntry(
 								resolvedPath,
@@ -573,8 +573,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			File externalFile = (File) target;
 			if (externalFile.isFile()) {
 				String fileName = externalFile.getName().toLowerCase();
-				if (fileName.endsWith(".jar" /*nonNLS*/
-					) || fileName.endsWith(".zip" /*nonNLS*/
+				if (fileName.endsWith(".jar"  //$NON-NLS-1$
+					) || fileName.endsWith(".zip"  //$NON-NLS-1$
 					)) { // external binary archive
 					return JavaCore.newLibraryEntry(
 						resolvedPath,
@@ -683,7 +683,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IPath sourceAttachmentRootPath) {
 		Assert.isTrue(
 			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" /*nonNLS*/));
+			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
@@ -708,7 +708,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static IClasspathEntry newProjectEntry(IPath path) {
 		Assert.isTrue(
 			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" /*nonNLS*/));
+			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_PROJECT,
@@ -737,7 +737,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static IClasspathEntry newSourceEntry(IPath path) {
 		Assert.isTrue(
 			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" /*nonNLS*/));
+			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_SOURCE,
@@ -781,7 +781,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IPath sourceAttachmentRootPath) {
 		Assert.isTrue(
 			variablePath != null && variablePath.segmentCount() >= 1,
-			Util.bind("classpath.illegalVariablePath" /*nonNLS*/));
+			Util.bind("classpath.illegalVariablePath" )); //$NON-NLS-1$
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_VARIABLE,
@@ -886,7 +886,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath" /*nonNLS*/));
+		Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath" )); //$NON-NLS-1$
 		updateVariableValue(variableName, path, monitor);
 	}
 
@@ -1306,8 +1306,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					new InputStreamReader(JavaCore.class.getResourceAsStream(JAVA_CORE_INIT)));
 			String line = reader.readLine();
 			while (line != null) {
-				int equalIndex = line.indexOf("=" /*nonNLS*/);
-				if (!line.startsWith("#" /*nonNLS*/) && equalIndex != -1) {
+				int equalIndex = line.indexOf("=" ); //$NON-NLS-1$
+				if (!line.startsWith("#" ) && equalIndex != -1) { //$NON-NLS-1$
 					String id = line.substring(0, equalIndex).trim();
 
 					ConfigurableOption option = new ConfigurableOption(id, locale);

@@ -29,7 +29,7 @@ import org.eclipse.core.resources.*;
  */
 public final class JavaConventions {
 	private final static char fgDot= '.';
-	private final static String fgJAVA= "JAVA"/*nonNLS*/;
+	private final static String fgJAVA= "JAVA"; //$NON-NLS-1$
 /**
  * Not instantiable.
  */
@@ -48,8 +48,8 @@ public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
 	}
 	String extension1 = rootPath1.getFileExtension();
 	String extension2 = rootPath2.getFileExtension();
-	String jarExtension = "JAR"/*nonNLS*/;
-	String zipExtension = "ZIP"/*nonNLS*/;
+	String jarExtension = "JAR"; //$NON-NLS-1$
+	String zipExtension = "ZIP"; //$NON-NLS-1$
 	if (extension1 != null && (extension1.equalsIgnoreCase(jarExtension) || extension1.equalsIgnoreCase(zipExtension))) {
 		return false;
 	} 
@@ -111,14 +111,14 @@ private static char[] scannedIdentifier(String id) {
  */
 public static IStatus validateCompilationUnitName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
 	}
 	String extension;
 	String identifier;
 	int index;
 	index = name.indexOf('.');
 	if (index == -1) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
 	identifier = name.substring(0, index);
 	extension = name.substring(index + 1);
@@ -127,9 +127,9 @@ public static IStatus validateCompilationUnitName(String name) {
 		return status;
 	}
 	if (!Util.isJavaFileName(name)) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
-	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
+	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }
 /**
  * Validate the given field name.
@@ -159,9 +159,9 @@ public static IStatus validateFieldName(String name) {
  */
 public static IStatus validateIdentifier(String id) {
 	if (scannedIdentifier(id) != null) {
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
+		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 	} else {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier"/*nonNLS*/, id), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier", id), null); //$NON-NLS-1$
 	}
 }
 /**
@@ -178,13 +178,13 @@ public static IStatus validateIdentifier(String id) {
  */
 public static IStatus validateImportDeclaration(String name) {
 	if (name == null || name.length() == 0) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.nullImport"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.nullImport"), null); //$NON-NLS-1$
 	} 
 	if (name.charAt(name.length() - 1) == '*') {
 		if (name.charAt(name.length() - 2) == '.') {
 			return validatePackageName(name.substring(0, name.length() - 2));
 		} else {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.unqualifiedImport"/*nonNLS*/), null);
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.unqualifiedImport"), null); //$NON-NLS-1$
 		}
 	}
 	return validatePackageName(name);
@@ -204,11 +204,11 @@ public static IStatus validateImportDeclaration(String name) {
  */
 public static IStatus validateJavaTypeName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nullName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nullName"), null); //$NON-NLS-1$
 	}
 	String trimmed = name.trim();
 	if (!name.equals(trimmed)) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nameWithBlanks"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nameWithBlanks"), null); //$NON-NLS-1$
 	}
 	int index = name.lastIndexOf('.');
 	char[] scannedID;
@@ -228,14 +228,14 @@ public static IStatus validateJavaTypeName(String name) {
 
 	if (scannedID != null) {
 		if (CharOperation.contains('$', scannedID)) {
-			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"/*nonNLS*/), null);
+			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"), null); //$NON-NLS-1$
 		}
 		if ((scannedID.length > 0 && Character.isLowerCase(scannedID[0]))) {
-			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.lowercaseName"/*nonNLS*/), null);
+			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.lowercaseName"), null); //$NON-NLS-1$
 		}
-		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
+		return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 	} else {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.invalidName"/*nonNLS*/, name), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.invalidName", name), null); //$NON-NLS-1$
 	}
 }
 /**
@@ -266,22 +266,22 @@ public static IStatus validateMethodName(String name) {
  */
 public static IStatus validatePackageName(String name) {
 	if (name == null) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nullName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nullName"), null); //$NON-NLS-1$
 	}
 	int length;
 	if ((length = name.length()) == 0) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.emptyName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.emptyName"), null); //$NON-NLS-1$
 	}
 	if (name.charAt(0) == fgDot || name.charAt(length-1) == fgDot) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"/*nonNLS*/), null);
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"), null); //$NON-NLS-1$
 	}
 	if (Character.isWhitespace(name.charAt(0)) || Character.isWhitespace(name.charAt(name.length() - 1))) {
-		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"/*nonNLS*/), null);;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"), null);; //$NON-NLS-1$
 	}
 	int dot = 0;
 	while (dot != -1 && dot < length-1) {
 		if ((dot = name.indexOf(fgDot, dot+1)) != -1 && dot < length-1 && name.charAt(dot+1) == fgDot) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"/*nonNLS*/), null);
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"), null); //$NON-NLS-1$
 			}
 	}
 	StringTokenizer st = new StringTokenizer(name, new String(new char[] {fgDot}));
@@ -293,7 +293,7 @@ public static IStatus validatePackageName(String name) {
 			return status;
 		}
 	}
-	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
+	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }
 
 /**
@@ -354,19 +354,19 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				IClasspathEntry otherEntry = classpath[j];
 				if (entry != otherEntry && otherEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
 					if (entryPath.isPrefixOf(otherEntry.getPath())){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInSource"/*nonNLS*/,entryPath.toString(), otherEntry.getPath().toString()));
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInSource",entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
 					}
 				}
 			}
 		}
 		// prevent nesting output location inside entry
 		if (entryPath.isPrefixOf(outputLocation)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInOutput"/*nonNLS*/,entryPath.toString(), outputLocation.toString()));
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
 		}
 
 		// prevent nesting entry inside output location - when distinct from project or a source folder
 		if (!allowNestingInOutput && outputLocation.isPrefixOf(entryPath)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOuputInSourceFolder"/*nonNLS*/, outputLocation.toString(), entryPath.toString()));
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOuputInSourceFolder", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;	
@@ -388,11 +388,11 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				if (path != null && path.segmentCount() >= 1){
 					entry = JavaCore.getResolvedClasspathEntry(entry);
 					if (entry == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundVariablePath"/*nonNLS*/, path.toString()));
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundVariablePath", path.toString())); //$NON-NLS-1$
 					}
 					return validateClasspathEntry(javaProject, entry, checkSourceAttachment);
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalVariablePath"/*nonNLS*/, path.toString()));					
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalVariablePath", path.toString()));					 //$NON-NLS-1$
 				}
 
 			// library entry check
@@ -405,12 +405,12 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 						switch(resolvedResource.getType()){
 							case IResource.FILE :
 								String extension = resolvedResource.getFileExtension();
-								if ("jar"/*nonNLS*/.equalsIgnoreCase(extension) || "zip"/*nonNLS*/.equalsIgnoreCase(extension)){ // internal binary archive
+								if ("jar".equalsIgnoreCase(extension) || "zip".equalsIgnoreCase(extension)){ // internal binary archive //$NON-NLS-2$ //$NON-NLS-1$
 									if (checkSourceAttachment 
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()
 										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString()));
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
 									}
 								}
 								break;
@@ -419,7 +419,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 									&& sourceAttachment != null 
 									&& !sourceAttachment.isEmpty()
 									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString()));
+									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
 								}
 						}
 					} else if (target instanceof File){
@@ -427,13 +427,13 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 							&& sourceAttachment != null 
 							&& !sourceAttachment.isEmpty()
 							&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString()));
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
 						}
 					} else {
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary"/*nonNLS*/, path.toString()));
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary", path.toString())); //$NON-NLS-1$
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryPath"/*nonNLS*/, path.toString()));
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryPath", path.toString())); //$NON-NLS-1$
 				}
 				break;
 
@@ -443,13 +443,13 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 					IProject project = workspaceRoot.getProject(path.segment(0));
 					try {
 						if (!project.exists() || !project.hasNature(JavaCore.NATURE_ID)){
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString()));
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0).toString())); //$NON-NLS-1$
 						}
 					} catch (CoreException e){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString()));
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0).toString())); //$NON-NLS-1$
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalProjectPath"/*nonNLS*/, path.segment(0).toString()));
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalProjectPath", path.segment(0).toString())); //$NON-NLS-1$
 				}
 				break;
 
@@ -458,10 +458,10 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= javaProject.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceFolder"/*nonNLS*/, path.toString()));
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceFolder", path.toString())); //$NON-NLS-1$
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalSourceFolderPath"/*nonNLS*/, path.toString()));
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalSourceFolderPath", path.toString())); //$NON-NLS-1$
 				}
 				break;
 		}

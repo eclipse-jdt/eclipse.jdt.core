@@ -139,15 +139,15 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTb
 public String toStringExpression() {
 	/* slow code */
 
-	String s = "{"/*nonNLS*/ ;
+	String s = "{" ; //$NON-NLS-1$
 	if (expressions != null)
 	{ 	int j = 20 ; 
 		for (int i = 0 ; i < expressions.length ; i++)
-		{	s = s + expressions[i].toStringExpression() + ","/*nonNLS*/ ;
+		{	s = s + expressions[i].toStringExpression() + "," ; //$NON-NLS-1$
 			j -- ;
 			if (j == 0)
-			{	s = s + "\n                "/*nonNLS*/; j = 20;}}};
-	s = s + "}"/*nonNLS*/;
+			{	s = s + "\n                "; j = 20;}}}; //$NON-NLS-1$
+	s = s + "}"; //$NON-NLS-1$
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

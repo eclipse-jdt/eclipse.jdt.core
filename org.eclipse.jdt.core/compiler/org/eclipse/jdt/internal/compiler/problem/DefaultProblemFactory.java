@@ -70,9 +70,9 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	String message = 
 		messageTemplates[(id & ProblemIrritants.IgnoreCategoriesMask)]; 
 	if (message == null) {
-		return "Unable to retrieve the error message for problem id: "/*nonNLS*/
+		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ id
-			+ ". Check compiler resources."/*nonNLS*/; 
+			+ ". Check compiler resources.";  //$NON-NLS-1$
 	}
 
 	int length = message.length();
@@ -87,9 +87,9 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					return "Corrupted compiler resources for problem id: "/*nonNLS*/
+					return "Corrupted compiler resources for problem id: " //$NON-NLS-1$
 						+ (id & ProblemIrritants.IgnoreCategoriesMask)
-						+ ". Check compiler resources."/*nonNLS*/; 
+						+ ". Check compiler resources.";  //$NON-NLS-1$
 				}
 			} else {
 				output.append(message.substring(end, length));
@@ -115,7 +115,7 @@ public final String localizedMessage(IProblem problem) {
  * to the current Locale.
  */
 public static String[] loadMessageTemplates(Locale loc) {
-	ResourceBundle bundle = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.Messages"/*nonNLS*/, loc);
+	ResourceBundle bundle = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.Messages", loc); //$NON-NLS-1$
 	String[] templates = new String[500];
 	for (int i = 0, max = templates.length; i < max; i++) {
 		try {

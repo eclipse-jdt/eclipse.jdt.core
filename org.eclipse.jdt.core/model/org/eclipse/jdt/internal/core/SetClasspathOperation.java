@@ -57,7 +57,7 @@ public SetClasspathOperation(IJavaProject project, IClasspathEntry[] oldResolved
  * Sets the classpath of the pre-specified project.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("classpath.settingProgress"/*nonNLS*/), 2);
+	beginTask(Util.bind("classpath.settingProgress"), 2); //$NON-NLS-1$
 	JavaProject project= ((JavaProject) getElementsToProcess()[0]);
 	
 	project.setRawClasspath0(this.newRawPath);

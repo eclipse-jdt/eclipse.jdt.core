@@ -67,7 +67,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab);
-	s = s + "case "/*nonNLS*/ + constantExpression.toStringExpression() + " : "/*nonNLS*/ ;
+	s = s + "case " + constantExpression.toStringExpression() + " : " ; //$NON-NLS-1$ //$NON-NLS-2$
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

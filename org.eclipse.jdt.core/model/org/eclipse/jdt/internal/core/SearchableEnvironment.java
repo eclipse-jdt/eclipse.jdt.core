@@ -361,8 +361,8 @@ public class SearchableEnvironment
 	 * Returns a printable string for the array.
 	 */
 	protected String toStringChar(char[] name) {
-		return "[" /*nonNLS*/
-		+ new String(name) + "]" /*nonNLS*/;
+		return "["  //$NON-NLS-1$
+		+ new String(name) + "]" ; //$NON-NLS-1$
 	}
 
 	/**

@@ -165,7 +165,7 @@ public class MatchLocator implements ITypeRequestor {
 	private IImportDeclaration createImportHandle(ImportReference importRef) {
 		char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 		if (importRef.onDemand) {
-			importName = CharOperation.concat(importName, ".*" /*nonNLS*/.toCharArray());
+			importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
 		}
 		return ((CompilationUnit) this.getCurrentOpenable()).getImport(
 			new String(importName));
@@ -210,7 +210,7 @@ public class MatchLocator implements ITypeRequestor {
 			TypeReference parameterType = arguments[i].type;
 			char[] typeName = CharOperation.concatWith(parameterType.getTypeName(), '.');
 			for (int j = 0; j < parameterType.dimensions(); j++) {
-				typeName = CharOperation.concat(typeName, "[]" /*nonNLS*/.toCharArray());
+				typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
 			}
 			parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 		}

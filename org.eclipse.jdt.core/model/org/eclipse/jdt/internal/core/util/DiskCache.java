@@ -171,9 +171,9 @@ public class DiskCache {
 
 	EntryCache fEntryCache;
 
-	static final String CONTENTS_FILE_NAME = "contents"/*nonNLS*/;
-	static final String TEMP_CONTENTS_FILE_NAME = "tempcont"/*nonNLS*/;
-	static final String CONTENTS_VERSION = "DiskCache.V1.0"/*nonNLS*/;
+	static final String CONTENTS_FILE_NAME = "contents"; //$NON-NLS-1$
+	static final String TEMP_CONTENTS_FILE_NAME = "tempcont"; //$NON-NLS-1$
+	static final String CONTENTS_VERSION = "DiskCache.V1.0"; //$NON-NLS-1$
 
 	/**
 	 * Set to true when cache is modified, cleared when saved.
@@ -217,7 +217,7 @@ public DiskCache(File directory, int spaceLimit) {
 	 */
 	public OutputStream add(final String key, int size, byte[] extraInfo) throws IOException {
 		if (size > fSpaceLimit*1024) {
-			throw new IOException("Entry size greater than cache size"/*nonNLS*/);
+			throw new IOException("Entry size greater than cache size"); //$NON-NLS-1$
 		}
 		final File file;
 		OutputStream output;
@@ -518,7 +518,7 @@ public int getNumberOfFilesToBeDeleted() {
 			int spaceUsed = in.readInt();  /* Ignored -- updated as entries are read */
 			int numEntries = in.readInt();
 			if (!sig.equals(CONTENTS_VERSION)) {
-				throw new IOException(Util.bind("file.badFormat"/*nonNLS*/));
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 			}
 
 			/* Read to a temp. array of entries.  The entries are in most- to 
@@ -736,7 +736,7 @@ public synchronized void removeAll(Vector keys) {
 				}
 			}				
 		};
-		fPeriodicSaveThread.setName("DiskCache periodic save"/*nonNLS*/);
+		fPeriodicSaveThread.setName("DiskCache periodic save"); //$NON-NLS-1$
 		fPeriodicSaveThread.start();
 					
 	}

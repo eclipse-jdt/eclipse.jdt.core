@@ -53,15 +53,15 @@ public void build() {
 	fNotifier.begin();
 	try {
 		fNewState.readClassPath();
-		fNotifier.subTask(Util.bind("build.scrubbingOutput"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
 		fNewState.getBinaryOutput().scrubOutput();
 		fNotifier.updateProgressDelta(0.05f);
-		fNotifier.subTask(Util.bind("build.analyzingPackages"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.analyzingPackages")); //$NON-NLS-1$
 		fNewState.buildInitialPackageMap();
 		fNotifier.updateProgressDelta(0.05f);
 
 		/* Force build all in build context */
-		fNotifier.subTask(Util.bind("build.analyzingSources"/*nonNLS*/));
+		fNotifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
 		IPackage[] pkgs = fNewState.getPackageMap().getAllPackagesAsArray();
 		for (int i = 0; i < pkgs.length; ++i) {
 			fNotifier.checkCancel();
@@ -104,13 +104,13 @@ public IDelta getImageDelta(IImageContext imageContext) {
 public void lazyBuild(PackageElement unit) {
 	//		String msg = "Attempt to lazy build " + unit.getPackage().getName() + "." + unit.getFileName();
 	//		System.err.println(msg + ". " + "Lazy building has been disabled.");
-	Assert.isTrue(false, "Internal Error - Lazy building has been disabled"/*nonNLS*/);
+	Assert.isTrue(false, "Internal Error - Lazy building has been disabled"); //$NON-NLS-1$
 }
 /**
  * Returns a string describe the builder
  * @see IImageBuilder
  */
 public String toString() {
-	return "batch image builder for:\n\tnew state: "/*nonNLS*/ + getNewState();
+	return "batch image builder for:\n\tnew state: " + getNewState(); //$NON-NLS-1$
 }
 }

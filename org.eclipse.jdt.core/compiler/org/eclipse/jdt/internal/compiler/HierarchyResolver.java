@@ -74,7 +74,7 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 public void accept(ICompilationUnit sourceUnit) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	lookupEnvironment.problemReporter.abortDueToInternalError(
-		new StringBuffer(Util.bind("accept.cannot"/*nonNLS*/))
+		new StringBuffer(Util.bind("accept.cannot")) //$NON-NLS-1$
 			.append(sourceUnit.getFileName())
 			.toString());
 }

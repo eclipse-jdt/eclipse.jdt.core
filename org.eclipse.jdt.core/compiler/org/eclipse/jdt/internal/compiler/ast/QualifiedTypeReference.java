@@ -41,7 +41,7 @@ public String toStringExpression(int tab) {
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."/*nonNLS*/);
+			buffer.append("."); //$NON-NLS-1$
 		}
 	}
 	return buffer.toString();

@@ -155,7 +155,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this);
 	} else {
 		// actual non-constant code generation
-		throw new ShouldNotImplement(Util.bind("ast.missingCode"/*nonNLS*/));
+		throw new ShouldNotImplement(Util.bind("ast.missingCode")); //$NON-NLS-1$
 	}
 }
 /**
@@ -344,7 +344,7 @@ public String toString(int tab) {
 		//before TC has runned
 		if (constant != NotAConstant)
 			//after the TC has runned
-			s += " /*cst:"/*nonNLS*/ + constant.toString() + "*/ "/*nonNLS*/;
+			s += " /*cst:" + constant.toString() + "*/ "; //$NON-NLS-1$ //$NON-NLS-2$
 	return s + toStringExpression(tab);
 }
 public String toStringExpression() {

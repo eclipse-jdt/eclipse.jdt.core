@@ -17,7 +17,7 @@ public interface TypeConstants {
 	// Constant compound names
 	final char[][] JAVA_LANG = new char[][] {JAVA, LANG};
 	final char[][] JAVA_IO = new char[][] {JAVA, IO};
-	final char[][] JAVA_LANG_ASSERTIONERROR = new char[][] {JAVA, LANG, "AssertionError"/*nonNLS*/.toCharArray()};
+	final char[][] JAVA_LANG_ASSERTIONERROR = new char[][] {JAVA, LANG, "AssertionError".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_CLASS = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's'}};
 	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = new char[][] {JAVA, LANG, {'C', 'l', 'a', 's', 's', 'N', 'o', 't', 'F', 'o', 'u', 'n', 'd', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
 	final char[][] JAVA_LANG_CLONEABLE = new char[][] {JAVA, LANG, {'C', 'l', 'o', 'n', 'e', 'a', 'b', 'l', 'e'}};
@@ -33,15 +33,15 @@ public interface TypeConstants {
 	final char[][] JAVA_LANG_REFLECT_CONSTRUCTOR = new char[][] {JAVA, LANG, REFLECT, {'C', 'o', 'n', 's', 't', 'r', 'u', 'c', 't', 'o', 'r'}};
 	final char[][] JAVA_IO_PRINTSTREAM = new char[][] {JAVA, IO, {'P', 'r', 'i', 'n', 't', 'S', 't', 'r', 'e', 'a', 'm'}};
 	final char[][] JAVA_IO_SERIALIZABLE = new char[][] {JAVA, IO, {'S', 'e', 'r', 'i', 'a', 'l', 'i', 'z', 'a', 'b', 'l', 'e'}};
-	final char[][] JAVA_LANG_BYTE = new char[][] {JAVA, LANG, "Byte"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_SHORT = new char[][] {JAVA, LANG, "Short"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_CHARACTER = new char[][] {JAVA, LANG, "Character"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_INTEGER = new char[][] {JAVA, LANG, "Integer"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_LONG = new char[][] {JAVA, LANG, "Long"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_FLOAT = new char[][] {JAVA, LANG, "Float"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_DOUBLE = new char[][] {JAVA, LANG, "Double"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_BOOLEAN = new char[][] {JAVA, LANG, "Boolean"/*nonNLS*/.toCharArray()};
-	final char[][] JAVA_LANG_VOID = new char[][] {JAVA, LANG, "Void"/*nonNLS*/.toCharArray()};
+	final char[][] JAVA_LANG_BYTE = new char[][] {JAVA, LANG, "Byte".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_SHORT = new char[][] {JAVA, LANG, "Short".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_CHARACTER = new char[][] {JAVA, LANG, "Character".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_INTEGER = new char[][] {JAVA, LANG, "Integer".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_LONG = new char[][] {JAVA, LANG, "Long".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_FLOAT = new char[][] {JAVA, LANG, "Float".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_DOUBLE = new char[][] {JAVA, LANG, "Double".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_BOOLEAN = new char[][] {JAVA, LANG, "Boolean".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_VOID = new char[][] {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
 
 	// Constants used by the flow analysis
 	final int EqualOrMoreSpecific = -1;

@@ -142,24 +142,24 @@ protected void resetQuery() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("PackageReferencePattern: <"/*nonNLS*/);
+	buffer.append("PackageReferencePattern: <"); //$NON-NLS-1$
 	if (this.pkgName != null) buffer.append(this.pkgName);
-	buffer.append(">, "/*nonNLS*/);
+	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive"); //$NON-NLS-1$
 	return buffer.toString();
 }
 
@@ -218,7 +218,7 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 						return IMPOSSIBLE_MATCH;
 					}
 				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray()); //$NON-NLS-1$
 					if (CharOperation.match(pattern, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive)) {
 						return POSSIBLE_MATCH;
 					} else {
@@ -290,7 +290,7 @@ private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 						return IMPOSSIBLE_MATCH;
 					}
 				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray()); //$NON-NLS-1$
 					if (CharOperation.match(pattern, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive)) {
 						return POSSIBLE_MATCH;
 					} else {

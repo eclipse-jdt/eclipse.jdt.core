@@ -46,15 +46,15 @@ public int hashCode(){
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(word.length * 2);
-	buffer.append("EntryResult: word="/*nonNLS*/);
+	buffer.append("EntryResult: word="); //$NON-NLS-1$
 	buffer.append(word);
-	buffer.append(", refs={"/*nonNLS*/);
+	buffer.append(", refs={"); //$NON-NLS-1$
 	for (int i = 0; i < fileRefs.length; i++){
 		if (i > 0) buffer.append(',');
 		buffer.append(' ');
 		buffer.append(fileRefs[i]);
 	}
-	buffer.append(" }"/*nonNLS*/);
+	buffer.append(" }"); //$NON-NLS-1$
 	return buffer.toString();
 }
 }

@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class Clinit extends AbstractMethodDeclaration {
-	public final static char[] ConstantPoolName = "<clinit>" /*nonNLS*/.toCharArray();
+	public final static char[] ConstantPoolName = "<clinit>" .toCharArray(); //$NON-NLS-1$
 
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
@@ -178,9 +178,9 @@ public class Clinit extends AbstractMethodDeclaration {
 
 	public String toString(int tab) {
 		/* slow code */
-		String s = "" /*nonNLS*/;
+		String s = "" ; //$NON-NLS-1$
 		s = s + tabString(tab);
-		s = s + "<clinit>()" /*nonNLS*/;
+		s = s + "<clinit>()" ; //$NON-NLS-1$
 		s = s + toStringStatements(tab + 1);
 		return s;
 	}

@@ -16,12 +16,12 @@ public class AntPrintWriter extends PrintWriter {
 	public AntPrintWriter(Task t){
 		super(System.out);
 		task = t;
-		currentLine = ""/*nonNLS*/;
+		currentLine = ""; //$NON-NLS-1$
 	}
 
     public void flush() {
 		task.log(currentLine);
-		currentLine = ""/*nonNLS*/;
+		currentLine = ""; //$NON-NLS-1$
     }
 
     public void close() {
@@ -50,7 +50,7 @@ public class AntPrintWriter extends PrintWriter {
     }
 
     public void print(boolean b) {
-		write(b ? "true"/*nonNLS*/ : "false"/*nonNLS*/);
+		write(b ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void print(char c) {
@@ -80,7 +80,7 @@ public class AntPrintWriter extends PrintWriter {
 
     public void print(String s) {
 		if (s == null) {
-	 	   s = "null"/*nonNLS*/;
+	 	   s = "null"; //$NON-NLS-1$
 		}
 		write(s);
     }

@@ -1022,7 +1022,7 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		fProgressMonitor = monitor;
 		if (monitor != null) {
-			monitor.beginTask(Util.bind("hierarchy.creating"/*nonNLS*/), IProgressMonitor.UNKNOWN);
+			monitor.beginTask(Util.bind("hierarchy.creating"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
 		}
 		compute();
 		if (fType != null) {
@@ -1097,7 +1097,7 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
 		return false;
 	}
 	if (superclassName == null) {
-		superclassName = "Object"/*nonNLS*/;
+		superclassName = "Object"; //$NON-NLS-1$
 	}
 	int dot = -1;
 	String simpleSuper = (dot = superclassName.lastIndexOf('.')) > -1 ?
@@ -1133,24 +1133,24 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Focus: "/*nonNLS*/);
-	buffer.append(fType == null ? "<NONE>"/*nonNLS*/ : fType.getFullyQualifiedName());
-	buffer.append("\n"/*nonNLS*/);
+	buffer.append("Focus: "); //$NON-NLS-1$
+	buffer.append(fType == null ? "<NONE>" : fType.getFullyQualifiedName()); //$NON-NLS-1$
+	buffer.append("\n"); //$NON-NLS-1$
 	if (exists()) {
 		if (fType != null) {
-			buffer.append("Super types:\n"/*nonNLS*/);
+			buffer.append("Super types:\n"); //$NON-NLS-1$
 			toString(buffer, fType, 1, true);
-			buffer.append("Sub types:\n"/*nonNLS*/);
+			buffer.append("Sub types:\n"); //$NON-NLS-1$
 			toString(buffer, fType, 1, false);
 		} else {
-			buffer.append("Sub types of root classes:\n"/*nonNLS*/);
+			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
 			IType[] roots= getRootClasses();
 			for (int i= 0; i < roots.length; i++) {
 				toString(buffer, roots[i], 1, false);
 			}
 		}
 	} else {
-		buffer.append("(Hierarchy became stale)"/*nonNLS*/);
+		buffer.append("(Hierarchy became stale)"); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }
@@ -1161,7 +1161,7 @@ public String toString() {
  */
 private void toString(StringBuffer buffer, IType type, int indent, boolean ascendant) {
 	for (int i= 0; i < indent; i++) {
-		buffer.append("  "/*nonNLS*/);
+		buffer.append("  "); //$NON-NLS-1$
 	}
 	buffer.append(type.getFullyQualifiedName());
 	buffer.append('\n');

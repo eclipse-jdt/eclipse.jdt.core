@@ -135,7 +135,7 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				String pkgPath = pkg.getElementName().replace('.', '/');
 				String classFilePath = 
 					(pkgPath.length() > 0) ?
-						pkgPath + "/"/*nonNLS*/ + classFile.getElementName() :
+						pkgPath + "/" + classFile.getElementName() : //$NON-NLS-1$
 						classFile.getElementName();
 				ZipFile zipFile = null;
 				try {

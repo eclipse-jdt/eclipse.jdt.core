@@ -39,7 +39,7 @@ public char[] constantPoolName() /*	[Ljava/lang/Object; */ {
 String debugName() {
 	StringBuffer brackets = new StringBuffer(dimensions * 2);
 	for (int i = dimensions; --i >= 0;)
-		brackets.append("[]"/*nonNLS*/);
+		brackets.append("[]"); //$NON-NLS-1$
 	return leafComponentType.debugName() + brackets.toString();
 }
 /* Answer an array whose dimension size is one less than the receiver.
@@ -128,6 +128,6 @@ public char[] sourceName() {
 	return CharOperation.concat(leafComponentType.sourceName(), brackets);
 }
 public String toString() {
-	return leafComponentType != null ? debugName() : "NULL TYPE ARRAY"/*nonNLS*/;
+	return leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
 }
 }

@@ -172,17 +172,17 @@ public void setFieldIndex(int i) {
 public String toStringExpression() {
 	/* slow code */
 
-	String s = "new "/*nonNLS*/ + type.toString(0);
+	String s = "new " + type.toString(0); //$NON-NLS-1$
 	if (arguments == null)
-		s = s + "()"/*nonNLS*/ ;
+		s = s + "()" ; //$NON-NLS-1$
 	else
-	{	s = s + "("/*nonNLS*/;
+	{	s = s + "("; //$NON-NLS-1$
 		for (int i = 0 ; i < arguments.length ; i++)
 		{	s = s + arguments[i].toStringExpression();
 			if (i == (arguments.length-1))
-				s = s + ")"/*nonNLS*/ ;
+				s = s + ")" ; //$NON-NLS-1$
 			else
-				s = s + ", "/*nonNLS*/; };};
+				s = s + ", "; };}; //$NON-NLS-1$
 	return s ;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

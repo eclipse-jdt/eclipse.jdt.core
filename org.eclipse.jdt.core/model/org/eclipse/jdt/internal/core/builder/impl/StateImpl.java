@@ -193,7 +193,7 @@ public class StateImpl implements IState {
 	/**
 	 * Name for namespace node representing unknown dependencies.
 	 */
-	private static final String UNKNOWN_DEPENDENCIES= "$UNKNOWN_DEPENDENCIES$"/*nonNLS*/;
+	private static final String UNKNOWN_DEPENDENCIES= "$UNKNOWN_DEPENDENCIES$"; //$NON-NLS-1$
 
 	/**
 	 * Random number generator, used for generating fingerprints.
@@ -420,7 +420,7 @@ public class StateImpl implements IState {
 			String className= Util.toString(classFile.getCompoundName());
 			if (classFile == null) {
 				// Could not discover principal structure
-				String msg= Util.bind("build.errorParsingBinary"/*nonNLS*/, className);
+				String msg= Util.bind("build.errorParsingBinary", className); //$NON-NLS-1$
 				ProblemDetailImpl problem= new ProblemDetailImpl(msg, sEntry);
 				vProblems.addElement(problem);
 				// skip it
@@ -439,7 +439,7 @@ public class StateImpl implements IState {
 					if (!typePkg.isUnnamed()) {
 						path= path.append(typePkg.getName().replace('.', IPath.SEPARATOR));
 					}
-					String msg= Util.bind("build.packageMismatch"/*nonNLS*/, path.toString());
+					String msg= Util.bind("build.packageMismatch", path.toString()); //$NON-NLS-1$
 					ProblemDetailImpl problem= new ProblemDetailImpl(msg, 0, IProblemDetail.S_ERROR, sEntry, 0, 0, 1);
 					vProblems.addElement(problem);
 					// Only report the conflict once (there may be several types, but there's only one package declaration).
@@ -538,7 +538,7 @@ public class StateImpl implements IState {
 		}
 		if (lazyBuildCU && binaryType == null) {
 			/* couldn't parse the class file */
-			ProblemDetailImpl problem= new ProblemDetailImpl(Util.bind("build.errorParsingBinary"/*nonNLS*/, type.getName()), sEntry);
+			ProblemDetailImpl problem= new ProblemDetailImpl(Util.bind("build.errorParsingBinary", type.getName()), sEntry); //$NON-NLS-1$
 			fProblemReporter.putProblem(sEntry, problem);
 		}
 		return binaryType;
@@ -652,7 +652,7 @@ public class StateImpl implements IState {
 		/* rebuild descriptor from indexes or binary */
 		IBinaryType binaryType= forceBinaryType(tsEntry, false); // Use false for 1FVQGL1: ITPJCORE:WINNT - SEVERE - Error saving java file
 		if (binaryType == null) {
-			throw new NotPresentException(Util.bind("build.errorBuildingType"/*nonNLS*/, tsEntry.getSourceEntry().getFileName()));
+			throw new NotPresentException(Util.bind("build.errorBuildingType", tsEntry.getSourceEntry().getFileName())); //$NON-NLS-1$
 		}
 		return binaryType;
 	}
@@ -717,7 +717,7 @@ public class StateImpl implements IState {
 		if (!fSourceElementTable.containsPackage(pkg)) {
 			getSourceEntries(pkg);
 		}
-		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"); //$NON-NLS-1$
 		if (entry == null)
 			return null;
 		return new PackageElement(pkg, entry);
@@ -803,7 +803,7 @@ public class StateImpl implements IState {
 				return fDevelopmentContext.getBinaryFromFileSystem(file);
 			} catch (IOException e) {
 				String message= e.getMessage();
-				message= (message == null ? "."/*nonNLS*/ : " due to "/*nonNLS*/ + message + "."/*nonNLS*/);
+				message= (message == null ? "." : " due to " + message + "."); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 				return new byte[0];
 			}
 		}
@@ -920,7 +920,7 @@ public class StateImpl implements IState {
 				}
 			}
 			if (frag == null) {
-				throw internalException(Util.bind("build.missingFile"/*nonNLS*/, sEntry.toString()));
+				throw internalException(Util.bind("build.missingFile", sEntry.toString())); //$NON-NLS-1$
 			}
 			String fileName= sEntry.getPath().lastSegment();
 			if (sEntry.isSource()) {
@@ -1208,9 +1208,9 @@ static Comparator getPathComparator() {
 				ICompilationUnit unit= units[i];
 				String fileName= unit.getElementName();
 				// get the corresponding .class file name
-				String classFileName = ""/*nonNLS*/;
+				String classFileName = ""; //$NON-NLS-1$
 				if (Util.isJavaFileName(fileName)) { // paranoia check
-					classFileName = fileName.substring(0, fileName.length()-5).concat(".class"/*nonNLS*/);
+					classFileName = fileName.substring(0, fileName.length()-5).concat(".class"); //$NON-NLS-1$
 				}
 				// see if a source entry exists for this file name
 				// or for the corresponding .class file
@@ -1234,7 +1234,7 @@ static Comparator getPathComparator() {
 				String fileName= classFile.getElementName();
 				// get the corresponding .java file name
 				// note: this handles nested types, but not secondary types (e.g. class B defined in A.java)
-				String javaFileName = ""/*nonNLS*/;
+				String javaFileName = ""; //$NON-NLS-1$
 				if (Util.isClassFileName(fileName)) { // paranoia check
 					// strip off any nested types
 					javaFileName = fileName.substring(0, fileName.length()-6);
@@ -1242,7 +1242,7 @@ static Comparator getPathComparator() {
 					if (dol != -1) {
 						javaFileName = javaFileName.substring(0, dol);
 					}
-					javaFileName = javaFileName.concat(".java"/*nonNLS*/);
+					javaFileName = javaFileName.concat(".java"); //$NON-NLS-1$
 				}
 				// see if a source entry exists for this file name
 				// or for the corresponding .java file
@@ -1304,7 +1304,7 @@ static Comparator getPathComparator() {
 	protected SourceEntry getSourceEntry(String qualifiedNameWithSuffix) {
 		int dot= qualifiedNameWithSuffix.lastIndexOf('.');
 		dot= qualifiedNameWithSuffix.lastIndexOf('.', dot - 1);
-		String pkgName= (dot == -1 ? ".default"/*nonNLS*/ : qualifiedNameWithSuffix.substring(0, dot));
+		String pkgName= (dot == -1 ? ".default" : qualifiedNameWithSuffix.substring(0, dot)); //$NON-NLS-1$
 		String fileName= (dot == -1 ? qualifiedNameWithSuffix : qualifiedNameWithSuffix.substring(dot + 1));
 		IPackage pkg= fDevelopmentContext.getImage().getPackageHandle(pkgName, false);
 		getSourceEntries(pkg); // force
@@ -1333,16 +1333,16 @@ static Comparator getPathComparator() {
 			getSourceEntries(pkg);
 		}
 		String simpleName= type.getSimpleName();
-		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"); //$NON-NLS-1$
 		if (entry == null) {
-			entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"/*nonNLS*/);
+			entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"); //$NON-NLS-1$
 			if (entry == null) {
 				int firstDollar= simpleName.indexOf('$');
 				if (firstDollar != -1) {
 					simpleName= simpleName.substring(0, firstDollar);
-					entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+					entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"); //$NON-NLS-1$
 					if (entry == null) {
-						entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"/*nonNLS*/);
+						entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"); //$NON-NLS-1$
 					}
 				}
 			}
@@ -1441,7 +1441,7 @@ static Comparator getPathComparator() {
 	 */
 	protected TypeStructureEntry getTypeStructureEntry(String qualifiedNameWithoutSuffix) {
 		int dot= qualifiedNameWithoutSuffix.lastIndexOf('.');
-		String pkgName= (dot == -1 ? ".default"/*nonNLS*/ : qualifiedNameWithoutSuffix.substring(0, dot));
+		String pkgName= (dot == -1 ? ".default" : qualifiedNameWithoutSuffix.substring(0, dot)); //$NON-NLS-1$
 		String typeName= (dot == -1 ? qualifiedNameWithoutSuffix : qualifiedNameWithoutSuffix.substring(dot + 1));
 		IPackage pkg= fDevelopmentContext.getImage().getPackageHandle(pkgName, false);
 		IType type= pkg.getClassHandle(typeName);
@@ -1521,7 +1521,7 @@ static Comparator getPathComparator() {
 	 */
 	protected static boolean isZipElement(IPath path) {
 		String extension= path.getFileExtension();
-		return extension != null && (extension.equalsIgnoreCase("zip"/*nonNLS*/) || extension.equalsIgnoreCase("jar"/*nonNLS*/));
+		return extension != null && (extension.equalsIgnoreCase("zip") || extension.equalsIgnoreCase("jar")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	/**
 	 * Given a project-relative path, returns an absolute path.
@@ -1607,7 +1607,7 @@ static Comparator getPathComparator() {
 			if (tsExisting != null) {
 				if (!tsExisting.getSourceEntry().getFileName().equals(sEntry.getFileName())) {
 					// Same type provided by different files
-					String msg= Util.bind("build.duplicateType"/*nonNLS*/, typeHandle.getName(), tsExisting.getSourceEntry().getFileName());
+					String msg= Util.bind("build.duplicateType", typeHandle.getName(), tsExisting.getSourceEntry().getFileName()); //$NON-NLS-1$
 					ProblemDetailImpl problem= new ProblemDetailImpl(msg, sEntry);
 					fProblemReporter.putProblem(sEntry, problem);
 					// skip it
@@ -1798,7 +1798,7 @@ static Comparator getPathComparator() {
 	 * Returns a string representation of the receiver.
 	 */
 	public String toString() {
-		return "StateImpl("/*nonNLS*/ + fStateNumber + ")"/*nonNLS*/;
+		return "StateImpl(" + fStateNumber + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	/**
 	 * Returns the type handle for the given type name,

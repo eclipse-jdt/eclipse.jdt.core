@@ -85,7 +85,7 @@ protected Vector determineAffectedPackageFragments(IPath location) throws JavaMo
 					IPath relativePath = f.getFullPath().removeFirstSegments(segments);
 					String name = relativePath.toOSString();
 					name = name.replace(File.pathSeparatorChar, '.');
-					if (name.endsWith("."/*nonNLS*/)) {
+					if (name.endsWith(".")) { //$NON-NLS-1$
 						name = name.substring(0, name.length() - 1);
 					}
 					IPackageFragment pkg = root.getPackageFragment(name);
@@ -104,7 +104,7 @@ protected Vector determineAffectedPackageFragments(IPath location) throws JavaMo
  * a package fragment.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("classpath.settingOutputLocationProgress"/*nonNLS*/), 2);
+	beginTask(Util.bind("classpath.settingOutputLocationProgress"), 2); //$NON-NLS-1$
 	JavaProject project= ((JavaProject) getElementsToProcess()[0]);
 	
 	IPath oldLocation= project.getOutputLocation();

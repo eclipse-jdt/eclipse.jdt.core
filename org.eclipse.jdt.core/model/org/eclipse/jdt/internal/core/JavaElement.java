@@ -77,7 +77,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  */
 protected JavaElement(int type, IJavaElement parent, String name) throws IllegalArgumentException {
 	if (type < JAVA_MODEL || type > IMPORT_DECLARATION) {
-		throw new IllegalArgumentException(Util.bind("element.invalidType"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.invalidType")); //$NON-NLS-1$
 	}
 	fLEType= type;
 	fParent= parent;
@@ -516,7 +516,7 @@ protected void setOccurrenceCount(int count) {
 protected String tabString(int tab) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = tab; i > 0; i--)
-		buffer.append("  "/*nonNLS*/);
+		buffer.append("  "); //$NON-NLS-1$
 	return buffer.toString();
 }
 /**
@@ -554,11 +554,11 @@ protected void toString(int tab, StringBuffer buffer) {
 protected void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
 	if (parent != null) {
-		buffer.append(" [in "/*nonNLS*/);
+		buffer.append(" [in "); //$NON-NLS-1$
 		Object parentInfo = fgJavaModelManager.getInfo(parent);
 		parent.toStringInfo(0, buffer, parentInfo);
 		parent.toStringAncestors(buffer);
-		buffer.append("]"/*nonNLS*/);
+		buffer.append("]"); //$NON-NLS-1$
 	}
 }
 /**
@@ -568,7 +568,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 	for (int i = 0; i < children.length; i++) {
-		buffer.append("\n"/*nonNLS*/);
+		buffer.append("\n"); //$NON-NLS-1$
 		((JavaElement)children[i]).toString(tab + 1, buffer);
 	}
 }
@@ -578,7 +578,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(getElementName());
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	}
 }
 /**

@@ -52,7 +52,7 @@ private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer 
 			IResource member = members[i];
 			if (member.getType() == IResource.FILE) {
 				String extension = member.getProjectRelativePath().getFileExtension();
-				if (!"java"/*nonNLS*/.equalsIgnoreCase(extension) && !"class"/*nonNLS*/.equalsIgnoreCase(extension)) {
+				if (!"java".equalsIgnoreCase(extension) && !"class".equalsIgnoreCase(extension)) { //$NON-NLS-1$ //$NON-NLS-2$
 					if (project.findPackageFragmentRoot(member.getFullPath()) == null) {
 						if (nonJavaResources.length == nonJavaResourcesCounter) {
 							// resize

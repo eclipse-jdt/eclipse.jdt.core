@@ -25,7 +25,7 @@ public class ProblemFactory implements IProblemFactory {
  */
 private ProblemFactory(Locale locale) {
 	fLocale = locale;
-	fCompilerResources = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.Messages"/*nonNLS*/, locale);
+	fCompilerResources = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.Messages", locale); //$NON-NLS-1$
 	initializeMessageTemplates();
 }
 /**
@@ -53,7 +53,7 @@ public String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
 	String message = fMessageTemplates[ (id & ProblemIrritants.IgnoreCategoriesMask)];
 	if (message == null) {
-		return "Unable to retrieve the error message for problem id: "/*nonNLS*/+ id + ". Check compiler resources."/*nonNLS*/;
+		return "Unable to retrieve the error message for problem id: "+ id + ". Check compiler resources."; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	int length = message.length();
 	int start = -1, end = length;
@@ -66,7 +66,7 @@ public String getLocalizedMessage(int id, String[] problemArguments) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					return "Corrupted compiler resources for problem id: "/*nonNLS*/ + (id & ProblemIrritants.IgnoreCategoriesMask) + ". Check compiler resources."/*nonNLS*/;
+					return "Corrupted compiler resources for problem id: " + (id & ProblemIrritants.IgnoreCategoriesMask) + ". Check compiler resources."; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			} else {
 				output.append(message.substring(end, length));

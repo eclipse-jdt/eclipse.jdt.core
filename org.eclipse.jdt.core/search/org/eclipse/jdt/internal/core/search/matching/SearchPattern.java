@@ -54,7 +54,7 @@ public SearchPattern(int matchMode, boolean isCaseSensitive) {
  */
 private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)"/*nonNLS*/, true);
+	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
 	final int InsideName = 1;
 	final int InsideParameter = 2;
 	String lastToken = null;
@@ -71,7 +71,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 
 			// read declaring type and selector
 			case InsideName :
-				if (token.equals("."/*nonNLS*/)){
+				if (token.equals(".")){ //$NON-NLS-1$
 					if (declaringQualification == null){
 						if (typeName == null) return null;
 						declaringQualification = typeName;
@@ -79,12 +79,12 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						declaringQualification += token + typeName;
 					}
 					typeName = null;
-				} else if (token.equals("("/*nonNLS*/)){
+				} else if (token.equals("(")){ //$NON-NLS-1$
 					parameterTypes = new String[5];
 					parameterCount = 0;
 					mode = InsideParameter;
-				} else if (token.equals(" "/*nonNLS*/)){
-					if (!(" "/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(lastToken))){
+				} else if (token.equals(" ")){ //$NON-NLS-1$
+					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
 						break;
 					}
 				} else { // name
@@ -94,15 +94,15 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 				break;
 			// read parameter types
 			case InsideParameter :
-				if (token.equals(" "/*nonNLS*/)){
-				} else if (token.equals(","/*nonNLS*/)){
+				if (token.equals(" ")){ //$NON-NLS-1$
+				} else if (token.equals(",")){ //$NON-NLS-1$
 					if (parameterType == null) return null;
 					if (parameterTypes.length == parameterCount){
 						System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 					}
 					parameterTypes[parameterCount++] = parameterType;
 					parameterType = null;
-				} else if (token.equals (")"/*nonNLS*/)){
+				} else if (token.equals (")")){ //$NON-NLS-1$
 					foundClosingParenthesis = true;
 					if (parameterType != null){
 						if (parameterTypes.length == parameterCount){
@@ -115,7 +115,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 					if (parameterType == null){
 						parameterType = token;
 					} else {
-						if (!("."/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(token) || "[]"/*nonNLS*/.equals(token))) return null;
+						if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 						parameterType += token;
 					}
 				}
@@ -176,7 +176,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
  */
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)"/*nonNLS*/, true);
+	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
 	String lastToken = null;
@@ -191,7 +191,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
-				if (token.equals("."/*nonNLS*/)){
+				if (token.equals(".")){ //$NON-NLS-1$
 					if (declaringType == null){
 						if (fieldName == null) return null;
 						declaringType = fieldName;
@@ -199,8 +199,8 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						declaringType += token + fieldName;
 					}
 					fieldName = null;
-				} else if (token.equals(" "/*nonNLS*/)){
-					if (!(" "/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(lastToken))){
+				} else if (token.equals(" ")){ //$NON-NLS-1$
+					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
 						mode = InsideType;
 					}
 				} else { // name
@@ -210,11 +210,11 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 				break;
 			// read type 
 			case InsideType:
-				if (!token.equals(" "/*nonNLS*/)){
+				if (!token.equals(" ")){ //$NON-NLS-1$
 					if (type == null){
 						type = token;
 					} else {
-						if (!(!("."/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(token) || "[]"/*nonNLS*/.equals(token)))) return null;
+						if (!(!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token)))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 						type += token;
 					}
 				}
@@ -281,7 +281,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
  */
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)"/*nonNLS*/, true);
+	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
 	final int InsideReturnType = 3;
@@ -299,7 +299,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 
 			// read declaring type and selector
 			case InsideSelector :
-				if (token.equals("."/*nonNLS*/)){
+				if (token.equals(".")){ //$NON-NLS-1$
 					if (declaringType == null){
 						if (selector == null) return null;
 						declaringType = selector;
@@ -307,12 +307,12 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						declaringType += token + selector;
 					}
 					selector = null;
-				} else if (token.equals("("/*nonNLS*/)){
+				} else if (token.equals("(")){ //$NON-NLS-1$
 					parameterTypes = new String[5];
 					parameterCount = 0;
 					mode = InsideParameter;
-				} else if (token.equals(" "/*nonNLS*/)){
-					if (!(" "/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(lastToken))){
+				} else if (token.equals(" ")){ //$NON-NLS-1$
+					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
 						mode = InsideReturnType;
 					}
 				} else { // name
@@ -322,15 +322,15 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				break;
 			// read parameter types
 			case InsideParameter :
-				if (token.equals(" "/*nonNLS*/)){
-				} else if (token.equals(","/*nonNLS*/)){
+				if (token.equals(" ")){ //$NON-NLS-1$
+				} else if (token.equals(",")){ //$NON-NLS-1$
 					if (parameterType == null) return null;
 					if (parameterTypes.length == parameterCount){
 						System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 					}
 					parameterTypes[parameterCount++] = parameterType;
 					parameterType = null;
-				} else if (token.equals (")"/*nonNLS*/)){
+				} else if (token.equals (")")){ //$NON-NLS-1$
 					foundClosingParenthesis = true;
 					if (parameterType != null){
 						if (parameterTypes.length == parameterCount){
@@ -343,18 +343,18 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 					if (parameterType == null){
 						parameterType = token;
 					} else {
-						if (!("."/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(token) || "[]"/*nonNLS*/.equals(token))) return null;
+						if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 						parameterType += token;
 					}
 				}
 				break;
 			// read return type
 			case InsideReturnType:
-				if (!token.equals(" "/*nonNLS*/)){
+				if (!token.equals(" ")){ //$NON-NLS-1$
 					if (returnType == null){
 						returnType = token;
 					} else {
-						if (!(!("."/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(token) || "[]"/*nonNLS*/.equals(token)))) return null;
+						if (!(!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token)))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 						returnType += token;
 					}
 				}
@@ -643,16 +643,16 @@ private static SearchPattern createTypePattern(String fullyQualifiedName, int li
  */
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " ."/*nonNLS*/, true);
+	StringTokenizer tokenizer = new StringTokenizer(patternString, " .", true); //$NON-NLS-1$
 	String type = null;
 	String lastToken = null;
 	while (tokenizer.hasMoreTokens()){
 		String token = tokenizer.nextToken();
-		if (!token.equals(" "/*nonNLS*/)){
+		if (!token.equals(" ")){ //$NON-NLS-1$
 			if (type == null){
 				type = token;
 			} else {
-				if (!("."/*nonNLS*/.equals(lastToken) || "."/*nonNLS*/.equals(token) || "[]"/*nonNLS*/.equals(token))) return null;
+				if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 				type += token;
 			}
 		}
@@ -825,7 +825,7 @@ protected char[] toArrayName(char[] simpleName, int dimensions) {
 	return result;
 }
 public String toString(){
-	return "SearchPattern"/*nonNLS*/;
+	return "SearchPattern"; //$NON-NLS-1$
 }
 
 /**

@@ -15,23 +15,23 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	/**
 	 * Option IDs
 	 */
-	public static final String OPTION_LocalVariableAttribute = Compiler.class.getName() + ".localVariableAttribute"/*nonNLS*/;
-	public static final String OPTION_LineNumberAttribute = Compiler.class.getName() + ".lineNumberAttribute"/*nonNLS*/;
-	public static final String OPTION_SourceFileAttribute = Compiler.class.getName() + ".sourceFileAttribute"/*nonNLS*/;
-	public static final String OPTION_PreserveUnusedLocal = Compiler.class.getName() + ".preserveUnusedLocal"/*nonNLS*/;
-	public static final String OPTION_ReportUnreachableCode = Compiler.class.getName() + ".reportUnreachableCode"/*nonNLS*/;
-	public static final String OPTION_ReportInvalidImport = Compiler.class.getName() + ".reportInvalidImport"/*nonNLS*/;
-	public static final String OPTION_ReportMethodWithConstructorName = Compiler.class.getName() + ".reportMethodWithConstructorName"/*nonNLS*/;
-	public static final String OPTION_ReportOverridingPackageDefaultMethod = Compiler.class.getName() + ".reportOverridingPackageDefaultMethod"/*nonNLS*/;
-	public static final String OPTION_ReportDeprecation = Compiler.class.getName() + ".reportDeprecation"/*nonNLS*/;
-	public static final String OPTION_ReportHiddenCatchBlock = Compiler.class.getName() + ".reportHiddenCatchBlock"/*nonNLS*/;
-	public static final String OPTION_ReportUnusedLocal = Compiler.class.getName() + ".reportUnusedLocal"/*nonNLS*/;
-	public static final String OPTION_ReportUnusedParameter = Compiler.class.getName() + ".reportUnusedParameter"/*nonNLS*/;
-	public static final String OPTION_ReportSyntheticAccessEmulation = Compiler.class.getName() + ".reportSyntheticAccessEmulation"/*nonNLS*/;
-	public static final String OPTION_ReportNonExternalizedStringLiteral = Compiler.class.getName() + ".reportNonExternalizedStringLiteral"/*nonNLS*/;
-	public static final String OPTION_Source = Compiler.class.getName() + ".source"/*nonNLS*/;
-	public static final String OPTION_TargetPlatform = Compiler.class.getName() + ".targetPlatform"/*nonNLS*/;
-	public static final String OPTION_ReportAssertIdentifier = Compiler.class.getName() + ".reportAssertIdentifier"/*nonNLS*/;
+	public static final String OPTION_LocalVariableAttribute = Compiler.class.getName() + ".localVariableAttribute"; //$NON-NLS-1$
+	public static final String OPTION_LineNumberAttribute = Compiler.class.getName() + ".lineNumberAttribute"; //$NON-NLS-1$
+	public static final String OPTION_SourceFileAttribute = Compiler.class.getName() + ".sourceFileAttribute"; //$NON-NLS-1$
+	public static final String OPTION_PreserveUnusedLocal = Compiler.class.getName() + ".preserveUnusedLocal"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnreachableCode = Compiler.class.getName() + ".reportUnreachableCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidImport = Compiler.class.getName() + ".reportInvalidImport"; //$NON-NLS-1$
+	public static final String OPTION_ReportMethodWithConstructorName = Compiler.class.getName() + ".reportMethodWithConstructorName"; //$NON-NLS-1$
+	public static final String OPTION_ReportOverridingPackageDefaultMethod = Compiler.class.getName() + ".reportOverridingPackageDefaultMethod"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecation = Compiler.class.getName() + ".reportDeprecation"; //$NON-NLS-1$
+	public static final String OPTION_ReportHiddenCatchBlock = Compiler.class.getName() + ".reportHiddenCatchBlock"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedLocal = Compiler.class.getName() + ".reportUnusedLocal"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedParameter = Compiler.class.getName() + ".reportUnusedParameter"; //$NON-NLS-1$
+	public static final String OPTION_ReportSyntheticAccessEmulation = Compiler.class.getName() + ".reportSyntheticAccessEmulation"; //$NON-NLS-1$
+	public static final String OPTION_ReportNonExternalizedStringLiteral = Compiler.class.getName() + ".reportNonExternalizedStringLiteral"; //$NON-NLS-1$
+	public static final String OPTION_Source = Compiler.class.getName() + ".source"; //$NON-NLS-1$
+	public static final String OPTION_TargetPlatform = Compiler.class.getName() + ".targetPlatform"; //$NON-NLS-1$
+	public static final String OPTION_ReportAssertIdentifier = Compiler.class.getName() + ".reportAssertIdentifier"; //$NON-NLS-1$
 
 	// class file output
 	// these are the bits used to buld a mask to know which debug 
@@ -69,7 +69,7 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public boolean parseLiteralExpressionsAsConstants = true;
 
 	// exception raised for unresolved compile errors
-	public String runtimeExceptionNameForCompileError = "java.lang.Error"/*nonNLS*/;
+	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
@@ -518,128 +518,128 @@ public void setWarningThreshold(int warningMask) {
 }
 public String toString() {
 
-	StringBuffer buf = new StringBuffer("CompilerOptions:"/*nonNLS*/);
+	StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
 	if ((produceDebugAttributes & Vars) != 0){
-		buf.append("\n-local variables debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-local variables debug attributes: ON"); //$NON-NLS-1$
 	} else {
-		buf.append("\n-local variables debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-local variables debug attributes: OFF"); //$NON-NLS-1$
 	}
 	if ((produceDebugAttributes & Lines) != 0){
-		buf.append("\n-line number debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-line number debug attributes: ON"); //$NON-NLS-1$
 	} else {
-		buf.append("\n-line number debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-line number debug attributes: OFF"); //$NON-NLS-1$
 	}
 	if ((produceDebugAttributes & Source) != 0){
-		buf.append("\n-source debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-source debug attributes: ON"); //$NON-NLS-1$
 	} else {
-		buf.append("\n-source debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-source debug attributes: OFF"); //$NON-NLS-1$
 	}
 	if (preserveAllLocalVariables){
-		buf.append("\n-preserve all local variables: ON"/*nonNLS*/);
+		buf.append("\n-preserve all local variables: ON"); //$NON-NLS-1$
 	} else {
-		buf.append("\n-preserve all local variables: OFF"/*nonNLS*/);
+		buf.append("\n-preserve all local variables: OFF"); //$NON-NLS-1$
 	}
 	if ((errorThreshold & UnreachableCode) != 0){
-		buf.append("\n-unreachable code: ERROR"/*nonNLS*/);
+		buf.append("\n-unreachable code: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & UnreachableCode) != 0){
-			buf.append("\n-unreachable code: WARNING"/*nonNLS*/);
+			buf.append("\n-unreachable code: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-unreachable code: IGNORE"/*nonNLS*/);
+			buf.append("\n-unreachable code: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & ImportProblem) != 0){
-		buf.append("\n-import problem: ERROR"/*nonNLS*/);
+		buf.append("\n-import problem: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & ImportProblem) != 0){
-			buf.append("\n-import problem: WARNING"/*nonNLS*/);
+			buf.append("\n-import problem: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-import problem: IGNORE"/*nonNLS*/);
+			buf.append("\n-import problem: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & MethodWithConstructorName) != 0){
-		buf.append("\n-method with constructor name: ERROR"/*nonNLS*/);		
+		buf.append("\n-method with constructor name: ERROR");		 //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & MethodWithConstructorName) != 0){
-			buf.append("\n-method with constructor name: WARNING"/*nonNLS*/);
+			buf.append("\n-method with constructor name: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-method with constructor name: IGNORE"/*nonNLS*/);
+			buf.append("\n-method with constructor name: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
-		buf.append("\n-overridden package default method: ERROR"/*nonNLS*/);
+		buf.append("\n-overridden package default method: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
-			buf.append("\n-overridden package default method: WARNING"/*nonNLS*/);
+			buf.append("\n-overridden package default method: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-overridden package default method: IGNORE"/*nonNLS*/);
+			buf.append("\n-overridden package default method: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & UsingDeprecatedAPI) != 0){
-		buf.append("\n-deprecation: ERROR"/*nonNLS*/);
+		buf.append("\n-deprecation: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & UsingDeprecatedAPI) != 0){
-			buf.append("\n-deprecation: WARNING"/*nonNLS*/);
+			buf.append("\n-deprecation: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-deprecation: IGNORE"/*nonNLS*/);
+			buf.append("\n-deprecation: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & MaskedCatchBlock) != 0){
-		buf.append("\n-masked catch block: ERROR"/*nonNLS*/);
+		buf.append("\n-masked catch block: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & MaskedCatchBlock) != 0){
-			buf.append("\n-masked catch block: WARNING"/*nonNLS*/);
+			buf.append("\n-masked catch block: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-masked catch block: IGNORE"/*nonNLS*/);
+			buf.append("\n-masked catch block: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & UnusedLocalVariable) != 0){
-		buf.append("\n-unused local variable: ERROR"/*nonNLS*/);
+		buf.append("\n-unused local variable: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & UnusedLocalVariable) != 0){
-			buf.append("\n-unused local variable: WARNING"/*nonNLS*/);
+			buf.append("\n-unused local variable: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-unused local variable: IGNORE"/*nonNLS*/);
+			buf.append("\n-unused local variable: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & UnusedArgument) != 0){
-		buf.append("\n-unused parameter: ERROR"/*nonNLS*/);
+		buf.append("\n-unused parameter: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & UnusedArgument) != 0){
-			buf.append("\n-unused parameter: WARNING"/*nonNLS*/);
+			buf.append("\n-unused parameter: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-unused parameter: IGNORE"/*nonNLS*/);
+			buf.append("\n-unused parameter: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & AccessEmulation) != 0){
-		buf.append("\n-synthetic access emulation: ERROR"/*nonNLS*/);
+		buf.append("\n-synthetic access emulation: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & AccessEmulation) != 0){
-			buf.append("\n-synthetic access emulation: WARNING"/*nonNLS*/);
+			buf.append("\n-synthetic access emulation: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-synthetic access emulation: IGNORE"/*nonNLS*/);
+			buf.append("\n-synthetic access emulation: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	if ((errorThreshold & NonExternalizedString) != 0){
-		buf.append("\n-non externalized string: ERROR"/*nonNLS*/);
+		buf.append("\n-non externalized string: ERROR"); //$NON-NLS-1$
 	} else {
 		if ((warningThreshold & NonExternalizedString) != 0){
-			buf.append("\n-non externalized string: WARNING"/*nonNLS*/);
+			buf.append("\n-non externalized string: WARNING"); //$NON-NLS-1$
 		} else {
-			buf.append("\n-non externalized string: IGNORE"/*nonNLS*/);
+			buf.append("\n-non externalized string: IGNORE"); //$NON-NLS-1$
 		}
 	}
 	switch(targetJDK){
 		case JDK1_1 :
-			buf.append("\n-target JDK: 1.1"/*nonNLS*/);
+			buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
 			break;
 		case JDK1_2 :
-			buf.append("\n-target JDK: 1.2"/*nonNLS*/);
+			buf.append("\n-target JDK: 1.2"); //$NON-NLS-1$
 	}
-	buf.append("\n-verbose : "/*nonNLS*/ + (verbose ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-produce reference info : "/*nonNLS*/ + (produceReferenceInfo ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-parse literal expressions as constants : "/*nonNLS*/ + (parseLiteralExpressionsAsConstants ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-runtime exception name for compile error : "/*nonNLS*/ + runtimeExceptionNameForCompileError);
+	buf.append("\n-verbose : " + (verbose ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 	return buf.toString();
 }
 }

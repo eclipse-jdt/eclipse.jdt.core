@@ -263,7 +263,7 @@ public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaMode
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
 	}
 	
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
@@ -317,17 +317,17 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
 		buffer.append(this.getElementName());
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else {
 		try {
 			if (this.isInterface()) {
-				buffer.append("interface "/*nonNLS*/);
+				buffer.append("interface "); //$NON-NLS-1$
 			} else {
-				buffer.append("class "/*nonNLS*/);
+				buffer.append("class "); //$NON-NLS-1$
 			}
 			buffer.append(this.getElementName());
 		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of "/*nonNLS*/ + getElementName());
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
 }

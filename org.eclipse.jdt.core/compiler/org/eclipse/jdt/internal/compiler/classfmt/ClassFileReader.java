@@ -508,10 +508,10 @@ public String toString() {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 	
-	print.println(this.getClass().getName() + "{"/*nonNLS*/);
-	print.println(" className: "/*nonNLS*/ + new String(getName()));
-	print.println(" superclassName: "/*nonNLS*/ + (getSuperclassName() == null ? "null"/*nonNLS*/ : new String(getSuperclassName())));
-	print.println(" access_flags: "/*nonNLS*/ + ClassFileStruct.printTypeModifiers(accessFlags()) + "("/*nonNLS*/ + accessFlags() + ")"/*nonNLS*/);
+	print.println(this.getClass().getName() + "{"); //$NON-NLS-1$
+	print.println(" className: " + new String(getName())); //$NON-NLS-1$
+	print.println(" superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
+	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 
 	print.flush();
 	return out.toString();

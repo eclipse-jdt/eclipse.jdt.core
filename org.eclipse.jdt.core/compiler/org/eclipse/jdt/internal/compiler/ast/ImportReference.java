@@ -38,11 +38,11 @@ public String toString(int tab, boolean withOnDemand) {
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."/*nonNLS*/);
+			buffer.append("."); //$NON-NLS-1$
 		}
 	}
 	if (withOnDemand && onDemand) {
-		buffer.append(".*"/*nonNLS*/);
+		buffer.append(".*"); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }

@@ -63,31 +63,31 @@ public final class CompletionEngine
 				"transient".toCharArray(),
 				"volatile".toCharArray()};
 	*/
-	static final char[][] baseTypes = new char[][] { "boolean"
-		/*nonNLS*/
-		.toCharArray(), "byte"
-		/*nonNLS*/
-		.toCharArray(), "char"
-		/*nonNLS*/
-		.toCharArray(), "double"
-		/*nonNLS*/
-		.toCharArray(), "float"
-		/*nonNLS*/
-		.toCharArray(), "int"
-		/*nonNLS*/
-		.toCharArray(), "long"
-		/*nonNLS*/
-		.toCharArray(), "short"
-		/*nonNLS*/
-		.toCharArray(), "void"
-		/*nonNLS*/
+	static final char[][] baseTypes = new char[][] { "boolean" //$NON-NLS-1$
+		
+		.toCharArray(), "byte" //$NON-NLS-1$
+		
+		.toCharArray(), "char" //$NON-NLS-1$
+		
+		.toCharArray(), "double" //$NON-NLS-1$
+		
+		.toCharArray(), "float" //$NON-NLS-1$
+		
+		.toCharArray(), "int" //$NON-NLS-1$
+		
+		.toCharArray(), "long" //$NON-NLS-1$
+		
+		.toCharArray(), "short" //$NON-NLS-1$
+		
+		.toCharArray(), "void" //$NON-NLS-1$
+		
 		.toCharArray()};
 
-	static final char[] classField = "class" /*nonNLS*/
+	static final char[] classField = "class"  //$NON-NLS-1$
 	.toCharArray();
-	static final char[] lengthField = "length" /*nonNLS*/
+	static final char[] lengthField = "length"  //$NON-NLS-1$
 	.toCharArray();
-	static final char[] THIS = "this" /*nonNLS*/
+	static final char[] THIS = "this"  //$NON-NLS-1$
 	.toCharArray();
 	/**
 	 * The CompletionEngine is responsible for computing source completions.

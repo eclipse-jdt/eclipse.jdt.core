@@ -1158,127 +1158,127 @@ private void newLine(int newLineCount) {
 private String operatorString(int operator) {
  switch (operator) {
   case TokenNameextends :
-   return "extends"/*nonNLS*/;
+   return "extends"; //$NON-NLS-1$
 
   case TokenNameimplements :
-   return "implements"/*nonNLS*/;
+   return "implements"; //$NON-NLS-1$
 
   case TokenNamethrows :
-   return "throws"/*nonNLS*/;
+   return "throws"; //$NON-NLS-1$
 
   case TokenNameSEMICOLON : // ;
-   return ";"/*nonNLS*/;
+   return ";"; //$NON-NLS-1$
 
   case TokenNameCOMMA : // ,
-   return ","/*nonNLS*/;
+   return ","; //$NON-NLS-1$
 
   case TokenNameEQUAL : // =
-   return "="/*nonNLS*/;
+   return "="; //$NON-NLS-1$
 
   case TokenNameAND_AND : // && (15.22)
-   return "&&"/*nonNLS*/;
+   return "&&"; //$NON-NLS-1$
 
   case TokenNameOR_OR : // || (15.23)
-   return "||"/*nonNLS*/;
+   return "||"; //$NON-NLS-1$
 
   case TokenNameQUESTION : // ? (15.24)
-   return "?"/*nonNLS*/;
+   return "?"; //$NON-NLS-1$
 
   case TokenNameCOLON : // : (15.24)
-   return ":"/*nonNLS*/;
+   return ":"; //$NON-NLS-1$
 
   case TokenNameEQUAL_EQUAL : // == (15.20, 15.20.1, 15.20.2, 15.20.3)
-   return "=="/*nonNLS*/;
+   return "=="; //$NON-NLS-1$
 
   case TokenNameNOT_EQUAL : // != (15.20, 15.20.1, 15.20.2, 15.20.3)
-   return "!="/*nonNLS*/;
+   return "!="; //$NON-NLS-1$
 
   case TokenNameLESS : // < (15.19.1)
-   return "<"/*nonNLS*/;
+   return "<"; //$NON-NLS-1$
 
   case TokenNameLESS_EQUAL : // <= (15.19.1)
-   return "<="/*nonNLS*/;
+   return "<="; //$NON-NLS-1$
 
   case TokenNameGREATER : // > (15.19.1)
-   return ">"/*nonNLS*/;
+   return ">"; //$NON-NLS-1$
 
   case TokenNameGREATER_EQUAL : // >= (15.19.1)
-   return ">="/*nonNLS*/;
+   return ">="; //$NON-NLS-1$
 
   case TokenNameinstanceof : // instanceof
-   return "instanceof"/*nonNLS*/;
+   return "instanceof"; //$NON-NLS-1$
 
   case TokenNamePLUS : // + (15.17, 15.17.2)
-   return "+"/*nonNLS*/;
+   return "+"; //$NON-NLS-1$
 
   case TokenNameMINUS : // - (15.17.2)
-   return "-"/*nonNLS*/;
+   return "-"; //$NON-NLS-1$
 
   case TokenNameMULTIPLY : // * (15.16.1)
-   return "*"/*nonNLS*/;
+   return "*"; //$NON-NLS-1$
 
   case TokenNameDIVIDE : // / (15.16.2)
-   return "/"/*nonNLS*/;
+   return "/"; //$NON-NLS-1$
 
   case TokenNameREMAINDER : // % (15.16.3)
-   return "%"/*nonNLS*/;
+   return "%"; //$NON-NLS-1$
 
   case TokenNameLEFT_SHIFT : // << (15.18)
-   return "<<"/*nonNLS*/;
+   return "<<"; //$NON-NLS-1$
 
   case TokenNameRIGHT_SHIFT : // >> (15.18)
-   return ">>"/*nonNLS*/;
+   return ">>"; //$NON-NLS-1$
 
   case TokenNameUNSIGNED_RIGHT_SHIFT : // >>> (15.18)
-   return ">>>"/*nonNLS*/;
+   return ">>>"; //$NON-NLS-1$
 
   case TokenNameAND : // & (15.21, 15.21.1, 15.21.2)
-   return "&"/*nonNLS*/;
+   return "&"; //$NON-NLS-1$
 
   case TokenNameOR : // | (15.21, 15.21.1, 15.21.2)
-   return "|"/*nonNLS*/;
+   return "|"; //$NON-NLS-1$
 
   case TokenNameXOR : // ^ (15.21, 15.21.1, 15.21.2)
-   return "^"/*nonNLS*/;
+   return "^"; //$NON-NLS-1$
 
   case TokenNameMULTIPLY_EQUAL : // *= (15.25.2)
-   return "*="/*nonNLS*/;
+   return "*="; //$NON-NLS-1$
 
   case TokenNameDIVIDE_EQUAL : // /= (15.25.2)
-   return "/="/*nonNLS*/;
+   return "/="; //$NON-NLS-1$
 
   case TokenNameREMAINDER_EQUAL : // %= (15.25.2)
-   return "%="/*nonNLS*/;
+   return "%="; //$NON-NLS-1$
 
   case TokenNamePLUS_EQUAL : // += (15.25.2)
-   return "+="/*nonNLS*/;
+   return "+="; //$NON-NLS-1$
 
   case TokenNameMINUS_EQUAL : // -= (15.25.2)
-   return "-="/*nonNLS*/;
+   return "-="; //$NON-NLS-1$
 
   case TokenNameLEFT_SHIFT_EQUAL : // <<= (15.25.2)
-   return "<<="/*nonNLS*/;
+   return "<<="; //$NON-NLS-1$
 
   case TokenNameRIGHT_SHIFT_EQUAL : // >>= (15.25.2)
-   return ">>="/*nonNLS*/;
+   return ">>="; //$NON-NLS-1$
 
   case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : // >>>= (15.25.2)
-   return ">>>="/*nonNLS*/;
+   return ">>>="; //$NON-NLS-1$
 
   case TokenNameAND_EQUAL : // &= (15.25.2)
-   return "&="/*nonNLS*/;
+   return "&="; //$NON-NLS-1$
 
   case TokenNameXOR_EQUAL : // ^= (15.25.2)
-   return "^="/*nonNLS*/;
+   return "^="; //$NON-NLS-1$
 
   case TokenNameOR_EQUAL : // |= (15.25.2)
-   return "|="/*nonNLS*/;
+   return "|="; //$NON-NLS-1$
 
   case TokenNameDOT : // .
-   return "."/*nonNLS*/;
+   return "."; //$NON-NLS-1$
 
   default :
-   return ""/*nonNLS*/;
+   return ""; //$NON-NLS-1$
  }
 }
 /** 
@@ -1418,7 +1418,7 @@ private void outputLine(
    }
   }
 
-  boolean containsMultiLineComment = currentString.lastIndexOf("/*"/*nonNLS*/) != -1;
+  boolean containsMultiLineComment = currentString.lastIndexOf("/*") != -1; //$NON-NLS-1$
   int numberOfSpaces = 0;
   int max = currentString.length();
   updateMappedPositionsWhileSplitting(
@@ -1525,7 +1525,7 @@ private void outputLine(
 
   if (currentResult.length() != 0 || splitOperators[i] != 0) {
    int newDepth = 
-    (currentResult.startsWith("/*"/*nonNLS*/) || currentResult.startsWith("//"/*nonNLS*/))
+    (currentResult.startsWith("/*") || currentResult.startsWith("//")) //$NON-NLS-2$ //$NON-NLS-1$
      ? indentationLevel - 1
      : depth; 
    outputLine(

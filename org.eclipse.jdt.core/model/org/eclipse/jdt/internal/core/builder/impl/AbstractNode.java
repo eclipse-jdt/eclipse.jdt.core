@@ -119,7 +119,7 @@ try {
 		/* add the dependent */
 		fDependents[min] = nodeThatDependsOnMe;
 } catch (ArrayIndexOutOfBoundsException e) {
-	System.out.println("ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()"/*nonNLS*/);
+	System.out.println("ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()"); //$NON-NLS-1$
 }
 	}
 	/**
@@ -148,28 +148,28 @@ try {
  * For debugging only. 
  */
 public void dump(Dumper dumper) {
-	dumper.dump("element"/*nonNLS*/, getElement());
+	dumper.dump("element", getElement()); //$NON-NLS-1$
 	if (getKind() == JCU_NODE) 
-		dumper.dump("types"/*nonNLS*/, getTypes());
+		dumper.dump("types", getTypes()); //$NON-NLS-1$
 		
 	Object[] dependencies = new Object[fDependencies.length];
 	for (int i = 0; i < fDependencies.length; ++i) {
 		dependencies[i] = fDependencies[i].getElement();
 	}
-	dumper.dump("dependencies"/*nonNLS*/, dependencies);
+	dumper.dump("dependencies", dependencies); //$NON-NLS-1$
 		
 	Object[] dependents = new Object[fNumDependents];
 	for (int i = 0; i < fDependents.length; ++i) {
 		dependents[i] = fDependents[i].getElement();
 	}
-	dumper.dump("dependents"/*nonNLS*/, dependents);
+	dumper.dump("dependents", dependents); //$NON-NLS-1$
 	
 }
 	/**
 	 * Make sure equality tests are never carried out on nodes
 	 */
 	public boolean equals(Object o) {
-		Assert.isTrue(false, "Internal Error - Equality not defined for dependency graph nodes"/*nonNLS*/);
+		Assert.isTrue(false, "Internal Error - Equality not defined for dependency graph nodes"); //$NON-NLS-1$
 		return false;
 	}
 	/**
@@ -338,7 +338,7 @@ public void dump(Dumper dumper) {
 		for (int i = 0; i < recursionLevel; ++i)
 			sb.append(' ');
 		sb.append(this);
-		sb.append(": "/*nonNLS*/);
+		sb.append(": "); //$NON-NLS-1$
 		sb.append(refCount);
 		System.out.println(sb.toString());
 	}

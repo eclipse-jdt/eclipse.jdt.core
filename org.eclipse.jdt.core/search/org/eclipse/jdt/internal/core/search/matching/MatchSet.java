@@ -308,9 +308,9 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 }
 public String toString() {
 	StringBuffer result = new StringBuffer();
-	result.append("Exact matches:"/*nonNLS*/);
+	result.append("Exact matches:"); //$NON-NLS-1$
 	for (Enumeration enum = this.matchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n"/*nonNLS*/);
+		result.append("\n"); //$NON-NLS-1$
 		AstNode node = (AstNode)enum.nextElement();
 		Object value = this.matchingNodes.get(node);
 		if (value instanceof Integer) {
@@ -318,41 +318,41 @@ public String toString() {
 			int accuracy = ((Integer)value).intValue();
 			switch (accuracy) {
 				case SearchPattern.IMPOSSIBLE_MATCH:
-					result.append("IMPOSSIBLE_MATCH: "/*nonNLS*/);
+					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "/*nonNLS*/);
+					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.INACCURATE_MATCH:
-					result.append("INACCURATE_MATCH: "/*nonNLS*/);
+					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.ACCURATE_MATCH:
-					result.append("ACCURATE_MATCH: "/*nonNLS*/);
+					result.append("ACCURATE_MATCH: "); //$NON-NLS-1$
 					break;
 			}
 		} 
 		result.append(node.toString(0));
 	}
-	result.append("\nPotential matches:"/*nonNLS*/);
+	result.append("\nPotential matches:"); //$NON-NLS-1$
 	for (Enumeration enum = this.potentialMatchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n"/*nonNLS*/);
+		result.append("\n"); //$NON-NLS-1$
 		AstNode node = (AstNode)enum.nextElement();
 		Object value = this.potentialMatchingNodes.get(node);
 		if (value instanceof Integer) {
-			result.append("\t"/*nonNLS*/);
+			result.append("\t"); //$NON-NLS-1$
 			int accuracy = ((Integer)value).intValue();
 			switch (accuracy) {
 				case SearchPattern.IMPOSSIBLE_MATCH:
-					result.append("IMPOSSIBLE_MATCH: "/*nonNLS*/);
+					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "/*nonNLS*/);
+					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.INACCURATE_MATCH:
-					result.append("INACCURATE_MATCH: "/*nonNLS*/);
+					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.ACCURATE_MATCH:
-					result.append("ACCURATE_MATCH: "/*nonNLS*/);
+					result.append("ACCURATE_MATCH: "); //$NON-NLS-1$
 					break;
 			}
 		}

@@ -43,7 +43,7 @@ public class SourceElementParser extends Parser {
 	private char[][] typeNames;
 	private char[][] superTypeNames;
 	private int nestedTypeIndex;
-	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object"/*nonNLS*/.toCharArray();
+	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,

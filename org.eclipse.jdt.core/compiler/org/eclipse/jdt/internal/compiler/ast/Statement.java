@@ -81,7 +81,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 public void generateCode(BlockScope currentScope, CodeStream codeStream){
-	throw new ShouldNotImplement(Util.bind("ast.missingStatement"/*nonNLS*/));
+	throw new ShouldNotImplement(Util.bind("ast.missingStatement")); //$NON-NLS-1$
 }
 public boolean isEmptyBlock(){
 	return false;

@@ -11,8 +11,8 @@ public class CompletionOptions {
 	/**
 	 * Option IDs
 	 */
-	public static final String OPTION_PerformVisibilityCheck = CompletionEngine.class.getName() + ".performVisibilityCheck"/*nonNLS*/;
-	public static final String OPTION_EntireWordReplacement = CompletionEngine.class.getName() + ".entireWordReplacement"/*nonNLS*/;
+	public static final String OPTION_PerformVisibilityCheck = CompletionEngine.class.getName() + ".performVisibilityCheck"; //$NON-NLS-1$
+	public static final String OPTION_EntireWordReplacement = CompletionEngine.class.getName() + ".entireWordReplacement"; //$NON-NLS-1$
 	
 	private boolean visibilitySensitive = true;
 	private boolean entireWordReplacement = true;

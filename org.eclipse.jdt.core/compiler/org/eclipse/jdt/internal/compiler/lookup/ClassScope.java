@@ -855,9 +855,9 @@ public class ClassScope extends Scope {
 	
 	public String toString() {
 		if (referenceContext != null)
-			return "--- Class Scope ---\n\n" /*nonNLS*/
+			return "--- Class Scope ---\n\n"  //$NON-NLS-1$
 			+referenceContext.binding.toString();
 		else
-			return "--- Class Scope ---\n\n Binding not initialized" /*nonNLS*/;
+			return "--- Class Scope ---\n\n Binding not initialized" ; //$NON-NLS-1$
 	}
 }

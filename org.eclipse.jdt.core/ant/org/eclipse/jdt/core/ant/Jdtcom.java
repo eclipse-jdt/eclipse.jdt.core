@@ -27,22 +27,22 @@ public class Jdtcom extends MatchingTask {
 
 	public void execute() throws BuildException {
 		if(src == null)
-			throw new BuildException(Util.bind("jdtcom.source"/*nonNLS*/));
+			throw new BuildException(Util.bind("jdtcom.source")); //$NON-NLS-1$
 		if(dest == null)
-			throw new BuildException(Util.bind("jdtcom.destination"/*nonNLS*/));
+			throw new BuildException(Util.bind("jdtcom.destination")); //$NON-NLS-1$
 		
-		arguments.append(" -d "/*nonNLS*/);
+		arguments.append(" -d "); //$NON-NLS-1$
 		arguments.append(dest.getAbsolutePath());
 		
 		if(classpath != null){
-			arguments.append(" -classpath "/*nonNLS*/);
+			arguments.append(" -classpath "); //$NON-NLS-1$
 			String[] classpathList = classpath.list();
 			for(int i = 0 ; i < classpathList.length ; i++){
 				File pathElement = project.resolveFile(classpathList[i]);
 				if(!pathElement.exists())
-					throw new BuildException(Util.bind("jdtcom.classpath"/*nonNLS*/,pathElement.getAbsolutePath()));
+					throw new BuildException(Util.bind("jdtcom.classpath",pathElement.getAbsolutePath())); //$NON-NLS-1$
 				if(i != 0)
-					arguments.append(";"/*nonNLS*/);
+					arguments.append(";"); //$NON-NLS-1$
 				arguments.append(pathElement);
 			}
 		}
@@ -51,14 +51,14 @@ public class Jdtcom extends MatchingTask {
 		for(int i = 0 ; i < srcList.length ; i++){
 			File file = project.resolveFile(srcList[i]);
 			if(!file.exists())
-				throw new BuildException(Util.bind("jdtcom.sourcepath"/*nonNLS*/,file.getAbsolutePath()));
+				throw new BuildException(Util.bind("jdtcom.sourcepath",file.getAbsolutePath())); //$NON-NLS-1$
 			if(!file.isDirectory())
-				throw new BuildException(Util.bind("jdtcom.sourcedir"/*nonNLS*/,file.getAbsolutePath()));
+				throw new BuildException(Util.bind("jdtcom.sourcedir",file.getAbsolutePath())); //$NON-NLS-1$
 			DirectoryScanner ds = getDirectoryScanner(file);
 			String[] files = ds.getIncludedFiles();
 			for(int j =  0; j < files.length ; j++){
-				if(files[j].endsWith(".java"/*nonNLS*/)){
-					arguments.append(" "/*nonNLS*/);
+				if(files[j].endsWith(".java")){ //$NON-NLS-1$
+					arguments.append(" "); //$NON-NLS-1$
 					arguments.append(new File(file,files[j]).getAbsolutePath());
 				}
 			}
@@ -68,50 +68,50 @@ public class Jdtcom extends MatchingTask {
 			Main.compile(arguments.toString(),new AntPrintWriter(this));
 		}
 		catch(Exception e){
-			throw new BuildException("Jdtcom"/*nonNLS*/,e);
+			throw new BuildException("Jdtcom",e); //$NON-NLS-1$
 		}
-		log("FINISH"/*nonNLS*/);
+		log("FINISH"); //$NON-NLS-1$
 	}
 	
 	public void setProceedonerror(boolean proceed){
 		if(proceed)
-			arguments.append(" -proceedOnError"/*nonNLS*/);
+			arguments.append(" -proceedOnError"); //$NON-NLS-1$
 	}
 	
 	public void setTime(boolean time){
 		if(time)
-			arguments.append(" -time"/*nonNLS*/);
+			arguments.append(" -time"); //$NON-NLS-1$
 	}
 	
 	public void setVersion(boolean version){
 		if(version)
-			arguments.append(" -version"/*nonNLS*/);
+			arguments.append(" -version"); //$NON-NLS-1$
 	}
 	
 	public void setNoimporterror(boolean noimporterror){
 		if(noimporterror)
-			arguments.append(" -noImportError"/*nonNLS*/);
+			arguments.append(" -noImportError"); //$NON-NLS-1$
 	}
 	
 	public void setVerbose(boolean verbose){
 		if(verbose)
-			arguments.append(" -verbose"/*nonNLS*/);
+			arguments.append(" -verbose"); //$NON-NLS-1$
 	}
 	
 	public void setReferenceinfo(boolean referenceinfo){
 		if(referenceinfo)
-			arguments.append(" -referenceInfo"/*nonNLS*/);
+			arguments.append(" -referenceInfo"); //$NON-NLS-1$
 	}
 
 	public void setPreservealllocals(boolean preservealllocals){
 		if(preservealllocals)
-			arguments.append(" -preserveAllLocals"/*nonNLS*/);
+			arguments.append(" -preserveAllLocals"); //$NON-NLS-1$
 	}
 	
 	public void setTarget(String target){
-		if (!target.equals("1.1"/*nonNLS*/) && !target.equals("1.2"/*nonNLS*/))
-			throw new BuildException(Util.bind("jdtcom.target"/*nonNLS*/));
-		arguments.append(" -target "/*nonNLS*/);
+		if (!target.equals("1.1") && !target.equals("1.2")) //$NON-NLS-2$ //$NON-NLS-1$
+			throw new BuildException(Util.bind("jdtcom.target")); //$NON-NLS-1$
+		arguments.append(" -target "); //$NON-NLS-1$
 		arguments.append(target);
 	}
 	
@@ -119,56 +119,56 @@ public class Jdtcom extends MatchingTask {
 		try {
 			new PrintWriter(new FileOutputStream(log.getAbsolutePath(), false));
 		} catch(IOException e){
-			throw new BuildException(Util.bind("jdtcom.log"/*nonNLS*/,log.getAbsolutePath()));
+			throw new BuildException(Util.bind("jdtcom.log",log.getAbsolutePath())); //$NON-NLS-1$
 		}
-		arguments.append(" -log "/*nonNLS*/);
+		arguments.append(" -log "); //$NON-NLS-1$
 		arguments.append(log.getAbsolutePath());
 	}
 	
 	public void setRepeat(int repeat){
 		if(repeat < 0)
-			throw new BuildException(Util.bind("jdtcom.repeat"/*nonNLS*/));
-		arguments.append(" -repeat "/*nonNLS*/);
+			throw new BuildException(Util.bind("jdtcom.repeat")); //$NON-NLS-1$
+		arguments.append(" -repeat "); //$NON-NLS-1$
 		arguments.append(String.valueOf(repeat));
 	}
 	
 	public void setWarning(String warning){
-		if(warning.equals("no"/*nonNLS*/)){
-			arguments.append(" -nowarn"/*nonNLS*/);
+		if(warning.equals("no")){ //$NON-NLS-1$
+			arguments.append(" -nowarn"); //$NON-NLS-1$
 		}
 		else{
-			StringTokenizer tokenizer = new StringTokenizer(warning, ","/*nonNLS*/);			
+			StringTokenizer tokenizer = new StringTokenizer(warning, ",");			 //$NON-NLS-1$
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
-				if (!token.equals("constructorName"/*nonNLS*/) &&
-					!token.equals("packageDefaultMethod"/*nonNLS*/) &&
-					!token.equals("maskedCatchBlocks"/*nonNLS*/) &&
-					!token.equals("deprecation"/*nonNLS*/) &&
-					!token.equals("unusedLocals"/*nonNLS*/) &&
-					!token.equals("unusedArguments"/*nonNLS*/) &&
-					!token.equals("syntheticAccess"/*nonNLS*/) &&
-					!token.equals("nls"/*nonNLS*/))
-					throw new BuildException(Util.bind("jdtcom.warning"/*nonNLS*/));
+				if (!token.equals("constructorName") && //$NON-NLS-1$
+					!token.equals("packageDefaultMethod") && //$NON-NLS-1$
+					!token.equals("maskedCatchBlocks") && //$NON-NLS-1$
+					!token.equals("deprecation") && //$NON-NLS-1$
+					!token.equals("unusedLocals") && //$NON-NLS-1$
+					!token.equals("unusedArguments") && //$NON-NLS-1$
+					!token.equals("syntheticAccess") && //$NON-NLS-1$
+					!token.equals("nls")) //$NON-NLS-1$
+					throw new BuildException(Util.bind("jdtcom.warning")); //$NON-NLS-1$
 			}
-			arguments.append(" -warn:"/*nonNLS*/+warning);
+			arguments.append(" -warn:"+warning); //$NON-NLS-1$
 		}
 	}
 	
 	public void setDebug(String debug){
-		if(debug.equals("no"/*nonNLS*/)){
-			arguments.append(" -g:none"/*nonNLS*/);
+		if(debug.equals("no")){ //$NON-NLS-1$
+			arguments.append(" -g:none"); //$NON-NLS-1$
 		}
-		else if (debug.equals("all"/*nonNLS*/)){
-			arguments.append(" -g"/*nonNLS*/);
+		else if (debug.equals("all")){ //$NON-NLS-1$
+			arguments.append(" -g"); //$NON-NLS-1$
 		}
 		else{
-			StringTokenizer tokenizer = new StringTokenizer(debug, ","/*nonNLS*/);
+			StringTokenizer tokenizer = new StringTokenizer(debug, ","); //$NON-NLS-1$
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
-				if (!token.equals("vars"/*nonNLS*/) && !token.equals("lines"/*nonNLS*/) && !token.equals("source"/*nonNLS*/))
-					throw new BuildException(Util.bind("jdtcom.debug"/*nonNLS*/));
+				if (!token.equals("vars") && !token.equals("lines") && !token.equals("source")) //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+					throw new BuildException(Util.bind("jdtcom.debug")); //$NON-NLS-1$
 			}
-			arguments.append(" -g:"/*nonNLS*/+debug);
+			arguments.append(" -g:"+debug); //$NON-NLS-1$
 		}
 	}
 	

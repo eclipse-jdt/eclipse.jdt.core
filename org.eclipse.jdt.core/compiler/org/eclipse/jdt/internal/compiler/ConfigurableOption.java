@@ -57,10 +57,10 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.*;
 
 public class ConfigurableOption {
-	public final static String STRING = "string"/*nonNLS*/;
-	public final static String INT = "int"/*nonNLS*/;
-	public final static String FLOAT = "float"/*nonNLS*/;
-	public final static String DISCRETE = "discrete"/*nonNLS*/;
+	public final static String STRING = "string"; //$NON-NLS-1$
+	public final static String INT = "int"; //$NON-NLS-1$
+	public final static String FLOAT = "float"; //$NON-NLS-1$
+	public final static String DISCRETE = "discrete"; //$NON-NLS-1$
 	
 	// special value for <possibleValues> indicating that 
 	// the <currentValueIndex> is the actual value
@@ -99,7 +99,7 @@ public class ConfigurableOption {
 		this.componentName = id.substring(0,id.lastIndexOf('.'));
 
 		ResourceBundle bundle = null;
-		missing = "Missing ressources entries for"/*nonNLS*/ + componentName + " options"/*nonNLS*/;
+		missing = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-2$ //$NON-NLS-1$
 		try {
 			bundle = ResourceBundle.getBundle(componentName,loc); 
 		} catch (MissingResourceException e) {
@@ -114,8 +114,8 @@ public class ConfigurableOption {
 		try{
 			StringTokenizer tokenizer =
 				new StringTokenizer(
-					bundle.getString(id + ".possibleValues"/*nonNLS*/),
-					"|"/*nonNLS*/);
+					bundle.getString(id + ".possibleValues"), //$NON-NLS-1$
+					"|"); //$NON-NLS-1$
 			int numberOfValues = Integer.parseInt(tokenizer.nextToken());
 			if (numberOfValues == -1) {
 				// the possible value are not discrete
@@ -128,24 +128,24 @@ public class ConfigurableOption {
 				}
 				else if(token.equals(INT) && tokenizer.hasMoreTokens()){
 					token = tokenizer.nextToken();
-					if(!token.equals("no"/*nonNLS*/)){
+					if(!token.equals("no")){ //$NON-NLS-1$
 						minExisting = true;
 						minInt = Integer.parseInt(token);
 					}
 					token = tokenizer.nextToken();
-					if(!token.equals("no"/*nonNLS*/)){
+					if(!token.equals("no")){ //$NON-NLS-1$
 						maxExisting = true;
 						maxInt = Integer.parseInt(token);
 					}
 				}
 				else if(token.equals(FLOAT) && tokenizer.hasMoreTokens()){
 					token = tokenizer.nextToken();
-					if(!token.equals("no"/*nonNLS*/)){
+					if(!token.equals("no")){ //$NON-NLS-1$
 						minExisting = true;
 						minFloat = Float.parseFloat(token);
 					}
 					token = tokenizer.nextToken();
-					if(!token.equals("no"/*nonNLS*/)){
+					if(!token.equals("no")){ //$NON-NLS-1$
 						maxExisting = true;
 						maxFloat = Float.parseFloat(token);
 					}
@@ -173,10 +173,10 @@ public class ConfigurableOption {
 		}
 		try{
 			if(possibleValues == NoDiscreteValue){
-				defaultValue = bundle.getString(id + ".default"/*nonNLS*/);
+				defaultValue = bundle.getString(id + ".default"); //$NON-NLS-1$
 			}
 			else{
-				defaultValueIndex = Integer.parseInt(bundle.getString(id + ".default"/*nonNLS*/));
+				defaultValueIndex = Integer.parseInt(bundle.getString(id + ".default")); //$NON-NLS-1$
 			}
 		} catch (MissingResourceException e) {
 			defaultValue = missing;
@@ -184,24 +184,24 @@ public class ConfigurableOption {
 			defaultValueIndex = -1;
 		}
 		try{
-			order = Integer.parseInt(bundle.getString(id + ".order"/*nonNLS*/));
+			order = Integer.parseInt(bundle.getString(id + ".order")); //$NON-NLS-1$
 		} catch (NumberFormatException e) {
 			order = -1;
 		} catch (MissingResourceException e) {
 			order = -1;
 		}
 		try{
-			category = bundle.getString(id + ".category"/*nonNLS*/);
+			category = bundle.getString(id + ".category"); //$NON-NLS-1$
 		} catch (MissingResourceException e) {
 			category = missing;
 		}
 		try{
-			name = bundle.getString(id + ".name"/*nonNLS*/);
+			name = bundle.getString(id + ".name"); //$NON-NLS-1$
 		} catch (MissingResourceException e) {
 			name = missing;
 		}
 		try{
-			description = bundle.getString(id + ".description"/*nonNLS*/);
+			description = bundle.getString(id + ".description"); //$NON-NLS-1$
 		} catch (MissingResourceException e) {
 			description = missing;
 		}
@@ -445,23 +445,23 @@ public class ConfigurableOption {
 	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Configurable option for "/*nonNLS*/);
-		buffer.append(this.componentName).append("\n"/*nonNLS*/);
-		buffer.append("- category:			"/*nonNLS*/).append(this.category).append("\n"/*nonNLS*/);
-		buffer.append("- name:				"/*nonNLS*/).append(this.name).append("\n"/*nonNLS*/);
+		buffer.append("Configurable option for "); //$NON-NLS-1$
+		buffer.append(this.componentName).append("\n"); //$NON-NLS-1$
+		buffer.append("- category:			").append(this.category).append("\n"); //$NON-NLS-2$ //$NON-NLS-1$
+		buffer.append("- name:				").append(this.name).append("\n"); //$NON-NLS-2$ //$NON-NLS-1$
 		/* display current value */
-		buffer.append("- current value:	    "/*nonNLS*/).append(this.value).append("\n"/*nonNLS*/);
+		buffer.append("- current value:	    ").append(this.value).append("\n"); //$NON-NLS-2$ //$NON-NLS-1$
 		/* display possible values */
 		if (possibleValues != NoDiscreteValue){
-			buffer.append("- possible values:	["/*nonNLS*/);
+			buffer.append("- possible values:	["); //$NON-NLS-1$
 			for (int i = 0, max = possibleValues.length; i < max; i++) {
 				if (i != 0)
-					buffer.append(", "/*nonNLS*/);
+					buffer.append(", "); //$NON-NLS-1$
 				buffer.append(possibleValues[i]);
 			}
-			buffer.append("]\n"/*nonNLS*/);
+			buffer.append("]\n"); //$NON-NLS-1$
 		}
-		buffer.append("- description:		"/*nonNLS*/).append(description).append("\n"/*nonNLS*/);
+		buffer.append("- description:		").append(description).append("\n"); //$NON-NLS-2$ //$NON-NLS-1$
 		return buffer.toString();
 	}
 	
@@ -475,7 +475,7 @@ public class ConfigurableOption {
 
 			while(bundleKeys.hasMoreElements()){
 				String bundleKey = (String)bundleKeys.nextElement();
-				if(bundleKey.endsWith("order"/*nonNLS*/)){
+				if(bundleKey.endsWith("order")){ //$NON-NLS-1$
 					int order;
 					try{
 						order = Integer.parseInt(bundle.getString(bundleKey));

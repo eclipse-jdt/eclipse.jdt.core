@@ -55,7 +55,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createFieldProgress"/*nonNLS*/);
+	return Util.bind("operation.createFieldProgress"); //$NON-NLS-1$
 }
 /**
  * By default the new field is positioned after the last existing field

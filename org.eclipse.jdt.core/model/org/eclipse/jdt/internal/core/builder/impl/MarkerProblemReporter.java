@@ -123,7 +123,7 @@ protected void markerFromProblemDetail(IResource resource, IProblemDetail proble
 	int start = problem.getStartPos();
 	int sev = problem.getSeverity();
 	marker.setAttributes(
-		new String[]{ IMarker.MESSAGE, IMarker.SEVERITY, "ID"/*nonNLS*/, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER},
+		new String[]{ IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
 		new Object[]{ 
 			problem.getMessage(),
 			new Integer((sev & IProblemDetail.S_ERROR) != 0 ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 

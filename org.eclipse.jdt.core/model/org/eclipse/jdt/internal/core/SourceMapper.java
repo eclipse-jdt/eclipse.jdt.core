@@ -117,7 +117,7 @@ public class SourceMapper
 	public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
 		fZipPath = zipPath;
 		fRootPath = rootPath.replace('\\', '/');
-		if (fRootPath.endsWith("/" /*nonNLS*/)) {
+		if (fRootPath.endsWith("/" )) { //$NON-NLS-1$
 			fRootPath = fRootPath.substring(0, fRootPath.lastIndexOf('/'));
 		}
 		fJavaModel = model;
@@ -611,7 +611,7 @@ public class SourceMapper
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = new SourceElementParser(this, factory);
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, type.getElementName() + ".java" /*nonNLS*/),
+				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$
 				false);
 			if (searchedElement != null) {
 				ISourceRange range = this.getNameRange(searchedElement);

@@ -600,7 +600,7 @@ public class ClassFile
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
 		codeStream.resetForProblemClinit(this);
-		String problemString = "" /*nonNLS*/;
+		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -608,7 +608,7 @@ public class ClassFile
 			for (int i = 0; i < max; i++) {
 				IProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
-					buffer.append("\t" /*nonNLS*/ +problem.getMessage() + "\n" /*nonNLS*/);
+					buffer.append("\t"  +problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 					count++;
 					if (problemLine == 0) {
 						problemLine = problem.getSourceLineNumber();
@@ -617,9 +617,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
 			}
 			problemString = buffer.toString();
 		}
@@ -670,7 +670,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
-		String problemString = "" /*nonNLS*/;
+		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -678,7 +678,7 @@ public class ClassFile
 			for (int i = 0; i < max; i++) {
 				IProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
-					buffer.append("\t" /*nonNLS*/ +problem.getMessage() + "\n" /*nonNLS*/);
+					buffer.append("\t"  +problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 					count++;
 					if (problemLine == 0) {
 						problemLine = problem.getSourceLineNumber();
@@ -686,9 +686,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
 			}
 			problemString = buffer.toString();
 		}
@@ -818,7 +818,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
-		String problemString = "" /*nonNLS*/;
+		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -829,7 +829,7 @@ public class ClassFile
 					&& (problem.isError())
 					&& (problem.getSourceStart() >= method.declarationSourceStart)
 					&& (problem.getSourceEnd() <= method.declarationSourceEnd)) {
-					buffer.append("\t" /*nonNLS*/ +problem.getMessage() + "\n" /*nonNLS*/);
+					buffer.append("\t"  +problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 					count++;
 					if (problemLine == 0) {
 						problemLine = problem.getSourceLineNumber();
@@ -838,9 +838,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" /*nonNLS*/));
+				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
 			}
 			problemString = buffer.toString();
 		}
@@ -1113,14 +1113,14 @@ public class ClassFile
 		f = new File(outputPath);
 		if (f.exists()) {
 			if (!f.isDirectory()) {
-				System.out.println(Util.bind("output.isFile" /*nonNLS*/, f.getAbsolutePath()));
-				throw new IOException(Util.bind("output.isFileNotDirectory" /*nonNLS*/));
+				System.out.println(Util.bind("output.isFile" , f.getAbsolutePath())); //$NON-NLS-1$
+				throw new IOException(Util.bind("output.isFileNotDirectory" )); //$NON-NLS-1$
 			}
 		} else {
 			// we have to create that directory
 			if (!f.mkdirs()) {
-				System.out.println(Util.bind("output.dirName" /*nonNLS*/, f.getAbsolutePath()));
-				throw new IOException(Util.bind("output.notValidAll" /*nonNLS*/));
+				System.out.println(Util.bind("output.dirName" , f.getAbsolutePath())); //$NON-NLS-1$
+				throw new IOException(Util.bind("output.notValidAll" )); //$NON-NLS-1$
 			}
 		}
 		StringBuffer outDir = new StringBuffer(outputPath);
@@ -1136,8 +1136,8 @@ public class ClassFile
 			} else {
 				// Need to add the outDir
 				if (!f.mkdir()) {
-					System.out.println(Util.bind("output.fileName" /*nonNLS*/, f.getName()));
-					throw new IOException(Util.bind("output.notValid" /*nonNLS*/));
+					System.out.println(Util.bind("output.fileName" , f.getName())); //$NON-NLS-1$
+					throw new IOException(Util.bind("output.notValid" )); //$NON-NLS-1$
 				}
 			}
 			token = tokenizer.nextToken();
@@ -1398,7 +1398,7 @@ public class ClassFile
 						int currentLength;
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-								Util.bind("abort.invalidAttribute" /*nonNLS*/, new String(localVariable.name)),
+								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 								(AstNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
@@ -1647,7 +1647,7 @@ public class ClassFile
 							int currentLength;
 							if (endPC == -1) {
 								localVariable.declaringScope.problemReporter().abortDueToInternalError(
-									Util.bind("abort.invalidAttribute" /*nonNLS*/, new String(localVariable.name)),
+									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 									(AstNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
 							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
@@ -2211,7 +2211,7 @@ public class ClassFile
 						int currentLength;
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-								Util.bind("abort.invalidAttribute" /*nonNLS*/, new String(localVariable.name)),
+								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 								(AstNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 > (contentsLength = contents.length)) {

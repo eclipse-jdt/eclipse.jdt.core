@@ -116,7 +116,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			if (options.verbose) {
 				System.out.println(
 					Util.bind(
-						"compilation.request" /*nonNLS*/,
+						"compilation.request" , //$NON-NLS-1$
 						new String[] {
 							String.valueOf(totalUnits + 1),
 							String.valueOf(totalUnits + 1),
@@ -146,7 +146,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		problemReporter.abortDueToInternalError(
 			Util.bind(
-				"abort.againstSourceModel " /*nonNLS*/,
+				"abort.againstSourceModel " , //$NON-NLS-1$
 				String.valueOf(sourceTypes[0].getName()),
 				String.valueOf(sourceTypes[0].getFileName())));
 	}
@@ -192,7 +192,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				if (options.verbose) {
 					System.out.println(
 						Util.bind(
-							"compilation.request" /*nonNLS*/,
+							"compilation.request" , //$NON-NLS-1$
 							new String[] {
 								String.valueOf(i + 1),
 								String.valueOf(maxUnits),
@@ -231,7 +231,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					if (options.verbose)
 						System.out.println(
 							Util.bind(
-								"compilation.process" /*nonNLS*/,
+								"compilation.process" , //$NON-NLS-1$
 								new String[] {
 									String.valueOf(i + 1),
 									String.valueOf(totalUnits),
@@ -241,7 +241,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					// cleanup compilation unit result
 					unit.cleanUp();
 					if (options.verbose)
-						System.out.println(Util.bind("compilation.done"/*nonNLS*/,
+						System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
 					new String[] {
 						String.valueOf(i + 1),
 						String.valueOf(totalUnits),
@@ -264,10 +264,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		if (options.verbose) {
 			if (totalUnits > 1) {
 				System.out.println(
-					Util.bind("compilation.units" /*nonNLS*/, String.valueOf(totalUnits)));
+					Util.bind("compilation.units" , String.valueOf(totalUnits))); //$NON-NLS-1$
 			} else {
 				System.out.println(
-					Util.bind("compilation.unit" /*nonNLS*/, String.valueOf(totalUnits)));
+					Util.bind("compilation.unit" , String.valueOf(totalUnits))); //$NON-NLS-1$
 			}
 		}
 	}
@@ -325,8 +325,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						result.getFileName(),
 						ProblemIrritants.UnclassifiedProblem,
 						new String[] {
-							Util.bind("compilation.internalError" /*nonNLS*/)
-								+ "\n" /*nonNLS*/
+							Util.bind("compilation.internalError" ) //$NON-NLS-1$
+								+ "\n"  //$NON-NLS-1$
 								+ buffer.toString()},
 						Error,
 			// severity

@@ -1270,7 +1270,7 @@ private char[] returnTypeName(TypeReference type) {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("intArrayPtr = "/*nonNLS*/ + intArrayPtr + "\n"/*nonNLS*/);
+	buffer.append("intArrayPtr = " + intArrayPtr + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	buffer.append(super.toString());
 	return buffer.toString();
 }

@@ -13,15 +13,15 @@ public class FormatterOptions {
 	/**
 	 * Option IDs
 	 */
-	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace"/*nonNLS*/;
-	public static final String OPTION_InsertNewlineInControlStatement = CodeFormatter.class.getName() + ".newlineControlStatement"/*nonNLS*/;
-	public static final String OPTION_InsertNewLineBetweenElseAndIf = CodeFormatter.class.getName() + ".newlineElseIf"/*nonNLS*/;
-	public static final String OPTION_InsertNewLineInEmptyBlock = CodeFormatter.class.getName() + ".newlineEmptyBlock"/*nonNLS*/;
-	public static final String OPTION_ClearAllBlankLines = CodeFormatter.class.getName() + ".newlineClearAll"/*nonNLS*/;
-	public static final String OPTION_SplitLineExceedingLength = CodeFormatter.class.getName() + ".lineSplit"/*nonNLS*/;
-	public static final String OPTION_CompactAssignment = CodeFormatter.class.getName() + ".compactAssignment"/*nonNLS*/;
-	public static final String OPTION_TabulationChar = CodeFormatter.class.getName() + ".tabulationChar"/*nonNLS*/;
-	public static final String OPTION_TabulationSize = CodeFormatter.class.getName() + ".tabulationSize"/*nonNLS*/;
+	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewlineInControlStatement = CodeFormatter.class.getName() + ".newlineControlStatement"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewLineBetweenElseAndIf = CodeFormatter.class.getName() + ".newlineElseIf"; //$NON-NLS-1$
+	public static final String OPTION_InsertNewLineInEmptyBlock = CodeFormatter.class.getName() + ".newlineEmptyBlock"; //$NON-NLS-1$
+	public static final String OPTION_ClearAllBlankLines = CodeFormatter.class.getName() + ".newlineClearAll"; //$NON-NLS-1$
+	public static final String OPTION_SplitLineExceedingLength = CodeFormatter.class.getName() + ".lineSplit"; //$NON-NLS-1$
+	public static final String OPTION_CompactAssignment = CodeFormatter.class.getName() + ".compactAssignment"; //$NON-NLS-1$
+	public static final String OPTION_TabulationChar = CodeFormatter.class.getName() + ".tabulationChar"; //$NON-NLS-1$
+	public static final String OPTION_TabulationSize = CodeFormatter.class.getName() + ".tabulationSize"; //$NON-NLS-1$
 	
 	// by default, do not insert blank line before opening brace
 	public boolean newLineBeforeOpeningBraceMode = false;
@@ -44,7 +44,7 @@ public class FormatterOptions {
 	public boolean compactElseIfMode = false; // if true, else and if are kept on the same line.
 	public boolean newLineInEmptyBlockMode = true; // if false, no new line in {} if it's empty.
 	
-	public char[] lineSeparatorSequence = System.getProperty("line.separator"/*nonNLS*/).toCharArray();
+	public char[] lineSeparatorSequence = System.getProperty("line.separator").toCharArray(); //$NON-NLS-1$
 /** 
  * Initializing the formatter options with default settings
  */

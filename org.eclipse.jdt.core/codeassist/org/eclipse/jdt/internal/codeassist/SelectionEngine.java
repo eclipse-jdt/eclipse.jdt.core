@@ -401,7 +401,7 @@ public void selectType(ISourceType sourceType, char[] typeName) {
 							selectionIdentifier,
 							new long[previousIdentifiers.length + 1]);
 				}
-				field.name = "<fakeField>"/*nonNLS*/.toCharArray();
+				field.name = "<fakeField>".toCharArray(); //$NON-NLS-1$
 				typeDecl.fields = new FieldDeclaration[] {field};
 
 				// build bindings

@@ -314,7 +314,7 @@ protected Openable[] createElements(IResource resource) {
 	if (resource == null) return null;
 	String extension = resource.getFileExtension();
 	extension = extension == null ? null : extension.toLowerCase();
-	if ("jar"/*nonNLS*/.equals(extension) || "zip"/*nonNLS*/.equals(extension)) {
+	if ("jar".equals(extension) || "zip".equals(extension)) { //$NON-NLS-2$ //$NON-NLS-1$
 		IJavaProject[] projects = null;
 		try {
 			projects = JavaModelManager.getJavaModel(resource.getWorkspace()).getJavaProjects();

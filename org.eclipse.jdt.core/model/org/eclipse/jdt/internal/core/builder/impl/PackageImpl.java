@@ -19,7 +19,7 @@ public class PackageImpl extends NonStateSpecificHandleImpl implements IPackage 
 	String fName;
 	boolean fIsUnnamed;
 
-	public static final String DEFAULT_PACKAGE_PREFIX = "Default-"/*nonNLS*/;
+	public static final String DEFAULT_PACKAGE_PREFIX = "Default-"; //$NON-NLS-1$
 /**
  * Creates a new package
  * @param name of package
@@ -203,9 +203,9 @@ public boolean isUnnamed() {
 public static String readableName(IPackage pkg) {
 	String name = pkg.getName();
 	if (pkg.isUnnamed()) {
-		return Util.bind("build.defaultPackageName"/*nonNLS*/, name.substring(DEFAULT_PACKAGE_PREFIX.length()));
+		return Util.bind("build.defaultPackageName", name.substring(DEFAULT_PACKAGE_PREFIX.length())); //$NON-NLS-1$
 	} else {
-		return Util.bind("build.packageName"/*nonNLS*/, name);
+		return Util.bind("build.packageName", name); //$NON-NLS-1$
 	}
 }
 	/**
@@ -213,9 +213,9 @@ public static String readableName(IPackage pkg) {
 	 * only (NON-NLS).
 	 */
 	public String toString() {
-		String result = "package "/*nonNLS*/;
+		String result = "package "; //$NON-NLS-1$
 		if (isUnnamed()) 
-			result += "{unnamed, id="/*nonNLS*/ + getName() + "}"/*nonNLS*/;
+			result += "{unnamed, id=" + getName() + "}"; //$NON-NLS-2$ //$NON-NLS-1$
 		else
 			result += getName();
 		return result;

@@ -53,7 +53,7 @@ public class ThrowStatement extends Statement {
 
 	public String toString(int tab) {
 		String s = tabString(tab);
-		s = s + "throw "/*nonNLS*/;
+		s = s + "throw "; //$NON-NLS-1$
 		s = s + exception.toStringExpression();
 		return s;
 	}

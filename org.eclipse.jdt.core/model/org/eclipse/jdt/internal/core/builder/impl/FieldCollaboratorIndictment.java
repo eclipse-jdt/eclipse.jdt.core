@@ -24,6 +24,6 @@ protected FieldCollaboratorIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("FieldIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
+	return new StringBuffer("FieldIndictment(").append(fName).append(")").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 }
 }

@@ -77,7 +77,7 @@ public GlobalVariable[] allVariables() {
  *		set of options used to configure the code assist engine.
  */
 public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, ConfigurableOption[] options) {
-	final char[] className = "CodeSnippetCompletion"/*nonNLS*/.toCharArray();
+	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
 		this.packageName, 
@@ -91,7 +91,7 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, "java"/*nonNLS*/.toCharArray(), '.');
+			return CharOperation.concat(className, "java".toCharArray(), '.'); //$NON-NLS-1$
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();
@@ -204,7 +204,7 @@ public void evaluate(
 			if (TIMING) {
 				long start = System.currentTimeMillis();
 				classes = evaluator.getClasses();
-				System.out.println("Time to compile ["/*nonNLS*/ + new String(codeSnippet) + "] was "/*nonNLS*/ + (System.currentTimeMillis() - start) + "ms"/*nonNLS*/);
+				System.out.println("Time to compile [" + new String(codeSnippet) + "] was " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
 			} else {
 				classes = evaluator.getClasses();
 			}
@@ -362,50 +362,50 @@ private byte[] getCodeSnippetBytes() {
  */
 public static String getCodeSnippetSource() {
 	return
-		"package org.eclipse.jdt.internal.eval.target;\n"/*nonNLS*/ +
-		"\n"/*nonNLS*/ +
-		"/*\n"/*nonNLS*/ +
-		" * (c) Copyright IBM Corp. 2000, 2001.\n"/*nonNLS*/ +
-		" * All Rights Reserved.\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"/**\n"/*nonNLS*/ +
-		" * The root of all code snippet classes. Code snippet classes\n"/*nonNLS*/ +
-		" * are supposed to overide the run() method.\n"/*nonNLS*/ +
-		" * <p>\n"/*nonNLS*/ +
-		" * IMPORTANT NOTE:\n"/*nonNLS*/ +
-		" * All methods in this class must be public since this class is going to be loaded by the\n"/*nonNLS*/ +
-		" * bootstrap class loader, and the other code snippet support classes might be loaded by \n"/*nonNLS*/ +
-		" * another class loader (so their runtime packages are going to be different).\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"public class CodeSnippet {\n"/*nonNLS*/ +
-		"	private Class resultType = void.class;\n"/*nonNLS*/ +
-		"	private Object resultValue = null;\n"/*nonNLS*/ +
-		"/**\n"/*nonNLS*/ +
-		" * Returns the result type of the code snippet evaluation.\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"public Class getResultType() {\n"/*nonNLS*/ +
-		"	return this.resultType;\n"/*nonNLS*/ +
-		"}\n"/*nonNLS*/ +
-		"/**\n"/*nonNLS*/ +
-		" * Returns the result value of the code snippet evaluation.\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"public Object getResultValue() {\n"/*nonNLS*/ +
-		"	return this.resultValue;\n"/*nonNLS*/ +
-		"}\n"/*nonNLS*/ +
-		"/**\n"/*nonNLS*/ +
-		" * The code snippet. Subclasses must override this method with a transformed code snippet\n"/*nonNLS*/ +
-		" * that stores the result using setResult(Class, Object).\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"public void run() {\n"/*nonNLS*/ +
-		"}\n"/*nonNLS*/ +
-		"/**\n"/*nonNLS*/ +
-		" * Stores the result type and value of the code snippet evaluation.\n"/*nonNLS*/ +
-		" */\n"/*nonNLS*/ +
-		"public void setResult(Object resultValue, Class resultType) {\n"/*nonNLS*/ +
-		"	this.resultValue = resultValue;\n"/*nonNLS*/ +
-		"	this.resultType = resultType;\n"/*nonNLS*/ +
-		"}\n"/*nonNLS*/ +
-		"}\n"/*nonNLS*/;
+		"package org.eclipse.jdt.internal.eval.target;\n" + //$NON-NLS-1$
+		"\n" + //$NON-NLS-1$
+		"/*\n" + //$NON-NLS-1$
+		" * (c) Copyright IBM Corp. 2000, 2001.\n" + //$NON-NLS-1$
+		" * All Rights Reserved.\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"/**\n" + //$NON-NLS-1$
+		" * The root of all code snippet classes. Code snippet classes\n" + //$NON-NLS-1$
+		" * are supposed to overide the run() method.\n" + //$NON-NLS-1$
+		" * <p>\n" + //$NON-NLS-1$
+		" * IMPORTANT NOTE:\n" + //$NON-NLS-1$
+		" * All methods in this class must be public since this class is going to be loaded by the\n" + //$NON-NLS-1$
+		" * bootstrap class loader, and the other code snippet support classes might be loaded by \n" + //$NON-NLS-1$
+		" * another class loader (so their runtime packages are going to be different).\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"public class CodeSnippet {\n" + //$NON-NLS-1$
+		"	private Class resultType = void.class;\n" + //$NON-NLS-1$
+		"	private Object resultValue = null;\n" + //$NON-NLS-1$
+		"/**\n" + //$NON-NLS-1$
+		" * Returns the result type of the code snippet evaluation.\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"public Class getResultType() {\n" + //$NON-NLS-1$
+		"	return this.resultType;\n" + //$NON-NLS-1$
+		"}\n" + //$NON-NLS-1$
+		"/**\n" + //$NON-NLS-1$
+		" * Returns the result value of the code snippet evaluation.\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"public Object getResultValue() {\n" + //$NON-NLS-1$
+		"	return this.resultValue;\n" + //$NON-NLS-1$
+		"}\n" + //$NON-NLS-1$
+		"/**\n" + //$NON-NLS-1$
+		" * The code snippet. Subclasses must override this method with a transformed code snippet\n" + //$NON-NLS-1$
+		" * that stores the result using setResult(Class, Object).\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"public void run() {\n" + //$NON-NLS-1$
+		"}\n" + //$NON-NLS-1$
+		"/**\n" + //$NON-NLS-1$
+		" * Stores the result type and value of the code snippet evaluation.\n" + //$NON-NLS-1$
+		" */\n" + //$NON-NLS-1$
+		"public void setResult(Object resultValue, Class resultType) {\n" + //$NON-NLS-1$
+		"	this.resultValue = resultValue;\n" + //$NON-NLS-1$
+		"	this.resultType = resultType;\n" + //$NON-NLS-1$
+		"}\n" + //$NON-NLS-1$
+		"}\n"; //$NON-NLS-1$
 }
 /**
  * Returns the imports of this evaluation context. An import is the name of a package
@@ -440,7 +440,7 @@ IBinaryType getRootCodeSnippetBinary() {
 private String getSupportClassFileName(String simpleName) {
 	char separator = File.separatorChar;
 	char[][] compoundPackageName = CharOperation.splitOn('.', PACKAGE_NAME);
-	return new String(CharOperation.concatWith(compoundPackageName, separator)) + separator + simpleName + ".class"/*nonNLS*/;
+	return new String(CharOperation.concatWith(compoundPackageName, separator)) + separator + simpleName + ".class"; //$NON-NLS-1$
 }
 /**
  * Creates a new global variable with the given name, type and initializer.
@@ -487,7 +487,7 @@ public void select(
 	ISelectionRequestor requestor,
 	ConfigurableOption[] options) {
 		
-	final char[] className = "CodeSnippetSelection"/*nonNLS*/.toCharArray();
+	final char[] className = "CodeSnippetSelection".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
 		this.packageName, 
@@ -501,7 +501,7 @@ public void select(
 	);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getFileName() {
-			return CharOperation.concat(className, "java"/*nonNLS*/.toCharArray(), '.');
+			return CharOperation.concat(className, "java".toCharArray(), '.'); //$NON-NLS-1$
 		}
 		public char[] getContents() {
 			return mapper.getCUSource();

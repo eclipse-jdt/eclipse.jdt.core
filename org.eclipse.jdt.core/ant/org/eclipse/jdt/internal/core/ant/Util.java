@@ -12,7 +12,7 @@ public class Util {
 
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.ant.Messages"/*nonNLS*/;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.ant.Messages"; //$NON-NLS-1$
 
 
 	static {
@@ -32,14 +32,14 @@ public static String bind(String id) {
  */
 public static String bind(String id, String[] bindings) {
 	if (id == null)
-		return "No message available"/*nonNLS*/;
+		return "No message available"; //$NON-NLS-1$
 	String message = null;
 	try {
 		message = bundle.getString(id);
 	} catch (MissingResourceException e) {
 		// If we got an exception looking for the message, fail gracefully by just returning
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-		return "Missing message: "/*nonNLS*/ + id + " in: "/*nonNLS*/ + bundleName;
+		return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
 	if (bindings == null)
 		return message;
@@ -58,7 +58,7 @@ public static String bind(String id, String[] bindings) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
+					output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
 				}
 			} else {
 				output.append(message.substring(end, length));

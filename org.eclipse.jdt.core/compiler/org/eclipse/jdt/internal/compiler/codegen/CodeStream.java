@@ -1369,7 +1369,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 
 	anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NullBinding /* represents ClassNotFoundException*/);
-	this.ldc(accessedType == TypeBinding.NullBinding ? "java.lang.Object"/*nonNLS*/ : String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+	this.ldc(accessedType == TypeBinding.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
 	this.invokeClassForName();
 
 	/* We need to protect the runtime code from binary inconsistencies
@@ -1429,7 +1429,7 @@ final public int[] generateCodeAttributeForProblemMethod(String errorName, Strin
 	anewarrayJavaLangClass();
 	dup();
 	iconst_0();
-	ldc("java.lang.String"/*nonNLS*/);
+	ldc("java.lang.String"); //$NON-NLS-1$
 	invokeClassForName();
 	aastore();
 	invokeConstructorGetConstructor();
@@ -1773,28 +1773,28 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 	char[][] wrapperTypeCompoundName = null;
 	switch (valueType.id) {
 		case T_int : // new: java.lang.Integer
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Integer"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Integer".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_boolean : // new: java.lang.Boolean
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Boolean"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Boolean".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_byte : // new: java.lang.Byte
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Byte"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Byte".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_char : // new: java.lang.Character
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Character"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Character".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_float : // new: java.lang.Float
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Float"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Float".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_double : // new: java.lang.Double
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Double"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Double".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_short : // new: java.lang.Short
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Short"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Short".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 		case T_long : // new: java.lang.Long
-			wrapperTypeCompoundName = new char[][] {"java"/*nonNLS*/.toCharArray(), "lang"/*nonNLS*/.toCharArray(), "Long"/*nonNLS*/.toCharArray()};
+			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 	}
 	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
@@ -5362,15 +5362,15 @@ final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] k
 	}
 }
 public String toString() {
-	StringBuffer buffer = new StringBuffer("( position:"/*nonNLS*/);
+	StringBuffer buffer = new StringBuffer("( position:"); //$NON-NLS-1$
 	buffer.append(position);
-	buffer.append(",\nstackDepth:"/*nonNLS*/);
+	buffer.append(",\nstackDepth:"); //$NON-NLS-1$
 	buffer.append(stackDepth);
-	buffer.append(",\nmaxStack:"/*nonNLS*/);
+	buffer.append(",\nmaxStack:"); //$NON-NLS-1$
 	buffer.append(stackMax);
-	buffer.append(",\nmaxLocals:"/*nonNLS*/);
+	buffer.append(",\nmaxLocals:"); //$NON-NLS-1$
 	buffer.append(maxLocals);
-	buffer.append(")"/*nonNLS*/);
+	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
 public void updateLastRecordedEndPC(int pos) {
