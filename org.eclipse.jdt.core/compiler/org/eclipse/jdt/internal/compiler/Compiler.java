@@ -340,11 +340,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				unitsToProcess[i] = null; // release reference to processed unit declaration
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 				if (options.verbose)
-					System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
-				new String[] {
-					String.valueOf(i + 1),
-					String.valueOf(totalUnits),
-					new String(unit.getFileName())}));
+					System.out.println(
+						Util.bind(
+							"compilation.done", //$NON-NLS-1$
+							new String[] {
+								String.valueOf(i + 1),
+								String.valueOf(totalUnits),
+								new String(unit.getFileName())}));
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
