@@ -16,7 +16,8 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern implements IIndexConstants {
 
-protected char[] qualification;
+public char[] qualification;
+public int packageIndex;
 
 public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule) {
 	this(matchRule);
@@ -37,19 +38,38 @@ public void decodeIndexKey(char[] key) {
 	int start = slash + 1;
 	slash = CharOperation.indexOf(SEPARATOR, key, start);
 	int secondSlash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
+	this.packageIndex = -1; // used to compute package vs. enclosingTypeNames in MultiTypeDeclarationPattern
 	if (start + 1 == secondSlash) {
 		this.qualification = CharOperation.NO_CHAR; // no package name or enclosingTypeNames
 	} else if (slash + 1 == secondSlash) {
 		this.qualification = CharOperation.subarray(key, start, slash); // only a package name
+	} else if (slash == start) {
+		this.qualification = CharOperation.subarray(key, slash + 1, secondSlash); // no package name
+		this.packageIndex = 0;
 	} else {
 		this.qualification = CharOperation.subarray(key, start, secondSlash);
-		this.qualification[slash - start] = '.';
+		this.packageIndex = slash - start;
+		this.qualification[this.packageIndex] = '.';
 	}
 
 	this.typeSuffix = key[key.length - 1];
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
+}
+public char[] getPackageName() {
+	if (this.packageIndex == -1)
+		return this.qualification;
+	return CharOperation.subarray(this.qualification, 0, this.packageIndex);
+}
+public char[][] getEnclosingTypeNames() {
+	if (this.packageIndex == -1)
+		return CharOperation.NO_CHAR_CHAR;
+	if (this.packageIndex == 0)
+		return CharOperation.splitOn('.', this.qualification);
+
+	char[] names = CharOperation.subarray(this.qualification, this.packageIndex + 1, this.qualification.length);
+	return CharOperation.splitOn('.', names);
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
@@ -90,6 +110,7 @@ protected StringBuffer print(StringBuffer output) {
 		output.append(simpleName);
 	else
 		output.append("*"); //$NON-NLS-1$
+	output.append("> "); //$NON-NLS-1$
 	return super.print(output);
 }
 }

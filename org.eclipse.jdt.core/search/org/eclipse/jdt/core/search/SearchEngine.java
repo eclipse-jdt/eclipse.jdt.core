@@ -592,6 +592,50 @@ public class SearchEngine {
 	}
 
 	/**
+	 * Searches for all top-level types and member types in the given scope using  a case sensitive exact match
+	 * with the given qualified names and type names.
+	 * 
+	 * @param qualifications the qualified name of the package/enclosing type of the searched types
+	 * @param typeNames the simple names of the searched types
+	 * @param scope the scope to search in
+	 * @param nameRequestor the requestor that collects the results of the search
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
+	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.0
+	 */
+	public void searchAllTypeNames(
+		final char[][] qualifications, 
+		final char[][] typeNames,
+		IJavaSearchScope scope, 
+		final TypeNameRequestor nameRequestor,
+		int waitingPolicy,
+		IProgressMonitor progressMonitor)  throws JavaModelException {
+
+		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
+		this.basicEngine.searchAllTypeNames(
+			qualifications,
+			typeNames,
+			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestorWrapper,
+			waitingPolicy,
+			progressMonitor);
+	}
+
+	/**
 	 * Searches for all top-level types and member types in the given scope.
 	 * The search can be selecting specific types (given a package or a type name
 	 * prefix and match modes). 
