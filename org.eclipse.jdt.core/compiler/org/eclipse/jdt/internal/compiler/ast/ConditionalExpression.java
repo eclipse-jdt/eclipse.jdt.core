@@ -211,7 +211,6 @@ public class ConditionalExpression extends OperatorExpression {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}
-		int pc = codeStream.position;
 		Constant cst = condition.constant;
 		Constant condCst = condition.optimizedBooleanConstant();
 		boolean needTruePart =
@@ -271,7 +270,7 @@ public class ConditionalExpression extends OperatorExpression {
 				mergedInitStateIndex);
 		}
 		// no implicit conversion for boolean values
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		codeStream.updateLastRecordedEndPC(codeStream.position);
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {

@@ -927,7 +927,6 @@ public class BinaryExpression extends OperatorExpression {
 		Label falseLabel,
 		boolean valueRequired) {
 
-		int pc = codeStream.position;
 		int promotedTypeID = left.implicitConversion >> 4;
 		// both sides got promoted in the same way
 		if (promotedTypeID == T_int) {
@@ -949,7 +948,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				codeStream.updateLastRecordedEndPC(codeStream.position);
 				return;
 			}
 			// x < 0
@@ -970,7 +969,7 @@ public class BinaryExpression extends OperatorExpression {
 						}
 					}
 				}
-				codeStream.recordPositionsFrom(pc, this.sourceStart);
+				codeStream.updateLastRecordedEndPC(codeStream.position);
 				return;
 			}
 		}
@@ -997,7 +996,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.iflt(trueLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					codeStream.updateLastRecordedEndPC(codeStream.position);
 					return;
 				}
 			} else {
@@ -1019,7 +1018,7 @@ public class BinaryExpression extends OperatorExpression {
 							codeStream.dcmpg();
 							codeStream.ifge(falseLabel);
 					}
-					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					codeStream.updateLastRecordedEndPC(codeStream.position);
 					return;
 				} else {
 					// no implicit fall through TRUE/FALSE --> should never occur
