@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -75,7 +74,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
  * @since 2.0
  */
 public final class AST {
-	
+
 	/**
 	 * Internal modification count; initially 0; increases monotonically
 	 * <b>by one or more</b> as the AST is successively modified.
@@ -341,9 +340,7 @@ public final class AST {
 				lookup.setUnitsToLookInside(workingCopies);
 				
 				// parse and resolve
-				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
-					unit,
-					new AbstractSyntaxTreeVisitorAdapter());
+				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(unit);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -543,8 +540,7 @@ public final class AST {
 					source,
 					CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
 					buffer.toString(),
-					project,
-					new AbstractSyntaxTreeVisitorAdapter());
+					project);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -742,8 +738,7 @@ public final class AST {
 				CompilationUnitResolver.resolve(
 					source,
 					unitName,
-					project,
-					new AbstractSyntaxTreeVisitorAdapter());
+					project);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -818,6 +813,234 @@ public final class AST {
 		return cu;
 	}
 
+	/**
+	 * Parses the source string of the given Java model compilation unit element and populated the
+	 * node that contains the given position, and creates and returns a corresponding
+	 * abstract syntax tree. The source string is obtained from the Java model element
+	 * using <code>ICompilationUnit.getSource()</code>.
+	 * <p>
+	 * Only the method or initializer containing the given position will be populated with its 
+	 * statements. Field initializers are preserved even if the given position is not within
+	 * the field declaration source range. If the given position is not located within any body
+	 * declarations, then a compilation unit is returned without any statements inside its methods or
+	 * initializers.
+	 * </p>
+	 * <p>
+	 * The returned compilation unit node is the root node of a new AST.
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the source string (the source string is not remembered
+	 * with the AST).
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
+	 * </p>
+	 * <p>
+	 * If <code>resolveBindings</code> is <code>true</code>, the various names
+	 * and types appearing in the method declaration can be resolved to "bindings"
+	 * by calling the <code>resolveBinding</code> methods. These bindings 
+	 * draw connections between the different parts of a program, and 
+	 * generally afford a more powerful vantage point for clients who wish to
+	 * analyze a program's structure more deeply. These bindings come at a 
+	 * considerable cost in both time and space, however, and should not be
+	 * requested frivolously. The additional space is not reclaimed until the 
+	 * AST, all its nodes, and all its bindings become garbage. So it is very
+	 * important to not retain any of these objects longer than absolutely
+	 * necessary. Bindings are resolved at the time the AST is created. Subsequent
+	 * modifications to the AST do not affect the bindings returned by
+	 * <code>resolveBinding</code> methods in any way; these methods return the
+	 * same binding as before the AST was modified (including modifications
+	 * that rearrange subtrees by reparenting nodes).
+	 * If <code>resolveBindings</code> is <code>false</code>, the analysis 
+	 * does not go beyond parsing and building the tree, and all 
+	 * <code>resolveBinding</code> methods return <code>null</code> from the 
+	 * outset.
+	 * </p>
+	 * 
+	 * @param unit the Java model compilation unit whose source code is to be parsed
+	 * @param position the given position to locate the corresponding body declaration
+	 * @param resolveBindings <code>true</code> if bindings are wanted, 
+	 *   and <code>false</code> if bindings are not of interest
+	 * @return the compilation unit node
+	 * @exception IllegalArgumentException if the given Java element does not 
+	 * exist or the source range is null or if its source string cannot be obtained
+	 * @see ASTNode#getFlags()
+	 * @see ASTNode#MALFORMED
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see WorkingCopyOwner
+	 * @since 3.0
+ 	 * TODO Jim, please review the javadoc. We can discuss about it if necessary
+	 */
+	public static CompilationUnit parsePartialCompilationUnit(
+		ICompilationUnit unit,
+		int position,
+		boolean resolveBindings) {
+			return parsePartialCompilationUnit(unit, position, resolveBindings, DefaultWorkingCopyOwner.PRIMARY);
+	}
+
+	/**
+	 * Parses the source string of the given Java model compilation unit element and populated the
+	 * node that contains the given position, and creates and returns a corresponding
+	 * abstract syntax tree. The source string is obtained from the Java model element
+	 * using <code>ICompilationUnit.getSource()</code>.
+	 * <p>
+	 * Only the method or initializer containing the given position will be populated with its 
+	 * statements. Field initializers are preserved even if the given position is not within
+	 * the field declaration source range. If the given position is not located within any body
+	 * declarations, then a compilation unit is returned without any statements inside its methods or
+	 * initializers.
+	 * </p>
+	 * <p>
+	 * The returned compilation unit node is the root node of a new AST.
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the source string (the source string is not remembered
+	 * with the AST).
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
+	 * </p>
+	 * <p>
+	 * If <code>resolveBindings</code> is <code>true</code>, the various names
+	 * and types appearing in the method declaration can be resolved to "bindings"
+	 * by calling the <code>resolveBinding</code> methods. These bindings 
+	 * draw connections between the different parts of a program, and 
+	 * generally afford a more powerful vantage point for clients who wish to
+	 * analyze a program's structure more deeply. These bindings come at a 
+	 * considerable cost in both time and space, however, and should not be
+	 * requested frivolously. The additional space is not reclaimed until the 
+	 * AST, all its nodes, and all its bindings become garbage. So it is very
+	 * important to not retain any of these objects longer than absolutely
+	 * necessary. Bindings are resolved at the time the AST is created. Subsequent
+	 * modifications to the AST do not affect the bindings returned by
+	 * <code>resolveBinding</code> methods in any way; these methods return the
+	 * same binding as before the AST was modified (including modifications
+	 * that rearrange subtrees by reparenting nodes).
+	 * If <code>resolveBindings</code> is <code>false</code>, the analysis 
+	 * does not go beyond parsing and building the tree, and all 
+	 * <code>resolveBinding</code> methods return <code>null</code> from the 
+	 * outset.
+	 * </p>
+	 * <p>
+	 * When bindings are created, instead of considering compilation units on disk only
+	 * one can supply a <code>WorkingCopyOwner</code>. Working copies owned 
+	 * by this owner take precedence over the underlying compilation units when looking
+	 * up names and drawing the connections.
+	 * </p>
+	 * 
+	 * @param unit the Java model compilation unit whose source code is to be parsed
+	 * @param position the given position to locate the corresponding body declaration
+	 * @param resolveBindings <code>true</code> if bindings are wanted, 
+	 *   and <code>false</code> if bindings are not of interest
+	 * @param owner the owner of working copies that take precedence over underlying 
+	 *   compilation units
+	 * @return the compilation unit node
+	 * @exception IllegalArgumentException if the given Java element does not 
+	 * exist or the source range is null or if its source string cannot be obtained
+	 * @see ASTNode#getFlags()
+	 * @see ASTNode#MALFORMED
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see WorkingCopyOwner
+	 * @since 3.0
+	 * TODO Jim, please review the javadoc. We can discuss about it if necessary
+	 */
+	public static CompilationUnit parsePartialCompilationUnit(
+		ICompilationUnit unit,
+		int position,
+		boolean resolveBindings,
+		WorkingCopyOwner owner) {
+				
+		if (unit == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		char[] source = null;
+		try {
+			source = unit.getSource().toCharArray();
+		} catch(JavaModelException e) {
+			// no source, then we cannot build anything
+			throw new IllegalArgumentException();
+		}
+
+		NodeSearcher searcher = new NodeSearcher(position);
+
+		final Map options = unit.getJavaProject().getOptions(true);
+		if (resolveBindings) {
+			NameLookup lookup = null;
+			try {
+				// set the units to look inside
+				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
+				lookup.setUnitsToLookInside(workingCopies);
+
+				// parse and resolve
+				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
+					unit,
+					searcher);
+				
+				ASTConverter converter = new ASTConverter(options, true);
+				AST ast = new AST();
+				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+			
+				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
+				compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return compilationUnit;
+			} catch(JavaModelException e) {
+				/* if a JavaModelException is thrown trying to retrieve the name environment
+				 * then we simply do a parsing without creating bindings.
+				 * Therefore all binding resolution will return null.
+				 */
+				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.parse(
+					source,
+					searcher,
+					options);
+				
+				ASTConverter converter = new ASTConverter(options, false);
+				AST ast = new AST();
+				final BindingResolver resolver = new BindingResolver();
+				ast.setBindingResolver(resolver);
+				converter.setAST(ast);
+	
+				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
+				compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				resolver.storeModificationCount(ast.modificationCount());
+				return compilationUnit;
+			} finally {
+				if (lookup != null) {
+					lookup.setUnitsToLookInside(null);
+				}
+			}
+		} else {
+			CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.parse(
+				source,
+				searcher,
+				options);
+			
+			ASTConverter converter = new ASTConverter(options, false);
+			AST ast = new AST();
+			final BindingResolver resolver = new BindingResolver();
+			ast.setBindingResolver(resolver);
+			converter.setAST(ast);
+
+			CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
+			compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+			resolver.storeModificationCount(ast.modificationCount());
+			return compilationUnit;
+		}
+	}
+	
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.

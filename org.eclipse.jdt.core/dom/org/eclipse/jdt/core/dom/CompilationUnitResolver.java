@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -191,8 +190,7 @@ class CompilationUnitResolver extends Compiler {
 		this.parser = createDomParser(this.problemReporter);
 	}
 	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement,
-		IAbstractSyntaxTreeVisitor visitor)
+		ICompilationUnit unitElement)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
@@ -267,19 +265,55 @@ class CompilationUnitResolver extends Compiler {
 		return compilationUnitDeclaration;
 	}
 
-	private static void reportProblems(CompilationUnitDeclaration unit, IAbstractSyntaxTreeVisitor visitor) {
-		CompilationResult unitResult = unit.compilationResult;
-		IProblem[] problems = unitResult.getAllProblems();
-		for (int i = 0, problemLength = problems == null ? 0 : problems.length; i < problemLength; i++) {
-			visitor.acceptProblem(problems[i]);				
-		}	
+	public static CompilationUnitDeclaration parse(char[] source, NodeSearcher nodeSearcher, Map settings) {
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
+		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		Parser parser = createDomParser(
+			new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+					compilerOptions, 
+					new DefaultProblemFactory()));
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
+			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
+				source, 
+				"", //$NON-NLS-1$
+				compilerOptions.defaultEncoding);
+		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
+		
+		if (compilationUnitDeclaration.ignoreMethodBodies) {
+			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
+			// if initial diet parse did not work, no need to dig into method bodies.
+			return null; 
+		}
+				
+		compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
+		
+		AstNode node = nodeSearcher.found;
+ 		if (node == null) {
+ 			return compilationUnitDeclaration;
+ 		}
+ 		
+ 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+ 		
+		if (node instanceof AbstractMethodDeclaration) {
+			((AbstractMethodDeclaration)node).parseStatements(parser, compilationUnitDeclaration);
+		} else if (enclosingTypeDeclaration != null) {
+			if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+				((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
+			} else {  					
+				((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, compilationUnitDeclaration);
+			} 				
+		}
+		
+		return compilationUnitDeclaration;
 	}
-	
+
 	public static CompilationUnitDeclaration resolve(
 		char[] source,
 		String unitName,
-		IJavaProject javaProject,
-		IAbstractSyntaxTreeVisitor visitor)
+		IJavaProject javaProject)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
@@ -304,7 +338,49 @@ class CompilationUnitResolver extends Compiler {
 					true, // method verification
 					true, // analyze code
 					true); // generate code
-			reportProblems(unit, visitor);
+			return unit;
+		} finally {
+			if (unit != null) {
+				unit.cleanUp();
+			}
+		}
+	}
+
+	public static CompilationUnitDeclaration resolve(
+		ICompilationUnit unitElement,
+		NodeSearcher nodeSearcher)
+		throws JavaModelException {
+
+		CompilationUnitDeclaration unit = null;
+		try {
+			char[] fileName = unitElement.getElementName().toCharArray();
+			IJavaProject project = unitElement.getJavaProject();
+			CompilationUnitResolver compilationUnitVisitor =
+				new CompilationUnitResolver(
+					getNameEnvironment(unitElement),
+					getHandlingPolicy(),
+					project.getOptions(true),
+					getRequestor(),
+					new DefaultProblemFactory());
+	
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
+	
+			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
+		
+			unit = compilationUnitVisitor.resolve(
+				new BasicCompilationUnit(
+					unitElement.getSource().toCharArray(),
+					expectedPackageName,
+					new String(fileName),
+					encoding),
+				nodeSearcher,
+				true, // method verification
+				true, // analyze code
+				true); // generate code
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -317,8 +393,7 @@ class CompilationUnitResolver extends Compiler {
 		char[] source,
 		char[][] packageName,
 		String unitName,
-		IJavaProject javaProject,
-		IAbstractSyntaxTreeVisitor visitor)
+		IJavaProject javaProject)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
@@ -342,14 +417,86 @@ class CompilationUnitResolver extends Compiler {
 						encoding),
 					true, // method verification
 					true, // analyze code
-					true); // generate code
-			reportProblems(unit, visitor);					
+					true); // generate code					
 			return unit;
 		} finally {
 			if (unit != null) {
 				unit.cleanUp();
 			}
 		}
+	}
+
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilationUnit,
+			NodeSearcher nodeSearcher,
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+
+		CompilationUnitDeclaration unit = null;
+		try {
+
+			parseThreshold = 0; // will request a diet parse
+			beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilationUnit});
+			// process all units (some more could be injected in the loop by the lookup environment)
+			unit = unitsToProcess[0];
+		
+			unit.traverse(nodeSearcher, unit.scope);
+			
+			AstNode node = nodeSearcher.found;
+			
+ 			if (node != null) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+  				if (node instanceof AbstractMethodDeclaration) {
+					((AbstractMethodDeclaration)node).parseStatements(parser, unit);
+ 				} else if (enclosingTypeDeclaration != null) {
+					if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+	 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, unit);
+ 					} else {  					
+						((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, unit);
+					} 				
+ 				}
+ 			}
+			if (unit.scope != null) {
+				// fault in fields & methods
+				unit.scope.faultInTypes();
+				if (unit.scope != null && verifyMethods) {
+					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
+ 					// verify inherited methods
+					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
+				}
+				// type checking
+				unit.resolve();		
+
+				// flow analysis
+				if (analyzeCode) unit.analyseCode();
+		
+				// code generation
+				if (generateCode) unit.generateCode();
+			}
+			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
+			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+			return unit;
+		} catch (AbortCompilation e) {
+			this.handleInternalException(e, unit);
+			return null;
+		} catch (Error e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} catch (RuntimeException e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} finally {
+			// No reset is performed there anymore since,
+			// within the CodeAssist (or related tools),
+			// the compiler may be called *after* a call
+			// to this resolve(...) method. And such a call
+			// needs to have a compiler with a non-empty
+			// environment.
+			// this.reset();
+		}
 	}	
-	
 }
