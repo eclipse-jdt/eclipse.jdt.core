@@ -14,8 +14,6 @@ import java.io.*;
 import java.net.URL;
 import java.security.CodeSource;
 
-import junit.framework.ComparisonFailure;
-
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -75,13 +73,7 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	);
 }
 
-public static void assertEquals(String message, String expected, String actual) {
-	if (expected == null && actual == null)
-		return;
-	if (expected != null && expected.equals(actual))
-		return;
-	throw new ComparisonFailure(message, showLineSeparators(expected), showLineSeparators(actual));
-}
+
 protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 	this.sortResources(resources);
 	StringBuffer buffer = new StringBuffer();
@@ -881,32 +873,6 @@ public static String displayString(String inputString, int indent) {
 	buffer.append("\"");
 	return buffer.toString();
 }
-/*
- * Shows the line separators in the given String.
- */
-protected static String showLineSeparators(String string) {
-	StringBuffer buffer = new StringBuffer();
-	int length = string.length();
-	for (int i = 0; i < length; i++) {
-		char car = string.charAt(i);
-		switch (car) {
-			case '\n': 
-				buffer.append("\\n\n"); //$NON-NLS-1$
-				break;
-			case '\r':
-				if (i < length-1 && string.charAt(i+1) == '\n') {
-					buffer.append("\\r\\n\n"); //$NON-NLS-1$
-					i++;
-				} else {
-					buffer.append("\\r\n"); //$NON-NLS-1$
-				}
-				break;
-			default:
-				buffer.append(car);
-				break;
-		}
-	}
-	return buffer.toString();
-}
+
 
 }

@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -25,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-public class SyntaxErrorTest extends TestCase {
+public class SyntaxErrorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 	public static boolean optimizeStringLiterals = false;
 	public static boolean assertMode = false;
 	

@@ -11,8 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -22,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
-public class SourceElementParserTest extends TestCase implements ISourceElementRequestor, IConstants {
+public class SourceElementParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase implements ISourceElementRequestor, IConstants {
 	private SourceType currentType;
 	private SourceMethod currentMethod;
 	private SourceField currentField;

@@ -10,10 +10,11 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import org.eclipse.jdt.core.tests.compiler.regression.*;
-import org.eclipse.jdt.core.tests.junit.extension.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-import junit.framework.*;
+import org.eclipse.jdt.core.tests.junit.extension.ExcludedTestSuite;
 
 /**
  * Run all compiler regression tests

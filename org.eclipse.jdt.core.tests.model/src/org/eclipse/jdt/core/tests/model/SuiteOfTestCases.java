@@ -15,7 +15,6 @@ import java.lang.reflect.Modifier;
 
 import junit.framework.Protectable;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
@@ -23,7 +22,7 @@ import junit.framework.TestSuite;
  * A test case class that can be set up (using the setUpSuite() method) and tore down (using the teardDownSuite() method)
  * once for all test cases of this class.
  */
-public class SuiteOfTestCases extends TestCase {
+public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 		
 	/*
 	 * A test suite that initialize the test case's fields once, then that copies the values

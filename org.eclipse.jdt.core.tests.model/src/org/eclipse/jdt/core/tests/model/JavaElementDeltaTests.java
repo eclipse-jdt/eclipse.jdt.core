@@ -427,7 +427,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		// full build
 		p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		assertDeltas(
-			"Unepected delta",
+			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
 			"	bin1[*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 
@@ -446,7 +446,7 @@ public void testBuildProjectUsedAsLib() throws CoreException {
 		// incremental buid
 		p1.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		assertDeltas(
-			"Unepected delta",
+			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 
 			"	bin1[*]: {CHILDREN}\n" + 
 			"		[default][*]: {CHILDREN}\n" + 

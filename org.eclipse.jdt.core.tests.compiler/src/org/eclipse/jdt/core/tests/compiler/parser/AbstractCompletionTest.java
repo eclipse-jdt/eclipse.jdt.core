@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionScanner;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -31,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
-public abstract class AbstractCompletionTest extends TestCase {
+public abstract class AbstractCompletionTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	public final static String NONE = "<NONE>";
 public AbstractCompletionTest(String testName){

@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -28,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-public class DietRecoveryTest extends TestCase {
+public class DietRecoveryTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 	public static boolean optimizeStringLiterals = false;
 	public static boolean assertMode = false;
 	

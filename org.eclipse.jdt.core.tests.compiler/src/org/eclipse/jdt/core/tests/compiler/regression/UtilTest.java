@@ -314,6 +314,11 @@ public void test45() {
 	assertTrue("Path pattern matching failure-2",
 		!CharOperation.pathMatch("/test/test1".toCharArray(), "/test/test1/test/test1".toCharArray(), true, '/'));
 }
+public void test46() {
+
+	assertTrue("Path pattern matching failure",
+		CharOperation.pathMatch("hello/**/World".toCharArray(), "hello/World".toCharArray(), true, '/'));
+}
 public static Class testClass() {
 	return UtilTest.class;
 }
