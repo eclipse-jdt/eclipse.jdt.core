@@ -69,8 +69,4 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	throw new ShouldNotImplement(Util.bind("ast.postIncrShouldProvide"/*nonNLS*/));
 }
-public boolean isFieldReference() {
-
-	return false ;
-}
 }

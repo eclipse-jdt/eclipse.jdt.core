@@ -28,7 +28,7 @@ public FinallyFlowContext(FlowContext parent, AstNode associatedNode) {
 public void complainOnRedundantFinalAssignments(FlowInfo flowInfo, BlockScope scope) {
 	for (int i = 0; i < assignCount; i++) {
 		Reference ref;
-		if ((ref = finalAssignments[i]).isFieldReference()) {
+		if (((ref = finalAssignments[i]).bits & BindingIds.FIELD) != 0) {
 			// final field
 			if (flowInfo.isPotentiallyAssigned(ref.fieldBinding())) {
 				scope.problemReporter().duplicateInitializationOfBlankFinalField(ref.fieldBinding(), ref);

@@ -293,10 +293,7 @@ public static final Constant getConstantFor(
 		return NotAConstant;
 	}
 }
-public boolean isFieldReference() {
 
-	return true ;
-}
 public boolean isSuperAccess() {
 
 	return receiver.isSuper();
