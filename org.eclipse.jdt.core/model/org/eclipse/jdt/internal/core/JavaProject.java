@@ -550,7 +550,7 @@ public class JavaProject
 	 *   <li>the binary roots (output locations) for the required projects
 	 *   <li>the binary roots for any jar/lib used by this project
 	 * </li>
-	 * 
+	 * @deprecated - old builder related
 	 */
 	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta)
 		throws JavaModelException {
@@ -1687,6 +1687,7 @@ public class JavaProject
 	/**
 	 * Returns the <code>IResource</code> that correspond to the specified path.
 	 * null if none.
+	 * @deprecated - old builder related
 	 */
 	private IResource retrieveResource(IPath path, IResourceDelta delta)
 		throws JavaModelException {
@@ -1998,45 +1999,45 @@ public IJavaElement rootedAt(IJavaProject project) {
 		} catch (CoreException e) {
 		}
 	}
-	/*
+	/**
 	 * @see IJavaProject#getClasspath()
-	 * @deprecated
+	 * @deprecated - use JavaCore API instead
 	 */
 	public IClasspathEntry[] getClasspath() throws JavaModelException {
 
 		return this.getRawClasspath();
 	}
 
-	/*
+	/**
 	 * @see IJavaProject#newLibraryEntry(IPath)
-	 * @deprecated
+	 * @deprecated - use JavaCore API instead
 	 */
 	public IClasspathEntry newLibraryEntry(IPath path) {
 
 		return JavaCore.newLibraryEntry(path, null, null, false);
 	}
 
-	/*
+	/**
 	 * @see IJavaProject#newProjectEntry(IPath)
-	 * @deprecated
+	 * @deprecated - use JavaCore API instead
 	 */
 	public IClasspathEntry newProjectEntry(IPath path) {
 		
 		return JavaCore.newProjectEntry(path, false);
 	}
 
-	/*
+	/**
 	 * @see IJavaProject#newSourceEntry(IPath)
-	 * @deprecated
+	 * @deprecated - use JavaCore API instead
 	 */
 	public IClasspathEntry newSourceEntry(IPath path) {
 		
 		return JavaCore.newSourceEntry(path);
 	}
 
-	/*
+	/**
 	 * @see IJavaProject#setClasspath(IClasspathEntry[], IProgressMonitor)
-	 * @deprecated
+	 * @deprecated - use #setRawClasspath instead
 	 */
 	public void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor)
 		throws JavaModelException {
