@@ -514,7 +514,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit);
+								selectFrom(e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -540,7 +540,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit) {
+	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
 		if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			if (qualifiedSelection != null
@@ -609,7 +609,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterPackageNames,
 						parameterTypeNames,
 						methodBinding.isConstructor(),
-						parsedUnit);
+						parsedUnit,
+						isDeclaration,
+						actualSelectionStart,
+						actualSelectionEnd);
 				} else {
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
@@ -619,7 +622,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							: methodBinding.selector,
 						parameterPackageNames,
 						parameterTypeNames,
-						methodBinding.isConstructor());
+						methodBinding.isConstructor(), 
+						isDeclaration,
+						actualSelectionStart,
+						actualSelectionEnd);
 				}
 				this.acceptedAnswer = true;
 			} else
@@ -650,11 +656,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.acceptedAnswer = true;
 						} else {
 							// open on the type of the variable
-							selectFrom(((LocalVariableBinding) binding).type, parsedUnit);
+							selectFrom(((LocalVariableBinding) binding).type, parsedUnit, false);
 						}
 					} else
 						if (binding instanceof ArrayBinding) {
-							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit);
+							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit, false);
 							// open on the type of the array
 						} else
 							if (binding instanceof PackageBinding) {
@@ -824,7 +830,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit);
+								selectFrom(e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -870,7 +876,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectDeclaration(TypeDeclaration typeDeclaration, char[] assistIdentifier){
 	
 		if (typeDeclaration.name == assistIdentifier){
-			throw new SelectionNodeFound(typeDeclaration.binding);
+			throw new SelectionNodeFound(typeDeclaration.binding, true);
 		}
 		TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
 		for (int i = 0, length = memberTypes == null ? 0 : memberTypes.length; i < length; i++){
@@ -879,7 +885,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		FieldDeclaration[] fields = typeDeclaration.fields;
 		for (int i = 0, length = fields == null ? 0 : fields.length; i < length; i++){
 			if (fields[i].name == assistIdentifier){
-				throw new SelectionNodeFound(fields[i].binding);
+				throw new SelectionNodeFound(fields[i].binding, true);
 			}
 		}
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
@@ -887,10 +893,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			AbstractMethodDeclaration method = methods[i];
 			if (method.selector == assistIdentifier){
 				if(method.binding != null) {
-					throw new SelectionNodeFound(method.binding);
+					throw new SelectionNodeFound(method.binding, true);
 				} else {
 					if(method.scope != null) {
-						throw new SelectionNodeFound(new MethodBinding(method.modifiers, method.selector, null, null, null, method.scope.referenceType().binding));
+						throw new SelectionNodeFound(new MethodBinding(method.modifiers, method.selector, null, null, null, method.scope.referenceType().binding), true);
 					}
 				}
 			}

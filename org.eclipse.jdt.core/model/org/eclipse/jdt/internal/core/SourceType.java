@@ -732,7 +732,7 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName) {
 			// ignore
 		}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
+		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, boolean isDeclaration, int start, int end) {
 			// ignore
 		}
 		public void acceptPackage(char[] packageName){
