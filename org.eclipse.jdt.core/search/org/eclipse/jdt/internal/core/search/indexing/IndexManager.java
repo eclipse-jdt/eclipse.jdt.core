@@ -143,17 +143,8 @@ public void checkIndexConsistency() {
 }
 private String computeIndexName(IPath path) {
 	
-	// find modification timestamp
 	String pathString = path.toOSString();
-	long timestamp;
-	IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-	if (resource != null) {
-		timestamp = resource.getModificationStamp();
-	} else {
-		timestamp = new File(pathString).lastModified();
-	}
-	
-	byte[] pathBytes = (pathString + timestamp).getBytes();
+	byte[] pathBytes = pathString.getBytes();
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
 	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
