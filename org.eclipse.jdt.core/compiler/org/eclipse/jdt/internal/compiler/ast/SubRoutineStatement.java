@@ -65,9 +65,7 @@ public abstract class SubRoutineStatement extends Statement {
 
 	public void resetAnyExceptionHandlers() {
 		if (this.anyExceptionLabelsCount > 0) {
-			for (int i = 0, max = this.anyExceptionLabelsCount; i < max; i++) {
-				this.anyExceptionLabels[i] = null;
-			}
+			this.anyExceptionLabels = NO_EXCEPTION_HANDLER;
 			this.anyExceptionLabelsCount = 0;
 		}
 	}

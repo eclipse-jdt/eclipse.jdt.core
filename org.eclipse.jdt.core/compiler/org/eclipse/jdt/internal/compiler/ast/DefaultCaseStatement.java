@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-// TODO: shouldn't DefaultCase simply be merged with a Case statement ?
+// TODO: (philippe) shouldn't DefaultCase simply be merged with a Case statement ?
 public class DefaultCaseStatement extends Statement {
 
 	public CaseLabel targetLabel;
