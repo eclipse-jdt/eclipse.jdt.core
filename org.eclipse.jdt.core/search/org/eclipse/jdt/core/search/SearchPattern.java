@@ -794,6 +794,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @see SearchMatch for more details on match rule values when reported (specially {@link SearchMatch#A_COMPATIBLE}
 	 * 	and {@link SearchMatch#A_ERASURE}).
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
+	 * @since 3.1
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo, int matchRule) {
 		SearchPattern searchPattern = null;

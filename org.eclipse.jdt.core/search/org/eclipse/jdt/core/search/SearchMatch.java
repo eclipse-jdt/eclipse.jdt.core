@@ -56,6 +56,7 @@ public class SearchMatch {
 	 * 		<li><code>List&lt;?&gt;</code></li>
 	 * 	</li>
 	 * 	</ul>
+	 * @since 3.1
 	 */
 	public static final int A_COMPATIBLE = 2;
 
@@ -67,10 +68,20 @@ public class SearchMatch {
 	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
 	 * 	</ul>
+	 * @since 3.1
 	 */
 	public static final int A_ERASURE = 4;
-	
+
+	/**
+	 * Rule for raw match: compatible *and* erasure.
+	 * @since 3.1
+	 */
 	public static final int RAW_MASK = A_COMPATIBLE + A_ERASURE;
+
+	/**
+	 * Mask used to get rule signifigant bits.
+	 * @since 3.1
+	 */
 	public static final int RULE_MASK = RAW_MASK; // no other values for the while...
 	
 	private Object element;
